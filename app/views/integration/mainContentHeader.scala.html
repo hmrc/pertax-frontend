@@ -1,0 +1,83 @@
+@(name: Option[String],
+lastLogin: Option[org.joda.time.DateTime],
+breadcrumb: Breadcrumb,
+showBetaBanner: Boolean,
+deskProToken: Option[String],
+langReturnUrl: Option[String],
+configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.language.LanguageUtils.Dates._
+@import uk.gov.hmrc.urls.Link
+
+<div class="service-info">
+  @if(showBetaBanner) {
+  <div class="beta-banner">
+    <p>
+      <strong class="phase-tag">@Messages("label.beta")</strong>
+      @deskProToken.map { deskProToken =>
+      <span class="feedback">@Html(Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it", configDecorator.betaFeedbackUnauthenticatedUrl(deskProToken)))</span>
+      }.getOrElse {
+      <span class="feedback">@Messages("global.label.this_is_a_trial_service")</span>
+      }
+    </p>
+  </div>
+  }
+
+  <div class="logo">
+    <span class="organisation-logo organisation-logo-medium">@Messages("label.hm_revenue_customs")</span>
+  </div>
+
+  @for(lastLogin <- lastLogin) {
+  <div class="last-login mobile-hidden">
+    <p class="service-info-p">
+      @name.map { name =>
+      @Messages("global.label._last_signed_in", name, formatEasyReadingTimestamp(Some(lastLogin), ""))
+      }.getOrElse {
+      @Messages("global.label.you_last_signed_in", formatEasyReadingTimestamp(Some(lastLogin), ""))
+      }
+    </p>
+  </div>
+  }
+</div>
+
+@langReturnUrl.map { url =>
+  <div class="lang-select">
+    @if(messages.lang == Lang("cy")) {
+      @Link.toInternalPage(
+        url=controllers.routes.LanguageController.enGb(url).toString(),
+        value=Some(Messages("label.english")),
+        id=Some("switch-to-english"),
+        cssClasses=Some("ga-track-click-event"),
+        dataAttributes=Some(Map(
+          "ga-event-category" -> "link - click",
+          "ga-event-action" -> "lang-select",
+          "ga-event-label" -> "English"))
+        ).toHtml
+      | @Messages("label.welsh")
+    } else {
+      @Messages("label.english") |
+      @Link.toInternalPage(
+        url=controllers.routes.LanguageController.cyGb(url).toString(),
+        value=Some(Messages("label.welsh")),
+        id=Some("switch-to-welsh"),
+        cssClasses=Some("ga-track-click-event"),
+        dataAttributes=Some(Map(
+          "ga-event-category" -> "link - click",
+          "ga-event-action" -> "lang-select",
+          "ga-event-label" -> "Cymraeg"))
+        ).toHtml
+    }
+  </div>
+}
+
+@if(!breadcrumb.isEmpty) {
+  <div id="global-breadcrumb" class="header-context">
+    <nav>
+      <ol class="group">
+        @breadcrumb.toList.map { item =>
+          <li><a href="@item._2">@Messages(item._1)</a></li>
+        }
+      </ol>
+    </nav>
+  </div>
+}

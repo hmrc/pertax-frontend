@@ -1,0 +1,42 @@
+@(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import models.PertaxUser._
+
+@interstitialWrapper(Messages("label.report_changes_that_affect_your_child_benefit"), Messages("label.report_changes_that_affect_your_child_benefit")) {
+  <div class="column-two-thirds child-benefit-partial pta-panel">
+    @ifHighGovernmentGatewayOrVerifyUser {
+      <h2 class="heading-medium">@Messages("label.if_your_childs_circumstances_change")</h2>
+      <p>@Messages("label.child_benefit_stops_on_31_august_")</p>
+      <p>@Messages("label.tell_us_if_your_child")</p>
+      <ul>
+        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsStaysInEducation">@Messages("text.stays_in_education_or_training")</a></li>
+        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsLaterLeavesEducation">@Messages("text.leaves_education_or_training")</a></li>
+        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsHasAnyChangeInCircumstances">@Messages("text.has_any_other_change_in_their_circumstances")</a></li>
+      </ul>
+
+      <h3 class="">@Messages("label.apply_for_an_extension")</h3>
+      <p>@Messages("label.you_could_get_child_benefit_for_20_weeks_")</p>
+      <ul>
+        <li>@Messages("label.registers_with_their_local_careers_service_")</li>
+        <li>@Messages("label.signs_up_to_join_the_armed_forces")</li>
+      </ul>
+
+      <a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsApplyForExtension">@Messages("label.apply_for_an_extension")</a>
+
+      <h2 class="heading-medium padding-top">@Messages("label.other_changes_to_your_child_benefit_claim")</h2>
+      <p>@Messages("label.tell_us_if_you_need_to")</p>
+      <ul>
+        <li>@Html(Messages("text.report_a_change_to_your_circumstances", pertaxContext.configDecorator.childBenefitsReportChange))</li>
+        <li>@Html(Messages("text.authorise_a_tax_advisor_or_accountant_", pertaxContext.configDecorator.childBenefitsAuthoriseTaxAdvisor))</li>
+        <li>@Html(Messages("text.stop_or_restart_your_child_benefit_payments_", pertaxContext.configDecorator.childBenefitsStopOrRestart))</li>
+      </ul>
+
+      <h2 class="heading-medium padding-top">@Messages("label.if_you_dont_currently_claim_child_benefit")</h2>
+      <p>@Html(Messages("text.if_you_dont_claim_child_benefit_", pertaxContext.configDecorator.childBenefitsCheckIfYouCanClaim))</p>
+    }
+    @ifLowGovernmentGatewayUser {
+      <p class="lede">@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(redirectUrl))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+    }
+  </div>
+}

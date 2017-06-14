@@ -1,0 +1,23 @@
+@(continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import tags._
+
+@main(Messages("label.your_address"), Some(Messages("label.your_personal_tax_account"))) {
+
+  <div class="page-heading">
+    <h1 class="heading-large no-margin-bottom no-margin-top">@Messages("label.your_address")</h1>
+  </div>
+
+  <div class="grid-row">
+    <div class="column-two-thirds">
+      <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(continueUrl))" class="button" role="button">@Messages("global.label.continue_button")</a>
+    </div>
+  </div>
+
+  <div class="grid-row">
+    <div class="column-two-thirds">
+      <a href="@controllers.routes.ApplicationController.index" class="back-to-account-home"> @Messages("label.back_to_account_home")</a>
+    </div>
+  </div>
+}

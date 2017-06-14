@@ -1,0 +1,81 @@
+@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+@import scala.util.Try
+
+
+@main(typ.ifIs(primary = Messages("label.tell_us_your_main_home"), sole = Messages("label.find_your_address"), postal = Messages("label.find_an_address")),
+    Some(Messages("label.your_personal_tax_account"))) {
+
+  <div class="grid-row">
+    <div class="column-whole">
+      <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">
+          @typ.ifIs(primary = Messages("label.tell_us_your_main_home"), sole = Messages("label.find_your_address"), postal = Messages("label.find_an_address"))
+        </h1>
+      </div>
+    </div>
+  </div>
+  @errors(addressFinderForm)
+
+  <div class="grid-row find-address-form-block">
+    <div class="column-two-thirds">
+
+      @helpers.form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
+
+        <div class="form-group postcode-container">
+          @input(
+            addressFinderForm("postcode"),
+            '_inputClass -> "form-control",
+            '_labelClass -> "form-label-bold inputLabelBeforeError postcode-label",
+            '_label -> Messages("title.postcode"),
+            '_maxlength -> 8
+          )
+          @if(addressFinderForm.hasErrors) {
+            @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
+              <a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.enter_your_address_yourself")</a>
+            }
+          }
+        </div>
+        <div class="form-group">
+          @input(
+            addressFinderForm("filter"),
+            '_inputClass -> "form-control",
+            '_labelClass -> "form-label-bold inputLabelBeforeError",
+            '_label -> Messages("title.house.name.or.number"),
+            '_maxlength -> 30
+          )
+        </div>
+
+
+        @typ.ifIsPrimary {
+          <details class="margin-top" role="group">
+            <summary role="button" aria-controls="details-content" tabindex="0" aria-expanded="false">
+              <span class="summary">@Messages("label.whats_my_main_home")</span>
+            </summary>
+
+            <div class="panel panel-border-narrow" id="details-content" aria-hidden="true">
+              <p>@Html(Messages("label.your_main_home_is_usually_where_you_live_", "https://www.gov.uk/scottish-rate-income-tax/how-it-works"))</p>
+            </div>
+          </details>
+        }
+
+        <input type="submit" class="button submitAddressFinder" id="submitAddressFinder" value='@Messages("global.label.find_your_address")' >
+      }(pertaxContext.request, messages)
+    </div>
+
+  </div>
+
+  @typ.ifIsPrimary {
+    <a href="@controllers.routes.AddressController.residencyChoice">@Messages("label.back")</a>
+  }
+  @typ.ifIsSole {
+    <a href="@controllers.routes.AddressController.residencyChoice">@Messages("label.back")</a>
+  }
+  @typ.ifIsPostal {
+    <a href="@controllers.routes.AddressController.displayAddress">@Messages("label.back")</a>
+  }
+
+}

@@ -1,0 +1,14 @@
+@(supportLinkEnabled: Boolean = true, includeGridWrapper: Boolean = false)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@if(supportLinkEnabled) {
+
+  @if( includeGridWrapper ) {
+    <div class="grid-wrapper">
+  }
+
+  @pertaxContext.getPartialContent(pertaxContext.configDecorator.reportAProblemPartialUrl)
+
+  @if( includeGridWrapper ) {
+    </div>
+  }
+}

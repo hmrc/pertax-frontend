@@ -1,0 +1,5 @@
+@(message: Html, title: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@main(title = title,Some(Messages("label.your_personal_tax_account"))) {
+    @message
+}

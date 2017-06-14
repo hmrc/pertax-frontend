@@ -1,0 +1,55 @@
+@(typ: AddrType, addressDto: AddressDto, startDateDto: DateDto)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+@import scala.util.Try
+@import uk.gov.hmrc.play.language.LanguageUtils.Dates._
+
+
+@main(Messages("label.check_your_details"),Some(Messages("label.your_personal_tax_account"))) {
+<div class="personal-details">
+  <div class="grid-row">
+    <div class="column-whole">
+      <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">@Messages("label.check_your_details")</h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-row">
+    <div class="column-whole">
+      <table>
+        <tr>
+          @typ.ifIs(
+            primary = {
+              <td>{Messages("label.your_main_home")}</td>
+            },
+            sole = {
+              <td>{Messages("label.your_new_address")}</td>
+            },
+            postal = {
+              <td>{Messages("label.your_address")}</td>
+            }
+          )
+          <td>@Html(addressDto.toList.mkString(", <br>"))</td>
+          <td><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.change_address")</a></td>
+        </tr>
+        <tr>
+          <td>@typ.ifIs(primary = Messages("label.when_this_became_your_main_home"), sole = Messages("label.when_you_started_living_here"), postal = "")</td>
+          <td>@formatDate(startDateDto.toLocalDate)</td>
+          <td><a href="@controllers.routes.AddressController.enterStartDate(typ)">@Messages("label.change_start_date")</a></td>
+        </tr>
+      </table>
+
+      @form(controllers.routes.AddressController.submitChanges(typ)) {
+        <button type="submit">@Messages("label.confirm_and_save")</button>
+      }
+    </div>
+  </div>
+    <a href="@controllers.routes.AddressController.enterStartDate(typ)" class="back-to-account-home">
+        @Messages("label.back")
+    </a>
+
+</div>
+}

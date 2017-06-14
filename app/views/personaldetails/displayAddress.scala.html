@@ -1,0 +1,82 @@
+@(personDetails: models.PersonDetails, show2016Message: Boolean, canUpdatePostalAddress: Boolean, startDate: Option[String], taxCreditsEnabled: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import tags._
+
+@main(Messages("label.your_address"),Some(Messages("label.your_personal_tax_account"))) {
+  <div class="personal-details">
+    <div class="grid-row">
+      <div class="column-whole">
+        <div class="page-heading">
+          <h1 class="heading-xlarge no-margin-bottom">@Messages("label.your_address")</h1>
+        </div>
+      </div>
+    </div>
+    <div class="grid-row">
+      <div class="column-two-thirds">
+        <div class="grid-row pertax-panel">
+          <div class="column-whole">
+            @startDate.map { startDate =>
+              <p>@Messages("label.this_has_been_your_main_home_since_date", startDate)</p>
+            }
+            @if(show2016Message) {
+              <p>@Messages("label.this_has_been_your_main_home_since_at_least_6_april_2016")</p>
+            }
+            @personDetails.address.map { address =>
+              @fullAddress(address)
+            }
+            <br/>
+            <p>
+              @if(taxCreditsEnabled) {
+                <a href="@controllers.routes.AddressController.taxCreditsChoice" class="button margin-bottom" role="button">
+                  @Messages("label.change_your_address")
+                </a>
+              } else {
+                <a href="@controllers.routes.AddressController.residencyChoice" class="button margin-bottom" role="button">
+                  @Messages("label.change_your_address")
+                </a>
+              }
+            </p>
+            <br/>
+          </div>
+        </div>
+        <div class="grid-row pertax-panel">
+          <div class="column-whole">
+
+            <h2 class="heading-medium">@Messages("label.get_letters_sent_to_a_different_address")</h2>
+
+            @if(!canUpdatePostalAddress) {
+              <div class="alert alert--info" role="alert">
+                <p class="alert--message">@Messages("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow")</p>
+              </div>
+            }
+
+            <div class="panel-indent">
+              @personDetails.correspondenceAddress.map { correspondenceAddress =>
+                @fullAddress(correspondenceAddress)
+              }.getOrElse {
+                <p>@Messages("label.letters_from_hm_revenue_and_customs_currently_get_sent_to_your_home_address")</p>
+              }
+              <p>
+
+                @if(canUpdatePostalAddress) {
+                  <a href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" class="button grey margin-top">
+                    @Messages("label.change_where_we_send_your_letters")
+                  </a>
+                } else {
+                  <button href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" disabled="disabled" class="button grey margin-top">
+                    @Messages("label.change_where_we_send_your_letters")
+                  </button>
+                }
+              </p>
+            </div>
+            <p>
+              <a href="@controllers.routes.ApplicationController.index" class="back-to-account-home">
+                @Messages("label.back_to_account_home")
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

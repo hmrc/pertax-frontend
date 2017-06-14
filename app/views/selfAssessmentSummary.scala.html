@@ -1,0 +1,25 @@
+@(formPartial: Html, saPartial: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import tags._
+@import models.PertaxUser._
+
+@main(Messages("label.self_assessment_summary"),Some(Messages("label.your_personal_tax_account"))) {
+<div class="summary-page">
+  <div class="grid-row">
+    <div class="column-whole">
+      @saPartial
+    </div>
+  </div>
+  @ifHighGovernmentGatewayUser {
+    <div class="grid-row">
+      <div class="summary-panel">
+        <div class="column-two-thirds">
+          <div class="form-group" id="self-assessment-forms">
+            @formPartial
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+}

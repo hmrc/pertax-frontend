@@ -1,0 +1,14 @@
+@(title: String, header: String)(content: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@main(title) {
+
+  <div class="grid-row start-page">
+    <div class="column-two-thirds">
+      <h1 class="heading-large margin-bottom">@header</h1>
+
+      @content
+
+    </div>
+  </div>
+
+}

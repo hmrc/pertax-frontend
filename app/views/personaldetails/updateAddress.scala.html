@@ -1,0 +1,118 @@
+@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, addressFinderDto: Option[AddressFinderDto], addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+
+@getYourAddressLabels = {
+  @if(showEnterAddressHeader) {
+    @typ.ifIs(primary = Messages("label.enter_your_address"),
+    sole = Messages("label.enter_your_address"),
+    postal = Messages("label.enter_the_address"))
+  } else {
+    @typ.ifIs(primary = Messages("label.edit_your_address_optional"),
+    sole = Messages("label.edit_your_address_optional"),
+    postal = Messages("label.edit_the_address_optional"))
+  }
+}
+
+@main(getYourAddressLabels.toString,Some(Messages("label.your_personal_tax_account"))) {
+
+  <div class="grid-row">
+    <div class="column-whole">
+      <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">
+          @getYourAddressLabels
+        </h1>
+      </div>
+    </div>
+  </div>
+
+  @errorsNew(updateAddressForm)
+  <div class="grid-row postal-address-block">
+    <div class="column-two-thirds">
+      @helpers.form(action = controllers.routes.AddressController.processUpdateAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
+
+        <div class="form-group">
+          @input(
+            updateAddressForm("line1"),
+            '_inputClass -> "form-control form-control-3-4",
+            '_labelClass -> "form-label-bold inputLabelBeforeError",
+            '_label -> Messages("title.address"),
+            'divClass -> "form-group",
+            '_maxlength -> 35
+          )
+        </div>
+        <div class="form-group">
+          @input(
+            updateAddressForm("line2"),
+            '_inputClass -> "form-control form-control-3-4",
+            '_labelClass -> "form-label-bold",
+            '_labelTextClass -> "visuallyhidden",
+            '_label -> Messages("label.second_line_of_your_address"),
+            'divClass -> "form-group",
+            '_maxlength -> 35
+          )
+        </div>
+        <div class="form-group">
+          @input(
+            updateAddressForm("line3"),
+            '_inputClass -> "form-control form-control-3-4",
+            '_labelClass -> "form-label-bold",
+            '_labelTextClass -> "visuallyhidden",
+            '_label -> Messages("label.third_line_of_your_address"),
+            'divClass -> "form-group",
+            '_maxlength -> 35
+          )
+        </div>
+        <div class="form-group">
+          @input(
+            updateAddressForm("line4"),
+            '_inputClass -> "form-control form-control-3-4",
+            '_labelClass -> "form-label-bold",
+            '_labelTextClass -> "visuallyhidden",
+            '_label -> Messages("label.fourth_line_of_your_address"),
+            'divClass -> "form-group",
+            '_maxlength -> 35
+          )
+        </div>
+        <div class="form-group">
+          @input(
+            updateAddressForm("line5"),
+            '_inputClass -> "form-control form-control-3-4",
+            '_labelClass -> "form-label-bold",
+            '_labelTextClass -> "visuallyhidden",
+            '_label -> Messages("label.fifth_line_of_your_address"),
+            'divClass -> "form-group",
+            '_maxlength -> 35
+          )
+        </div>
+        <div class="form-group">
+          @input(
+            updateAddressForm("postcode"),
+            '_inputClass -> "form-control form-control-1-4",
+            '_labelClass -> "form-label-bold inputLabelBeforeError",
+            '_label -> Messages("title.postcode"),
+            'divClass -> "form-group",
+            '_maxlength -> 8
+          )
+        </div>
+        <input type="hidden" name="type" value="@updateAddressForm("type").value" />
+        <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
+        <input type="submit" class="button" id="updateAddress" value='@Messages("label.continue")' >
+      }(pertaxContext.request, messages)
+    </div>
+  </div>
+
+  @if(addressLookupServiceDown) {
+    <a href="@controllers.routes.AddressController.showPostcodeLookupForm(typ)">
+      @Messages("label.back")
+    </a>
+  } else {
+    @addressFinderDto.map { a =>
+      <a href="@controllers.routes.AddressController.showAddressSelectorForm(typ, a.postcode, a.filter, Some(true) )">
+        @Messages("label.back")
+      </a>
+    }
+  }
+}

@@ -1,0 +1,43 @@
+@(title: String, header: String)(content: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import pertaxContext.configDecorator._
+@import uk.gov.hmrc.play.views.html.layouts
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@title</title>
+    <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/pertaxMain.css")' />
+    <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/print.css")' />
+    <link rel="shortcut icon" href="@controllers.template.routes.Template.at("images/favicon.ico")" type="image/x-icon" />
+  </head>
+  <body class="print-page">
+    @content
+
+    @gaCalls(analyticsHost: String, token: String) = {
+      ga('create', '@token', { 'cookieDomain': '@analyticsHost', 'siteSpeedSampleRate': 100 });
+      ga('send', 'pageview', { 'anonymizeIp': true });
+      ga('set', {
+      @pertaxContext.user.map { user =>
+        'dimension39': '@user.confidenceLevel',
+      }
+        'dimension38': '@pertaxContext.authProvider'
+      });
+    }
+
+    @layouts.footer(
+      analyticsToken = analyticsToken,
+      analyticsHost = analyticsHost,
+      ssoUrl = ssoUrl,
+      scriptElem = None,
+      gaCalls = Some(gaCalls)
+    )
+
+    <script src="@uk.gov.hmrc.play.config.AssetsConfig.assetsPrefix/javascripts/application.min.js" type="text/javascript"></script>
+    <script src='@controllers.routes.AssetsController.at("javascripts/pertax.js")' type="text/javascript"></script>
+    <script src='@controllers.routes.AssetsController.at("javascripts/gaTracking.js")' type="text/javascript"></script>
+  </body>
+</html>

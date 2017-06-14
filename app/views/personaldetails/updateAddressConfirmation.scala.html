@@ -1,0 +1,45 @@
+@(typ: AddrType)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@scriptElem = {
+  @typ.ifIsPostal {
+    <script>
+      $(function(){
+        ga('set', 'pageview', '/personal-account/your-address/@typ/thank-you');
+      });
+    </script>
+  }
+}
+
+@main(Messages("label.your_address_has_been_updated"), Some(Messages("label.your_personal_tax_account")), scriptElement = Some(scriptElem)) {
+
+  <div class="grid-row">
+    <div class="column-two-thirds">
+      <br />
+      <div class="highlighted-event">
+        <h2 class="heading-large address-updated">@Messages("label.your_address_has_been_saved")</h2>
+      </div>
+
+      @typ.ifIs(primary = {
+        <br/>
+        <h2 class="heading-large">{Messages("label.next_steps")}</h2>
+        <ul class="list list-bullet">
+          <li>{Messages("label.if_youve_moved_to_or_from_scotland_")}</li>
+          <li>{Messages("label.tell_us_if_your_main_home_changes_in_the_future")}</li>
+        </ul>
+      }, sole = {
+        <br/>
+        <h2 class="heading-large">{Messages("label.next_steps")}</h2>
+        <ul class="list list-bullet">
+          <li>{Messages("label.if_youve_moved_to_or_from_scotland_")}</li>
+          <li>{Messages("label.tell_us_if_your_main_home_changes_in_the_future")}</li>
+        </ul>
+      }, postal = Html(""))
+
+      <p><a href="@controllers.routes.ApplicationController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
+    </div>
+  </div>
+
+}

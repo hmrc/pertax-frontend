@@ -1,0 +1,91 @@
+@import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/grid_layout';
+@import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/colours';
+@import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/conditionals';
+
+@media print {
+
+  @page {
+    size: portrait;
+    margin: 1cm .5cm;
+  }
+
+  body {
+
+    &.print-page {
+      background: $white;
+
+      .print-wrapper {
+        margin: 20px auto 0;
+        width: 90%;
+
+        .nav {
+          display: none;
+          visibility: hidden;
+        }
+
+        .box {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+
+          .column-third {
+            float:left;
+            width: 33.3%;
+          }
+          .column-two-thirds {
+            float:left;
+            width: 66.6%;
+          }
+          .column-half {
+            float:left;
+            width: 50%;
+          }
+
+          .header {
+
+            .logo {
+              float: left;
+            }
+
+            .title {
+              float: right;
+              h1 {
+                font-size: 22px;
+                float: right;
+                padding-top: 22px;
+              }
+            }
+
+          }
+
+          .addresses {
+            .recipient-wrapper {
+              margin-top: 50px;
+            }
+
+            .sender-wrapper {
+              .sender,
+              .date,
+              .url {
+                margin-left: 60px;
+              }
+            }
+          }
+
+          .main-content {
+            width: 90%;
+
+            .your-nino {
+              .nino {
+                color: #0b0c0c;
+                display: inline;
+                font-size: 20px;
+                font-weight: bold;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

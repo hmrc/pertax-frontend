@@ -1,0 +1,40 @@
+@(taxCreditsSummaryPartial: Html, taxCreditsIFormsPartial: Html, redirectUrl: String, egainWebchatPertaxId: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import models.PertaxUser._
+@import tags._
+
+@scriptElem = {
+  <script type="text/javascript">
+    $(function(){
+      offerChat("@{egainWebchatPertaxId}");
+    });
+  </script>
+}
+
+@interstitialWrapper(Messages("label.tax_credits_summary"), Messages("label.tax_credits_summary"), scriptElement = Some(scriptElem)) {
+
+  @ifHighGovernmentGatewayOrVerifyUser {
+
+    @if(taxCreditsSummaryPartial.body.nonEmpty) {
+      <div class="column-whole pertax-panel forms-group" id="tax-credits">
+        @taxCreditsSummaryPartial
+      </div>
+    } else {
+      <div class="column-whole pertax-panel padding-bottom">
+        <div class="panel-indent">@Messages("label.the_personal_tax_account_is_a_new_service_")</div>
+      </div>
+    }
+  }
+
+  @ifLowGovernmentGatewayUser {
+    <p class="lede">@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+    <a href="@controllers.routes.ApplicationController.uplift(Some(redirectUrl))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+  }
+
+  @if(taxCreditsIFormsPartial.body.nonEmpty) {
+    <div class="column-whole pertax-panel forms-group">
+      @taxCreditsIFormsPartial
+    </div>
+  }
+
+}

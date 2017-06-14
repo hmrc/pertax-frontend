@@ -1,0 +1,7 @@
+@(retryUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@views.html.iv.ivOutcomeWrapper(Messages("label.there_s_a_technical_problem"), Messages("label.there_s_a_technical_problem")) {
+  <p class="margin-bottom">@Messages("label.this_online_service_is_experiencing_technical_difficulties")</p>
+  <p class="margin-botton">@Messages("label.please_try_again_in_5_minutes")</p>
+  <a href="@retryUrl" class="button" role="button">@Messages("label.try_again")</a>
+}

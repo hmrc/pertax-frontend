@@ -1,0 +1,42 @@
+@(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType, postcode: String, filter: Option[String])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+@import scala.util.Try
+
+@main(typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address")),Some(Messages("label.your_personal_tax_account"))) {
+
+  <div class="grid-row">
+    <div class="column-whole">
+      <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">
+          @typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address"))
+        </h1>
+      </div>
+    </div>
+  </div>
+
+  @errors(addressSelectorForm)
+  <div class="grid-row select-address-list-block">
+    <div class="column-two-thirds">
+      @helpers.form(action = controllers.routes.AddressController.processAddressSelectorForm(typ, postcode, filter), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+        <fieldset>
+          <legend class="visuallyhidden">@typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address"))</legend>
+            @for((ad,index) <- recordSet.addresses.zipWithIndex){
+              <label class="block-label" for="radio-@index">
+                <input id="radio-@index" type="radio" name="addressId" value="@ad.id" data-line1="@ad.address.lines(0)" data-line2='@Try(ad.address.lines(1)).getOrElse("")' data-line3="@ad.address.town" data-line4="" data-postcode="@ad.address.postcode" data-type="" data-etag="">
+                @ad.address.lines.mkString(","), @ad.address.town, @ad.address.postcode
+              </label>
+            }
+        </fieldset>
+        <p><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.enter_your_address_if_it_isnt_shown")</a></p>
+
+        <input type="submit" class="button" id="submitAddressSelector" value='@Messages("global.label.continue_button")' >
+      }(pertaxContext.request, messages)
+    </div>
+  </div>
+  <a href="@controllers.routes.AddressController.showPostcodeLookupForm(typ)">
+    @Messages("label.back")
+  </a>
+}

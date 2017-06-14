@@ -1,0 +1,1194 @@
+@import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/grid_layout';
+@import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/colours';
+@import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/conditionals';
+@import 'taxCreditsAdditional';
+
+.lang-select {
+  float: right;
+  border-bottom: 0px;
+  padding: 0.65em 0px;
+}
+
+//Global
+.page-heading {
+  border-bottom: 5px solid $link-colour;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+.notice-banner {
+  margin-bottom: 20px;
+
+  a {
+    &:link, &:visited, &:hover, &:active {
+      color: #ffffff;
+    }
+  }
+}
+
+@media(max-width: 800px) {
+  span {
+    .nino {
+      display: block;
+    }
+  }
+}
+
+@include media(desktop) {
+  .desktop-hidden {
+    display: none !important;
+  }
+}
+
+.no-border {
+  border: none;
+}
+.no-margin-bottom {
+  margin-bottom: 0 !important;
+}
+
+.no-padding-bottom {
+  padding-bottom: 0 !important;
+}
+
+.no-margin-top {
+  margin-top: 0 !important;
+}
+
+.pertax-hr {
+  border: 0;
+  border-bottom: 1px solid $border-colour;
+  margin: 30px 0;
+}
+
+address {
+  font-style: normal;
+}
+
+.useful-forms-row.grid-row {
+  @include media(mobile) {
+    margin-bottom: 40px !important;
+  }
+
+  h3 {
+    margin: 0;
+  }
+
+  p {
+    margin-top: 0;
+  }
+}
+
+.service-info {
+  border-bottom: 1px solid $grey-3;
+
+  .logo {
+    width: auto;
+  }
+
+  @include media (tablet) {
+    .last-login {
+      text-align: right;
+    }
+  }
+
+  @include media(desktop) {
+    .last-login {
+      float: right;width: 66%;
+    }
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+#global-breadcrumb {
+  border-bottom: 0;
+  padding-bottom: 0;
+
+  ol {
+    padding: .75em 0 .55em;
+
+    li {
+      a {
+        &:focus {
+          outline: 3px solid $yellow;
+        }
+      }
+    }
+  }
+}
+
+.error-summary {
+  border: 5px solid $red;
+  margin-bottom: 30px;
+  margin-top: 30px;
+  padding: 20px 15px 15px;
+}
+
+.validation-summary {
+  @extend .error-summary;
+
+  li {
+    font-size: 19px;
+    font-weight: bold;
+
+    a {
+      color: $red;
+    }
+  }
+}
+
+.highlighted-event {
+  margin-left: 0;
+  margin-right: 0;
+  padding: 1.25em 2em;
+
+  @include media(mobile) {
+    padding: .65em 1em;
+  }
+
+  h2 {
+    color: $white;
+
+    &.heading-large {
+      &.address-updated {
+        background: $turquoise url('/personal-account/assets/images/tick.png') no-repeat left center;
+        padding-left: 30px;
+      }
+    }
+  }
+}
+
+
+
+//This is to override the content__body class attached to .article wrapper - don't know where that is defined
+.content__body {
+  width: 100%;
+}
+
+//layout helpers - I think these can go once ASSETS_FRONTEND is updated to include new grid system
+.grid-row {
+  @extend %grid-row;
+}
+
+.column-whole {
+  @include grid-column(1);
+}
+
+.column-quarter {
+  @include grid-column(1 / 4);
+}
+
+.column-half {
+  @include grid-column(1 / 2);
+  @media(max-width: 700px) {
+    width: 100%;
+  }
+}
+
+.column-third {
+  @include grid-column(1 / 3);
+}
+
+.column-two-thirds {
+  @include grid-column(2 / 3);
+}
+
+//IE7 and IE8 fixes
+.lte-ie8 {
+  .grid-row {
+    margin: 0;
+    width: 100%;
+
+    .column-two-thirds,
+    .column-half,
+    .column-third,
+    .column-whole {
+      float: left;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .column-two-thirds {
+      width: 66.66667%;
+    }
+
+    .column-half {
+      width: 50%;
+    }
+
+    .column-third {
+      width: 33.3333%;
+    }
+
+    .column-whole {
+      width: 100%;
+    }
+  }
+
+  .desktop-hidden {
+    display: none !important;
+  }
+
+  .logged-out-page {
+    .block-label {
+      &.horizontal-radio-button {
+       margin-right: 1%;
+      }
+    }
+  }
+
+}
+
+//Home page
+.pertax-home,
+.pertax-page {
+  .grid-row {
+    margin-bottom: 20px;
+
+    .income-estimate {
+      margin-bottom: 20px;
+      padding-top: 10px;
+
+      @include media(desktop) {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .pertax-panel {
+    @include media(mobile) {
+      margin-bottom: 60px;
+      width: auto;
+    }
+
+    h2 {
+      &.name-header {
+        border-bottom: 2px solid $grey-2;
+        font-size: 30px;
+        line-height: 1.04167;
+        margin: 60px 0 30px;
+        padding-bottom: 12px !important;
+      }
+    }
+
+    h3 {
+      border-bottom: medium none;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      margin-top: 0;
+      padding-bottom: 0 !important;
+    }
+
+    .panel-indent {
+      border-left: medium none !important;
+      margin: 0 15px 0 0;
+      padding-left: 0;
+    }
+  }
+}
+
+.tax-nino-wrapper {
+  .grid {
+    min-height: 90px;
+  }
+}
+
+
+@include media(tablet) {
+  .tax-nino-wrapper {
+    .grid {
+      min-height: 130px;
+    }
+  }
+}
+
+@media(min-width: 701px) {
+  .tax-nino-wrapper {
+    .grid {
+      min-height: 230px;
+    }
+  }
+}
+
+@include media(desktop) {
+  .tax-nino-wrapper {
+    .grid {
+      min-height: 180px;
+    }
+  }
+}
+
+@media(min-width: 955px){
+  .tax-nino-wrapper {
+    .grid {
+      min-height: 150px;
+    }
+  }
+}
+
+.pertax-panel {
+  &#national_insurance {
+    padding-top: 30px;
+  }
+  &.forms-group {
+    .column-whole {
+      padding-bottom: 0;
+      padding-top: 0;
+
+      h2 {
+        border-bottom: 2px solid $grey-2;
+        font-size: 30px;
+        line-height: 1.04167;
+        margin: 60px 0 24px;
+        padding-bottom: 12px !important;
+      }
+    }
+  }
+}
+
+.pertax-panel {
+  width: 97%;
+}
+
+.padding-top {
+  padding-top: 45px;
+}
+
+.padding-bottom {
+  padding-bottom: 30px;
+}
+
+.margin-top {
+  margin-top: 30px;
+}
+
+.gray-sub-heading {
+  color: $secondary-text-colour;
+  display: block;
+  font-size: 22px;
+  font-weight: normal;
+  margin: 0 !important;
+}
+
+.annual-income-notification {
+  background: $turquoise;
+  color: $white;
+  display: inline-block;
+  padding: 0 10px;
+
+  p,
+  a {
+    color: $white;
+  }
+}
+
+//Personal details page
+.personal-details {
+
+  .update-address-link {
+    margin-top: 12px;
+    text-align: right;
+  }
+
+  .page-heading {
+    margin-bottom: 30px;
+  }
+}
+
+//Start Page
+.start-page {
+  .text {
+    margin: 30px 0 45px;
+    max-width: 100%;
+  }
+
+  .button {
+    &.button-get-started {
+      font-size: 24px;
+      margin: 10px 0 0;
+      padding: 9px 50px 5px 20px;
+    }
+  }
+
+  .list-bullet {
+    margin: 20px 0 20px 20px;
+  }
+}
+
+//Summary pages
+.summary-page {
+  width: 93%;
+
+  .sa-header {
+    padding-bottom: 0;
+
+    h1 {
+      font-size: 46px;
+      margin-top: 25px;
+    }
+
+    p {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      margin-top: 35px;
+    }
+  }
+
+  .name-header {
+    border-bottom: 3px solid $govuk-blue;
+    font-weight: 700;
+    line-height: 1.04167;
+    margin-bottom: 30px !important;
+    padding-bottom: 20px;
+
+    h1 {
+      font-size: 36px;
+    }
+  }
+
+  .lede {
+    margin-top: 6px !important;
+  }
+
+  h2 {
+    &.name-header {
+      border-bottom: 2px solid $grey-2;
+      font-size: 30px;
+      margin-top: 60px !important;
+      padding-bottom: 12px !important;
+    }
+  }
+}
+
+.form-group {
+  &.postcode-container {
+    position: relative;
+
+    a {
+      display: inline-block;
+      margin-top: 15px;
+    }
+  }
+
+  span {
+    display: block;
+    width: 100%;
+  }
+}
+
+
+@include media(mobile) {
+  .error-notification {
+    font-size: 19px;
+    font-weight: bold;
+  }
+
+  .find-address-form {
+    label {
+      &.postcode-label {
+        span {
+          display: inline-block;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.form-field--error {
+  border-left: 5px solid $red;
+  padding-left: 10px;
+
+  .error-notification {
+    font-size: 16px;
+    font-weight: bold;
+  }
+}
+
+@include media(desktop) {
+  .form-field--error {
+    padding-left: 15px;
+
+    .error-notification {
+      font-size: 19px;
+    }
+  }
+
+  .find-address-form {
+    label {
+      span {
+        display: block;
+      }
+    }
+  }
+
+  label {
+    .form-control {
+      &#postcode {
+        width: 25%;
+      }
+    }
+  }
+}
+
+input[type='radio']:checked {
+  background-color: transparent;
+}
+
+input {
+  background-color: transparent;
+}
+
+.find-address-form-block {
+  margin-bottom: 30px;
+  margin-top: 15px;
+}
+
+.select-address-list-block {
+  margin-bottom: 75px;
+
+  h2 {
+    font-size: 30px;
+  }
+
+  #select-address-form {
+    fieldset {
+      display: block;
+      margin-bottom: 30px;
+
+      .block-label {
+        box-sizing: border-box;
+        width: 100%;
+      }
+    }
+
+    a {
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+  }
+}
+
+.postal-address-block {
+  margin-bottom: 75px;
+  margin-top: 30px;
+
+  h2 {
+    font-size: 30px;
+  }
+}
+
+.form-field--error {
+  .form-control {
+    border: 4px solid $red;
+  }
+}
+
+.back-to-account-home {
+  display: inline-block;
+  margin-bottom: 52px;
+  margin-top: 45px;
+}
+
+//Header
+#global-header {
+  .header-wrapper {
+    .header-proposition {
+      @include media(desktop) {
+        .menu.js-hidden {
+          display: none !important;
+        }
+      }
+
+      .menu.js-hidden {
+        display: block !important;
+      }
+
+      #proposition-links {
+        li {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.service-info-p {
+  color: $grey-1;
+  font-family: nta,Arial,sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.25;
+  text-transform: none;
+}
+
+//Sidebar
+.pertax-sidebar {
+  margin-top: 15px;
+
+  @include media(mobile) {
+    .sidebar-panel {
+      margin-bottom: 30px;
+
+      h2 {
+        border-bottom: 2px solid $grey-2 !important;
+        font-size: 30px;
+        line-height: 1.04167;
+        margin: 60px 0 30px;
+        padding-bottom: 12px !important;
+      }
+    }
+  }
+
+  .sidebar-panel {
+    margin-bottom: 15px;
+    padding-bottom: 30px;
+    padding-top: 0;
+
+    h2 {
+      margin-bottom: 24px;
+    }
+
+    a {
+      margin-bottom: 7px;
+      margin-top: 7px;
+    }
+
+    &.messages {
+      .section--branded {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        padding-top: 0;
+
+        h2 {
+          border-bottom: 0;
+          margin-bottom: 1em;
+        }
+      }
+    }
+  }
+}
+
+//Error page
+.pertax-error {
+  .page-heading {
+    padding-bottom: 0;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+    padding-top: 10px;
+  }
+
+  p {
+    margin: 5px 0 20px;
+  }
+
+  ol {
+    margin-bottom: 25px;
+  }
+
+  ul {
+    margin-bottom: 20px;
+  }
+}
+
+.income-figure {
+  color: $grey-1;
+  float: left;
+  font-size: 54px;
+  font-weight: 700;
+  margin: 0 !important;
+  margin-top: 0;
+
+  span {
+    color: $banner-text-colour;
+    display: block;
+    font-size: 19px;
+  }
+}
+
+.tax-codes {
+  float: right;
+  margin-top: 9px;
+  width: 65%;
+}
+
+.content-body-no-margin {
+  margin: 0;
+}
+
+
+a:link {
+  color: $govuk-blue; }
+
+a:visited {
+  color: $link-visited-colour; }
+
+a:hover {
+  color: $link-hover-colour; }
+
+a:active {
+  color: $link-active-colour; }
+
+.alert-notification {
+  background-color: #fef1d5;
+  border-left: 4px solid $banner-text-colour;
+}
+
+.deadline {
+  margin-right: 0;
+  margin-top: 6px;
+
+  @include media(desktop) {
+    max-width: 21%;
+  }
+
+  .calendar-block {
+    background-color: $grey-3;
+    border: solid 1px $grey-3;
+    height: 70px;
+    padding: 5px 0;
+    text-align: center;
+    width: 90px;
+
+    @include media(mobile) {
+      max-width: 90px;
+    }
+
+    .bottom {
+      color: $black;
+      font-size: 24px;
+      font-weight: bold;
+      padding: 6px;
+    }
+  }
+
+}
+
+.amounts {
+  @include media(desktop) {
+    width: 79%;
+  }
+
+  p:first-child {
+    margin-top: 3px;
+
+    @include media(mobile) {
+      margin-top: 15px;
+    }
+  }
+}
+
+.heading-medium {
+  font-size: 30px;
+}
+
+.button {
+  &.grey {
+    &[disabled] {
+      &:active {
+        top: 0;
+        box-shadow: 0 2px 0 $grey-2;
+      }
+      &:hover {
+        background-color: $grey-3;
+      }
+    }
+
+    background-color: $grey-3;
+    -moz-box-shadow: 0 2px 0 $grey-2;
+    -webkit-box-shadow: 0 2px 0 $grey-2;
+    box-shadow: 0 2px 0 $grey-2;
+    color: $black;
+    margin-top: 10px;
+  }
+  -webkit-appearance: none;
+  border: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+  -moz-box-shadow: 0 2px 0 #003618;
+  -webkit-box-shadow: 0 2px 0 #003618;
+  box-shadow: 0 2px 0 #003618;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  color: $white;
+  cursor: pointer;
+  display: -moz-inline-stack;
+  display: inline-block;
+  font-size: 1em;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.25;
+  padding: .3em .6em .2em;
+  position: relative;
+  text-decoration: none;
+  vertical-align: top;
+}
+
+p.lede {
+  font-size: 24px;
+}
+
+.tax-calc-banner {
+  &.panel-indent {
+    margin: 10px 0 20px;
+    padding: 20px;
+
+    h3 {
+      margin: 5px 0;
+    }
+
+    p {
+      margin: 0.2em 0;
+    }
+  }
+}
+
+.nino > span {
+  margin-right: 5px;
+}
+
+.child-benefit-partial {
+   ul {
+    list-style: inherit;
+    margin: 10px 0 20px;
+    padding-left: 20px;
+  }
+
+  h2 {
+    margin-top: 60px;
+  }
+
+  h3 {
+    font-size: 24px;
+    margin: 45px 0 25px;
+  }
+}
+
+body {
+  &.print-page {
+    background: #A9A9A9;
+    font-family: "nta", Arial, sans-serif;
+    margin: 0;
+
+    .column-whole {
+      padding: 0 15px;
+    }
+
+    .column-third,
+    .column-two-thirds {
+      width: 100%;
+    }
+
+    .nav {
+      background-color: #0B0C0C;
+      height: 50px;
+      left: 0;
+      position: fixed;
+      top: 0;
+      width: 100%;
+
+      .nav-container {
+        margin: 0 auto;
+        width: auto;
+
+        .column-half {
+          float: left;
+          width: 50%;
+        }
+
+        .back-link {
+          a {
+            border-bottom: 1px solid $white;
+            color: $white;
+            display: inline-block;
+            font-size: 14px;
+            line-height: 1.1428571429;
+            margin-left: 5px;
+            margin-top: 15px;
+            padding-left: 14px;
+            position: relative;
+            text-decoration: none;
+            &::before {
+              border-top: 5px solid transparent;
+              border-right: 6px solid #fff;
+              border-bottom: 5px solid transparent;
+              content: '';
+              display: block;
+              height: 0;
+              left: 0;
+              margin-top: -6px;
+              position: absolute;
+              top: 50%;
+              width: 0;
+            }
+          }
+        }
+
+        .print-button {
+          margin-top: 5px;
+          text-align: right;
+          a {
+            background: #2B8CC4 url('/personal-account/assets/images/print-icon.png') center left no-repeat;
+            border: none;
+            -moz-box-shadow: 0 2px 0 #005EA5;
+            -webkit-box-shadow: 0 2px 0 #005EA5;
+            box-shadow: 0 2px #005EA5;
+            color: $white;
+            display: inline-block;
+            font-weight: bold;
+            line-height: 25px;
+            margin-right: 5px;
+            padding: 7px 10px 4px 34px;
+            position: relative;
+            text-decoration: none;
+            vertical-align: top;
+          }
+        }
+      }
+    }
+
+    .print-wrapper {
+      .box {
+        background-color: $white;
+        margin: 60px 5px 10px 5px;
+        min-height: 900px;
+        padding: 10px 20px;
+        width: auto;
+
+        p {
+          margin-top: 0.3125em;
+          margin-bottom: 1.25em;
+        }
+
+        .header {
+          margin-bottom: 5px;
+          margin-top: 5px;
+          .logo {
+            float: left;
+            img {
+              height: 48px;
+              width: 180px;
+            }
+          }
+          .title {
+            float: left;
+            text-align: left;
+            h1 {
+              font-family: Arial,sans-serif;
+              font-size: 16px;
+              font-weight: bold;
+              float: left;
+              margin: 0;
+              padding-top: 22px;
+            }
+          }
+        }
+
+        hr {
+          border-top: 10px solid $black;
+          display: block;
+          margin: 0;
+          padding: 0
+        }
+
+        .addresses {
+          margin-top: 15px;
+
+          .recipient-wrapper {
+            font-size: 14px;
+            line-height: 22px;
+            margin-top: 10px;
+            text-transform: uppercase;
+          }
+
+          .sender-wrapper {
+            .sender,
+            .url,
+            .date {
+              color: $black;
+              font-size: 14px;
+              line-height: 22px;
+              margin-left: 0;
+            }
+
+            .sender {
+              margin-top: 20px;
+            }
+
+            .url {
+              margin-bottom: 30px;
+              margin-top: 20px;
+            }
+          }
+        }
+
+        .main-content {
+          font-size: 14px;
+          margin-top: 15px;
+
+          .name {
+            text-transform: uppercase;
+          }
+
+          .your-nino {
+            border: 2px solid #000;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px 0 20px;
+            padding: 5px 10px;
+
+            .nino {
+              color: $black;
+              display: block;
+              font-size: 20px;
+              font-weight: bold;
+            }
+          }
+
+          ul {
+            list-style: disc;
+            padding-left: 20px;
+          }
+
+          h2 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+          }
+
+        }
+      }
+    }
+  }
+  .webchat-container{
+    display: none;
+    padding-top: 40px;
+
+    &.self-assessment {
+      padding-top: 8px;
+    }
+  }
+}
+
+
+
+@include media(tablet) {
+  body {
+    &.print-page {
+      .column-whole {
+        padding: 0 15px;
+      }
+
+      .column-third {
+        @include grid-column( 1/3 );
+      }
+      .column-two-thirds {
+        @include grid-column( 2/3 );
+      }
+      .column-half {
+        @include grid-column( 1/2 );
+      }
+
+      .nav {
+        .nav-container {
+          width: 600px;
+
+          .back-link {
+            a {
+              margin-left: 0;
+            }
+          }
+
+          .print-button {
+            a {
+              margin-right: 0;
+            }
+          }
+        }
+      }
+
+      .print-wrapper {
+        .box {
+          margin: 60px auto 10px;
+          padding: 25px 40px;
+          width: 520px;
+
+          .header {
+            .title {
+              float: right;
+              text-align: right;
+
+              h1 {
+                font-size: 21px;
+                float: right;
+                padding-top: 22px;
+              }
+            }
+          }
+
+          .addresses {
+            .recipient-wrapper {
+              margin-top: 40px;
+            }
+
+            .sender-wrapper {
+              .sender,
+              .url,
+              .date {
+                margin-left: 50px;
+              }
+              .sender {
+                margin-top: 5px;
+              }
+            }
+          }
+
+          .main-content {
+            .your-nino {
+              .nino {
+                display: inline;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include media(desktop) {
+  body {
+    &.print-page {
+      .nav {
+        .nav-container {
+          width: 700px;
+        }
+      }
+
+      .print-wrapper {
+        .box {
+          padding: 25px 50px;
+          width: 600px;
+          .header {
+            .title {
+              h1 {
+                font-size: 22px;
+                padding-top: 22px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

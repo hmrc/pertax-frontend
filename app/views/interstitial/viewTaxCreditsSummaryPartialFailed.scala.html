@@ -1,0 +1,16 @@
+@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import tags._
+
+@interstitialWrapper(Messages("label.service_not_available"), Messages("label.service_not_available")) {
+
+  <div class="column-whole pertax-panel forms-group" id="tax-credits">
+      <div class="grid-row">
+      <div class="column-two-thirds">
+        <p>@Messages("label.we_are_currently_experiencing_some_technical_problems_")</p>
+        <p>@Html(Messages("label.you_can_also_tell_us_about_a_change_to_your_details_"))</p>
+      </div>
+    </div>
+  </div>
+
+}

@@ -1,0 +1,22 @@
+@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@main(Messages("label.your_address_has_already_been_updated"), Some(Messages("label.your_personal_tax_account"))) {
+
+  <div class="grid-row">
+    <div class="column-two-thirds">
+
+      <h2 class="heading-large">@Html(Messages("label.your_address_has_already_been_updated"))</h2>
+      <span class="summary">@Messages("label.to_continue_you_can")</span>
+
+      <ul class="list list-bullet">
+        <li>@Html(Messages("label.see_your_current_address", "/personal-account/your-address"))</li>
+        <li>@Html(Messages("label.go_to_your_personal_tax_account_home", "/personal-account"))</li>
+      </ul>
+    </div>
+  </div>
+
+}

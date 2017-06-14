@@ -1,0 +1,18 @@
+@(form: Form[_])(implicit messages: play.api.i18n.Messages)
+
+
+@if(form.hasErrors) {
+  <div id="errors" tabindex="-1" role="group" aria-labelledby="error-heading" class="column-two-thirds validation-summary">
+    <h2 id="error-heading" class="heading-medium">@Messages("label.theres_a_problem")</h2>
+    <ul>
+      @form.errors.map { error =>
+        <li class="validation-message" id="@error.key.filter(_.isLetter)-error">
+          <a href="#@error.key.filter(_.isLetter)">
+            @Messages(s"head.${error.message}")
+          </a>
+        </li>
+      }
+    </ul>
+    <div class="clearfix"></div>
+  </div>
+}

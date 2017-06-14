@@ -1,0 +1,34 @@
+[
+  {
+    "id": "GB990091234514",
+    "address": {
+      "lines": [
+        "2 Other Place",
+        "Some District"
+      ],
+      "town": "Anytown",
+      "postcode": "AA1 1AA",
+      "country": {
+        "code": "UK",
+        "name": "United Kingdom"
+      }
+    },
+    "language": "en"
+  },
+  {
+    "id": "GB990091234515",
+    "address": {
+      "lines": [
+        "3 Other Place",
+        "Some District"
+      ],
+      "town": "Anytown",
+      "postcode": "AA1 1AA",
+      "country": {
+        "code": "UK",
+        "name": "United Kingdom"
+      }
+    },
+    "language": "en"
+  }
+]

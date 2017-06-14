@@ -1,0 +1,52 @@
+@(residencyChoiceForm: Form[dto.ResidencyChoiceDto])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+
+
+@main(Messages("label.update_your_postal_address"),Some(Messages("label.your_personal_tax_account"))) {
+<div class="personal-details">
+  <div class="grid-row">
+    <div class="column-whole">
+      <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_live_in_more_than_one_place")</h1>
+      </div>
+    </div>
+  </div>
+  <div class="grid-row">
+    <div class="column-two-thirds">
+      @errors(residencyChoiceForm)
+      <div class="grid-row pertax-panel">
+        <div class="column-whole">
+          @form(action = controllers.routes.AddressController.processResidencyChoice) {
+            <div class="form-group inline">
+              @inputRadioGroup(
+              residencyChoiceForm("residencyChoice"),
+                Seq("primary" -> Messages("label.yes"), "sole" -> Messages("label.no")),
+                '_labelClass -> "block-label inputLabelBeforeError",
+                '_error -> residencyChoiceForm("residencyChoice").error.map(_.withMessage({Messages("label.select_an_answer")}))
+              )
+            </div>
+            <div class="form-group inline">
+              <button type="submit">@Messages("global.label.continue_button")</button>
+            </div>
+          }
+          <p>
+            <a href="@controllers.routes.AddressController.taxCreditsChoice" class="back-to-account-home">
+              @Messages("label.back")
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+}

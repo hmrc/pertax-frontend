@@ -1,0 +1,8 @@
+@(continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@views.html.iv.ivOutcomeWrapper(Messages("label.we_ve_confirmed_your_identity"), Messages("label.we_ve_confirmed_your_identity")) {
+
+  <p class="margin-bottom">@Messages("label.you_now_access_all_areas_of_your_personal_tax_account")</p>
+
+  <a href="@continueUrl" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+}

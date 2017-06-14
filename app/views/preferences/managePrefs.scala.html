@@ -1,0 +1,23 @@
+@(managePrefsPartial: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import tags._
+
+@main(title = Messages("label.manage_your_paperless_settings"),Some(Messages("label.your_personal_tax_account"))) {
+  <div class="grid-row">
+    <div class="column-whole">
+      <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">@Messages("label.manage_your_paperless_settings")</h1>
+      </div>
+    </div>
+  </div>
+  <div class="grid-row pertax-panel">
+    <div class="column-two-thirds">
+      <div class="panel-indent alert-notification">
+        <p>@Messages("label.any_updates_to_your_contact_details")</p>
+      </div>
+    </div>
+  </div>
+  @managePrefsPartial
+
+  <a href="@controllers.routes.ApplicationController.index()" class="back-to-account-home">@Messages("label.back_to_account_home")</a>
+}

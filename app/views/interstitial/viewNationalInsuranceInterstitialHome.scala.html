@@ -1,0 +1,45 @@
+@(formPartial: Html, redirectUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import pertaxContext.configDecorator
+@import models.PertaxUser._
+@import tags._
+
+@interstitialWrapper(Messages("label.national_insurance_summary"), Messages("label.national_insurance")) {
+  <div class="column-two-thirds">
+
+    @ifHighGovernmentGatewayOrVerifyUser {
+
+      @ifPayeUserLoanNino { nino =>
+        <div class="panel-indent">
+          <p class="lede">@Messages("label.your_national_insurance_number_is")@formattedNino(nino)</p>
+        </div>
+      }
+
+      @if(pertaxContext.configDecorator.nispEnabled) {
+
+        <h2 class="heading-medium">@Messages("label.check_your_national_insurance_contributions")</h2>
+        <p>@Messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
+        <p><a class="trackLink" href="@pertaxContext.configDecorator.nationalInsuranceRecordUrl">@Messages("label.check_your_national_insurance_contributions")</a></p>
+
+        <br />
+      }
+
+      <h2 class="heading-medium">@Messages("label.print_proof_of_your_national_insurance_number")</h2>
+      <p>@Messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")</p>
+      <p><a class="trackLink" href="@controllers.routes.PrintController.printNationalInsuranceNumber()">@Messages("label.print_proof_of_your_national_insurance_number")</a></p>
+
+      <div class="forms-group pertax-panel" id="national_insurance">
+        <div class="grid-row">
+          <div class="column-whole">
+            @formPartial
+          </div>
+        </div>
+      </div>
+    }
+
+    @ifLowGovernmentGatewayUser {
+      <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(redirectUrl))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+    }
+  </div>
+}

@@ -1,0 +1,144 @@
+@(title: String,
+  pageName:Option[String] = None,
+  sidebarLinks: Option[Html] = None,
+  sidebarClass: Option[String] = None,
+  supportLinkEnabled: Boolean = true,
+  headScripts: Option[Html] = None,
+  scriptElement: Option[Html] = None,
+  bodyClasses: Option[String] = None,
+  articleClasses: Option[String] = None,
+  includeGridWrapper: Boolean = false
+)(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.config.RunMode._
+@import layouts.govuk_template
+@import uk.gov.hmrc.play.views.html.layouts
+@import uk.gov.hmrc.play.views.helpers.AttorneyRegime
+@import models.PertaxUser._
+@import config._
+
+@scriptElem = {
+  @scriptElement
+
+  @if(pertaxContext.configDecorator.analyticsToken == Some("N/A")) {
+    <script type="text/javascript">
+      var ga = function() { console.log(JSON.stringify({ call: 'ga', args: arguments})); };
+    </script>
+  }
+
+  <script src='@controllers.routes.AssetsController.at("javascripts/pertax.js")' type="text/javascript"></script>
+  <script src='@controllers.routes.AssetsController.at("javascripts/webChat.js")' type="text/javascript"></script>
+  <script src='@controllers.routes.AssetsController.at("javascripts/gaTracking.js")' type="text/javascript"></script>
+}
+
+@linkElement = {
+  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/pertaxMain.css")' />
+}
+
+@head = {
+  @layouts.head(
+    linkElem = Some(linkElement),
+    headScripts = headScripts
+  )
+}
+
+@links = {
+
+  @ifAuthenticatedUser {
+    @ifHighGovernmentGatewayOrVerifyUser {
+      @ifPayeUser {
+        <li class="desktop-hidden"><a href="@controllers.routes.AddressController.displayAddress()">@Messages("label.update_your_address")</a></li>
+      }
+    }
+    <li class="desktop-hidden"><a href="@pertaxContext.configDecorator.formTrackingServiceUrl">@Messages("label.track_your_forms")</a></li>
+    <li><a href="@controllers.routes.ApplicationController.signout(Some(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin)), None)">@Messages("global.label.sign_out")</a></li>
+  }
+}
+
+@insideHeader = {
+  @layouts.header_nav(pageName, None, false, if(pertaxContext.user.isDefined) Some(links) else None)
+}
+
+@afterHeader = {
+  @if(pertaxContext.configDecorator.enableRefresh) {
+    <meta http-equiv="refresh" content="@pertaxContext.configDecorator.refreshInterval; url=@controllers.routes.PublicController.sessionTimeout()">
+  }
+}
+
+@actingAttorneyBanner = {
+  @{
+    for { 
+      pu <- pertaxContext.user
+      principalName <- pu.name
+      attorney <- pu.authContext.attorney
+    } yield layouts.attorney_banner(Some(principalName), attorney.returnLink.url, AttorneyRegime.pertax)
+  }
+}
+
+@getHelpForm = {
+  @get_help_form(supportLinkEnabled, includeGridWrapper)
+}
+
+@sidebar = {
+  @sidebarLinks.map { sidebarLinks =>
+    @layouts.sidebar(sidebarLinks, sidebarClass)
+  }
+}
+
+@article = {
+  @layouts.article(mainContent, includeGridWrapper, articleClasses)
+}
+
+@mainContentHeader = {
+  @views.html.integration.mainContentHeader(
+    name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n),
+    lastLogin = for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t,
+    breadcrumb = pertaxContext.breadcrumb.map(_.reverse) getOrElse Nil,
+    showBetaBanner = true,
+    deskProToken = Some(pertaxContext.configDecorator.deskproToken),
+    langReturnUrl = Some(pertaxContext.uri),
+    configDecorator = pertaxContext.configDecorator
+  )
+  @actingAttorneyBanner
+
+  @if(pertaxContext.welshWarning) {
+    @tags.welshContentWarning()
+  }
+
+}
+
+@content = {
+  @layouts.main_content(article,
+    None, //Main Classs
+    None, //Main data attributes
+    mainContentHeader,
+    HtmlFormat.empty,
+    HtmlFormat.empty,
+    sidebar,
+    getHelpForm)
+}
+
+@footerTop = {
+}
+
+@gaCalls(analyticsHost: String, token: String) = {
+
+  ga('create', '@token', { 'cookieDomain': '@analyticsHost', 'siteSpeedSampleRate': 100 });
+  ga('send', 'pageview', { 'anonymizeIp': true });
+  ga('set', {
+  @pertaxContext.user.map { user =>
+    'dimension39': '@user.confidenceLevel',
+  }
+  'dimension38': '@pertaxContext.authProvider'
+  });
+}
+
+@bodyEnd = {
+  @layouts.footer(analyticsToken = pertaxContext.configDecorator.analyticsToken,
+    analyticsHost = pertaxContext.configDecorator.analyticsHost,
+    ssoUrl = pertaxContext.configDecorator.ssoUrl,
+    scriptElem = Some(scriptElem),
+    gaCalls = Some(gaCalls))
+}
+
+@govuk_template(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uk.gov.hmrc.play.views.html.layouts.footer_links()), true)(content)

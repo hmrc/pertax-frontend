@@ -1,0 +1,22 @@
+@(utr: String, previousTaxYear: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@scriptElem = {
+  <script>
+    $(function(){
+      gaWithCallback('send', 'event', 'sa-iv-bypass', 'click', 'User type - activated online SA filer', function() {
+        window.location.href = "@pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)";
+      });
+    });
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=@pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)">
+  </noscript>
+}
+
+@main(Messages("label.we_are_processing_your-details"), Some(Messages("label.your_personal_tax_account")), scriptElement = Some(scriptElem)) {
+  <div>
+    <h1 class="heading-xlarge">@Messages("label.we_are_processing_your-details")</h1>
+    <p class="margin-bottom">@Messages("label.this_may_take_up_to_30_seconds")</p>
+    <p>@Html(Messages("label.if_you_are_not_redirected_in_", pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)))</p>
+  </div>
+}

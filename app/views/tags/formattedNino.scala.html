@@ -1,0 +1,5 @@
+@(nino: Nino)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+<span class="nino">
+  @Html(nino.value.grouped(2).mkString("<span></span>"))
+</span>
