@@ -7,7 +7,8 @@
   scriptElement: Option[Html] = None,
   bodyClasses: Option[String] = None,
   articleClasses: Option[String] = None,
-  includeGridWrapper: Boolean = false
+  includeGridWrapper: Boolean = false,
+  additionalGaCalls: Option[Html] = None
 )(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import uk.gov.hmrc.play.config.RunMode._
@@ -122,7 +123,7 @@
 }
 
 @gaCalls(analyticsHost: String, token: String) = {
-
+  @additionalGaCalls
   ga('create', '@token', { 'cookieDomain': '@analyticsHost', 'siteSpeedSampleRate': 100 });
   ga('send', 'pageview', { 'anonymizeIp': true });
   ga('set', {

@@ -16,10 +16,12 @@
 
 package controllers
 
+import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.bindable.Origin
 import org.mockito.Matchers.{eq => meq}
-import org.scalatest.mock.MockitoSugar
+import org.mockito.Mockito.when
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -35,17 +37,23 @@ class PublicControllerSpec extends BaseSpec  {
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
+    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
     .build()
 
   trait LocalSetup {
-    val c = injected[PublicController]
+    lazy val controller = {
+      val c = injected[PublicController]
+      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback-survey?origin=PERTAX"
+      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      c
+    }
   }
 
   "Calling PublicController.verifyEntryPoint" should {
 
     "return 200" in new LocalSetup {
 
-      val r = c.verifyEntryPoint(buildFakeRequestWithAuth("GET"))
+      val r = controller.verifyEntryPoint(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/personal-account")
       session(r) shouldBe Session(Map("ap" -> "IDA"))
@@ -56,7 +64,7 @@ class PublicControllerSpec extends BaseSpec  {
 
     "return 200" in new LocalSetup {
 
-      val r = c.governmentGatewayEntryPoint(buildFakeRequestWithAuth("GET"))
+      val r = controller.governmentGatewayEntryPoint(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/personal-account")
       session(r) shouldBe Session(Map("ap" -> "GGW"))
@@ -67,7 +75,7 @@ class PublicControllerSpec extends BaseSpec  {
 
     "return 200" in new LocalSetup {
 
-      val r = c.sessionTimeout(buildFakeRequestWithAuth("GET"))
+      val r = controller.sessionTimeout(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
     }
   }
@@ -76,7 +84,7 @@ class PublicControllerSpec extends BaseSpec  {
 
     "return 303" in new LocalSetup {
 
-      val r = c.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/feedback-survey?origin=PERTAX")
     }

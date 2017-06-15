@@ -36,25 +36,25 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
-  private lazy val contactHost = configuration.getString(s"$env.external-url.contact-frontend.host").getOrElse("")
-  lazy val citizenAuthHost = configuration.getString(s"$env.external-url.citizen-auth.host").getOrElse("")
-  lazy val companyAuthHost = configuration.getString(s"$env.external-url.company-auth.host").getOrElse("")
-  lazy val companyAuthFrontendHost = configuration.getString(s"$env.external-url.company-auth-frontend.host").getOrElse("")
-  private lazy val taiHost = configuration.getString(s"$env.external-url.tai-frontend.host").getOrElse("")
-  private lazy val fandfHost = configuration.getString(s"$env.external-url.fandf-frontend.host").getOrElse("")
-  private lazy val tamcHost = configuration.getString(s"$env.external-url.tamc-frontend.host").getOrElse("")
-  private lazy val formTrackingHost = configuration.getString(s"$env.external-url.tracking-frontend.host").getOrElse("")
-  private lazy val businessTaxAccountHost = configuration.getString(s"$env.external-url.business-tax-account.host").getOrElse("")
-  lazy val identityVerificationHost = configuration.getString(s"$env.external-url.identity-verification.host").getOrElse("")
-  lazy val pertaxFrontendHost = configuration.getString(s"$env.external-url.pertax-frontend.host").getOrElse("")
-  lazy val feedbackSurveyFrontendHost = configuration.getString(s"$env.external-url.feedback-survey-frontend.host").getOrElse("")
-  private lazy val tcsFrontendHost = configuration.getString(s"$env.external-url.tcs-frontend.host").getOrElse("")
-  lazy val nispFrontendHost = configuration.getString(s"$env.external-url.nisp-frontend.host").getOrElse("")
-  lazy val taxCalcFrontendHost = configuration.getString(s"$env.external-url.taxcalc-frontend.host").getOrElse("")
-  lazy val dfsFrontendHost = configuration.getString(s"$env.external-url.dfs-frontend.host").getOrElse("")
-  lazy val portalHost = configuration.getString(s"$env.external-url.portal.host").getOrElse("")
-  lazy val plaBackEndHost = configuration.getString(s"$env.external-url.pensions-lifetime-allowance.host").getOrElse("")
-  lazy val governmentGatewayLostCredentialsFrontendHost = configuration.getString(s"$env.external-url.government-gateway-lost-credentials-frontend.host").getOrElse("")
+  private lazy val contactHost = configuration.getString(s"external-url.contact-frontend.host").getOrElse("")
+  lazy val citizenAuthHost = configuration.getString(s"external-url.citizen-auth.host").getOrElse("")
+  lazy val companyAuthHost = configuration.getString(s"external-url.company-auth.host").getOrElse("")
+  lazy val companyAuthFrontendHost = configuration.getString(s"external-url.company-auth-frontend.host").getOrElse("")
+  private lazy val taiHost = configuration.getString(s"external-url.tai-frontend.host").getOrElse("")
+  private lazy val fandfHost = configuration.getString(s"external-url.fandf-frontend.host").getOrElse("")
+  private lazy val tamcHost = configuration.getString(s"external-url.tamc-frontend.host").getOrElse("")
+  private lazy val formTrackingHost = configuration.getString(s"external-url.tracking-frontend.host").getOrElse("")
+  private lazy val businessTaxAccountHost = configuration.getString(s"external-url.business-tax-account.host").getOrElse("")
+  lazy val identityVerificationHost = configuration.getString(s"external-url.identity-verification.host").getOrElse("")
+  lazy val pertaxFrontendHost = configuration.getString(s"external-url.pertax-frontend.host").getOrElse("")
+  lazy val feedbackSurveyFrontendHost = configuration.getString(s"external-url.feedback-survey-frontend.host").getOrElse("")
+  private lazy val tcsFrontendHost = configuration.getString(s"external-url.tcs-frontend.host").getOrElse("")
+  lazy val nispFrontendHost = configuration.getString(s"external-url.nisp-frontend.host").getOrElse("")
+  lazy val taxCalcFrontendHost = configuration.getString(s"external-url.taxcalc-frontend.host").getOrElse("")
+  lazy val dfsFrontendHost = configuration.getString(s"external-url.dfs-frontend.host").getOrElse("")
+  lazy val portalHost = configuration.getString(s"external-url.portal.host").getOrElse("")
+  lazy val plaBackEndHost = configuration.getString(s"external-url.pensions-lifetime-allowance.host").getOrElse("")
+  lazy val governmentGatewayLostCredentialsFrontendHost = configuration.getString(s"external-url.government-gateway-lost-credentials-frontend.host").getOrElse("")
 
   val defaultOrigin = Origin("PERTAX")
 
@@ -69,9 +69,9 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) = ssoifyUrl(s"$portalHost/self-assessment/ind/$saUtr/taxreturn/$taxYear/options")
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) = s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
-  lazy val analyticsToken = configuration.getString(s"$env.google-analytics.token")
-  lazy val analyticsHost = configuration.getString(s"$env.google-analytics.host").getOrElse("service.gov.uk")
-  lazy val ssoUrl = configuration.getString(s"$env.portal.ssoUrl")
+  lazy val analyticsToken = configuration.getString(s"google-analytics.token")
+  lazy val analyticsHost = configuration.getString(s"google-analytics.host").getOrElse("service.gov.uk")
+  lazy val ssoUrl = configuration.getString(s"portal.ssoUrl")
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val deskproToken = "PTA"
   lazy val citizenSwitchOffUrl = s"$citizenAuthHost/attorney/switch-off-act"
@@ -120,13 +120,13 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord"
   lazy val myStatePensionAccount = s"$nispFrontendHost/check-your-state-pension/account/pta"
   lazy val lifetimeProtectionAllowance = s"$dfsFrontendHost/protect-your-lifetime-allowance/existing-protections"
-  
+
   lazy val marriageAllowanceSalaryAmount = "£11,500"
 
   // Define the web contexts to access the IV-FE and AUTH frontend applications.
-  lazy val ivfe_web_context = configuration.getString(s"$env.external-url.identity-verification.web-context").getOrElse("mdtp")
-  lazy val ida_web_context = configuration.getString(s"$env.external-url.ida.web-context").getOrElse("ida")
-  lazy val gg_web_context = configuration.getString(s"$env.external-url.gg.web-context").getOrElse("gg")
+  lazy val ivfe_web_context = configuration.getString(s"external-url.identity-verification.web-context").getOrElse("mdtp")
+  lazy val ida_web_context = configuration.getString(s"external-url.ida.web-context").getOrElse("ida")
+  lazy val gg_web_context = configuration.getString(s"external-url.gg.web-context").getOrElse("gg")
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.ApplicationController.index().url
@@ -149,7 +149,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val nispEnabled = configuration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
   lazy val allowSaPreview = configuration.getString("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
 
-  lazy val egainWebchatPertaxId = configuration.getString(s"$env.egain-webchat.pertax.id ").getOrElse("TT55004894")
+  lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id ").getOrElse("TT55004894")
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 

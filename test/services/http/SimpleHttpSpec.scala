@@ -21,7 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import com.codahale.metrics.Timer
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Writes
 import uk.gov.hmrc.play.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import util.BaseSpec

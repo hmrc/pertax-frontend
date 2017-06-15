@@ -25,7 +25,7 @@ import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.libs.json.Json

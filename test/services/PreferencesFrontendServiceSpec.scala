@@ -22,7 +22,7 @@ import config.ConfigDecorator
 import models.{PertaxUser, UserDetails}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json

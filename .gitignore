@@ -17,5 +17,5 @@ dist
 /RUNNING_PID
 /.settings
 *.iws
-
-    
+node_modules
+.sass-cache
