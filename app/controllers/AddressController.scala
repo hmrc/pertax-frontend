@@ -120,7 +120,7 @@ class AddressController @Inject() (
         }
 
 
-        val canUpdatePostalAddress = personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) {
+        val canUpdatePostalAddress personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) {
           _ != LocalDate.now
         }
 
