@@ -20,7 +20,7 @@ import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.http.HttpResponse

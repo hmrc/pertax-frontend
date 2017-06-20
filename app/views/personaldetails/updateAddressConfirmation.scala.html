@@ -3,17 +3,13 @@
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@scriptElem = {
+@additionalGaCalls = {
   @typ.ifIsPostal {
-    <script>
-      $(function(){
-        ga('set', 'pageview', '/personal-account/your-address/@typ/thank-you');
-      });
-    </script>
+    ga('set', 'pageview', '/personal-account/your-address/@typ/thank-you');
   }
 }
 
-@main(Messages("label.your_address_has_been_updated"), Some(Messages("label.your_personal_tax_account")), scriptElement = Some(scriptElem)) {
+@main(Messages("label.your_address_has_been_updated"), Some(Messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
 
   <div class="grid-row">
     <div class="column-two-thirds">

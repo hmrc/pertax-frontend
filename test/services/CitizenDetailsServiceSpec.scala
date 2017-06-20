@@ -22,7 +22,7 @@ import models._
 import org.joda.time.{DateTime, LocalDate}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, Json}
 import services.http.FakeSimpleHttp

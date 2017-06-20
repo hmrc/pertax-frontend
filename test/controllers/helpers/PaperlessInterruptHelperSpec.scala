@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import models.{PertaxContext, PertaxUser, UserDetails}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

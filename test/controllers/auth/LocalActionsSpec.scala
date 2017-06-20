@@ -22,7 +22,7 @@ import controllers.PertaxBaseController
 import models.{PertaxContext, PertaxUser, UserDetails}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.mvc.Result
 import play.api.mvc.Results._
