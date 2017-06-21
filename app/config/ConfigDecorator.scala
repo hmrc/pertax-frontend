@@ -23,7 +23,7 @@ import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.Langs
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
 
 @Singleton
 class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) extends ServicesConfig {
@@ -35,26 +35,36 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
 
+
+  private def getExternalUrl(key: String): Option[String] = configuration.getString(s"external-url.$key").filter(x => env=="Dev")
+
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
-  private lazy val contactHost = configuration.getString(s"external-url.contact-frontend.host").getOrElse("")
-  lazy val citizenAuthHost = configuration.getString(s"external-url.citizen-auth.host").getOrElse("")
-  lazy val companyAuthHost = configuration.getString(s"external-url.company-auth.host").getOrElse("")
-  lazy val companyAuthFrontendHost = configuration.getString(s"external-url.company-auth-frontend.host").getOrElse("")
-  private lazy val taiHost = configuration.getString(s"external-url.tai-frontend.host").getOrElse("")
-  private lazy val fandfHost = configuration.getString(s"external-url.fandf-frontend.host").getOrElse("")
-  private lazy val tamcHost = configuration.getString(s"external-url.tamc-frontend.host").getOrElse("")
-  private lazy val formTrackingHost = configuration.getString(s"external-url.tracking-frontend.host").getOrElse("")
-  private lazy val businessTaxAccountHost = configuration.getString(s"external-url.business-tax-account.host").getOrElse("")
-  lazy val identityVerificationHost = configuration.getString(s"external-url.identity-verification.host").getOrElse("")
-  lazy val pertaxFrontendHost = configuration.getString(s"external-url.pertax-frontend.host").getOrElse("")
-  lazy val feedbackSurveyFrontendHost = configuration.getString(s"external-url.feedback-survey-frontend.host").getOrElse("")
-  private lazy val tcsFrontendHost = configuration.getString(s"external-url.tcs-frontend.host").getOrElse("")
-  lazy val nispFrontendHost = configuration.getString(s"external-url.nisp-frontend.host").getOrElse("")
-  lazy val taxCalcFrontendHost = configuration.getString(s"external-url.taxcalc-frontend.host").getOrElse("")
-  lazy val dfsFrontendHost = configuration.getString(s"external-url.dfs-frontend.host").getOrElse("")
-  lazy val portalHost = configuration.getString(s"external-url.portal.host").getOrElse("")
-  lazy val plaBackEndHost = configuration.getString(s"external-url.pensions-lifetime-allowance.host").getOrElse("")
-  lazy val governmentGatewayLostCredentialsFrontendHost = configuration.getString(s"external-url.government-gateway-lost-credentials-frontend.host").getOrElse("")
+  lazy val contactHost                                  = getExternalUrl(s"contact-frontend.host").getOrElse("")
+  lazy val citizenAuthHost                              = getExternalUrl(s"citizen-auth.host").getOrElse("")
+  lazy val companyAuthHost                              = getExternalUrl(s"company-auth.host").getOrElse("")
+  lazy val companyAuthFrontendHost                      = getExternalUrl(s"company-auth-frontend.host").getOrElse("")
+  lazy val taiHost                                      = getExternalUrl(s"tai-frontend.host").getOrElse("")
+  lazy val fandfHost                                    = getExternalUrl(s"fandf-frontend.host").getOrElse("")
+  lazy val tamcHost                                     = getExternalUrl(s"tamc-frontend.host").getOrElse("")
+  lazy val formTrackingHost                             = getExternalUrl(s"tracking-frontend.host").getOrElse("")
+  lazy val businessTaxAccountHost                       = getExternalUrl(s"business-tax-account.host").getOrElse("")
+  lazy val identityVerificationHost                     = getExternalUrl(s"identity-verification.host").getOrElse("")
+  lazy val pertaxFrontendHost                           = getExternalUrl(s"pertax-frontend.host").getOrElse("")
+  lazy val feedbackSurveyFrontendHost                   = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
+  lazy val tcsFrontendHost                              = getExternalUrl(s"tcs-frontend.host").getOrElse("")
+  lazy val nispFrontendHost                             = getExternalUrl(s"nisp-frontend.host").getOrElse("")
+  lazy val taxCalcFrontendHost                          = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
+  lazy val dfsFrontendHost                              = getExternalUrl(s"dfs-frontend.host").getOrElse("")
+  lazy val portalHost                                   = getExternalUrl(s"portal.host").getOrElse("")
+  lazy val plaBackEndHost                               = getExternalUrl(s"pensions-lifetime-allowance.host").getOrElse("")
+  lazy val governmentGatewayLostCredentialsFrontendHost = getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
+
+  // Define the web contexts to access the IV-FE and AUTH frontend applications.
+  lazy val ivfe_web_context = getExternalUrl(s"identity-verification.web-context").getOrElse("mdtp")
+  lazy val ida_web_context  = getExternalUrl(s"ida.web-context").getOrElse("ida")
+  lazy val gg_web_context   = getExternalUrl(s"gg.web-context").getOrElse("gg")
+
+
 
   val defaultOrigin = Origin("PERTAX")
 
@@ -122,11 +132,6 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val lifetimeProtectionAllowance = s"$dfsFrontendHost/protect-your-lifetime-allowance/existing-protections"
 
   lazy val marriageAllowanceSalaryAmount = "£11,500"
-
-  // Define the web contexts to access the IV-FE and AUTH frontend applications.
-  lazy val ivfe_web_context = configuration.getString(s"external-url.identity-verification.web-context").getOrElse("mdtp")
-  lazy val ida_web_context = configuration.getString(s"external-url.ida.web-context").getOrElse("ida")
-  lazy val gg_web_context = configuration.getString(s"external-url.gg.web-context").getOrElse("gg")
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.ApplicationController.index().url
