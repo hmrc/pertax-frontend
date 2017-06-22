@@ -123,8 +123,8 @@
 }
 
 @gaCalls(analyticsHost: String, token: String) = {
-  @additionalGaCalls
   ga('create', '@token', { 'cookieDomain': '@analyticsHost', 'siteSpeedSampleRate': 100 });
+  @additionalGaCalls
   ga('send', 'pageview', { 'anonymizeIp': true });
   ga('set', {
   @pertaxContext.user.map { user =>
