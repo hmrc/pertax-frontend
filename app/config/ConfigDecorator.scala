@@ -35,7 +35,6 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
 
-
   private def getExternalUrl(key: String): Option[String] = configuration.getString(s"external-url.$key").filter(x => env=="Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
@@ -63,8 +62,6 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val ivfe_web_context = getExternalUrl(s"identity-verification.web-context").getOrElse("mdtp")
   lazy val ida_web_context  = getExternalUrl(s"ida.web-context").getOrElse("ida")
   lazy val gg_web_context   = getExternalUrl(s"gg.web-context").getOrElse("gg")
-
-
 
   val defaultOrigin = Origin("PERTAX")
 
