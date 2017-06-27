@@ -21,10 +21,11 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{LocalActions, PertaxRegime}
+import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.AddressJourneyCachingHelper
+import error.LocalErrorHandler
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
@@ -59,8 +60,9 @@ class AddressController @Inject() (
   val partialRetriever: LocalPartialRetriever,
   val addressControllerConfiguration: AddressControllerConfiguration,
   val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime
-) extends PertaxBaseController with LocalActions with AddressJourneyCachingHelper {
+  val pertaxRegime: PertaxRegime,
+  val localErrorHandler: LocalErrorHandler
+) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
 
   def dateDtoForm = DateDto.form(addressControllerConfiguration.maxStartDate)
 

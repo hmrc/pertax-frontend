@@ -16,18 +16,8 @@
 
 package controllers
 
-import play.api.http.HttpErrorHandler
-import play.api.mvc.{RequestHeader, Result}
+import javax.inject.Inject
 
-import scala.concurrent.Future
+import error.LocalErrorHandler
 
-class AssetsController extends AssetsBuilder(new HttpErrorHandler {
-
-  override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
-    throw new RuntimeException(s"$getClass onServerError", exception)  //FIXME
-  }
-
-  override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
-    throw new RuntimeException(s"$getClass onClientError $statusCode : $message")  //FIXME
-  }
-})
+class AssetsController @Inject() (localErrorHandler: LocalErrorHandler) extends AssetsBuilder(localErrorHandler)

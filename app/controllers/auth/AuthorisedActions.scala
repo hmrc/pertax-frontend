@@ -16,22 +16,26 @@
 
 package controllers.auth
 
+import config.ConfigDecorator
 import controllers.PertaxBaseController
+import error.LocalErrorHandler
 import models._
 import play.api.Logger
-import play.api.i18n.Messages
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc._
 import services._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
-import uk.gov.hmrc.play.frontend.auth.{AllowAll, AuthContext}
+import uk.gov.hmrc.play.frontend.auth.{AllowAll, AuthContext, DelegationAwareActions}
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-trait LocalActions extends ConfidenceLevelAndCredentialStrengthChecker { this: PertaxBaseController =>
+trait AuthorisedActions extends ConfidenceLevelAndCredentialStrengthChecker { this: PertaxBaseController =>
 
   def citizenDetailsService: CitizenDetailsService
   def userDetailsService: UserDetailsService
   def pertaxRegime: PertaxRegime
+  def localErrorHandler: LocalErrorHandler
+
 
   def ProtectedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
     AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async {
@@ -58,11 +62,7 @@ trait LocalActions extends ConfidenceLevelAndCredentialStrengthChecker { this: P
   def withBreadcrumb(breadcrumb: Breadcrumb)(block: PertaxContext => Future[Result])(implicit pertaxContext: PertaxContext) =
     block(pertaxContext.withBreadcrumb(Some(breadcrumb)))
 
-  def renderInternalServerError(pertaxContext: PertaxContext) = views.html.error(
-    "global.error.InternalServerError500.title",
-    Some("global.error.InternalServerError500.heading"),
-    Some("global.error.InternalServerError500.message")
-  )(pertaxContext, implicitly[Messages])
+  def renderError(context: PertaxContext, status: Int) = localErrorHandler.onClientError(context, status, "")
 
   def createPertaxContextAndExecute(fetchPersonDetails: Boolean)(block: PertaxContext => Future[Result])(implicit authContext: AuthContext, request: Request[AnyContent]): Future[Result] = {
 
@@ -74,11 +74,11 @@ trait LocalActions extends ConfidenceLevelAndCredentialStrengthChecker { this: P
         userDetailsService.getUserDetails(uri) flatMap {
           case Some(userDetails) => block(userDetails)
           case None =>
-            Future.successful(InternalServerError( renderInternalServerError(context) ))
+            renderError(context, INTERNAL_SERVER_ERROR)
         }
       } getOrElse {
         Logger.error("There was no user-details URI for current user")
-        Future.successful(InternalServerError( renderInternalServerError(context) ))
+        renderError(context, INTERNAL_SERVER_ERROR)
       }
     }
 
@@ -141,7 +141,7 @@ trait LocalActions extends ConfidenceLevelAndCredentialStrengthChecker { this: P
         }
       } getOrElse {
         Logger.warn("User had no PersonDetails in context when one was required")
-        Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+        renderError(pertaxContext, UNAUTHORIZED)
       }
     }
   }
@@ -154,7 +154,7 @@ trait LocalActions extends ConfidenceLevelAndCredentialStrengthChecker { this: P
       }
     } getOrElse {
       Logger.warn("User had no paye account when one was required")
-      Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+      renderError(pertaxContext, UNAUTHORIZED)
     }
   }
 
@@ -166,28 +166,28 @@ trait LocalActions extends ConfidenceLevelAndCredentialStrengthChecker { this: P
       }
     } getOrElse {
       Logger.warn("User had no sa account when one was required")
-      Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+      renderError(pertaxContext, UNAUTHORIZED)
     }
   }
 
   def enforceGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifGovernmentGatewayUser(block) getOrElse Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+    PertaxUser.ifGovernmentGatewayUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
 
   def enforceHighGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifHighGovernmentGatewayUser(block) getOrElse Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+    PertaxUser.ifHighGovernmentGatewayUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
 
   def enforceLowGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifLowGovernmentGatewayUser(block) getOrElse Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
-  
+    PertaxUser.ifLowGovernmentGatewayUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+
   def enforceVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifVerifyUser(block) getOrElse Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+    PertaxUser.ifVerifyUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
 
   def enforceHighGovernmentGatewayUserOrVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifHighGovernmentGatewayOrVerifyUser(block) getOrElse Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+    PertaxUser.ifHighGovernmentGatewayOrVerifyUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
 
   def enforcePayeUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifPayeUser(block) getOrElse Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+    PertaxUser.ifPayeUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
 
   def enforceSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifSaUser(block) getOrElse Future.successful(Unauthorized( renderInternalServerError(pertaxContext) ))
+    PertaxUser.ifSaUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
 }

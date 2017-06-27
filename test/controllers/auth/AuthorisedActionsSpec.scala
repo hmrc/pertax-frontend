@@ -19,6 +19,7 @@ package controllers.auth
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.PertaxBaseController
+import error.LocalErrorHandler
 import models.{PertaxContext, PertaxUser, UserDetails}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -38,7 +39,7 @@ import util.{BaseSpec, Fixtures}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class LocalActionsSpec extends BaseSpec {
+class AuthorisedActionsSpec extends BaseSpec {
 
   "Calling LocalActions.createPertaxContextAndExecute" should {
 
@@ -59,7 +60,7 @@ class LocalActionsSpec extends BaseSpec {
         None
       )
 
-      lazy val localActions = new PertaxBaseController with LocalActions {
+      lazy val localActions = new PertaxBaseController with AuthorisedActions {
         override val citizenDetailsService = MockitoSugar.mock[CitizenDetailsService]
         override val userDetailsService: UserDetailsService = MockitoSugar.mock[UserDetailsService]
         override val auditConnector = MockitoSugar.mock[PertaxAuditConnector]
@@ -68,6 +69,7 @@ class LocalActionsSpec extends BaseSpec {
         override val partialRetriever = mockLocalPartialRetreiver
         override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = injected[PertaxRegime]
+        override val localErrorHandler = injected[LocalErrorHandler]
 
         when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
           Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
@@ -199,7 +201,7 @@ class LocalActionsSpec extends BaseSpec {
         if(ggUser) UserDetails(UserDetails.GovernmentGatewayAuthProvider) else UserDetails(UserDetails.VerifyAuthProvider),
         None, highGg)))
 
-      lazy val localActions = new PertaxBaseController with LocalActions {
+      lazy val localActions = new PertaxBaseController with AuthorisedActions {
         override val auditConnector = MockitoSugar.mock[PertaxAuditConnector]
         override val authConnector = MockitoSugar.mock[PertaxAuthConnector]
         override val citizenDetailsService = MockitoSugar.mock[CitizenDetailsService]
@@ -209,6 +211,7 @@ class LocalActionsSpec extends BaseSpec {
         override val messagesApi = injected[MessagesApi]
         override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = MockitoSugar.mock[PertaxRegime]
+        override val localErrorHandler = injected[LocalErrorHandler]
 
         when(configDecorator.allowSaPreview) thenReturn allowSaPreview
       }

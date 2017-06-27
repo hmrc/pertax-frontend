@@ -20,8 +20,9 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{LocalActions, PertaxRegime}
+import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.helpers.PaperlessInterruptHelper
+import error.LocalErrorHandler
 import models.Breadcrumb
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, Request}
@@ -46,8 +47,9 @@ class InterstitialController @Inject() (
   val authConnector: PertaxAuthConnector,
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime
-) extends PertaxBaseController with LocalActions with PaperlessInterruptHelper {
+  val pertaxRegime: PertaxRegime,
+  val localErrorHandler: LocalErrorHandler
+) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::

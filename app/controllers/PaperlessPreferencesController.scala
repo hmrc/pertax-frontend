@@ -20,7 +20,8 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{LocalActions, PertaxRegime}
+import controllers.auth.{AuthorisedActions, PertaxRegime}
+import error.LocalErrorHandler
 import play.api.i18n.{Messages, MessagesApi}
 import services.partials.PreferencesFrontendPartialService
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
@@ -39,8 +40,9 @@ class PaperlessPreferencesController @Inject() (
   val authConnector: PertaxAuthConnector,
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime
-) extends PertaxBaseController with LocalActions {
+  val pertaxRegime: PertaxRegime,
+  val localErrorHandler: LocalErrorHandler
+) extends PertaxBaseController with AuthorisedActions {
 
   def managePreferences = ProtectedAction(baseBreadcrumb) {
     implicit pertaxContext =>

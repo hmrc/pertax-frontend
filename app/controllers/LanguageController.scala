@@ -20,10 +20,12 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import error.LocalErrorHandler
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import util.LocalPartialRetriever
 import util.Tools.isRelative
+
 import scala.concurrent.Future
 
 class LanguageController @Inject() (
@@ -32,7 +34,8 @@ class LanguageController @Inject() (
   val partialRetriever: LocalPartialRetriever,
   val delegationConnector: FrontEndDelegationConnector,
   val messagesApi: MessagesApi,
-  val configDecorator: ConfigDecorator
+  val configDecorator: ConfigDecorator,
+  val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController {
 
   def enGb(redirectUrl: String): Action[AnyContent] = changeLanguageIfRelativeRedirectUrl(redirectUrl=redirectUrl, language="en")

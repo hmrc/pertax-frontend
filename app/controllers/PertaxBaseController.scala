@@ -16,20 +16,17 @@
 
 package controllers
 
-import java.util.Locale
-
 import _root_.connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import config.ConfigDecorator
+import controllers.auth.PublicActions
 import models.{Breadcrumb, PertaxContext}
-import play.api.i18n.{I18nSupport, Lang, Messages}
+import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc._
 import uk.gov.hmrc.play.frontend.auth._
-import uk.gov.hmrc.play.frontend.controller.{FrontendController, UnauthorisedAction}
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
-
-abstract class PertaxBaseController extends DelegationAwareActions with FrontendController with I18nSupport {
+abstract class PertaxBaseController extends PublicActions with FrontendController with I18nSupport {
 
   def auditConnector: PertaxAuditConnector
   def authConnector: PertaxAuthConnector
@@ -39,13 +36,6 @@ abstract class PertaxBaseController extends DelegationAwareActions with Frontend
 
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.ApplicationController.index().url)
-
-  def PublicAction(block: PertaxContext => Future[Result]): Action[AnyContent] = {
-    UnauthorisedAction.async {
-      implicit request =>
-        block(PertaxContext(request, partialRetriever, configDecorator))
-    }
-  }
 
   //FIXME - put this in a filter
   def getTrimmedData(request: Request[AnyContent]) = {

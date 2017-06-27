@@ -20,7 +20,8 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{LocalActions, PertaxRegime}
+import controllers.auth.{AuthorisedActions, PertaxRegime}
+import error.LocalErrorHandler
 import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
 import play.twirl.api.Html
@@ -40,8 +41,9 @@ class MessageController @Inject() (
   val authConnector: PertaxAuthConnector,
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime
-) extends PertaxBaseController with LocalActions {
+  val pertaxRegime: PertaxRegime,
+  val localErrorHandler: LocalErrorHandler
+) extends PertaxBaseController with AuthorisedActions {
 
   def messageBreadcrumb: Breadcrumb =
     "label.self_assessment_messages" -> routes.MessageController.messageList.url ::

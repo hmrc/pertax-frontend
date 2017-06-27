@@ -20,7 +20,8 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{LocalActions, PertaxRegime}
+import controllers.auth.{AuthorisedActions, PertaxRegime}
+import error.LocalErrorHandler
 import play.api.i18n.MessagesApi
 import services.{CitizenDetailsService, UserDetailsService}
 import util.LocalPartialRetriever
@@ -37,8 +38,9 @@ class PrintController @Inject() (
   val authConnector: PertaxAuthConnector,
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime
-) extends PertaxBaseController with LocalActions {
+  val pertaxRegime: PertaxRegime,
+  val localErrorHandler: LocalErrorHandler
+) extends PertaxBaseController with AuthorisedActions {
 
   def printNationalInsuranceNumber = ProtectedAction(baseBreadcrumb) {
     implicit pertaxContext =>
