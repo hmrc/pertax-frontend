@@ -20,9 +20,10 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{LocalActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
+import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import controllers.bindable.Origin
 import controllers.helpers.PaperlessInterruptHelper
+import error.LocalErrorHandler
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi
@@ -55,8 +56,9 @@ class ApplicationController @Inject() (
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime
-) extends PertaxBaseController with LocalActions with PaperlessInterruptHelper {
+  val pertaxRegime: PertaxRegime,
+  val localErrorHandler: LocalErrorHandler
+) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
   def index: Action[AnyContent] = ProtectedAction(Nil) {
     implicit pertaxContext =>

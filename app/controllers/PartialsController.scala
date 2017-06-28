@@ -20,6 +20,7 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import error.LocalErrorHandler
 import models.Breadcrumb
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
@@ -34,7 +35,8 @@ class PartialsController @Inject() (
   val authConnector: PertaxAuthConnector,
   val delegationConnector: FrontEndDelegationConnector,
   val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator
+  val configDecorator: ConfigDecorator,
+  val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController {
   
   def mainContentHeader(name: Option[String], lastLogin: Option[Long], itemText: List[String], itemUrl: List[String],

@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 
 import connectors.PertaxAuditConnector
 import play.api.{Configuration, Play}
-import play.api.i18n.Langs
 
 
 /**

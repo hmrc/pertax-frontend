@@ -19,6 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.PertaxRegime
+import error.LocalErrorHandler
 import models.UserDetails
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -66,7 +67,8 @@ class InterstitialControllerSpec extends BaseSpec {
       MockitoSugar.mock[PertaxAuthConnector],
       MockitoSugar.mock[LocalPartialRetriever],
       MockitoSugar.mock[ConfigDecorator],
-      injected[PertaxRegime]
+      injected[PertaxRegime],
+      injected[LocalErrorHandler]
     ) {
       private def formPartialServiceResponse = Future.successful {
         if(simulateFormPartialServiceFailure) HtmlPartial.Failure()
