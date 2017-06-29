@@ -18,8 +18,8 @@ package controllers.auth
 
 import config.ConfigDecorator
 import models.PertaxContext
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc._
 import uk.gov.hmrc.play.frontend.auth.DelegationAwareActions
 import uk.gov.hmrc.play.frontend.controller.UnauthorisedAction
 import util.LocalPartialRetriever
@@ -34,10 +34,22 @@ trait PublicActions extends DelegationAwareActions { this: I18nSupport =>
   def messagesApi: MessagesApi
 
   def PublicAction(block: PertaxContext => Future[Result]): Action[AnyContent] = {
-    UnauthorisedAction.async {
-      implicit request =>
+    UnauthorisedAction.async { implicit request =>
+      trimmingFormUrlEncodedData { implicit request =>
         block(PertaxContext(request, partialRetriever, configDecorator))
+      }
     }
   }
 
+  def trimmingFormUrlEncodedData(block: Request[AnyContent] => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
+    block {
+      request.map {
+        case AnyContentAsFormUrlEncoded(data) =>
+          AnyContentAsFormUrlEncoded(data.map {
+            case (key, vals) => (key, vals.map(_.trim))
+          })
+        case b => b
+      }
+    }
+  }
 }

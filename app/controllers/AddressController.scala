@@ -211,8 +211,7 @@ class AddressController @Inject() (
   def processPostcodeLookupForm(typ: AddrType): Action[AnyContent] = ProtectedAction(addressBreadcrumb) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
-        val trimmedFormData = getTrimmedData(pertaxContext.request)
-        AddressFinderDto.form.bindFromRequest(trimmedFormData).fold(
+        AddressFinderDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(BadRequest(views.html.personaldetails.postcodeLookup(formWithErrors, typ)))
           },
@@ -263,11 +262,10 @@ class AddressController @Inject() (
   def processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String]): Action[AnyContent] = ProtectedAction(addressBreadcrumb) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
-        val trimmedFormData = getTrimmedData(pertaxContext.request)
 
         gettingCachedJourneyData(typ) { journeyData =>
 
-          AddressSelectorDto.form.bindFromRequest(trimmedFormData).fold(
+          AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors => {
               lookingUpAddress(typ, postcode, journeyData, filter) {
                 case AddressLookupSuccessResponse(recordSet) =>

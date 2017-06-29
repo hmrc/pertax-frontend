@@ -37,15 +37,6 @@ abstract class PertaxBaseController extends PublicActions with FrontendControlle
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.ApplicationController.index().url)
 
-  //FIXME - put this in a filter
-  def getTrimmedData(request: Request[AnyContent]) = {
-    request.body.asFormUrlEncoded.map { data =>
-      data.map {
-        case (key, vals) => (key, vals.map(_.trim))
-      }
-    }.getOrElse(Map[String,Seq[String]]())
-  }
-
   def showingWarningIfWelsh[T](block: PertaxContext => T)(implicit pertaxContext: PertaxContext, messages: Messages): T = {
     block(pertaxContext.withWelshWarning(messages.lang.code == "cy"))
   }

@@ -352,7 +352,7 @@ class AddressControllerSpec extends BaseSpec  {
     }
 
     "redirect to the select address page with the correct postcode" in new LocalSetup {
-      val r = controller.processPostcodeLookupForm(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody("postcode" -> "AA1 1AA"))
+      val r = controller.processPostcodeLookupForm(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody("postcode" -> " AA1 1AA "))
 
       status(r) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).cache(meq("postalAddressFinderDto"), meq(AddressFinderDto("AA1 1AA", None)))(any(), any())
@@ -524,7 +524,7 @@ class AddressControllerSpec extends BaseSpec  {
     }
 
     "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId" in new LocalSetup {
-      val r = c1.processAddressSelectorForm(PostalAddrType, "AA1 1AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> "GB990091234514"))
+      val r = c1.processAddressSelectorForm(PostalAddrType, "AA1 1AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> " GB990091234514 "))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/edit-address")

@@ -16,7 +16,6 @@
 
 package controllers.auth
 
-import config.ConfigDecorator
 import controllers.PertaxBaseController
 import error.LocalErrorHandler
 import models._
@@ -24,12 +23,11 @@ import play.api.Logger
 import play.api.mvc._
 import services._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
-import uk.gov.hmrc.play.frontend.auth.{AllowAll, AuthContext, DelegationAwareActions}
-import util.LocalPartialRetriever
+import uk.gov.hmrc.play.frontend.auth.{AllowAll, AuthContext}
 
 import scala.concurrent.Future
 
-trait AuthorisedActions extends ConfidenceLevelAndCredentialStrengthChecker { this: PertaxBaseController =>
+trait AuthorisedActions extends PublicActions with ConfidenceLevelAndCredentialStrengthChecker { this: PertaxBaseController =>
 
   def citizenDetailsService: CitizenDetailsService
   def userDetailsService: UserDetailsService
@@ -40,10 +38,12 @@ trait AuthorisedActions extends ConfidenceLevelAndCredentialStrengthChecker { th
   def ProtectedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
     AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async {
       implicit authContext => implicit request =>
-        createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext =>
-          withBreadcrumb(breadcrumb) { implicit pertaxContext =>
-            enforceMinimumUserProfile {
-              block(pertaxContext)
+        trimmingFormUrlEncodedData { implicit request =>
+          createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext =>
+            withBreadcrumb(breadcrumb) { implicit pertaxContext =>
+              enforceMinimumUserProfile {
+                block(pertaxContext)
+              }
             }
           }
         }
@@ -53,8 +53,10 @@ trait AuthorisedActions extends ConfidenceLevelAndCredentialStrengthChecker { th
   def AuthorisedAction(fetchPersonDetails: Boolean = true)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
     AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async {
       implicit authContext => implicit request =>
-        createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext =>
-          block(pertaxContext)
+        trimmingFormUrlEncodedData { implicit request =>
+          createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext =>
+            block(pertaxContext)
+          }
         }
     }
   }
