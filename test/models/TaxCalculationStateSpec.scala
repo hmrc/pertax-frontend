@@ -48,7 +48,7 @@ class TaxCalculationStateSpec extends BaseSpec {
 
     "return a TaxCalculation not found when called without a TaxCalculation" in {
       val result = TaxCalculationState.buildFromTaxCalculation(None)
-      result shouldBe TaxCalculationNotFoundState
+      result shouldBe TaxCalculationUnkownState
     }
 
     "return a TaxCalculationPaymentDueState when called with a TaxCalculation with a P800 status of PAYMENT_DUE" in {
@@ -66,7 +66,7 @@ class TaxCalculationStateSpec extends BaseSpec {
     "return a TaxCalculationPaidAllState when called with a TaxCalculation with a P800 status of PAID_ALL" in {
       val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAID_ALL"), None)
       val result = TaxCalculationState.buildFromTaxCalculation(Some(taxCalculation))
-      result shouldBe TaxCalculationPaidAllState()
+      result shouldBe TaxCalculationPaidAllState
     }
 
     "return a TaxCalculationPaymentsDownState when called with a TaxCalculation with a P800 status of PAYMENTS_DOWN" in {

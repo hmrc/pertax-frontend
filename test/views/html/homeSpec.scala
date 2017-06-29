@@ -81,7 +81,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
       document.select("h1").exists(e => e.text == "Your account") shouldBe false
     }
@@ -94,7 +94,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = Some("Firstname Lastname")
       override val userHasPersonDetails: Boolean = false
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
       document.select("h1").exists(e => e.text == "Your account") shouldBe false
     }
@@ -107,7 +107,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = false
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h1").exists(e => e.text == "Your account") shouldBe true
     }
 
@@ -119,7 +119,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h3 a").exists(e => e.text == "Pay As You Earn (PAYE)") shouldBe true
       document.select("p").exists(e => e.text == "Check your tax codes and an estimate of the Income Tax you'll pay.") shouldBe true
     }
@@ -132,7 +132,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = false
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h3").exists(e => e.text == "Pay As You Earn (PAYE)") shouldBe true
       document.select("p").exists(e => e.text == "The tax codes and Income Tax service is currently unavailable") shouldBe true
     }
@@ -145,7 +145,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h3 a").exists(e => e.text == "Company benefits") shouldBe true
       document.select("p").exists(e => e.text == "See how company car and medical benefit could affect your taxable income.") shouldBe true
     }
@@ -158,7 +158,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = false
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h3").exists(e => e.text == "Company benefits") shouldBe true
       document.select("p").exists(e => e.text == "The company benefits service is currently unavailable") shouldBe true
     }
@@ -171,7 +171,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("a").exists(e => e.text == "Update your address") shouldBe true
     }
 
@@ -183,7 +183,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = false
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "You can't view or update your address right now") shouldBe true
     }
 
@@ -195,7 +195,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html("""<div class="pertax-messages">Simulated Messages Partial</div>"""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html("""<div class="pertax-messages">Simulated Messages Partial</div>"""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.getElementsByClass("pertax-messages")).isDefined shouldBe true
     }
 
@@ -207,7 +207,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".pertax-messages").first).isDefined shouldBe false
     }
 
@@ -219,7 +219,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".pertax-messages").first).isDefined shouldBe false
     }
 
@@ -231,7 +231,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".pertax-messages").first).isDefined shouldBe false
     }
 
@@ -243,7 +243,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111")), false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111")), false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "Complete your tax return or make a payment.") shouldBe true
     }
 
@@ -255,7 +255,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "Complete your tax return or make a payment.") shouldBe false
     }
 
@@ -267,7 +267,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "Complete your tax return or make a payment.") shouldBe false
     }
 
@@ -279,7 +279,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "Complete your tax return or make a payment.") shouldBe false
     }
 
@@ -291,7 +291,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.tax-estimate").first).isDefined shouldBe true
     }
 
@@ -303,7 +303,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.tax-estimate").first).isDefined shouldBe true
     }
 
@@ -315,7 +315,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.tax-estimate").first).isDefined shouldBe false
     }
 
@@ -327,7 +327,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.tax-estimate").first).isDefined shouldBe false
     }
 
@@ -339,7 +339,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.tax-estimate").first).isDefined shouldBe true
     }
 
@@ -351,7 +351,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.tax-estimate").first).isDefined shouldBe false
     }
 
@@ -363,7 +363,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.personal-details").first).isDefined shouldBe true
     }
 
@@ -375,7 +375,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.personal-details").first).isDefined shouldBe true
     }
 
@@ -387,7 +387,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.personal-details").first).isDefined shouldBe true
     }
 
@@ -399,7 +399,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.personal-details").first).isDefined shouldBe true
     }
 
@@ -411,7 +411,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.personal-details").first).isDefined shouldBe true
     }
 
@@ -423,7 +423,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.personal-details").first).isDefined shouldBe true
     }
 
@@ -434,7 +434,7 @@ class homeSpec extends BaseSpec {
       override val isHighGG: Boolean = false
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.track-forms").first).isDefined shouldBe true
     }
 
@@ -446,7 +446,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.track-forms").first).isDefined shouldBe true
     }
 
@@ -458,7 +458,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.track-forms").first).isDefined shouldBe true
     }
 
@@ -470,7 +470,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.track-forms").first).isDefined shouldBe true
     }
 
@@ -482,7 +482,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.track-forms").first).isDefined shouldBe true
     }
 
@@ -494,7 +494,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.track-forms").first).isDefined shouldBe true
     }
 
@@ -506,7 +506,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.trusted-helpers").first).isDefined shouldBe true
     }
 
@@ -518,7 +518,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.trusted-helpers").first).isDefined shouldBe true
     }
 
@@ -530,7 +530,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.trusted-helpers").first).isDefined shouldBe false
     }
 
@@ -541,7 +541,7 @@ class homeSpec extends BaseSpec {
       override val isHighGG: Boolean = true
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.trusted-helpers").first).isDefined shouldBe false
     }
 
@@ -553,7 +553,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.trusted-helpers").first).isDefined shouldBe false
     }
 
@@ -565,7 +565,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.trusted-helpers").first).isDefined shouldBe false
     }
 
@@ -577,7 +577,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.national-insurance").first).isDefined shouldBe true
     }
 
@@ -589,7 +589,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.national-insurance").first).isDefined shouldBe true
     }
 
@@ -601,7 +601,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.national-insurance").first).isDefined shouldBe true
     }
 
@@ -613,7 +613,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.national-insurance").first).isDefined shouldBe true
     }
 
@@ -625,7 +625,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.national-insurance").first).isDefined shouldBe true
     }
 
@@ -637,7 +637,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.national-insurance").first).isDefined shouldBe true
     }
 
@@ -649,7 +649,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "View your National Insurance record.") shouldBe true
     }
 
@@ -661,7 +661,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "View your National Insurance record.") shouldBe true
     }
 
@@ -673,7 +673,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "View your National Insurance record.") shouldBe true
     }
 
@@ -685,7 +685,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "View your National Insurance record.") shouldBe true
     }
 
@@ -697,7 +697,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "View your National Insurance record.") shouldBe true
     }
 
@@ -709,7 +709,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("p").exists(e => e.text == "View your National Insurance record.") shouldBe true
     }
 
@@ -721,7 +721,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.pensions").first).isDefined shouldBe injected[ConfigDecorator].nispEnabled
     }
 
@@ -733,7 +733,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.pensions").first).isDefined shouldBe injected[ConfigDecorator].nispEnabled
     }
 
@@ -745,7 +745,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.pensions").first).isDefined shouldBe injected[ConfigDecorator].nispEnabled
     }
 
@@ -757,7 +757,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.pensions").first).isDefined shouldBe injected[ConfigDecorator].nispEnabled
     }
 
@@ -769,7 +769,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.pensions").first).isDefined shouldBe injected[ConfigDecorator].nispEnabled
     }
 
@@ -781,7 +781,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.pensions").first).isDefined shouldBe injected[ConfigDecorator].nispEnabled
     }
 
@@ -793,7 +793,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.tamc").first).isDefined
     }
 
@@ -805,7 +805,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".tamc-link").first).isDefined shouldBe true
     }
 
@@ -817,7 +817,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".tamc-link").first).isDefined shouldBe true
     }
 
@@ -829,7 +829,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".tamc-link").first).isDefined shouldBe false
     }
 
@@ -841,7 +841,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = false, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = false, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".tamc-link").first).isDefined shouldBe false
     }
 
@@ -853,7 +853,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), false, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), false, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".child-ben-service-link").first).isDefined shouldBe true
     }
 
@@ -865,7 +865,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = false
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.getElementById("feedback-link")).isDefined shouldBe false
     }
 
@@ -877,7 +877,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = false
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".annual-taxable-income").first()).isDefined shouldBe false
     }
 
@@ -889,7 +889,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.sa-deadlines-block").first).isDefined shouldBe false
     }
 
@@ -901,7 +901,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.sa-deadlines-block").first).isDefined shouldBe false
     }
 
@@ -913,7 +913,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.sa-deadlines-block").first).isDefined shouldBe false
     }
 
@@ -925,7 +925,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.sa-deadlines-block").first).isDefined shouldBe false
     }
 
@@ -937,7 +937,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.manage-paperless").first).isDefined shouldBe true
     }
 
@@ -949,7 +949,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.manage-paperless").first).isDefined shouldBe true
     }
 
@@ -961,7 +961,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.manage-paperless").first).isDefined shouldBe true
     }
 
@@ -973,7 +973,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.manage-paperless").first).isDefined shouldBe true
     }
 
@@ -985,7 +985,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.manage-paperless").first).isDefined shouldBe true
     }
 
@@ -997,7 +997,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select("div.manage-paperless").first).isDefined shouldBe true
     }
 
@@ -1009,7 +1009,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.getElementById("business-tax-account-link")).isDefined shouldBe true
     }
 
@@ -1021,7 +1021,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.select(".nino").first).isDefined shouldBe false
     }
 
@@ -1034,7 +1034,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.getElementById("business-tax-account-link")).isDefined shouldBe false
     }
 
@@ -1046,7 +1046,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.getElementById("business-tax-account-link")).isDefined shouldBe false
     }
 
@@ -1058,7 +1058,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       Option(document.getElementById("business-tax-account-link")).isDefined shouldBe false
     }
 
@@ -1070,7 +1070,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h2").exists(e => e.text == "Services you might need") shouldBe true
     }
 
@@ -1082,7 +1082,7 @@ class homeSpec extends BaseSpec {
       override val principalName: Option[String] = None
       override val userHasPersonDetails: Boolean = true
 
-      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = false, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.home(Html(""), showMarriageAllowanceSection = false, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h2").exists(e => e.text == "Services you might need") shouldBe true
     }
 
@@ -1098,7 +1098,7 @@ class homeSpec extends BaseSpec {
         showMarriageAllowanceSection = true,
         isActivePaye = isActivePaye,
         showCompanyBenefitSection = true,
-        taxCalculationState = TaxCalculationNotFoundState,
+        taxCalculationState = TaxCalculationUnkownState,
         saAction,
         false,
         None
@@ -1208,7 +1208,7 @@ class homeSpec extends BaseSpec {
       def isHighGG: Boolean
 
       lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isActivePaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = isHighGG)
-      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator],  Some(pertaxUser)), messages).toString)
+      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator],  Some(pertaxUser)), messages).toString)
 
       def runCheck(niBlockExpected: Boolean, companyBenefitsBlockExpected: Boolean) = {
         document.select("h3").exists(e => e.text == "National Insurance") shouldBe niBlockExpected
@@ -1294,7 +1294,7 @@ class homeSpec extends BaseSpec {
       def isGovernmentGateway: Boolean
 
       lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isActivePaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = false)
-      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
 
       def runCheck(taxCreditsBlockExpected: Boolean, childBenefitsBlockExpected: Boolean) = {
         document.select("h3").exists(e => e.text == "Tax credits") shouldBe taxCreditsBlockExpected
@@ -1373,7 +1373,7 @@ class homeSpec extends BaseSpec {
       def isLta: Boolean
 
       lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isActivePaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway)
-      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, isLta, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, isLta, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
 
       def runCheck(lifetimeAllowanceProtectionBlockExpected: Boolean) = {
         document.select("h3").exists(e => e.text == "Lifetime allowance protection") shouldBe lifetimeAllowanceProtectionBlockExpected
@@ -1401,7 +1401,7 @@ class homeSpec extends BaseSpec {
 
   "Header text should be 'Personal tax account'" in new OldStyleSpecSetup {
     val pertaxUser = Fixtures.buildFakePertaxUser(withSa = true, isGovernmentGateway = false)
-    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator],Some(pertaxUser)), messages).toString)
+    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator],Some(pertaxUser)), messages).toString)
 
     document.select(".header__menu__proposition-name").exists(e => e.text == "Personal tax account") shouldBe true
   }
@@ -1443,7 +1443,7 @@ class homeSpec extends BaseSpec {
   }
 
   "Should not see any banner when user has not got an overpayment" in new TaxCalculationBannerSetup {
-    lazy val taxCalculationState = TaxCalculationNotFoundState
+    lazy val taxCalculationState = TaxCalculationUnkownState
     document.select("h3").exists(e => e.text == "You have paid too much tax") shouldBe false
     document.select("h3").exists(e => e.text == "You paid too much tax") shouldBe false
   }
@@ -1467,7 +1467,7 @@ class homeSpec extends BaseSpec {
   }
 
   "Should see 'You have paid too little tax' (Underpayment) banner when user has paid underpayment" in new TaxCalculationBannerSetup {
-    lazy val taxCalculationState = TaxCalculationPaidAllState()
+    lazy val taxCalculationState = TaxCalculationPaidAllState
     document.select("p").exists(e => e.text == "You have no payments to make to HMRC for the tax year 2016 to 2017") shouldBe true
     Option(document.getElementsByClass("panel-indent--info")).isDefined shouldBe true
   }
@@ -1500,25 +1500,25 @@ class homeSpec extends BaseSpec {
 
   "Should see 'self assessment bucket' on the homepage with activation code instructions as a GG User who has received their 12 digit activation code" in new OldStyleSpecSetup {
     val pertaxUser = Fixtures.buildFakePertaxUser(withSa = true, isGovernmentGateway = true)
-    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, ActivateSelfAssessmentActionNeeded(SaUtr("1111111111")), false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, ActivateSelfAssessmentActionNeeded(SaUtr("1111111111")), false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
     document.select("p").exists(e => e.text == "Activate your Self Assessment using the 12-digit activation code you received in the post.") shouldBe true
   }
 
   "Should not see 'self assessment bucket' on the homepage as a GG User who activated their 12 digit activation code" in new OldStyleSpecSetup {
     val pertaxUser = Fixtures.buildFakePertaxUser(withSa = true, isGovernmentGateway = true)
-    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
     document.select("p").exists(e => e.text == "Activate your Self Assessment using the 12-digit activation code you received in the post.") shouldBe false
   }
 
   "Should see 'self assessment bucket' on the homepage linking to 'sa-not-shown' as GG User who already has an SAUTR that exists in citizen details" in new OldStyleSpecSetup {
     val pertaxUser = Fixtures.buildFakePertaxUser(withSa = true, isGovernmentGateway = true)
-    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111")), false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111")), false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
     document.select("p").exists(e => e.text == "Check your Self Assessment details.") shouldBe true
   }
 
   "Should not see 'self assessment bucket' on the homepage linking to 'sa-not-shown' as GG User whose SAUTR does not exist in ciziten details" in new OldStyleSpecSetup {
     val pertaxUser = Fixtures.buildFakePertaxUser(withSa = true, isGovernmentGateway = true)
-    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationNotFoundState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+    val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
     document.select("p").exists(e => e.text == "Check your Self Assessment details.") shouldBe false
   }
 }
