@@ -23,10 +23,9 @@ case class TaxCalculationPaymentPaidState(amount: BigDecimal, datePaid: String) 
 case class TaxCalculationPaymentChequeSentState(amount: BigDecimal, datePaid: String) extends TaxCalculationState
 case class TaxCalculationPaymentDueState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
 case class TaxCalculationPartPaidState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
-case class TaxCalculationPaidAllState() extends TaxCalculationState
+case object TaxCalculationPaidAllState extends TaxCalculationState
 case class TaxCalculationPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
-case object TaxCalculationNotFoundState extends TaxCalculationState
-case class TaxCalculationUnderpaymentState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
+case object TaxCalculationUnkownState extends TaxCalculationState
 
 object TaxCalculationState {
 
@@ -46,10 +45,10 @@ object TaxCalculationState {
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _)) =>
         TaxCalculationPartPaidState(amount, taxYear, taxYear + 1)
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _)) =>
-        TaxCalculationPaidAllState()
+        TaxCalculationPaidAllState
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _)) =>
         TaxCalculationPaymentsDownState(taxYear, taxYear + 1)
-      case _ => TaxCalculationNotFoundState
+      case _ => TaxCalculationUnkownState
     }
   }
 }

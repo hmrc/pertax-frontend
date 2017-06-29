@@ -28,34 +28,33 @@
       <p>@Messages("label.HM_Revenue_and_customs_sent_you_a_cheque", formatCurrency(amount), datePaid)</p>
     }
   }
-  case TaxCalculationPaymentDueState (amount, startOfTaxYear, endOfTaxYear) => {
+  case TaxCalculationPaymentDueState(amount, startOfTaxYear, endOfTaxYear) => {
     @infoBanner {
       <h3>@Messages("label.You_have_paid_too_little_tax")</h3>
       <p>@Messages("label.You_owe_HM_Revenue_and_customs", formatCurrency(amount), startOfTaxYear.toString, endOfTaxYear.toString)</p>
       <a class="ga-track-event" data-ga-event-category="Reconciliation status" data-ga-event-action="click" data-ga-event-label="Paid to little tax" href="@pertaxContext.configDecorator.taxYouPaidStatus">@Messages("label.get_more_details")</a>
     }
   }
-  case TaxCalculationPartPaidState (amount, startOfTaxYear, endOfTaxYear) => {
+  case TaxCalculationPartPaidState(amount, startOfTaxYear, endOfTaxYear) => {
     @infoBanner {
       <h3>@Messages("label.You_have_paid_too_little_tax")</h3>
       <p>@Messages("label.You_owe_HM_Revenue_and_customs", formatCurrency(amount), startOfTaxYear.toString, endOfTaxYear.toString)</p>
       <a class="ga-track-event" data-ga-event-category="Reconciliation status" data-ga-event-action="click" data-ga-event-label="Paid to little tax" href="@pertaxContext.configDecorator.taxYouPaidStatus">@Messages("label.get_more_details")</a>
     }
   }
-  case TaxCalculationPaidAllState () => {
+  case TaxCalculationPaidAllState => {
     @infoBanner {
       <h3>@Messages("label.you_dont_owe_anymore_income_tax")</h3>
       <p>@Messages("label.you_have_no_payments_to_make_to_hmrc_")</p>
       <a class="ga-track-event" data-ga-event-category="Reconciliation status" data-ga-event-action="click" data-ga-event-label="Paid to little tax" href="@pertaxContext.configDecorator.taxYouPaidStatus">@Messages("label.get_more_details")</a>
     }
   }
-  case TaxCalculationPaymentsDownState (startOfTaxYear, endOfTaxYear) => {
+  case TaxCalculationPaymentsDownState(startOfTaxYear, endOfTaxYear) => {
     @infoBanner {
       <h3>@Messages("label.You_have_paid_too_little_tax")</h3>
       <p>@Messages("label.you_owe_hmrc_for_the_tax_year", startOfTaxYear.toString, endOfTaxYear.toString)</p>
       <a class="ga-track-event" data-ga-event-category="Reconciliation status" data-ga-event-action="click" data-ga-event-label="Paid to little tax" href="@pertaxContext.configDecorator.taxYouPaidStatus">@Messages("label.get_more_details")</a>
     }
   }
-  case TaxCalculationNotFoundState => {
-  }
+  case TaxCalculationUnkownState => {}
 }
