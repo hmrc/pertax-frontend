@@ -1174,13 +1174,13 @@ class homeSpec extends BaseSpec {
       runCheck(saBlockExpected = false, saMessage = "Check your Self Assessment details.", payeBlockExpected = true, incomeTaxHeaderExpected = true)
     }
 
-    "not see the income tax header or PAYE block or SA block when user is GovernmentGateway is not PAYE and is not Sa" in new WithIncomeTaxBlocksSetup {
+    "see the income tax header but not the PAYE block or SA block when user is GovernmentGateway is not PAYE and is not Sa" in new WithIncomeTaxBlocksSetup {
       lazy val isActivePaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val saAction = NoSelfAssessmentActionNeeded
 
-      runCheck(saBlockExpected = false, saMessage = "Check your Self Assessment details.", payeBlockExpected = false, incomeTaxHeaderExpected = false)
+      runCheck(saBlockExpected = false, saMessage = "Check your Self Assessment details.", payeBlockExpected = false, incomeTaxHeaderExpected = true)
     }
 
     "see the income tax header and PAYE block but not SA block when user is PAYE and not GovernmentGateway and not Sa" in new WithIncomeTaxBlocksSetup {
@@ -1192,13 +1192,13 @@ class homeSpec extends BaseSpec {
       runCheck(saBlockExpected = false, saMessage = "Check your Self Assessment details.", payeBlockExpected = true, incomeTaxHeaderExpected = true)
     }
 
-    "not see the income tax header or PAYE block or SA block when user is not PAYE and not GovernmentGateway and not Sa" in new WithIncomeTaxBlocksSetup {
+    "see the income tax header but not the PAYE block or SA block when user is not PAYE and not GovernmentGateway and not Sa" in new WithIncomeTaxBlocksSetup {
       lazy val isActivePaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val saAction = NoSelfAssessmentActionNeeded
 
-      runCheck(saBlockExpected = false, saMessage = "Check your Self Assessment details.", payeBlockExpected = false, incomeTaxHeaderExpected = false)
+      runCheck(saBlockExpected = false, saMessage = "Check your Self Assessment details.", payeBlockExpected = false, incomeTaxHeaderExpected = true)
     }
 
     abstract class WithNationalInsuranceBlocksSetup {
@@ -1216,22 +1216,22 @@ class homeSpec extends BaseSpec {
       }
     }
 
-    "not see the national insurance block or company benefits block when user is not GovernmentGateway and not PAYE, SA or High GG" in new WithNationalInsuranceBlocksSetup {
+    "see the national insurance block but not the company benefits block when user is not GovernmentGateway and not active PAYE, SA or High GG" in new WithNationalInsuranceBlocksSetup {
       lazy val isActivePaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val isHighGG = false
 
-      runCheck(niBlockExpected = false, companyBenefitsBlockExpected = false)
+      runCheck(niBlockExpected = true, companyBenefitsBlockExpected = false)
     }
 
-    "not see the national insurance block or company benefits block when user is Government Gateway but not PAYE, SA or High GG" in new WithNationalInsuranceBlocksSetup {
+    "see the national insurance block but not the company benefits block when user is Government Gateway but not active PAYE, SA or High GG" in new WithNationalInsuranceBlocksSetup {
       lazy val isActivePaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val isHighGG = false
 
-      runCheck(niBlockExpected = false, companyBenefitsBlockExpected = false)
+      runCheck(niBlockExpected = true, companyBenefitsBlockExpected = false)
     }
 
     "see the national insurance block but not company benefits block when user is Government Gateway and active PAYE, but not SA or High GG" in new WithNationalInsuranceBlocksSetup {
@@ -1252,22 +1252,22 @@ class homeSpec extends BaseSpec {
       runCheck(niBlockExpected = true, companyBenefitsBlockExpected = false)
     }
 
-    "not see the national insurance block or company benefits block when user is not GovernmentGateway and not PAYE, SA but is High GG" in new WithNationalInsuranceBlocksSetup {
+    "see the national insurance block but not the company benefits block when user is not GovernmentGateway and not PAYE, SA but is High GG" in new WithNationalInsuranceBlocksSetup {
       lazy val isActivePaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val isHighGG = true
 
-      runCheck(niBlockExpected = false, companyBenefitsBlockExpected = false)
+      runCheck(niBlockExpected = true, companyBenefitsBlockExpected = false)
     }
 
-    "not see the national insurance block or company benefits block when user is Government Gateway and High GG but not PAYE and SA" in new WithNationalInsuranceBlocksSetup {
+    "see the national insurance block but not the company benefits block when user is Government Gateway and High GG but not PAYE and SA" in new WithNationalInsuranceBlocksSetup {
       lazy val isActivePaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val isHighGG = true
 
-      runCheck(niBlockExpected = false, companyBenefitsBlockExpected = false)
+      runCheck(niBlockExpected = true, companyBenefitsBlockExpected = false)
     }
 
     "see the national insurance block and company benefits block when user is Government Gateway, High GG and active PAYE, but not SA" in new WithNationalInsuranceBlocksSetup {
