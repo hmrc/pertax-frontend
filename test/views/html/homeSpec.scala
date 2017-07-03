@@ -111,7 +111,7 @@ class homeSpec extends BaseSpec {
       document.select("h1").exists(e => e.text == "Your account") shouldBe true
     }
 
-    "show 'Check your tax codes and an estimate of the Income Tax you'll pay.' for the PAYE section when the user has details" in new SpecSetup {
+    "show 'Check your tax codes and an estimate of the Income Tax you'll pay.' for the PAYE section when the user has details and is active Paye" in new SpecSetup {
       override val withPaye: Boolean = true
       override val withSa: Boolean = false
       override val isGovernmentGateway: Boolean = false
@@ -122,6 +122,19 @@ class homeSpec extends BaseSpec {
       val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h3 a").exists(e => e.text == "Pay As You Earn (PAYE)") shouldBe true
       document.select("p").exists(e => e.text == "Check your tax codes and an estimate of the Income Tax you'll pay.") shouldBe true
+    }
+
+    "not show 'Check your tax codes and an estimate of the Income Tax you'll pay.' for the PAYE section when the user has details but is not active PAYE" in new SpecSetup {
+      override val withPaye: Boolean = true
+      override val withSa: Boolean = false
+      override val isGovernmentGateway: Boolean = false
+      override val isHighGG: Boolean = true
+      override val principalName: Option[String] = None
+      override val userHasPersonDetails: Boolean = true
+
+      val document = Jsoup.parse(views.html.home(Html(""), true, false, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      document.select("h3 a").exists(e => e.text == "Pay As You Earn (PAYE)") shouldBe false
+      document.select("p").exists(e => e.text == "Check your tax codes and an estimate of the Income Tax you'll pay.") shouldBe false
     }
 
     "show 'The tax codes and Income Tax service is currently unavailable' for the PAYE section when the user has no details" in new SpecSetup {
@@ -137,7 +150,7 @@ class homeSpec extends BaseSpec {
       document.select("p").exists(e => e.text == "The tax codes and Income Tax service is currently unavailable") shouldBe true
     }
 
-    "show 'See how company car and medical benefit could affect your taxable income.' for the Company benefits section when the user has details" in new SpecSetup {
+    "show 'See how company car and medical benefit could affect your taxable income.' for the Company benefits section when the user has details and is active PAYE" in new SpecSetup {
       override val withPaye: Boolean = true
       override val withSa: Boolean = false
       override val isGovernmentGateway: Boolean = false
@@ -148,6 +161,19 @@ class homeSpec extends BaseSpec {
       val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
       document.select("h3 a").exists(e => e.text == "Company benefits") shouldBe true
       document.select("p").exists(e => e.text == "See how company car and medical benefit could affect your taxable income.") shouldBe true
+    }
+
+    "not show 'See how company car and medical benefit could affect your taxable income.' for the Company benefits section when the user has details but is not active PAYE" in new SpecSetup {
+      override val withPaye: Boolean = true
+      override val withSa: Boolean = false
+      override val isGovernmentGateway: Boolean = false
+      override val isHighGG: Boolean = true
+      override val principalName: Option[String] = None
+      override val userHasPersonDetails: Boolean = true
+
+      val document = Jsoup.parse(views.html.home(Html(""), true, false, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(testPertaxUser)), messages).toString)
+      document.select("h3 a").exists(e => e.text == "Company benefits") shouldBe false
+      document.select("p").exists(e => e.text == "See how company car and medical benefit could affect your taxable income.") shouldBe false
     }
 
     "show 'The company benefits service is currently unavailable' for the Company benefits section when the user has no details" in new SpecSetup {
@@ -1087,21 +1113,21 @@ class homeSpec extends BaseSpec {
     }
 
     abstract class WithIncomeTaxBlocksSetup {
-      def isActivePaye: Boolean
+      def isPaye: Boolean
       def isSa: Boolean
       def saAction: SelfAssessmentActionNeeded
       def isGovernmentGateway: Boolean
 
-      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = true, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = false)
+      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isPaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = false)
       lazy val document = Jsoup.parse(views.html.home(
         inboxLinkPartial = Html(""),
         showMarriageAllowanceSection = true,
-        isActivePaye = isActivePaye,
+        isActivePaye = true,
         showCompanyBenefitSection = true,
         taxCalculationState = TaxCalculationUnkownState,
-        saAction,
-        false,
-        None
+        saActionNeeded = saAction,
+        showLtaSection = false,
+        userResearchLinkUrl = None
       )(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
 
       def runCheck(saBlockExpected: Boolean, saMessage: String, payeBlockExpected: Boolean, incomeTaxHeaderExpected: Boolean) = {
@@ -1112,7 +1138,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header, PAYE block and SA block when user is GovernmentGateway and PAYE and SA" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val saAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
@@ -1121,7 +1147,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header, SA block but not PAYE block when user is GovernmentGateway, and SA but not PAYE" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val saAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
@@ -1130,7 +1156,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header, SA Activation block and PAYE block when user is GovernmentGateway and PAYE and SA enrollment = 'NotYetActivated'" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val saAction = ActivateSelfAssessmentActionNeeded(SaUtr("1111111111"))
@@ -1139,7 +1165,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header, SA Activation block but not PAYE block when user is GovernmentGateway, SA enrollment = 'NotYetActivated', but not PAYE" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val saAction = ActivateSelfAssessmentActionNeeded(SaUtr("1111111111"))
@@ -1148,7 +1174,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header, SA Wrong Account block and PAYE block when user is GovernmentGateway and has a SaUtr matching record and is PAYE" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val saAction = NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111"))
@@ -1157,7 +1183,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header, SA Wrong Account block but no PAYE block when user is GovernmentGateway and has a SaUtr matching record and is not PAYE" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val saAction = NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111"))
@@ -1166,7 +1192,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header and PAYE block but no SA block when user is GovernmentGateway and is PAYE but is not Sa" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val saAction = NoSelfAssessmentActionNeeded
@@ -1175,7 +1201,7 @@ class homeSpec extends BaseSpec {
     }
 
     "not see the income tax header or PAYE block or SA block when user is GovernmentGateway is not PAYE and is not Sa" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val saAction = NoSelfAssessmentActionNeeded
@@ -1184,7 +1210,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the income tax header and PAYE block but not SA block when user is PAYE and not GovernmentGateway and not Sa" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val saAction = NoSelfAssessmentActionNeeded
@@ -1193,7 +1219,7 @@ class homeSpec extends BaseSpec {
     }
 
     "not see the income tax header or PAYE block or SA block when user is not PAYE and not GovernmentGateway and not Sa" in new WithIncomeTaxBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val saAction = NoSelfAssessmentActionNeeded
@@ -1202,13 +1228,13 @@ class homeSpec extends BaseSpec {
     }
 
     abstract class WithNationalInsuranceBlocksSetup {
-      def isActivePaye: Boolean
+      def isPaye: Boolean
       def isSa: Boolean
       def isGovernmentGateway: Boolean
       def isHighGG: Boolean
 
-      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isActivePaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = isHighGG)
-      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator],  Some(pertaxUser)), messages).toString)
+      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isPaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = isHighGG)
+      lazy val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator],  Some(pertaxUser)), messages).toString)
 
       def runCheck(niBlockExpected: Boolean, companyBenefitsBlockExpected: Boolean) = {
         document.select("h3").exists(e => e.text == "National Insurance") shouldBe niBlockExpected
@@ -1217,7 +1243,7 @@ class homeSpec extends BaseSpec {
     }
 
     "not see the national insurance block or company benefits block when user is not GovernmentGateway and not PAYE, SA or High GG" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val isHighGG = false
@@ -1226,7 +1252,7 @@ class homeSpec extends BaseSpec {
     }
 
     "not see the national insurance block or company benefits block when user is Government Gateway but not PAYE, SA or High GG" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val isHighGG = false
@@ -1234,8 +1260,8 @@ class homeSpec extends BaseSpec {
       runCheck(niBlockExpected = false, companyBenefitsBlockExpected = false)
     }
 
-    "see the national insurance block but not company benefits block when user is Government Gateway and active PAYE, but not SA or High GG" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = true
+    "see the national insurance block but not company benefits block when user is Government Gateway and PAYE, but not SA or High GG" in new WithNationalInsuranceBlocksSetup {
+      lazy val isPaye = true
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val isHighGG = false
@@ -1243,8 +1269,8 @@ class homeSpec extends BaseSpec {
       runCheck(niBlockExpected = true, companyBenefitsBlockExpected = false)
     }
 
-    "see the national insurance block but not company benefits block when user is Government Gateway and active PAYE and SA, but not High GG" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = true
+    "see the national insurance block but not company benefits block when user is Government Gateway and PAYE and SA, but not High GG" in new WithNationalInsuranceBlocksSetup {
+      lazy val isPaye = true
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val isHighGG = false
@@ -1253,7 +1279,7 @@ class homeSpec extends BaseSpec {
     }
 
     "not see the national insurance block or company benefits block when user is not GovernmentGateway and not PAYE, SA but is High GG" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val isHighGG = true
@@ -1262,7 +1288,7 @@ class homeSpec extends BaseSpec {
     }
 
     "not see the national insurance block or company benefits block when user is Government Gateway and High GG but not PAYE and SA" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val isHighGG = true
@@ -1270,8 +1296,8 @@ class homeSpec extends BaseSpec {
       runCheck(niBlockExpected = false, companyBenefitsBlockExpected = false)
     }
 
-    "see the national insurance block and company benefits block when user is Government Gateway, High GG and active PAYE, but not SA" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = true
+    "see the national insurance block and company benefits block when user is Government Gateway, High GG and PAYE, but not SA" in new WithNationalInsuranceBlocksSetup {
+      lazy val isPaye = true
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val isHighGG = true
@@ -1279,8 +1305,8 @@ class homeSpec extends BaseSpec {
       runCheck(niBlockExpected = true, companyBenefitsBlockExpected = true)
     }
 
-    "see the national insurance block and company benefits block when user is Government Gateway, High GG, active PAYE and SA" in new WithNationalInsuranceBlocksSetup {
-      lazy val isActivePaye = true
+    "see the national insurance block and company benefits block when user is Government Gateway, High GG, PAYE and SA" in new WithNationalInsuranceBlocksSetup {
+      lazy val isPaye = true
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val isHighGG = true
@@ -1289,12 +1315,12 @@ class homeSpec extends BaseSpec {
     }
 
     abstract class WithTaxAndChildBenefitsBlocksSetup {
-      def isActivePaye: Boolean
+      def isPaye: Boolean
       def isSa: Boolean
       def isGovernmentGateway: Boolean
 
-      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isActivePaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = false)
-      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isPaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway, isHighGG = false)
+      lazy val document = Jsoup.parse(views.html.home(Html(""), true, false, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, false, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
 
       def runCheck(taxCreditsBlockExpected: Boolean, childBenefitsBlockExpected: Boolean) = {
         document.select("h3").exists(e => e.text == "Tax credits") shouldBe taxCreditsBlockExpected
@@ -1303,7 +1329,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the tax credits block and child benefits block when user is not GovernmentGateway and not PAYE or SA" in new WithTaxAndChildBenefitsBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val niBlockExpected = false
@@ -1313,7 +1339,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the tax credits block and child benefits block when user is GovernmentGateway and not PAYE or SA" in new WithTaxAndChildBenefitsBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val niBlockExpected = false
@@ -1323,7 +1349,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the tax credits block and child benefits block when user is GovernmentGateway and PAYE but not SA" in new WithTaxAndChildBenefitsBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = false
       lazy val isGovernmentGateway = true
       lazy val niBlockExpected = true
@@ -1333,7 +1359,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the tax credits block and child benefits block when user is GovernmentGateway, PAYE and SA" in new WithTaxAndChildBenefitsBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = true
       lazy val isGovernmentGateway = true
       lazy val niBlockExpected = true
@@ -1343,7 +1369,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the tax credits block and child benefits block when user is not GovernmentGateway but is PAYE and SA" in new WithTaxAndChildBenefitsBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = true
       lazy val isGovernmentGateway = false
 
@@ -1351,7 +1377,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the tax credits block and child benefits block when user is not GovernmentGateway or PAYE but is SA" in new WithTaxAndChildBenefitsBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = true
       lazy val isGovernmentGateway = false
 
@@ -1359,7 +1385,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the tax credits block and child benefits block when user is not GovernmentGateway or SA but is PAYE" in new WithTaxAndChildBenefitsBlocksSetup {
-      lazy val isActivePaye = true
+      lazy val isPaye = true
       lazy val isSa = false
       lazy val isGovernmentGateway = false
 
@@ -1367,13 +1393,13 @@ class homeSpec extends BaseSpec {
     }
 
     abstract class WithLtaBlocksSetup {
-      def isActivePaye: Boolean
+      def isPaye: Boolean
       def isSa: Boolean
       def isGovernmentGateway: Boolean
       def isLta: Boolean
 
-      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isActivePaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway)
-      lazy val document = Jsoup.parse(views.html.home(Html(""), true, isActivePaye, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, isLta, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      lazy val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = isPaye, withSa = isSa, isGovernmentGateway = isGovernmentGateway)
+      lazy val document = Jsoup.parse(views.html.home(Html(""), true, true, true, TaxCalculationUnkownState, NoSelfAssessmentActionNeeded, isLta, None)(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
 
       def runCheck(lifetimeAllowanceProtectionBlockExpected: Boolean) = {
         document.select("h3").exists(e => e.text == "Lifetime allowance protection") shouldBe lifetimeAllowanceProtectionBlockExpected
@@ -1381,7 +1407,7 @@ class homeSpec extends BaseSpec {
     }
 
     "not see lifetime allowance protection block when user is not LTA" in new WithLtaBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val isLta = false
@@ -1390,7 +1416,7 @@ class homeSpec extends BaseSpec {
     }
 
     "see the lifetime allowance protection block when user is LTA" in new WithLtaBlocksSetup {
-      lazy val isActivePaye = false
+      lazy val isPaye = false
       lazy val isSa = false
       lazy val isGovernmentGateway = false
       lazy val isLta = true
