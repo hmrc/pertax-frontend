@@ -56,15 +56,15 @@
 
       @taxCalculationBanner(taxCalculationState)
 
-      @ifUserPredicate(u => (u.isSa && u.isGovernmentGateway) || isActivePaye) { u =>
+      @ifUserPredicate(u => (u.isSa && u.isGovernmentGateway) || u.isPaye) { u =>
         <div class="grid-row pertax-panel tax-nino-wrapper">
           <div class="column-whole">
             <h2 class="name-header">@Messages("label.tax_and_national_insurance")</h2>
 
             <div class="grid-row ">
-              @ifPayeUser {
-                @if(isActivePaye) {
-                  <div class="column-half grid tax-estimate">
+
+              @if(isActivePaye) {
+                <div class="column-half grid tax-estimate">
                   @ifUserHasPersonDetails {
                     <h3><a id="paye-link" class="trackLink" href="@pertaxContext.configDecorator.taxEstimateServiceUrl">@Messages("label.pay_as_you_earn_paye")</a></h3>
                     <p>@Messages("label.check_your_tax_codes_and_an_estimate_of_the_income_tax_youll_pay")</p>
@@ -73,16 +73,18 @@
                     <h3>@Messages("label.pay_as_you_earn_paye")</h3>
                     <p>@Messages("label.the_tax_codes_and_income_tax_service_is_currently_unavailable")</p>
                   }
-                  </div>
-                }
+                </div>
               }
+
               @ifGovernmentGatewayUser {
                 @saPanel(saActionNeeded)
               }
+
               <div class="column-half grid national-insurance">
                 <h3><a href="@controllers.routes.InterstitialController.displayNationalInsurance">@Messages("label.national_insurance")</a></h3>
                 <p>@Messages("label.view_your_national_insurance_record")</p>
               </div>
+
               @if(isActivePaye && showCompanyBenefitSection){
                 @ifHighGovernmentGatewayOrVerifyUser {
                   <div class="column-half grid company-benefits-section">
