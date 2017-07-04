@@ -52,7 +52,7 @@ class MessageController @Inject() (
   def messageList = ProtectedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
-        enforceSaUser {
+        enforcePayeOrSaUser {
           messagePartialService.getMessageListPartial map { p =>
             Ok(views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
           }
@@ -63,7 +63,7 @@ class MessageController @Inject() (
   def messageDetail(messageReadUrl: String) = ProtectedAction(messageBreadcrumb) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
-        enforceSaUser {
+        enforcePayeOrSaUser {
           messagePartialService.getMessageDetailPartial(messageReadUrl).map {
             case HtmlPartial.Success(Some(title), content) => Ok(views.html.message.messageDetail(message = content, title = title))
             case HtmlPartial.Success(None, content) => Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))

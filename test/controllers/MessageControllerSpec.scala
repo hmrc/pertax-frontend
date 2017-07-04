@@ -75,7 +75,7 @@ class MessageControllerSpec extends BaseSpec  {
 
   "Calling MessageController.messageList" should {
 
-    "call messages and return 200 when called by a high GG user" in new LocalSetup {
+    "call messages and return 200 when called by a high sa  GG user" in new LocalSetup {
 
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
@@ -92,6 +92,29 @@ class MessageControllerSpec extends BaseSpec  {
 
       verify(controller.messagePartialService, times(1)).getMessageListPartial(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
+    }
+
+    "call messages and return 200 when called by a high paye GG user" in new LocalSetup {
+
+      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+
+      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
+        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
+      }
+
+      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+        Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
+      }
+
+      when(controller.messagePartialService.getMessageListPartial(any())) thenReturn {
+        Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
+      }
+
+      val r = controller.messageList(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe OK
+
+      verify(controller.messagePartialService, times(1)).getMessageListPartial(any())
+      verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
     }
 
     "return 401 for a high GG user for a high GG user not enrolled in SA" in new LocalSetup {
@@ -148,7 +171,7 @@ class MessageControllerSpec extends BaseSpec  {
 
   "Calling MessageController.messageDetail" should {
 
-    "call messages and return 200 when called by a high GG" in new LocalSetup {
+    "call messages and return 200 when called by a SA high GG" in new LocalSetup {
 
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
@@ -164,6 +187,28 @@ class MessageControllerSpec extends BaseSpec  {
       status(r) shouldBe OK
       verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
+    }
+
+    "call messages and return 200 when called by a high PAYE GG" in new LocalSetup {
+
+      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+
+      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
+        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
+      }
+
+      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+        Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
+      }
+
+      when(controller.messagePartialService.getMessageDetailPartial(any())(any())) thenReturn {
+        Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
+      }
+
+      val r = controller.messageDetail("")(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe OK
+      verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
+      verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
     }
 
     "return 401 for a high GG user not enrolled in SA" in new LocalSetup {

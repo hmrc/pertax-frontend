@@ -138,6 +138,7 @@ object PertaxUser {
   def ifVerifyUser[T](block: => T)(implicit pertaxContext: PertaxContext)                        = ifUserPredicate(_.isVerify)(u => block)
   def ifHighGovernmentGatewayOrVerifyUser[T](block: => T)(implicit pertaxContext: PertaxContext) = ifUserPredicate(_.isHighGovernmentGatewayOrVerify)(u => block)
   def ifSaUser[T](block: => T)(implicit pertaxContext: PertaxContext)                            = ifUserPredicate(_.isSa)(u => block)
+  def ifPayeOrSaUser[T](block: => T)(implicit pertaxContext: PertaxContext)                      = ifUserPredicate(u => u.isSa || u.isPaye)(u => block)
   def ifPayeUser[T](block: => T)(implicit pertaxContext: PertaxContext)                          = ifUserPredicate(_.isPaye)(u => block)
   def ifPayeUserLoanNino[T](block: Nino => T)(implicit pertaxContext: PertaxContext)             = ifUserPredicate(_.isPaye)(u => u.nino.map(block))
   def ifNonDelegatingUser[T](block: => T)(implicit pertaxContext: PertaxContext)                 = ifUserPredicate(!_.authContext.isDelegating)(u => block)
