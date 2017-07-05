@@ -192,4 +192,7 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelAndCredentialS
 
   def enforceSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
     PertaxUser.ifSaUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+
+  def enforcePayeOrSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
+    PertaxUser.ifPayeOrSaUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
 }
