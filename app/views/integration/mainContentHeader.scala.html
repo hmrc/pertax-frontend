@@ -14,10 +14,10 @@ configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messag
   <div class="beta-banner">
     <p>
       <strong class="phase-tag">@Messages("label.beta")</strong>
-      @deskProToken.map { deskProToken =>
+        @deskProToken.map { deskProToken =>
       <span class="feedback">@Html(Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it", configDecorator.betaFeedbackUnauthenticatedUrl(deskProToken)))</span>
       }.getOrElse {
-      <span class="feedback">@Messages("global.label.this_is_a_trial_service")</span>
+        <span class="feedback">@Messages("global.label.this_is_a_trial_service")</span>
       }
     </p>
   </div>
@@ -28,15 +28,15 @@ configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messag
   </div>
 
   @for(lastLogin <- lastLogin) {
-  <div class="last-login mobile-hidden">
-    <p class="service-info-p">
-      @name.map { name =>
-      @Messages("global.label._last_signed_in", name, formatEasyReadingTimestamp(Some(lastLogin), ""))
-      }.getOrElse {
-      @Messages("global.label.you_last_signed_in", formatEasyReadingTimestamp(Some(lastLogin), ""))
-      }
-    </p>
-  </div>
+    <div class="last-login mobile-hidden">
+      <p class="service-info-p">
+        @name.map { name =>
+          @Messages("global.label._last_signed_in", name, formatEasyReadingTimestamp(Some(lastLogin), ""))
+        }.getOrElse {
+          @Messages("global.label.you_last_signed_in", formatEasyReadingTimestamp(Some(lastLogin), ""))
+        }
+      </p>
+    </div>
   }
 </div>
 

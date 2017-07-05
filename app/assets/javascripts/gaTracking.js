@@ -8,21 +8,29 @@ $( ".send-tcs-ga-event" ).submit(function( event ) {
   }
 });
 
-$(".ga-track-event").click(function(){
-  ga('send', 'event', $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'));
+$(".ga-track-event").click(function(event) {
+  if ($(this).is('a')) {
+    event.preventDefault();
+    var redirectUrl = $(this).attr('href');
+    gaWithCallback('send', 'event', $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'), function() {
+      window.location.href = redirectUrl;
+    });
+  } else {
+    ga('send', 'event', $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'));
+  }
 });
 
-function gaWithCallback(send, event, category, action, label, func) {
+function gaWithCallback(send, event, category, action, label, callback) {
   ga(send, event, category, action, label, {
-    hitCallback: callbackFunction
+    hitCallback: gaCallback
   });
-  var callbackFunctionCalled = false;
-  setTimeout(callbackFunction, 5000);
+  var gaCallbackCalled = false;
+  setTimeout(gaCallback, 5000);
 
-  function callbackFunction() {
-    if(!callbackFunctionCalled) {
-      func();
-      callbackFunctionCalled = true;
+  function gaCallback() {
+    if(!gaCallbackCalled) {
+      callback();
+      gaCallbackCalled = true;
     }
   }
 }

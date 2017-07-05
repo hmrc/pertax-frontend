@@ -23,7 +23,20 @@
 
   @if(pertaxContext.configDecorator.analyticsToken == Some("N/A")) {
     <script type="text/javascript">
-      var ga = function() { console.log(JSON.stringify({ call: 'ga', args: arguments})); };
+      var ga = function(send, event, category, action, label, args) {
+        console.log(JSON.stringify({
+          call: 'ga',
+          send: send,
+          event: event,
+          category: category,
+          action: action,
+          label: label
+        }));
+
+        if (typeof args['hitCallback'] === 'function' ) {
+          args['hitCallback']();
+        }
+      };
     </script>
   }
 
