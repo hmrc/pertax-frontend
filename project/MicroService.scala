@@ -6,6 +6,7 @@ import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import play.sbt.PlayImport.PlayKeys._
 import play.sbt.routes.RoutesKeys._
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning
 
 trait MicroService {
@@ -19,7 +20,7 @@ trait MicroService {
   val appName: String
 
   lazy val appDependencies : Seq[ModuleID] = ???
-  lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning)
+  lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
   lazy val playSettings : Seq[Setting[_]] = Seq.empty
 
   lazy val scoverageSettings = {
@@ -33,7 +34,7 @@ trait MicroService {
       ScoverageKeys.coverageHighlighting := true
     )
   }
-  
+
   val wartRemovedExcludedClasses = Seq(
     "app.Routes", "pertax.Routes", "prod.Routes", "uk.gov.hmrc.BuildInfo", 
     "controllers.routes", "controllers.javascript", "controllers.ref"
@@ -47,12 +48,9 @@ trait MicroService {
     .settings(defaultSettings(): _*)
     .settings(
       ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
-      targetJvm := "jvm-1.8",
       libraryDependencies ++= appDependencies,
       routesGenerator := StaticRoutesGenerator,
       playRunHooks <+= baseDirectory.map(base => Grunt(base)),
-      parallelExecution in Test := false,
-      fork in Test := false,
       retrieveManaged := true,
       wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.NonUnitStatements, Wart.Nothing, Wart.Product, Wart.Serializable),
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
@@ -60,7 +58,6 @@ trait MicroService {
       TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "controllers.bindable._", "uk.gov.hmrc.domain._",  "util.TemplateFunctions._"),
       routesImport += "controllers.bindable._"
     )
-    .settings(Repositories.playPublishingSettings : _*)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
     .settings(inConfig(TemplateItTest)(Defaults.itSettings): _*)
@@ -70,7 +67,6 @@ trait MicroService {
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
-    .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"))
     .settings(resolvers += Resolver.jcenterRepo)
 }
 
@@ -88,17 +84,4 @@ private object TestPhases {
     }
 }
 
-private object Repositories {
 
-  import uk.gov.hmrc._
-  import PublishingSettings._
-
-  lazy val playPublishingSettings : Seq[sbt.Setting[_]] = sbtrelease.ReleasePlugin.releaseSettings ++ Seq(
-
-    credentials += SbtCredentials,
-
-    publishArtifact in(Compile, packageDoc) := false,
-    publishArtifact in(Compile, packageSrc) := false
-  ) ++
-    publishAllArtefacts
-}
