@@ -67,32 +67,6 @@ class InterstitialController @Inject() (
       }
   }
 
-  def displayTaxCreditsSummary: Action[AnyContent] = ProtectedAction(baseBreadcrumb, fetchPersonDetails = false) {
-    implicit pertaxContext =>
-      showingWarningIfWelsh { implicit pertaxContext =>
-        enforcePaperlessPreference {
-          val (summaryPartial, iFormsPartial) = (
-            if (configDecorator.taxCreditsEnabled) formPartialService.getTaxCreditsSummaryPartial.map(Some(_)) else Future.successful(None),
-            if (configDecorator.taxCreditsIFormsEnabled) formPartialService.getTaxCreditsIFormsPartial.map(Some(_)) else Future.successful(None)
-          )
-
-          for (s <- summaryPartial; i <- iFormsPartial) yield {
-            (s, i) match {
-              case (Some(HtmlPartial.Failure(_, _)), Some(HtmlPartial.Failure(_, _))) =>
-                Ok(views.html.interstitial.viewTaxCreditsSummaryPartialFailed())
-              case (taxCreditsSummaryPartial, taxCreditsIFormsPartial) =>
-                Ok(views.html.interstitial.viewTaxCreditsSummaryInterstitial(
-                  taxCreditsSummaryPartial = taxCreditsSummaryPartial.fold(Html(""))(_.successfulContentOrEmpty),
-                  taxCreditsIFormsPartial = taxCreditsIFormsPartial.fold(Html(""))(_.successfulContentOrEmpty),
-                  redirectUrl = currentUrl,
-                  egainWebchatPertaxId = configDecorator.egainWebchatPertaxId
-                ))
-            }
-          }
-        }
-      }
-  }
-
   def displayChildBenefits: Action[AnyContent] = ProtectedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       Future.successful(Ok(views.html.interstitial.viewChildBenefitsSummaryInterstitial(

@@ -49,8 +49,6 @@ class InterstitialControllerSpec extends BaseSpec {
     def confidenceLevel: ConfidenceLevel
     def simulateFormPartialServiceFailure: Boolean
     def simulateSaPartialServiceFailure: Boolean
-    def simulateTaxCreditsSummaryPartialFailure: Boolean
-    def simulateTaxCreditsIFormsPartialFailure: Boolean
     def paperlessResponse: ActivatePaperlessResponse
 
     lazy val authority = buildFakeAuthority(withPaye, withSa, confidenceLevel)
@@ -74,21 +72,8 @@ class InterstitialControllerSpec extends BaseSpec {
         if(simulateFormPartialServiceFailure) HtmlPartial.Failure()
         else HtmlPartial.Success(Some("Success"), Html("any"))
       }
-
-      private def formTaxCreditsSummaryResponse = Future.successful {
-        if(simulateTaxCreditsSummaryPartialFailure) HtmlPartial.Failure()
-        else HtmlPartial.Success(Some("Success"), Html("any"))
-      }
-
-      private def formTaxCreditsIFormsResponse = Future.successful {
-        if(simulateTaxCreditsIFormsPartialFailure) HtmlPartial.Failure()
-        else HtmlPartial.Success(Some("Success"), Html("any"))
-      }
-
       when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
       when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
-      when(formPartialService.getTaxCreditsSummaryPartial(any())) thenReturn formTaxCreditsSummaryResponse
-      when(formPartialService.getTaxCreditsIFormsPartial(any())) thenReturn formTaxCreditsIFormsResponse
 
       when(saPartialService.getSaAccountSummary(any())) thenReturn {
         Future.successful {
@@ -110,7 +95,6 @@ class InterstitialControllerSpec extends BaseSpec {
         Future.successful(paperlessResponse)
       }
       when(configDecorator.taxCreditsEnabled) thenReturn true
-      when(configDecorator.taxCreditsIFormsEnabled) thenReturn true
       when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
     }
   }
@@ -125,8 +109,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
 
@@ -148,122 +130,12 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
 
       val r = c.displayChildBenefits(request)
       status(r) shouldBe OK
       verify(c.citizenDetailsService, times(0)).personDetails(meq(Fixtures.fakeNino))(any())
-    }
-  }
-
-  "Calling displayTaxCreditsSummary" should {
-
-    "call FormPartialService.getTaxCreditsPartial and return 200 when called by authorised user who is high gg and has paperless preference set" in new LocalSetup {
-
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
-      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
-
-
-      val r = c.displayTaxCreditsSummary(request)
-      status(r) shouldBe OK
-      verify(c.formPartialService, times(1)).getTaxCreditsSummaryPartial(any())
-      verify(c.formPartialService, times(1)).getTaxCreditsIFormsPartial(any())
-      verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(c.preferencesFrontendService, times(1)).getPaperlessPreference(any())(any())
-    }
-
-    "call FormPartialService.getTaxCreditsPartial and return 303 when called by authorised user who is high gg and paperless action is required" in new LocalSetup {
-
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
-      lazy val paperlessResponse = ActivatePaperlessRequiresUserActionResponse("url")
-
-
-      val r = c.displayTaxCreditsSummary(request)
-      status(r) shouldBe SEE_OTHER
-      verify(c.formPartialService, times(0)).getTaxCreditsSummaryPartial(any())
-      verify(c.formPartialService, times(0)).getTaxCreditsIFormsPartial(any())
-      verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(c.preferencesFrontendService, times(1)).getPaperlessPreference(any())(any())
-    }
-
-    "call FormPartialService.getTaxCreditsPartial and return 200 when called by authorised user when only iforms partial fails" in new LocalSetup {
-
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = true
-      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
-
-
-      val r = c.displayTaxCreditsSummary(request)
-      status(r) shouldBe OK
-      verify(c.formPartialService, times(1)).getTaxCreditsSummaryPartial(any())
-      verify(c.formPartialService, times(1)).getTaxCreditsIFormsPartial(any())
-      verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(c.preferencesFrontendService, times(1)).getPaperlessPreference(any())(any())
-    }
-
-    "call FormPartialService.getTaxCreditsPartial and return 200 when called by authorised user when only tax credits summary partial fails" in new LocalSetup {
-
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = true
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
-      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
-
-
-      val r = c.displayTaxCreditsSummary(request)
-      status(r) shouldBe OK
-      verify(c.formPartialService, times(1)).getTaxCreditsSummaryPartial(any())
-      verify(c.formPartialService, times(1)).getTaxCreditsIFormsPartial(any())
-      verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(c.preferencesFrontendService, times(1)).getPaperlessPreference(any())(any())
-    }
-
-    "call FormPartialService.getTaxCreditsPartial and return 200 when called by authorised user when tax credits summary and tax credits iforms partials fail" in new LocalSetup {
-
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-      lazy val simulateFormPartialServiceFailure = false
-      lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = true
-      lazy val simulateTaxCreditsIFormsPartialFailure = true
-      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
-
-
-      val r = c.displayTaxCreditsSummary(request)
-      status(r) shouldBe OK
-      verify(c.formPartialService, times(1)).getTaxCreditsSummaryPartial(any())
-      verify(c.formPartialService, times(1)).getTaxCreditsIFormsPartial(any())
-      verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(c.preferencesFrontendService, times(1)).getPaperlessPreference(any())(any())
     }
   }
 
@@ -277,8 +149,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
 
@@ -296,8 +166,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
       lazy val simulateFormPartialServiceFailure = true
       lazy val simulateSaPartialServiceFailure = true
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
 
@@ -315,8 +183,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val authProviderType = UserDetails.VerifyAuthProvider
       lazy val simulateFormPartialServiceFailure = true
       lazy val simulateSaPartialServiceFailure = true
-      lazy val simulateTaxCreditsSummaryPartialFailure = false
-      lazy val simulateTaxCreditsIFormsPartialFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
 
@@ -334,8 +200,6 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure = false
-        lazy val simulateTaxCreditsSummaryPartialFailure = false
-        lazy val simulateTaxCreditsIFormsPartialFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
         val r = c.displaySa302Interrupt(2014)(request)
@@ -349,8 +213,6 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure = false
-        lazy val simulateTaxCreditsSummaryPartialFailure = false
-        lazy val simulateTaxCreditsIFormsPartialFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
         val r = c.displaySa302Interrupt(2014)(request)

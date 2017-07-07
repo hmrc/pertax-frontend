@@ -105,14 +105,12 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
 
   lazy val nationalInsuranceFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/national-insurance/catalogue"
   lazy val childBenefitCreditFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/benefits-and-credits/catalogue"
-  lazy val taxCreditsSummaryFormPartialLinkUrl = s"$tcsFrontendService/tax-credits-service/partials/tax-credits-summary"
-  lazy val taxCreditsIFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/tax-credits/catalogue"
   lazy val selfAssessmentFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/self-assessment/catalogue"
   lazy val pensionFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/pensions/catalogue"
   lazy val businessTaxAccountUrl = s"$businessTaxAccountHost/business-account"
   lazy val identityVerificationUpliftUrl = s"$identityVerificationHost/$ivfe_web_context/uplift"
   lazy val taxYouPaidStatus = s"$taxCalcFrontendHost/tax-you-paid/status"
-  lazy val tcsHomeUrl = s"$tcsFrontendHost/tax-credits-service/renewals/do-you-want-to-renew-now"
+  lazy val tcsHomeUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val tcsChangeAddressUrl = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
 
   lazy val childBenefitsStaysInEducation = s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
@@ -138,7 +136,6 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
 
   lazy val welshLangEnabled = langs.availables.exists(l => l.code == "cy")
   lazy val taxCreditsEnabled = configuration.getString("feature.tax-credits.enabled").getOrElse("true").toBoolean
-  lazy val taxCreditsIFormsEnabled = configuration.getString("feature.tax-credits-iforms.enabled").getOrElse("true").toBoolean
   lazy val activateSALinkEnabled = configuration.getString("feature.activate-sa-link.enabled").getOrElse("true").toBoolean
   lazy val ivExeptionsEnabled = configuration.getString("feature.iv-exeptions.enabled").getOrElse("true").toBoolean
   lazy val allowLowConfidenceSAEnabled = configuration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
