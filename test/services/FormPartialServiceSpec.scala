@@ -58,28 +58,6 @@ class FormPartialServiceSpec extends BaseSpec {
       verify(formPartialService.http, times(1)).GET[Html](any())(any(),any())
     }
 
-    "return form list for Tax Credits" in new LocalSetup {
-
-      when(formPartialService.http.GET[HtmlPartial](any())(any(),any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
-
-      formPartialService.getTaxCreditsSummaryPartial(buildFakeRequestWithAuth("GET")).map(p =>
-        p shouldBe "<title/>"
-      )
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(),any())
-    }
-
-    "return form list for Tax Credits iforms" in new LocalSetup {
-
-      when(formPartialService.http.GET[HtmlPartial](any())(any(),any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
-
-      formPartialService.getTaxCreditsIFormsPartial(buildFakeRequestWithAuth("GET")).map(p =>
-        p shouldBe "<title/>"
-      )
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(),any())
-    }
-
     "return form list for Self-assessment" in new LocalSetup {
 
       when(formPartialService.http.GET[HtmlPartial](any())(any(),any())) thenReturn

@@ -37,14 +37,6 @@ class FormPartialService @Inject() (override val http: WsAllMethods, val metrics
     loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
   }
 
-  def getTaxCreditsSummaryPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(configDecorator.taxCreditsSummaryFormPartialLinkUrl)
-  }
-
-  def getTaxCreditsIFormsPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(configDecorator.taxCreditsIFormPartialLinkUrl)
-  }
-
   def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
     loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
   }
