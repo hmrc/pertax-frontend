@@ -22,6 +22,7 @@ import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.bindable.Origin
 import play.api.i18n.MessagesApi
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProviderIds
 import uk.gov.hmrc.play.http.SessionKeys
 import util.LocalPartialRetriever
@@ -66,6 +67,13 @@ class PublicController @Inject() (
     implicit pertaxContext =>
       Future.successful {
         Redirect(configDecorator.getFeedbackSurveyUrl(origin))
+      }
+  }
+
+  def redirectToTaxCreditsService(): Action[AnyContent] = PublicAction {
+    implicit pertaxContext =>
+      Future.successful {
+        Redirect(configDecorator.tcsServiceRouterUrl, MOVED_PERMANENTLY)
       }
   }
 

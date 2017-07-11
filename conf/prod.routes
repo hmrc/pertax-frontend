@@ -1,6 +1,8 @@
 GET    /personal-account/start-verify                                        @controllers.PublicController.verifyEntryPoint
 GET    /personal-account/start-government-gateway                            @controllers.PublicController.governmentGatewayEntryPoint
 GET    /personal-account/signin                                              @controllers.PublicController.sessionTimeout
+GET    /personal-account/signed-out                                          @controllers.PublicController.redirectToExitSurvey(origin: Origin)
+GET    /personal-account/tax-credits-summary                                 @controllers.PublicController.redirectToTaxCreditsService()
 
 GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[String])
 GET    /personal-account                                                     @controllers.ApplicationController.index
@@ -47,7 +49,6 @@ GET    /personal-account/messages/:url                                       @co
 
 GET    /personal-account/preferences                                         @controllers.PaperlessPreferencesController.managePreferences
 
-GET    /personal-account/signed-out                                          @controllers.PublicController.redirectToExitSurvey(origin: Origin)
 
 GET    /personal-account/assets/*file                                        @controllers.AssetsController.at(path="/public", file)
 

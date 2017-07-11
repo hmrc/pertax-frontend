@@ -44,6 +44,7 @@ class PublicControllerSpec extends BaseSpec  {
     lazy val controller = {
       val c = injected[PublicController]
       when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback-survey?origin=PERTAX"
+      when(c.configDecorator.tcsServiceRouterUrl) thenReturn "/tax-credits-service/renewals/service-router"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
       c
     }
@@ -87,6 +88,16 @@ class PublicControllerSpec extends BaseSpec  {
       val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/feedback-survey?origin=PERTAX")
+    }
+  }
+
+  "Calling PublicController.redirectToTaxCreditsService" should {
+
+    "redirect to tax-credits-service/renewals/service-router" in new LocalSetup {
+
+      val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe MOVED_PERMANENTLY
+      redirectLocation(r) shouldBe Some("/tax-credits-service/renewals/service-router")
     }
   }
 
