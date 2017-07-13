@@ -33,7 +33,7 @@
           label: label
         }));
 
-        if (typeof args['hitCallback'] === 'function' ) {
+        if (typeof args !== 'undefined' && typeof args['hitCallback'] === 'function' ) {
           args['hitCallback']();
         }
       };
