@@ -72,11 +72,11 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
     s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + play.utils.UriEncoding.encodePathSegment(url.toString, "UTF-8")
   }
 
-  def sa302Url(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl("/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"))
+  def sa302Url(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"))
   lazy val ssoToActivateSaEnrolmentPinUrl = ssoifyUrl(toPortalUrl("/service/self-assessment?action=activate&step=enteractivationpin"))
   lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
   lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))
-  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl("/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
+  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) = s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
   lazy val analyticsToken = configuration.getString(s"google-analytics.token")
