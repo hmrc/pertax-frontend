@@ -16,7 +16,7 @@
 
 package config
 
-import java.net.URLEncoder
+import java.net.{URL, URLEncoder}
 import javax.inject.{Inject, Singleton}
 
 import controllers.bindable.Origin
@@ -28,6 +28,13 @@ import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
 @Singleton
 class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) extends ServicesConfig {
 
+  // Define the web contexts to access the IV-FE and AUTH frontend applications.
+  lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")
+  lazy val ida_web_context  = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
+  lazy val gg_web_context   = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg")
+
+  val defaultOrigin = Origin("PERTAX")
+
   private lazy val contactFrontendService = baseUrl("contact-frontend")
   private lazy val messageFrontendService = baseUrl("message-frontend")
   private lazy val formFrontendService = baseUrl("dfs-frontend")
@@ -35,45 +42,41 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
 
-  private def getExternalUrl(key: String): Option[String] = configuration.getString(s"external-url.$key").filter(x => env=="Dev")
+  private def decorateUrlForLocalDev(key: String): Option[String] = configuration.getString(s"external-url.$key").filter(x => env=="Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
-  lazy val contactHost                                  = getExternalUrl(s"contact-frontend.host").getOrElse("")
-  lazy val citizenAuthHost                              = getExternalUrl(s"citizen-auth.host").getOrElse("")
-  lazy val companyAuthHost                              = getExternalUrl(s"company-auth.host").getOrElse("")
-  lazy val companyAuthFrontendHost                      = getExternalUrl(s"company-auth-frontend.host").getOrElse("")
-  lazy val taiHost                                      = getExternalUrl(s"tai-frontend.host").getOrElse("")
-  lazy val fandfHost                                    = getExternalUrl(s"fandf-frontend.host").getOrElse("")
-  lazy val tamcHost                                     = getExternalUrl(s"tamc-frontend.host").getOrElse("")
-  lazy val formTrackingHost                             = getExternalUrl(s"tracking-frontend.host").getOrElse("")
-  lazy val businessTaxAccountHost                       = getExternalUrl(s"business-tax-account.host").getOrElse("")
-  lazy val identityVerificationHost                     = getExternalUrl(s"identity-verification.host").getOrElse("")
-  lazy val pertaxFrontendHost                           = getExternalUrl(s"pertax-frontend.host").getOrElse("")
-  lazy val feedbackSurveyFrontendHost                   = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
-  lazy val tcsFrontendHost                              = getExternalUrl(s"tcs-frontend.host").getOrElse("")
-  lazy val nispFrontendHost                             = getExternalUrl(s"nisp-frontend.host").getOrElse("")
-  lazy val taxCalcFrontendHost                          = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
-  lazy val dfsFrontendHost                              = getExternalUrl(s"dfs-frontend.host").getOrElse("")
-  lazy val portalHost                                   = getExternalUrl(s"portal.host").getOrElse("")
-  lazy val plaBackEndHost                               = getExternalUrl(s"pensions-lifetime-allowance.host").getOrElse("")
-  lazy val governmentGatewayLostCredentialsFrontendHost = getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
+  lazy val contactHost                                  = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
+  lazy val citizenAuthHost                              = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
+  lazy val companyAuthHost                              = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
+  lazy val companyAuthFrontendHost                      = decorateUrlForLocalDev(s"company-auth-frontend.host").getOrElse("")
+  lazy val taiHost                                      = decorateUrlForLocalDev(s"tai-frontend.host").getOrElse("")
+  lazy val fandfHost                                    = decorateUrlForLocalDev(s"fandf-frontend.host").getOrElse("")
+  lazy val tamcHost                                     = decorateUrlForLocalDev(s"tamc-frontend.host").getOrElse("")
+  lazy val formTrackingHost                             = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
+  lazy val businessTaxAccountHost                       = decorateUrlForLocalDev(s"business-tax-account.host").getOrElse("")
+  lazy val identityVerificationHost                     = decorateUrlForLocalDev(s"identity-verification.host").getOrElse("")
+  lazy val pertaxFrontendHost                           = decorateUrlForLocalDev(s"pertax-frontend.host").getOrElse("")
+  lazy val feedbackSurveyFrontendHost                   = decorateUrlForLocalDev(s"feedback-survey-frontend.host").getOrElse("")
+  lazy val tcsFrontendHost                              = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
+  lazy val nispFrontendHost                             = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
+  lazy val taxCalcFrontendHost                          = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
+  lazy val dfsFrontendHost                              = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
+  lazy val plaBackEndHost                               = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
+  lazy val governmentGatewayLostCredentialsFrontendHost = decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
-  // Define the web contexts to access the IV-FE and AUTH frontend applications.
-  lazy val ivfe_web_context = getExternalUrl(s"identity-verification.web-context").getOrElse("mdtp")
-  lazy val ida_web_context  = getExternalUrl(s"ida.web-context").getOrElse("ida")
-  lazy val gg_web_context   = getExternalUrl(s"gg.web-context").getOrElse("gg")
 
-  val defaultOrigin = Origin("PERTAX")
+  lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
+  def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
 
-  def ssoifyUrl(url: String) = {
-    s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + play.utils.UriEncoding.encodePathSegment(url, "UTF-8")
+  def ssoifyUrl(url: URL) = {
+    s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
   }
 
-  def sa302Url(saUtr: String, taxYear: String) = ssoifyUrl(s"$portalHost/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation")
-  lazy val ssoToActivateSaEnrolmentPinUrl = ssoifyUrl(s"$portalHost/service/self-assessment?action=activate&step=enteractivationpin")
-  lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(s"$portalHost/home/services/enroll")
-  lazy val ssoToRegistration = ssoifyUrl(s"$portalHost/registration")
-  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) = ssoifyUrl(s"$portalHost/self-assessment/ind/$saUtr/taxreturn/$taxYear/options")
+  def sa302Url(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"))
+  lazy val ssoToActivateSaEnrolmentPinUrl = ssoifyUrl(toPortalUrl("/service/self-assessment?action=activate&step=enteractivationpin"))
+  lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
+  lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))
+  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) = s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
   lazy val analyticsToken = configuration.getString(s"google-analytics.token")
