@@ -68,7 +68,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
   override def beforeEach: Unit = {
     reset(injected[PertaxAuditConnector], injected[TaxCalculationService], injected[CitizenDetailsService],
-    injected[TaiService], injected[MessagePartialService], injected[LifetimeAllowanceService],
+      injected[TaiService], injected[MessagePartialService], injected[LifetimeAllowanceService],
       injected[UserDetailsService])
   }
 
