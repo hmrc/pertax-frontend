@@ -415,9 +415,30 @@ label.if_you_receive_child_benefit_=Os ydych yn cael Budd-dal Plant, ac roedd ei
 label.tell_us_if_your_child_is_staying_in_education_or_training=Rhowch wybod i ni a yw''ch plentyn yn aros mewn addysg neu hyfforddiant
 label.because_you_earn_less_than=Os ydych yn briod neu mewn partneriaeth sifil, ac yn ennill llai na {0}, efallai y byddwch ar eich ennill wrth wneud cais am Lwfans Priodasol.
 label.view_your_taxable_income_and_see_any_company_benefits=Bwrw golwg ar eich incwm trethadwy a gweld unrhyw fuddiannau cwmni a all effeithio ar y swm (er enghraifft, car cwmni neu fuddiannau meddygol).
-
-
-
+label.continue_to_your_sa302=Mynd yn eich blaen i''ch SA302
+label.we_are_processing_your-details=Rydym yn prosesu''ch manylion
+label.this_may_take_up_to_30_seconds=Gall hyn gymryd hyd at 30 eiliad.
+label.if_you_are_not_redirected_in_=Os na chewch eich ailgyfeirio cyn pen 30 eiliad, <a href="{0}">cliciwch yma</a>
+label.phone_lines_are_open_8am_to_8pm_monday_to_friday_and_8am_to_4pm_on_saturday_=Yr oriau agor yw 08:30 tan 17:00, dydd Llun i ddydd Gwener.
+label.webchat_service=Gwasanaeth sgwrs dros y we
+label.chat_online_with_one_of_our_advisers=Sgwrsiwch ar-lein gydag un o''n ymgynghorwyr
+label.you_cant_access_your_self_assessment_=Ni allwch gyrchu''ch gwybodaeth Hunanasesiad o''r cyfrif hwn
+label.you_must_sign_out_then_sign_in_with_the_user_id_=Mae''n rhaid i chi <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="{0}">allgofnodi</a>, wedyn mewngofnodi gyda''r Dynodydd Defnyddiwr (ID) a chyfrinair a ddefnyddioch i gychwyn eich gwasanaeth Hunanasesiad ar-lein.<br /><br /><a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="{1}">Adfer eich ID</a> os ydych wedi''i golli.
+label.if_you_have_never_sent_your_tax_return_online=Os nad ydych wedi anfon eich Ffurflen Dreth ar-lein erioed o''r blaen
+label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_=Rydych eisoes wedi cofrestru gyda CThEM, ac mae''n rhaid i chi nawr <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Enrol for SA" href="{0}" target="_blank">ymrestru ar gyfer y gwasanaeth Hunanasesiad ar-lein (yn agor ffenestr newydd)</a> er mwyn cyflwyno Ffurflen Dreth neu gyrchu manylion eich cyfrif.<br /><br />Ar ôl i chi ymrestru, cewch god cychwyn drwy''r post cyn pen 7 diwrnod. Defnyddiwch hwn cyn pen 28 diwrnod i gychwyn eich cyfrif. Os daw''r cyfnod pan allwch gychwyn eich cyfrif i ben, gallwch <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="{1}" target=_blank">wneud cais am god cychwyn newydd (yn agor ffenestr newydd)</a>.
+label.you_cant_view_your_self_assessment_information_here_the_deadline_=Ni allwch fwrw golwg ar eich gwybodaeth Hunanasesiad yn y fan hon.<br /><br />Y dyddiad cau ar gyfer Ffurflenni Treth papur oedd 31 Hydref. Mae''n rhaid i chi nawr <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank">lenwi''ch Ffurflen Dreth ar-lein (yn agor ffenestr newydd)</a>.
+label.get_your_sa302_calculation=Cael eich cyfrifiad SA302
+label.we_can_only_show_your_sa302_calculation_if_you_=Gallwn ond ddangos eich cyfrifiad SA302 os gwnaethoch gyflwyno drwy''r wefan hon.
+label.i_didnt_file_through_this_website=Ni chyflwynais drwy''r wefan hon
+label.to_get_your_sa302_calculation=I gael eich cyfrifiad SA302:
+label.use_the_commercial_software_you_filed_with=defnyddiwch y meddalwedd masnachol a ddefnyddioch i gyflwyno
+label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyflwyno - gofynnwch iddo ef/hi
+label.call_us_if_you_filed_your_return_by_post=<a href="{0}" target="_blank">ffoniwch ni (yn agor ffenestr newydd</a> os gwnaethoch gyflwyno''ch Ffurflen Dreth drwy''r post
+label.self_assessment_deadline_was=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar gyfer 2015 i 2016 oedd 31 Ionawr 2017.
+label.you_dont_owe_anymore_income_tax=Nid oes arnoch ragor o Dreth Incwm
+label.you_have_no_payments_to_make_to_hmrc_=Nid oes gennych daliadau i''w gwneud i CThEM ar gyfer blwyddyn dreth 2016 i 2017
+label.you_owe_hmrc_for_the_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddyn dreth {0} i {1}.
+label.try_again_in_24_hours=Gallwch roi cynnig arall arni ymhen 24 awr.
 
 #
 # Error messages
