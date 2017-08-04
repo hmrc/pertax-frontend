@@ -9,14 +9,26 @@ $( ".send-tcs-ga-event" ).submit(function( event ) {
 });
 
 $(".ga-track-event").click(function(event) {
-  if ($(this).is('a')) {
+  if ( $(this).is('a') && $(this).attr('target') != '_blank') {
     event.preventDefault();
+
     var redirectUrl = $(this).attr('href');
+
     gaWithCallback('send', 'event', $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'), function() {
       window.location.href = redirectUrl;
     });
+
   } else {
     ga('send', 'event', $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'));
+
+    var gaEventCategoryValue = $(this).attr('data-ga-event-category');
+    if( gaEventCategoryValue.includes('expand') ) {
+      $(this).attr('data-ga-event-category', gaEventCategoryValue.replace('expand', 'hide'));
+      $(this).data('ga-event-category', $(this).attr('data-ga-event-category'));
+    } else if( gaEventCategoryValue.includes('hide') ) {
+      $(this).attr('data-ga-event-category', gaEventCategoryValue.replace('hide', 'expand'));
+      $(this).data('ga-event-category', $(this).attr('data-ga-event-category'));
+    }
   }
 });
 
