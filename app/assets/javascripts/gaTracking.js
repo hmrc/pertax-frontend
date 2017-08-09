@@ -8,16 +8,24 @@ $( ".send-tcs-ga-event" ).submit(function( event ) {
   }
 });
 
-$(".ga-track-event").click(function(event) {
-  if ($(this).is('a')) {
+$(".ga-track-anchor-click").click(function(event) {
+
+  var target = $(this).attr('target')
+  if ( $(this).is('a') && (target == '' || target == '_self') ) {
     event.preventDefault();
     var redirectUrl = $(this).attr('href');
     gaWithCallback('send', 'event', $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'), function() {
       window.location.href = redirectUrl;
     });
+
   } else {
     ga('send', 'event', $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'));
   }
+});
+
+$('.ga-track-accordion-click').click(function(event) {
+  var expanded = ($(this).attr('aria-expanded') == 'true');
+  ga('send', 'accordion - ' + (expanded ? 'hide' : 'expand'), $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'));
 });
 
 function gaWithCallback(send, event, category, action, label, callback) {

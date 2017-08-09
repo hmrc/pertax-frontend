@@ -11,5 +11,5 @@
 @main(Messages("label.activate_your_self_assessment"), scriptElement = Some(scriptElem)) {
   <h1 class="heading-large">@Messages("label.activate_your_self_assessment_registration")</h1>
   <p>@Html(Messages("label.you_need_to_activate_your_self_assessment_registration_using_your_", pertaxContext.configDecorator.onlineServicesHelpdeskUrl))</p>
-  <a class="button ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Activate SA registration" href="@pertaxContext.configDecorator.ssoToActivateSaEnrolmentPinUrl" role="button">@Messages("label.activate_your_self_assessment_registration")</a>
+  <a class="button ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Activate SA registration" href="@pertaxContext.configDecorator.ssoToActivateSaEnrolmentPinUrl" role="button">@Messages("label.activate_your_self_assessment_registration")</a>
 }
