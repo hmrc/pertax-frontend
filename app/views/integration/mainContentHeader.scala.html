@@ -47,7 +47,7 @@ configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messag
         url=controllers.routes.LanguageController.enGb(url).toString(),
         value=Some(Messages("label.english")),
         id=Some("switch-to-english"),
-        cssClasses=Some("ga-track-event"),
+        cssClasses=Some("ga-track-anchor-click"),
         dataAttributes=Some(Map(
           "ga-event-category" -> "link - click",
           "ga-event-action" -> "lang-select",
@@ -60,7 +60,7 @@ configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messag
         url=controllers.routes.LanguageController.cyGb(url).toString(),
         value=Some(Messages("label.welsh")),
         id=Some("switch-to-welsh"),
-        cssClasses=Some("ga-track-event"),
+        cssClasses=Some("ga-track-anchor-click"),
         dataAttributes=Some(Map(
           "ga-event-category" -> "link - click",
           "ga-event-action" -> "lang-select",
