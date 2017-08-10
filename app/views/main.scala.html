@@ -12,65 +12,25 @@
 )(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import uk.gov.hmrc.play.config.RunMode._
-@import layouts.govuk_template
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
-@import config._
 
-@scriptElem = {
-  @scriptElement
 
-  @if(pertaxContext.configDecorator.analyticsToken == Some("N/A")) {
-    <script type="text/javascript">
-      var ga = function(send, event, category, action, label, args) {
-        console.log(JSON.stringify({
-          call: 'ga',
-          send: send,
-          event: event,
-          category: category,
-          action: action,
-          label: label
-        }));
 
-        if (typeof args !== 'undefined' && typeof args['hitCallback'] === 'function' ) {
-          args['hitCallback']();
-        }
-      };
-    </script>
-  }
+@links = @{
+  var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()
 
-  <script src='@controllers.routes.AssetsController.at("javascripts/pertax.js")' type="text/javascript"></script>
-  <script src='@controllers.routes.AssetsController.at("javascripts/webChat.js")' type="text/javascript"></script>
-  <script src='@controllers.routes.AssetsController.at("javascripts/gaTracking.js")' type="text/javascript"></script>
-}
-
-@linkElement = {
-  <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/pertaxMain.css")' />
-}
-
-@head = {
-  @layouts.head(
-    linkElem = Some(linkElement),
-    headScripts = headScripts
-  )
-}
-
-@links = {
-
-  @ifAuthenticatedUser {
-    @ifHighGovernmentGatewayOrVerifyUser {
-      @ifPayeUser {
-        <li class="desktop-hidden"><a href="@controllers.routes.AddressController.displayAddress()">@Messages("label.update_your_address")</a></li>
+  ifAuthenticatedUser {
+    ifHighGovernmentGatewayOrVerifyUser {
+      ifPayeUser {
+        seq += Map("url" -> controllers.routes.AddressController.displayAddress().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
       }
     }
-    <li class="desktop-hidden"><a href="@pertaxContext.configDecorator.formTrackingServiceUrl">@Messages("label.track_your_forms")</a></li>
-    <li><a href="@controllers.routes.ApplicationController.signout(Some(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin)), None)">@Messages("global.label.sign_out")</a></li>
+    seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
+    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin)), None), "text" -> Messages("global.label.sign_out"))
   }
-}
-
-@insideHeader = {
-  @layouts.header_nav(pageName, None, false, if(pertaxContext.user.isDefined) Some(links) else None)
+  seq
 }
 
 @afterHeader = {
@@ -89,20 +49,6 @@
   }
 }
 
-@getHelpForm = {
-  @get_help_form(supportLinkEnabled, includeGridWrapper)
-}
-
-@sidebar = {
-  @sidebarLinks.map { sidebarLinks =>
-    @layouts.sidebar(sidebarLinks, sidebarClass)
-  }
-}
-
-@article = {
-  @layouts.article(mainContent, includeGridWrapper, articleClasses)
-}
-
 @mainContentHeader = {
   @views.html.integration.mainContentHeader(
     name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n),
@@ -113,7 +59,6 @@
     langReturnUrl = Some(pertaxContext.uri),
     configDecorator = pertaxContext.configDecorator
   )
-  @actingAttorneyBanner
 
   @if(pertaxContext.welshWarning) {
     @tags.welshContentWarning()
@@ -121,38 +66,30 @@
 
 }
 
-@content = {
-  @layouts.main_content(article,
-    None, //Main Classs
-    None, //Main data attributes
-    mainContentHeader,
-    HtmlFormat.empty,
-    HtmlFormat.empty,
-    sidebar,
-    getHelpForm)
-}
 
-@footerTop = {
+@{
+  config.StaticGlobalDependencies.deps.localMustacheRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), Map[String,Any](
+    "linkElems" -> Map(
+      "url" -> controllers.routes.AssetsController.at("stylesheets/pertaxMain.css")
+    ),
+    "scriptElems" -> Seq(
+      Map("url" -> controllers.routes.AssetsController.at("javascripts/pertax.js")),
+      Map("url" -> controllers.routes.AssetsController.at("javascripts/gaTracking.js")),
+      Map("url" -> controllers.routes.AssetsController.at("javascripts/webChat.js"))
+    ),
+    "ssoUrl" -> pertaxContext.configDecorator.ssoUrl,
+    "googleAnalytics" -> Map(
+      "trackingId" -> pertaxContext.configDecorator.analyticsToken,
+      "cookieDomain" -> pertaxContext.configDecorator.analyticsHost,
+      "confidenceLevel" -> pertaxContext.user.map(_.confidenceLevel.toString).getOrElse(false),
+      "authProvider" -> pertaxContext.authProvider
+    ),
+    "getHelpForm" -> get_help_form(supportLinkEnabled, includeGridWrapper),
+    "mainContentHeader" -> mainContentHeader,
+    "removeServiceInfo" -> true,
+    "actingAttorneyBanner" -> actingAttorneyBanner,
+    "navTitle" -> pageName,
+    "navLinks" -> links,
+    "hasNavLinks" -> true
+  ))
 }
-
-@gaCalls(analyticsHost: String, token: String) = {
-  ga('create', '@token', { 'cookieDomain': '@analyticsHost', 'siteSpeedSampleRate': 100 });
-  @additionalGaCalls
-  ga('send', 'pageview', { 'anonymizeIp': true });
-  ga('set', {
-  @pertaxContext.user.map { user =>
-    'dimension39': '@user.confidenceLevel',
-  }
-  'dimension38': '@pertaxContext.authProvider'
-  });
-}
-
-@bodyEnd = {
-  @layouts.footer(analyticsToken = pertaxContext.configDecorator.analyticsToken,
-    analyticsHost = pertaxContext.configDecorator.analyticsHost,
-    ssoUrl = pertaxContext.configDecorator.ssoUrl,
-    scriptElem = Some(scriptElem),
-    gaCalls = Some(gaCalls))
-}
-
-@govuk_template(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(uk.gov.hmrc.play.views.html.layouts.footer_links()), true)(content)

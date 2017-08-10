@@ -19,3 +19,4 @@ dist
 *.iws
 node_modules
 .sass-cache
+*tmp.sc

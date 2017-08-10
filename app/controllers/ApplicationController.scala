@@ -18,7 +18,7 @@ package controllers
 
 import javax.inject.Inject
 
-import config.ConfigDecorator
+import config.{ConfigDecorator, StaticGlobalDependencies}
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import controllers.bindable.Origin

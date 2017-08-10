@@ -28,7 +28,8 @@ import play.api.{Configuration, Play}
 @Singleton
 class GlobalDependencies @Inject()(
   val pertaxAuditConnector: PertaxAuditConnector,
-  val configuration: Configuration
+  val configuration: Configuration,
+  val localMustacheRenderer: LocalMustacheRenderer
 )
 
 /**
