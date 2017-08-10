@@ -36,7 +36,7 @@ import scala.concurrent.Future
 
 class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[EnrolmentExceptionListService].toInstance(MockitoSugar.mock[EnrolmentExceptionListService]))
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))

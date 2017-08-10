@@ -18,6 +18,7 @@ package util
 
 import java.util.UUID
 
+import config.LocalMustacheRenderer
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
@@ -28,6 +29,9 @@ import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -182,9 +186,14 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
 }
 
+
+
 trait BaseSpec extends UnitSpec with OneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach { this: Suite =>
 
   implicit val hc = HeaderCarrier()
+
+  def localGuiceApplicationBuilder = GuiceApplicationBuilder()
+    .overrides(bind[LocalMustacheRenderer].toInstance(new MockMustacheRenderer))
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
   def injected[T](implicit evidence: ClassTag[T]) = app.injector.instanceOf[T]

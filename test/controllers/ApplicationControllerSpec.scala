@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.ConfigDecorator
+import config.{ConfigDecorator, LocalMustacheRenderer}
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.bindable.Origin
 import models._
@@ -39,16 +39,17 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.renderer.MustacheRendererTrait
 import uk.gov.hmrc.time.TaxYearResolver
 import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{BaseSpec, Fixtures, LocalPartialRetriever, MockMustacheRenderer}
 
 import scala.concurrent.Future
 
 
 class ApplicationControllerSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[TaiService].toInstance(MockitoSugar.mock[TaiService]))
     .overrides(bind[MessagePartialService].toInstance(MockitoSugar.mock[MessagePartialService]))
@@ -64,7 +65,7 @@ class ApplicationControllerSpec extends BaseSpec {
     .overrides(bind[LifetimeAllowanceService].toInstance(MockitoSugar.mock[LifetimeAllowanceService]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-   .build()
+    .build()
 
   override def beforeEach: Unit = {
     reset(injected[PertaxAuditConnector], injected[TaxCalculationService], injected[CitizenDetailsService],

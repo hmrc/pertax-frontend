@@ -1571,25 +1571,6 @@ class homeSpec extends BaseSpec {
     }
   }
 
-  "Header text should be 'Personal tax account'" in new OldStyleSpecSetup {
-    val pertaxUser: PertaxUser = Fixtures.buildFakePertaxUser(withSa = true)
-    val document: Document = Jsoup.parse(views.html.home(Html(""),
-      showMarriageAllowanceSection = true,
-      isActivePaye = true,
-      showCompanyBenefitSection = true,
-      taxCalculationState = TaxCalculationUnkownState,
-      saActionNeeded = NoSelfAssessmentActionNeeded,
-      showLtaSection = false,
-      userResearchLinkUrl = None)
-    (PertaxContext(FakeRequest("GET", "/"),
-      mockLocalPartialRetreiver,
-      injected[ConfigDecorator],
-      Some(pertaxUser)),
-      messages).toString)
-
-    document.select(".header__menu__proposition-name").exists(e => e.text == "Personal tax account") shouldBe true
-  }
-
   abstract class TaxCalculationBannerSetup {
     def taxCalculationState : TaxCalculationState
     lazy val pertaxUser: PertaxUser = Fixtures.buildFakePertaxUser()

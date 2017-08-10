@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class MessagePartialServiceSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[WsAllMethods].toInstance(MockitoSugar.mock[WsAllMethods]))
     .build()
 

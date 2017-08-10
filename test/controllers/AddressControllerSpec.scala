@@ -49,7 +49,7 @@ import scala.concurrent.Future
 
 class AddressControllerSpec extends BaseSpec  {
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[AddressLookupService].toInstance(MockitoSugar.mock[AddressLookupService]))

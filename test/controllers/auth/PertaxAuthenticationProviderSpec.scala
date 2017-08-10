@@ -31,7 +31,7 @@ import util.BaseSpec
 
 class PertaxAuthenticationProviderSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
     .build()
 
