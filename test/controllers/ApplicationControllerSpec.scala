@@ -27,7 +27,6 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -48,7 +47,7 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[TaiService].toInstance(MockitoSugar.mock[TaiService]))
     .overrides(bind[MessagePartialService].toInstance(MockitoSugar.mock[MessagePartialService]))
@@ -64,7 +63,7 @@ class ApplicationControllerSpec extends BaseSpec {
     .overrides(bind[LifetimeAllowanceService].toInstance(MockitoSugar.mock[LifetimeAllowanceService]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-   .build()
+    .build()
 
   override def beforeEach: Unit = {
     reset(injected[PertaxAuditConnector], injected[TaxCalculationService], injected[CitizenDetailsService],

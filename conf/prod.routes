@@ -55,5 +55,3 @@ GET    /personal-account/assets/*file                                        @co
 GET    /admin/metrics                                                        @com.kenshoo.play.metrics.MetricsController.metrics
 
 ->     /                          health.Routes
-->     /template                  template.Routes
-

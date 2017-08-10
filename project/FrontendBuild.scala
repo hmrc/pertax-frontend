@@ -24,11 +24,10 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
     "uk.gov.hmrc" %% "play-ui" % "7.2.1",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
-    "uk.gov.hmrc" %% "govuk-template" % govukTemplateVersion,
     "uk.gov.hmrc" %% "play-graphite" % "3.2.0",
     "uk.gov.hmrc" %% "http-caching-client" % "6.2.0",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
-    "uk.gov.hmrc" %% "local-template-renderer" % "0.7.0"
+    "uk.gov.hmrc" %% "local-template-renderer" % "0.10.0"
   )
 
   trait TestDependencies {
