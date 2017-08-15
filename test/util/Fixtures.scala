@@ -28,6 +28,9 @@ import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -36,8 +39,8 @@ import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 import uk.gov.hmrc.play.frontend.auth.{AuthContext, AuthenticationProviderIds}
 import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.partials.PartialRetriever
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
 import scala.io.Source
@@ -182,9 +185,16 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
 }
 
+
+
 trait BaseSpec extends UnitSpec with OneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach { this: Suite =>
 
   implicit val hc = HeaderCarrier()
+
+  lazy val localGuiceApplicationBuilder = GuiceApplicationBuilder()
+    .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder.build()
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
   def injected[T](implicit evidence: ClassTag[T]) = app.injector.instanceOf[T]

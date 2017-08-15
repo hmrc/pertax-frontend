@@ -16,26 +16,15 @@
 
 package config
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 
-import connectors.PertaxAuditConnector
-import play.api.{Configuration, Play}
+import services.http.WsAllMethods
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.renderer.TemplateRenderer
 
+import scala.concurrent.duration._
 
-/**
-  * This class exists to keep all references to static dependencies in one place, before we can remove it all together
-  */
-@Singleton
-class GlobalDependencies @Inject()(
-  val pertaxAuditConnector: PertaxAuditConnector,
-  val configuration: Configuration,
-  val templateRenderer: TemplateRenderer
-)
-
-/**
-  * This class exists to keep all references to static dependencies in one place, before we can remove it all together
-  */
-object StaticGlobalDependencies {
-  val deps = Play.current.injector.instanceOf[GlobalDependencies]
+class LocalTemplateRenderer @Inject() (override val connection: WsAllMethods) extends TemplateRenderer with ServicesConfig {
+  override lazy val templateServiceBaseUrl = baseUrl("frontend-template-provider")
+  override val refreshAfter: Duration = 10 minutes
 }
