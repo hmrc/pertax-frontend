@@ -66,6 +66,11 @@
 
 }
 
+@inlineScript = {
+  @if(pertaxContext.configDecorator.analyticsToken == Some("N/A")) {
+    var ga = function() { console.log(JSON.stringify({ call: 'ga', args: arguments})); };
+  }
+}
 
 @{
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), Map[String,Any](
@@ -78,9 +83,10 @@
       Map("url" -> controllers.routes.AssetsController.at("javascripts/gaTracking.js")),
       Map("url" -> controllers.routes.AssetsController.at("javascripts/webChat.js"))
     ),
+    "inlineScriptElems" -> Map("script" -> inlineScript),
     "ssoUrl" -> pertaxContext.configDecorator.ssoUrl,
     "googleAnalytics" -> Map(
-      "trackingId" -> pertaxContext.configDecorator.analyticsToken,
+      "trackingId" -> {{ if(pertaxContext.configDecorator.analyticsToken==Some("N/A")) null else pertaxContext.configDecorator.analyticsToken }},
       "cookieDomain" -> pertaxContext.configDecorator.analyticsHost,
       "confidenceLevel" -> pertaxContext.user.map(_.confidenceLevel.toString).getOrElse(false),
       "authProvider" -> pertaxContext.authProvider
