@@ -69,6 +69,7 @@
 
 @{
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), Map[String,Any](
+    "pageTitle" -> title,
     "linkElems" -> Map(
       "url" -> controllers.routes.AssetsController.at("stylesheets/pertaxMain.css")
     ),
