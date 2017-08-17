@@ -41,7 +41,7 @@
 
 @actingAttorneyBanner = {
   @{
-    for { 
+    for {
       pu <- pertaxContext.user
       principalName <- pu.name
       attorney <- pu.authContext.attorney
@@ -67,8 +67,11 @@
 }
 
 @inlineScript = {
+  @scriptElement
   @if(pertaxContext.configDecorator.analyticsToken == Some("N/A")) {
-    var ga = function() { console.log(JSON.stringify({ call: 'ga', args: arguments})); };
+    <script type="text/javascript">
+      var ga = function() { console.log(JSON.stringify({ call: 'ga', args: arguments})); };
+    </script>
   }
 }
 
@@ -83,7 +86,7 @@
       Map("url" -> controllers.routes.AssetsController.at("javascripts/gaTracking.js")),
       Map("url" -> controllers.routes.AssetsController.at("javascripts/webChat.js"))
     ),
-    "inlineScriptElems" -> Map("script" -> inlineScript),
+    "inlineScript" -> inlineScript,
     "ssoUrl" -> pertaxContext.configDecorator.ssoUrl,
     "googleAnalytics" -> Map(
       "trackingId" -> {{ if(pertaxContext.configDecorator.analyticsToken==Some("N/A")) null else pertaxContext.configDecorator.analyticsToken }},
