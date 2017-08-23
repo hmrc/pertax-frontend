@@ -25,7 +25,7 @@ $(".ga-track-anchor-click").click(function(event) {
 
 $('.ga-track-accordion-click').click(function(event) {
   var expanded = ($(this).attr('aria-expanded') == 'true');
-  ga('send', 'event', 'accordion - ' + (expanded ? 'hide' : 'expand'), $(this).data('ga-event-category'), $(this).data('ga-event-action'), $(this).data('ga-event-label'));
+  ga('send', 'event', 'accordion - ' + (expanded ? 'hide' : 'expand'), $(this).data('ga-event-action'), $(this).data('ga-event-label'));
 });
 
 function gaWithCallback(send, event, category, action, label, callback) {
