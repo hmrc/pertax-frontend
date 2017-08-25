@@ -1,0 +1,15 @@
+@()(implicit messages: play.api.i18n.Messages)
+
+<div class="card column-half">
+  <a class="card-link" href="@controllers.routes.InterstitialController.displayNationalInsurance">
+    <div class="card-content" role="link">
+      <h3 class="heading-small no-margin-top">@Messages("label.national_insurance")</h3>
+      <p>@Messages("label.you_have_a_national_insurance_number_to_make_sure_our_national_insurance_")</p>
+    </div>
+  </a>
+  <div class="card-actions">
+      <a href="@controllers.routes.PrintController.printNationalInsuranceNumber()">@Messages("label.print_your_national_insurance_letter")</a>
+      <a href="/personal-account/self-assessment">@Messages("label.make_a_payment")</a>
+      <a href="/personal-account/self-assessment">@Messages("label.understand_self_assessment")</a>
+  </div>
+</div>

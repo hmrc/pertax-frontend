@@ -17,15 +17,21 @@
 package models
 
 sealed trait TaxCalculationState
-case class TaxCalculationRefundState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
-case class TaxCalculationPaymentProcessingState(amount: BigDecimal) extends TaxCalculationState
-case class TaxCalculationPaymentPaidState(amount: BigDecimal, datePaid: String) extends TaxCalculationState
-case class TaxCalculationPaymentChequeSentState(amount: BigDecimal, datePaid: String) extends TaxCalculationState
-case class TaxCalculationPaymentDueState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
-case class TaxCalculationPartPaidState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
-case object TaxCalculationPaidAllState extends TaxCalculationState
-case class TaxCalculationPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
+sealed trait TaxCalculationOverpaidState extends TaxCalculationState
+sealed trait TaxCalculationUnderpaidState extends TaxCalculationState
+
+case class TaxCalculationOverpaidRefundState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentProcessingState(amount: BigDecimal) extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentPaidState(amount: BigDecimal, datePaid: String) extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentChequeSentState(amount: BigDecimal, datePaid: String) extends TaxCalculationOverpaidState
+
+case class TaxCalculationUnderpaidPaymentDueState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationUnderpaidState
+case class TaxCalculationUnderpaidPartPaidState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationUnderpaidState
+case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationUnderpaidState
+case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationUnderpaidState
+
 case object TaxCalculationUnkownState extends TaxCalculationState
+
 
 object TaxCalculationState {
 
@@ -33,21 +39,29 @@ object TaxCalculationState {
 
     taxCalculation match {
       case Some(TaxCalculation("Overpaid", amount, taxYear, Some("REFUND"), _)) =>
-        TaxCalculationRefundState(amount,  taxYear, taxYear + 1)
+        TaxCalculationOverpaidRefundState(amount,  taxYear, taxYear + 1)
+
       case Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PROCESSING"), _)) =>
-        TaxCalculationPaymentProcessingState(amount)
+        TaxCalculationOverpaidPaymentProcessingState(amount)
+
       case Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), Some(datePaid))) =>
-        TaxCalculationPaymentPaidState(amount, datePaid)
+        TaxCalculationOverpaidPaymentPaidState(amount, datePaid)
+
       case Some(TaxCalculation("Overpaid", amount, _, Some("CHEQUE_SENT"), Some(datePaid))) =>
-        TaxCalculationPaymentChequeSentState(amount, datePaid)
+        TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid)
+
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _)) =>
-        TaxCalculationPaymentDueState(amount, taxYear, taxYear + 1)
+        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1)
+
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _)) =>
-        TaxCalculationPartPaidState(amount, taxYear, taxYear + 1)
+        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1)
+
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _)) =>
-        TaxCalculationPaidAllState
+        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1)
+
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _)) =>
-        TaxCalculationPaymentsDownState(taxYear, taxYear + 1)
+        TaxCalculationUnderpaidPaymentsDownState(taxYear, taxYear + 1)
+
       case _ => TaxCalculationUnkownState
     }
   }

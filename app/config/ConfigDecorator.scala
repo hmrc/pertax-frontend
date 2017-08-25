@@ -73,6 +73,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   }
 
   def sa302Url(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"))
+  def completeYourTaxReturnUrl(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment-file/$taxYear/ind/$saUtr/return?lang=eng"))
   lazy val ssoToActivateSaEnrolmentPinUrl = ssoifyUrl(toPortalUrl("/service/self-assessment?action=activate&step=enteractivationpin"))
   lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
   lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))

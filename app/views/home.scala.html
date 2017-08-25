@@ -1,11 +1,8 @@
 @(inboxLinkPartial: Html,
-  showMarriageAllowanceSection: Boolean,
-  isActivePaye: Boolean,
-  showCompanyBenefitSection: Boolean,
-  taxCalculationState: TaxCalculationState,
-  saActionNeeded: services.SelfAssessmentActionNeeded,
-  showLtaSection: Boolean,
-  userResearchLinkUrl: Option[String]
+  userResearchLinkUrl: Option[String],
+  incomeCards: Seq[Html],
+  benefitCards: Seq[Html],
+  pensionCards: Seq[Html]
 )(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import tags._
@@ -38,8 +35,9 @@
 
   }.getOrElse {
 
-    <div class="page-heading">
-      <h1 class="heading-xlarge no-margin-bottom">
+    <div class="page-header home" role="heading">
+      <div class="page-info">Account home</div>
+      <h1 class="heading-xlarge no-margin-top no-margin-bottom">
         @ifNameAvailable {
           @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
         }
@@ -52,141 +50,35 @@
   }
 
   <div class="grid-row pertax-home">
-    <div class="column-two-thirds">
+    <div class="column-two-thirds" role="main">
 
-      @taxCalculationBanner(taxCalculationState)
-
-      @ifUserPredicate(u => (u.isSa && u.isGovernmentGateway) || u.isPaye) { u =>
-        <div class="grid-row pertax-panel tax-nino-wrapper">
-          <div class="column-whole">
-            <h2 class="name-header">@Messages("label.tax_and_national_insurance")</h2>
-
-            <div class="grid-row ">
-
-              @if(isActivePaye) {
-                <div class="column-half grid tax-estimate">
-                  @ifUserHasPersonDetails {
-                    <h3><a id="paye-link" class="trackLink" href="@pertaxContext.configDecorator.taxEstimateServiceUrl">@Messages("label.pay_as_you_earn_paye")</a></h3>
-                    <p>@Messages("label.check_your_tax_codes_and_an_estimate_of_the_income_tax_youll_pay")</p>
-                  }
-                  @unlessUserHasPersonDetails {
-                    <h3>@Messages("label.pay_as_you_earn_paye")</h3>
-                    <p>@Messages("label.the_tax_codes_and_income_tax_service_is_currently_unavailable")</p>
-                  }
-                </div>
-              }
-
-              @ifGovernmentGatewayUser {
-                @saPanel(saActionNeeded)
-              }
-
-              <div class="column-half grid national-insurance">
-                <h3><a href="@controllers.routes.InterstitialController.displayNationalInsurance">@Messages("label.national_insurance")</a></h3>
-                <p>@Messages("label.view_your_national_insurance_record")</p>
-              </div>
-
-              @if(isActivePaye && showCompanyBenefitSection){
-                @ifHighGovernmentGatewayOrVerifyUser {
-                  <div class="column-half grid company-benefits-section">
-                    @ifUserHasPersonDetails {
-                      <h3><a class="cb-link trackLink" href="@pertaxContext.configDecorator.taiCompanyBenefitsUrl">@Messages("label.company_benefits")</a></h3>
-                      <p>@Messages("label.see_how_company_car_and_medical_benefit_")</p>
-                    }
-                    @unlessUserHasPersonDetails {
-                      <h3>@Messages("label.company_benefits")</h3>
-                      <p>@Messages("label.the_company_benefits_service_is_currently_unavailable")</p>
-                    }
-                  </div>
-                }
-              }
-            </div>
-          </div>
+      <section>
+        <h2 class="section-header">@Messages("title.income")</h2>
+        <div class="grid-row">
+          @incomeCards
         </div>
-      }
+      </section>
 
-      <div class="grid-row pertax-panel no-margin-bottom">
-
-        <div class="column-whole">
-          <h2 class="name-header">@Messages("label.child_benefit_and_tax_credits")</h2>
-
-          <div class="grid-row ">
-            <div class="column-half grid child-benefits">
-              <h3><a href="@controllers.routes.InterstitialController.displayChildBenefits">@Messages("label.child_benefit")</a></h3>
-              <p>@Messages("label.check_your_child_benefits_record")</p>
-            </div>
-            <div class="column-half grid tax-credits">
-              <h3><a href="@pertaxContext.configDecorator.tcsHomeUrl">@Messages("label.tax_credits")</a></h3>
-              <p>@Messages("label.check_your_tax_credits_record")</p>
-            </div>
-          </div>
-
+      <section>
+        <h2 class="section-header">@Messages("label.child_benefit_and_tax_credits")</h2>
+        <div class="grid-row">
+          @benefitCards
         </div>
-      </div>
+      </section>
 
-      <div class="grid-row pertax-panel">
-        <div class="column-whole">
-          <h2 class="name-header">@Messages("label.pension_and_retirement")</h2>
-
-          <div class="grid-row">
-            @if(pertaxContext.configDecorator.nispEnabled) {
-              <div class="column-half grid pensions">
-                <h3><a class="trackLink" href="@pertaxContext.configDecorator.myStatePensionAccount">@Messages("label.state_pension_forecast")</a></h3>
-                <p>@Messages("label.check_when_you_can_claim_your_state_pension_and_how_much_you_can_get")</p>
-              </div>
-            }
-            @if(showLtaSection){
-              <div class="column-half grid pensions">
-                <h3><a class="ga-track-anchor-click" data-ga-event-category="ltaClick" data-ga-event-action="click" data-ga-event-label="LTA Click" href="@pertaxContext.configDecorator.lifetimeProtectionAllowance">@Messages("label.lifetime_allowance_protection")</a></h3>
-                <p>@Messages("label.see_your_existing_protection_details")</p>
-              </div>
-            }
-          </div>
+      <section>
+        <h2 class="section-header">@Messages("label.pension_and_retirement")</h2>
+        <div class="grid-row">
+          @pensionCards
         </div>
-      </div>
-
-      <div class="grid-row pertax-panel tamc">
-        <div class="column-whole">
-          <h2 class="name-header">@Messages("label.services_you_might_need")</h2>
-            <p>@Messages("label.if_you_receive_child_benefit_")</p>
-            <a class="child-ben-service-link trackLink" href="@pertaxContext.configDecorator.childBenefitsStaysInEducation">@Messages("label.tell_us_if_your_child_is_staying_in_education_or_training")</a>
-
-            @if(isActivePaye && showMarriageAllowanceSection) {
-              @ifHighGovernmentGatewayOrVerifyUser {
-                <div class="margin-top">
-                  <p>@Messages("label.because_you_earn_less_than", pertaxContext.configDecorator.marriageAllowanceSalaryAmount)</p>
-                  <a class="tamc-link trackLink" href="@pertaxContext.configDecorator.tamcTransferAllowanceUrl">@Messages("label.check_if_you_re_eligible_for_ma")</a>
-                </div>
-              }
-            }
-        </div>
-      </div>
-
-      @ifVerifyUser {
-        @ifPayeUser {
-          @ifNonDelegatingUser {
-            <div class="grid-row pertax-panel trusted-helpers">
-              <div class="column-whole">
-                <h2 class="name-header">@Messages("label.help_with_tax_for_friends_and_family")</h2>
-                <p>@Messages("label.give_friends_or_family_permission_to_access_your_account")</p>
-                <a class="trackLink" href="@pertaxContext.configDecorator.fandfUrl">@Messages("label.view_your_trusted_helper_contacts")</a>
-              </div>
-            </div>
-          }
-        }
-      }
-      @ifGovernmentGatewayUser {
-        @ifSaUser {
-          <div class="grid-row pertax-panel">
-            <div class="column-whole">
-              <h2 class="name-header">@Messages("label.services_for_businesses")</h2>
-              <p>@Html(Messages("label.if_you_are_self_employed_or_pay_business_tax", pertaxContext.configDecorator.businessTaxAccountUrl))
-            </div>
-          </div>
-        }
-      }
+      </section>
 
     </div>
-    <div class="column-third pertax-sidebar">
+
+
+    <div class="sidebar column-third" role="complementary">
+      <h2 class="section-header">@Messages("label.your_account")</h2>
+
       @ifGovernmentGatewayUser {
         @ifPayeOrSaUser {
           <div class="sidebar-panel messages">
@@ -194,9 +86,9 @@
           </div>
         }
       }
-        
+
       <div class="sidebar-panel">
-        <h2 class="no-margin-top">@Messages("label.personal_details")</h2>
+        <h3 class="no-margin-top">@Messages("label.personal_details")</h3>
         @ifPayeUser {
           <div class="personal-details">
             @ifUserHasPersonDetails {
@@ -214,10 +106,11 @@
       </div>
 
       <div class="sidebar-panel track-forms">
-        <h2 class="no-margin-top">@Messages("label.track_your_forms_and_letters")</h2>
+        <h3 class="no-margin-top">@Messages("label.track_your_forms_and_letters")</h3>
         <p>@Messages("label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by")</p>
         <a id="track-form-link" class="trackLink" href="@pertaxContext.configDecorator.formTrackingServiceUrl">@Messages("label.track_your_forms_and_letters")</a>
       </div>
+
     </div>
   </div>
 }

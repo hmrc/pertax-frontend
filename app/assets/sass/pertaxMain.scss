@@ -4,9 +4,11 @@
 @import 'taxCreditsAdditional';
 
 .lang-select {
-  float: right;
   border-bottom: 0px;
+  float: right;
   padding: 0.65em 0px;
+  text-align: right;
+  width: 100%;
 }
 
 //Global
@@ -242,8 +244,7 @@ address {
 
 }
 
-//Home page
-.pertax-home,
+//Pertax page
 .pertax-page {
   .grid-row {
     margin-bottom: 20px;
@@ -287,45 +288,6 @@ address {
       border-left: medium none !important;
       margin: 0 15px 0 0;
       padding-left: 0;
-    }
-  }
-}
-
-.tax-nino-wrapper {
-  .grid {
-    min-height: 90px;
-  }
-}
-
-
-@include media(tablet) {
-  .tax-nino-wrapper {
-    .grid {
-      min-height: 130px;
-    }
-  }
-}
-
-@media(min-width: 701px) {
-  .tax-nino-wrapper {
-    .grid {
-      min-height: 230px;
-    }
-  }
-}
-
-@include media(desktop) {
-  .tax-nino-wrapper {
-    .grid {
-      min-height: 180px;
-    }
-  }
-}
-
-@media(min-width: 955px){
-  .tax-nino-wrapper {
-    .grid {
-      min-height: 150px;
     }
   }
 }
@@ -385,6 +347,163 @@ address {
     color: $white;
   }
 }
+
+
+/*
+ ******************************************************************************************
+ *
+ * New Homepage
+ *
+ ******************************************************************************************
+ */
+
+.page-header.home {
+  border-bottom: none;
+  margin-bottom: 40px;
+
+  h1 {
+    font-weight: 600;
+  }
+
+  .page-info {
+    color: $grey-1;
+    font-size: 18px;
+  }
+}
+
+.pertax-home {
+
+  .column-half {
+    @include grid-column(1);
+  }
+
+  h2.section-header {
+    border-bottom: 1px solid $grey-2;
+    font-weight: 600;
+    margin: 40px 0 24px;
+  }
+
+  a {
+    display: inline-block;
+    font-size: 16px;
+    line-height: 20px;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus {
+      outline:3px solid $yellow;
+    }
+  }
+
+  p {
+    color: $black;
+    font-size: 16px;
+  }
+
+  .card {
+    font-size: 16px;
+    margin-bottom: 30px;
+
+    h3 {
+      color: $govuk-blue;
+    }
+
+    a.card-link {
+      text-decoration: none;
+      width: 100%;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    a > .card-content {
+      background: $grey-4;
+      display: block;
+      padding: 10px;
+      text-decoration: none;
+
+      &:hover {
+        color: $white;
+        background: $govuk-blue;
+
+        h3, p {
+          color: $white;
+        }
+
+      }
+    }
+
+    .card-actions {
+      border: 1px solid $grey-4;
+      border-top: none;
+      min-height: 40px;
+      padding: 10px;
+
+      a {
+        margin-bottom: 8px;
+      }
+    }
+  }
+
+  .sidebar-panel {
+    border: 1px solid $grey-4;
+    margin-bottom: 30px;
+    padding: 10px;
+  }
+}
+
+@include media(tablet) {
+  .page-header.home {
+    .page-info {
+      font-size: 27px;
+      margin-bottom: 5px;
+    }
+  }
+
+  .pertax-home {
+    h2.section-header {
+      font-size: 30px;
+    }
+
+    .card {
+      margin-bottom: 30px;
+
+      a > .card-content {
+        min-height: 120px;
+      }
+
+      .card-actions {
+        min-height: 50px;
+      }
+    }
+  }
+}
+
+@include media(desktop) {
+  .pertax-home {
+    .card {
+      min-height: 300px;
+
+      &.column-half {
+        @include grid-column(1 / 2);
+      }
+
+      a > .card-content {
+        min-height: 160px;
+      }
+
+      .card-actions {
+        min-height: 85px;
+      }
+    }
+
+  }
+}
+
 
 //Personal details page
 .personal-details {
@@ -595,29 +714,6 @@ input {
   margin-top: 45px;
 }
 
-//Header
-#global-header {
-  .header-wrapper {
-    .header-proposition {
-      @include media(desktop) {
-        .menu.js-hidden {
-          display: none !important;
-        }
-      }
-
-      .menu.js-hidden {
-        display: block !important;
-      }
-
-      #proposition-links {
-        li {
-          width: 100%;
-        }
-      }
-    }
-  }
-}
-
 .service-info-p {
   color: $grey-1;
   font-family: nta,Arial,sans-serif;
@@ -629,7 +725,7 @@ input {
 
 //Sidebar
 .pertax-sidebar {
-  margin-top: 15px;
+  margin-top: 15px !important;
 
   @include media(mobile) {
     .sidebar-panel {
@@ -1079,8 +1175,6 @@ body {
   }
 }
 
-
-
 @include media(tablet) {
   body {
     &.print-page {
@@ -1191,4 +1285,3 @@ body {
     }
   }
 }
-

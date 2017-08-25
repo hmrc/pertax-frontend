@@ -74,7 +74,7 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
 
     }
 
-    lazy val saActionNeeded = service.getSelfAssessmentActionNeeded(context.authContext)
+    lazy val saActionNeeded = service.getSelfAssessmentUserType(context.authContext)
   }
 
   "Calling HasSelfAssessmentServiceSpec.getSelfAssessmentActionNeeded" should {
@@ -85,7 +85,7 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
       override lazy val simulateErrorCallingSelfAssessmentService = false
       override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("Activated", "1111111111")))
 
-      await(saActionNeeded) shouldBe FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      await(saActionNeeded) shouldBe ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       verify(service.citizenDetailsService, times(0)).getMatchingDetails(any())(any())
     }
 
@@ -95,7 +95,7 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
       override lazy val simulateErrorCallingSelfAssessmentService = false
       override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("NotYetActivated", "1111111111")))
 
-      await(saActionNeeded) shouldBe ActivateSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      await(saActionNeeded) shouldBe NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       verify(service.citizenDetailsService, times(0)).getMatchingDetails(any())(any())
     }
 
@@ -105,7 +105,7 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
       override lazy val simulateErrorCallingSelfAssessmentService = false
       override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("AnythingButNotYetActivated", "1111111111")))  //Simulate no sa enrolment
 
-      await(saActionNeeded) shouldBe NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      await(saActionNeeded) shouldBe AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       verify(service.citizenDetailsService, times(1)).getMatchingDetails(any())(any())
     }
 
@@ -115,7 +115,7 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
       override lazy val simulateErrorCallingSelfAssessmentService = false
       override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("AnythingButNotYetActivated", "1111111111")))  //Simulate no sa enrolment
 
-      await(saActionNeeded) shouldBe NoSelfAssessmentActionNeeded
+      await(saActionNeeded) shouldBe NonFilerSelfAssessmentUser
       verify(service.citizenDetailsService, times(1)).getMatchingDetails(any())(any())
     }
   }
