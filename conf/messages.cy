@@ -116,7 +116,6 @@ label.youre_signed_out=Rydych wedi''ch allgofnodi
 label.youre_now_signed_out_of_your_personal_tax_account=Rydych bellach wedi''ch allgofnodi o''ch cyfrif treth personol.
 label.before_you_go_=Cyn i chi fynd, a fyddech cystal ag ateb rhai cwestiynau i''n helpu i wella''ch profiad o''r gwasanaeth.
 label.signed_out=Wedi allgofnodi
-label.account_home=Hafan y cyfrif
 label.message_detail=Manylion y neges
 label.edit=Golygu
 label.return_to_trusted_helpers=Dychwelyd i ''Cynorthwywyr y gellir ymddiried ynddynt''
@@ -172,8 +171,6 @@ label.tell_us_your_name_and_email_address_and_someone_will_get_back_to_you_withi
 label.thanks_weve_received_your_details=Diolch. Mae eich manylion wedi dod i law
 label.someone_will_get_back_to_you_within_2_working_days=Bydd rhywun yn cysylltu â chi cyn pen 2 ddiwrnod gwaith.
 label.return_to_pta_start=Dychwelyd i dudalen ddechrau eich cyfrif treth personol
-label.messages=Negeseuon
-label.message=Neges
 label.your_messages=Eich negeseuon
 label.list_of_messages=Rhestr o negeseuon
 label.self_assessment_messages=Negeseuon Hunanasesiad
@@ -407,8 +404,7 @@ label.confirm_and_save=Cadarnhau a chadw
 label.we_want_to_make_this_website_easier_to_use=Rydym am wneud y wefan hon yn haws i''w defnyddio
 label.help_us_with_our_research_opens_in_new_window=Helpwch ni gyda''n hymchwil (yn agor ffenestr newydd)
 label.services_you_might_need=Gwasanaethau y mae''n bosibl y bydd eu hangen arnoch
-label.check_if_you_re_eligible_for_ma=Gwirio a allwch gael Lwfans Priodasol
-label.company_benefits=Buddiannau cwmni
+label.check_if_you_re_eligible_for_ma=Gwirio a allwch gael Lwfans Priodaso
 label.see_how_company_car_and_medical_benefit_=Gweld sut y gallai car cwmni a buddiannau meddygol effeithio ar eich incwm trethadwy.
 label.view_your_company_benefits=Bwrw golwg ar eich buddiannau cwmni
 label.if_you_receive_child_benefit_=Os ydych yn cael Budd-dal Plant, ac roedd eich plentyn yn 16 oed ar neu cyn 31 Awst, mae angen i chi rhoi gwybod i ni a yw''ch plentyn yn aros mewn addysg neu hyfforddiant.
@@ -522,3 +518,103 @@ global.error.InternalServerError500.heading=Mae problem wedi codi
 global.error.InternalServerError500.message=Mae"n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>
 global.error.BadRequest.title=Mae problem wedi codi
 global.error.BadRequest.message=Mae''n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>
+
+
+#
+# New Homepage design
+#
+
+label.account_home=Hafan y cyfrif
+
+# Income
+title.income=Incwm
+
+label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
+label.your_income_from_employers_and_private_pensions_=Eich incwm gan gyflogwyr ac o bensiynau preifat, a drethir cyn ei dalu i chi
+label.make_sure_i_am_paying_the_right_amount_of_tax=Sicrhau fy mod yn talu''r swm cywir o dreth
+label.check_how_much_tax_i_paid_last_year=Gwirio faint o incwm a dalais y llynedd
+label.claim_your_tax_refund=Claim your tax refund
+label.view_your_tax_refund=View your tax refund
+label.find_out_why_you_paid_too_little=Find out why you paid too little
+label.view_the_tax_you_paid=View the tax you paid
+label.get_more_information_about_when_your_p800_will_arrive=Get more information about when your P800 will arrive
+label.get_more_information_about_the_tax_you_paid=Cael rhagor o wybodaeth am y dreth a daloch
+
+label.hmrc_owes_you_a_refund_for_the_to_year=Mae ar CThEM ad-daliad o £{0} i chi ar gyfer blwyddyn dreth {1} i {2}
+label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund
+label.hmrc_has_paid_your_refund=Talodd CThEM eich ad-daliad o £{0}
+label.hmrc_sent_you_a_cheque_for=Anfonodd CThEM siec i chi am £{0}
+label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}
+label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=Nid oes gennych daliadau i''w gwneud i CThEM ar gyfer blwyddyn dreth {0} i {1}
+label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=nid oes arnoch unrhyw beth i CThEM ar gyfer blwyddyn dreth {0} i {1}
+label.please_wait_for_your_tax_calculation_letter_p800=Please wait for your tax calculation letter (P800)
+label.you_owe_hmrc_for_the_to_tax_year=You owe HMRC for the {0} to {1} tax year
+
+label.self_assessment=Hunanasesiad
+label.use_your_activation_code_to_access_this_service=Defnyddiwch eich cod cychwyn i gyrchu''r gwasanaeth hwn
+label.complete_your_tax_return=Llenwi''ch Ffurflen Dreth
+label.make_a_payment=Gwneud taliad
+label.understand_self_assessment=Deall Hunanasesiad
+label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=Mae angen i chi lenwi Ffurflen Dreth unwaith y flwyddyn. Y dyddiad cau ar gyfer anfon eich un chi yw 31 Ionawr (2018). Y diwrnod diwethaf y gallwch wneud hyn ar-lein yw 28 Ionawr (2018)
+
+label.national_insurance=Yswiriant Gwladol
+label.you_have_a_national_insurance_number_to_make_sure_our_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi''n unig.
+
+label.print_your_national_insurance_letter=Argraffu''ch llythyr Yswiriant Gwladol
+label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
+label.check_your_state_pension=Gwirio''ch Pensiwn y Wladwriaeth
+
+label.you_paid_too_much_tax_last_year=gwnaethoch dalu gormod o dreth y llynedd
+label.you_paid_too_little_tax_last_year=ni wnaethoch dalu digon o dreth y llynedd
+label.you_do_not_owe_any_more_tax=You do not owe any more tax
+label.you_paid_the_right_amount_of_tax_last_year=Gwnaethoch dalu''r swm cywir o dreth y llynedd
+label.your_tax_has_not_yet_been_calculated=Your tax has not yet been calculated
+
+# Benefits
+title.benefits=Buddiannau
+
+label.company_benefits=Buddiannau cwmni
+label.benefits_you_receive_from_your_employer_in_addition_to_your_normal_salary=Benefits you receive from your employer in addition to your normal salary.
+
+label.tax_credits=Credydau treth
+label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=Bwrw golwg ar eich taliadau nesaf a''r bobl ar eich cais, a gwneud newidiadau i''ch cais.
+label.change_your_circumstances=Newid eich amgylchiadau
+label.find_out_if_you_qualify_for_tax_credits=Dod i wybod a ydych yn gymwys ar gyfer credydau treth
+
+title.marriage_allowance=Lwfans Priodasol
+label.transfer_part_of_your_personal_allowance_to_your_partner_=Trosglwyddo rhan o''ch Lwfans Personol i''ch partner fel ei fod/bod yn talu llai o dreth.
+label.find_out_if_you_qualify_for_marriage_allowance=Dod i wybod a ydych yn gymwys ar gyfer Lwfans Priodasol
+
+label.child_benefit=Budd-dal Plant
+label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children=Taliad yn rhydd o dreth i helpu rhieni gyda chostau magu plant.
+label.tell_us_if_your_child_is_staying_in_full_time_education=Rhowch wybod i ni a yw'ch plentyn yn aros mewn addysg amser llawn
+label.find_out_if_you_qualify_for_child_benefit=Dod i wybod a ydych yn gymwys ar gyfer Budd-dal Plant
+
+# Pensions
+title.pensions=Pensiynau
+
+title.state_pension=Pensiwn y Wladwriaeth
+label.you_are_still_contributing_to_your_state_pension_=Rydych yn dal i gyfrannu tuag at eich Pensiwn y Wladwriaeth. Cael rhagolwg a dod i wybod pryd y gallwch ddechrau''i hawlio.
+label.check_your_national_insurance_record_for_gaps=Gwirio''ch cofnod Yswiriant Gwladol am fylchau
+
+label.lifetime_allowance_protection=Diogelwch Lwfans Oes
+label.your_lifetime_allowance_is_protected_from_additional_tax_charges=Mae''ch Lwfans Oes wedi''i warchod rhag codiannau treth ychwanegol.
+label.manage_your_protections=Rheoli''ch polisïau diogelwch
+
+# Your account
+label.your_account=Eich Cyfrif
+
+label.messages=Negeseuon
+label.message=Neges
+label.view_your_messages=View your messages
+
+label.personal_details=Manylion personol
+label.update_your_address=Diweddaru''ch cyfeiriad
+label.manage_your_paperless_settings=Rheoli''ch gosodiadau di-bapur
+
+label.help_with_tax_for_friends_and_family=Helpu ffrindiau a theulu gyda''u treth
+label.give_friends_or_family_permissions_to_access_your_account=Rhoi caniatâd i''ch ffrindiau neu deulu gyrchu''ch cyfrif, neu dewch yn gynorthwywr y gall rhywun arall ymddiried ynddo i''w helpu gyda''i dreth
+label.view_your_trusted_helper_contacts=Bwrw golwg ar eich cynorthwywyr y gallwch ymddiried ynddynt
+
+label.track_your_forms_and_letters=Dilyn eich ffurflenni a llythyrau
+label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by=Cael gwybod sut y mae'ch ffurflen yn dod yn ei blaen ac erbyn pryd y gallwch ddisgwyl ateb.

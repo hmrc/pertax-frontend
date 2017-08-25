@@ -33,19 +33,13 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent._
 
 
-trait SelfAssessmentActionNeeded
-case class FileReturnSelfAssessmentActionNeeded(saUtr: SaUtr) extends SelfAssessmentActionNeeded
-case class ActivateSelfAssessmentActionNeeded(saUtr: SaUtr) extends SelfAssessmentActionNeeded
-case class NoEnrolmentFoundSelfAssessmentActionNeeded(saUtr: SaUtr) extends SelfAssessmentActionNeeded
-case object NoSelfAssessmentActionNeeded extends SelfAssessmentActionNeeded
-
 
 @Singleton
 class SelfAssessmentService @Inject() (val simpleHttp: SimpleHttp, val citizenDetailsService: CitizenDetailsService, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
   lazy val authUrl = new URL(baseUrl("auth"))
 
-  def getSelfAssessmentActionNeeded(authContext: Option[AuthContext])(implicit hc: HeaderCarrier): Future[SelfAssessmentActionNeeded] = {
+  def getSelfAssessmentUserType(authContext: Option[AuthContext])(implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] = {
 
     import AuthEnrolment._
 
@@ -87,20 +81,20 @@ class SelfAssessmentService @Inject() (val simpleHttp: SimpleHttp, val citizenDe
       }
     }
 
-    context.nino.fold[Future[SelfAssessmentActionNeeded]](Future.successful(NoSelfAssessmentActionNeeded)) { nino =>
+    context.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
 
       context.saUtr.fold({
         getSaUtrIfUserHasNotYetActivatedSaEnrolment flatMap {
-          case Some(saUtr) => Future.successful(ActivateSelfAssessmentActionNeeded(saUtr)) //NotYetActivated online filer
+          case Some(saUtr) => Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)) //NotYetActivated online filer
           case None => {
             getSaUtrFromCitizenDetailsService(nino) map {
-              case Some(saUtr) => NoEnrolmentFoundSelfAssessmentActionNeeded(saUtr) //Ambiguous SA filer
-              case None =>        NoSelfAssessmentActionNeeded //Non SA Filer
+              case Some(saUtr) => AmbiguousFilerSelfAssessmentUser(saUtr) //Ambiguous SA filer
+              case None =>        NonFilerSelfAssessmentUser //Non SA Filer
             }
           }
         }
       })({ saUtr =>
-        Future.successful(FileReturnSelfAssessmentActionNeeded(saUtr)) //Activated online filer
+        Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr)) //Activated online filer
       })
 
     }

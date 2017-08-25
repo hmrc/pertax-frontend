@@ -1,0 +1,31 @@
+@(saActionNeeded: SelfAssessmentUserType, taxYear: String)(implicit messages: play.api.i18n.Messages, pertaxContext: PertaxContext)
+
+@cardLink = @{
+  saActionNeeded match {
+    case _:ActivatedOnlineFilerSelfAssessmentUser => controllers.routes.InterstitialController.displaySelfAssessment()
+    case _ => controllers.routes.ApplicationController.handleSelfAssessment()
+  }
+}
+
+<div class="card column-half">
+  <a class="card-link" href="@cardLink">
+    <div class="card-content" role="link">
+      <h3 class="heading-small no-margin-top">@Messages("label.self_assessment")</h3>
+      <p>@Messages("label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_")</p>
+    </div>
+  </a>
+  <div class="card-actions">
+    @saActionNeeded match {
+      case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+        <a href="@pertaxContext.configDecorator.completeYourTaxReturnUrl(saUtr.value, taxYear)">@Messages("label.complete_your_tax_return")</a>
+      }
+      case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+        <a href="/pay-online/self-assessment/make-a-payment?mode=pta">@Messages("label.make_a_payment")</a>
+      }
+      case AmbiguousFilerSelfAssessmentUser(saUtr) => {
+        <a href="https://www.gov.uk/self-assessment-tax-returns">@Messages("label.understand_self_assessment")</a>
+      }
+      case _ => {}
+    }
+  </div>
+</div>

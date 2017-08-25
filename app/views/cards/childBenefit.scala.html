@@ -1,0 +1,14 @@
+@()(implicit messages: play.api.i18n.Messages)
+
+<div class="card column-half">
+  <a class="card-link" href="@routes.InterstitialController.displayChildBenefits()">
+    <div class="card-content" role="link">
+      <h3 class="heading-small no-margin-top">@Messages("label.child_benefit")</h3>
+      <p>@Messages("label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children")</p>
+    </div>
+  </a>
+  <div class="card-actions">
+      <a href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide">@Messages("label.tell_us_if_your_child_is_staying_in_full_time_education")</a>
+      <a href="https://www.gov.uk/child-benefit/eligibility">@Messages("label.find_out_if_you_qualify_for_child_benefit")</a>
+  </div>
+</div>

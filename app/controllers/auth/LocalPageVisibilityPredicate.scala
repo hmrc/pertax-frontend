@@ -21,6 +21,7 @@ import javax.inject._
 import config.ConfigDecorator
 import controllers.bindable.Origin
 import controllers.routes._
+import models.{AmbiguousFilerSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser}
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Request}
 import services._
@@ -121,9 +122,9 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
       val saUtr = authContext.principal.accounts.sa.map(_.utr) match {
         case Some(x) => Future.successful(Some(x))
         case None =>
-          selfAssessmentService.getSelfAssessmentActionNeeded(Some(authContext)) map {
-            case ActivateSelfAssessmentActionNeeded(x) => Some(x)
-            case NoEnrolmentFoundSelfAssessmentActionNeeded(x) => Some(x)
+          selfAssessmentService.getSelfAssessmentUserType(Some(authContext)) map {
+            case NotYetActivatedOnlineFilerSelfAssessmentUser(x) => Some(x)
+            case AmbiguousFilerSelfAssessmentUser(x) => Some(x)
             case _ => None
           }
       }

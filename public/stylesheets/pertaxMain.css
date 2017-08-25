@@ -104,9 +104,11 @@
   }
 }
 .lang-select {
-  float: right;
   border-bottom: 0px;
+  float: right;
   padding: 0.65em 0px;
+  text-align: right;
+  width: 100%;
 }
 
 .page-heading {
@@ -330,29 +332,24 @@ address {
   margin-right: 1%;
 }
 
-.pertax-home .grid-row,
 .pertax-page .grid-row {
   margin-bottom: 20px;
 }
-.pertax-home .grid-row .income-estimate,
 .pertax-page .grid-row .income-estimate {
   margin-bottom: 20px;
   padding-top: 10px;
 }
 @media (min-width: 769px) {
-  .pertax-home .grid-row .income-estimate,
   .pertax-page .grid-row .income-estimate {
     margin-bottom: 0;
   }
 }
 @media (max-width: 640px) {
-  .pertax-home .pertax-panel,
   .pertax-page .pertax-panel {
     margin-bottom: 60px;
     width: auto;
   }
 }
-.pertax-home .pertax-panel h2.name-header,
 .pertax-page .pertax-panel h2.name-header {
   border-bottom: 2px solid #bfc1c3;
   font-size: 30px;
@@ -360,7 +357,6 @@ address {
   margin: 60px 0 30px;
   padding-bottom: 12px !important;
 }
-.pertax-home .pertax-panel h3,
 .pertax-page .pertax-panel h3 {
   border-bottom: medium none;
   font-size: 24px;
@@ -369,37 +365,12 @@ address {
   margin-top: 0;
   padding-bottom: 0 !important;
 }
-.pertax-home .pertax-panel .panel-indent,
 .pertax-page .pertax-panel .panel-indent {
   border-left: medium none !important;
   margin: 0 15px 0 0;
   padding-left: 0;
 }
 
-.tax-nino-wrapper .grid {
-  min-height: 90px;
-}
-
-@media (min-width: 641px) {
-  .tax-nino-wrapper .grid {
-    min-height: 130px;
-  }
-}
-@media (min-width: 701px) {
-  .tax-nino-wrapper .grid {
-    min-height: 230px;
-  }
-}
-@media (min-width: 769px) {
-  .tax-nino-wrapper .grid {
-    min-height: 180px;
-  }
-}
-@media (min-width: 955px) {
-  .tax-nino-wrapper .grid {
-    min-height: 150px;
-  }
-}
 .pertax-panel#national_insurance {
   padding-top: 30px;
 }
@@ -450,6 +421,140 @@ address {
   color: #fff;
 }
 
+/*
+ ******************************************************************************************
+ *
+ * New Homepage
+ *
+ ******************************************************************************************
+ */
+.page-header.home {
+  border-bottom: none;
+  margin-bottom: 40px;
+}
+.page-header.home h1 {
+  font-weight: 600;
+}
+.page-header.home .page-info {
+  color: #6f777b;
+  font-size: 18px;
+}
+
+.pertax-home .column-half {
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+@media (min-width: 641px) {
+  .pertax-home .column-half {
+    float: left;
+    width: 100%;
+  }
+}
+.pertax-home h2.section-header {
+  border-bottom: 1px solid #bfc1c3;
+  font-weight: 600;
+  margin: 40px 0 24px;
+}
+.pertax-home a {
+  display: inline-block;
+  font-size: 16px;
+  line-height: 20px;
+  text-decoration: none;
+}
+.pertax-home a:hover {
+  text-decoration: underline;
+}
+.pertax-home a:focus {
+  outline: 3px solid #ffbf47;
+}
+.pertax-home p {
+  color: #0b0c0c;
+  font-size: 16px;
+}
+.pertax-home .card {
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+.pertax-home .card h3 {
+  color: #005ea5;
+}
+.pertax-home .card a.card-link {
+  text-decoration: none;
+  width: 100%;
+}
+.pertax-home .card a.card-link:focus {
+  outline: none;
+}
+.pertax-home .card a > .card-content {
+  background: #f8f8f8;
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+}
+.pertax-home .card a > .card-content:hover {
+  color: #fff;
+  background: #005ea5;
+}
+.pertax-home .card a > .card-content:hover h3, .pertax-home .card a > .card-content:hover p {
+  color: #fff;
+}
+.pertax-home .card .card-actions {
+  border: 1px solid #f8f8f8;
+  border-top: none;
+  min-height: 40px;
+  padding: 10px;
+}
+.pertax-home .card .card-actions a {
+  margin-bottom: 8px;
+}
+.pertax-home .sidebar-panel {
+  border: 1px solid #f8f8f8;
+  margin-bottom: 30px;
+  padding: 10px;
+}
+
+@media (min-width: 641px) {
+  .page-header.home .page-info {
+    font-size: 27px;
+    margin-bottom: 5px;
+  }
+
+  .pertax-home h2.section-header {
+    font-size: 30px;
+  }
+  .pertax-home .card {
+    margin-bottom: 30px;
+  }
+  .pertax-home .card a > .card-content {
+    min-height: 120px;
+  }
+  .pertax-home .card .card-actions {
+    min-height: 50px;
+  }
+}
+@media (min-width: 769px) {
+  .pertax-home .card {
+    min-height: 300px;
+  }
+  .pertax-home .card.column-half {
+    padding: 0 15px;
+    box-sizing: border-box;
+  }
+}
+@media (min-width: 769px) and (min-width: 641px) {
+  .pertax-home .card.column-half {
+    float: left;
+    width: 50%;
+  }
+}
+@media (min-width: 769px) {
+  .pertax-home .card a > .card-content {
+    min-height: 160px;
+  }
+  .pertax-home .card .card-actions {
+    min-height: 85px;
+  }
+}
 .personal-details .update-address-link {
   margin-top: 12px;
   text-align: right;
@@ -605,18 +710,6 @@ input {
   margin-top: 45px;
 }
 
-@media (min-width: 769px) {
-  #global-header .header-wrapper .header-proposition .menu.js-hidden {
-    display: none !important;
-  }
-}
-#global-header .header-wrapper .header-proposition .menu.js-hidden {
-  display: block !important;
-}
-#global-header .header-wrapper .header-proposition #proposition-links li {
-  width: 100%;
-}
-
 .service-info-p {
   color: #6f777b;
   font-family: nta,Arial,sans-serif;
@@ -627,7 +720,7 @@ input {
 }
 
 .pertax-sidebar {
-  margin-top: 15px;
+  margin-top: 15px !important;
 }
 @media (max-width: 640px) {
   .pertax-sidebar .sidebar-panel {

@@ -22,18 +22,20 @@ import config.{ConfigDecorator, StaticGlobalDependencies}
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import controllers.bindable.Origin
-import controllers.helpers.PaperlessInterruptHelper
+import controllers.helpers.{HomeCardGenerator, PaperlessInterruptHelper}
 import error.LocalErrorHandler
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc._
+import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessagePartialService}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.time.TaxYearResolver
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}
+import util.DateTimeTools._
 
 import scala.concurrent.Future
 
@@ -57,7 +59,8 @@ class ApplicationController @Inject() (
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler
+  val localErrorHandler: LocalErrorHandler,
+  val homeCardGenerator: HomeCardGenerator
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
   def index: Action[AnyContent] = ProtectedAction(Nil) {
@@ -93,7 +96,7 @@ class ApplicationController @Inject() (
           Future.successful(None)
         }
 
-        val showLtaSection: Future[Boolean] = if (configDecorator.ltaEnabled) {
+        val hasLtaProtections: Future[Boolean] = if (configDecorator.ltaEnabled) {
           lifetimeAllowanceService.hasLtaProtection(nino)
         }
         else {
@@ -103,29 +106,43 @@ class ApplicationController @Inject() (
         for {
          taxCalculation <- taxCalculation
          taxSummary <- taxSummary
-         showLtaSection <- showLtaSection
-        } yield (taxSummary, taxCalculation, showLtaSection)
+         hasLtaProtections <- hasLtaProtections
+        } yield (taxSummary, taxCalculation, hasLtaProtections)
       }
 
-      val saActionNeeded = selfAssessmentService.getSelfAssessmentActionNeeded(pertaxContext.authContext)
+      val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
 
       val messageInboxLinkPartial = partialService.getMessageInboxLinkPartial
 
       enforcePaperlessPreference {
         for {
-          (taxSummary, taxCalculation, showLtaSection) <- serviceCallResponses
+          (taxSummary, taxCalculation, hasLtaProtections) <- serviceCallResponses
           inboxLinkPartial <- messageInboxLinkPartial
-          saActionNeeded <- saActionNeeded
+          saUserType <- saUserType
         } yield {
+
+
+          val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
+            pertaxContext.user,
+            taxSummary,
+            TaxCalculationState.buildFromTaxCalculation(taxCalculation),
+            saUserType
+          )
+
+          val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(
+            taxSummary
+          )
+
+          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(
+            pertaxContext.user, hasLtaProtections
+          )
+
           Ok(views.html.home(
             inboxLinkPartial = inboxLinkPartial.successfulContentOrEmpty,
-            showMarriageAllowanceSection = taxSummary.map(!_.isMarriageAllowanceRecipient).getOrElse(true),
-            isActivePaye = taxSummary.isDefined,
-            showCompanyBenefitSection = taxSummary.map(_.isCompanyBenefitRecipient).getOrElse(false),
-            taxCalculationState = TaxCalculationState.buildFromTaxCalculation(taxCalculation),
-            saActionNeeded = saActionNeeded,
-            showLtaSection = showLtaSection,
-            userResearchLinkUrl = configDecorator.urLinkUrl
+            userResearchLinkUrl = configDecorator.urLinkUrl,
+            incomeCards,
+            benefitCards,
+            pensionCards
           ))
         }
       }
@@ -210,9 +227,9 @@ class ApplicationController @Inject() (
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
 
-        selfAssessmentService.getSelfAssessmentActionNeeded(pertaxContext.authContext) flatMap {
+        selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
 
-          case ActivateSelfAssessmentActionNeeded(_) =>
+          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
             Future.successful(Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl))
           case _ =>
             cspPartialService.webchatClickToChatScriptPartial("pertax") map { p =>
@@ -228,20 +245,20 @@ class ApplicationController @Inject() (
 
       val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.getOrElse(controllers.routes.ApplicationController.index().url))
 
-      selfAssessmentService.getSelfAssessmentActionNeeded(pertaxContext.authContext) flatMap {
-        case FileReturnSelfAssessmentActionNeeded(x) =>
+      selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
+        case ActivatedOnlineFilerSelfAssessmentUser(x) =>
           handleIvExemptAuditing("Activated online SA filer")
           Future.successful(Ok(views.html.activatedSaFilerIntermediate(x.toString, DateTimeTools.previousAndCurrentTaxYear)))
-        case ActivateSelfAssessmentActionNeeded(_) =>
+        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
           Future.successful(Ok(views.html.iv.failure.failedIvContinueToActivateSa()))
-        case NoEnrolmentFoundSelfAssessmentActionNeeded(_) =>
+        case AmbiguousFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Ambiguous SA filer")
           cspPartialService.webchatClickToChatScriptPartial("pertax") map { p =>
             Ok(views.html.iv.failure.failedIvSaFilerWithNoEnrolment(c, p.successfulContentOrEmpty))
           }
 
-        case NoSelfAssessmentActionNeeded =>
+        case NonFilerSelfAssessmentUser =>
           Future.successful(Ok(views.html.iv.failure.insufficientEvidenceNonSaFiler()))
       }
   }

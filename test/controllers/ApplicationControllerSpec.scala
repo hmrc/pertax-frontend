@@ -83,7 +83,7 @@ class ApplicationControllerSpec extends BaseSpec {
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
-    lazy val getSelfAssessmentServiceResponse: SelfAssessmentActionNeeded = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
     lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
@@ -124,7 +124,7 @@ class ApplicationControllerSpec extends BaseSpec {
       when(c.identityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
         Future.successful(getIVJourneyStatusResponse)
       }
-      when(c.selfAssessmentService.getSelfAssessmentActionNeeded(any())(any())) thenReturn {
+      when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
         Future.successful(getSelfAssessmentServiceResponse)
       }
       when(c.lifetimeAllowanceService.hasLtaProtection(any())(any(), any())) thenReturn {
@@ -163,7 +163,7 @@ class ApplicationControllerSpec extends BaseSpec {
     "send the user to IV using the PTA-TCS origin when the redirectUrl contains 'tax-credits-summary'" in new LocalSetup {
 
       override lazy val confidenceLevel = ConfidenceLevel.L0
-      override lazy val getSelfAssessmentServiceResponse = NoSelfAssessmentActionNeeded
+      override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
       val r = controller.uplift(Some("%2Fpersonal-account%2Ftax-credits-summary"))(buildFakeRequestWithAuth("GET"))
@@ -178,7 +178,7 @@ class ApplicationControllerSpec extends BaseSpec {
     "send the user to IV using the PERTAX origin when the redirectUrl does not contain 'tax-credits-summary'" in new LocalSetup {
 
       override lazy val confidenceLevel = ConfidenceLevel.L0
-      override lazy val getSelfAssessmentServiceResponse = NoSelfAssessmentActionNeeded
+      override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
       val r = controller.uplift(Some("%2Fpersonal-account"))(buildFakeRequestWithAuth("GET"))
@@ -335,7 +335,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       override lazy val authority = buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
       override lazy val getCitizenDetailsResponse = true
-      override lazy val getSelfAssessmentServiceResponse = ActivateSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override lazy val getSelfAssessmentServiceResponse = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
       val r = controller.handleSelfAssessment()(buildFakeRequestWithAuth("GET"))
@@ -349,7 +349,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       override lazy val authority = buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
       override lazy val getCitizenDetailsResponse = true
-      override lazy val getSelfAssessmentServiceResponse = NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
       val r = controller.handleSelfAssessment()(buildFakeRequestWithAuth("GET"))
@@ -492,7 +492,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
     "Return 200 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
 
-      override lazy val getSelfAssessmentServiceResponse = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override lazy val getSelfAssessmentServiceResponse = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
       val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
@@ -505,7 +505,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
     "Redirect to the SA activation page on the portal for a user logged in with GG linked to SA which is not yet activated" in new LocalSetup {
 
-      override lazy val getSelfAssessmentServiceResponse = ActivateSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override lazy val getSelfAssessmentServiceResponse = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
       val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
@@ -518,7 +518,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
     "Redirect to 'You can't access your SA information with this user ID' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
 
-      override lazy val getSelfAssessmentServiceResponse = NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
       val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
@@ -531,7 +531,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
     "Redirect to 'We're unable to confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
 
-      override lazy val getSelfAssessmentServiceResponse = NoSelfAssessmentActionNeeded
+      override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
       val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))

@@ -18,6 +18,7 @@ package controllers.auth
 
 import config.ConfigDecorator
 import controllers.bindable.Origin
+import models._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -51,11 +52,11 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
     def confidenceLevel: ConfidenceLevel
     def credentialStrength: CredentialStrength
     def simulateAccountPresentInExceptionList: Boolean
-    def getSelfAssessmentAction:  SelfAssessmentActionNeeded
+    def getSelfAssessmentAction:  SelfAssessmentUserType
     def allowIvExceptions: Boolean
     def allowLowConfidenceSA: Boolean
 
-    lazy val ac = Fixtures.buildFakeAuthContext(withPaye = false, withSa = getSelfAssessmentAction == FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111")))
+    lazy val ac = Fixtures.buildFakeAuthContext(withPaye = false, withSa = getSelfAssessmentAction == ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")))
 
     lazy val authContext = ac.copy(user = ac.user.copy(confidenceLevel = confidenceLevel, credentialStrength = credentialStrength))
 
@@ -69,7 +70,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
         MockitoSugar.mock[CitizenDetailsService],
         {
           val sas = MockitoSugar.mock[SelfAssessmentService]
-          when (sas.getSelfAssessmentActionNeeded(any())(any())) thenReturn Future.successful(getSelfAssessmentAction)
+          when (sas.getSelfAssessmentUserType(any())(any())) thenReturn Future.successful(getSelfAssessmentAction)
           sas
         },
         {
@@ -97,7 +98,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L200
       override val credentialStrength = CredentialStrength.Strong
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
       override val allowLowConfidenceSA = false
@@ -111,7 +112,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L200
       override val credentialStrength = CredentialStrength.Weak
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
       override val allowLowConfidenceSA = false
@@ -125,7 +126,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L200
       override val credentialStrength = CredentialStrength.None
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
       override val allowLowConfidenceSA = false
@@ -139,7 +140,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L100
       override val credentialStrength = CredentialStrength.Strong
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
       override val allowLowConfidenceSA = false
@@ -153,7 +154,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L50
       override val credentialStrength = CredentialStrength.Strong
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
       override val allowLowConfidenceSA = false
@@ -167,7 +168,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L100
       override val credentialStrength = CredentialStrength.Strong
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
       override val allowLowConfidenceSA = false
@@ -179,7 +180,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L100
       override val credentialStrength = CredentialStrength.Strong
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = false
       override val simulateAccountPresentInExceptionList = true
       override val allowLowConfidenceSA = false
@@ -193,7 +194,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val confidenceLevel = ConfidenceLevel.L200
       override val credentialStrength = CredentialStrength.Strong
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
       override val allowLowConfidenceSA = false
@@ -215,7 +216,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
       override val allowLowConfidenceSA = false
-      override val getSelfAssessmentAction = ActivateSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       nonVisibleRedirectLocation shouldBe Some("/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
     }
 
@@ -224,7 +225,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
       override val allowLowConfidenceSA = false
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       nonVisibleRedirectLocation shouldBe Some("/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
     }
 
@@ -233,7 +234,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
       override val allowLowConfidenceSA = false
-      override val getSelfAssessmentAction = NoSelfAssessmentActionNeeded
+      override val getSelfAssessmentAction = NonFilerSelfAssessmentUser
       nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
@@ -244,7 +245,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
       override val allowLowConfidenceSA = false
-      override val getSelfAssessmentAction = NoEnrolmentFoundSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       nonVisibleRedirectLocation shouldBe Some("/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
     }
 
@@ -253,7 +254,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val allowIvExceptions = false
       override val simulateAccountPresentInExceptionList = false
       override val allowLowConfidenceSA = true
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       nonVisibleRedirectLocation shouldBe Some("/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
     }
 
@@ -262,7 +263,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val allowIvExceptions = false
       override val simulateAccountPresentInExceptionList = false
       override val allowLowConfidenceSA = false
-      override val getSelfAssessmentAction = FileReturnSelfAssessmentActionNeeded(SaUtr("1111111111"))
+      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
