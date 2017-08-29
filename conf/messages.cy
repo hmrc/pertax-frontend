@@ -531,34 +531,35 @@ title.income=Incwm
 
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
 label.your_income_from_employers_and_private_pensions_=Eich incwm gan gyflogwyr ac o bensiynau preifat, a drethir cyn ei dalu i chi
-label.make_sure_i_am_paying_the_right_amount_of_tax=Sicrhau fy mod yn talu''r swm cywir o dreth
-label.check_how_much_tax_i_paid_last_year=Gwirio faint o incwm a dalais y llynedd
-label.claim_your_tax_refund=Claim your tax refund
-label.view_your_tax_refund=View your tax refund
-label.find_out_why_you_paid_too_little=Find out why you paid too little
-label.view_the_tax_you_paid=View the tax you paid
-label.get_more_information_about_when_your_p800_will_arrive=Get more information about when your P800 will arrive
+label.make_sure_you_are_paying_the_right_amount_of_tax=Make sure you are paying the right amount of tax
+label.check_how_much_tax_you_paid_last_year=Check how much tax you paid last year
+label.claim_your_tax_refund=Gwneud cais am eich ad-daliad treth
+label.view_your_tax_refund=Gweld eich ad-daliad treth
+label.find_out_why_you_paid_too_little=Cael gwybod pam nad ydych wedi talu digon
+label.view_the_tax_you_paid=Gweld y dreth a dalwyd gennych
+label.get_more_information_about_when_your_p800_will_arrive=Cael rhagor o wybodaeth am bryd y bydd eich P800 yn cyrraedd
 label.get_more_information_about_the_tax_you_paid=Cael rhagor o wybodaeth am y dreth a daloch
 
-label.hmrc_owes_you_a_refund_for_the_to_year=Mae ar CThEM ad-daliad o £{0} i chi ar gyfer blwyddyn dreth {1} i {2}
-label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund
-label.hmrc_has_paid_your_refund=Talodd CThEM eich ad-daliad o £{0}
-label.hmrc_sent_you_a_cheque_for=Anfonodd CThEM siec i chi am £{0}
-label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}
-label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=Nid oes gennych daliadau i''w gwneud i CThEM ar gyfer blwyddyn dreth {0} i {1}
-label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=nid oes arnoch unrhyw beth i CThEM ar gyfer blwyddyn dreth {0} i {1}
-label.please_wait_for_your_tax_calculation_letter_p800=Please wait for your tax calculation letter (P800)
-label.you_owe_hmrc_for_the_to_tax_year=You owe HMRC for the {0} to {1} tax year
+label.hmrc_owes_you_a_refund_for_the_to_year=Mae ar CThEM ad-daliad o £{0} i chi ar gyfer blwyddyn dreth {1} i {2}.
+label.hmrc_is_processing_your_refund=Mae CThEM yn prosesu''ch ad-daliad o £{0}.
+label.hmrc_has_paid_your_refund=Talodd CThEM eich ad-daliad o £{0}.
+label.hmrc_sent_you_a_cheque_for=Anfonodd CThEM siec i chi am £{0}.
+label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}.
+label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=Nid oes gennych daliadau i''w gwneud i CThEM ar gyfer blwyddyn dreth {0} i {1}.
+label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=nid oes arnoch unrhyw beth i CThEM ar gyfer blwyddyn dreth {0} i {1}.
+label.please_wait_for_your_tax_calculation_letter_p800=Arhoswch am eich llythyr cyfrifiad treth (P800).
+label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 
 label.self_assessment=Hunanasesiad
-label.use_your_activation_code_to_access_this_service=Defnyddiwch eich cod cychwyn i gyrchu''r gwasanaeth hwn
+label.use_your_activation_code_to_access_this_service=Defnyddiwch eich cod cychwyn i gyrchu''r gwasanaeth hwn.
+label.you_cannot_access_this_service_right_now=You cannot access this service right now.
 label.complete_your_tax_return=Llenwi''ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
 label.understand_self_assessment=Deall Hunanasesiad
-label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=Mae angen i chi lenwi Ffurflen Dreth unwaith y flwyddyn. Y dyddiad cau ar gyfer anfon eich un chi yw 31 Ionawr (2018). Y diwrnod diwethaf y gallwch wneud hyn ar-lein yw 28 Ionawr (2018)
+label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=Mae angen i chi lenwi Ffurflen Dreth unwaith y flwyddyn. Y dyddiad cau ar gyfer anfon eich un chi yw 31 Ionawr (2018).
 
 label.national_insurance=Yswiriant Gwladol
-label.you_have_a_national_insurance_number_to_make_sure_our_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi''n unig.
+label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi''n unig.
 
 label.print_your_national_insurance_letter=Argraffu''ch llythyr Yswiriant Gwladol
 label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
@@ -566,15 +567,15 @@ label.check_your_state_pension=Gwirio''ch Pensiwn y Wladwriaeth
 
 label.you_paid_too_much_tax_last_year=gwnaethoch dalu gormod o dreth y llynedd
 label.you_paid_too_little_tax_last_year=ni wnaethoch dalu digon o dreth y llynedd
-label.you_do_not_owe_any_more_tax=You do not owe any more tax
+label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth
 label.you_paid_the_right_amount_of_tax_last_year=Gwnaethoch dalu''r swm cywir o dreth y llynedd
-label.your_tax_has_not_yet_been_calculated=Your tax has not yet been calculated
+label.your_tax_has_not_yet_been_calculated=Nid yw''ch treth wedi''i chyfrifo eto
 
 # Benefits
 title.benefits=Buddiannau
 
 label.company_benefits=Buddiannau cwmni
-label.benefits_you_receive_from_your_employer_in_addition_to_your_normal_salary=Benefits you receive from your employer in addition to your normal salary.
+label.benefits_you_receive_from_your_employer_in_addition_to_your_normal_salary=Buddiannau a gewch gan eich cyflogwr yn ychwanegol i''ch cyflog arferol.
 
 label.tax_credits=Credydau treth
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=Bwrw golwg ar eich taliadau nesaf a''r bobl ar eich cais, a gwneud newidiadau i''ch cais.
@@ -606,7 +607,7 @@ label.your_account=Eich Cyfrif
 
 label.messages=Negeseuon
 label.message=Neges
-label.view_your_messages=View your messages
+label.view_your_messages=Edrychwch ar eich negeseuon
 
 label.personal_details=Manylion personol
 label.update_your_address=Diweddaru''ch cyfeiriad

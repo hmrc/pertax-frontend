@@ -509,8 +509,8 @@ title.income=Income
 
 label.pay_as_you_earn_paye=Pay As You Earn (PAYE)
 label.your_income_from_employers_and_private_pensions_=Your income from employers and private pensions that is taxed before it is paid to you.
-label.make_sure_i_am_paying_the_right_amount_of_tax=Make sure I am paying the right amount of tax
-label.check_how_much_tax_i_paid_last_year=Check how much tax I paid last year
+label.make_sure_you_are_paying_the_right_amount_of_tax=Make sure you are paying the right amount of tax
+label.check_how_much_tax_you_paid_last_year=Check how much tax you paid last year
 label.claim_your_tax_refund=Claim your tax refund
 label.view_your_tax_refund=View your tax refund
 label.find_out_why_you_paid_too_little=Find out why you paid too little
@@ -518,24 +518,25 @@ label.view_the_tax_you_paid=View the tax you paid
 label.get_more_information_about_when_your_p800_will_arrive=Get more information about when your P800 will arrive
 label.get_more_information_about_the_tax_you_paid=Get more information about the tax you paid
 
-label.hmrc_owes_you_a_refund_for_the_to_year=HMRC owes you a £{0} refund for the {1} to {2} year
-label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund
-label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund
-label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}
-label.you_owe_hmrc_for_the_to_tax_year=You owe HMRC £{0} for the {1} to {2} tax year
-label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=You have no payments to make to HMRC for the {0} to {1} tax year
-label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=You do not owe HMRC anything for the {0} to {1} tax year
-label.please_wait_for_your_tax_calculation_letter_p800=Please wait for your tax calculation letter (P800)
+label.hmrc_owes_you_a_refund_for_the_to_year=HMRC owes you a £{0} refund for the {1} to {2} year.
+label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund.
+label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund.
+label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}.
+label.you_owe_hmrc_for_the_to_tax_year=You owe HMRC £{0} for the {1} to {2} tax year.
+label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=You have no payments to make to HMRC for the {0} to {1} tax year.
+label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=You do not owe HMRC anything for the {0} to {1} tax year.
+label.please_wait_for_your_tax_calculation_letter_p800=Please wait for your tax calculation letter (P800).
 
 label.self_assessment=Self Assessment
-label.use_your_activation_code_to_access_this_service=Use your activation code to access this service
+label.use_your_activation_code_to_access_this_service=Use your activation code to access this service.
+label.you_cannot_access_this_service_right_now=You cannot access this service right now.
 label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
 label.understand_self_assessment=Understand Self Assessment
-label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=You need to complete a tax return once a year. Yours is due by the 31 January 2018. The last day you can do this online is 28 January 2018.
+label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=You need to complete a tax return once a year. Yours is due by the 31 January 2018.
 
 label.national_insurance=National Insurance
-label.you_have_a_national_insurance_number_to_make_sure_our_national_insurance_=You have a National Insurance number to make sure our National Insurance contributions and tax are recorded against your name only.
+label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.
 
 label.print_your_national_insurance_letter=Print your National Insurance letter
 label.view_gaps_in_your_record=View gaps in your record
@@ -575,7 +576,7 @@ label.you_are_still_contributing_to_your_state_pension_=You are still contributi
 label.check_your_national_insurance_record_for_gaps=Check your National Insurance record for gaps
 
 label.lifetime_allowance_protection=Lifetime allowance protection
-label.your_lifetime_allowance_is_protected_from_additional_tax_charges=Your Lifetime Allowance is protected from additional tax charges.
+label.your_lifetime_allowance_is_protected_from_additional_tax_charges=Your lifetime allowance is protected from additional tax charges.
 label.manage_your_protections=Manage your protections
 
 # Your account

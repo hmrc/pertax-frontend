@@ -485,17 +485,24 @@ address {
 .pertax-home .card a.card-link:focus {
   outline: none;
 }
-.pertax-home .card a > .card-content {
+.pertax-home .card a .card-content {
   background: #f8f8f8;
   display: block;
   padding: 10px;
   text-decoration: none;
 }
-.pertax-home .card a > .card-content:hover {
+.pertax-home .card a .card-content:hover {
   color: #fff;
   background: #005ea5;
 }
-.pertax-home .card a > .card-content:hover h3, .pertax-home .card a > .card-content:hover p {
+.pertax-home .card a .card-content:hover h3, .pertax-home .card a .card-content:hover p {
+  color: #fff;
+}
+.pertax-home .card a:focus .card-content {
+  color: #fff;
+  background: #005ea5;
+}
+.pertax-home .card a:focus .card-content h3, .pertax-home .card a:focus .card-content p {
   color: #fff;
 }
 .pertax-home .card .card-actions {
@@ -504,8 +511,11 @@ address {
   min-height: 40px;
   padding: 10px;
 }
-.pertax-home .card .card-actions a {
-  margin-bottom: 8px;
+.pertax-home .card .card-actions ul {
+  margin: 0;
+}
+.pertax-home .card .card-actions ul li {
+  margin-left: 0;
 }
 .pertax-home .sidebar-panel {
   border: 1px solid #f8f8f8;
@@ -534,7 +544,7 @@ address {
 }
 @media (min-width: 769px) {
   .pertax-home .card {
-    min-height: 300px;
+    min-height: 350px;
   }
   .pertax-home .card.column-half {
     padding: 0 15px;
@@ -555,6 +565,19 @@ address {
     min-height: 85px;
   }
 }
+.sidebar-panel.messages .section--branded {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+.sidebar-panel.messages .section--branded h2 {
+  border-bottom: 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.31579;
+  margin-bottom: 0.75em;
+}
+
 .personal-details .update-address-link {
   margin-top: 12px;
   text-align: right;

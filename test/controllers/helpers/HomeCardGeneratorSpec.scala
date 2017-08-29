@@ -43,20 +43,22 @@ class HomeCardGeneratorSpec extends BaseSpec {
       def hasPertaxUser: Boolean
       def isPayeUser: Boolean
       def hasTaxSummary: Boolean
+      def iabdType: Int
 
-      lazy val taxSummary = if(hasTaxSummary) Some(Fixtures.buildTaxSummary) else None
+      lazy val taxSummary = if (hasTaxSummary) Some(Fixtures.buildTaxSummary.copy(companyBenefits = Seq(iabdType))) else None
 
       lazy val pertaxUser = if(hasPertaxUser)
         Some(PertaxUser(Fixtures.buildFakeAuthContext(withPaye = isPayeUser),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
       else None
 
-      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxSummary).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxSummary).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with no Pertax user" in new LocalSetup {
       val hasPertaxUser = false
       val isPayeUser = false
       val hasTaxSummary = false
+      val iabdType = 0
 
       cardBody shouldBe None
     }
@@ -65,6 +67,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val hasPertaxUser = true
       val isPayeUser = false
       val hasTaxSummary = false
+      val iabdType = 0
 
       cardBody shouldBe None
     }
@@ -73,14 +76,16 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val hasPertaxUser = true
       val isPayeUser = true
       val hasTaxSummary = false
+      val iabdType = 0
 
       cardBody shouldBe None
     }
 
-    "return correct markup when called with with a Pertax user that is PAYE and has tax summary" in new LocalSetup {
+    "return correct markup when called with with a Pertax user that is PAYE with company benefits" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
       val hasTaxSummary = true
+      val iabdType = 31
 
       cardBody shouldBe
         Some("""<div class="card column-half">
@@ -91,20 +96,47 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/last-year-paye">Check how much tax I paid last year</a>
+               |    <ul>
+               |      <li><a href="/check-income-tax/income-tax">Make sure you are paying the right amount of tax</a></li>
+               |      <li><a href="/check-income-tax/last-year-paye">Check how much tax you paid last year</a></li>
+               |      <li><a href="/check-income-tax/taxable-income">View your company benefits</a></li>
+               |    </ul>
+               |  </div>
+               |</div>""".stripMargin)
+    }
+
+    "return correct markup when called with with a Pertax user that is PAYE without company benefits" in new LocalSetup {
+      val hasPertaxUser = true
+      val isPayeUser = true
+      val hasTaxSummary = true
+      val iabdType = 0
+
+      cardBody shouldBe
+        Some("""<div class="card column-half">
+               |  <a class="card-link" href="/check-income-tax/paye">
+               |    <div class="card-content" role="link">
+               |      <h3 class="heading-small no-margin-top">Pay As You Earn (PAYE)</h3>
+               |      <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
+               |    </div>
+               |  </a>
+               |  <div class="card-actions">
+               |    <ul>
+               |      <li><a href="/check-income-tax/income-tax">Make sure you are paying the right amount of tax</a></li>
+               |      <li><a href="/check-income-tax/last-year-paye">Check how much tax you paid last year</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
   }
 
 
-  "Calling getTaxCalculationCard" should {
+"Calling getTaxCalculationCard" should {
 
     trait LocalSetup extends SpecSetup {
 
       def taxCalcState: TaxCalculationState
 
-      lazy val cardBody = c.getTaxCalculationCard(taxCalcState).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getTaxCalculationCard(taxCalcState).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with TaxCalculationUnderpaidPaymentsDownState" in new LocalSetup {
@@ -128,12 +160,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-income-tax/paye">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
-               |      <p>HMRC owes you a £100 refund for the 2015 to 2016 year</p>
+               |      <p>HMRC owes you a £100 refund for the 2015 to 2016 year.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/income-tax">Claim your tax refund</a>
-               |    <a href="/check-income-tax/income-tax">Get more information about the tax you paid</a>
+               |    <ul>
+               |        <li><a href="/check-income-tax/income-tax">Claim your tax refund</a></li>
+               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -147,12 +181,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-income-tax/paye">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
-               |      <p>HMRC is processing your £100 refund</p>
+               |      <p>HMRC is processing your £100 refund.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/income-tax">View your tax refund</a>
-               |    <a href="/check-income-tax/income-tax">Get more information about the tax you paid</a>
+               |    <ul>
+               |        <li><a href="/check-income-tax/income-tax">View your tax refund</a></li>
+               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -166,12 +202,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-income-tax/paye">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
-               |      <p>HMRC has paid your £100 refund</p>
+               |      <p>HMRC has paid your £100 refund.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/income-tax">View your tax refund</a>
-               |    <a href="/check-income-tax/income-tax">Get more information about the tax you paid</a>
+               |    <ul>
+               |        <li><a href="/check-income-tax/income-tax">View your tax refund</a></li>
+               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -185,12 +223,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-income-tax/paye">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
-               |      <p>HMRC sent you a cheque for £100</p>
+               |      <p>HMRC sent you a cheque for £100.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/income-tax">View your tax refund</a>
-               |    <a href="/check-income-tax/income-tax">Get more information about the tax you paid</a>
+               |    <ul>
+               |        <li><a href="/check-income-tax/income-tax">View your tax refund</a></li>
+               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -204,12 +244,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-income-tax/paye">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
-               |      <p>You owe HMRC £100 for the 2015 to 2016 tax year</p>
+               |      <p>You owe HMRC £100 for the 2015 to 2016 tax year.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/income-tax">Find out why you paid too little</a>
-               |    <a href="/check-income-tax/income-tax">Get more information about the tax you paid</a>
+               |    <ul>
+               |        <li><a href="/check-income-tax/income-tax">Find out why you paid too little</a></li>
+               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -223,12 +265,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-income-tax/paye">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
-               |      <p>You owe HMRC £100 for the 2015 to 2016 tax year</p>
+               |      <p>You owe HMRC £100 for the 2015 to 2016 tax year.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/income-tax">Find out why you paid too little</a>
-               |    <a href="/check-income-tax/income-tax">Get more information about the tax you paid</a>
+               |    <ul>
+               |        <li><a href="/check-income-tax/income-tax">Find out why you paid too little</a></li>
+               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -242,12 +286,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-income-tax/paye">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You do not owe any more tax</h3>
-               |      <p>You have no payments to make to HMRC for the 2015 to 2016 tax year</p>
+               |      <p>You have no payments to make to HMRC for the 2015 to 2016 tax year.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-income-tax/income-tax">View the tax you paid</a>
-               |    <a href="/check-income-tax/income-tax">Get more information about the tax you paid</a>
+               |    <ul>
+               |        <li><a href="/check-income-tax/income-tax">View the tax you paid</a></li>
+               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -270,22 +316,28 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def saUserType: SelfAssessmentUserType
 
-      lazy val cardBody = c.getSelfAssessmentCard(saUserType).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getSelfAssessmentCard(saUserType).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+
       cardBody shouldBe
         Some("""<div class="card column-half">
                |  <a class="card-link" href="/personal-account/self-assessment-summary">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
-               |      <p>You need to complete a tax return once a year. Yours is due by the 31 January 2018. The last day you can do this online is 28 January 2018.</p>
+               |      <p>
+               |          You need to complete a tax return once a year. Yours is due by the 31 January 2018.
+               |      </p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |        <a href="/submit/your/return/url">Complete your tax return</a>
+               |    <ul>
+               |        <li><a href="/submit/your/return/url">Complete your tax return</a></li>
+               |        <li><a href="/pay-online/self-assessment/make-a-payment?mode=pta">Make a payment</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -299,11 +351,15 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/personal-account/self-assessment">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
-               |      <p>You need to complete a tax return once a year. Yours is due by the 31 January 2018. The last day you can do this online is 28 January 2018.</p>
+               |      <p>
+               |          Use your activation code to access this service.
+               |      </p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |        <a href="/pay-online/self-assessment/make-a-payment?mode=pta">Make a payment</a>
+               |    <ul>
+               |        <li><a href="/personal-account/self-assessment">Activate your Self Assessment</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -318,11 +374,15 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/personal-account/self-assessment">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
-               |      <p>You need to complete a tax return once a year. Yours is due by the 31 January 2018. The last day you can do this online is 28 January 2018.</p>
+               |      <p>
+               |          You cannot access this service right now.
+               |      </p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |        <a href="https://www.gov.uk/self-assessment-tax-returns">Understand Self Assessment</a>
+               |    <ul>
+               |        <li><a href="https://www.gov.uk/self-assessment-tax-returns">Understand Self Assessment</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -341,7 +401,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getNationalInsuranceCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getNationalInsuranceCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
@@ -351,13 +411,15 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/personal-account/national-insurance-summary">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">National Insurance</h3>
-               |      <p>You have a National Insurance number to make sure our National Insurance contributions and tax are recorded against your name only.</p>
+               |      <p>You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/personal-account/national-insurance-summary/print-letter">Print your National Insurance letter</a>
-               |      <a href="/personal-account/self-assessment">Make a payment</a>
-               |      <a href="/personal-account/self-assessment">Understand Self Assessment</a>
+               |    <ul>
+               |      <li><a href="/personal-account/national-insurance-summary/print-letter">Print your National Insurance letter</a></li>
+               |      <li><a href="/check-your-state-pension/account/nirecord">View gaps in your record</a></li>
+               |      <li><a href="/check-your-state-pension/account/pta">Check your State Pension</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -368,7 +430,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getTaxCreditsCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getTaxCreditsCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
@@ -382,7 +444,9 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="https://www.gov.uk/qualify-tax-credits">Find out if you qualify for tax credits</a>
+               |    <ul>
+               |      <li><a href="https://www.gov.uk/qualify-tax-credits">Find out if you qualify for tax credits</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -393,7 +457,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getChildBenefitCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getChildBenefitCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
@@ -407,8 +471,10 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide">Tell us if your child is staying in full-time education</a>
-               |      <a href="https://www.gov.uk/child-benefit/eligibility">Find out if you qualify for Child Benefit</a>
+               |    <ul>
+               |      <li><a href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide">Tell us if your child is staying in full-time education</a></li>
+               |      <li><a href="https://www.gov.uk/child-benefit/eligibility">Find out if you qualify for Child Benefit</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -427,14 +493,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
     }
 
 
-    "return nothing when called with a user who has Tax Summary and receives Marriage Allowance" in new LocalSetup {
+    "return nothing when called with a user who has tax summary and receives Marriage Allowance" in new LocalSetup {
       override val hasTaxSummary: Boolean = true
       override val taxCodeEndsWith = "M"
 
       cardBody shouldBe None
     }
 
-    "return nothing when called with a user who has Tax Summary and transfers Marriage Allowance" in new LocalSetup {
+    "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in new LocalSetup {
       override val hasTaxSummary: Boolean = true
       override val taxCodeEndsWith = "N"
 
@@ -456,7 +522,9 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |    </div>
             |  </a>
             |  <div class="card-actions">
-            |    <a href="/marriage-allowance-application/history">Find out if you qualify for Marriage Allowance</a>
+            |    <ul>
+            |      <li><a href="/marriage-allowance-application/history">Find out if you qualify for Marriage Allowance</a></li>
+            |    </ul>
             |  </div>
             |</div>""".stripMargin)
     }
@@ -476,7 +544,9 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |    </div>
             |  </a>
             |  <div class="card-actions">
-            |    <a href="/marriage-allowance-application/history">Find out if you qualify for Marriage Allowance</a>
+            |    <ul>
+            |      <li><a href="/marriage-allowance-application/history">Find out if you qualify for Marriage Allowance</a></li>
+            |    </ul>
             |  </div>
             |</div>""".stripMargin)
     }
@@ -489,7 +559,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getStatePensionCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getStatePensionCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
@@ -503,8 +573,10 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/check-your-state-pension/account/pta">Check your State Pension</a>
-               |      <a href="/check-your-state-pension/account/nirecord">Check your National Insurance record for gaps</a>
+               |    <ul>
+               |      <li><a href="/check-your-state-pension/account/pta">Check your State Pension</a></li>
+               |      <li><a href="/check-your-state-pension/account/nirecord">Check your National Insurance record for gaps</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
@@ -516,7 +588,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def hasLtaProtections: Boolean
 
-      lazy val cardBody = c.getLifetimeAllowanceProtectionCard(hasLtaProtections).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n"))  //remove empty lines
+      lazy val cardBody = c.getLifetimeAllowanceProtectionCard(hasLtaProtections).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with a user who does not have lta protections" in new LocalSetup {
@@ -535,11 +607,13 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/check-your-state-pension/account/pta">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Lifetime allowance protection</h3>
-               |      <p>Your Lifetime Allowance is protected from additional tax charges.</p>
+               |      <p>Your lifetime allowance is protected from additional tax charges.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
-               |      <a href="/protect-your-lifetime-allowance/existing-protections">Manage your protections</a>
+               |    <ul>
+               |      <li><a href="/protect-your-lifetime-allowance/existing-protections">Manage your protections</a></li>
+               |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }

@@ -11,21 +11,37 @@
   <a class="card-link" href="@cardLink">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.self_assessment")</h3>
-      <p>@Messages("label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_")</p>
+      <p>
+      @saActionNeeded match {
+        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+          @Messages("label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_")
+        }
+        case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+          @Messages("label.use_your_activation_code_to_access_this_service")
+        }
+        case AmbiguousFilerSelfAssessmentUser(saUtr) => {
+          @Messages("label.you_cannot_access_this_service_right_now")
+        }
+        case _ => {}
+      }
+      </p>
     </div>
   </a>
   <div class="card-actions">
+    <ul>
     @saActionNeeded match {
       case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <a href="@pertaxContext.configDecorator.completeYourTaxReturnUrl(saUtr.value, taxYear)">@Messages("label.complete_your_tax_return")</a>
+        <li><a href="@pertaxContext.configDecorator.completeYourTaxReturnUrl(saUtr.value, taxYear)">@Messages("label.complete_your_tax_return")</a></li>
+        <li><a href="/pay-online/self-assessment/make-a-payment?mode=pta">@Messages("label.make_a_payment")</a></li>
       }
       case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <a href="/pay-online/self-assessment/make-a-payment?mode=pta">@Messages("label.make_a_payment")</a>
+        <li><a href="/personal-account/self-assessment">@Messages("label.activate_your_self_assessment")</a></li>
       }
       case AmbiguousFilerSelfAssessmentUser(saUtr) => {
-        <a href="https://www.gov.uk/self-assessment-tax-returns">@Messages("label.understand_self_assessment")</a>
+        <li><a href="https://www.gov.uk/self-assessment-tax-returns">@Messages("label.understand_self_assessment")</a></li>
       }
       case _ => {}
     }
+    </ul>
   </div>
 </div>
