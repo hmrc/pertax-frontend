@@ -284,7 +284,7 @@ label.manage_your_paperless_settings=Rheoli''ch gosodiadau e-bost
 label.paperless_preferences=Dewisiadau di-bapur
 label.any_updates_to_your_contact_details=Mae diweddariadau i''ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
 label.services_for_businesses=Gwasanaethau i fusnesau
-label.if_you_are_self_employed_or_pay_business_tax=Os ydych yn hunangyflogedig, neu''n talu trethi busnes megis TAW neu Dreth Gorfforaeth, gallwch weld y gwasanaethau hyn yn <a id="business-tax-account-link" class="trackLink" href="{0}">eich cyfrif treth busnes</a>.
+label.if_you_are_self_employed_or_pay_business_tax=Os ydych yn hunangyflogedig, neu''n talu trethi busnes megis TAW neu Dreth Gorfforaeth, gallwch weld y gwasanaethau hyn yn <a id="business-tax-account-link" class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="your business tax account">eich cyfrif treth busnes</a>.
 label.you_can_see_this_part_of_your_account_if_you_complete=Gallwch weld y rhan hon o''ch cyfrif os cymerwch gamau diogelwch ychwanegol.
 label.sa_important_deadlines=Dyddiadau cau pwysig
 label.self_assessment_deadline_date=31-Jan-17
