@@ -160,7 +160,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
-               |      <p>HMRC owes you a £100 refund for the 2015 to 2016 year.</p>
+               |      <p>HMRC owes you a £100 refund for the 2015 to 2016 tax year.</p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
@@ -316,13 +316,15 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
+      println(cardBody)
+
       cardBody shouldBe
         Some("""<div class="card column-half">
                |  <a class="card-link" href="/personal-account/self-assessment-summary">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
                |      <p>
-               |          You need to complete a tax return once a year. Yours is due by the 31 January 2018.
+               |          You need to complete a tax return once a year. Yours is due by 31 January 2018.
                |      </p>
                |    </div>
                |  </a>
