@@ -157,7 +157,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC owes you a £100 refund for the 2015 to 2016 year.</p>
@@ -165,8 +165,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/check-income-tax/income-tax">Claim your tax refund</a></li>
-               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |        <li><a href="/tax-you-paid/status">Claim your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -178,7 +177,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC is processing your £100 refund.</p>
@@ -186,8 +185,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/check-income-tax/income-tax">View your tax refund</a></li>
-               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |        <li><a href="/tax-you-paid/status">View your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -199,7 +197,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC has paid your £100 refund.</p>
@@ -207,8 +205,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/check-income-tax/income-tax">View your tax refund</a></li>
-               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |        <li><a href="/tax-you-paid/status">View your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -220,7 +217,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC sent you a cheque for £100.</p>
@@ -228,8 +225,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/check-income-tax/income-tax">View your tax refund</a></li>
-               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |        <li><a href="/tax-you-paid/status">View your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -241,7 +237,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
                |      <p>You owe HMRC £100 for the 2015 to 2016 tax year.</p>
@@ -249,8 +245,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/check-income-tax/income-tax">Find out why you paid too little</a></li>
-               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |        <li><a href="/tax-you-paid/status">Find out why you paid too little</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -262,7 +257,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
                |      <p>You owe HMRC £100 for the 2015 to 2016 tax year.</p>
@@ -270,8 +265,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/check-income-tax/income-tax">Find out why you paid too little</a></li>
-               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |        <li><a href="/tax-you-paid/status">Find out why you paid too little</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -283,7 +277,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link" href="/tax-you-paid/status">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You do not owe any more tax</h3>
                |      <p>You have no payments to make to HMRC for the 2015 to 2016 tax year.</p>
@@ -291,8 +285,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/check-income-tax/income-tax">View the tax you paid</a></li>
-               |      <li><a href="/check-income-tax/income-tax">Get more information about the tax you paid</a></li>
+               |        <li><a href="/tax-you-paid/status">View the tax you paid</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)

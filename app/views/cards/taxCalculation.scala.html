@@ -50,7 +50,7 @@
 }
 
 <div class="card column-half">
-  <a class="card-link" href="/check-income-tax/paye">
+  <a class="card-link" href="/tax-you-paid/status">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@heading</h3>
       <p>@contentAndLinks._1</p>
@@ -59,9 +59,8 @@
   <div class="card-actions">
     <ul>
       @contentAndLinks._2.map { label =>
-        <li><a href="/check-income-tax/income-tax">@label</a></li>
+        <li><a href="/tax-you-paid/status">@label</a></li>
       }
-      <li><a href="/check-income-tax/income-tax">@Messages("label.get_more_information_about_the_tax_you_paid")</a></li>
     </ul>
   </div>
 </div>

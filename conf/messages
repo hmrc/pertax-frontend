@@ -591,7 +591,7 @@ label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings
 
 label.help_with_tax_for_friends_and_family=Help with tax for friends and family
-label.give_friends_or_family_permissions_to_access_your_account=Give friends or family permissions to access your account, or become someone else''s trusted helper to help them with their tax.
+label.give_friends_or_family_permission_to_access_your_account=Give friends or family permission to access your account, or become someone else''s trusted helper to help them with their tax.
 label.view_your_trusted_helper_contacts=View your trusted helper contacts
 
 label.track_your_forms_and_letters=Track your forms and letters

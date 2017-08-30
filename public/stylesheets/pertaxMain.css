@@ -522,6 +522,18 @@ address {
   margin-bottom: 30px;
   padding: 10px;
 }
+.pertax-home .sidebar-panel.messages .section--branded {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+.pertax-home .sidebar-panel.messages .section--branded h2 {
+  border-bottom: 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.31579;
+  margin-bottom: 0.75em;
+}
 
 @media (min-width: 641px) {
   .page-header.home .page-info {
@@ -565,19 +577,6 @@ address {
     min-height: 85px;
   }
 }
-.sidebar-panel.messages .section--branded {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  padding-top: 0;
-}
-.sidebar-panel.messages .section--branded h2 {
-  border-bottom: 0;
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.31579;
-  margin-bottom: 0.75em;
-}
-
 .personal-details .update-address-link {
   margin-top: 12px;
   text-align: right;
@@ -768,15 +767,6 @@ input {
 .pertax-sidebar .sidebar-panel a {
   margin-bottom: 7px;
   margin-top: 7px;
-}
-.pertax-sidebar .sidebar-panel.messages .section--branded {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  padding-top: 0;
-}
-.pertax-sidebar .sidebar-panel.messages .section--branded h2 {
-  border-bottom: 0;
-  margin-bottom: 1em;
 }
 
 .pertax-error .page-heading {
