@@ -316,8 +316,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      println(cardBody)
-
       cardBody shouldBe
         Some("""<div class="card column-half">
                |  <a class="card-link" href="/personal-account/self-assessment-summary">
