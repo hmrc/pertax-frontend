@@ -597,7 +597,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-your-state-pension/account/pta">
+               |  <a class="card-link" href="/protect-your-lifetime-allowance/existing-protections">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Lifetime allowance protection</h3>
                |      <p>Your lifetime allowance is protected from additional tax charges.</p>

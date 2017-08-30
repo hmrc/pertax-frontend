@@ -552,7 +552,7 @@ label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddy
 
 label.self_assessment=Hunanasesiad
 label.use_your_activation_code_to_access_this_service=Defnyddiwch eich cod cychwyn i gyrchu''r gwasanaeth hwn.
-label.you_cannot_access_this_service_right_now=You cannot access this service right now.
+label.you_cannot_access_this_service_right_now=Ni allwch gyrchu''r gwasanaeth hwn ar hyn o bryd.
 label.complete_your_tax_return=Llenwi''ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
 label.understand_self_assessment=Deall Hunanasesiad
