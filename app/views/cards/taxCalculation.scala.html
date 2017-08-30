@@ -57,9 +57,11 @@
     </div>
   </a>
   <div class="card-actions">
-    @contentAndLinks._2.map { label =>
-      <a href="/check-income-tax/income-tax">@label</a>
-    }
-    <a href="/check-income-tax/income-tax">@Messages("label.get_more_information_about_the_tax_you_paid")</a>
+    <ul>
+      @contentAndLinks._2.map { label =>
+        <li><a href="/check-income-tax/income-tax">@label</a></li>
+      }
+      <li><a href="/check-income-tax/income-tax">@Messages("label.get_more_information_about_the_tax_you_paid")</a></li>
+    </ul>
   </div>
 </div>

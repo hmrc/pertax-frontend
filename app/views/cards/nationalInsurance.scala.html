@@ -4,12 +4,14 @@
   <a class="card-link" href="@controllers.routes.InterstitialController.displayNationalInsurance">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.national_insurance")</h3>
-      <p>@Messages("label.you_have_a_national_insurance_number_to_make_sure_our_national_insurance_")</p>
+      <p>@Messages("label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_")</p>
     </div>
   </a>
   <div class="card-actions">
-      <a href="@controllers.routes.PrintController.printNationalInsuranceNumber()">@Messages("label.print_your_national_insurance_letter")</a>
-      <a href="/personal-account/self-assessment">@Messages("label.make_a_payment")</a>
-      <a href="/personal-account/self-assessment">@Messages("label.understand_self_assessment")</a>
+    <ul>
+      <li><a href="@controllers.routes.PrintController.printNationalInsuranceNumber()">@Messages("label.print_your_national_insurance_letter")</a></li>
+      <li><a href="/check-your-state-pension/account/nirecord">@Messages("label.view_gaps_in_your_record")</a></li>
+      <li><a href="/check-your-state-pension/account/pta">@Messages("label.check_your_state_pension")</a></li>
+    </ul>
   </div>
 </div>

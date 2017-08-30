@@ -420,20 +420,34 @@ address {
       }
     }
 
-    a > .card-content {
-      background: $grey-4;
-      display: block;
-      padding: 10px;
-      text-decoration: none;
+    a {
+      .card-content {
+        background: $grey-4;
+        display: block;
+        padding: 10px;
+        text-decoration: none;
 
-      &:hover {
-        color: $white;
-        background: $govuk-blue;
-
-        h3, p {
+        &:hover {
           color: $white;
-        }
+          background: $govuk-blue;
 
+          h3, p {
+            color: $white;
+          }
+
+        }
+      }
+
+      &:focus {
+        .card-content {
+          color: $white;
+          background: $govuk-blue;
+
+          h3, p {
+            color: $white;
+          }
+
+        }
       }
     }
 
@@ -443,8 +457,12 @@ address {
       min-height: 40px;
       padding: 10px;
 
-      a {
-        margin-bottom: 8px;
+      ul {
+        margin: 0;
+
+        li {
+          margin-left: 0;
+        }
       }
     }
   }
@@ -453,6 +471,22 @@ address {
     border: 1px solid $grey-4;
     margin-bottom: 30px;
     padding: 10px;
+
+    &.messages {
+      .section--branded {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        padding-top: 0;
+
+        h2 {
+          border-bottom: 0;
+          font-size: 19px;
+          font-weight: 700;
+          line-height: 1.31579;
+          margin-bottom: 0.75em;
+        }
+      }
+    }
   }
 }
 
@@ -486,7 +520,7 @@ address {
 @include media(desktop) {
   .pertax-home {
     .card {
-      min-height: 300px;
+      min-height: 350px;
 
       &.column-half {
         @include grid-column(1 / 2);

@@ -36,7 +36,7 @@
   }.getOrElse {
 
     <div class="page-header home" role="heading">
-      <div class="page-info">Account home</div>
+      <div class="page-info">@Messages("label.account_home")</div>
       <h1 class="heading-xlarge no-margin-top no-margin-bottom">
         @ifNameAvailable {
           @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
@@ -60,14 +60,14 @@
       </section>
 
       <section>
-        <h2 class="section-header">@Messages("label.child_benefit_and_tax_credits")</h2>
+        <h2 class="section-header">@Messages("title.benefits")</h2>
         <div class="grid-row">
           @benefitCards
         </div>
       </section>
 
       <section>
-        <h2 class="section-header">@Messages("label.pension_and_retirement")</h2>
+        <h2 class="section-header">@Messages("title.pensions")</h2>
         <div class="grid-row">
           @pensionCards
         </div>
@@ -109,6 +109,15 @@
         <h3 class="no-margin-top">@Messages("label.track_your_forms_and_letters")</h3>
         <p>@Messages("label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by")</p>
         <a id="track-form-link" class="trackLink" href="@pertaxContext.configDecorator.formTrackingServiceUrl">@Messages("label.track_your_forms_and_letters")</a>
+      </div>
+
+      <div class="sidebar-panel">
+        @ifGovernmentGatewayUser {
+          @ifSaUser {
+            <h3 class="no-margin-top">@Messages("label.services_for_businesses")</h3>
+            <p>@Html(Messages("label.if_you_are_self_employed_or_pay_business_tax", pertaxContext.configDecorator.businessTaxAccountUrl))
+          }
+        }
       </div>
 
     </div>

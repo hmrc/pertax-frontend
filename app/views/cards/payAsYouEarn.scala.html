@@ -8,10 +8,12 @@
     </div>
   </a>
   <div class="card-actions">
+    <ul>
+      <li><a href="/check-income-tax/income-tax">@Messages("label.make_sure_you_are_paying_the_right_amount_of_tax")</a></li>
+      <li><a href="/check-income-tax/last-year-paye">@Messages("label.check_how_much_tax_you_paid_last_year")</a></li>
     @if(isCompanyBenefitsRecipient) {
-      <a href="/check-income-tax/income-tax">@Messages("label.make_sure_i_am_paying_the_right_amount_of_tax")</a>
-    } else {
-      <a href="/check-income-tax/last-year-paye">@Messages("label.check_how_much_tax_i_paid_last_year")</a>
+      <li><a href="/check-income-tax/taxable-income">@Messages("label.view_your_company_benefits")</a></li>
     }
+    </ul>
   </div>
 </div>
