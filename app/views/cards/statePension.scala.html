@@ -1,7 +1,8 @@
-@()(implicit messages: play.api.i18n.Messages)
+@import tags._
+@()(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
 
 <div class="card column-half">
-  <a class="card-link" href="/check-your-state-pension/account/pta">
+  <a class="card-link ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("title.state_pension", "en")">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("title.state_pension")</h3>
       <p>@Messages("label.you_are_still_contributing_to_your_state_pension_")</p>
@@ -9,8 +10,8 @@
   </a>
   <div class="card-actions">
     <ul>
-      <li><a href="/check-your-state-pension/account/pta">@Messages("label.check_your_state_pension")</a></li>
-      <li><a href="/check-your-state-pension/account/nirecord">@Messages("label.check_your_national_insurance_record_for_gaps")</a></li>
+      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.check_your_state_pension", "en")">@Messages("label.check_your_state_pension")</a></li>
+      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.check_your_national_insurance_record_for_gaps", "en")">@Messages("label.check_your_national_insurance_record_for_gaps")</a></li>
     </ul>
   </div>
 </div>

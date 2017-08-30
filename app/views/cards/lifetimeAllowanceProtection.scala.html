@@ -1,7 +1,8 @@
-@()(implicit messages: play.api.i18n.Messages)
+@import tags._
+@()(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
 
 <div class="card column-half">
-  <a class="card-link" href="/protect-your-lifetime-allowance/existing-protections">
+  <a class="card-link ga-track-anchor-click" href="/protect-your-lifetime-allowance/existing-protections" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.lifetime_allowance_protection", "en")">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.lifetime_allowance_protection")</h3>
       <p>@Messages("label.your_lifetime_allowance_is_protected_from_additional_tax_charges")</p>
@@ -9,7 +10,7 @@
   </a>
   <div class="card-actions">
     <ul>
-      <li><a href="/protect-your-lifetime-allowance/existing-protections">@Messages("label.manage_your_protections")</a></li>
+      <li><a class="ga-track-anchor-click" href="/protect-your-lifetime-allowance/existing-protections" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.manage_your_protections", "en")">@Messages("label.manage_your_protections")</a></li>
     </ul>
   </div>
 </div>
