@@ -530,9 +530,9 @@ label.account_home=Hafan y cyfrif
 title.income=Incwm
 
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
-label.your_income_from_employers_and_private_pensions_=Eich incwm gan gyflogwyr ac o bensiynau preifat, a drethir cyn ei dalu i chi
-label.make_sure_you_are_paying_the_right_amount_of_tax=Make sure you are paying the right amount of tax
-label.check_how_much_tax_you_paid_last_year=Check how much tax you paid last year
+label.your_income_from_employers_and_private_pensions_=Eich incwm gan gyflogwyr ac o bensiynau preifat, a drethir cyn ei dalu i chi.
+label.make_sure_you_are_paying_the_right_amount_of_tax=Sicrhau eich bod yn talu''r swm cywir o dreth
+label.check_how_much_tax_you_paid_last_year=Gwirio faint o dreth y taloch y llynedd
 label.claim_your_tax_refund=Gwneud cais am eich ad-daliad treth
 label.view_your_tax_refund=Gweld eich ad-daliad treth
 label.find_out_why_you_paid_too_little=Cael gwybod pam nad ydych wedi talu digon

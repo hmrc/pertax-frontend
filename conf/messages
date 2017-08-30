@@ -518,7 +518,7 @@ label.view_the_tax_you_paid=View the tax you paid
 label.get_more_information_about_when_your_p800_will_arrive=Get more information about when your P800 will arrive
 label.get_more_information_about_the_tax_you_paid=Get more information about the tax you paid
 
-label.hmrc_owes_you_a_refund_for_the_to_year=HMRC owes you a £{0} refund for the {1} to {2} year.
+label.hmrc_owes_you_a_refund_for_the_to_year=HMRC owes you a £{0} refund for the {1} to {2} tax year.
 label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund.
 label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund.
 label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}.
@@ -533,7 +533,7 @@ label.you_cannot_access_this_service_right_now=You cannot access this service ri
 label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
 label.understand_self_assessment=Understand Self Assessment
-label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=You need to complete a tax return once a year. Yours is due by the 31 January 2018.
+label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=You need to complete a tax return once a year. Yours is due by 31 January 2018.
 
 label.national_insurance=National Insurance
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.
