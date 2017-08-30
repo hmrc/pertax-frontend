@@ -108,17 +108,29 @@
       <div class="sidebar-panel track-forms">
         <h3 class="no-margin-top">@Messages("label.track_your_forms_and_letters")</h3>
         <p>@Messages("label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by")</p>
-        <a id="track-form-link" class="trackLink" href="@pertaxContext.configDecorator.formTrackingServiceUrl">@Messages("label.track_your_forms_and_letters")</a>
+        <a href="@pertaxContext.configDecorator.formTrackingServiceUrl">@Messages("label.track_your_forms_and_letters")</a>
       </div>
 
-      <div class="sidebar-panel">
-        @ifGovernmentGatewayUser {
-          @ifSaUser {
-            <h3 class="no-margin-top">@Messages("label.services_for_businesses")</h3>
-            <p>@Html(Messages("label.if_you_are_self_employed_or_pay_business_tax", pertaxContext.configDecorator.businessTaxAccountUrl))
+      @ifVerifyUser {
+        @ifPayeUser {
+          @ifNonDelegatingUser {
+            <div class="sidebar-panel">
+              <h3 class="no-margin-top">@Messages("label.help_with_tax_for_friends_and_family")</h3>
+              <p>@Messages("label.give_friends_or_family_permission_to_access_your_account")</p>
+              <a href="@pertaxContext.configDecorator.fandfUrl">@Messages("label.view_your_trusted_helper_contacts")</a>
+            </div>
           }
         }
-      </div>
+      }
+
+      @ifGovernmentGatewayUser {
+        @ifSaUser {
+          <div class="sidebar-panel">
+            <h3 class="no-margin-top">@Messages("label.services_for_businesses")</h3>
+            <p>@Html(Messages("label.if_you_are_self_employed_or_pay_business_tax", pertaxContext.configDecorator.businessTaxAccountUrl))
+          </div>
+        }
+      }
 
     </div>
   </div>
