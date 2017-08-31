@@ -280,7 +280,6 @@ label.benefits_and_credits_your_tax_credits=Eich credydau treth
 label.renew_your_tax_credits_claim=Adnewyddwch eich cais am gredydau treth
 label.benefits_and_credits_other_benefits=Budd-daliadau eraill
 label.the_personal_tax_account_is_a_new_service_=Mae''r cyfrif treth personol yn wasanaeth newydd – yn y dyfodol, byddwn yn dangos rhagor o fanylion o''ch cofnod.
-label.manage_your_paperless_settings=Rheoli''ch gosodiadau e-bost
 label.paperless_preferences=Dewisiadau di-bapur
 label.any_updates_to_your_contact_details=Mae diweddariadau i''ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
 label.services_for_businesses=Gwasanaethau i fusnesau
@@ -599,7 +598,7 @@ label.you_are_still_contributing_to_your_state_pension_=Rydych yn dal i gyfrannu
 label.check_your_national_insurance_record_for_gaps=Gwirio''ch cofnod Yswiriant Gwladol am fylchau
 
 label.lifetime_allowance_protection=Diogelwch Lwfans Oes
-label.your_lifetime_allowance_is_protected_from_additional_tax_charges=Mae''ch Lwfans Oes wedi''i warchod rhag codiannau treth ychwanegol.
+label.your_lifetime_allowance_is_protected_from_additional_tax_charges=Mae''ch lwfans oes wedi''i ddiogelu rhag codiadau treth ychwanegol.
 label.manage_your_protections=Rheoli''ch polisïau diogelwch
 
 # Your account
