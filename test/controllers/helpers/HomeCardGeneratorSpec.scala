@@ -19,18 +19,20 @@ package controllers.helpers
 import config.ConfigDecorator
 import models._
 import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
 import util.{BaseSpec, Fixtures}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import util.Fixtures.buildFakeAuthContext
 
 class HomeCardGeneratorSpec extends BaseSpec {
 
   trait SpecSetup extends I18nSupport {
 
     override def messagesApi: MessagesApi = injected[MessagesApi]
+    lazy val messages = new Messages(Lang("en"), messagesApi)
 
     val c = new HomeCardGenerator
   }
@@ -51,7 +53,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
         Some(PertaxUser(Fixtures.buildFakeAuthContext(withPaye = isPayeUser),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
       else None
 
-      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxSummary).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxSummary)(messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with no Pertax user" in new LocalSetup {
@@ -89,7 +91,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Pay As You Earn (PAYE)'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Pay As You Earn (PAYE)</h3>
                |      <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
@@ -97,9 +99,9 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |      <li><a href="/check-income-tax/income-tax">Make sure you are paying the right amount of tax</a></li>
-               |      <li><a href="/check-income-tax/last-year-paye">Check how much tax you paid last year</a></li>
-               |      <li><a href="/check-income-tax/taxable-income">View your company benefits</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Make sure you are paying the right amount of tax'>Make sure you are paying the right amount of tax</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Check how much tax you paid last year'>Check how much tax you paid last year</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-income-tax/taxable-income" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='View your company benefits'>View your company benefits</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -113,7 +115,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-income-tax/paye">
+               |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Pay As You Earn (PAYE)'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Pay As You Earn (PAYE)</h3>
                |      <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
@@ -121,8 +123,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |      <li><a href="/check-income-tax/income-tax">Make sure you are paying the right amount of tax</a></li>
-               |      <li><a href="/check-income-tax/last-year-paye">Check how much tax you paid last year</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Make sure you are paying the right amount of tax'>Make sure you are paying the right amount of tax</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Check how much tax you paid last year'>Check how much tax you paid last year</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -134,9 +136,11 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
+      implicit lazy val pertaxContext = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
+
       def taxCalcState: TaxCalculationState
 
-      lazy val cardBody = c.getTaxCalculationCard(taxCalcState).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getTaxCalculationCard(taxCalcState)(pertaxContext = pertaxContext, messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with TaxCalculationUnderpaidPaymentsDownState" in new LocalSetup {
@@ -157,7 +161,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-you-paid/status">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='You paid too much tax last year'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC owes you a £100 refund for the 2015 to 2016 tax year.</p>
@@ -165,7 +169,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/tax-you-paid/status">Claim your tax refund</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Claim your tax refund'>Claim your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -177,7 +181,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-you-paid/status">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='You paid too much tax last year'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC is processing your £100 refund.</p>
@@ -185,7 +189,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/tax-you-paid/status">View your tax refund</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='View your tax refund'>View your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -197,7 +201,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-you-paid/status">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='You paid too much tax last year'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC has paid your £100 refund.</p>
@@ -205,7 +209,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/tax-you-paid/status">View your tax refund</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='View your tax refund'>View your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -217,7 +221,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-you-paid/status">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='You paid too much tax last year'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
                |      <p>HMRC sent you a cheque for £100.</p>
@@ -225,7 +229,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/tax-you-paid/status">View your tax refund</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='View your tax refund'>View your tax refund</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -237,7 +241,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-you-paid/status">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='You paid too little tax last year'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
                |      <p>You owe HMRC £100 for the 2015 to 2016 tax year.</p>
@@ -245,7 +249,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/tax-you-paid/status">Find out why you paid too little</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Find out why you paid too little'>Find out why you paid too little</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -257,7 +261,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-you-paid/status">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='You paid too little tax last year'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
                |      <p>You owe HMRC £100 for the 2015 to 2016 tax year.</p>
@@ -265,7 +269,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/tax-you-paid/status">Find out why you paid too little</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Find out why you paid too little'>Find out why you paid too little</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -277,7 +281,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-you-paid/status">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='You do not owe any more tax'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You do not owe any more tax</h3>
                |      <p>You have no payments to make to HMRC for the 2015 to 2016 tax year.</p>
@@ -285,7 +289,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/tax-you-paid/status">View the tax you paid</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='View the tax you paid'>View the tax you paid</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -309,7 +313,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def saUserType: SelfAssessmentUserType
 
-      lazy val cardBody = c.getSelfAssessmentCard(saUserType).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getSelfAssessmentCard(saUserType)(pertaxContext = pertaxContext, messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
@@ -318,7 +322,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/personal-account/self-assessment-summary">
+               |  <a class="card-link ga-track-anchor-click" href="/personal-account/self-assessment-summary" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Self Assessment'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
                |      <p>
@@ -328,8 +332,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/submit/your/return/url">Complete your tax return</a></li>
-               |        <li><a href="/pay-online/self-assessment/make-a-payment?mode=pta">Make a payment</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/submit/your/return/url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Complete your tax return'>Complete your tax return</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Make a payment'>Make a payment</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -341,7 +345,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/personal-account/self-assessment">
+               |  <a class="card-link ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Self Assessment'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
                |      <p>
@@ -351,7 +355,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="/personal-account/self-assessment">Activate your Self Assessment</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Activate your Self Assessment'>Activate your Self Assessment</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -364,7 +368,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/personal-account/self-assessment">
+               |  <a class="card-link ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Self Assessment'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
                |      <p>
@@ -374,7 +378,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a href="https://www.gov.uk/self-assessment-tax-returns">Understand Self Assessment</a></li>
+               |        <li><a class="ga-track-anchor-click" href="https://www.gov.uk/self-assessment-tax-returns" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Understand Self Assessment'>Understand Self Assessment</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -394,14 +398,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getNationalInsuranceCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getNationalInsuranceCard()(messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/personal-account/national-insurance-summary">
+               |  <a class="card-link ga-track-anchor-click" href="/personal-account/national-insurance-summary" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='National Insurance'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">National Insurance</h3>
                |      <p>You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.</p>
@@ -409,9 +413,9 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |      <li><a href="/personal-account/national-insurance-summary/print-letter">Print your National Insurance letter</a></li>
-               |      <li><a href="/check-your-state-pension/account/nirecord">View gaps in your record</a></li>
-               |      <li><a href="/check-your-state-pension/account/pta">Check your State Pension</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/personal-account/national-insurance-summary/print-letter" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Print your National Insurance letter'>Print your National Insurance letter</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='View gaps in your record'>View gaps in your record</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label='Check your State Pension'>Check your State Pension</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -423,14 +427,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getTaxCreditsCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getTaxCreditsCard()(messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/tax-credits-service/home">
+               |  <a class="card-link ga-track-anchor-click" href="/tax-credits-service/home" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Tax credits'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Tax credits</h3>
                |      <p>View your next payments and the people on your claim, and make changes to your claim.</p>
@@ -438,7 +442,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |      <li><a href="https://www.gov.uk/qualify-tax-credits">Find out if you qualify for tax credits</a></li>
+               |      <li><a class="ga-track-anchor-click" href="https://www.gov.uk/qualify-tax-credits" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Find out if you qualify for tax credits'>Find out if you qualify for tax credits</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -450,14 +454,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getChildBenefitCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getChildBenefitCard()(messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/personal-account/child-benefit-forms">
+               |  <a class="card-link ga-track-anchor-click" href="/personal-account/child-benefit-forms" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Child Benefit'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Child Benefit</h3>
                |      <p>A tax-free payment to help parents with the cost of bringing up children.</p>
@@ -465,8 +469,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |      <li><a href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide">Tell us if your child is staying in full-time education</a></li>
-               |      <li><a href="https://www.gov.uk/child-benefit/eligibility">Find out if you qualify for Child Benefit</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Tell us if your child is staying in full-time education'>Tell us if your child is staying in full-time education</a></li>
+               |      <li><a class="ga-track-anchor-click" href="https://www.gov.uk/child-benefit/eligibility" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Find out if you qualify for Child Benefit'>Find out if you qualify for Child Benefit</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -482,7 +486,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       def taxCodeEndsWith: String
 
       lazy val taxSummary = if (hasTaxSummary) Some(Fixtures.buildTaxSummary.copy(taxCodes = Seq("500"+taxCodeEndsWith))) else None
-      lazy val cardBody = c.getMarriageAllowanceCard(taxSummary).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getMarriageAllowanceCard(taxSummary)(messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
 
@@ -508,7 +512,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-half">
-            |  <a class="card-link" href="/marriage-allowance-application/history">
+            |  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Marriage Allowance'>
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Marriage Allowance</h3>
             |      <p>Transfer part of your Personal Allowance to your partner so they pay less tax.</p>
@@ -516,7 +520,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |  </a>
             |  <div class="card-actions">
             |    <ul>
-            |      <li><a href="/marriage-allowance-application/history">Find out if you qualify for Marriage Allowance</a></li>
+            |      <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Find out if you qualify for Marriage Allowance'>Find out if you qualify for Marriage Allowance</a></li>
             |    </ul>
             |  </div>
             |</div>""".stripMargin)
@@ -530,7 +534,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-half">
-            |  <a class="card-link" href="/marriage-allowance-application/history">
+            |  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Marriage Allowance'>
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Marriage Allowance</h3>
             |      <p>Transfer part of your Personal Allowance to your partner so they pay less tax.</p>
@@ -538,7 +542,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |  </a>
             |  <div class="card-actions">
             |    <ul>
-            |      <li><a href="/marriage-allowance-application/history">Find out if you qualify for Marriage Allowance</a></li>
+            |      <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label='Find out if you qualify for Marriage Allowance'>Find out if you qualify for Marriage Allowance</a></li>
             |    </ul>
             |  </div>
             |</div>""".stripMargin)
@@ -552,14 +556,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getStatePensionCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getStatePensionCard()(messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "always return the same thing" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/check-your-state-pension/account/pta">
+               |  <a class="card-link ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label='State Pension'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">State Pension</h3>
                |      <p>You are still contributing to your State Pension. Get a forecast and find out when you can start claiming it.</p>
@@ -567,8 +571,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |      <li><a href="/check-your-state-pension/account/pta">Check your State Pension</a></li>
-               |      <li><a href="/check-your-state-pension/account/nirecord">Check your National Insurance record for gaps</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label='Check your State Pension'>Check your State Pension</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label='Check your National Insurance record for gaps'>Check your National Insurance record for gaps</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -581,7 +585,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def hasLtaProtections: Boolean
 
-      lazy val cardBody = c.getLifetimeAllowanceProtectionCard(hasLtaProtections).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getLifetimeAllowanceProtectionCard(hasLtaProtections)(messages = messages, messagesApi = messagesApi).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with a user who does not have lta protections" in new LocalSetup {
@@ -597,7 +601,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link" href="/protect-your-lifetime-allowance/existing-protections">
+               |  <a class="card-link ga-track-anchor-click" href="/protect-your-lifetime-allowance/existing-protections" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label='Lifetime allowance protection'>
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Lifetime allowance protection</h3>
                |      <p>Your lifetime allowance is protected from additional tax charges.</p>
@@ -605,7 +609,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |      <li><a href="/protect-your-lifetime-allowance/existing-protections">Manage your protections</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/protect-your-lifetime-allowance/existing-protections" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label='label.manage_your_protection'>Manage your protections</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)

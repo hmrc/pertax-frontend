@@ -1,7 +1,8 @@
-@()(implicit messages: play.api.i18n.Messages)
+@import tags._
+@()(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
 
 <div class="card column-half">
-  <a class="card-link" href="/marriage-allowance-application/history">
+  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("title.marriage_allowance", "en")">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("title.marriage_allowance")</h3>
       <p>@Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")</p>
@@ -9,7 +10,7 @@
   </a>
   <div class="card-actions">
     <ul>
-      <li><a href="/marriage-allowance-application/history">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
+      <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.find_out_if_you_qualify_for_marriage_allowance", "en")">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
     </ul>
   </div>
 </div>

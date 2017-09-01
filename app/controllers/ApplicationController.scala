@@ -26,7 +26,7 @@ import controllers.helpers.{HomeCardGenerator, PaperlessInterruptHelper}
 import error.LocalErrorHandler
 import models._
 import play.api.Logger
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
 import services._
@@ -127,15 +127,15 @@ class ApplicationController @Inject() (
             taxSummary,
             TaxCalculationState.buildFromTaxCalculation(taxCalculation),
             saUserType
-          )
+          )(pertaxContext, implicitly[Messages], messagesApi)
 
           val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(
             taxSummary
-          )
+          )(pertaxContext, implicitly[Messages], messagesApi)
 
           val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(
             pertaxContext.user, hasLtaProtections
-          )
+          )(pertaxContext, implicitly[Messages], messagesApi)
 
           Ok(views.html.home(
             inboxLinkPartial = inboxLinkPartial.successfulContentOrEmpty,
@@ -143,7 +143,7 @@ class ApplicationController @Inject() (
             incomeCards,
             benefitCards,
             pensionCards
-          ))
+          )(pertaxContext,implicitly[Messages], messagesApi))
         }
       }
   }
