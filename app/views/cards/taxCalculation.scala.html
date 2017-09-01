@@ -1,11 +1,12 @@
-@(taxCalculationState: TaxCalculationState)(implicit messages: play.api.i18n.Messages)
+@import tags._
+@(taxCalculationState: TaxCalculationState)(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
 
 @heading = @{
   taxCalculationState match {
-    case _:TaxCalculationUnderpaidPaidAllState => Messages("label.you_do_not_owe_any_more_tax")
-    case _:TaxCalculationUnderpaidState => Messages("label.you_paid_too_little_tax_last_year")
-    case _:TaxCalculationOverpaidState => Messages("label.you_paid_too_much_tax_last_year")
-    case _ => ""
+    case _:TaxCalculationUnderpaidPaidAllState => (Messages("label.you_do_not_owe_any_more_tax"), gaTrackAnchorEventTranslateLabel("label.you_do_not_owe_any_more_tax", "en"))
+    case _:TaxCalculationUnderpaidState => (Messages("label.you_paid_too_little_tax_last_year"), gaTrackAnchorEventTranslateLabel("label.you_paid_too_little_tax_last_year", "en"))
+    case _:TaxCalculationOverpaidState => (Messages("label.you_paid_too_much_tax_last_year"), gaTrackAnchorEventTranslateLabel("label.you_paid_too_much_tax_last_year", "en"))
+    case _ => ("", "")
   }
 }
 
@@ -13,53 +14,60 @@
   taxCalculationState match {
     case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
       (Messages("label.hmrc_owes_you_a_refund_for_the_to_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
-        Messages("label.claim_your_tax_refund")
-      ))
+        Messages("label.claim_your_tax_refund")),
+        gaTrackAnchorEventTranslateLabel("label.claim_your_tax_refund", "en")
+      )
 
     case TaxCalculationOverpaidPaymentProcessingState(amount) =>
       (Messages("label.hmrc_is_processing_your_refund", amount), List(
-        Messages("label.view_your_tax_refund")
-      ))
+        Messages("label.view_your_tax_refund")),
+        gaTrackAnchorEventTranslateLabel("label.view_your_tax_refund", "en")
+      )
 
     case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) =>
       (Messages("label.hmrc_has_paid_your_refund", amount), List(
-        Messages("label.view_your_tax_refund")
-      ))
+        Messages("label.view_your_tax_refund")),
+        gaTrackAnchorEventTranslateLabel("label.view_your_tax_refund", "en")
+      )
 
     case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) =>
       (Messages("label.hmrc_sent_you_a_cheque_for", amount), List(
-        Messages("label.view_your_tax_refund")
-      ))
+        Messages("label.view_your_tax_refund")),
+        gaTrackAnchorEventTranslateLabel("label.view_your_tax_refund", "en")
+      )
 
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear) =>
       (Messages("label.you_owe_hmrc_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
-        Messages("label.find_out_why_you_paid_too_little")
-      ))
+        Messages("label.find_out_why_you_paid_too_little")),
+        gaTrackAnchorEventTranslateLabel("label.find_out_why_you_paid_too_little", "en")
+      )
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear) =>
       (Messages("label.you_owe_hmrc_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
-        Messages("label.find_out_why_you_paid_too_little")
-      ))
+        Messages("label.find_out_why_you_paid_too_little")),
+        gaTrackAnchorEventTranslateLabel("label.find_out_why_you_paid_too_little", "en")
+      )
 
     case TaxCalculationUnderpaidPaidAllState(startOfTaxYear, endOfTaxYear) =>
       (Messages("label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year", startOfTaxYear.toString, endOfTaxYear.toString), List(
-        Messages("label.view_the_tax_you_paid")
-      ))
-    case _ => ("", List())
+        Messages("label.view_the_tax_you_paid")),
+        gaTrackAnchorEventTranslateLabel("label.view_the_tax_you_paid", "en")
+      )
+    case _ => ("", List(), "")
   }
 }
 
 <div class="card column-half">
-  <a class="card-link" href="/tax-you-paid/status">
+  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@heading._2">
     <div class="card-content" role="link">
-      <h3 class="heading-small no-margin-top">@heading</h3>
+      <h3 class="heading-small no-margin-top">@heading._1</h3>
       <p>@contentAndLinks._1</p>
     </div>
   </a>
   <div class="card-actions">
     <ul>
       @contentAndLinks._2.map { label =>
-        <li><a href="/tax-you-paid/status">@label</a></li>
+        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@contentAndLinks._3">@label</a></li>
       }
     </ul>
   </div>

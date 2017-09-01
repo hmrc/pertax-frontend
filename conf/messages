@@ -295,7 +295,7 @@ label.the_personal_tax_account_is_a_new_service_=The personal tax account is a n
 label.paperless_preferences=Paperless preferences
 label.any_updates_to_your_contact_details=Any updates to your contact details take up to 2 days to appear on this site.
 label.services_for_businesses=Services for businesses
-label.if_you_are_self_employed_or_pay_business_tax=If you are self employed or pay business taxes like VAT or Corporation Tax you can see these services in <a id="business-tax-account-link" class="trackLink" href="{0}">your business tax account</a>.
+label.if_you_are_self_employed_or_pay_business_tax=If you are self employed or pay business taxes like VAT or Corporation Tax you can see these services in <a id="business-tax-account-link" class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="your business tax account">your business tax account</a>.
 label.you_can_see_this_part_of_your_account_if_you_complete=You can see this part of your account if you complete some additional security steps.
 label.sa_important_deadlines=Important deadlines
 label.self_assessment_deadline_date=31 Jan 2017

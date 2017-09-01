@@ -3,7 +3,7 @@
   incomeCards: Seq[Html],
   benefitCards: Seq[Html],
   pensionCards: Seq[Html]
-)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
 
 @import tags._
 @import uk.gov.hmrc.play.views.formatting.Money.pounds
@@ -92,7 +92,7 @@
         @ifPayeUser {
           <div class="personal-details">
             @ifUserHasPersonDetails {
-              <a href="@controllers.routes.AddressController.displayAddress()">@Messages("label.update_your_address")</a>
+              <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.displayAddress()" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.update_your_address", "en")">@Messages("label.update_your_address")</a>
             }
             @unlessUserHasPersonDetails {
               <p>@Messages("label.you_cant_view_or_update_your_address_right_now")</p>
@@ -101,14 +101,14 @@
         }
 
         <div class="manage-paperless">
-          <a href="@controllers.routes.PaperlessPreferencesController.managePreferences()">@Messages("label.manage_your_paperless_settings")</a>
+          <a class="ga-track-anchor-click" href="@controllers.routes.PaperlessPreferencesController.managePreferences()" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.manage_your_paperless_settings", "en")">@Messages("label.manage_your_paperless_settings")</a>
         </div>
       </div>
 
       <div class="sidebar-panel track-forms">
         <h3 class="no-margin-top">@Messages("label.track_your_forms_and_letters")</h3>
         <p>@Messages("label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by")</p>
-        <a href="@pertaxContext.configDecorator.formTrackingServiceUrl">@Messages("label.track_your_forms_and_letters")</a>
+        <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.formTrackingServiceUrl" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.track_your_forms_and_letters", "en")">@Messages("label.track_your_forms_and_letters")</a>
       </div>
 
       @ifVerifyUser {
@@ -117,7 +117,6 @@
             <div class="sidebar-panel">
               <h3 class="no-margin-top">@Messages("label.help_with_tax_for_friends_and_family")</h3>
               <p>@Messages("label.give_friends_or_family_permission_to_access_your_account")</p>
-              <a href="@pertaxContext.configDecorator.fandfUrl">@Messages("label.view_your_trusted_helper_contacts")</a>
             </div>
           }
         }

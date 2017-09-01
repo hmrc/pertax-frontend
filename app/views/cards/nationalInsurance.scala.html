@@ -1,7 +1,8 @@
-@()(implicit messages: play.api.i18n.Messages)
+@import tags._
+@()(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
 
 <div class="card column-half">
-  <a class="card-link" href="@controllers.routes.InterstitialController.displayNationalInsurance">
+  <a class="card-link ga-track-anchor-click" href="@controllers.routes.InterstitialController.displayNationalInsurance" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.national_insurance", "en")">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.national_insurance")</h3>
       <p>@Messages("label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_")</p>
@@ -9,9 +10,9 @@
   </a>
   <div class="card-actions">
     <ul>
-      <li><a href="@controllers.routes.PrintController.printNationalInsuranceNumber()">@Messages("label.print_your_national_insurance_letter")</a></li>
-      <li><a href="/check-your-state-pension/account/nirecord">@Messages("label.view_gaps_in_your_record")</a></li>
-      <li><a href="/check-your-state-pension/account/pta">@Messages("label.check_your_state_pension")</a></li>
+      <li><a class="ga-track-anchor-click" href="@controllers.routes.PrintController.printNationalInsuranceNumber()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.print_your_national_insurance_letter", "en")">@Messages("label.print_your_national_insurance_letter")</a></li>
+      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.view_gaps_in_your_record", "en")">@Messages("label.view_gaps_in_your_record")</a></li>
+      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.check_your_state_pension", "en")">@Messages("label.check_your_state_pension")</a></li>
     </ul>
   </div>
 </div>

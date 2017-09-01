@@ -21,7 +21,7 @@ import models._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import play.api.i18n.Messages
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import services._
@@ -35,6 +35,7 @@ import scala.collection.JavaConversions._
 class homeSpec extends BaseSpec {
 
   val messages: Messages = Messages.Implicits.applicationMessages
+  val messagesApi: MessagesApi = injected[MessagesApi]
 
   trait SpecSetup {
 
@@ -78,7 +79,8 @@ class homeSpec extends BaseSpec {
       mockLocalPartialRetreiver,
       injected[ConfigDecorator],
       Some(testPertaxUser)),
-      messages).toString)
+      messages,
+      messagesApi).toString)
   }
 
   trait OldStyleSpecSetup {}
