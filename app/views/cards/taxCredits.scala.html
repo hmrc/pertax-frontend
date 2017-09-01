@@ -1,8 +1,7 @@
-@import tags._
-@()(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
+@()(implicit messages: play.api.i18n.Messages)
 
 <div class="card column-half">
-  <a class="card-link ga-track-anchor-click" href="/tax-credits-service/home" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.tax_credits", "en")">
+  <a class="card-link ga-track-anchor-click" href="/tax-credits-service/home" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tax credits">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.tax_credits")</h3>
       <p>@Messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim")</p>
@@ -10,7 +9,7 @@
   </a>
   <div class="card-actions">
     <ul>
-      <li><a class="ga-track-anchor-click" href="https://www.gov.uk/qualify-tax-credits" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.find_out_if_you_qualify_for_tax_credits", "en")">@Messages("label.find_out_if_you_qualify_for_tax_credits")</a></li>
+      <li><a class="ga-track-anchor-click" href="/tax-credits-service/home/payment-schedule" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="View your tax credits payments">@Messages("label.view_your_tax_credits_payments")</a></li>
     </ul>
   </div>
 </div>

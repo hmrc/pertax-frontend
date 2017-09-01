@@ -19,8 +19,12 @@ package models
 import play.api.libs.json.{Json, JsValue}
 
 case class TaxSummary(taxCodes: Seq[String], companyBenefits: Seq[Int] ) {
-  def isMarriageAllowanceRecipient: Boolean =
-    taxCodes.exists(taxCode => taxCode.toUpperCase.endsWith("N") || taxCode.toUpperCase.endsWith("M"))
+
+  def isMarriageAllowanceTransferee = taxCodes.exists(taxCode => taxCode.toUpperCase.endsWith("M"))
+
+  def isMarriageAllowanceTransferor = taxCodes.exists(taxCode => taxCode.toUpperCase.endsWith("N"))
+
+  def notMarriageAllowanceCustomer = ! (isMarriageAllowanceTransferee || isMarriageAllowanceTransferor)
 
   def isCompanyBenefitRecipient: Boolean = {
     companyBenefits.exists(iabd => iabd == 31 || iabd == 30)

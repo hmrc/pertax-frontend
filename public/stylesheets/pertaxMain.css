@@ -522,17 +522,8 @@ address {
   margin-bottom: 30px;
   padding: 10px;
 }
-.pertax-home .sidebar-panel.messages .section--branded {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  padding-top: 0;
-}
-.pertax-home .sidebar-panel.messages .section--branded h2 {
-  border-bottom: 0;
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.31579;
-  margin-bottom: 0.75em;
+.pertax-home .sidebar-panel.messages h3 {
+  margin-top: 0;
 }
 
 @media (min-width: 641px) {

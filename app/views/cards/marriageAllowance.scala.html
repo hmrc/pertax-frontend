@@ -1,16 +1,27 @@
-@import tags._
-@()(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi)
+@(taxSummary: Option[TaxSummary])(implicit messages: play.api.i18n.Messages)
+
+@cardContent = @{
+  taxSummary match {
+    case Some(ts) if ts.isMarriageAllowanceTransferee => Messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")
+    case Some(ts) if ts.isMarriageAllowanceTransferor => Messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")
+    case _ => Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
+  }
+}
 
 <div class="card column-half">
-  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("title.marriage_allowance", "en")">
+  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Marriage Allowance">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("title.marriage_allowance")</h3>
-      <p>@Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")</p>
+      <p>@cardContent</p>
     </div>
   </a>
   <div class="card-actions">
     <ul>
-      <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.find_out_if_you_qualify_for_marriage_allowance", "en")">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
+      @if(taxSummary.map(_.notMarriageAllowanceCustomer).getOrElse(true)) {
+        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/benefit-calculator-pta" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
+      } else {
+        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/make-changes" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Manage your Marriage Allowance">@Messages("label.manage_your_marriage_allowance")</a></li>
+      }
     </ul>
   </div>
 </div>

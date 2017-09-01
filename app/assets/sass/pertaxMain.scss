@@ -473,18 +473,8 @@ address {
     padding: 10px;
 
     &.messages {
-      .section--branded {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        padding-top: 0;
-
-        h2 {
-          border-bottom: 0;
-          font-size: 19px;
-          font-weight: 700;
-          line-height: 1.31579;
-          margin-bottom: 0.75em;
-        }
+      h3 {
+        margin-top: 0;
       }
     }
   }
