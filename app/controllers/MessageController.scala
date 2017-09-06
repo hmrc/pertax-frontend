@@ -46,7 +46,7 @@ class MessageController @Inject() (
 ) extends PertaxBaseController with AuthorisedActions {
 
   def messageBreadcrumb: Breadcrumb =
-    "label.self_assessment_messages" -> routes.MessageController.messageList.url ::
+    "label.all_messages" -> routes.MessageController.messageList.url ::
     baseBreadcrumb
 
   def messageList = ProtectedAction(baseBreadcrumb) {
