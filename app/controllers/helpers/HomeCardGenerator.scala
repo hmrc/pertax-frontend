@@ -19,7 +19,7 @@ package controllers.helpers
 import javax.inject.Singleton
 
 import models._
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.Messages
 import play.twirl.api.Html
 import models.SelfAssessmentUserType
 import models.TaxSummary
@@ -30,26 +30,26 @@ class HomeCardGenerator {
 
   def getIncomeCards(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary],
                      taxCalculationState: TaxCalculationState,
-                     saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages, messagesApi: MessagesApi): Seq[Html] = List(
+                     saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxSummary),
     getTaxCalculationCard(taxCalculationState),
     getSelfAssessmentCard(saActionNeeded),
     getNationalInsuranceCard()
   ).flatten
 
-  def getBenefitCards(taxSummary: Option[TaxSummary])(implicit pertaxContext: PertaxContext, messages: Messages, messagesApi: MessagesApi): Seq[Html] = List(
+  def getBenefitCards(taxSummary: Option[TaxSummary])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getTaxCreditsCard(),
     getChildBenefitCard(),
     getMarriageAllowanceCard(taxSummary)
   ).flatten
 
-  def getPensionCards(pertaxUser: Option[PertaxUser], hasLtaProtections: Boolean)(implicit pertaxContext: PertaxContext, messages: Messages, messagesApi: MessagesApi): Seq[Html] = List(
+  def getPensionCards(pertaxUser: Option[PertaxUser], hasLtaProtections: Boolean)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getStatePensionCard(),
     getLifetimeAllowanceProtectionCard(hasLtaProtections)
   ).flatten
 
 
-  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary])(implicit messages: Messages, messagesApi: MessagesApi) = {
+  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary])(implicit messages: Messages) = {
 
     pertaxUser match {
       case Some(u) if u.isPaye => taxSummary.map(ts => views.html.cards.payAsYouEarn(ts.isCompanyBenefitRecipient))
@@ -57,7 +57,7 @@ class HomeCardGenerator {
     }
   }
 
-  def getTaxCalculationCard(taxCalculationState: TaxCalculationState)(implicit pertaxContext: PertaxContext, messages: Messages, messagesApi: MessagesApi) = {
+  def getTaxCalculationCard(taxCalculationState: TaxCalculationState)(implicit pertaxContext: PertaxContext, messages: Messages) = {
 
     taxCalculationState match {
       case _:TaxCalculationUnderpaidPaymentsDownState => None
@@ -66,7 +66,7 @@ class HomeCardGenerator {
     }
   }
 
-  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages, messagesApi: MessagesApi) = {
+  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages) = {
 
     saActionNeeded match {
       case NonFilerSelfAssessmentUser => None
@@ -75,31 +75,29 @@ class HomeCardGenerator {
     }
   }
 
-  def getNationalInsuranceCard()(implicit messages: Messages, messagesApi: MessagesApi) = {
+  def getNationalInsuranceCard()(implicit messages: Messages) = {
     Some(views.html.cards.nationalInsurance())
   }
 
 
-  def getTaxCreditsCard()(implicit messages: Messages, messagesApi: MessagesApi) = {
+  def getTaxCreditsCard()(implicit messages: Messages) = {
     Some(views.html.cards.taxCredits())
   }
 
-  def getChildBenefitCard()(implicit messages: Messages, messagesApi: MessagesApi) = {
+  def getChildBenefitCard()(implicit messages: Messages) = {
     Some(views.html.cards.childBenefit())
   }
 
-  def getMarriageAllowanceCard(taxSummary: Option[TaxSummary])(implicit messages: Messages, messagesApi: MessagesApi) = {
+  def getMarriageAllowanceCard(taxSummary: Option[TaxSummary])(implicit messages: Messages) = {
 
-    if (taxSummary.map(ts => ts.isMarriageAllowanceRecipient).getOrElse(false)) None
-    else Some(views.html.cards.marriageAllowance())
+    Some(views.html.cards.marriageAllowance(taxSummary))
   }
 
-
-  def getStatePensionCard()(implicit messages: Messages, messagesApi: MessagesApi) = {
+  def getStatePensionCard()(implicit messages: Messages) = {
     Some(views.html.cards.statePension())
   }
 
-  def getLifetimeAllowanceProtectionCard(hasLtaProtections: Boolean)(implicit messages: Messages, messagesApi: MessagesApi) = {
+  def getLifetimeAllowanceProtectionCard(hasLtaProtections: Boolean)(implicit messages: Messages) = {
     if(hasLtaProtections)
       Some(views.html.cards.lifetimeAllowanceProtection())
     else None

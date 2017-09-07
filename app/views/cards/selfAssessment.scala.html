@@ -1,5 +1,4 @@
-@import tags._
-@(saActionNeeded: SelfAssessmentUserType, taxYear: String)(implicit messages: play.api.i18n.Messages, messagesApi: play.api.i18n.MessagesApi, pertaxContext: PertaxContext)
+@(saActionNeeded: SelfAssessmentUserType, taxYear: String)(implicit messages: play.api.i18n.Messages, pertaxContext: PertaxContext)
 
 @cardLink = @{
   saActionNeeded match {
@@ -9,7 +8,7 @@
 }
 
 <div class="card column-half">
-  <a class="card-link ga-track-anchor-click" href="@cardLink" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.self_assessment", "en")">
+  <a class="card-link ga-track-anchor-click" href="@cardLink" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.self_assessment")</h3>
       <p>
@@ -32,14 +31,14 @@
     <ul>
     @saActionNeeded match {
       case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.completeYourTaxReturnUrl(saUtr.value, taxYear)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.complete_your_tax_return", "en")">@Messages("label.complete_your_tax_return")</a></li>
-        <li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.make_a_payment", "en")">@Messages("label.make_a_payment")</a></li>
+        <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.completeYourTaxReturnUrl(saUtr.value, taxYear)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">@Messages("label.complete_your_tax_return")</a></li>
+        <li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@Messages("label.make_a_payment")</a></li>
       }
       case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <li><a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.activate_your_self_assessment", "en")">@Messages("label.activate_your_self_assessment")</a></li>
+        <li><a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@Messages("label.activate_your_self_assessment")</a></li>
       }
       case AmbiguousFilerSelfAssessmentUser(saUtr) => {
-        <li><a class="ga-track-anchor-click" href="https://www.gov.uk/self-assessment-tax-returns" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@gaTrackAnchorEventTranslateLabel("label.understand_self_assessment", "en")">@Messages("label.understand_self_assessment")</a></li>
+        <li><a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Access your Self Assessment">@Messages("label.access_your_self_assessment")</a></li>
       }
       case _ => {}
     }

@@ -29,30 +29,29 @@ class TaxSummarySpec extends BaseSpec {
       val ts = TaxSummary.fromJsonTaxSummaryDetails(Json.parse(Fixtures.exampleTaxSummaryDetailsJson))
       ts shouldBe Fixtures.buildTaxSummary
     }
-    
   }
 
-  "Calling TaxSummary.isMarriageAllowanceRecipient" should {
+  "Checking marriage allowance status" should {
 
-    "return true if the tax code ends in M when supplied with good json" in {
-
-      val ts = TaxSummary.fromJsonTaxSummaryDetails(Json.parse(Fixtures.exampleTaxSummaryDetailsJsonTaxCodeEndsM))
-      val isMARecipient = ts.isMarriageAllowanceRecipient
-      isMARecipient shouldBe true
+    "indicate a transferee but not a transferor if the tax code ends in M" in {
+      val ts = TaxSummary(Seq("500M"), Nil)
+      ts.isMarriageAllowanceTransferee shouldBe true
+      ts.isMarriageAllowanceTransferor shouldBe false
+      ts.notMarriageAllowanceCustomer shouldBe false
     }
 
-    "return true if the tax code ends in N when supplied with good json" in {
-
-      val ts = TaxSummary.fromJsonTaxSummaryDetails(Json.parse(Fixtures.exampleTaxSummaryDetailsJsonTaxCodeEndsN))
-      val isMARecipient = ts.isMarriageAllowanceRecipient
-      isMARecipient shouldBe true
+    "indicate a transferor but not a transferee if the tax code ends in N" in {
+      val ts = TaxSummary(Seq("500N"), Nil)
+      ts.isMarriageAllowanceTransferee shouldBe false
+      ts.isMarriageAllowanceTransferor shouldBe true
+      ts.notMarriageAllowanceCustomer shouldBe false
     }
 
-    "return false if the tax code doesn't end in M or N when supplied with good json" in {
-
-      val ts = TaxSummary.fromJsonTaxSummaryDetails(Json.parse(Fixtures.exampleTaxSummaryDetailsJson))
-      val isMARecipient = ts.isMarriageAllowanceRecipient
-      isMARecipient shouldBe false
+    "indicate neither a transferor or a transferee if the tax code does not end in N or M" in {
+      val ts = TaxSummary(Seq("500T"), Nil)
+      ts.isMarriageAllowanceTransferee shouldBe false
+      ts.isMarriageAllowanceTransferor shouldBe false
+      ts.notMarriageAllowanceCustomer shouldBe true
     }
   }
 

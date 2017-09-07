@@ -251,7 +251,7 @@ label.check_your_tax_code_and_paye_income=Check your tax code and Pay As You Ear
 label.check_your_tax_codes_and_an_estimate_of_the_income_tax_youll_pay=Check your tax codes and an estimate of the Income Tax you''ll pay.
 label.check_your_tax_credits_record=Check your tax credits record.
 label.check_your_child_benefits_record=Tell us about changes that may affect your Child Benefit.
-label.view_your_national_insurance_record=View your National Insurance record.
+label.view_your_national_insurance_record=View your National Insurance record
 label.your_benefits_and_tcr_and_what_you_may_be_entitled_to_get=Your benefits and tax credits record and what you may be entitled to get.
 label.your_state_pension_pension_credit_and_pension_record=Your State Pension, Pension Credit and pension record.
 label.check_when_you_can_claim_your_state_pension_and_how_much_you_can_get=Check when you can claim your State Pension and how much you can get.
@@ -509,15 +509,17 @@ title.income=Income
 label.pay_as_you_earn_paye=Pay As You Earn (PAYE)
 label.your_income_from_employers_and_private_pensions_=Your income from employers and private pensions that is taxed before it is paid to you.
 label.make_sure_you_are_paying_the_right_amount_of_tax=Make sure you are paying the right amount of tax
+label.view_your_income_tax_estimate=View your Income Tax estimate
 label.check_how_much_tax_you_paid_last_year=Check how much tax you paid last year
 label.claim_your_tax_refund=Claim your tax refund
 label.view_your_tax_refund=View your tax refund
+label.find_out_why_you_paid_too_much=Find out why you paid too much
 label.find_out_why_you_paid_too_little=Find out why you paid too little
 label.view_the_tax_you_paid=View the tax you paid
 label.get_more_information_about_when_your_p800_will_arrive=Get more information about when your P800 will arrive
 label.get_more_information_about_the_tax_you_paid=Get more information about the tax you paid
 
-label.hmrc_owes_you_a_refund_for_the_to_year=HMRC owes you a £{0} refund for the {1} to {2} tax year.
+label.hmrc_owes_you_a_refund_for_the_to_tax_year=HMRC owes you a £{0} refund for the {1} to {2} tax year.
 label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund.
 label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund.
 label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}.
@@ -532,12 +534,14 @@ label.you_cannot_access_this_service_right_now=You cannot access this service ri
 label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
 label.understand_self_assessment=Understand Self Assessment
+label.access_your_self_assessment=Access your Self Assessment
 label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=You need to complete a tax return once a year. Yours is due by 31 January 2018.
 
 label.national_insurance=National Insurance
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.
 
 label.print_your_national_insurance_letter=Print your National Insurance letter
+label.print_your_national_insurance_number=Print your National Insurance number
 label.view_gaps_in_your_record=View gaps in your record
 label.check_your_state_pension=Check your State Pension
 
@@ -557,10 +561,14 @@ label.tax_credits=Tax credits
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=View your next payments and the people on your claim, and make changes to your claim.
 label.change_your_circumstances=Change your circumstances
 label.find_out_if_you_qualify_for_tax_credits=Find out if you qualify for tax credits
+label.view_your_tax_credits_payments=View your tax credits payments
 
 title.marriage_allowance=Marriage Allowance
 label.transfer_part_of_your_personal_allowance_to_your_partner_=Transfer part of your Personal Allowance to your partner so they pay less tax.
 label.find_out_if_you_qualify_for_marriage_allowance=Find out if you qualify for Marriage Allowance
+label.manage_your_marriage_allowance=Manage your Marriage Allowance
+label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Your partner currently transfers part of their Personal Allowance to you.
+label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=You currently transfer part of your Personal Allowance to your partner.
 
 label.child_benefit=Child Benefit
 label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children=A tax-free payment to help parents with the cost of bringing up children.
@@ -573,7 +581,7 @@ title.pensions=Pensions
 title.state_pension=State Pension
 label.you_are_still_contributing_to_your_state_pension_=You are still contributing to your State Pension. Get a forecast and find out when you can start claiming it.
 label.check_your_national_insurance_record_for_gaps=Check your National Insurance record for gaps
-
+label.view_your_state_pension_forecast=View your State Pension forecast
 label.lifetime_allowance_protection=Lifetime allowance protection
 label.your_lifetime_allowance_is_protected_from_additional_tax_charges=Your lifetime allowance is protected from additional tax charges.
 label.manage_your_protections=Manage your protections
