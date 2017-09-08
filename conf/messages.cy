@@ -1,6 +1,6 @@
-#	
-#  Global	
-#	
+#
+#  Global
+#
 global.label._last_signed_in={0}, y tro diwethaf i chi fewngofnodi oedd {1}
 global.label.you_last_signed_in=Y tro diwethaf i chi fewngofnodi oedd {0}
 global.label.sign_out=Allgofnodi
@@ -222,6 +222,7 @@ label.you_need_to_activate_your_self_assessment_registration_using_your_=Mae ang
 
 label.income_tax=Treth incwm
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
+label.understand_your_tax_code=Deall eich cod treth
 label.benefits_and_tax_credits=Budd-daliadau a chredydau treth
 label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol

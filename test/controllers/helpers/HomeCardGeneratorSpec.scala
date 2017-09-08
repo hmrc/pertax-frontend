@@ -124,6 +124,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    <ul>
                |      <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your Income Tax estimate">View your Income Tax estimate</a></li>
                |      <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check how much tax you paid last year">Check how much tax you paid last year</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-income-tax/tax-codes" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Understand your tax code">Understand your tax code</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
