@@ -90,7 +90,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
+               |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Pay As You Earn (PAYE)</h3>
                |      <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
@@ -114,7 +114,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
+               |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Pay As You Earn (PAYE)</h3>
                |      <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
@@ -415,7 +415,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    <ul>
                |      <li><a class="ga-track-anchor-click" href="/personal-account/national-insurance-summary/print-letter" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Print your National Insurance number">Print your National Insurance number</a></li>
                |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View gaps in your record">View gaps in your record</a></li>
-               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check your State Pension">Check your State Pension</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
