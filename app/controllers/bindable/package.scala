@@ -17,6 +17,9 @@
 package controllers
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
+import uk.gov.hmrc.play.binders.ContinueUrl
+
+import scala.util.{Failure, Success, Try}
 
 package object bindable {
 
@@ -26,6 +29,19 @@ package object bindable {
       AddrType(value).map(Right(_)).getOrElse(Left("Invalid address type in path"))
 
     def unbind(key: String, addrType: AddrType): String = addrType.toString
+  }
+
+  implicit def continueUrlPathBinder = new PathBindable[ContinueUrl] {
+
+    private def errorFor(invalidUrl: String) = s"'$invalidUrl' is not a valid continue URL"
+
+    override def bind(key: String, value: String): Either[String, ContinueUrl] =
+      Try(ContinueUrl(value)) match {
+        case Success(url) => Right(url)
+        case Failure(_) => Left(errorFor(value))
+      }
+
+    override def unbind(key: String, value: ContinueUrl): String = value.url
   }
 
  implicit def originBinder(implicit stringBinder: QueryStringBindable[String]) = new QueryStringBindable[Origin] {

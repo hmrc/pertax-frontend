@@ -18,6 +18,7 @@ package controllers
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.play.binders.ContinueUrl
 import util.BaseSpec
 
 class LanguageControllerSpec extends BaseSpec {
@@ -28,27 +29,29 @@ class LanguageControllerSpec extends BaseSpec {
 
   "Calling LanguageController.enGb" should {
     "change the language to English and return 303" in new LocalSetup {
-      val r = c.enGb("/")(FakeRequest("GET", ""))
+      val r = c.enGb(ContinueUrl("/test"))(FakeRequest("GET", ""))
       cookies(r).get("PLAY_LANG").get.value shouldBe "en"
       status(r) shouldBe SEE_OTHER
-    }
-
-    "not change the language and return 500 if passed an invalid url" in new LocalSetup {
-      val r = c.enGb("//invalidUrl")(FakeRequest("GET", ""))
-      status(r) shouldBe BAD_REQUEST
     }
   }
 
   "Calling LanguageController.cyGb" should {
     "change the language to Welsh and return 303" in new LocalSetup {
-      val r = c.cyGb("/")(FakeRequest("GET", ""))
+      val r = c.cyGb(ContinueUrl("/test"))(FakeRequest("GET", ""))
       cookies(r).get("PLAY_LANG").get.value shouldBe "cy"
       status(r) shouldBe SEE_OTHER
     }
+  }
 
-    "not change the language and return 500 if passed an invalid url" in new LocalSetup {
-      val r = c.cyGb("//invalidUrl")(FakeRequest("GET", ""))
+  "Calling LanguageController.changeLanguageIfRelativeRedirectUrl" should {
+    "return 400 when the url is not relative" in new LocalSetup {
+      val r = c.changeLanguageIfRelativeRedirectUrl(ContinueUrl("http://test"), "en")(FakeRequest("GET", "/test"))
       status(r) shouldBe BAD_REQUEST
+    }
+
+    "return 303 when url is relative" in new LocalSetup {
+      val r = c.changeLanguageIfRelativeRedirectUrl(ContinueUrl("/test"), "en")(FakeRequest("GET", "/test"))
+      status(r) shouldBe SEE_OTHER
     }
   }
 }

@@ -27,9 +27,10 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.twirl.api.Html
 import services.partials.MessagePartialService
 import services.{CitizenDetailsService, UserDetailsService}
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.LocalPartialRetriever
-  
+
 
 class MessageController @Inject() (
   val messagesApi: MessagesApi,
@@ -60,11 +61,11 @@ class MessageController @Inject() (
       }
   }
 
-  def messageDetail(messageReadUrl: String) = ProtectedAction(messageBreadcrumb) {
+  def messageDetail(messageReadUrl: ContinueUrl) = ProtectedAction(messageBreadcrumb) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {
-          messagePartialService.getMessageDetailPartial(messageReadUrl).map {
+          messagePartialService.getMessageDetailPartial(messageReadUrl.url).map {
             case HtmlPartial.Success(Some(title), content) => Ok(views.html.message.messageDetail(message = content, title = title))
             case HtmlPartial.Success(None, content) => Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
             case HtmlPartial.Failure(_,_) => Ok(views.html.message.messageDetail(message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")), title = Messages("label.message")))

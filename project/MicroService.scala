@@ -36,7 +36,7 @@ trait MicroService {
   }
 
   val wartRemovedExcludedClasses = Seq(
-    "app.Routes", "pertax.Routes", "prod.Routes", "uk.gov.hmrc.BuildInfo", 
+    "app.Routes", "pertax.Routes", "prod.Routes", "uk.gov.hmrc.BuildInfo",
     "controllers.routes", "controllers.javascript", "controllers.ref"
   )
 
@@ -56,7 +56,7 @@ trait MicroService {
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
       wartremoverExcluded ++= wartRemovedExcludedClasses,
       TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.play.http.HeaderCarrier"),
-      routesImport += "controllers.bindable._"
+      routesImport ++= Seq("controllers.bindable._", "uk.gov.hmrc.play.binders.ContinueUrl")
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)

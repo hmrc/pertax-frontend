@@ -25,6 +25,7 @@ import models.{AmbiguousFilerSelfAssessmentUser, NotYetActivatedOnlineFilerSelfA
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Request}
 import services._
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -42,7 +43,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
   val (eels, cds, sas) = (enrolmentExceptionListService, citizenDetailsService, selfAssessmentService)
 
-  def build(successUrl: Option[String] = None, origin: Origin) = {
+  def build(successUrl: Option[ContinueUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.toString)
 
     val strongCredentialPredicate = new LocalStrongCredentialPredicate {
@@ -76,7 +77,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
 trait LocalStrongCredentialPredicate extends PageVisibilityPredicate with CredentialStrengthChecker {
 
-  def successUrl: Option[String]
+  def successUrl: Option[ContinueUrl]
 
   def registerUrl: String
   def failureUrl: String
@@ -100,7 +101,7 @@ trait LocalStrongCredentialPredicate extends PageVisibilityPredicate with Creden
 
 trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with ConfidenceLevelChecker {
 
-  def successUrl: Option[String]
+  def successUrl: Option[ContinueUrl]
   def upliftUrl: String
   def origin: String
   def onwardUrl: String

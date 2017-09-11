@@ -29,6 +29,7 @@ import play.twirl.api.Html
 import services.partials.MessagePartialService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._
@@ -183,7 +184,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
-      val r = controller.messageDetail("")(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
       verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
@@ -205,7 +206,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
-      val r = controller.messageDetail("")(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
       verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
@@ -219,7 +220,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
-      val r = controller.messageDetail("")(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
@@ -237,7 +238,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
 
-      val r = controller.messageDetail("")(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
@@ -255,7 +256,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
 
-      val r = controller.messageDetail("")(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())

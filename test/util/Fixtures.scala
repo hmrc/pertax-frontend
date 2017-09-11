@@ -135,9 +135,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
-  def buildFakeRequestWithSessionId(method: String) = FakeRequest(method, "").withSession("sessionId" -> "FAKE_SESSION_ID")
+  def buildFakeRequestWithSessionId(method: String) = FakeRequest(method, "/test?continueUrl=/test&redirectUrl=/test").withSession("sessionId" -> "FAKE_SESSION_ID")
 
-  def buildFakeRequestWithAuth(method: String, uri: String = "/", useGovernmentGateway: Boolean = false): FakeRequest[AnyContentAsEmpty.type] = {
+  def buildFakeRequestWithAuth(method: String, uri: String = "/test?continueUrl=/test&redirectUrl=/test", useGovernmentGateway: Boolean = false): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
@@ -150,9 +150,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
   }
 
   def buildUnusedAllowance = UnusedAllowance(BigDecimal(4000.00))
-  
+
   def buildFakeAuthContext(withPaye: Boolean = true, withSa: Boolean = false) = AuthContext(buildFakeAuthority(withPaye, withSa), None)
-  
+
   def buildFakePertaxUser(withPaye: Boolean = true, withSa: Boolean = false, isGovernmentGateway: Boolean = false, isHighGG: Boolean = false) =
     new PertaxUser(authContext = buildFakeAuthContext(withPaye, withSa),
       if(isGovernmentGateway) UserDetails(UserDetails.GovernmentGatewayAuthProvider) else UserDetails(UserDetails.VerifyAuthProvider),
@@ -179,7 +179,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
   def buildFakeHeaderCarrier = MockitoSugar.mock[HeaderCarrier]
 
   def buildFakePersonDetails = PersonDetails("115", buildFakePerson, None, None)
-  
+
   def buildFakePerson = Person(Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"), Some("Mr"),
     None, Some("M"), Some(LocalDate.parse("1931-01-17")), Some(Fixtures.fakeNino))
 

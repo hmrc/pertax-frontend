@@ -32,13 +32,13 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec {
 
     "show NINO section when user is High GG and with Paye" in {
       val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = true, isGovernmentGateway = true, isHighGG = true)
-      val document = Jsoup.parse(views.html.interstitial.viewNationalInsuranceInterstitialHome(Html(""), "asfa")(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.interstitial.viewNationalInsuranceInterstitialHome(Html(""), "asfa")(PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 
     "show NINO section when user is Verify (not GG) and not SA" in {
       val pertaxUser = Fixtures.buildFakePertaxUser(withSa = false, isGovernmentGateway = false)
-      val document = Jsoup.parse(views.html.interstitial.viewNationalInsuranceInterstitialHome(Html(""), "aas")(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.interstitial.viewNationalInsuranceInterstitialHome(Html(""), "aas")(PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 

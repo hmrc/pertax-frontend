@@ -33,7 +33,7 @@ class selfAssessmentNotShownSpec extends BaseSpec {
 
     val pertaxUser = Fixtures.buildFakePertaxUser(withSa = true, isGovernmentGateway = true)
 
-    val document = Jsoup.parse(views.html.selfAssessmentNotShown(Html(""))(PertaxContext(FakeRequest("GET", "/"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+    val document = Jsoup.parse(views.html.selfAssessmentNotShown(Html(""))(PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
   }
 
 

@@ -74,7 +74,7 @@ class homeSpec extends BaseSpec {
     lazy val document: Document = Jsoup.parse(views.html.home(
       Html(""),
       userResearchLinkUrl = None, Nil, Nil, Nil)
-    (PertaxContext(FakeRequest("GET", "/"),
+    (PertaxContext(FakeRequest("GET", "/test"),
       mockLocalPartialRetreiver,
       injected[ConfigDecorator],
       Some(testPertaxUser)),

@@ -4,20 +4,20 @@ GET    /personal-account/signin                                              @co
 GET    /personal-account/signed-out                                          @controllers.PublicController.redirectToExitSurvey(origin: Origin)
 GET    /personal-account/tax-credits-summary                                 @controllers.PublicController.redirectToTaxCreditsService()
 
-GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[String])
+GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[ContinueUrl])
 GET    /personal-account                                                     @controllers.ApplicationController.index
 
-GET    /personal-account/full                                                @controllers.ApplicationController.uplift(redirectUrl: Option[String])
-GET    /personal-account/identity-check-complete                             @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[String])
-GET    /personal-account/identity-check-failed                               @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[String])
+GET    /personal-account/full                                                @controllers.ApplicationController.uplift(redirectUrl: Option[ContinueUrl])
+GET    /personal-account/identity-check-complete                             @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[ContinueUrl])
+GET    /personal-account/identity-check-failed                               @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[ContinueUrl])
 
-GET    /personal-account/signout                                             @controllers.ApplicationController.signout(continueUrl: Option[String], origin: Option[Origin])
+GET    /personal-account/signout                                             @controllers.ApplicationController.signout(continueUrl: Option[ContinueUrl], origin: Option[Origin])
 
 GET    /personal-account/self-assessment                                     @controllers.ApplicationController.handleSelfAssessment
-GET    /personal-account/sa-continue                                         @controllers.ApplicationController.ivExemptLandingPage(continueUrl: Option[String])
+GET    /personal-account/sa-continue                                         @controllers.ApplicationController.ivExemptLandingPage(continueUrl: Option[ContinueUrl])
 
-GET    /personal-account/lang/enGb                                           @controllers.LanguageController.enGb(redirectUrl: String)
-GET    /personal-account/lang/cyGb                                           @controllers.LanguageController.cyGb(redirectUrl: String)
+GET    /personal-account/lang/enGb                                           @controllers.LanguageController.enGb(redirectUrl: ContinueUrl)
+GET    /personal-account/lang/cyGb                                           @controllers.LanguageController.cyGb(redirectUrl: ContinueUrl)
 
 GET    /personal-account/your-address                                        @controllers.AddressController.displayAddress
 GET    /personal-account/your-address/tax-credits-choice                     @controllers.AddressController.taxCreditsChoice
@@ -45,7 +45,7 @@ GET    /personal-account/child-benefit-forms                                 @co
 GET    /personal-account/integration/main-content-header                     @controllers.PartialsController.mainContentHeader(name: Option[String], lastLogin: Option[Long], item_text: List[String], item_url: List[String], showBetaBanner: Option[Boolean], deskProToken: Option[String], langReturnUrl: Option[String], lang: Option[String], showLastItem: Boolean ?= false)
 
 GET    /personal-account/messages                                            @controllers.MessageController.messageList
-GET    /personal-account/messages/:url                                       @controllers.MessageController.messageDetail(url: String)
+GET    /personal-account/messages/:url                                       @controllers.MessageController.messageDetail(url: ContinueUrl)
 
 GET    /personal-account/preferences                                         @controllers.PaperlessPreferencesController.managePreferences
 
