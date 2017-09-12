@@ -103,8 +103,6 @@ case class PertaxUser(val authContext: AuthContext, val userDetails: UserDetails
 
   def hasPersonDetails = personDetails.isDefined
 
-  def hasHighCredStrength = authContext.user.credentialStrength == CredentialStrength.Strong
-
   def authCondition: AuthCondition = {
     if(isLowGovernmentGateway)       LowGovernmentGateway(accounts.sa.map(_.utr), accounts.paye.map(_.nino))
     else if(isHighGovernmentGateway) HighGovernmentGateway(accounts.sa.map(_.utr), accounts.paye.map(_.nino))

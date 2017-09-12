@@ -45,15 +45,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
   def build(successUrl: Option[StrictContinueUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.toString)
 
-    val strongCredentialPredicate = new LocalStrongCredentialPredicate {
-
-      override lazy val successUrl = s
-      override lazy val registerUrl = configDecorator.companyAuthHost + "/coafe/two-step-verification/register"
-      override lazy val failureUrl  = configDecorator.pertaxFrontendHost + ApplicationController.showUpliftJourneyOutcome(None)
-      override lazy val continueUrl = configDecorator.pertaxFrontendHost + ApplicationController.uplift( successUrl )
-    }
-
-    val confidenceLevelPredicate = new LocalConfidenceLevelPredicate {
+    new LocalConfidenceLevelPredicate {
 
       override lazy val successUrl = s
       override lazy val upliftUrl = configDecorator.identityVerificationUpliftUrl
@@ -66,37 +58,11 @@ class LocalPageVisibilityPredicateFactory @Inject() (
       override lazy val selfAssessmentService = sas
     }
 
-    new CompositePageVisibilityPredicate {
-      override def children: Seq[PageVisibilityPredicate] = Seq(strongCredentialPredicate, confidenceLevelPredicate)
-    }
   }
 
 
 }
 
-trait LocalStrongCredentialPredicate extends PageVisibilityPredicate with CredentialStrengthChecker {
-
-  def successUrl: Option[StrictContinueUrl]
-
-  def registerUrl: String
-  def failureUrl: String
-  def continueUrl: String
-
-  def apply(authContext: AuthContext, request: Request[AnyContent]) = {
-
-    implicit val req = request
-
-    if ( userHasStrongCredentials(authContext) ) Future.successful(PageIsVisible)
-    else Future.successful(new PageBlocked(Future.successful(
-      Redirect(
-        registerUrl,
-        Map("continue" -> Seq(continueUrl), "failure" -> Seq(failureUrl))
-      )
-    )))
-  }
-
-
-}
 
 trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with ConfidenceLevelChecker {
 

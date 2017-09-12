@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.frontend.auth.{AllowAll, AuthContext}
 
 import scala.concurrent.Future
 
-trait AuthorisedActions extends PublicActions with ConfidenceLevelAndCredentialStrengthChecker { this: PertaxBaseController =>
+trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this: PertaxBaseController =>
 
   def citizenDetailsService: CitizenDetailsService
   def userDetailsService: UserDetailsService
@@ -87,7 +87,7 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelAndCredentialS
 
     //If the user is from GG, determine if they have the right conditions to be a highly privileged user
     def isHighGovernmentGatewayUser(isGovernmentGateway: Boolean): Boolean = {
-      isGovernmentGateway && userHasHighConfidenceLevelAndStrongCredentials
+      isGovernmentGateway && userHasHighConfidenceLevel
     }
 
     withUserDetails { userDetails =>
