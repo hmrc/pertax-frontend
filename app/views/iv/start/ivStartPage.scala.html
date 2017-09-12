@@ -1,6 +1,7 @@
 @(redirectUrl: Option[String])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import tags._
+@import uk.gov.hmrc.play.binders.ContinueUrl
 
 @main(Messages("label.confirm_your_identity")) {
   <div class="page-header">
@@ -10,7 +11,7 @@
     <div class="column-two-thirds">
       <p>@Messages("label.before_you_continue_we_need_to_check")</p>
       <p>@Messages("label.we_re_going_to_ask_you_some_security_questions")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(redirectUrl)" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+      <a href="@controllers.routes.ApplicationController.uplift(redirectUrl.map(ContinueUrl.apply))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
     </div>
   </div>
 }

@@ -23,8 +23,8 @@ import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuth
 import error.LocalErrorHandler
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.play.binders.ContinueUrl
 import util.LocalPartialRetriever
-import util.Tools.isRelative
 
 import scala.concurrent.Future
 
@@ -38,12 +38,12 @@ class LanguageController @Inject() (
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController {
 
-  def enGb(redirectUrl: String): Action[AnyContent] = changeLanguageIfRelativeRedirectUrl(redirectUrl=redirectUrl, language="en")
-  def cyGb(redirectUrl: String): Action[AnyContent] = changeLanguageIfRelativeRedirectUrl(redirectUrl=redirectUrl, language="cy")
+  def enGb(redirectUrl: ContinueUrl): Action[AnyContent] = changeLanguageIfRelativeRedirectUrl(redirectUrl=redirectUrl, language="en")
+  def cyGb(redirectUrl: ContinueUrl): Action[AnyContent] = changeLanguageIfRelativeRedirectUrl(redirectUrl=redirectUrl, language="cy")
 
-  def changeLanguageIfRelativeRedirectUrl(redirectUrl: String, language: String): Action[AnyContent] = PublicAction { implicit pertaxContext =>
-    if (isRelative(redirectUrl)) {
-      Future.successful(Redirect(redirectUrl).withLang(Lang(language)))
+  def changeLanguageIfRelativeRedirectUrl(redirectUrl: ContinueUrl, language: String): Action[AnyContent] = PublicAction { implicit pertaxContext =>
+    if (redirectUrl.isRelativeUrl) {
+      Future.successful(Redirect(redirectUrl.url).withLang(Lang(language)))
     } else {
       Future.successful(BadRequest(views.html.error("global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),

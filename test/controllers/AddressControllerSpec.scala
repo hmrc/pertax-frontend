@@ -69,7 +69,7 @@ class AddressControllerSpec extends BaseSpec  {
     reset(injected[LocalSessionCache], injected[CitizenDetailsService], injected[PertaxAuditConnector])
   }
 
-  def buildAddressRequest(method: String, uri: String = "/") = buildFakeRequestWithAuth(method, uri)
+  def buildAddressRequest(method: String, uri: String = "/test") = buildFakeRequestWithAuth(method, uri)
 
   trait WithAddressControllerSpecSetup {
 
@@ -114,6 +114,7 @@ class AddressControllerSpec extends BaseSpec  {
       when(c.configDecorator.tcsChangeAddressUrl) thenReturn "/tax-credits-service/personal/change-address"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
       when(c.configDecorator.taxCreditsEnabled) thenReturn true
+      when(c.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
       c
     }
   }
@@ -390,7 +391,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       def comparatorDataEvent(dataEvent: DataEvent, auditType: String, postcode: String): DataEvent = DataEvent(
         "pertax-frontend", auditType, dataEvent.eventId,
-        Map("path" -> "/", "transactionName" -> "find_address"),
+        Map("path" -> "/test", "transactionName" -> "find_address"),
         Map("nino" -> Fixtures.fakeNino.nino, "postcode" -> postcode),
         dataEvent.generatedAt
       )
@@ -1019,7 +1020,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       def comparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String], includeOriginals: Boolean, submittedLine1: Option[String] = Some("1 Fake Street"), addressType: Option[String] = Some("Residential")) = DataEvent(
         "pertax-frontend", auditType, dataEvent.eventId,
-        Map("path" -> "/", "transactionName" -> "change_of_address"),
+        Map("path" -> "/test", "transactionName" -> "change_of_address"),
         Map(
           "nino" -> Some(Fixtures.fakeNino.nino),
           "etag" -> Some("115"),

@@ -96,9 +96,10 @@ class InterstitialControllerSpec extends BaseSpec {
       }
       when(configDecorator.taxCreditsEnabled) thenReturn true
       when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
     }
   }
-  
+
   "Calling displayNationalInsurance" should {
 
     "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user who is high gg" in new LocalSetup {

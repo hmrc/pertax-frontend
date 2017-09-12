@@ -21,6 +21,7 @@ import javax.inject.Inject
 import config.ConfigDecorator
 import play.api.mvc.Results._
 import play.api.mvc.{Request, Result}
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.{AnyAuthenticationProvider, GovernmentGateway, Verify}
 import uk.gov.hmrc.play.http.SessionKeys
 
@@ -50,7 +51,7 @@ class PertaxAuthenticationProvider @Inject()(val configDecorator: ConfigDecorato
   override def redirectToLogin(implicit request: Request[_]) = ggRedirect
 
   def postSignInRedirectUrl(implicit request: Request[_]) = {
-    configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.uplift( Some( configDecorator.pertaxFrontendHost + request.path ) ).url
+    configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.uplift( Some( ContinueUrl(configDecorator.pertaxFrontendHost + request.path) ) ).url
   }
 
   private def idaRedirect(implicit request: Request[_]): Future[Result] = {

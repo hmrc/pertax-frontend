@@ -87,6 +87,8 @@ class AuthorisedActionsSpec extends BaseSpec {
         }
 
         when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
+        when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
+
 
         override lazy val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]
       }
@@ -97,7 +99,7 @@ class AuthorisedActionsSpec extends BaseSpec {
         val r = localActions.createPertaxContextAndExecute(true) { c =>
           ctx = Some(c)
           Future.successful(Ok)
-        }(authContext, FakeRequest())
+        }(authContext, FakeRequest("GET", "/test"))
         r.map(_ => (ctx, r))
       }
 
@@ -197,7 +199,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       def saUser: Boolean
       def allowSaPreview: Boolean
 
-      lazy val context = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(PertaxUser(buildFakeAuthContext(withSa = saUser),
+      lazy val context = PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(PertaxUser(buildFakeAuthContext(withSa = saUser),
         if(ggUser) UserDetails(UserDetails.GovernmentGatewayAuthProvider) else UserDetails(UserDetails.VerifyAuthProvider),
         None, highGg)))
 
@@ -242,7 +244,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       override lazy val allowSaPreview = false
       val r = localActions.enforceMinimumUserProfile(Ok)(context)
       status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account/do-uplift?redirectUrl=%2F")
+      redirectLocation(r) shouldBe Some("/personal-account/do-uplift?redirectUrl=%2Ftest")
     }
 
     "Execute the block for a Low GG user with an SA account if allowSaPreview is true" in new LocalSetup {
@@ -261,7 +263,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       override lazy val allowSaPreview = false
       val r = localActions.enforceMinimumUserProfile(Ok)(context)
       status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account/do-uplift?redirectUrl=%2F")
+      redirectLocation(r) shouldBe Some("/personal-account/do-uplift?redirectUrl=%2Ftest")
     }
   }
 }

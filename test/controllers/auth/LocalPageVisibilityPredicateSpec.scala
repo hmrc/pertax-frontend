@@ -29,6 +29,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.PageIsVisible
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength}
 import util.{BaseSpec, Fixtures}
@@ -83,7 +84,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
           cd
         }
       )
-      fac.build(Some("/personal-account/success-page"), Origin("PERTAX"))
+      fac.build(Some(ContinueUrl("/personal-account/success-page")), Origin("PERTAX"))
     }
 
     def nonVisibleRedirectLocation: Option[String] = {

@@ -35,6 +35,7 @@ import services.partials.{CspPartialService, MessagePartialService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -166,9 +167,9 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val r = controller.uplift(Some("%2Fpersonal-account%2Ftax-credits-summary"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.uplift(Some(ContinueUrl("/personal-account/tax-credits-summary")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PTA-TCS&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%25252Fpersonal-account%25252Ftax-credits-summary&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%25252Fpersonal-account%25252Ftax-credits-summary")
+      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PTA-TCS&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary")
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
       verify(controller.partialService, times(0)).getMessageInboxLinkPartial(any())
@@ -181,9 +182,9 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val r = controller.uplift(Some("%2Fpersonal-account"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.uplift(Some(ContinueUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%25252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%25252Fpersonal-account")
+      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
       verify(controller.partialService, times(0)).getMessageInboxLinkPartial(any())
@@ -431,7 +432,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some("/personal-account"), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(ContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/personal-account")
     }
@@ -441,7 +442,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some("/personal-account"), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(ContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/ida/signout")
       session(r).get("postLogoutPage") shouldBe Some("/personal-account")
@@ -483,6 +484,15 @@ class ApplicationControllerSpec extends BaseSpec {
       override val allowLowConfidenceSA = false
 
       val r = controller.signout(None, None)(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe BAD_REQUEST
+    }
+
+    "return 'Bad Request' when supplied with a none relative url" in new LocalSetup{
+
+      override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
+      override val allowLowConfidenceSA = false
+
+      val r = controller.signout(Some(ContinueUrl("http://test")), Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe BAD_REQUEST
     }
   }

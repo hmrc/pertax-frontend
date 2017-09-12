@@ -55,6 +55,7 @@ class PertaxAuthenticationProviderSpec extends BaseSpec {
         when(c.configDecorator.citizenAuthHost) thenReturn  ""
         when(c.configDecorator.ida_web_context) thenReturn  "ida"
         when(c.configDecorator.gg_web_context) thenReturn  "gg"
+        when(c.configDecorator.pertaxFrontendHost) thenReturn "/something"
         when(c.postSignInRedirectUrl(request)) thenReturn  "/personal-account"
 
         c.handleNotAuthenticated(request)

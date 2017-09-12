@@ -36,6 +36,9 @@ import uk.gov.hmrc.time.TaxYearResolver
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}
 import util.DateTimeTools._
+import java.net.URLEncoder
+
+import uk.gov.hmrc.play.binders.ContinueUrl
 
 import scala.concurrent.Future
 
@@ -148,20 +151,20 @@ class ApplicationController @Inject() (
       }
   }
 
-  def uplift(redirectUrl: Option[String]): Action[AnyContent] = {
+  def uplift(redirectUrl: Option[ContinueUrl]): Action[AnyContent] = {
 
-    val pvp = if(redirectUrl.fold(false)(_.containsSlice("tax-credits-summary")))
+    val pvp = if(redirectUrl.fold(false)(_.url.containsSlice("tax-credits-summary")))
       localPageVisibilityPredicateFactory.build(redirectUrl, Origin("PTA-TCS"))  //FIXME, this needs injected for tests
     else
       localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)  //FIXME, this needs injected for tests
 
     AuthorisedFor(pertaxRegime, pageVisibility = pvp).async {
       implicit authContext => implicit request =>
-        Future.successful(Redirect(redirectUrl.getOrElse(routes.ApplicationController.index().url)))
+        Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
     }
   }
 
-  def showUpliftJourneyOutcome(continueUrl: Option[String]): Action[AnyContent] = AuthorisedAction() {
+  def showUpliftJourneyOutcome(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
       import IdentityVerificationSuccessResponse._
@@ -190,7 +193,7 @@ class ApplicationController @Inject() (
                 case (_, IdentityVerificationSuccessResponse(Incomplete)) => Unauthorized(views.html.iv.failure.userAbortedOrIncomplete(retryUrl, allowContinue))
                 case (_, IdentityVerificationSuccessResponse(PrecondFailed)) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl, allowContinue))
                 case (false, IdentityVerificationSuccessResponse(Success)) => Unauthorized(views.html.iv.failure.twoFaFailIvSuccess())
-                case (true, IdentityVerificationSuccessResponse(Success)) => Ok(views.html.iv.success.success(continueUrl.getOrElse(routes.ApplicationController.index().url)))
+                case (true, IdentityVerificationSuccessResponse(Success)) => Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
                 case (_, IdentityVerificationSuccessResponse(TechnicalIssue)) =>
                   Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
                   InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
@@ -207,17 +210,21 @@ class ApplicationController @Inject() (
       }
   }
 
-  def signout(continueUrl: Option[String], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
+  def signout(continueUrl: Option[ContinueUrl], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
     implicit pertaxContext =>
       Future.successful {
-
-        continueUrl.orElse(origin.map(configDecorator.getFeedbackSurveyUrl)).fold(BadRequest("Missing origin")) { url =>
-
-          pertaxContext.user match {
-            case Some(user) if user.isGovernmentGateway =>
-              Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
-            case _ =>
-              Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
+        continueUrl.map(_.url).orElse(origin.map(configDecorator.getFeedbackSurveyUrl)).fold(BadRequest("Missing origin")) { url: String =>
+          if (ContinueUrl(url).isRelativeUrl) {
+            pertaxContext.user match {
+              case Some(user) if user.isGovernmentGateway =>
+                Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
+              case _ =>
+                Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
+            }
+          } else {
+            BadRequest(views.html.error("global.error.BadRequest.title",
+              Some("global.error.BadRequest.title"),
+              Some("global.error.BadRequest.message"), false))
           }
         }
       }
@@ -240,10 +247,10 @@ class ApplicationController @Inject() (
       }
   }
 
-  def ivExemptLandingPage(continueUrl: Option[String]): Action[AnyContent] = AuthorisedAction() {
+  def ivExemptLandingPage(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
-      val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.getOrElse(controllers.routes.ApplicationController.index().url))
+      val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url))
 
       selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
         case ActivatedOnlineFilerSelfAssessmentUser(x) =>
