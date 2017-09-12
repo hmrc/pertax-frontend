@@ -15,6 +15,8 @@
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
+@import uk.gov.hmrc.play.language.LanguageUtils.Dates._
+@import uk.gov.hmrc.urls.Link
 
 
 
@@ -49,25 +51,10 @@
   }
 }
 
-@mainContentHeader = {
-  @views.html.integration.mainContentHeader(
-    name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n),
-    lastLogin = for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t,
-    breadcrumb = pertaxContext.breadcrumb.map(_.reverse) getOrElse Nil,
-    showBetaBanner = true,
-    deskProToken = Some(pertaxContext.configDecorator.deskproToken),
-    langReturnUrl = Some(pertaxContext.uri),
-    configDecorator = pertaxContext.configDecorator
-  )
-
-  @if(pertaxContext.welshWarning) {
-    @tags.welshContentWarning()
-  }
-
-}
-
 @inlineScript = {
+
   @scriptElement
+
   @if(pertaxContext.configDecorator.analyticsToken == Some("N/A")) {
     <script type="text/javascript">
       var ga = function(send, event, category, action, label, args) {
@@ -84,7 +71,64 @@
   }
 }
 
+@mainContentHeader = {
+
+  @defining(pertaxContext.breadcrumb.map(_.reverse).getOrElse(Nil)) { breadcrumb =>
+    @if(!breadcrumb.isEmpty) {
+      <div id="global-breadcrumb" class="header-context">
+        <nav>
+          <ol class="group">
+            @breadcrumb.toList.map { item =>
+              <li><a href="@item._2">@Messages(item._1)</a></li>
+            }
+          </ol>
+        </nav>
+      </div>
+    }
+  }
+
+  @if(pertaxContext.welshWarning) {
+    @tags.welshContentWarning()
+  }
+
+  @Some(pertaxContext.uri).map { url =>
+    <div class="lang-select">
+      @if(messages.lang == Lang("cy")) {
+        @Link.toInternalPage(
+          url=controllers.routes.LanguageController.enGb(url).toString(),
+          value=Some(Messages("label.english")),
+          id=Some("switch-to-english"),
+          cssClasses=Some("ga-track-anchor-click"),
+          dataAttributes=Some(Map(
+            "ga-event-category" -> "link - click",
+            "ga-event-action" -> "lang-select",
+            "ga-event-label" -> "English"))
+          ).toHtml
+        | @Messages("label.welsh")
+      } else {
+        @Messages("label.english") |
+        @Link.toInternalPage(
+          url=controllers.routes.LanguageController.cyGb(url).toString(),
+          value=Some(Messages("label.welsh")),
+          id=Some("switch-to-welsh"),
+          cssClasses=Some("ga-track-anchor-click"),
+          dataAttributes=Some(Map(
+            "ga-event-category" -> "link - click",
+            "ga-event-action" -> "lang-select",
+            "ga-event-label" -> "Cymraeg"))
+          ).toHtml
+      }
+    </div>
+  }
+
+}
+
+
 @{
+
+  val prev = formatEasyReadingTimestamp((for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t), "")
+  val name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n)
+
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), Map[String,Any](
     "pageTitle" -> title,
     "linkElems" -> Map(
@@ -105,10 +149,20 @@
     ),
     "getHelpForm" -> get_help_form(supportLinkEnabled, includeGridWrapper),
     "mainContentHeader" -> mainContentHeader,
-    "removeServiceInfo" -> true,
+    "removeServiceInfo" -> false,
+
+
     "actingAttorneyBanner" -> actingAttorneyBanner,
     "navTitle" -> pageName,
     "navLinks" -> links,
-    "hasNavLinks" -> true
+    "hasNavLinks" -> true,
+
+    "betaBanner" -> true,
+    "feedbackIdentifier" -> pertaxContext.configDecorator.deskproToken,
+    "includeHMRCBranding" -> true,
+
+    "showLastLogInStatus" -> true,
+    "previouslyLoggedInAt" -> prev,
+    "userDisplayName" -> name
   ))
 }
