@@ -310,9 +310,11 @@ class HomeCardGeneratorSpec extends BaseSpec {
         cd
       }
 
-      implicit lazy val pertaxContext = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, configDecorator)
+      implicit lazy val pertaxContext = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, configDecorator, pertaxUser)
 
       def saUserType: SelfAssessmentUserType
+
+      lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
 
       lazy val cardBody = c.getSelfAssessmentCard(saUserType).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
@@ -392,6 +394,12 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe None
     }
 
+    "return nothing for a verify user" in new LocalSetup {
+      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+      override lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.VerifyAuthProvider),None, true))
+
+      cardBody shouldBe None
+    }
   }
 
 
