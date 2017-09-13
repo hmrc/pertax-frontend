@@ -67,11 +67,14 @@ class HomeCardGenerator {
   }
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages) = {
-
-    saActionNeeded match {
-      case NonFilerSelfAssessmentUser => None
-      case saActionNeeded =>
-        Some(views.html.cards.selfAssessment(saActionNeeded, previousAndCurrentTaxYear))
+    if (!pertaxContext.user.fold(false)(_.isVerify)) {
+      saActionNeeded match {
+        case NonFilerSelfAssessmentUser => None
+        case saActionNeeded =>
+          Some(views.html.cards.selfAssessment(saActionNeeded, previousAndCurrentTaxYear))
+      }
+    } else {
+      None
     }
   }
 
