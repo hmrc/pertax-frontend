@@ -39,6 +39,7 @@ import util.DateTimeTools._
 import java.net.URLEncoder
 
 import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.config.RunMode
 
 import scala.concurrent.Future
 
@@ -214,7 +215,7 @@ class ApplicationController @Inject() (
     implicit pertaxContext =>
       Future.successful {
         continueUrl.map(_.url).orElse(origin.map(configDecorator.getFeedbackSurveyUrl)).fold(BadRequest("Missing origin")) { url: String =>
-          if (ContinueUrl(url).isRelativeUrl) {
+          if (ContinueUrl(url).isRelativeOrDev(RunMode.env)) {
             pertaxContext.user match {
               case Some(user) if user.isGovernmentGateway =>
                 Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
