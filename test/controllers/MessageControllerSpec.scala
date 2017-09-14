@@ -184,7 +184,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
-      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
       verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
@@ -206,7 +206,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
-      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
       verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
@@ -220,7 +220,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
-      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
@@ -238,7 +238,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
 
-      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
@@ -256,7 +256,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
 
-      val r = controller.messageDetail(ContinueUrl("/test"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())

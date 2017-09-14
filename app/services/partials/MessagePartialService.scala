@@ -36,8 +36,8 @@ class MessagePartialService @Inject() (override val http: WsAllMethods, val metr
     loadPartial(baseUrl("message-frontend") + "/messages")
   }
 
-  def getMessageDetailPartial(url:String)(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(baseUrl("message-frontend") + "/messages/" + url)
+  def getMessageDetailPartial(messageToken: String)(implicit request: RequestHeader): Future[HtmlPartial] = {
+    loadPartial(baseUrl("message-frontend") + "/messages/" + messageToken)
   }
 
   def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
