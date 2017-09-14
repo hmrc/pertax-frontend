@@ -17,12 +17,12 @@
 package controllers.auth
 
 import controllers.PertaxBaseController
+import controllers.bindable.StrictContinueUrl
 import error.LocalErrorHandler
 import models._
 import play.api.Logger
 import play.api.mvc._
 import services._
-import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
 import uk.gov.hmrc.play.frontend.auth.{AllowAll, AuthContext}
 
@@ -111,7 +111,7 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelAndCredentialS
     pertaxContext.user.filter(user => user.isHighGovernmentGatewayOrVerify || (configDecorator.allowSaPreview && user.isSa)).map {
       user => block
     } getOrElse {
-      Future.successful( Redirect(controllers.routes.ApplicationController.uplift(redirectUrl = Some(ContinueUrl(pertaxContext.request.uri)))) )
+      Future.successful(Redirect(controllers.routes.ApplicationController.uplift(redirectUrl = Some(StrictContinueUrl(pertaxContext.request.uri)))))
     }
   }
 

@@ -18,7 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.bindable.Origin
+import controllers.bindable.{Origin, StrictContinueUrl}
 import models._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -35,7 +35,6 @@ import services.partials.{CspPartialService, MessagePartialService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -167,7 +166,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val r = controller.uplift(Some(ContinueUrl("/personal-account/tax-credits-summary")))(buildFakeRequestWithAuth("GET"))
+      val r = controller.uplift(Some(StrictContinueUrl("/personal-account/tax-credits-summary")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe 303
       redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PTA-TCS&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary")
 
@@ -182,7 +181,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val r = controller.uplift(Some(ContinueUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
+      val r = controller.uplift(Some(StrictContinueUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe 303
       redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
@@ -190,6 +189,20 @@ class ApplicationControllerSpec extends BaseSpec {
       verify(controller.partialService, times(0)).getMessageInboxLinkPartial(any())
       verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())
     }
+
+    "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
+      override lazy val confidenceLevel = ConfidenceLevel.L0
+      override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
+      override val allowLowConfidenceSA = false
+
+
+      val r = route(app, FakeRequest("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
+      status(r) shouldBe BAD_REQUEST
+      redirectLocation(r) shouldBe None
+
+      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
+      verify(controller.partialService, times(0)).getMessageInboxLinkPartial(any())
+      verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())    }
   }
 
   "Calling ApplicationController.index" should {
@@ -365,7 +378,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
       override val allowLowConfidenceSA = false
 
-      val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val r = controller.showUpliftJourneyOutcome(Some(StrictContinueUrl("/relative/url")))(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe OK
     }
 
@@ -423,6 +436,16 @@ class ApplicationControllerSpec extends BaseSpec {
       status(r) shouldBe INTERNAL_SERVER_ERROR
     }
 
+    "return bad request when continueUrl is not relative" in new LocalSetup {
+
+      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
+      override val allowLowConfidenceSA = false
+
+      val r = route(app, FakeRequest("GET", "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX")).get
+
+      status(r) shouldBe BAD_REQUEST
+    }
+
   }
 
   "Calling ApplicationController.signout" should {
@@ -432,7 +455,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some(ContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(StrictContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/personal-account")
     }
@@ -442,7 +465,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some(ContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(StrictContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/ida/signout")
       session(r).get("postLogoutPage") shouldBe Some("/personal-account")
@@ -487,12 +510,12 @@ class ApplicationControllerSpec extends BaseSpec {
       status(r) shouldBe BAD_REQUEST
     }
 
-    "return 'Bad Request' when supplied with a none relative url" in new LocalSetup{
+    "return bad request when supplied with a none relative url" in new LocalSetup{
 
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some(ContinueUrl("http://test")), Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
+      val r = route(app, FakeRequest("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
       status(r) shouldBe BAD_REQUEST
     }
   }
@@ -500,7 +523,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
   "Calling ApplicationController.ivExemptLandingPage" should {
 
-    "Return 200 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
+    "return 200 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
 
       override lazy val getSelfAssessmentServiceResponse = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
@@ -513,7 +536,7 @@ class ApplicationControllerSpec extends BaseSpec {
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
-    "Redirect to the SA activation page on the portal for a user logged in with GG linked to SA which is not yet activated" in new LocalSetup {
+    "redirect to the SA activation page on the portal for a user logged in with GG linked to SA which is not yet activated" in new LocalSetup {
 
       override lazy val getSelfAssessmentServiceResponse = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
@@ -526,7 +549,7 @@ class ApplicationControllerSpec extends BaseSpec {
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
-    "Redirect to 'You can't access your SA information with this user ID' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
+    "redirect to 'You can't access your SA information with this user ID' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
 
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
@@ -539,7 +562,7 @@ class ApplicationControllerSpec extends BaseSpec {
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
-    "Redirect to 'We're unable to confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
+    "redirect to 'We're unable to confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
 
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
@@ -550,6 +573,16 @@ class ApplicationControllerSpec extends BaseSpec {
       doc.getElementsByClass("heading-large").toString().contains("We're unable to confirm your identity") shouldBe true
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any()) //TODO - check captured event
 
+    }
+
+    "return bad request when continueUrl is not relative" in new LocalSetup {
+
+      override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
+      override val allowLowConfidenceSA = false
+
+      val r = route(app, FakeRequest("GET", "/personal-account/sa-continue?continueUrl=http://example.com")).get
+
+      status(r) shouldBe BAD_REQUEST
     }
   }
 }

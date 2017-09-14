@@ -15,7 +15,6 @@
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
-@import uk.gov.hmrc.play.binders.ContinueUrl
 @import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 @import uk.gov.hmrc.urls.Link
 
@@ -30,7 +29,7 @@
       }
     }
     seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
-    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(ContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
+    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
   }
   seq
 }
@@ -95,7 +94,7 @@
     <div class="lang-select">
       @if(messages.lang == Lang("cy")) {
         @Link.toInternalPage(
-          url=controllers.routes.LanguageController.enGb(ContinueUrl(url)).toString(),
+          url=controllers.routes.LanguageController.enGb(StrictContinueUrl(url)).toString(),
           value=Some(Messages("label.english")),
           id=Some("switch-to-english"),
           cssClasses=Some("ga-track-anchor-click"),
@@ -108,7 +107,7 @@
       } else {
         @Messages("label.english") |
         @Link.toInternalPage(
-          url=controllers.routes.LanguageController.cyGb(ContinueUrl(url)).toString(),
+          url=controllers.routes.LanguageController.cyGb(StrictContinueUrl(url)).toString(),
           value=Some(Messages("label.welsh")),
           id=Some("switch-to-welsh"),
           cssClasses=Some("ga-track-anchor-click"),
