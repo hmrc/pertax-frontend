@@ -1,10 +1,9 @@
 @(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import models.PertaxUser._
-@import uk.gov.hmrc.play.binders.ContinueUrl
 
 
-  @interstitialWrapper(Messages("label.report_changes_that_affect_your_child_benefit"), Messages("label.report_changes_that_affect_your_child_benefit")) {
+@interstitialWrapper(Messages("label.report_changes_that_affect_your_child_benefit"), Messages("label.report_changes_that_affect_your_child_benefit")) {
   <div class="column-two-thirds child-benefit-partial pta-panel">
     @ifHighGovernmentGatewayOrVerifyUser {
       <h2 class="heading-medium">@Messages("label.if_your_childs_circumstances_change")</h2>
@@ -38,7 +37,7 @@
     }
     @ifLowGovernmentGatewayUser {
       <p class="lede">@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(ContinueUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(StrictContinueUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
     }
   </div>
 }

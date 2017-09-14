@@ -21,7 +21,7 @@ import javax.inject.Inject
 import config.{ConfigDecorator, StaticGlobalDependencies}
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
-import controllers.bindable.Origin
+import controllers.bindable.{Origin, StrictContinueUrl}
 import controllers.helpers.{HomeCardGenerator, PaperlessInterruptHelper}
 import error.LocalErrorHandler
 import models._
@@ -38,7 +38,6 @@ import util.{DateTimeTools, LocalPartialRetriever}
 import util.DateTimeTools._
 import java.net.URLEncoder
 
-import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.RunMode
 
 import scala.concurrent.Future
@@ -152,20 +151,20 @@ class ApplicationController @Inject() (
       }
   }
 
-  def uplift(redirectUrl: Option[ContinueUrl]): Action[AnyContent] = {
-
-    val pvp = if(redirectUrl.fold(false)(_.url.containsSlice("tax-credits-summary")))
-      localPageVisibilityPredicateFactory.build(redirectUrl, Origin("PTA-TCS"))  //FIXME, this needs injected for tests
+  def uplift(redirectUrl: Option[StrictContinueUrl]): Action[AnyContent] = {
+    val pvp = if (redirectUrl.fold(false)(_.url.containsSlice("tax-credits-summary")))
+      localPageVisibilityPredicateFactory.build(redirectUrl, Origin("PTA-TCS")) //FIXME, this needs injected for tests
     else
-      localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)  //FIXME, this needs injected for tests
+      localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin) //FIXME, this needs injected for tests
 
     AuthorisedFor(pertaxRegime, pageVisibility = pvp).async {
-      implicit authContext => implicit request =>
-        Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
+      implicit authContext =>
+        implicit request =>
+          Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
     }
   }
 
-  def showUpliftJourneyOutcome(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
+  def showUpliftJourneyOutcome(continueUrl: Option[StrictContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
       import IdentityVerificationSuccessResponse._
@@ -211,22 +210,16 @@ class ApplicationController @Inject() (
       }
   }
 
-  def signout(continueUrl: Option[ContinueUrl], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
+  def signout(continueUrl: Option[StrictContinueUrl], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
     implicit pertaxContext =>
       Future.successful {
         continueUrl.map(_.url).orElse(origin.map(configDecorator.getFeedbackSurveyUrl)).fold(BadRequest("Missing origin")) { url: String =>
-          if (ContinueUrl(url).isRelativeOrDev(RunMode.env)) {
             pertaxContext.user match {
               case Some(user) if user.isGovernmentGateway =>
                 Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
               case _ =>
                 Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
             }
-          } else {
-            BadRequest(views.html.error("global.error.BadRequest.title",
-              Some("global.error.BadRequest.title"),
-              Some("global.error.BadRequest.message"), false))
-          }
         }
       }
   }
@@ -248,7 +241,7 @@ class ApplicationController @Inject() (
       }
   }
 
-  def ivExemptLandingPage(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
+  def ivExemptLandingPage(continueUrl: Option[StrictContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
       val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url))

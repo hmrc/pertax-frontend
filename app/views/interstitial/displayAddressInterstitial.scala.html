@@ -1,9 +1,7 @@
 @(continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import tags._
-@import uk.gov.hmrc.play.binders.ContinueUrl
 
-  @main(Messages("label.your_address"), Some(Messages("label.your_personal_tax_account"))) {
+@main(Messages("label.your_address"), Some(Messages("label.your_personal_tax_account"))) {
 
   <div class="page-heading">
     <h1 class="heading-large no-margin-bottom no-margin-top">@Messages("label.your_address")</h1>
@@ -12,7 +10,7 @@
   <div class="grid-row">
     <div class="column-two-thirds">
       <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(ContinueUrl(continueUrl)))" class="button" role="button">@Messages("global.label.continue_button")</a>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(StrictContinueUrl(continueUrl)))" class="button" role="button">@Messages("global.label.continue_button")</a>
     </div>
   </div>
 

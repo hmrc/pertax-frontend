@@ -17,7 +17,7 @@
 package controllers.auth
 
 import config.ConfigDecorator
-import controllers.bindable.Origin
+import controllers.bindable.{Origin, StrictContinueUrl}
 import models._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -29,7 +29,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.PageIsVisible
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength}
 import util.{BaseSpec, Fixtures}
@@ -84,7 +83,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
           cd
         }
       )
-      fac.build(Some(ContinueUrl("/personal-account/success-page")), Origin("PERTAX"))
+      fac.build(Some(StrictContinueUrl("/personal-account/success-page")), Origin("PERTAX"))
     }
 
     def nonVisibleRedirectLocation: Option[String] = {

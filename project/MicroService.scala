@@ -56,7 +56,7 @@ trait MicroService {
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
       wartremoverExcluded ++= wartRemovedExcludedClasses,
       TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.play.http.HeaderCarrier"),
-      routesImport ++= Seq("controllers.bindable._", "uk.gov.hmrc.play.binders.ContinueUrl")
+      routesImport ++= Seq("controllers.bindable._")
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)

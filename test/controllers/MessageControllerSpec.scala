@@ -29,7 +29,6 @@ import play.twirl.api.Html
 import services.partials.MessagePartialService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._

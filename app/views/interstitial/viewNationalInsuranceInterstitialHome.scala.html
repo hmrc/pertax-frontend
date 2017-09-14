@@ -1,9 +1,7 @@
 @(formPartial: Html, redirectUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import pertaxContext.configDecorator
 @import models.PertaxUser._
 @import tags._
-@import uk.gov.hmrc.play.binders.ContinueUrl
 
 @interstitialWrapper(Messages("label.national_insurance_summary"), Messages("label.national_insurance")) {
   <div class="column-two-thirds">
@@ -40,7 +38,7 @@
 
     @ifLowGovernmentGatewayUser {
       <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(ContinueUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(StrictContinueUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
     }
   </div>
 }
