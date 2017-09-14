@@ -135,9 +135,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
-  def buildFakeRequestWithSessionId(method: String) = FakeRequest(method, "/test?continueUrl=/test&redirectUrl=/test").withSession("sessionId" -> "FAKE_SESSION_ID")
+  def buildFakeRequestWithSessionId(method: String) = FakeRequest(method, "/").withSession("sessionId" -> "FAKE_SESSION_ID")
 
-  def buildFakeRequestWithAuth(method: String, uri: String = "/test?continueUrl=/test&redirectUrl=/test", useGovernmentGateway: Boolean = false): FakeRequest[AnyContentAsEmpty.type] = {
+  def buildFakeRequestWithAuth(method: String, uri: String = "/", useGovernmentGateway: Boolean = false): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
