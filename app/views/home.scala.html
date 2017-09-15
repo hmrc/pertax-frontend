@@ -80,7 +80,7 @@
       <h2 class="section-header">@Messages("label.your_account")</h2>
 
       @ifGovernmentGatewayUser {
-        @ifPayeOrSaUser {
+        @ifSaUser {
           <div class="sidebar-panel messages">
             @inboxLinkPartial
           </div>

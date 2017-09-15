@@ -387,7 +387,53 @@ class homeSpec extends BaseSpec {
       Option(document.select(".nino").first).isDefined shouldBe false
     }
 
+    "show messages partial when user is GG and SA " in new SpecSetup {
+      override val withPaye: Boolean = false
+      override val withActivePaye: Boolean = false
+      override val withSa: Boolean = true
+      override val isGovernmentGateway: Boolean = true
+      override val isHighGG: Boolean = false
+      override val principalName: Option[String] = None
+      override val userHasPersonDetails: Boolean = false
 
+      Option(document.select(".messages").first).isDefined shouldBe true
+    }
+
+    "not show messages partial when user is GG and not SA " in new SpecSetup {
+      override val withPaye: Boolean = false
+      override val withActivePaye: Boolean = false
+      override val withSa: Boolean = false
+      override val isGovernmentGateway: Boolean = true
+      override val isHighGG: Boolean = false
+      override val principalName: Option[String] = None
+      override val userHasPersonDetails: Boolean = false
+
+      Option(document.select(".messages").first).isDefined shouldBe false
+    }
+
+    "not show messages partial when user is SA and not GG " in new SpecSetup {
+      override val withPaye: Boolean = false
+      override val withActivePaye: Boolean = false
+      override val withSa: Boolean = true
+      override val isGovernmentGateway: Boolean = false
+      override val isHighGG: Boolean = false
+      override val principalName: Option[String] = None
+      override val userHasPersonDetails: Boolean = false
+
+      Option(document.select(".messages").first).isDefined shouldBe false
+    }
+
+    "not show messages partial when user is not GG and not SA " in new SpecSetup {
+      override val withPaye: Boolean = false
+      override val withActivePaye: Boolean = false
+      override val withSa: Boolean = false
+      override val isGovernmentGateway: Boolean = false
+      override val isHighGG: Boolean = false
+      override val principalName: Option[String] = None
+      override val userHasPersonDetails: Boolean = false
+
+      Option(document.select(".messages").first).isDefined shouldBe false
+    }
 
   }
 
