@@ -52,7 +52,6 @@ class ApplicationController @Inject() (
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
   val taxCalculationService: TaxCalculationService,
   val selfAssessmentService: SelfAssessmentService,
-  val lifetimeAllowanceService: LifetimeAllowanceService,
   val cspPartialService: CspPartialService,
   val userDetailsService: UserDetailsService,
   val delegationConnector: FrontEndDelegationConnector,
@@ -75,7 +74,7 @@ class ApplicationController @Inject() (
 
       val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
 
-      val serviceCallResponses = userAndNino.fold[Future[(Option[TaxSummary],Option[TaxCalculation], Boolean)]](Future.successful( (None, None, false) )) { userAndNino =>
+      val serviceCallResponses = userAndNino.fold[Future[(Option[TaxSummary],Option[TaxCalculation])]](Future.successful( (None, None) )) { userAndNino =>
 
         val (user, nino) = userAndNino
 
@@ -99,18 +98,10 @@ class ApplicationController @Inject() (
           Future.successful(None)
         }
 
-        val hasLtaProtections: Future[Boolean] = if (configDecorator.ltaEnabled) {
-          lifetimeAllowanceService.hasLtaProtection(nino)
-        }
-        else {
-          Future.successful(false)
-        }
-
         for {
          taxCalculation <- taxCalculation
          taxSummary <- taxSummary
-         hasLtaProtections <- hasLtaProtections
-        } yield (taxSummary, taxCalculation, hasLtaProtections)
+        } yield (taxSummary, taxCalculation)
       }
 
       val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
@@ -119,7 +110,7 @@ class ApplicationController @Inject() (
 
       enforcePaperlessPreference {
         for {
-          (taxSummary, taxCalculation, hasLtaProtections) <- serviceCallResponses
+          (taxSummary, taxCalculation) <- serviceCallResponses
           inboxLinkPartial <- messageInboxLinkPartial
           saUserType <- saUserType
         } yield {
@@ -137,7 +128,7 @@ class ApplicationController @Inject() (
           )
 
           val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(
-            pertaxContext.user, hasLtaProtections
+            pertaxContext.user
           )
 
           Ok(views.html.home(

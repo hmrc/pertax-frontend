@@ -612,42 +612,4 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |</div>""".stripMargin)
     }
   }
-
-  "Calling getLifetimeAllowanceProtectionCard" should {
-
-    trait LocalSetup extends SpecSetup {
-
-      def hasLtaProtections: Boolean
-
-      lazy val cardBody = c.getLifetimeAllowanceProtectionCard(hasLtaProtections).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
-    }
-
-    "return nothing when called with a user who does not have lta protections" in new LocalSetup {
-
-      override val hasLtaProtections = false
-
-      cardBody shouldBe None
-    }
-
-    "return the correct markup when called with a user who has lta protections" in new LocalSetup {
-
-      override val hasLtaProtections = true
-
-      cardBody shouldBe
-        Some("""<div class="card column-half">
-               |  <a class="card-link ga-track-anchor-click" href="/protect-your-lifetime-allowance/existing-protections" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="Lifetime allowance protection">
-               |    <div class="card-content" role="link">
-               |      <h3 class="heading-small no-margin-top">Lifetime allowance protection</h3>
-               |      <p>Your lifetime allowance is protected from additional tax charges.</p>
-               |    </div>
-               |  </a>
-               |  <div class="card-actions">
-               |    <ul>
-               |      <li><a class="ga-track-anchor-click" href="/protect-your-lifetime-allowance/existing-protections" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="Manage your protections">Manage your protections</a></li>
-               |    </ul>
-               |  </div>
-               |</div>""".stripMargin)
-    }
-  }
-
 }

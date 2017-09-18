@@ -60,14 +60,13 @@ class ApplicationControllerSpec extends BaseSpec {
     .overrides(bind[TaxCalculationService].toInstance(MockitoSugar.mock[TaxCalculationService]))
     .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
-    .overrides(bind[LifetimeAllowanceService].toInstance(MockitoSugar.mock[LifetimeAllowanceService]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
     .build()
 
   override def beforeEach: Unit = {
     reset(injected[PertaxAuditConnector], injected[TaxCalculationService], injected[CitizenDetailsService],
-      injected[TaiService], injected[MessagePartialService], injected[LifetimeAllowanceService],
+      injected[TaiService], injected[MessagePartialService],
       injected[UserDetailsService])
   }
 
@@ -126,9 +125,6 @@ class ApplicationControllerSpec extends BaseSpec {
       }
       when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
         Future.successful(getSelfAssessmentServiceResponse)
-      }
-      when(c.lifetimeAllowanceService.hasLtaProtection(any())(any(), any())) thenReturn {
-        Future.successful(getLtaServiceResponse)
       }
       when(c.auditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)
@@ -230,7 +226,6 @@ class ApplicationControllerSpec extends BaseSpec {
       if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-      if(controller.configDecorator.ltaEnabled) verify(controller.lifetimeAllowanceService, times(1)).hasLtaProtection(any())(any(), any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
@@ -247,7 +242,6 @@ class ApplicationControllerSpec extends BaseSpec {
       if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-      if(controller.configDecorator.ltaEnabled) verify(controller.lifetimeAllowanceService, times(1)).hasLtaProtection(any())(any(), any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User with no Lta protections" in new LocalSetup {
@@ -265,7 +259,6 @@ class ApplicationControllerSpec extends BaseSpec {
       if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-      if(controller.configDecorator.ltaEnabled) verify(controller.lifetimeAllowanceService, times(1)).hasLtaProtection(any())(any(), any())
     }
 
     "return a 423 status when accessing index page with a nino that is hidden in citizen-details with an SA user" in new LocalSetup {
@@ -290,7 +283,6 @@ class ApplicationControllerSpec extends BaseSpec {
       verify(controller.citizenDetailsService, times(0)).personDetails(meq(nino))(any())
       verify(controller.taiService, times(0)).taxSummary(any(), meq(TaxYearResolver.currentTaxYear))(any())
       verify(controller.partialService, times(1)).getMessageInboxLinkPartial(any())
-      verify(controller.lifetimeAllowanceService, times(0)).hasLtaProtection(any())(any(), any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
