@@ -43,9 +43,8 @@ class HomeCardGenerator {
     getMarriageAllowanceCard(taxSummary)
   ).flatten
 
-  def getPensionCards(pertaxUser: Option[PertaxUser], hasLtaProtections: Boolean)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
-    getStatePensionCard(),
-    getLifetimeAllowanceProtectionCard(hasLtaProtections)
+  def getPensionCards(pertaxUser: Option[PertaxUser])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
+    getStatePensionCard()
   ).flatten
 
 
@@ -98,12 +97,6 @@ class HomeCardGenerator {
 
   def getStatePensionCard()(implicit messages: Messages) = {
     Some(views.html.cards.statePension())
-  }
-
-  def getLifetimeAllowanceProtectionCard(hasLtaProtections: Boolean)(implicit messages: Messages) = {
-    if(hasLtaProtections)
-      Some(views.html.cards.lifetimeAllowanceProtection())
-    else None
   }
 
 }
