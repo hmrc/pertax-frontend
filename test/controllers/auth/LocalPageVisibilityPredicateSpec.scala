@@ -50,7 +50,6 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
   trait Setup {
 
     def confidenceLevel: ConfidenceLevel
-    def credentialStrength: CredentialStrength
     def simulateAccountPresentInExceptionList: Boolean
     def getSelfAssessmentAction:  SelfAssessmentUserType
     def allowIvExceptions: Boolean
@@ -58,7 +57,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
     lazy val ac = Fixtures.buildFakeAuthContext(withPaye = false, withSa = getSelfAssessmentAction == ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")))
 
-    lazy val authContext = ac.copy(user = ac.user.copy(confidenceLevel = confidenceLevel, credentialStrength = credentialStrength))
+    lazy val authContext = ac.copy(user = ac.user.copy(confidenceLevel = confidenceLevel))
 
     lazy val predicate = {
       val fac = new LocalPageVisibilityPredicateFactory(
@@ -94,10 +93,9 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
   "Calling LocalPageVisibilityPredicate" should {
 
-    "always return a visible result if the user has a CL of 200 and strong credential strength" in new Setup {
+    "always return a visible result if the user has a CL of 200" in new Setup {
 
       override val confidenceLevel = ConfidenceLevel.L200
-      override val credentialStrength = CredentialStrength.Strong
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
@@ -108,38 +106,9 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
     }
 
-    "return a blocked result redirecting to IV if the user has a CL of 200 and weak credential strength" in new Setup {
-
-      override val confidenceLevel = ConfidenceLevel.L200
-      override val credentialStrength = CredentialStrength.Weak
-      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      override val allowIvExceptions = true
-      override val simulateAccountPresentInExceptionList = false
-      override val allowLowConfidenceSA = false
-
-      nonVisibleRedirectLocation shouldBe Some("/coafe/two-step-verification/register" +
-        "?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account%252Fsuccess-page" +
-        "&failure=%2Fpersonal-account%2Fidentity-check-complete")
-    }
-
-    "return a blocked result redirecting to IV if the user has a CL of 200 and no credential strength" in new Setup {
-
-      override val confidenceLevel = ConfidenceLevel.L200
-      override val credentialStrength = CredentialStrength.None
-      override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      override val allowIvExceptions = true
-      override val simulateAccountPresentInExceptionList = false
-      override val allowLowConfidenceSA = false
-
-      nonVisibleRedirectLocation shouldBe Some("/coafe/two-step-verification/register" +
-        "?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account%252Fsuccess-page" +
-        "&failure=%2Fpersonal-account%2Fidentity-check-complete")
-    }
-
-    "return a blocked result redirecting to IV if the user has a CL of 100 and strong credentials" in new Setup {
+    "return a blocked result redirecting to IV if the user has a CL of 100" in new Setup {
 
       override val confidenceLevel = ConfidenceLevel.L100
-      override val credentialStrength = CredentialStrength.Strong
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
@@ -150,10 +119,9 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
 
-    "return a blocked result redirecting to IV if the user has a CL of 50 and strong credentials" in new Setup {
+    "return a blocked result redirecting to IV if the user has a CL of 50" in new Setup {
 
       override val confidenceLevel = ConfidenceLevel.L50
-      override val credentialStrength = CredentialStrength.Strong
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = false
@@ -164,10 +132,9 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
 
-    "return a blocked result, redirecting the user to the continue to self assessment page for users on the IV exception list if the user has a CL of 100, strong credentials and is on the exception list" in new Setup {
+    "return a blocked result, redirecting the user to the continue to self assessment page for users on the IV exception list if the user has a CL of 100 and is on the exception list" in new Setup {
 
       override val confidenceLevel = ConfidenceLevel.L100
-      override val credentialStrength = CredentialStrength.Strong
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
@@ -176,10 +143,9 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       nonVisibleRedirectLocation shouldBe Some("/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
     }
 
-    "return a blocked result, redirecting to IV for users on the IV exception list if the user has a CL of 100, strong credentials and is on the exception list, but IV exceptions are toggled off" in new Setup {
+    "return a blocked result, redirecting to IV for users on the IV exception list if the user has a CL of 100 and is on the exception list, but IV exceptions are toggled off" in new Setup {
 
       override val confidenceLevel = ConfidenceLevel.L100
-      override val credentialStrength = CredentialStrength.Strong
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = false
       override val simulateAccountPresentInExceptionList = true
@@ -190,10 +156,9 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
 
-    "always return a visible result if the user has a CL of 200 and strong credential strength, even if they are on the IV exception list" in new Setup {
+    "always return a visible result if the user has a CL of 200 even if they are on the IV exception list" in new Setup {
 
       override val confidenceLevel = ConfidenceLevel.L200
-      override val credentialStrength = CredentialStrength.Strong
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
@@ -204,14 +169,13 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
     }
   }
 
-  "Calling LocalPageVisibilityPredicate with strong credentials and a confidence level of < 200" should {
+  "Calling LocalPageVisibilityPredicate with a confidence level of < 200" should {
 
     trait LowCLSetup extends Setup {
       override lazy val confidenceLevel = ConfidenceLevel.L100
-      override lazy val credentialStrength = CredentialStrength.Strong
     }
 
-    "return a blocked result, redirecting the user to the continue to self assessment page if the user has a not yet Activated SA enrolment and is on the IV exmption list." in new LowCLSetup {
+    "return a blocked result, redirecting the user to the continue to self assessment page if the user has a not yet Activated SA enrolment and is on the IV exception list." in new LowCLSetup {
 
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
@@ -220,7 +184,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       nonVisibleRedirectLocation shouldBe Some("/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
     }
 
-    "return a blocked result, redirecting the user to the continue to self assessment page if the user has an active SA enrolment and is on the IV exmption list." in new LowCLSetup {
+    "return a blocked result, redirecting the user to the continue to self assessment page if the user has an active SA enrolment and is on the IV exception list." in new LowCLSetup {
 
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
@@ -240,7 +204,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
 
-    "return a blocked result, redirecting the user to the continue to self assessment page if the user has no SA enrolment and is on the IV exemption list." in new LowCLSetup {
+    "return a blocked result, redirecting the user to the continue to self assessment page if the user has no SA enrolment and is on the IV exception list." in new LowCLSetup {
 
       override val allowIvExceptions = true
       override val simulateAccountPresentInExceptionList = true
