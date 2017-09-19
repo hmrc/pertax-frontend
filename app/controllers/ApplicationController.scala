@@ -21,8 +21,8 @@ import javax.inject.Inject
 import config.{ConfigDecorator, StaticGlobalDependencies}
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
-import controllers.bindable.{Origin, StrictContinueUrl}
-import controllers.helpers.{HomeCardGenerator, PaperlessInterruptHelper}
+import controllers.bindable.{AddrType, Origin, StrictContinueUrl}
+import controllers.helpers.{HomeCardGenerator, PaperlessInterruptHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import models._
 import play.api.Logger
@@ -38,6 +38,8 @@ import util.{DateTimeTools, LocalPartialRetriever}
 import util.DateTimeTools._
 import java.net.URLEncoder
 
+import models.dto.{AddressFinderDto, AddressPageVisitedDto}
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.config.RunMode
 
 import scala.concurrent.Future

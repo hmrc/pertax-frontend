@@ -577,4 +577,5 @@ class ApplicationControllerSpec extends BaseSpec {
       status(r) shouldBe BAD_REQUEST
     }
   }
+
 }

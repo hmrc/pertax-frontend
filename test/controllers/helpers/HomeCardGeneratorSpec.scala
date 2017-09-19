@@ -409,7 +409,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       lazy val cardBody = c.getNationalInsuranceCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
-    "always return the same thing" in new LocalSetup {
+    "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
@@ -437,7 +437,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       lazy val cardBody = c.getTaxCreditsCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
-    "always return the same thing" in new LocalSetup {
+    "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
@@ -464,7 +464,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       lazy val cardBody = c.getChildBenefitCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
-    "always return the same thing" in new LocalSetup {
+    "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
@@ -592,23 +592,23 @@ class HomeCardGeneratorSpec extends BaseSpec {
       lazy val cardBody = c.getStatePensionCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
-    "always return the same thing" in new LocalSetup {
+    "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
         Some("""<div class="card column-half">
-               |  <a class="card-link ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="State Pension">
-               |    <div class="card-content" role="link">
-               |      <h3 class="heading-small no-margin-top">State Pension</h3>
-               |      <p>You are still contributing to your State Pension. Get a forecast and find out when you can start claiming it.</p>
-               |    </div>
-               |  </a>
-               |  <div class="card-actions">
-               |    <ul>
-               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your State Pension forecast">View your State Pension forecast</a></li>
-               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your National Insurance record">View your National Insurance record</a></li>
-               |    </ul>
-               |  </div>
-               |</div>""".stripMargin)
+           |  <a class="card-link ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="State Pension">
+           |    <div class="card-content" role="link">
+           |      <h3 class="heading-small no-margin-top">State Pension</h3>
+           |      <p>You are still contributing to your State Pension. Get a forecast and find out when you can start claiming it.</p>
+           |    </div>
+           |  </a>
+           |  <div class="card-actions">
+           |    <ul>
+           |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your State Pension forecast">View your State Pension forecast</a></li>
+           |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your National Insurance record">View your National Insurance record</a></li>
+           |    </ul>
+           |  </div>
+           |</div>""".stripMargin)
     }
   }
 }

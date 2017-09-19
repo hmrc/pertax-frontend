@@ -24,7 +24,7 @@ import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuth
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
-import controllers.helpers.AddressJourneyCachingHelper
+import controllers.helpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import models._
 import models.addresslookup.RecordSet
@@ -34,12 +34,13 @@ import play.api.Logger
 import play.api.data.FormError
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc._
+import play.twirl.api.Html
 import services._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import util.AuditServiceTools._
-import util.LocalPartialRetriever
+import util.{DateTimeTools, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
@@ -61,7 +62,8 @@ class AddressController @Inject() (
   val addressControllerConfiguration: AddressControllerConfiguration,
   val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler
+  val localErrorHandler: LocalErrorHandler,
+  val personalDetailsCardGenerator: PersonalDetailsCardGenerator
 ) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
 
   def dateDtoForm = DateDto.form(addressControllerConfiguration.maxStartDate)
@@ -69,7 +71,7 @@ class AddressController @Inject() (
   def currentAddressType(personDetails: PersonDetails) = personDetails.address.flatMap(_.`type`).getOrElse("Residential")
 
   def addressBreadcrumb: Breadcrumb =
-    "label.your_address" -> routes.AddressController.displayAddress.url ::
+    "label.personal_details" -> routes.AddressController.personalDetails.url ::
     baseBreadcrumb
 
   def addressJourneyEnforcer(block: PayeAccount => PersonDetails => Future[Result])(implicit pertaxContext: PertaxContext): Future[Result] = {
@@ -78,7 +80,7 @@ class AddressController @Inject() (
         block(payeAccount)(personDetails)
       }
     } getOrElse Future.successful {
-      val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController.displayAddress.url
+      val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController.personalDetails.url
       Ok(views.html.interstitial.displayAddressInterstitial(continueUrl))
     }
   }
@@ -108,27 +110,15 @@ class AddressController @Inject() (
     }
   }
 
-  def displayAddress: Action[AnyContent] = ProtectedAction(baseBreadcrumb) {
+  def personalDetails: Action[AnyContent] = ProtectedAction(baseBreadcrumb) {
     implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
 
-        def compare(a: LocalDate, y: Int, m: Int, d: Int)(f: (LocalDate, LocalDate) => Boolean) =
-          f(a, new LocalDate(y, m, d))
+      val personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards
 
-        val (show2016Message, startDate) = personDetails.address match {
-          case Some(Address(_, _, _, _, _, _, Some(startDate), _)) if compare(startDate, 2016, 4, 6)(_.equals(_)) => (true, None)
-          case Some(Address(_, _, _, _, _, _, Some(startDate), _)) if compare(startDate, 2016, 4, 6)(!_.equals(_)) => (false, Some(formatDate(startDate)))
-          case _ => (false, None)
-        }
+      import models.dto.AddressPageVisitedDto
 
-
-        val canUpdatePostalAddress = personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) {
-          _ != LocalDate.now
-        }
-
-        cacheAddressPageVisited(AddressPageVisitedDto(true)) map { _ =>
-          Ok(views.html.personaldetails.displayAddress(personDetails, show2016Message, canUpdatePostalAddress, startDate, taxCreditsEnabled = configDecorator.taxCreditsEnabled))
-        }
+      cacheAddressPageVisited(AddressPageVisitedDto(true)) map { _ =>
+        Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
       }
   }
 
@@ -167,7 +157,7 @@ class AddressController @Inject() (
         case Some(TaxCreditsChoiceDto(false)) =>
           Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
         case _ => configDecorator.taxCreditsEnabled match {
-          case true => Redirect(routes.AddressController.displayAddress)
+          case true => Redirect(routes.AddressController.personalDetails)
           case false => Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
         }
       }
@@ -254,7 +244,7 @@ class AddressController @Inject() (
             }
 
           case AddressJourneyData(_, _, None, _, _, _, _) =>
-            Future.successful(Redirect(routes.AddressController.displayAddress))
+            Future.successful(Redirect(routes.AddressController.personalDetails))
         }
       }
   }
@@ -378,7 +368,7 @@ class AddressController @Inject() (
             journeyData.submittedAddressDto map { a =>
               Future.successful(Ok(views.html.personaldetails.enterStartDate(journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill), typ)))
             } getOrElse {
-              Future.successful(Redirect(routes.AddressController.displayAddress()))
+              Future.successful(Redirect(routes.AddressController.personalDetails()))
             }
           }
         }
@@ -420,7 +410,7 @@ class AddressController @Inject() (
             (for(addressDto <- jd.submittedAddressDto; startDateDto <- jd.submittedStartDateDto) yield {
               Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, startDateDto)))
             }) getOrElse {
-              Future.successful(Redirect(routes.AddressController.displayAddress()))
+              Future.successful(Redirect(routes.AddressController.personalDetails()))
             }
           }
         }
@@ -477,7 +467,7 @@ class AddressController @Inject() (
                   Ok(views.html.personaldetails.updateAddressConfirmation(typ))
               }
             }) getOrElse {
-              Future.successful(Redirect(routes.AddressController.displayAddress()))
+              Future.successful(Redirect(routes.AddressController.personalDetails()))
             }
 
         }

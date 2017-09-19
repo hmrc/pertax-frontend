@@ -73,13 +73,17 @@ label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_
 label.the_personal_tax_account_is_a_new_service_in_the_future_well_show_you_more_=The personal tax account is a new service – in the future we''ll show you more details from your National Insurance record.
 label.your_personal_details=Your personal details
 label.your_address=Your address
+label.main_address=Main address
 label.find_your_address=Find your address
 label.your_postal_address=Your postal address
 label.you_cant_view_or_update_your_address_right_now=You can''t view or update your address right now
 label.change_your_address=Change your address
+label.change_your_main_address=Change your main address
+label.change_your_postal_address=Change your postal address
 label.home_address=Home address
 label.postal_address=Postal address
 label.get_letters_sent_to_a_different_address=Get letters sent to a different address
+label.all_your_letters_will_be_sent_to_this_address=All your letters will be sent to this address.
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=You can only change this address once a day. Please try again tomorrow.
 label.select_your_address=Select your address
 label.your_address_has_been_updated=Your address has been updated
@@ -540,6 +544,7 @@ label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=You need to
 
 label.national_insurance=National Insurance
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.
+label.your_national_insurance_number_is_your_unique_identifier=Your National Insurance number is your unique identifier.
 
 label.print_your_national_insurance_letter=Print your National Insurance letter
 label.print_your_national_insurance_number=Print your National Insurance number

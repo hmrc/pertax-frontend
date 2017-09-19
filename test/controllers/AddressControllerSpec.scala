@@ -119,8 +119,7 @@ class AddressControllerSpec extends BaseSpec  {
     }
   }
 
-
-  "Calling AddressController.displayAddress" should {
+  "Calling AddressController.personalDetails" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
@@ -133,14 +132,14 @@ class AddressControllerSpec extends BaseSpec  {
     "call citizenDetailsService.personDetails and return 200" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val r = controller.displayAddress(buildAddressRequest("GET", uri = "/personal-account/your-address"))
+      val r = controller.personalDetails(buildAddressRequest("GET", uri = "/personal-account/personal-details"))
 
       status(r) shouldBe OK
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       verify(controller.sessionCache, times(1)).cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any())
     }
-
   }
+
 
   "Calling AddressController.taxCreditsChoice" should {
 
@@ -152,7 +151,7 @@ class AddressControllerSpec extends BaseSpec  {
       override lazy val thisYearStr = "2015"
     }
 
-    "return OK if there is an entry in the cache to say the user previously visited the 'view address' page" in new LocalSetup {
+    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val r = controller.taxCreditsChoice(buildFakeRequestWithAuth("GET"))
@@ -161,13 +160,13 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
-    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'view address' page" in new WithAddressControllerSpecSetup with LocalSetup {
+    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new WithAddressControllerSpecSetup with LocalSetup {
       lazy val sessionCacheResponse = None
 
       val r = controller.taxCreditsChoice(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -233,7 +232,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.residencyChoice(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -243,7 +242,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.residencyChoice(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -325,7 +324,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).fetch()(any())
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
     "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in new LocalSetup {
@@ -335,7 +334,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).fetch()(any())
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
   }
@@ -571,7 +570,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -601,7 +600,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).fetch()(any())
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
     "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in new LocalSetup {
@@ -611,7 +610,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).fetch()(any())
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in new LocalSetup {
@@ -639,7 +638,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -843,7 +842,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.enterStartDate(PrimaryAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -992,7 +991,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.reviewChanges(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -1002,7 +1001,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.reviewChanges(PrimaryAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any())
     }
 
@@ -1051,7 +1050,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.sessionCache, times(1)).fetch()(any())
@@ -1065,7 +1064,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.sessionCache, times(1)).fetch()(any())

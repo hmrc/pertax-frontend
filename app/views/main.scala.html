@@ -25,7 +25,7 @@
   ifAuthenticatedUser {
     ifHighGovernmentGatewayOrVerifyUser {
       ifPayeUser {
-        seq += Map("url" -> controllers.routes.AddressController.displayAddress().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
+        seq += Map("url" -> controllers.routes.AddressController.personalDetails().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
       }
     }
     seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
