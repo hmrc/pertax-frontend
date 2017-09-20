@@ -39,8 +39,8 @@ class selfAssessmentNotShownSpec extends BaseSpec {
 
   "Rendering selfAssessmentNotShown.scala.html" should {
 
-    "show the correct h1 title of 'You can't access your Self Assessment information from this account' on selfAssessmentNotShown page" in new selfAssessmentNotShownSetup {
-      document.select("h1").exists(e => e.text == "You can't access your Self Assessment information from this account") shouldBe true
+    "show the correct h1 title of 'You cannot access your Self Assessment information from this account' on selfAssessmentNotShown page" in new selfAssessmentNotShownSetup {
+      document.select("h1").exists(e => e.text == "You cannot access your Self Assessment information from this account") shouldBe true
     }
 
     "show the correct h2 title of 'If you send your tax return online' on selfAssessmentNotShown page" in new selfAssessmentNotShownSetup {
