@@ -6,7 +6,7 @@
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <h1 class="heading-large">@Messages("label.you_cant_access_your_self_assessment_")</h1>
+      <h1 class="heading-large">@Messages("label.you_cannot_access_your_self_assessment_")</h1>
       <h2>@Messages("label.if_you_send_your_tax_return_online")</h2>
       <p>@Html(Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_",
         controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.index().url)), None),
@@ -16,7 +16,7 @@
         pertaxContext.configDecorator.ssoToRegisterForSaEnrolment,
         pertaxContext.configDecorator.hmrcProblemsSigningIn))</p>
       <h2>@Messages("label.if_you_send_your_tax_return_by_post")</h2>
-      <p>@Html(Messages("label.you_cant_view_your_self_assessment_information_here_the_deadline_", pertaxContext.configDecorator.ssoToRegistration))</p>
+      <p>@Html(Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_", pertaxContext.configDecorator.ssoToRegistration))</p>
     </div>
 
     <div class="column-third webchat-container self-assessment">

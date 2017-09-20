@@ -541,7 +541,7 @@ class ApplicationControllerSpec extends BaseSpec {
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
-    "redirect to 'You can't access your SA information with this user ID' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
+    "redirect to 'You cannot access your SA information with this user ID' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
 
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
@@ -549,7 +549,7 @@ class ApplicationControllerSpec extends BaseSpec {
       val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
       val doc = Jsoup.parse(contentAsString(r))
       status(r) shouldBe OK
-      doc.getElementsByClass("heading-large").toString().contains("You can't access your Self Assessment") shouldBe true
+      doc.getElementsByClass("heading-large").toString().contains("You cannot access your Self Assessment") shouldBe true
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
