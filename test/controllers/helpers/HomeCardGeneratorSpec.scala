@@ -335,7 +335,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/submit/your/return/url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">Complete your tax return</a></li>
                |        <li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">Make a payment</a></li>
                |    </ul>
                |  </div>
