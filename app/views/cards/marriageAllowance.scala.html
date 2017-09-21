@@ -18,7 +18,7 @@
   <div class="card-actions">
     <ul>
       @if(taxSummary.map(_.notMarriageAllowanceCustomer).getOrElse(true)) {
-        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/benefit-calculator-pta" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
+        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/how-it-works" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
       } else {
         <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/make-changes" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Manage your Marriage Allowance">@Messages("label.manage_your_marriage_allowance")</a></li>
       }

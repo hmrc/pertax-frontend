@@ -132,7 +132,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
   }
 
 
-"Calling getTaxCalculationCard" should {
+  "Calling getTaxCalculationCard" should {
 
     trait LocalSetup extends SpecSetup {
 
@@ -554,7 +554,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |  </a>
             |  <div class="card-actions">
             |    <ul>
-            |        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/benefit-calculator-pta" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">Find out if you qualify for Marriage Allowance</a></li>
+            |        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/how-it-works" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">Find out if you qualify for Marriage Allowance</a></li>
             |    </ul>
             |  </div>
             |</div>""".stripMargin)
@@ -576,7 +576,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |  </a>
             |  <div class="card-actions">
             |    <ul>
-            |        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/benefit-calculator-pta" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">Find out if you qualify for Marriage Allowance</a></li>
+            |        <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/how-it-works" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">Find out if you qualify for Marriage Allowance</a></li>
             |    </ul>
             |  </div>
             |</div>""".stripMargin)
