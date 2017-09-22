@@ -20,11 +20,22 @@ import javax.inject.Inject
 
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.renderer.TemplateRenderer
 
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
-class LocalTemplateRenderer @Inject() (override val connection: WsAllMethods) extends TemplateRenderer with ServicesConfig {
+class LocalTemplateRenderer @Inject() (wsHttp: WsAllMethods) extends TemplateRenderer with ServicesConfig {
+
   override lazy val templateServiceBaseUrl = baseUrl("frontend-template-provider")
   override val refreshAfter: Duration = 10 minutes
+
+  private implicit val hc = HeaderCarrier()
+  import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+  override def fetchTemplate(path: String): Future[String] =  {
+
+   wsHttp.GET(path).map(_.body)
+  }
 }

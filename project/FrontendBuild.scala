@@ -27,7 +27,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-graphite" % "3.2.0",
     "uk.gov.hmrc" %% "http-caching-client" % "6.2.0",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
-    "uk.gov.hmrc" %% "local-template-renderer" % "0.11.0"
+    "uk.gov.hmrc" %% "local-template-renderer" % "1.0.0"
   )
 
   trait TestDependencies {
