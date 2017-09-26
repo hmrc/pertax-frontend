@@ -1,5 +1,4 @@
-@(inboxLinkPartial: Html,
-  userResearchLinkUrl: Option[String],
+@(userResearchLinkUrl: Option[String],
   incomeCards: Seq[Html],
   benefitCards: Seq[Html],
   pensionCards: Seq[Html]
@@ -50,7 +49,7 @@
   }
 
   <div class="grid-row pertax-home">
-    <div class="column-two-thirds" role="main">
+    <div class="column-full" role="main">
 
       <section>
         <h2 class="section-header">@Messages("title.income")</h2>
@@ -72,63 +71,6 @@
           @pensionCards
         </div>
       </section>
-
-    </div>
-
-
-    <div class="sidebar column-third" role="complementary">
-      <h2 class="section-header">@Messages("label.your_account")</h2>
-
-      @ifGovernmentGatewayUser {
-        <div class="sidebar-panel messages">
-          @inboxLinkPartial
-        </div>
-      }
-
-      <div class="sidebar-panel">
-        <h3 class="no-margin-top">@Messages("label.personal_details")</h3>
-        @ifPayeUser {
-          <div class="personal-details">
-            @ifUserHasPersonDetails {
-              <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.personalDetails()" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="Update your address">@Messages("label.update_your_address")</a>
-            }
-            @unlessUserHasPersonDetails {
-              <p>@Messages("label.you_cant_view_or_update_your_address_right_now")</p>
-            }
-          </div>
-        }
-
-        <div class="manage-paperless">
-          <a class="ga-track-anchor-click" href="@controllers.routes.PaperlessPreferencesController.managePreferences()" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="Manage your paperless settings">@Messages("label.manage_your_paperless_settings")</a>
-        </div>
-      </div>
-
-      <div class="sidebar-panel track-forms">
-        <h3 class="no-margin-top">@Messages("label.track_your_forms_and_letters")</h3>
-        <p>@Messages("label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by")</p>
-        <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.formTrackingServiceUrl" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="Track your forms and letters">@Messages("label.track_your_forms_and_letters")</a>
-      </div>
-
-      @ifVerifyUser {
-        @ifPayeUser {
-          @ifNonDelegatingUser {
-            <div class="sidebar-panel">
-              <h3 class="no-margin-top">@Messages("label.help_with_tax_for_friends_and_family")</h3>
-              <p>@Messages("label.give_friends_or_family_permission_to_access_your_account")</p>
-              <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.fandfUrl" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="View your trusted helper contacts">@Messages("label.view_your_trusted_helper_contacts")</a>
-            </div>
-          }
-        }
-      }
-
-      @ifGovernmentGatewayUser {
-        @ifSaUser {
-          <div class="sidebar-panel">
-            <h3 class="no-margin-top">@Messages("label.services_for_businesses")</h3>
-            <p>@Html(Messages("label.if_you_are_self_employed_or_pay_business_tax", pertaxContext.configDecorator.businessTaxAccountUrl))
-          </div>
-        }
-      }
 
     </div>
   </div>

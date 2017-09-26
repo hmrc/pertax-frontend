@@ -9,7 +9,7 @@
 @main(Messages("label.your_personal_tax_account"),Some(Messages("label.your_personal_tax_account"))) {
 
   <div class="grid-row">
-    <div class="column-whole">
+    <div class="column-full">
 
       <div class="page-header personal-details" role="heading">
         <div class="page-info">@Messages("label.personal_details")</div>
@@ -32,18 +32,6 @@
       @personalDetailsCards
     </section>
 
-  </div>
-
-  <div class="grid-row">
-    <div class="column-whole">
-
-      <p>
-        <a href="@controllers.routes.ApplicationController.index" class="back-to-account-home">
-          @Messages("label.back_to_account_home")
-        </a>
-      </p>
-
-    </div>
   </div>
 
 }

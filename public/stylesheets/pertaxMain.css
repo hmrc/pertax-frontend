@@ -109,6 +109,7 @@
   padding: 0.65em 0px;
   text-align: right;
   width: 100%;
+  font-size: 16px;
 }
 
 .page-heading {
@@ -172,27 +173,6 @@ address {
   margin-top: 0;
 }
 
-.service-info {
-  border-bottom: 1px solid #dee0e2;
-}
-.service-info .logo {
-  width: auto;
-}
-@media (min-width: 641px) {
-  .service-info .last-login {
-    text-align: right;
-  }
-}
-@media (min-width: 769px) {
-  .service-info .last-login {
-    float: right;
-    width: 66%;
-  }
-}
-.service-info p {
-  margin-bottom: 0;
-}
-
 #global-breadcrumb {
   border-bottom: 0;
   padding-bottom: 0;
@@ -241,12 +221,12 @@ address {
   width: 100%;
 }
 
-.column-whole {
+.column-full {
   padding: 0 15px;
   box-sizing: border-box;
 }
 @media (min-width: 641px) {
-  .column-whole {
+  .column-full {
     float: left;
     width: 100%;
   }
@@ -308,7 +288,7 @@ address {
 .lte-ie8 .grid-row .column-two-thirds,
 .lte-ie8 .grid-row .column-half,
 .lte-ie8 .grid-row .column-third,
-.lte-ie8 .grid-row .column-whole {
+.lte-ie8 .grid-row .column-full {
   float: left;
   padding-left: 0;
   padding-right: 0;
@@ -322,7 +302,7 @@ address {
 .lte-ie8 .grid-row .column-third {
   width: 33.3333%;
 }
-.lte-ie8 .grid-row .column-whole {
+.lte-ie8 .grid-row .column-full {
   width: 100%;
 }
 .lte-ie8 .desktop-hidden {
@@ -374,11 +354,11 @@ address {
 .pertax-panel#national_insurance {
   padding-top: 30px;
 }
-.pertax-panel.forms-group .column-whole {
+.pertax-panel.forms-group .column-full {
   padding-bottom: 0;
   padding-top: 0;
 }
-.pertax-panel.forms-group .column-whole h2 {
+.pertax-panel.forms-group .column-full h2 {
   border-bottom: 2px solid #bfc1c3;
   font-size: 30px;
   line-height: 1.04167;
@@ -837,22 +817,6 @@ input {
   margin: 0;
 }
 
-a:link {
-  color: #005ea5;
-}
-
-a:visited {
-  color: #4c2c92;
-}
-
-a:hover {
-  color: #2e8aca;
-}
-
-a:active {
-  color: #2e8aca;
-}
-
 .alert-notification {
   background-color: #fef1d5;
   border-left: 4px solid #000;
@@ -982,7 +946,7 @@ body.print-page {
   font-family: "nta", Arial, sans-serif;
   margin: 0;
 }
-body.print-page .column-whole {
+body.print-page .column-full {
   padding: 0 15px;
 }
 body.print-page .column-third,
@@ -1153,7 +1117,7 @@ body .webchat-container.self-assessment {
 }
 
 @media (min-width: 641px) {
-  body.print-page .column-whole {
+  body.print-page .column-full {
     padding: 0 15px;
   }
   body.print-page .column-third {

@@ -29,7 +29,6 @@
       }
     }
     seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
-    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
   }
   seq
 }
@@ -77,20 +76,6 @@
 }
 
 @mainContentHeader = {
-
-  @defining(pertaxContext.breadcrumb.map(_.reverse).getOrElse(Nil)) { breadcrumb =>
-    @if(!breadcrumb.isEmpty) {
-      <div id="global-breadcrumb" class="header-context">
-        <nav>
-          <ol class="group">
-            @breadcrumb.toList.map { item =>
-              <li><a href="@item._2">@Messages(item._1)</a></li>
-            }
-          </ol>
-        </nav>
-      </div>
-    }
-  }
 
   @if(pertaxContext.welshWarning) {
     @tags.welshContentWarning()
@@ -154,8 +139,11 @@
     ),
     "getHelpForm" -> get_help_form(supportLinkEnabled, includeGridWrapper),
     "mainContentHeader" -> mainContentHeader,
-    "removeServiceInfo" -> false,
 
+    "isGovernmentGateway" -> pertaxContext.user.map(_.isGovernmentGateway).getOrElse(false),
+    "isSa" -> pertaxContext.user.map(_.isSa).getOrElse(false),
+    "isVerify" -> pertaxContext.user.map(_.isVerify).getOrElse(false),
+    "signOutUrl" -> controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None),
 
     "actingAttorneyBanner" -> actingAttorneyBanner,
     "navTitle" -> pageName,

@@ -16,6 +16,7 @@
 
 package models
 
+import java.security.AuthProvider
 import java.security.cert.X509Certificate
 
 import config.ConfigDecorator
@@ -52,6 +53,8 @@ class PertaxContext(val request: Request[AnyContent], val partialRetriever: Loca
   override def clientCertificateChain: Option[Seq[X509Certificate]] = request.clientCertificateChain
   def withUser(u: Option[PertaxUser]) = new PertaxContext(request, partialRetriever, configDecorator, u, breadcrumb, welshWarning)
   def withBreadcrumb(b: Option[Breadcrumb]) = new PertaxContext(request, partialRetriever, configDecorator, user, b, welshWarning)
+
+  request.session.get(SessionKeys.authProvider)==Some("GGW")
 
   def authContext = user.map(_.authContext)
 

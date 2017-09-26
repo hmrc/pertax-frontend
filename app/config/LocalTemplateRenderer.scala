@@ -20,10 +20,10 @@ import javax.inject.Inject
 
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.renderer.TemplateRenderer
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class LocalTemplateRenderer @Inject() (wsHttp: WsAllMethods) extends TemplateRenderer with ServicesConfig {
