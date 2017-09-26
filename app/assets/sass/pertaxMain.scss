@@ -357,7 +357,8 @@ address {
  ******************************************************************************************
  */
 
-.page-header.home {
+.page-header.home,
+.page-header.personal-details {
   border-bottom: none;
   margin-bottom: 40px;
 
@@ -371,7 +372,8 @@ address {
   }
 }
 
-.pertax-home {
+.pertax-home,
+.pertax-personal-details {
 
   .column-half {
     @include grid-column(1);
@@ -420,34 +422,32 @@ address {
       }
     }
 
-    a {
-      .card-content {
-        background: $grey-4;
-        display: block;
-        padding: 10px;
-        text-decoration: none;
+    .card-content {
+      background: $grey-4;
+      display: block;
+      padding: 10px;
+      text-decoration: none;
 
-        &:hover {
+      &:hover {
+        color: $white;
+        background: $govuk-blue;
+
+        h3, p {
           color: $white;
-          background: $govuk-blue;
-
-          h3, p {
-            color: $white;
-          }
-
         }
+
       }
+    }
 
-      &:focus {
-        .card-content {
+    a:focus {
+      .card-content {
+        color: $white;
+        background: $govuk-blue;
+
+        h3, p {
           color: $white;
-          background: $govuk-blue;
-
-          h3, p {
-            color: $white;
-          }
-
         }
+
       }
     }
 
@@ -481,14 +481,16 @@ address {
 }
 
 @include media(tablet) {
-  .page-header.home {
+  .page-header.home,
+  .page-header.personal-details {
     .page-info {
       font-size: 27px;
       margin-bottom: 5px;
     }
   }
 
-  .pertax-home {
+  .pertax-home,
+  .pertax-personal-details{
     h2.section-header {
       font-size: 30px;
     }
@@ -508,7 +510,8 @@ address {
 }
 
 @include media(desktop) {
-  .pertax-home {
+  .pertax-home,
+  .pertax-personal-details {
     .card {
       min-height: 350px;
 

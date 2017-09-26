@@ -72,14 +72,18 @@ label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_
 label.the_personal_tax_account_is_a_new_service_in_the_future_well_show_you_more_=Mae''r cyfrif treth personol yn wasanaeth newydd – yn y dyfodol, byddwn yn dangos rhagor o fanylion o''ch cofnod Yswiriant Gwladol.
 label.your_personal_details=Eich manylion personol
 label.your_address=Eich cyfeiriad
+label.main_address=Prif gyfeiriad
 label.find_your_address=Chwilio am eich cyfeiriad
 label.your_postal_address=Eich cyfeiriad post
 label.update_your_address=Diweddaru''ch cyfeiriad
 label.change_your_address=Newid eich cyfeiriad
+label.change_your_main_address=Newid eich prif gyfeiriad
+label.change_your_postal_address=Newid eich cyfeiriad post
 label.you_cant_view_or_update_your_address_right_now=Ni allwch weld na diweddaru''ch cyfeiriad ar hyn o bryd
 label.home_address=Cyfeiriad cartref
 label.postal_address=Cyfeiriad post
 label.get_letters_sent_to_a_different_address=Gofyn bod llythyrau''n cael eu hanfon i gyfeiriad gwahanol
+label.all_your_letters_will_be_sent_to_this_address=Bydd eich llythyrau''n cael eu hanfon i''r cyfeiriad hwn.
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=Dim ond unwaith y diwrnod y gallwch newid y cyfeiriad hwn. Rhowch gynnig arall arni yfory.
 label.select_your_address=Dewis eich cyfeiriad
 label.your_address_has_been_updated=Mae''ch cyfeiriad wedi''i ddiweddaru
@@ -562,6 +566,7 @@ label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=Mae angen i
 
 label.national_insurance=Yswiriant Gwladol
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi''n unig.
+label.your_national_insurance_number_is_your_unique_identifier=Eich rhif Yswiriant Gwladol yw''ch dynodydd unigryw.
 
 label.print_your_national_insurance_letter=Argraffu''ch llythyr Yswiriant Gwladol
 label.print_your_national_insurance_number=Argraffu''ch rhif Yswiriant Gwladol

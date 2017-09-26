@@ -92,7 +92,7 @@
         @ifPayeUser {
           <div class="personal-details">
             @ifUserHasPersonDetails {
-              <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.displayAddress()" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="Update your adddress">@Messages("label.update_your_address")</a>
+              <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.personalDetails()" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="Update your address">@Messages("label.update_your_address")</a>
             }
             @unlessUserHasPersonDetails {
               <p>@Messages("label.you_cant_view_or_update_your_address_right_now")</p>

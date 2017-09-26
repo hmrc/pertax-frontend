@@ -1,0 +1,33 @@
+@(personDetails: models.PersonDetails,canUpdatePostalAddress: Boolean)(implicit messages: play.api.i18n.Messages)
+
+<div class="card column-third">
+  @if(canUpdatePostalAddress){
+    <a class="card-link ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Your address">
+  }
+  <div class="card-content" role="link">
+    <h3 class="heading-small no-margin-top">@Messages("label.postal_address")</h3>
+    <p><strong>
+      @personDetails.correspondenceAddress.map { correspondenceAddress =>
+        @correspondenceAddress.lines.map { line =>
+          @upperCaseToTitleCase(line)<br>
+        }
+        @correspondenceAddress.postcode.map(_.toUpperCase)
+      }.getOrElse {
+        @Messages("label.letters_from_hm_revenue_and_customs_currently_get_sent_to_your_home_address")
+      }
+    </strong></p>
+    <p>@Messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+  </div>
+  @if(canUpdatePostalAddress){</a>}
+  <div class="card-actions">
+    <ul>
+      <li>
+        @if(canUpdatePostalAddress) {
+          <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@Messages("label.change_your_postal_address")</a>
+        } else {
+          <p>@Messages("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow")</p>
+        }
+      </li>
+    </ul>
+  </div>
+</div>

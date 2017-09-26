@@ -47,11 +47,10 @@ class HomeCardGenerator {
     getStatePensionCard()
   ).flatten
 
-
   def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary])(implicit messages: Messages) = {
 
     pertaxUser match {
-      case Some(u) if u.isPaye => taxSummary.map(ts => views.html.cards.payAsYouEarn(ts.isCompanyBenefitRecipient))
+      case Some(u) if u.isPaye => taxSummary.map(ts => views.html.cards.home.payAsYouEarn(ts.isCompanyBenefitRecipient))
       case _ => None
     }
   }
@@ -61,7 +60,7 @@ class HomeCardGenerator {
     taxCalculationState match {
       case _:TaxCalculationUnderpaidPaymentsDownState => None
       case TaxCalculationUnkownState => None
-      case taxCalculationState => Some(views.html.cards.taxCalculation(taxCalculationState))
+      case taxCalculationState => Some(views.html.cards.home.taxCalculation(taxCalculationState))
     }
   }
 
@@ -70,7 +69,7 @@ class HomeCardGenerator {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saActionNeeded =>
-          Some(views.html.cards.selfAssessment(saActionNeeded, previousAndCurrentTaxYear))
+          Some(views.html.cards.home.selfAssessment(saActionNeeded, previousAndCurrentTaxYear))
       }
     } else {
       None
@@ -78,25 +77,23 @@ class HomeCardGenerator {
   }
 
   def getNationalInsuranceCard()(implicit messages: Messages) = {
-    Some(views.html.cards.nationalInsurance())
+    Some(views.html.cards.home.nationalInsurance())
   }
 
-
   def getTaxCreditsCard()(implicit messages: Messages) = {
-    Some(views.html.cards.taxCredits())
+    Some(views.html.cards.home.taxCredits())
   }
 
   def getChildBenefitCard()(implicit messages: Messages) = {
-    Some(views.html.cards.childBenefit())
+    Some(views.html.cards.home.childBenefit())
   }
 
   def getMarriageAllowanceCard(taxSummary: Option[TaxSummary])(implicit messages: Messages) = {
-
-    Some(views.html.cards.marriageAllowance(taxSummary))
+    Some(views.html.cards.home.marriageAllowance(taxSummary))
   }
 
   def getStatePensionCard()(implicit messages: Messages) = {
-    Some(views.html.cards.statePension())
+    Some(views.html.cards.home.statePension())
   }
 
 }

@@ -95,7 +95,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
       case Some(_) =>
         block
       case None =>
-        Future.successful(Redirect(routes.AddressController.displayAddress()))
+        Future.successful(Redirect(routes.AddressController.personalDetails()))
     }
   }
 
@@ -104,7 +104,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
       case AddressJourneyData(_, Some(_), _, _, _, _ , _) =>
         block(journeyData)
       case AddressJourneyData(_, None, _, _, _, _, _) =>
-        Future.successful(Redirect(routes.AddressController.displayAddress))
+        Future.successful(Redirect(routes.AddressController.personalDetails))
     }
   }
 
