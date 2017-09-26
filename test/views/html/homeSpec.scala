@@ -123,12 +123,6 @@ class homeSpec extends BaseSpec {
       document.select("h1").exists(e => e.text == "Your account") shouldBe true
     }
 
-
-
-
-
-
-
     "show 'Update your address' for the Personal details section when the user has details" in new SpecSetup {
       override val withPaye: Boolean = true
       override val withActivePaye: Boolean = true
@@ -152,8 +146,6 @@ class homeSpec extends BaseSpec {
 
       document.select("p").exists(e => e.text == "You can't view or update your address right now") shouldBe true
     }
-
-
 
     "show the personal details block when a user is Verify, has PAYE enrolment and no SA enrolment" in new SpecSetup {
       override val withPaye: Boolean = true
@@ -298,11 +290,6 @@ class homeSpec extends BaseSpec {
       Option(document.select("div.track-forms").first).isDefined shouldBe true
     }
 
-
-
-
-
-
     "show manage prefs block if user is High GG and SA" in new SpecSetup {
       override val withPaye: Boolean = true
       override val withActivePaye: Boolean = true
@@ -375,7 +362,7 @@ class homeSpec extends BaseSpec {
       Option(document.select("div.manage-paperless").first).isDefined shouldBe true
     }
 
-    "not show NINO section when user is low GG and with Paye " in new SpecSetup {
+    "not show NINO section when user is low GG and with Paye" in new SpecSetup {
       override val withPaye: Boolean = true
       override val withActivePaye: Boolean = true
       override val withSa: Boolean = false
@@ -387,7 +374,7 @@ class homeSpec extends BaseSpec {
       Option(document.select(".nino").first).isDefined shouldBe false
     }
 
-    "show messages partial when user is GG and SA " in new SpecSetup {
+    "show messages partial when user is GG" in new SpecSetup {
       override val withPaye: Boolean = false
       override val withActivePaye: Boolean = false
       override val withSa: Boolean = true
@@ -399,34 +386,10 @@ class homeSpec extends BaseSpec {
       Option(document.select(".messages").first).isDefined shouldBe true
     }
 
-    "not show messages partial when user is GG and not SA " in new SpecSetup {
-      override val withPaye: Boolean = false
-      override val withActivePaye: Boolean = false
-      override val withSa: Boolean = false
-      override val isGovernmentGateway: Boolean = true
-      override val isHighGG: Boolean = false
-      override val principalName: Option[String] = None
-      override val userHasPersonDetails: Boolean = false
-
-      Option(document.select(".messages").first).isDefined shouldBe false
-    }
-
-    "not show messages partial when user is SA and not GG " in new SpecSetup {
+    "not show messages partial when user is not GG" in new SpecSetup {
       override val withPaye: Boolean = false
       override val withActivePaye: Boolean = false
       override val withSa: Boolean = true
-      override val isGovernmentGateway: Boolean = false
-      override val isHighGG: Boolean = false
-      override val principalName: Option[String] = None
-      override val userHasPersonDetails: Boolean = false
-
-      Option(document.select(".messages").first).isDefined shouldBe false
-    }
-
-    "not show messages partial when user is not GG and not SA " in new SpecSetup {
-      override val withPaye: Boolean = false
-      override val withActivePaye: Boolean = false
-      override val withSa: Boolean = false
       override val isGovernmentGateway: Boolean = false
       override val isHighGG: Boolean = false
       override val principalName: Option[String] = None
