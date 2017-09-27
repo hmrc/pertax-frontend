@@ -83,7 +83,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-third">
-            |  <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address (Tax credits choice)">
+            |  <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Main address</h3>
             |      <p><strong>
@@ -99,7 +99,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  <div class="card-actions">
             |    <ul>
             |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address (Tax credits choice)">Change your main address</a>
+            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
             |      </li>
             |    </ul>
             |  </div>
@@ -113,7 +113,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-third">
-            |  <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address (Tax credits choice)">
+            |  <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Main address</h3>
             |      <p><strong>
@@ -129,7 +129,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  <div class="card-actions">
             |    <ul>
             |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address (Tax credits choice)">Change your main address</a>
+            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
             |      </li>
             |    </ul>
             |  </div>
@@ -143,7 +143,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-third">
-            |  <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address (Residency choice)">
+            |  <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Main address</h3>
             |      <p><strong>
@@ -159,7 +159,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  <div class="card-actions">
             |    <ul>
             |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address (Residency choice)">Change your main address</a>
+            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
             |      </li>
             |    </ul>
             |  </div>
@@ -220,7 +220,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-third">
-            |    <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Your address">
+            |    <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
             |  <div class="card-content" role="link">
             |    <h3 class="heading-small no-margin-top">Postal address</h3>
             |    <p><strong>
@@ -280,7 +280,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-third">
-            |    <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Your address">
+            |    <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
             |  <div class="card-content" role="link">
             |    <h3 class="heading-small no-margin-top">Postal address</h3>
             |    <p><strong>

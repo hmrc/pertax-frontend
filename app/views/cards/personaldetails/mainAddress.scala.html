@@ -1,15 +1,11 @@
 @(personDetails: models.PersonDetails, show2016Message: Boolean, startDate: Option[String], taxCreditsEnabled: Boolean)(implicit messages: play.api.i18n.Messages)
 
 @updateAddressLink = @{
-  if(taxCreditsEnabled) {
-    (controllers.routes.AddressController.taxCreditsChoice, Messages("Change your main address (Tax credits choice)"))
-  } else {
-    (controllers.routes.AddressController.residencyChoice, Messages("Change your main address (Residency choice)"))
-  }
+  if(taxCreditsEnabled) controllers.routes.AddressController.taxCreditsChoice else controllers.routes.AddressController.residencyChoice
 }
 
 <div class="card column-third">
-  <a class="card-link ga-track-anchor-click" href="@updateAddressLink._1" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="@updateAddressLink._2">
+  <a class="card-link ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.main_address")</h3>
       <p><strong>
@@ -31,7 +27,7 @@
   <div class="card-actions">
     <ul>
       <li>
-        <a class="ga-track-anchor-click" href="@updateAddressLink._1" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="@updateAddressLink._2">@Messages("label.change_your_main_address")</a>
+        <a class="ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@Messages("label.change_your_main_address")</a>
       </li>
     </ul>
   </div>

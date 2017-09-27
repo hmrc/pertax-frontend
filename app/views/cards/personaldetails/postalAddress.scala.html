@@ -1,8 +1,10 @@
 @(personDetails: models.PersonDetails,canUpdatePostalAddress: Boolean)(implicit messages: play.api.i18n.Messages)
 
+@import controllers.bindable.PostalAddrType
+
 <div class="card column-third">
   @if(canUpdatePostalAddress){
-    <a class="card-link ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Your address">
+    <a class="card-link ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
   }
   <div class="card-content" role="link">
     <h3 class="heading-small no-margin-top">@Messages("label.postal_address")</h3>
