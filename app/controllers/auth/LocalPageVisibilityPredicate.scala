@@ -27,10 +27,11 @@ import play.api.mvc.{AnyContent, Request}
 import services._
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
 
 @Singleton
 class LocalPageVisibilityPredicateFactory @Inject() (
@@ -81,7 +82,7 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
   private lazy val completionUrl = onwardUrl
 
   def apply(authContext: AuthContext, request: Request[AnyContent]): Future[PageVisibilityResult] = {
-    implicit val hc = HeaderCarrier.fromHeadersAndSession(request.headers, Some(request.session))
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
     if ( userHasHighConfidenceLevel(authContext) ) {
       Future.successful(PageIsVisible)
     } else {

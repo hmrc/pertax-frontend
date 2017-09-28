@@ -23,8 +23,8 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.http.HttpResponse
 import util.BaseSpec
+import uk.gov.hmrc.http.HttpResponse
 
 
 class EnrolmentExceptionListServiceSpec extends BaseSpec {

@@ -25,8 +25,8 @@ import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.CredentialStrength
-import uk.gov.hmrc.play.http.SessionKeys
 import util.LocalPartialRetriever
+import uk.gov.hmrc.http.SessionKeys
 
 class AuthContextDecorator(authContext: Option[AuthContext]) { //FIXME - PertaxContext should probably be refactored to 1. Contain an AuthContext 2. Implement this
   def enrolmentUri: Option[String] = authContext.flatMap(_.enrolmentsUri)

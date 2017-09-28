@@ -26,8 +26,8 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.frontend.auth.{AuthenticationProviderIds, UserCredentials}
-import uk.gov.hmrc.play.http.SessionKeys
 import util.BaseSpec
+import uk.gov.hmrc.http.SessionKeys
 
 class PertaxAuthenticationProviderSpec extends BaseSpec {
 

@@ -21,9 +21,8 @@ import javax.inject.{Inject, Singleton}
 import com.typesafe.config.Config
 import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.ControllerConfig
-import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
-import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
 import net.ceedubs.ficus.Ficus._
+import uk.gov.hmrc.play.frontend.filters.{ FrontendLoggingFilter, MicroserviceFilterSupport }
 
 
 @Singleton

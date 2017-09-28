@@ -22,9 +22,8 @@ import com.typesafe.config.Config
 import connectors.PertaxAuditConnector
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
-import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
-import uk.gov.hmrc.play.filters.MicroserviceFilterSupport
+import uk.gov.hmrc.play.frontend.filters.{ FrontendAuditFilter, MicroserviceFilterSupport }
 
 
 @Singleton

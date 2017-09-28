@@ -24,9 +24,9 @@ import play.api.Logger
 import play.api.http.Status._
 import services.http.SimpleHttp
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 
 trait IdentityVerificationResponse

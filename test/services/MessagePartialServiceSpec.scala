@@ -25,13 +25,13 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.twirl.api.Html
 import services.http.WsAllMethods
 import services.partials.MessagePartialService
-import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class MessagePartialServiceSpec extends BaseSpec {
 
@@ -53,35 +53,35 @@ class MessagePartialServiceSpec extends BaseSpec {
 
    "return message partial for list of messages" in new LocalSetup {
 
-      when(partialService.http.GET[HtmlPartial](any())(any(),any())) thenReturn
+      when(partialService.http.GET[HtmlPartial](any())(any(),any(),any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
       partialService.getMessageListPartial(buildFakeRequestWithAuth("GET")).map(p =>
         p shouldBe "<title/>"
       )
-      verify(partialService.http, times(1)).GET[Html](any())(any(),any())
+      verify(partialService.http, times(1)).GET[Html](any())(any(),any(), any())
     }
 
     "return message partial for message details" in new LocalSetup {
 
-      when(partialService.http.GET[HtmlPartial](any())(any(),any())) thenReturn
+      when(partialService.http.GET[HtmlPartial](any())(any(),any(),any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String")))
 
       partialService.getMessageDetailPartial("")(buildFakeRequestWithAuth("GET")).map(p=>
         p shouldBe HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
       )
-      verify(partialService.http, times(1)).GET[HttpResponse](any())(any(),any())
+      verify(partialService.http, times(1)).GET[HttpResponse](any())(any(),any(), any())
     }
 
     "return message inbox link partial" in new LocalSetup {
 
-      when(partialService.http.GET[HtmlPartial](any())(any(),any())) thenReturn
+      when(partialService.http.GET[HtmlPartial](any())(any(),any(),any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
 
       partialService.getMessageInboxLinkPartial(buildFakeRequestWithAuth("GET")).map(p=>
         p shouldBe HtmlPartial.Success(None, Html("link to messages"))
       )
-      verify(partialService.http, times(1)).GET[HttpResponse](any())(any(),any())
+      verify(partialService.http, times(1)).GET[HttpResponse](any())(any(),any(), any())
     }
 
   }

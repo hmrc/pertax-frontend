@@ -19,10 +19,10 @@ package playconfig
 import config.StaticGlobalDependencies
 import org.slf4j.MDC
 import play.api._
-import uk.gov.hmrc.play.audit.http.config.ErrorAuditingSettings
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.bootstrap.Routing.RemovingOfTrailingSlashes
 import uk.gov.hmrc.play.graphite.GraphiteConfig
+import uk.gov.hmrc.play.frontend.config.ErrorAuditingSettings
 
 
 object ApplicationGlobal extends GlobalSettings with GraphiteConfig

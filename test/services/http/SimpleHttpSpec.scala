@@ -23,10 +23,10 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Writes
-import uk.gov.hmrc.play.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import util.BaseSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ BadGatewayException, HeaderCarrier, HttpResponse }
 
 class SimpleHttpSpec extends BaseSpec {
 
@@ -48,7 +48,7 @@ class SimpleHttpSpec extends BaseSpec {
     lazy val dummyCallbacks = MockitoSugar.mock[DummyCallbacks]
     lazy val http = {
       val h = MockitoSugar.mock[WsAllMethods]
-      when(h.GET[HttpResponse](any())(any(), any())) thenReturn httpResponse
+      when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
       h
     }
 
@@ -61,7 +61,7 @@ class SimpleHttpSpec extends BaseSpec {
 
       override lazy val http = {
         val h = MockitoSugar.mock[WsAllMethods]
-        when(h.GET[HttpResponse](any())(any(), any())) thenReturn httpResponse
+        when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
         h
       }
 
@@ -89,7 +89,7 @@ class SimpleHttpSpec extends BaseSpec {
 
       override lazy val http = {
         val h = MockitoSugar.mock[WsAllMethods]
-        when(h.POST[String,HttpResponse](any(),any(),any())(any(),any(),any())) thenReturn httpResponse
+        when(h.POST[String,HttpResponse](any(),any(),any())(any(),any(),any(),any())) thenReturn httpResponse
         h
       }
 
@@ -117,7 +117,7 @@ class SimpleHttpSpec extends BaseSpec {
 
       override lazy val http = {
         val h = MockitoSugar.mock[WsAllMethods]
-        when(h.PUT[String,HttpResponse](any(),any())(any(),any(),any())) thenReturn httpResponse
+        when(h.PUT[String,HttpResponse](any(),any())(any(),any(),any(),any())) thenReturn httpResponse
         h
       }
 

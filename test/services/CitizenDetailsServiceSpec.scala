@@ -27,8 +27,8 @@ import play.api.http.Status._
 import play.api.libs.json.{JsNull, Json}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.play.http.HttpResponse
 import util.{BaseSpec, Fixtures}
+import uk.gov.hmrc.http.HttpResponse
 
 class CitizenDetailsServiceSpec extends BaseSpec {
 

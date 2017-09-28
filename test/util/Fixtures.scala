@@ -38,7 +38,6 @@ import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 import uk.gov.hmrc.play.frontend.auth.{AuthContext, AuthenticationProviderIds}
-import uk.gov.hmrc.play.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
@@ -46,6 +45,7 @@ import uk.gov.hmrc.time.DateTimeUtils._
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.Random
+import uk.gov.hmrc.http.{ HeaderCarrier, SessionKeys }
 
 
 trait PafFixtures {

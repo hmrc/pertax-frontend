@@ -23,9 +23,9 @@ import controllers.bindable.StrictContinueUrl
 import play.api.mvc.Results._
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.play.frontend.auth.{AnyAuthenticationProvider, GovernmentGateway, Verify}
-import uk.gov.hmrc.play.http.SessionKeys
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.SessionKeys
 
 class PertaxAuthenticationProvider @Inject()(val configDecorator: ConfigDecorator) extends AnyAuthenticationProvider {
 

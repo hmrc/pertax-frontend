@@ -36,13 +36,13 @@ import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.TaxYearResolver
 import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 
 class ApplicationControllerSpec extends BaseSpec {
@@ -93,7 +93,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       val c = injected[ApplicationController]
 
-      when(c.authConnector.currentAuthority(any())) thenReturn {
+      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(authority))
       }
       when(c.taiService.taxSummary(meq(nino), any[Int])(any[HeaderCarrier])) thenReturn {

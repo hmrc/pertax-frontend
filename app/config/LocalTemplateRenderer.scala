@@ -19,8 +19,8 @@ package config
 import javax.inject.Inject
 
 import services.http.WsAllMethods
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.Future

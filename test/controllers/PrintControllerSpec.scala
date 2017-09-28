@@ -64,7 +64,7 @@ class PrintControllerSpec extends BaseSpec {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
 
-      when(c.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = true, confidenceLevel = if (isHighGG) ConfidenceLevel.L200 else ConfidenceLevel.L50)))
       }
 

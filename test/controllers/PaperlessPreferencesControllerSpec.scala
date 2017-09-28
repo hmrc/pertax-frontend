@@ -68,7 +68,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
 
       val c = injected[PaperlessPreferencesController]
 
-      when(c.authConnector.currentAuthority(any())) thenReturn {
+      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(authority))
       }
       when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {

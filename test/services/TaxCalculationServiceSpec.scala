@@ -25,8 +25,8 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.http.HttpResponse
 import util.{BaseSpec, Fixtures}
+import uk.gov.hmrc.http.HttpResponse
 
 class TaxCalculationServiceSpec extends BaseSpec {
 

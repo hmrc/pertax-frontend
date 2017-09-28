@@ -24,10 +24,10 @@ import controllers.bindable.Origin
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProviderIds
-import uk.gov.hmrc.play.http.SessionKeys
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.SessionKeys
 
 class PublicController @Inject() (
   val messagesApi: MessagesApi,

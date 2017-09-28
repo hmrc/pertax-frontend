@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial._
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpException, HttpGet }
 
 /*
  * This is a PartialRetriever with a HeaderCarrierForPartialsConverter to forward request headers on
