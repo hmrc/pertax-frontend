@@ -89,7 +89,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val iabdType = 31
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Pay As You Earn (PAYE)</h3>
@@ -113,7 +113,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val iabdType = 0
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Pay As You Earn (PAYE)</h3>
@@ -160,7 +160,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationOverpaidRefundState(100, 2015, 2016)
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too much tax last year">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
@@ -181,7 +181,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationOverpaidPaymentProcessingState(100)
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too much tax last year">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
@@ -201,7 +201,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationOverpaidPaymentPaidState(100, "01 Jan 2016")
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too much tax last year">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
@@ -221,7 +221,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationOverpaidPaymentChequeSentState(100, "01 Jan 2016")
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too much tax last year">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too much tax last year</h3>
@@ -241,7 +241,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016)
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too little tax last year">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
@@ -261,7 +261,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016)
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too little tax last year">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
@@ -281,7 +281,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016)
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You do not owe any more tax">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">You do not owe any more tax</h3>
@@ -324,7 +324,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/personal-account/self-assessment-summary" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
@@ -346,7 +346,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
@@ -369,7 +369,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val saUserType = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
@@ -412,7 +412,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/personal-account/national-insurance-summary" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="National Insurance">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">National Insurance</h3>
@@ -440,7 +440,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/tax-credits-service/home" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tax credits">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Tax credits</h3>
@@ -467,7 +467,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/personal-account/child-benefit-forms" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Child Benefit">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Child Benefit</h3>
@@ -502,7 +502,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-half">
+          """<div class="card column-third">
             |  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Marriage Allowance">
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Marriage Allowance</h3>
@@ -523,7 +523,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-half">
+          """<div class="card column-third">
             |  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Marriage Allowance">
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Marriage Allowance</h3>
@@ -545,7 +545,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-half">
+          """<div class="card column-third">
             |  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Marriage Allowance">
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Marriage Allowance</h3>
@@ -567,7 +567,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-half">
+          """<div class="card column-third">
             |  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Marriage Allowance">
             |    <div class="card-content" role="link">
             |      <h3 class="heading-small no-margin-top">Marriage Allowance</h3>
@@ -595,7 +595,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "always return the same markup" in new LocalSetup {
 
       cardBody shouldBe
-        Some("""<div class="card column-half">
+        Some("""<div class="card column-third">
            |  <a class="card-link ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="State Pension">
            |    <div class="card-content" role="link">
            |      <h3 class="heading-small no-margin-top">State Pension</h3>

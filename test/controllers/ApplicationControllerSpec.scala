@@ -108,9 +108,6 @@ class ApplicationControllerSpec extends BaseSpec {
       when(c.citizenDetailsService.personDetails(meq(nino))(any())) thenReturn {
         Future.successful(personDetailsResponse)
       }
-      when(c.partialService.getMessageInboxLinkPartial(any())) thenReturn {
-        Future.successful(HtmlPartial.Success(None, Html("<a href='#'/>")))
-      }
       when(c.cspPartialService.webchatClickToChatScriptPartial(any())(any())) thenReturn {
         Future.successful(HtmlPartial.Success(None, Html("<script></script>")))
       }
@@ -167,7 +164,6 @@ class ApplicationControllerSpec extends BaseSpec {
       redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PTA-TCS&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary")
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(controller.partialService, times(0)).getMessageInboxLinkPartial(any())
       verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())
     }
 
@@ -182,7 +178,6 @@ class ApplicationControllerSpec extends BaseSpec {
       redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(controller.partialService, times(0)).getMessageInboxLinkPartial(any())
       verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())
     }
 
@@ -197,7 +192,6 @@ class ApplicationControllerSpec extends BaseSpec {
       redirectLocation(r) shouldBe None
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(controller.partialService, times(0)).getMessageInboxLinkPartial(any())
       verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())    }
   }
 
@@ -222,7 +216,6 @@ class ApplicationControllerSpec extends BaseSpec {
       status(r) shouldBe OK
 
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      verify(controller.partialService, times(1)).getMessageInboxLinkPartial(any())
       if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
@@ -238,7 +231,6 @@ class ApplicationControllerSpec extends BaseSpec {
       status(r) shouldBe OK
 
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      verify(controller.partialService, times(1)).getMessageInboxLinkPartial(any())
       if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
@@ -255,7 +247,6 @@ class ApplicationControllerSpec extends BaseSpec {
       status(r) shouldBe OK
 
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      verify(controller.partialService, times(1)).getMessageInboxLinkPartial(any())
       if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
@@ -282,7 +273,6 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.citizenDetailsService, times(0)).personDetails(meq(nino))(any())
       verify(controller.taiService, times(0)).taxSummary(any(), meq(TaxYearResolver.currentTaxYear))(any())
-      verify(controller.partialService, times(1)).getMessageInboxLinkPartial(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {

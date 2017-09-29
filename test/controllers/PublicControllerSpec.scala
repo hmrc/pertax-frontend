@@ -46,6 +46,7 @@ class PublicControllerSpec extends BaseSpec  {
       when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback-survey?origin=PERTAX"
       when(c.configDecorator.tcsServiceRouterUrl) thenReturn "/tax-credits-service/renewals/service-router"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
       c
     }
   }

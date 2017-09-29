@@ -49,7 +49,6 @@ class ApplicationController @Inject() (
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val preferencesFrontendService: PreferencesFrontendService,
-  val partialService: MessagePartialService,
   val taiService: TaiService,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
   val taxCalculationService: TaxCalculationService,
@@ -108,12 +107,9 @@ class ApplicationController @Inject() (
 
       val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
 
-      val messageInboxLinkPartial = partialService.getMessageInboxLinkPartial
-
       enforcePaperlessPreference {
         for {
           (taxSummary, taxCalculation) <- serviceCallResponses
-          inboxLinkPartial <- messageInboxLinkPartial
           saUserType <- saUserType
         } yield {
 
@@ -134,7 +130,6 @@ class ApplicationController @Inject() (
           )
 
           Ok(views.html.home(
-            inboxLinkPartial = inboxLinkPartial.successfulContentOrEmpty,
             userResearchLinkUrl = configDecorator.urLinkUrl,
             incomeCards,
             benefitCards,

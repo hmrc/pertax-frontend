@@ -5,7 +5,7 @@
 @main(Messages("label.update_your_postal_address"),Some(Messages("label.your_personal_tax_account"))) {
   <div class="personal-details">
     <div class="grid-row">
-      <div class="column-whole">
+      <div class="column-full">
         <div class="page-heading">
           <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_get_tax_credits")</h1>
         </div>
@@ -14,7 +14,7 @@
     <div class="grid-row">
       <div class="column-two-thirds">
         <div class="grid-row pertax-panel">
-          <div class="column-whole">
+          <div class="column-full">
             @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl ) {
               <div class="form-group inline">
                 @inputRadioGroup(

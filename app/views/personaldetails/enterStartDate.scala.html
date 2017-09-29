@@ -10,7 +10,7 @@
 @main(typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = ""),Some(Messages("label.your_personal_tax_account"))) {
   <div class="personal-details">
     <div class="grid-row">
-      <div class="column-whole">
+      <div class="column-full">
         <div class="page-heading">
           <h1 class="heading-xlarge no-margin-bottom">@typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = "")</h1>
         </div>
@@ -22,7 +22,7 @@
         @errorsNew(residenceStartDateForm)
 
         <div class="grid-row pertax-panel">
-          <div class="column-whole">
+          <div class="column-full">
             <div class="form-start-date">
               <p class="lede">@Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
                 @form(controllers.routes.AddressController.processEnterStartDate(typ)) {
