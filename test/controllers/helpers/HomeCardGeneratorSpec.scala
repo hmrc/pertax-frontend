@@ -599,7 +599,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
            |  <a class="card-link ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="State Pension">
            |    <div class="card-content" role="link">
            |      <h3 class="heading-small no-margin-top">State Pension</h3>
-           |      <p>You are still contributing to your State Pension. Get a forecast and find out when you can start claiming it.</p>
+           |      <p>View your State Pension and National Insurance contributions.</p>
            |    </div>
            |  </a>
            |  <div class="card-actions">
