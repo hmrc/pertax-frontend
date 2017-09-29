@@ -607,7 +607,7 @@ label.find_out_if_you_qualify_for_child_benefit=Dod i wybod a ydych yn gymwys ar
 title.pensions=Pensiynau
 
 title.state_pension=Pensiwn y Wladwriaeth
-label.you_are_still_contributing_to_your_state_pension_=Rydych yn dal i gyfrannu tuag at eich Pensiwn y Wladwriaeth. Cael rhagolwg a dod i wybod pryd y gallwch ddechrau''i hawlio.
+label.view_your_state_pension_and_national_insurance_contributions=Bwrw golwg ar eich Pensiwn y Wladwriaeth a''ch cyfraniadau Yswiriant Gwladol.
 label.check_your_national_insurance_record_for_gaps=Gwirio''ch cofnod Yswiriant Gwladol am fylchau
 label.view_your_state_pension_forecast=Bwrw golwg ar ragolwg o''ch Pensiwn y Wladwriaeth
 
