@@ -29,6 +29,7 @@
       }
     }
     seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
+    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
   }
   seq
 }
