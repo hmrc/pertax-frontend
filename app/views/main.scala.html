@@ -65,7 +65,7 @@
           label: label
         }));
 
-        if(args != 'undefined' && args['hitCallback'] != 'undefined') {
+        if(args && typeof args !== 'undefined' && typeof args['hitCallback'] === 'function') {
           var hitCallback = args['hitCallback'];
           hitCallback();
         }
