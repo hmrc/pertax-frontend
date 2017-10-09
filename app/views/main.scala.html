@@ -85,33 +85,14 @@
   @Some(pertaxContext.uri).map { url =>
     <div class="lang-select">
       @if(messages.lang == Lang("cy")) {
-        @Link.toInternalPage(
-          url=controllers.routes.LanguageController.enGb(StrictContinueUrl(url)).toString(),
-          value=Some(Messages("label.english")),
-          id=Some("switch-to-english"),
-          cssClasses=Some("ga-track-anchor-click"),
-          dataAttributes=Some(Map(
-            "ga-event-category" -> "link - click",
-            "ga-event-action" -> "lang-select",
-            "ga-event-label" -> "English"))
-          ).toHtml
+        <a id="switch-to-english" lang="en" href="@controllers.routes.LanguageController.enGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="English">@Messages("label.english")</a>
         | @Messages("label.welsh")
       } else {
         @Messages("label.english") |
-        @Link.toInternalPage(
-          url=controllers.routes.LanguageController.cyGb(StrictContinueUrl(url)).toString(),
-          value=Some(Messages("label.welsh")),
-          id=Some("switch-to-welsh"),
-          cssClasses=Some("ga-track-anchor-click"),
-          dataAttributes=Some(Map(
-            "ga-event-category" -> "link - click",
-            "ga-event-action" -> "lang-select",
-            "ga-event-label" -> "Cymraeg"))
-          ).toHtml
+        <a id="switch-to-welsh" lang="cy" href="@controllers.routes.LanguageController.cyGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="Cymraeg">@Messages("label.welsh")</a>
       }
     </div>
   }
-
 }
 
 
