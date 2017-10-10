@@ -77,4 +77,10 @@ class PublicController @Inject() (
       }
   }
 
+  def redirectToPersonalDetails(): Action[AnyContent] = PublicAction {
+    implicit pertaxContext =>
+      Future.successful {
+        Redirect(routes.AddressController.personalDetails)
+      }
+  }
 }

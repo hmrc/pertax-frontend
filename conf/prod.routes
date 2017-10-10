@@ -3,6 +3,7 @@ GET    /personal-account/start-government-gateway                            @co
 GET    /personal-account/signin                                              @controllers.PublicController.sessionTimeout
 GET    /personal-account/signed-out                                          @controllers.PublicController.redirectToExitSurvey(origin: Origin)
 GET    /personal-account/tax-credits-summary                                 @controllers.PublicController.redirectToTaxCreditsService()
+GET    /personal-account/your-address                                        @controllers.PublicController.redirectToPersonalDetails
 
 GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[StrictContinueUrl])
 GET    /personal-account                                                     @controllers.ApplicationController.index
