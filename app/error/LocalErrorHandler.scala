@@ -27,10 +27,10 @@ import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import services.{CitizenDetailsService, UserDetailsService}
-import uk.gov.hmrc.play.filters.frontend.CookieCryptoFilter
 import util.LocalPartialRetriever
 
 import scala.concurrent._
+import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
 
 
 @Singleton

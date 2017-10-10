@@ -85,7 +85,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
-      when(authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(authority))
       }
       when(userDetailsService.getUserDetails(any())(any())) thenReturn {

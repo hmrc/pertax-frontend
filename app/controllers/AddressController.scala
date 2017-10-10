@@ -37,12 +37,12 @@ import play.api.mvc._
 import play.twirl.api.Html
 import services._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 
 class AddressControllerConfiguration {

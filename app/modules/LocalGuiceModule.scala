@@ -19,10 +19,9 @@ package modules
 import com.google.inject.AbstractModule
 import config.LocalTemplateRenderer
 import filters._
-import uk.gov.hmrc.play.filters.CacheControlFilter
-import uk.gov.hmrc.play.filters.frontend._
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.renderer.TemplateRenderer
+import uk.gov.hmrc.play.frontend.filters.{ CSRFExceptionsFilter, CacheControlFilter, CookieCryptoFilter, DeviceIdFilter, HeadersFilter, SessionTimeoutFilter }
 
 class LocalGuiceModule extends AbstractModule {
   override def configure() = {

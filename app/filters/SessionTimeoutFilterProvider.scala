@@ -22,11 +22,9 @@ import org.joda.time.Duration
 import play.api.mvc.Request
 import play.api.{Application, Configuration}
 import play.twirl.api.Html
-import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.filters.frontend.SessionTimeoutFilter
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
-import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
+import uk.gov.hmrc.play.frontend.filters.{ FrontendAuditFilter, FrontendLoggingFilter, SessionTimeoutFilter }
 
 
 @Singleton

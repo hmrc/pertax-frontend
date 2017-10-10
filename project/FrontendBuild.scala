@@ -9,23 +9,16 @@ private object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val playHealthVersion = "2.1.0"
 
   private val govukTemplateVersion =  "5.2.0"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "play-health" % playHealthVersion,
     "uk.gov.hmrc" %% "play-breadcrumb" % "1.0.0",
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "7.23.0", // includes the global object and error handling, as well as the FrontendController classes
-    "uk.gov.hmrc" %% "play-partials" % "5.3.0", // includes code for retrieving partials, e.g. the Help with this page form
-    "uk.gov.hmrc" %% "play-authorised-frontend" % "6.3.0",
-    "uk.gov.hmrc" %% "play-config" % "4.3.0",
-    "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
-    "uk.gov.hmrc" %% "play-ui" % "7.2.1",
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.7.0", // includes the global object and error handling, as well as the FrontendController classes
+    "uk.gov.hmrc" %% "play-partials" % "6.1.0", // includes code for retrieving partials, e.g. the Help with this page form
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
-    "uk.gov.hmrc" %% "play-graphite" % "3.2.0",
-    "uk.gov.hmrc" %% "http-caching-client" % "6.2.0",
+    "uk.gov.hmrc" %% "http-caching-client" % "7.0.0",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "local-template-renderer" % "1.0.0"
   )

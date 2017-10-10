@@ -18,9 +18,9 @@ package connectors
 
 import javax.inject.Singleton
 
-import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.{RunMode, AppName}
+import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
 
 
 @Singleton

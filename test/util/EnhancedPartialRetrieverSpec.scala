@@ -19,13 +19,13 @@ import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import play.twirl.api.Html
-import uk.gov.hmrc.play.http.{GatewayTimeoutException, HttpException, HttpGet}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ GatewayTimeoutException, HttpGet }
 
 class EnhancedPartialRetrieverSpec extends BaseSpec {
 
@@ -44,8 +44,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
       val epr = new EnhancedPartialRetriever with HasMetrics {
 
         override val http: HttpGet = MockitoSugar.mock[HttpGet]
-        if(simulateCallFailed) when(http.GET[HtmlPartial](any())(any(), any())) thenReturn Future.failed(new GatewayTimeoutException("Gateway timeout"))
-        else when(http.GET[HtmlPartial](any())(any(), any())) thenReturn Future.successful(returnPartial)
+        if(simulateCallFailed) when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.failed(new GatewayTimeoutException("Gateway timeout"))
+        else when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.successful(returnPartial)
 
         override val metrics: Metrics = MockitoSugar.mock[Metrics]
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]

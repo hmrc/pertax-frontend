@@ -23,9 +23,9 @@ import models.dto._
 import models.{AddressJourneyData, PertaxContext}
 import play.api.mvc.Result
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 
 trait AddressJourneyCachingHelper { this: AddressController =>

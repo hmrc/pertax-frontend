@@ -28,11 +28,11 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.play.http.HttpResponse
 import util.BaseSpec
 import util.Fixtures._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class HasSelfAssessmentServiceSpec extends BaseSpec {
 

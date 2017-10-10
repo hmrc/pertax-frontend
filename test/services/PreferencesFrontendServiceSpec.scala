@@ -31,6 +31,7 @@ import services.http.FakeSimpleHttp
 import uk.gov.hmrc.play.http._
 import util.BaseSpec
 import util.Fixtures._
+import uk.gov.hmrc.http.HttpResponse
 
 class PreferencesFrontendServiceSpec extends BaseSpec {
 

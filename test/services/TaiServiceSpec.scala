@@ -28,6 +28,7 @@ import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.http._
 import util.{BaseSpec, Fixtures}
+import uk.gov.hmrc.http.HttpResponse
 
 class TaiServiceSpec extends BaseSpec {
 

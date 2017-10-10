@@ -62,7 +62,7 @@ class MessageControllerSpec extends BaseSpec  {
     lazy val controller = {
       val c = injected[MessageController]
 
-      when(c.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority()))
       }
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
@@ -79,7 +79,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
       }
 
@@ -102,7 +102,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
@@ -121,7 +121,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
@@ -135,7 +135,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.VerifyAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withSa = true)))
       }
 
@@ -153,7 +153,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.VerifyAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withSa = false)))
       }
 
@@ -175,7 +175,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
       }
 
@@ -197,7 +197,7 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
@@ -215,7 +215,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
@@ -229,7 +229,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.VerifyAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withSa = true)))
       }
 
@@ -247,7 +247,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       lazy val authProviderType = UserDetails.VerifyAuthProvider
 
-      when(controller.authConnector.currentAuthority(org.mockito.Matchers.any())) thenReturn {
+      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withSa = false)))
       }
 

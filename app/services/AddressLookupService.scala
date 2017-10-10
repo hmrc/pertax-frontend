@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
 import util._
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 sealed trait AddressLookupResponse
 case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse

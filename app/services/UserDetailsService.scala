@@ -23,9 +23,9 @@ import metrics.HasMetrics
 import models.UserDetails
 import play.api.Logger
 import services.http.SimpleHttp
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class UserDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) extends HasMetrics {

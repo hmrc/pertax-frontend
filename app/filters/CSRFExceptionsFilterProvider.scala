@@ -21,11 +21,9 @@ import javax.inject.{Inject, Singleton, Provider}
 import play.api.{Application, Configuration}
 import play.api.mvc.Request
 import play.twirl.api.Html
-import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.filters.frontend.CSRFExceptionsFilter
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
-import uk.gov.hmrc.play.http.logging.filters.FrontendLoggingFilter
+import uk.gov.hmrc.play.frontend.filters.{ CSRFExceptionsFilter, FrontendAuditFilter, FrontendLoggingFilter }
 
 
 @Singleton

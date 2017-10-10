@@ -31,7 +31,6 @@ import play.api.mvc._
 import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessagePartialService}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.time.TaxYearResolver
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}
@@ -43,6 +42,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.config.RunMode
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 
 class ApplicationController @Inject() (

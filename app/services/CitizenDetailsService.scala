@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
 import play.api.http.Status._
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 sealed trait PersonDetailsResponse
 case class PersonDetailsSuccessResponse(personDetails: PersonDetails) extends PersonDetailsResponse
