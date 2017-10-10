@@ -102,4 +102,14 @@ class PublicControllerSpec extends BaseSpec  {
     }
   }
 
+  "Calling PublicController.redirectToPersonalDetails" should {
+
+    "redirect to /personal-details page" in new LocalSetup {
+      val r = controller.redirectToPersonalDetails()(buildFakeRequestWithAuth("GET"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/personal-account/personal-details")
+    }
+  }
+
 }
