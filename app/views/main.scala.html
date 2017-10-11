@@ -104,12 +104,12 @@
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), Map[String,Any](
     "pageTitle" -> title,
     "linkElems" -> Map(
-      "url" -> controllers.routes.AssetsController.at("stylesheets/pertaxMain.css?v=hgjwhuigew")
+      "url" -> controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")
     ),
     "scriptElems" -> Seq(
-      Map("url" -> controllers.routes.AssetsController.at("javascripts/pertax.js")),
-      Map("url" -> controllers.routes.AssetsController.at("javascripts/gaTracking.js")),
-      Map("url" -> controllers.routes.AssetsController.at("javascripts/webChat.js"))
+      Map("url" -> controllers.routes.AssetsController.versioned("javascripts/pertax.js")),
+      Map("url" -> controllers.routes.AssetsController.versioned("javascripts/gaTracking.js")),
+      Map("url" -> controllers.routes.AssetsController.versioned("javascripts/webChat.js"))
     ),
     "inlineScript" -> inlineScript,
     "ssoUrl" -> pertaxContext.configDecorator.ssoUrl,
