@@ -66,10 +66,8 @@ class ApplicationController @Inject() (
   val homeCardGenerator: HomeCardGenerator
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
-  def index: Action[AnyContent] = ProtectedAction(Nil) {
+  def index: Action[AnyContent] = ProtectedAction(Nil, activeTab = Some(ActiveTabHome)) {
     implicit pertaxContext =>
-
-      val context: AuthContextDecorator = new AuthContextDecorator(pertaxContext.user.map(_.authContext))
 
       val year = TaxYearResolver.currentTaxYear
 

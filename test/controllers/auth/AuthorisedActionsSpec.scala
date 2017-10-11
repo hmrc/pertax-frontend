@@ -18,9 +18,9 @@ package controllers.auth
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.PertaxBaseController
+import controllers.{PaperlessPreferencesController, PertaxBaseController}
 import error.LocalErrorHandler
-import models.{PertaxContext, PertaxUser, UserDetails}
+import models._
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -41,7 +41,7 @@ import scala.concurrent.Future
 
 class AuthorisedActionsSpec extends BaseSpec {
 
-  "Calling LocalActions.createPertaxContextAndExecute" should {
+  "Calling AuthorisedActions.createPertaxContextAndExecute" should {
 
     trait LocalSetup {
 
@@ -190,7 +190,7 @@ class AuthorisedActionsSpec extends BaseSpec {
     }
   }
 
-  "Calling LocalActions.enforceMinimumUserProfile" should {
+  "Calling AuthorisedActions.enforceMinimumUserProfile" should {
 
     trait LocalSetup {
 
@@ -265,5 +265,44 @@ class AuthorisedActionsSpec extends BaseSpec {
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/personal-account/do-uplift?redirectUrl=%2Ftest")
     }
+  }
+
+  "Calling AuthorisedActions.withActiveTab" should {
+
+    trait LocalSetup {
+
+      def activeTab: Option[ActiveTab]
+
+      val basePertaxContext: PertaxContext = PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, MockitoSugar.mock[ConfigDecorator])
+
+      val authorisedActions: AuthorisedActions = injected[PaperlessPreferencesController] //Could use any controller that implements AuthorisedActions
+
+      //Extract the context
+      val pc: Future[Option[PertaxContext]] = {
+        var ctx: Option[PertaxContext] = None
+        val r = authorisedActions.withActiveTab(activeTab) { c =>
+          ctx = Some(c)
+          Future.successful(Ok)
+        }(basePertaxContext)
+        r.map(_ => ctx)
+      }
+
+      lazy val pertaxContextFromBlock: PertaxContext = await(pc).get
+    }
+
+    "run the block supplied with no activeTab set in the its PertaxContext when no activeTab is set" in new LocalSetup {
+
+      override def activeTab = None
+
+      pertaxContextFromBlock.activeTab shouldBe None
+    }
+
+    "run the block supplied with the correct activeTab set in the its PertaxContext when an activeTab is set" in new LocalSetup {
+
+      override def activeTab = Some(ActiveTabHome)
+
+      pertaxContextFromBlock.activeTab shouldBe Some(ActiveTabHome)
+    }
+
   }
 }

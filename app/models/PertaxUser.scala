@@ -16,17 +16,15 @@
 
 package models
 
-import java.security.AuthProvider
 import java.security.cert.X509Certificate
 
 import config.ConfigDecorator
 import play.api.mvc.{AnyContent, Headers, Request}
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.CredentialStrength
-import util.LocalPartialRetriever
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.frontend.auth.AuthContext
+import util.LocalPartialRetriever
 
 class AuthContextDecorator(authContext: Option[AuthContext]) { //FIXME - PertaxContext should probably be refactored to 1. Contain an AuthContext 2. Implement this
   def enrolmentUri: Option[String] = authContext.flatMap(_.enrolmentsUri)
@@ -38,7 +36,7 @@ class AuthContextDecorator(authContext: Option[AuthContext]) { //FIXME - PertaxC
 }
 
 class PertaxContext(val request: Request[AnyContent], val partialRetriever: LocalPartialRetriever, val configDecorator: ConfigDecorator, val user: Option[PertaxUser],
-                    val breadcrumb: Option[Breadcrumb], val welshWarning: Boolean) extends Request[AnyContent] {
+                    val breadcrumb: Option[Breadcrumb], val welshWarning: Boolean, val activeTab: Option[ActiveTab]) extends Request[AnyContent] {
   override def body: AnyContent = request.body
   override def secure: Boolean = request.secure
   override def uri: String = request.uri
@@ -51,8 +49,10 @@ class PertaxContext(val request: Request[AnyContent], val partialRetriever: Loca
   override def tags: Map[String, String] = request.tags
   override def id: Long = request.id
   override def clientCertificateChain: Option[Seq[X509Certificate]] = request.clientCertificateChain
-  def withUser(u: Option[PertaxUser]) = new PertaxContext(request, partialRetriever, configDecorator, u, breadcrumb, welshWarning)
-  def withBreadcrumb(b: Option[Breadcrumb]) = new PertaxContext(request, partialRetriever, configDecorator, user, b, welshWarning)
+  def withUser(u: Option[PertaxUser])       = new PertaxContext(request, partialRetriever, configDecorator, u, breadcrumb, welshWarning, activeTab)
+  def withBreadcrumb(b: Option[Breadcrumb]) = new PertaxContext(request, partialRetriever, configDecorator, user, b, welshWarning, activeTab)
+  def withWelshWarning(ww: Boolean) = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, ww, activeTab)
+  def withActiveTab(at: Option[ActiveTab])  = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, at)
 
   request.session.get(SessionKeys.authProvider)==Some("GGW")
 
@@ -67,13 +67,14 @@ class PertaxContext(val request: Request[AnyContent], val partialRetriever: Loca
 
   def getPartialContent(url: String): Html = partialRetriever.getPartialContent(url)(this)
 
-  def withWelshWarning(ww: Boolean) =
-    new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, ww)
 }
 
 object PertaxContext {
-  def apply(request: Request[AnyContent], partialRetriever: LocalPartialRetriever, configDecorator: ConfigDecorator, user: Option[PertaxUser] = None,
-            breadcrumb: Option[Breadcrumb] = None, welshWarning: Boolean = false): PertaxContext = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning)
+  def apply(request: Request[AnyContent], partialRetriever: LocalPartialRetriever,
+            configDecorator: ConfigDecorator, user: Option[PertaxUser] = None,
+            breadcrumb: Option[Breadcrumb] = None, welshWarning: Boolean = false,
+            activeTab: Option[ActiveTab] = None): PertaxContext =
+    new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, activeTab)
 }
 
 case class PertaxUser(val authContext: AuthContext, val userDetails: UserDetails, val personDetails: Option[PersonDetails], private val isHighGG: Boolean) {

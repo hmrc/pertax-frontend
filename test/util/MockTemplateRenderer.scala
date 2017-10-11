@@ -21,15 +21,19 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import services.http.WsAllMethods
+import uk.gov.hmrc.renderer.TemplateRenderer
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 
-object MockTemplateRenderer extends LocalTemplateRenderer(MockitoSugar.mock[WsAllMethods]) {
+object MockTemplateRenderer extends TemplateRenderer {
   override lazy val templateServiceBaseUrl = "http://example.com/template/mustache"
   override val refreshAfter = 10 minutes
+  override def fetchTemplate(path: String): Future[String] = ???
 
   override def renderDefaultTemplate(content: Html, extraArgs: Map[String, Any])(implicit messages: Messages) = {
     content
   }
+
 }
