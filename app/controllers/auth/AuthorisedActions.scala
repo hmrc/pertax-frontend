@@ -36,14 +36,16 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
   def localErrorHandler: LocalErrorHandler
 
 
-  def ProtectedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
+  def ProtectedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true, activeTab: Option[ActiveTab] = None)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
     AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async {
       implicit authContext => implicit request =>
         trimmingFormUrlEncodedData { implicit request =>
           createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext =>
             withBreadcrumb(breadcrumb) { implicit pertaxContext =>
-              enforceMinimumUserProfile {
-                block(pertaxContext)
+              withActiveTab(activeTab) { implicit pertaxContext =>
+                enforceMinimumUserProfile {
+                  block(pertaxContext)
+                }
               }
             }
           }
@@ -65,13 +67,16 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
   def withBreadcrumb(breadcrumb: Breadcrumb)(block: PertaxContext => Future[Result])(implicit pertaxContext: PertaxContext) =
     block(pertaxContext.withBreadcrumb(Some(breadcrumb)))
 
+  def withActiveTab(activeTab: Option[ActiveTab])(block: PertaxContext => Future[Result])(implicit pertaxContext: PertaxContext) =
+    block(pertaxContext.withActiveTab(activeTab))
+
   def renderError(context: PertaxContext, status: Int) = localErrorHandler.onClientError(context, status, "")
 
   def createPertaxContextAndExecute(fetchPersonDetails: Boolean)(block: PertaxContext => Future[Result])(implicit authContext: AuthContext, request: Request[AnyContent]): Future[Result] = {
 
     def withUserDetails(block: UserDetails => Future[Result]): Future[Result] = {
 
-      implicit val context = PertaxContext(request, partialRetriever, configDecorator, None)  //FIXME, can we supply a PertaxUser to this?
+      implicit val context = PertaxContext(request, partialRetriever, configDecorator, user = None)  //FIXME, can we supply a PertaxUser to this?
 
       authContext.userDetailsUri map { uri =>
         userDetailsService.getUserDetails(uri) flatMap {

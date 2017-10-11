@@ -22,7 +22,7 @@ import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
-import models.Breadcrumb
+import models.{ActiveTabMessages, Breadcrumb}
 import play.api.i18n.{Messages, MessagesApi}
 import play.twirl.api.Html
 import services.partials.MessagePartialService
@@ -49,7 +49,7 @@ class MessageController @Inject() (
     "label.all_messages" -> routes.MessageController.messageList.url ::
     baseBreadcrumb
 
-  def messageList = ProtectedAction(baseBreadcrumb) {
+  def messageList = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {
@@ -60,7 +60,7 @@ class MessageController @Inject() (
       }
   }
 
-  def messageDetail(messageToken: String) = ProtectedAction(messageBreadcrumb) {
+  def messageDetail(messageToken: String) = ProtectedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {

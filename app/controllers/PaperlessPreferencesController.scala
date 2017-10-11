@@ -22,6 +22,7 @@ import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
+import models.ActiveTabYourAccount
 import play.api.i18n.{Messages, MessagesApi}
 import services.partials.PreferencesFrontendPartialService
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
@@ -44,7 +45,7 @@ class PaperlessPreferencesController @Inject() (
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def managePreferences = ProtectedAction(baseBreadcrumb) {
+  def managePreferences = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       showingWarningIfWelsh { implicit pertaxContext =>
         for {

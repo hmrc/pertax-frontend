@@ -29,13 +29,13 @@ import scala.concurrent.duration._
 class LocalTemplateRenderer @Inject() (wsHttp: WsAllMethods) extends TemplateRenderer with ServicesConfig {
 
   override lazy val templateServiceBaseUrl = baseUrl("frontend-template-provider")
-  override val refreshAfter: Duration = 10 minutes
+  override lazy val refreshAfter: Duration = runModeConfiguration.getInt("template.refreshInterval").getOrElse(600) seconds
 
   private implicit val hc = HeaderCarrier()
   import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
   override def fetchTemplate(path: String): Future[String] =  {
 
-   wsHttp.GET(path).map(_.body)
+    wsHttp.GET(path).map(_.body)
   }
 }

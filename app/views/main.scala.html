@@ -127,6 +127,11 @@
     "isVerify" -> pertaxContext.user.map(_.isVerify).getOrElse(false),
     "signOutUrl" -> controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None),
 
+    "activeTabHome" -> (pertaxContext.activeTab == Some(ActiveTabHome)),
+    "activeTabMessages" -> (pertaxContext.activeTab == Some(ActiveTabMessages)),
+    "activeTabCheckProgress" -> (pertaxContext.activeTab == Some(ActiveTabCheckProgress)),
+    "activeTabYourAccount" -> (pertaxContext.activeTab == Some(ActiveTabYourAccount)),
+
     "actingAttorneyBanner" -> actingAttorneyBanner,
     "navTitle" -> pageName,
     "navLinks" -> links,
