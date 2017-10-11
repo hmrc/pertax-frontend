@@ -422,7 +422,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <div class="card-actions">
                |    <ul>
                |      <li><a class="ga-track-anchor-click" href="/personal-account/national-insurance-summary/print-letter" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Print your National Insurance number">Print your National Insurance number</a></li>
-               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View gaps in your record">View gaps in your record</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View gaps in your record">View gaps in your record</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -605,7 +605,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
            |  <div class="card-actions">
            |    <ul>
            |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your State Pension forecast">View your State Pension forecast</a></li>
-           |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your National Insurance record">View your National Insurance record</a></li>
+           |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your National Insurance record">View your National Insurance record</a></li>
            |    </ul>
            |  </div>
            |</div>""".stripMargin)

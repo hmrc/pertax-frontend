@@ -127,7 +127,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val childBenefitsStopOrRestart = s"$dfsFrontendHost/forms/form/high-income-child-benefit-tax-charge/guide"
   lazy val childBenefitsCheckIfYouCanClaim = "https://www.gov.uk/child-benefit/overview"
 
-  lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord"
+  lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
   lazy val myStatePensionAccount = s"$nispFrontendHost/check-your-state-pension/account/pta"
   lazy val lifetimeProtectionAllowance = s"$dfsFrontendHost/protect-your-lifetime-allowance/existing-protections"
 
