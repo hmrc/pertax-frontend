@@ -10,8 +10,8 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@title</title>
-    <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/pertaxMain.css")' />
-    <link rel="stylesheet" href='@controllers.routes.AssetsController.at("stylesheets/print.css")' />
+    <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")' />
+    <link rel="stylesheet" href='@controllers.routes.AssetsController.versioned("stylesheets/print.css")' />
     <link rel="shortcut icon" href="/template/images/favicon.ico" type="image/x-icon" />
   </head>
   <body class="print-page">
@@ -37,7 +37,7 @@
     )
 
     <script src="@uk.gov.hmrc.play.config.AssetsConfig.assetsPrefix/javascripts/application.min.js" type="text/javascript"></script>
-    <script src='@controllers.routes.AssetsController.at("javascripts/pertax.js")' type="text/javascript"></script>
-    <script src='@controllers.routes.AssetsController.at("javascripts/gaTracking.js")' type="text/javascript"></script>
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/pertax.js")' type="text/javascript"></script>
+    <script src='@controllers.routes.AssetsController.versioned("javascripts/gaTracking.js")' type="text/javascript"></script>
   </body>
 </html>

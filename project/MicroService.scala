@@ -8,6 +8,8 @@ import play.sbt.PlayImport.PlayKeys._
 import play.sbt.routes.RoutesKeys._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning
+import com.typesafe.sbt.digest.Import.digest
+import com.typesafe.sbt.web.Import.pipelineStages
 
 trait MicroService {
 
@@ -21,7 +23,10 @@ trait MicroService {
 
   lazy val appDependencies : Seq[ModuleID] = ???
   lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
-  lazy val playSettings : Seq[Setting[_]] = Seq.empty
+
+  lazy val playSettings: Seq[Setting[_]] = Seq(
+    pipelineStages := Seq(digest)
+  )
 
   lazy val scoverageSettings = {
     // Semicolon-separated list of regexs matching classes to exclude
