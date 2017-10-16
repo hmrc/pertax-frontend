@@ -22,7 +22,7 @@ import config.{ConfigDecorator, StaticGlobalDependencies}
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import controllers.bindable.{AddrType, Origin, StrictContinueUrl}
-import controllers.helpers.{HomeCardGenerator, PaperlessInterruptHelper, PersonalDetailsCardGenerator}
+import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import models._
 import play.api.Logger
@@ -40,9 +40,9 @@ import java.net.URLEncoder
 import models.dto.{AddressFinderDto, AddressPageVisitedDto}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 
 class ApplicationController @Inject() (
@@ -63,7 +63,8 @@ class ApplicationController @Inject() (
   val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
-  val homeCardGenerator: HomeCardGenerator
+  val homeCardGenerator: HomeCardGenerator,
+  val homePageCachingHelper: HomePageCachingHelper
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
   def index: Action[AnyContent] = ProtectedAction(Nil, activeTab = Some(ActiveTabHome)) {
@@ -98,41 +99,43 @@ class ApplicationController @Inject() (
         }
 
         for {
-         taxCalculation <- taxCalculation
-         taxSummary <- taxSummary
+          taxCalculation <- taxCalculation
+          taxSummary <- taxSummary
         } yield (taxSummary, taxCalculation)
       }
 
       val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
 
-      enforcePaperlessPreference {
-        for {
-          (taxSummary, taxCalculation) <- serviceCallResponses
-          saUserType <- saUserType
-        } yield {
+      homePageCachingHelper.hasUserDismissedUrInvitation() { isUserResearchBannerDismissed =>
+        enforcePaperlessPreference {
+          for {
+            (taxSummary, taxCalculation) <- serviceCallResponses
+            saUserType <- saUserType
+          } yield {
 
 
-          val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-            pertaxContext.user,
-            taxSummary,
-            TaxCalculationState.buildFromTaxCalculation(taxCalculation),
-            saUserType
-          )
+            val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
+              pertaxContext.user,
+              taxSummary,
+              TaxCalculationState.buildFromTaxCalculation(taxCalculation),
+              saUserType
+            )
 
-          val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(
-            taxSummary
-          )
+            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(
+              taxSummary
+            )
 
-          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(
-            pertaxContext.user
-          )
+            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(
+              pertaxContext.user
+            )
 
-          Ok(views.html.home(
-            userResearchLinkUrl = configDecorator.urLinkUrl,
-            incomeCards,
-            benefitCards,
-            pensionCards
-          ))
+            Ok(views.html.home(
+              incomeCards,
+              benefitCards,
+              pensionCards,
+              !isUserResearchBannerDismissed
+            ))
+          }
         }
       }
   }

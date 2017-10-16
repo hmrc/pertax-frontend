@@ -25,3 +25,12 @@ $('[class*="visibility-toggle"]').on('change', function() {
       $('.'+c.replace('visibility-toggle-', '')).toggleClass('js-hidden').find('input').val('');
   }
 });
+
+$(".full-width-banner__close").click(function(){
+  $.ajax({
+    url: "/personal-account/dismiss-ur-banner",
+    success: function(){
+      $('.full-width-banner').fadeOut('slow')
+    }
+  })
+});

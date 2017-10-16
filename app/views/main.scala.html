@@ -1,5 +1,6 @@
 @(title: String,
   pageName:Option[String] = None,
+  showUserResearchBanner: Boolean = false,
   sidebarLinks: Option[Html] = None,
   sidebarClass: Option[String] = None,
   supportLinkEnabled: Boolean = true,
@@ -95,7 +96,6 @@
   }
 }
 
-
 @{
 
   val prev = formatEasyReadingTimestamp((for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t), "")
@@ -143,6 +143,11 @@
 
     "showLastLogInStatus" -> true,
     "previouslyLoggedInAt" -> (if(prev.isEmpty) false else prev),
-    "userDisplayName" -> name
+    "userDisplayName" -> name,
+    "fullWidthBannerTitle" -> (if(showUserResearchBanner) Messages("label.help_improve_gov_uk") else false),
+    "fullWidthBannerText" -> Messages("label.get_involved_in_making_government_services_better_"),
+    "fullWidthBannerLink" -> pertaxContext.configDecorator.urLinkUrl,
+    "fullWidthBannerDismissText" -> Messages("label.no_thanks"),
+    "fullWidthBannerGaAction" -> "homepage UR banner"
   ))
 }
