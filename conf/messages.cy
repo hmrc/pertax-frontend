@@ -390,6 +390,7 @@ label.when_did_this_become_your_main_home=Pryd y daeth hwn yn brif gartref i chi
 label.when_this_became_your_main_home=Pan ddaeth hwn yn brif gartref i chi
 label.your_main_home=Eich prif gartref
 label.your_new_address=Eich cyfeiriad newydd
+label.your_new_postal_address=Eich cyfeiriad post newydd
 label.for_example_31_3_2015=Er enghraifft, 31 3 2015
 label.this_helps_us_work_out_your_correct_rate_of_income_tax=Mae hyn yn ein helpu i gyfrifo''r gyfradd gywir o Dreth Incwm ar eich cyfer.
 label.why_do_you_need_to_know_this=Pam y mae angen i chi wybod hyn?

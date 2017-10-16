@@ -224,11 +224,11 @@ class AddressController @Inject() (
 
             lookingUpAddress(typ, postcode, journeyData, filter, forceLookup = true) {
 
-              case AddressLookupSuccessResponse(RecordSet(Seq())) =>
+              case AddressLookupSuccessResponse(RecordSet(Seq())) =>  //No records returned by postcode lookup
                 auditConnector.sendEvent( buildEvent("addressLookupNotFound", "find_address", Map("postcode" -> Some(postcode), "filter" -> filter)))
                 Future.successful(NotFound(views.html.personaldetails.postcodeLookup(AddressFinderDto.form.fill(AddressFinderDto(postcode, filter))
                   .withError(FormError("postcode", "error.address_doesnt_exist_try_to_enter_manually")), typ)))
-              case AddressLookupSuccessResponse(RecordSet(Seq(addressRecord))) =>
+              case AddressLookupSuccessResponse(RecordSet(Seq(addressRecord))) =>  //One record returned by postcode lookup
                 if(back.getOrElse(false)) {
                   Future.successful(Redirect(routes.AddressController.showPostcodeLookupForm(typ)))
                 }
@@ -238,7 +238,7 @@ class AddressController @Inject() (
                     Redirect(routes.AddressController.showUpdateAddressForm(typ))
                   }
                 }
-              case AddressLookupSuccessResponse(recordSet) =>
+              case AddressLookupSuccessResponse(recordSet) =>  //More than one record returned by postcode lookup
                 auditConnector.sendEvent( buildEvent("addressLookupResults", "find_address", Map("postcode" -> Some(postcode), "filter" -> filter)) )
                 Future.successful(Ok(views.html.personaldetails.addressSelector(AddressSelectorDto.form, recordSet, typ, postcode, filter)))
             }
@@ -329,27 +329,31 @@ class AddressController @Inject() (
                     case x: ResidentialAddrType => Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
                     case PostalAddrType => {
 
-                      val addressType = mapAddressType(typ)
-                      val address = addressDto.toAddress(addressType, LocalDate.now)
 
-                      citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+                      Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
 
-                        case UpdateAddressBadRequestResponse =>
-                          BadRequest(views.html.error("global.error.BadRequest.title",
-                            Some("global.error.BadRequest.title"), Some("global.error.BadRequest.message"), false))
 
-                        case UpdateAddressUnexpectedResponse(response) =>
-                          InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                            Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
-
-                        case UpdateAddressErrorResponse(cause) =>
-                          InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                            Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
-
-                        case UpdateAddressSuccessResponse =>
-                          clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                          Ok(views.html.personaldetails.updateAddressConfirmation(typ))
-                      }
+//                      val addressType = mapAddressType(typ)
+//                      val address = addressDto.toAddress(addressType, LocalDate.now)
+//
+//                      citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+//
+//                        case UpdateAddressBadRequestResponse =>
+//                          BadRequest(views.html.error("global.error.BadRequest.title",
+//                            Some("global.error.BadRequest.title"), Some("global.error.BadRequest.message"), false))
+//
+//                        case UpdateAddressUnexpectedResponse(response) =>
+//                          InternalServerError(views.html.error("global.error.InternalServerError500.title",
+//                            Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+//
+//                        case UpdateAddressErrorResponse(cause) =>
+//                          InternalServerError(views.html.error("global.error.InternalServerError500.title",
+//                            Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+//
+//                        case UpdateAddressSuccessResponse =>
+//                          clearCache() //This clears ENTIRE session cache, no way to target individual keys
+//                          Ok(views.html.personaldetails.updateAddressConfirmation(typ))
+//                      }
                     }
                   }
                 }
@@ -405,15 +409,15 @@ class AddressController @Inject() (
   def reviewChanges(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
-        nonPostalJourneyEnforcer(typ) {
+        //nonPostalJourneyEnforcer(typ) {
           gettingCachedJourneyData(typ) { jd =>
-            (for(addressDto <- jd.submittedAddressDto; startDateDto <- jd.submittedStartDateDto) yield {
-              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, startDateDto)))
-            }) getOrElse {
-              Future.successful(Redirect(routes.AddressController.personalDetails()))
+
+            jd.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
+              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, jd.submittedStartDateDto)))
             }
+
           }
-        }
+        //}
       }
   }
 
@@ -443,32 +447,30 @@ class AddressController @Inject() (
 
           val originalAddressDto: Option[AddressDto] = journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
-          (for(addressDto <- journeyData.submittedAddressDto; startDateDto <- journeyData.submittedStartDateDto) yield {
+          journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
 
-              val address = addressDto.toAddress(addressType, startDateDto.toLocalDate)
+            val address = addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.toLocalDate))
 
-              citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+            citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
 
-                case UpdateAddressBadRequestResponse =>
-                  BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
-                    Some("global.error.BadRequest.message"), false))
+              case UpdateAddressBadRequestResponse =>
+                BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
+                  Some("global.error.BadRequest.message"), false))
 
-                case UpdateAddressUnexpectedResponse(response) =>
-                  InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+              case UpdateAddressUnexpectedResponse(response) =>
+                InternalServerError(views.html.error("global.error.InternalServerError500.title",
+                  Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
 
-                case UpdateAddressErrorResponse(cause) =>
-                  InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+              case UpdateAddressErrorResponse(cause) =>
+                InternalServerError(views.html.error("global.error.InternalServerError500.title",
+                  Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
 
-                case UpdateAddressSuccessResponse =>
-                  handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
-                  clearCache()  //This clears ENTIRE session cache, no way to target individual keys
-                  Ok(views.html.personaldetails.updateAddressConfirmation(typ))
-              }
-            }) getOrElse {
-              Future.successful(Redirect(routes.AddressController.personalDetails()))
+              case UpdateAddressSuccessResponse =>
+                handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
+                clearCache()  //This clears ENTIRE session cache, no way to target individual keys
+                Ok(views.html.personaldetails.updateAddressConfirmation(typ))
             }
+          }
 
         }
       }
