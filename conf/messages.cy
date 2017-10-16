@@ -67,6 +67,7 @@ label.print_your_national_insurance_summary=Argraffu''ch crynodeb Yswiriant Gwla
 label.nic_eo_hmrc_address=Swyddfa Cyfraniadau Yswiriant Gwladol a Chyflogwyr / NIC&amp;EO<br>CThEM/HMRC<br>BX9 1AN<br>
 label.www_hmrc_gov_uk=www.gov.uk/cymraeg
 label.print=Argraffu
+label.print_this_page=Argraffwch y dudalen hon
 label.date=Dyddiad
 label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_=Os ydych yn dechrau swydd newydd, bydd eich cyflogwr yn gofyn am gael eich rhif Yswiriant Gwladol. Efallai y bydd angen eich rhif Yswiriant Gwladol arnoch ar adegau eraill hefyd (er enghraifft, pan fyddwch yn gwneud cais am Fenthyciad Myfyriwr neu fudd-daliadau penodol).
 label.the_personal_tax_account_is_a_new_service_in_the_future_well_show_you_more_=Mae''r cyfrif treth personol yn wasanaeth newydd – yn y dyfodol, byddwn yn dangos rhagor o fanylion o''ch cofnod Yswiriant Gwladol.

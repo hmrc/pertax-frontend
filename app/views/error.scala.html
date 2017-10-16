@@ -9,15 +9,11 @@
       </header>
 
       @body.map { body =>
-        <p>@Html(Messages(body))</p>
+        <p class="lede">@Html(Messages(body))</p>
       }
 
       @if(showContactHmrc) {
-        <br />
-
-        <div class="page-heading">
-          <h2 class="heading-medium no-margin-bottom">@Messages("label.contact_hmrc")</h2>
-        </div>
+        <h2 class="heading-large no-margin-bottom">@Messages("label.contact_hmrc")</h2>
         <p>@Messages("label.you_dont_need_to_contact_hmrc_unless_")</p>
         <p>@Messages("label.telephone_0300_200_3300")</p>
         <p>@Messages("label.textphone_0300_200_3319")</p>

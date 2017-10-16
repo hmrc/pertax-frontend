@@ -3,85 +3,78 @@
 @import models.PertaxUser._
 @import tags._
 
-@printWrapper(Messages("label.print_your_national_insurance_summary"), Messages("label.national_insurance")) {
+@main(Messages("label.personal_details"), Some(Messages("label.your_personal_tax_account")), bodyClass = Some("print-enabled")) {
 
-  <noscript>
-    <style> .print-button {display: none;} </style>
-  </noscript>
+  <div class="print-page-controls">
+    <a href="@controllers.routes.InterstitialController.displayNationalInsurance()" class="ga-track-anchor-click link-back text--left">@Messages("label.back")</a>
+    <a class="ga-track-anchor-click link-print text--right" data-ga-event-category="ninoPrintButton" data-ga-event-action="click" data-ga-event-label="Print Nino" href="javascript:window.print();">@Messages("label.print_this_page")</a>
+  </div>
 
-  <div class="print-wrapper">
+  <div class="page-header personal-details" role="heading">
+    <div class="page-info">@Messages("label.personal_details")</div>
+    <h1 class="heading-xlarge no-margin-top no-margin-bottom">Your National Insurance letter</h1>
+  </div>
 
-    <div class="nav">
-      <div class="nav-container grid-row">
-        <div class="grid-row">
-          <div class="column-half back-link">
-            <a href="@controllers.routes.InterstitialController.displayNationalInsurance()">@Messages("label.back")</a>
+  <div class="national-insurance-letter">
+    <div class="grid-row">
+      <div class="column-full">
+
+        <div class="grid-row print-page-header">
+          <div class="column-third logo">
+            <img src="/personal-account/assets/images/HMRC-logo.png" alt="@Messages("label.hm_revenue_and_customs")">
           </div>
-          <div class="column-half print-button">
-            <a class="ga-track-anchor-click" data-ga-event-category="ninoPrintButton" data-ga-event-action="click" data-ga-event-label="Print Nino" href="javascript:window.print();">@Messages("label.print")</a>
+          <div class="column-two-thirds title heading-medium no-margin-bottom">
+            @Messages("label.your_national_insurance_number")
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="box">
+        <hr>
 
-      <div class="grid-row header">
-        <div class="column-third logo">
-          <img src="/personal-account/assets/images/HMRC-logo.png" alt="@Messages("label.hm_revenue_and_customs")">
-        </div>
-        <div class="column-two-thirds title">
-          <h1>@Messages("label.your_national_insurance_number")</h1>
-        </div>
-      </div>
-
-      <hr>
-
-      <div class="grid-row addresses">
-        <div class="column-half recipient-wrapper">
-          @personDetails.person.initialsName
-          @personDetails.correspondenceAddress.map { correspondenceAddress =>
-            @fullAddress(correspondenceAddress)
-          }.getOrElse {
-            @personDetails.address.map { residentialAddress =>
-              @fullAddress(residentialAddress)
+        <div class="grid-row addresses">
+          <div class="column-half recipient-wrapper">
+            @personDetails.person.initialsName
+            @personDetails.correspondenceAddress.map { correspondenceAddress =>
+              @fullAddress(correspondenceAddress)
+            }.getOrElse {
+              @personDetails.address.map { residentialAddress =>
+                @fullAddress(residentialAddress)
+              }
             }
-          }
-        </div>
+          </div>
 
-        <div class="column-half sender-wrapper">
-          <div class="sender">
-            <address>
+          <div class="column-half sender-wrapper">
+            <div class="sender">
+              <address>
               @Html(Messages("label.nic_eo_hmrc_address"))
-            </address>
+              </address>
+            </div>
+
+            <p class="url">@Messages("label.www_hmrc_gov_uk")</p>
+
+            <p class="date"><strong>@Messages("label.date")</strong> @util.DateTimeTools.short(new org.joda.time.DateTime())</p>
+
           </div>
-
-          <p class="url">@Messages("label.www_hmrc_gov_uk")</p>
-
-          <p class="date"><strong>@Messages("label.date")</strong> @util.DateTimeTools.short(new org.joda.time.DateTime())</p>
-
         </div>
-      </div>
 
-      <div class="grid-row main-content">
-        <div class="column-full">
+        <div class="grid-row main-content">
+          <div class="column-full">
 
-          <p class="name">@personDetails.person.fullName</p>
+            <p class="name">@personDetails.person.fullName</p>
 
-          @ifHighGovernmentGatewayOrVerifyUser {
-            @ifPayeUserLoanNino { nino =>
-              <div class="your-nino">
-                @Messages("label.your_national_insurance_number_is")@formattedNino(nino)
-              </div>
+            @ifHighGovernmentGatewayOrVerifyUser {
+              @ifPayeUserLoanNino { nino =>
+                <div class="your-nino">
+                  @Messages("label.your_national_insurance_number_is")@formattedNino(nino)
+                </div>
+              }
             }
-          }
 
-          @Html(Messages("label.print_nino_page_text_"))
+            @Html(Messages("label.print_nino_page_text_"))
 
+          </div>
         </div>
       </div>
 
     </div>
-
   </div>
 }
