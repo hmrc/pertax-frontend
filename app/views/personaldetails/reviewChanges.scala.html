@@ -1,4 +1,4 @@
-@(typ: AddrType, addressDto: AddressDto, startDateDto: DateDto)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(typ: AddrType, addressDto: AddressDto, startDateDto: Option[DateDto])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
@@ -29,17 +29,19 @@
               <td>{Messages("label.your_new_address")}</td>
             },
             postal = {
-              <td>{Messages("label.personal_details")}</td>
+              <td>{Messages("label.your_new_postal_address")}</td>
             }
           )
           <td>@Html(addressDto.toList.mkString(", <br>"))</td>
           <td><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.change_address")</a></td>
         </tr>
-        <tr>
-          <td>@typ.ifIs(primary = Messages("label.when_this_became_your_main_home"), sole = Messages("label.when_you_started_living_here"), postal = "")</td>
-          <td>@formatDate(startDateDto.toLocalDate)</td>
-          <td><a href="@controllers.routes.AddressController.enterStartDate(typ)">@Messages("label.change_start_date")</a></td>
-        </tr>
+        @startDateDto.map { startDateDto =>
+          <tr>
+            <td>@typ.ifIs(primary = Messages("label.when_this_became_your_main_home"), sole = Messages("label.when_you_started_living_here"), postal = "")</td>
+            <td>@formatDate(startDateDto.toLocalDate)</td>
+            <td><a href="@controllers.routes.AddressController.enterStartDate(typ)">@Messages("label.change_start_date")</a></td>
+          </tr>
+        }
       </table>
 
       @form(controllers.routes.AddressController.submitChanges(typ)) {
