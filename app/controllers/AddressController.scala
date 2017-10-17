@@ -412,39 +412,48 @@ class AddressController @Inject() (
   def submitChanges(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
 
+      def ensuringSubmissionRequirments(typ: AddrType, journeyData: AddressJourneyData)(block: => Future[Result]) = {
+        if(journeyData.submittedStartDateDto == None && (typ == PrimaryAddrType | typ == SoleAddrType))
+          Future.successful(Redirect(routes.AddressController.personalDetails()))
+        else
+          block
+      }
+
       val addressType = mapAddressType(typ)
 
       addressJourneyEnforcer { payeAccount => personDetails =>
 
         gettingCachedJourneyData(typ) { journeyData =>
 
-          val originalAddressDto: Option[AddressDto] = journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
+          ensuringSubmissionRequirments(typ, journeyData) {
 
-          journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
+            val originalAddressDto: Option[AddressDto] = journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
-            val address = addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.toLocalDate))
+            journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
 
-            citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+              val address = addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.toLocalDate))
 
-              case UpdateAddressBadRequestResponse =>
-                BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
-                  Some("global.error.BadRequest.message"), false))
+              citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
 
-              case UpdateAddressUnexpectedResponse(response) =>
-                InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                  Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+                case UpdateAddressBadRequestResponse =>
+                  BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
+                    Some("global.error.BadRequest.message"), false))
 
-              case UpdateAddressErrorResponse(cause) =>
-                InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                  Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+                case UpdateAddressUnexpectedResponse(response) =>
+                  InternalServerError(views.html.error("global.error.InternalServerError500.title",
+                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
 
-              case UpdateAddressSuccessResponse =>
-                handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
-                clearCache()  //This clears ENTIRE session cache, no way to target individual keys
-                Ok(views.html.personaldetails.updateAddressConfirmation(typ))
+                case UpdateAddressErrorResponse(cause) =>
+                  InternalServerError(views.html.error("global.error.InternalServerError500.title",
+                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+
+                case UpdateAddressSuccessResponse =>
+                  handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
+                  clearCache() //This clears ENTIRE session cache, no way to target individual keys
+                  Ok(views.html.personaldetails.updateAddressConfirmation(typ))
+              }
             }
           }
-
         }
       }
   }

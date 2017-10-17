@@ -845,6 +845,12 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2015)))(any(), any(), any())
     }
 
+    "return 400 when passed PrimaryAddrType and missing date fields" in new LocalSetup {
+      val result = controller.processEnterStartDate(PrimaryAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody())
+      status(result) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
     "return 400 when passed PrimaryAddrType and day out of range" in new LocalSetup {
       status(controller.processEnterStartDate(PrimaryAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr))) shouldBe BAD_REQUEST
       status(controller.processEnterStartDate(PrimaryAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody("startDate.day" -> "32", "startDate.month" -> "1", "startDate.year" -> thisYearStr))) shouldBe BAD_REQUEST
@@ -991,6 +997,50 @@ class AddressControllerSpec extends BaseSpec  {
       )
 
     }
+
+
+    "redirect to start of journey if primarySubmittedStartDateDto is missing from the cache, and the journey type is PrimaryAddrType" in new LocalSetup {
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+      )))
+
+      val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+
+      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
+      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+    }
+
+    "redirect to start of journey if soleSubmittedStartDateDto is missing from the cache, and the journey type is SoleAddrType" in new LocalSetup {
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+      )))
+
+      val r = controller.submitChanges(SoleAddrType)(buildAddressRequest("POST"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+
+      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
+      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+    }
+
+    "render the thank-you page if postalSubmittedStartDateDto is not in the cache, and the journey type is PostalAddrType" in new LocalSetup {
+      override lazy val fakeAddress = buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "postalSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+      )))
+
+      val r = controller.submitChanges(PostalAddrType)(buildAddressRequest("POST"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+    }
+
+
 
     "redirect to start of journey if primarySubmittedAddressDto is missing from the cache" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
