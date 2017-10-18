@@ -787,12 +787,13 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.sessionCache, times(1)).fetch()(any(),any())
     }
 
-    "return 404 when passed PostalAddrType regardless of keystore" in new LocalSetup {
+    "redirect to 'edit address' when passed PostalAddrType as this step is not valid for postal" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val r = controller.enterStartDate(PostalAddrType)(buildAddressRequest("GET"))
 
-      status(r) shouldBe NOT_FOUND
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/personal-account/your-address/postal/edit-address")
       verify(controller.sessionCache, times(0)).fetch()(any(), any())
     }
 
