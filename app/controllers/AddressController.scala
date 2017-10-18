@@ -86,15 +86,7 @@ class AddressController @Inject() (
   }
 
 
-  //TODO - refactor this logic into addressJourneyEnforcer with boolean enforceNonPostal parameter
-  def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result])(implicit pertaxContext: PertaxContext) = typ match {
-    case x: ResidentialAddrType => block
-    case PostalAddrType => Future.successful(NotFound( views.html.error(
-      "global.error.InternalServerError500.title",
-      Some("global.error.InternalServerError500.heading"),
-      Some("global.error.InternalServerError500.message")
-    )(pertaxContext, implicitly[Messages]) ))
-  }
+
 
   def lookingUpAddress(typ: AddrType, postcode: String, journeyData: AddressJourneyData, filter: Option[String] = None, forceLookup: Boolean = false)(f: PartialFunction[AddressLookupResponse, Future[Result]])(implicit context: PertaxContext): Future[Result] = {
     if (!forceLookup && journeyData.addressLookupServiceDown) {
@@ -267,18 +259,17 @@ class AddressController @Inject() (
                 case AddressLookupSuccessResponse(recordSet) =>
                   recordSet.addresses.filter(_.id == addressSelectorDto.addressId).headOption map { addressRecord =>
 
-                    if (typ != PostalAddrType) {
                       val addressDto = AddressDto.fromAddressRecord(addressRecord)
                       cacheSelectedAddressRecord(typ, addressRecord) flatMap { _ =>
                         cacheSubmittedAddressDto(typ, addressDto) map { _ =>
-                          Redirect(routes.AddressController.enterStartDate(typ))
+                          if (typ != PostalAddrType) {
+                            Redirect(routes.AddressController.enterStartDate(typ))
+                          }
+                          else {
+                            Redirect(routes.AddressController.showUpdateAddressForm(typ))
+                          }
                         }
                       }
-                    } else {
-                      cacheSelectedAddressRecord(typ, addressRecord) map { _ =>
-                        Redirect(routes.AddressController.showUpdateAddressForm(typ))
-                      }
-                    }
                   } getOrElse {
                     Logger.warn("Address selector was unable to find address using the id returned by a previous request")
                     Future.successful(InternalServerError(views.html.error("global.error.InternalServerError500.title",
@@ -337,6 +328,11 @@ class AddressController @Inject() (
           }
         }
       }
+  }
+
+  def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result])(implicit pertaxContext: PertaxContext) = typ match {
+    case x: ResidentialAddrType => block
+    case PostalAddrType => Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
   }
 
   def enterStartDate(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
