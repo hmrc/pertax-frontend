@@ -939,9 +939,10 @@ class AddressControllerSpec extends BaseSpec  {
       override lazy val thisYearStr = "2015"
     }
 
-    "return 200 if required data is present in keystore" in new LocalSetup {
+    "return 200 if both SubmittedAddressDto and SubmittedStartDateDto are present in keystore for non-postal" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
 
       val r = controller.reviewChanges(PrimaryAddrType)(buildAddressRequest("GET"))
@@ -950,11 +951,35 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.sessionCache, times(1)).fetch()(any(),any())
     }
 
+    "return 200 if only SubmittedAddressDto is present in keystore for postal" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "postalSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+      )))
 
-    "redirect back to start of journey if selectedAddressRecord is missing from keystore" in new LocalSetup {
-      lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(1, 1, 2016)))))
+      val r = controller.reviewChanges(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+    }
+
+
+    "redirect back to start of journey if SubmittedAddressDto is missing from keystore for non-postal" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+      )))
 
       val r = controller.reviewChanges(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+    }
+
+    "redirect back to start of journey if SubmittedAddressDto is missing from keystore for postal" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+      )))
+
+      val r = controller.reviewChanges(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")

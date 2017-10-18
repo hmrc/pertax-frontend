@@ -381,15 +381,23 @@ class AddressController @Inject() (
       }
   }
 
+
+  def ensuringSubmissionRequirments(typ: AddrType, journeyData: AddressJourneyData)(block: => Future[Result]) = {
+    if(journeyData.submittedStartDateDto == None && (typ == PrimaryAddrType | typ == SoleAddrType))
+      Future.successful(Redirect(routes.AddressController.personalDetails()))
+    else
+      block
+  }
+
   def reviewChanges(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
-        gettingCachedJourneyData(typ) { jd =>
-
-          jd.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
-            Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, jd.submittedStartDateDto)))
+        gettingCachedJourneyData(typ) { journeyData =>
+          ensuringSubmissionRequirments(typ, journeyData) {
+            journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
+              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto)))
+            }
           }
-
         }
       }
   }
@@ -411,13 +419,6 @@ class AddressController @Inject() (
 
   def submitChanges(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
-
-      def ensuringSubmissionRequirments(typ: AddrType, journeyData: AddressJourneyData)(block: => Future[Result]) = {
-        if(journeyData.submittedStartDateDto == None && (typ == PrimaryAddrType | typ == SoleAddrType))
-          Future.successful(Redirect(routes.AddressController.personalDetails()))
-        else
-          block
-      }
 
       val addressType = mapAddressType(typ)
 
