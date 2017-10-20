@@ -1,7 +1,7 @@
-@(userResearchLinkUrl: Option[String],
-  incomeCards: Seq[Html],
+@(incomeCards: Seq[Html],
   benefitCards: Seq[Html],
-  pensionCards: Seq[Html]
+  pensionCards: Seq[Html],
+  showUserResearchBanner: Boolean
 )(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import tags._
@@ -10,43 +10,20 @@
 @import models.PertaxUser._
 @import pertaxContext.configDecorator._
 
-@main(Messages("label.your_personal_tax_account"),Some(Messages("label.your_personal_tax_account"))) {
+@main(Messages("label.your_personal_tax_account"),Some(Messages("label.your_personal_tax_account")), showUserResearchBanner) {
 
-  @userResearchLinkUrl.map { userResearchLinkUrl =>
+  <div class="page-header home" role="heading">
+    <div class="page-info">@Messages("label.account_home")</div>
+    <h1 class="heading-xlarge no-margin-top no-margin-bottom">
+      @ifNameAvailable {
+        @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
+      }
+      @unlessNameAvailable {
+        @Messages("label.your_account")
+      }
+    </h1>
+  </div>
 
-    <div class="page-heading no-padding-bottom no-border">
-      <h1 class="heading-xlarge no-margin-bottom">
-        @ifNameAvailable {
-          @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
-        }
-        @unlessNameAvailable {
-          @Messages("label.your_account")
-        }
-      </h1>
-    </div>
-
-    <div class="notice-banner">
-      <div class="notice-banner__wrapper">
-        <h3 class="notice-banner__content">@Messages("label.we_want_to_make_this_website_easier_to_use")</h3>
-        <a class="notice-banner__content trackLink" href="@userResearchLinkUrl" target="_blank">@Messages("label.help_us_with_our_research_opens_in_new_window")</a>
-      </div>
-    </div>
-
-  }.getOrElse {
-
-    <div class="page-header home" role="heading">
-      <div class="page-info">@Messages("label.account_home")</div>
-      <h1 class="heading-xlarge no-margin-top no-margin-bottom">
-        @ifNameAvailable {
-          @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
-        }
-        @unlessNameAvailable {
-          @Messages("label.your_account")
-        }
-      </h1>
-    </div>
-
-  }
 
   <div class="grid-row pertax-home">
     <div class="column-full" role="main">

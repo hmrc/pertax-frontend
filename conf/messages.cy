@@ -439,6 +439,9 @@ label.you_dont_owe_anymore_income_tax=Nid oes arnoch ragor o Dreth Incwm
 label.you_have_no_payments_to_make_to_hmrc_=Nid oes gennych daliadau i''w gwneud i CThEM ar gyfer blwyddyn dreth 2016 i 2017
 label.you_owe_hmrc_for_the_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 label.try_again_in_24_hours=Gallwch roi cynnig arall arni ymhen 24 awr.
+label.help_improve_gov_uk=Helpwch i wella GOV.UK
+label.get_involved_in_making_government_services_better_=Byddwch yn rhan o wneud gwasanaethau''r Llywodraeth yn well (mae''r cysylltiad hwn yn agor ffenestr neu dab newydd)
+label.no_thanks=Dim diolch
 
 #
 # Error messages
