@@ -27,6 +27,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
+import play.api.libs.json.JsBoolean
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -43,6 +44,7 @@ import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.cache.client.CacheMap
 
 
 class ApplicationControllerSpec extends BaseSpec {
@@ -62,6 +64,7 @@ class ApplicationControllerSpec extends BaseSpec {
     .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
     .build()
 
   override def beforeEach: Unit = {
@@ -125,6 +128,9 @@ class ApplicationControllerSpec extends BaseSpec {
       }
       when(c.auditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)
+      }
+      when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
+        Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(true)))))
       }
 
       when(c.configDecorator.taxSummaryEnabled) thenReturn true
