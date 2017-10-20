@@ -329,7 +329,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
                |      <p>
-               |          You need to complete a tax return once a year. Yours is due by 31 January 2018.
+               |          View and manage your Self Assessment tax return. Your tax return is due by 31 January 2018.
                |      </p>
                |    </div>
                |  </a>
@@ -351,7 +351,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
                |      <p>
-               |          Use your activation code to access this service.
+               |          Use your activation code to access this service. The code is on the letter we sent to you when you enrolled.
                |      </p>
                |    </div>
                |  </a>
@@ -367,20 +367,20 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with AmbiguousFilerSelfAssessmentUser" in new LocalSetup {
 
       val saUserType = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
-
+      
       cardBody shouldBe
         Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
                |      <p>
-               |          You cannot access this service right now.
+               |          You cannot use this service. You may not be enrolled for Self Assessment, or you may have enrolled using a different account.
                |      </p>
                |    </div>
                |  </a>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Access your Self Assessment">Access your Self Assessment</a></li>
+               |        <li><a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">Find out how to access Self Assessment</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)

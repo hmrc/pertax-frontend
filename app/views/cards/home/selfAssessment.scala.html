@@ -14,13 +14,13 @@
       <p>
       @saActionNeeded match {
         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-          @Messages("label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_")
+          @Messages("label.view_and_manage_your_self_assessment_tax_return_your_tax_return_is_due_by_")
         }
         case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-          @Messages("label.use_your_activation_code_to_access_this_service")
+          @Messages("label.use_your_activation_code_to_access_this_service_")
         }
         case AmbiguousFilerSelfAssessmentUser(saUtr) => {
-          @Messages("label.you_cannot_access_this_service_right_now")
+          @Messages("label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_")
         }
         case _ => {}
       }
@@ -37,7 +37,7 @@
         <li><a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@Messages("label.activate_your_self_assessment")</a></li>
       }
       case AmbiguousFilerSelfAssessmentUser(saUtr) => {
-        <li><a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Access your Self Assessment">@Messages("label.access_your_self_assessment")</a></li>
+        <li><a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@Messages("label.find_out_how_to_access_self_assessment")</a></li>
       }
       case _ => {}
     }

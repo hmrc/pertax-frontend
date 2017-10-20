@@ -557,13 +557,13 @@ label.please_wait_for_your_tax_calculation_letter_p800=Arhoswch am eich llythyr 
 label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 
 label.self_assessment=Hunanasesiad
-label.use_your_activation_code_to_access_this_service=Defnyddiwch eich cod cychwyn i gyrchu''r gwasanaeth hwn.
-label.you_cannot_access_this_service_right_now=Ni allwch gyrchu''r gwasanaeth hwn ar hyn o bryd.
+label.use_your_activation_code_to_access_this_service_=Defnyddiwch eich cod cychwyn i gyrchu''r gwasanaeth hwn. Mae''r cod yn llythyr y gwnaethrom ei anfon atoch pan wnaethoch gofrestru.
+label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_=Ni allwch ddefnyddio''r gwasanaeth hwn. Efallai nad ydych wedi''ch cofrestru ar gyfer Hunanasesiad, neu efallai''ch bod wedi cofrestru gan ddefnyddio cyfrif gwahanol.
 label.complete_your_tax_return=Llenwi''ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
 label.understand_self_assessment=Deall Hunanasesiad
-label.access_your_self_assessment=Cyrchu at eich Hunanasesiad
-label.you_need_to_complete_a_tax_return_once_a_year_yours_is_due_by_=Mae angen i chi lenwi Ffurflen Dreth unwaith y flwyddyn. Y dyddiad cau ar gyfer anfon eich un chi yw 31 Ionawr (2018).
+label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
+label.view_and_manage_your_self_assessment_tax_return_your_tax_return_is_due_by_=Bwrw golwg ar a gofalu am eich Ffurlfne Dreth Hunanasesiad. Y dyddiad cau ar gyfer eich Ffurflen Dreth yw 31 Ionawr (2018).
 
 label.national_insurance=Yswiriant Gwladol
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi''n unig.
