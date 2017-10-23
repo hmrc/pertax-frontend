@@ -64,13 +64,13 @@ class HomePageCachingHelperSpec extends BaseSpec {
         c
       }
 
-      lazy val urBannerDismissedValuePassedToBlock = await(cachingHelper.hasUserDismissedUrInvitation()(x => x))
+      lazy val hasUserDismissedUrInvitationResult: Boolean = await(cachingHelper.hasUserDismissedUrInvitation)
     }
 
     "return true if cached value returns true" in new LocalSetup {
       lazy val urBannerDismissedValueInSessionCache = Some(true)
 
-      urBannerDismissedValuePassedToBlock shouldBe true
+      hasUserDismissedUrInvitationResult shouldBe true
 
       verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
     }
@@ -78,7 +78,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
     "return false if cached value returns false" in new LocalSetup {
       lazy val urBannerDismissedValueInSessionCache = Some(false)
 
-      urBannerDismissedValuePassedToBlock shouldBe false
+      hasUserDismissedUrInvitationResult shouldBe false
 
       verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
     }
@@ -86,7 +86,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
     "return false if cache returns no record" in new LocalSetup {
       lazy val urBannerDismissedValueInSessionCache = None
 
-      urBannerDismissedValuePassedToBlock shouldBe false
+      hasUserDismissedUrInvitationResult shouldBe false
 
       verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
     }

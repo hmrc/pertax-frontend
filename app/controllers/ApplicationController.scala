@@ -106,35 +106,25 @@ class ApplicationController @Inject() (
 
       val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
 
-      homePageCachingHelper.hasUserDismissedUrInvitation() { isUserResearchBannerDismissed =>
+      val showUserResearchBanner: Future[Boolean] =
+        configDecorator.urLinkUrl.fold(Future.successful(false))(_ => homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
+
+
+      showUserResearchBanner flatMap { showUserResearchBanner =>
         enforcePaperlessPreference {
           for {
             (taxSummary, taxCalculation) <- serviceCallResponses
             saUserType <- saUserType
           } yield {
 
-
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-              pertaxContext.user,
-              taxSummary,
-              TaxCalculationState.buildFromTaxCalculation(taxCalculation),
-              saUserType
-            )
+              pertaxContext.user, taxSummary, TaxCalculationState.buildFromTaxCalculation(taxCalculation), saUserType)
 
-            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(
-              taxSummary
-            )
+            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummary)
 
-            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(
-              pertaxContext.user
-            )
+            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(pertaxContext.user)
 
-            Ok(views.html.home(
-              incomeCards,
-              benefitCards,
-              pensionCards,
-              !isUserResearchBannerDismissed
-            ))
+            Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner))
           }
         }
       }
