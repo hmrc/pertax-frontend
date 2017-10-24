@@ -566,7 +566,7 @@ label.complete_your_tax_return=Llenwi''ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
 label.understand_self_assessment=Deall Hunanasesiad
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
-label.view_and_manage_your_self_assessment_tax_return_your_tax_return_is_due_by_=Bwrw golwg ar a gofalu am eich Ffurlfne Dreth Hunanasesiad. Y dyddiad cau ar gyfer eich Ffurflen Dreth yw 31 Ionawr (2018).
+label.view_and_manage_your_self_assessment_tax_return_your_tax_return_is_due_by_=Bwrw golwg ar a gofalu am eich Ffurlfne Dreth Hunanasesiad. Y dyddiad cau ar gyfer eich Ffurflen Dreth yw 31 Ionawr 2018.
 
 label.national_insurance=Yswiriant Gwladol
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi''n unig.
