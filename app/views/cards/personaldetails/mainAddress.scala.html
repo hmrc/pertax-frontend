@@ -1,4 +1,4 @@
-@(personDetails: models.PersonDetails, show2016Message: Boolean, startDate: Option[String], taxCreditsEnabled: Boolean)(implicit messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, show2016Message: Boolean, startDate: Option[String], taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean)(implicit messages: play.api.i18n.Messages)
 
 @updateAddressLink = @{
   if(taxCreditsEnabled) controllers.routes.AddressController.taxCreditsChoice else controllers.routes.AddressController.residencyChoice
@@ -29,6 +29,11 @@
       <li>
         <a class="ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@Messages("label.change_your_main_address")</a>
       </li>
+      @if(!hasCorrespondenceAddress) {
+        <li>
+          <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@Messages("label.change_where_we_send_your_letters")</a>
+        </li>
+      }
     </ul>
   </div>
 </div>

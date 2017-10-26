@@ -44,17 +44,22 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
   }
 
-
   trait MainAddressSetup extends SpecSetup {
 
     def taxCreditsEnabled: Boolean
 
     def userHasPersonDetails: Boolean
+    def userHasCorrespondenceAddress: Boolean
+
+    def buildPersonDetails = PersonDetails("115", Person(
+      Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
+      Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
+    ), Some(Fixtures.buildFakeAddress), if (userHasCorrespondenceAddress) Some(Fixtures.buildFakeAddress) else None)
 
     override lazy val pertaxUser = Some(PertaxUser(
       Fixtures.buildFakeAuthContext(),
       UserDetails(UserDetails.VerifyAuthProvider),
-      personDetails = if (userHasPersonDetails) Some(Fixtures.buildPersonDetails) else None,
+      personDetails = if (userHasPersonDetails) Some(buildPersonDetails) else None,
       true)
     )
 
@@ -72,13 +77,15 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     "return nothing when there are no person details" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = false
+      override lazy val userHasCorrespondenceAddress = false
 
       cardBody shouldBe None
     }
 
-    "return the correct markup when there are person details" in new MainAddressSetup {
+    "return the correct markup when there are person details and the user has a correspondence address" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = true
 
       cardBody shouldBe
         Some(
@@ -106,9 +113,44 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |</div>""".stripMargin)
     }
 
+    "return the correct markup when there are person details and the user does not have a correspondence address" in new MainAddressSetup {
+      override lazy val taxCreditsEnabled = true
+      override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = false
+
+      cardBody shouldBe
+        Some(
+          """<div class="card column-third">
+            |  <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
+            |    <div class="card-content" role="link">
+            |      <h3 class="heading-small no-margin-top">Main address</h3>
+            |      <p><strong>
+            |            1 Fake Street<br>
+            |            Fake Town<br>
+            |            Fake City<br>
+            |            Fake Region<br>
+            |          AA1 1AA
+            |      </strong></p>
+            |        <p>This has been your main home since 15 March 2015.</p>
+            |    </div>
+            |  </a>
+            |  <div class="card-actions">
+            |    <ul>
+            |      <li>
+            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
+            |      </li>
+            |        <li>
+            |          <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">Change where we send your letters</a>
+            |        </li>
+            |    </ul>
+            |  </div>
+            |</div>""".stripMargin)
+    }
+
     "return the correct markup when tax credits is enabled" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = true
 
       cardBody shouldBe
         Some(
@@ -139,6 +181,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     "return the correct markup when tax credits is disabled" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = false
       override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = true
 
       cardBody shouldBe
         Some(
@@ -206,16 +249,24 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
     "return nothing when there are no person details" in new PostalAddressSetup {
       override lazy val userHasPersonDetails = false
-      override lazy val canUpdatePostalAddress = true
-      override lazy val userHasCorrespondenceAddress = true
+      override lazy val canUpdatePostalAddress = false
+      override lazy val userHasCorrespondenceAddress = false
 
       cardBody shouldBe None
     }
 
-    "return the correct markup when there are person details and the postal address can be updated" in new PostalAddressSetup {
-      override lazy val canUpdatePostalAddress = true
+    "return nothing when there are person details but no correspondence address" in new PostalAddressSetup {
+      override lazy val userHasPersonDetails = true
+      override lazy val canUpdatePostalAddress = false
+      override lazy val userHasCorrespondenceAddress = false
+
+      cardBody shouldBe None
+    }
+
+    "return the correct markup when there is a correspondence address and the postal address can be updated" in new PostalAddressSetup {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
+      override lazy val canUpdatePostalAddress = true
 
       cardBody shouldBe
         Some(
@@ -243,10 +294,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |</div>""".stripMargin)
     }
 
-    "return the correct markup when there are person details and the postal address cannot be updated" in new PostalAddressSetup {
-      override lazy val canUpdatePostalAddress = false
+    "return the correct markup when there is a correspondence address and the postal address cannot be updated" in new PostalAddressSetup {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
+      override lazy val canUpdatePostalAddress = false
 
       cardBody shouldBe
         Some(
@@ -266,33 +317,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |    <ul>
             |      <li>
             |          <p>You can only change this address once a day. Please try again tomorrow.</p>
-            |      </li>
-            |    </ul>
-            |  </div>
-            |</div>""".stripMargin)
-    }
-
-    "return the correct markup when there are person details and user does not have a correspondence address" in new PostalAddressSetup {
-      override lazy val canUpdatePostalAddress = true
-      override lazy val userHasPersonDetails = true
-      override lazy val userHasCorrespondenceAddress = false
-
-      cardBody shouldBe
-        Some(
-          """<div class="card column-third">
-            |    <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
-            |  <div class="card-content" role="link">
-            |    <h3 class="heading-small no-margin-top">Postal address</h3>
-            |    <p><strong>
-            |        Letters from HM Revenue and Customs currently get sent to your home address.
-            |    </strong></p>
-            |    <p>All your letters will be sent to this address.</p>
-            |  </div>
-            |  </a>
-            |  <div class="card-actions">
-            |    <ul>
-            |      <li>
-            |          <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">Change your postal address</a>
             |      </li>
             |    </ul>
             |  </div>

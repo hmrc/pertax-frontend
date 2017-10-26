@@ -21,7 +21,6 @@ import javax.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import models.{Address, PertaxContext}
 import play.twirl.api.{Html, HtmlFormat}
-import util.DateTimeTools
 import org.joda.time.LocalDate
 import uk.gov.hmrc.play.language.LanguageUtils.Dates.formatDate
 
@@ -56,11 +55,15 @@ class PersonalDetailsCardGenerator @Inject() (
     }
   }
 
+  def hasCorrespondenceAddress()(implicit pertaxContext: PertaxContext): Boolean = {
+    getPersonDetails.flatMap(_.correspondenceAddress).isDefined
+  }
+
   def getMainAddressCard()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] = {
     getPersonDetails match {
       case Some(personDetails) => {
         val (show2016Message, startDate) = show2016AddressMessage(personDetails.address)
-        Some(views.html.cards.personaldetails.mainAddress(personDetails = personDetails, show2016Message = show2016Message, startDate = startDate, taxCreditsEnabled = configDecorator.taxCreditsEnabled))
+        Some(views.html.cards.personaldetails.mainAddress(personDetails = personDetails, show2016Message = show2016Message, startDate = startDate, taxCreditsEnabled = configDecorator.taxCreditsEnabled, hasCorrespondenceAddress = hasCorrespondenceAddress))
       }
       case _ => None
     }
@@ -69,10 +72,13 @@ class PersonalDetailsCardGenerator @Inject() (
   def getPostalAddressCard()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] = {
     getPersonDetails match {
       case Some(personDetails) => {
-        val canUpdatePostalAddress = personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) {
-          _ != LocalDate.now
+        hasCorrespondenceAddress match {
+          case true => {
+            val canUpdatePostalAddress = personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
+            Some (views.html.cards.personaldetails.postalAddress (personDetails = personDetails, canUpdatePostalAddress = canUpdatePostalAddress) )
+          }
+          case _ => None
         }
-        Some(views.html.cards.personaldetails.postalAddress(personDetails = personDetails, canUpdatePostalAddress = canUpdatePostalAddress))
       }
       case _ => None
     }
@@ -84,5 +90,4 @@ class PersonalDetailsCardGenerator @Inject() (
       case _ => None
     }
   }
-
 }
