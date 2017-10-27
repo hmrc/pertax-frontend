@@ -1,4 +1,4 @@
-@(personDetails: models.PersonDetails,canUpdatePostalAddress: Boolean)(implicit messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, canUpdatePostalAddress: Boolean)(implicit messages: play.api.i18n.Messages)
 
 @import controllers.bindable.PostalAddrType
 
@@ -14,8 +14,6 @@
           @upperCaseToTitleCase(line)<br>
         }
         @correspondenceAddress.postcode.map(_.toUpperCase)
-      }.getOrElse {
-        @Messages("label.letters_from_hm_revenue_and_customs_currently_get_sent_to_your_home_address")
       }
     </strong></p>
     <p>@Messages("label.all_your_letters_will_be_sent_to_this_address")</p>
