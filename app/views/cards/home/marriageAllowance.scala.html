@@ -9,12 +9,18 @@
 }
 
 <div class="card column-third">
-  <a class="card-link ga-track-anchor-click" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Marriage Allowance">
+  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/marriage-allowance-application/history" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Marriage Allowance">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("title.marriage_allowance")</h3>
       <p>@cardContent</p>
     </div>
   </a>
+
+  <div class="visually-hidden">
+    <h3>@Messages("title.marriage_allowance")</h3>
+    <p>@cardContent</p>
+  </div>
+
   <div class="card-actions">
     <ul>
       @if(taxSummary.map(_.notMarriageAllowanceCustomer).getOrElse(true)) {

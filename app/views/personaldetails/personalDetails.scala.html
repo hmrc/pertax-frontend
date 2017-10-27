@@ -1,10 +1,6 @@
 @(personalDetailsCards: Seq[Html])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import tags._
-@import uk.gov.hmrc.play.views.formatting.Money.pounds
-@import models.PertaxUser
 @import models.PertaxUser._
-@import pertaxContext.configDecorator._
 
 @main(Messages("label.your_personal_tax_account"),Some(Messages("label.your_personal_tax_account"))) {
 
@@ -26,12 +22,11 @@
     </div>
   </div>
 
-  <div class="grid-row pertax-personal-details">
-
-    <section>
-      @personalDetailsCards
-    </section>
-
-  </div>
-
+  <section>
+    <div class="grid-row pertax-personal-details">
+      <div class="flex-container">
+        @personalDetailsCards
+      </div>
+    </div>
+  </section>
 }
