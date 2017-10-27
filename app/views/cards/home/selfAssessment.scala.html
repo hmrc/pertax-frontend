@@ -1,5 +1,23 @@
 @(saActionNeeded: SelfAssessmentUserType, taxYear: String)(implicit messages: play.api.i18n.Messages, pertaxContext: PertaxContext)
 
+@cardContent = @{
+  saActionNeeded match {
+    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => Messages("label.view_and_manage_your_self_assessment_tax_return_your_tax_return_is_due_by_")
+    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => Messages("label.use_your_activation_code_to_access_this_service_")
+    case AmbiguousFilerSelfAssessmentUser(saUtr) => Messages("label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_")
+    case _ => {}
+  }
+}
+
+@cardAction = @{
+  saActionNeeded match {
+    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => Html("""<li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">""" + Messages("label.make_a_payment") + """</a></li>""")
+    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => Html("""<li><a class="ga-track-anchor-click" href="""" + controllers.routes.ApplicationController.handleSelfAssessment()+ """" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">""" + Messages("label.activate_your_self_assessment") + """</a></li>""")
+    case AmbiguousFilerSelfAssessmentUser(saUtr) => Html("""<li><a class="ga-track-anchor-click" href="""" + controllers.routes.ApplicationController.handleSelfAssessment()+ """" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">""" + Messages("label.find_out_how_to_access_self_assessment") + """</a></li>""")
+    case _ => {}
+  }
+}
+
 @cardLink = @{
   saActionNeeded match {
     case _:ActivatedOnlineFilerSelfAssessmentUser => controllers.routes.InterstitialController.displaySelfAssessment()
@@ -8,39 +26,21 @@
 }
 
 <div class="card column-third">
-  <a class="card-link ga-track-anchor-click" href="@cardLink" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
+  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="@cardLink" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.self_assessment")</h3>
-      <p>
-      @saActionNeeded match {
-        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-          @Messages("label.view_and_manage_your_self_assessment_tax_return_your_tax_return_is_due_by_")
-        }
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-          @Messages("label.use_your_activation_code_to_access_this_service_")
-        }
-        case AmbiguousFilerSelfAssessmentUser(saUtr) => {
-          @Messages("label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_")
-        }
-        case _ => {}
-      }
-      </p>
+      <p>@cardContent</p>
     </div>
   </a>
+
+  <div class="visually-hidden">
+    <h3>@Messages("label.self_assessment")</h3>
+    <p>@cardContent</p>
+  </div>
+
   <div class="card-actions">
     <ul>
-    @saActionNeeded match {
-      case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@Messages("label.make_a_payment")</a></li>
-      }
-      case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-        <li><a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@Messages("label.activate_your_self_assessment")</a></li>
-      }
-      case AmbiguousFilerSelfAssessmentUser(saUtr) => {
-        <li><a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@Messages("label.find_out_how_to_access_self_assessment")</a></li>
-      }
-      case _ => {}
-    }
+      @cardAction
     </ul>
   </div>
 </div>

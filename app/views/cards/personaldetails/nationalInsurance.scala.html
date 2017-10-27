@@ -1,16 +1,22 @@
-@import models.PertaxUser._
 @import tags._
 
 @(nino: Nino)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 <div class="card column-third">
-  <a class="card-link ga-track-anchor-click" href="@controllers.routes.InterstitialController.displayNationalInsurance" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="National Insurance">
+  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="@controllers.routes.InterstitialController.displayNationalInsurance" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="National Insurance">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@messages("label.national_insurance")</h3>
       <p><strong>@formattedNino(nino)</strong></p>
       <p>@Messages("label.your_national_insurance_number_is_your_unique_identifier")</p>
     </div>
   </a>
+
+  <div class="visually-hidden">
+    <h3>@messages("label.national_insurance")</h3>
+    <p><strong>@formattedNino(nino)</strong></p>
+    <p>@Messages("label.your_national_insurance_number_is_your_unique_identifier")</p>
+  </div>
+
   <div class="card-actions">
     <ul>
       <li><a class="ga-track-anchor-click" href="@controllers.routes.PrintController.printNationalInsuranceNumber()" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">@Messages("label.print_your_national_insurance_letter")</a></li>
