@@ -16,27 +16,29 @@
 
 package controllers.auth
 
-import controllers.PertaxBaseController
 import controllers.bindable.StrictContinueUrl
-import error.LocalErrorHandler
+import controllers.helpers.ControllerLikeHelpers
+import error.RendersErrors
 import models._
 import play.api.Logger
+import play.api.http.Status._
+import play.api.i18n.Messages
 import play.api.mvc._
 import services._
+import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
-import uk.gov.hmrc.play.frontend.auth.{AllowAll, AuthContext}
 
 import scala.concurrent.Future
 
-trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this: PertaxBaseController =>
+
+trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with ControllerLikeHelpers with RendersErrors {
 
   def citizenDetailsService: CitizenDetailsService
   def userDetailsService: UserDetailsService
   def pertaxRegime: PertaxRegime
-  def localErrorHandler: LocalErrorHandler
 
 
-  def ProtectedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true, activeTab: Option[ActiveTab] = None)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
+  def VerifiedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true, activeTab: Option[ActiveTab] = None)(block: PertaxContext => Future[Result])(implicit messages: Messages): Action[AnyContent] = {
     AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async {
       implicit authContext => implicit request =>
         trimmingFormUrlEncodedData { implicit request =>
@@ -53,12 +55,14 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
     }
   }
 
-  def AuthorisedAction(fetchPersonDetails: Boolean = true)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
+  def AuthorisedAction(fetchPersonDetails: Boolean = true, activeTab: Option[ActiveTab] = None)(block: PertaxContext => Future[Result])(implicit messages: Messages): Action[AnyContent] = {
     AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async {
       implicit authContext => implicit request =>
         trimmingFormUrlEncodedData { implicit request =>
           createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext =>
-            block(pertaxContext)
+            withActiveTab(activeTab) { implicit pertaxContext =>
+              block(pertaxContext)
+            }
           }
         }
     }
@@ -70,9 +74,9 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
   def withActiveTab(activeTab: Option[ActiveTab])(block: PertaxContext => Future[Result])(implicit pertaxContext: PertaxContext) =
     block(pertaxContext.withActiveTab(activeTab))
 
-  def renderError(context: PertaxContext, status: Int) = localErrorHandler.onClientError(context, status, "")
 
-  def createPertaxContextAndExecute(fetchPersonDetails: Boolean)(block: PertaxContext => Future[Result])(implicit authContext: AuthContext, request: Request[AnyContent]): Future[Result] = {
+
+  def createPertaxContextAndExecute(fetchPersonDetails: Boolean)(block: PertaxContext => Future[Result])(implicit authContext: AuthContext, request: Request[AnyContent], messages: Messages): Future[Result] = {
 
     def withUserDetails(block: UserDetails => Future[Result]): Future[Result] = {
 
@@ -82,11 +86,11 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
         userDetailsService.getUserDetails(uri) flatMap {
           case Some(userDetails) => block(userDetails)
           case None =>
-            renderError(context, INTERNAL_SERVER_ERROR)
+            renderError(INTERNAL_SERVER_ERROR)
         }
       } getOrElse {
         Logger.error("There was no user-details URI for current user")
-        renderError(context, INTERNAL_SERVER_ERROR)
+        renderError(INTERNAL_SERVER_ERROR)
       }
     }
 
@@ -120,7 +124,7 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
     }
   }
 
-  private def withPersonDetailsIfPaye(block: Option[PersonDetails] => Future[Result])(implicit pertaxContext: PertaxContext): Future[Result] = {
+  private def withPersonDetailsIfPaye(block: Option[PersonDetails] => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages): Future[Result] = {
     pertaxContext.userAndNino match {
       case Some( (user, nino) ) if user.isHighGovernmentGatewayOrVerify =>
         citizenDetailsService.personDetails(nino) flatMap {
@@ -133,14 +137,14 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
     }
   }
 
-  def enforcePersonDetails(block: => Future[Result])(implicit pertaxContext: PertaxContext): Future[Result] = {
+  def enforcePersonDetails(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages): Future[Result] = {
     enforcePersonDetails {
       payeAccount => personDetails =>
         block
     }
   }
 
-  def enforcePersonDetails(block: PayeAccount => PersonDetails => Future[Result])(implicit pertaxContext: PertaxContext): Future[Result] = {
+  def enforcePersonDetails(block: PayeAccount => PersonDetails => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages): Future[Result] = {
 
     enforcePayeAccount { payeAccount =>
       pertaxContext.user.flatMap {
@@ -149,12 +153,12 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
         }
       } getOrElse {
         Logger.warn("User had no PersonDetails in context when one was required")
-        renderError(pertaxContext, UNAUTHORIZED)
+        renderError(UNAUTHORIZED)
       }
     }
   }
 
-  private def enforcePayeAccount(block: PayeAccount => Future[Result])(implicit pertaxContext: PertaxContext): Future[Result] = {
+  private def enforcePayeAccount(block: PayeAccount => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages): Future[Result] = {
 
     pertaxContext.user.flatMap {
       _.authContext.principal.accounts.paye.map { payeAccount =>
@@ -162,11 +166,11 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
       }
     } getOrElse {
       Logger.warn("User had no paye account when one was required")
-      renderError(pertaxContext, UNAUTHORIZED)
+      renderError(UNAUTHORIZED)
     }
   }
 
-  def enforceSaAccount(block: SaAccount => Future[Result])(implicit pertaxContext: PertaxContext): Future[Result] = {
+  def enforceSaAccount(block: SaAccount => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages): Future[Result] = {
 
     pertaxContext.user.flatMap {
       _.authContext.principal.accounts.sa.map { saAccount =>
@@ -174,31 +178,31 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker { this
       }
     } getOrElse {
       Logger.warn("User had no sa account when one was required")
-      renderError(pertaxContext, UNAUTHORIZED)
+      renderError(UNAUTHORIZED)
     }
   }
 
-  def enforceGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifGovernmentGatewayUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforceGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifGovernmentGatewayUser(block) getOrElse renderError(UNAUTHORIZED)
 
-  def enforceHighGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifHighGovernmentGatewayUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforceHighGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifHighGovernmentGatewayUser(block) getOrElse renderError(UNAUTHORIZED)
 
-  def enforceLowGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifLowGovernmentGatewayUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforceLowGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifLowGovernmentGatewayUser(block) getOrElse renderError(UNAUTHORIZED)
 
-  def enforceVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifVerifyUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforceVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifVerifyUser(block) getOrElse renderError(UNAUTHORIZED)
 
-  def enforceHighGovernmentGatewayUserOrVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifHighGovernmentGatewayOrVerifyUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforceHighGovernmentGatewayUserOrVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifHighGovernmentGatewayOrVerifyUser(block) getOrElse renderError(UNAUTHORIZED)
 
-  def enforcePayeUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifPayeUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforcePayeUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifPayeUser(block) getOrElse renderError(UNAUTHORIZED)
 
-  def enforceSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifSaUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforceSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifSaUser(block) getOrElse renderError(UNAUTHORIZED)
 
-  def enforcePayeOrSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifPayeOrSaUser(block) getOrElse renderError(pertaxContext, UNAUTHORIZED)
+  def enforcePayeOrSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext, messages: Messages) =
+    PertaxUser.ifPayeOrSaUser(block) getOrElse renderError(UNAUTHORIZED)
 }

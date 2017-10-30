@@ -42,7 +42,7 @@ class PrintController @Inject() (
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def printNationalInsuranceNumber = ProtectedAction(baseBreadcrumb) {
+  def printNationalInsuranceNumber = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       enforcePersonDetails { payeAccount => personDetails =>
         Future.successful(Ok(views.html.print.printNationalInsuranceNumber(personDetails)))

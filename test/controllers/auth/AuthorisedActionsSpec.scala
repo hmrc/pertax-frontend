@@ -30,7 +30,6 @@ import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import util.Fixtures._
@@ -69,7 +68,8 @@ class AuthorisedActionsSpec extends BaseSpec {
         override val partialRetriever = mockLocalPartialRetreiver
         override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = injected[PertaxRegime]
-        override val localErrorHandler = injected[LocalErrorHandler]
+        override lazy val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]
+
 
         when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
           Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
@@ -89,17 +89,18 @@ class AuthorisedActionsSpec extends BaseSpec {
         when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
         when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
 
-
-        override lazy val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]
       }
+
+
 
       //Extract the context and map the future requst to it
       lazy val t = {
+        val req = FakeRequest("GET", "/test")
         var ctx: Option[PertaxContext] = None
         val r = localActions.createPertaxContextAndExecute(true) { c =>
           ctx = Some(c)
           Future.successful(Ok)
-        }(authContext, FakeRequest("GET", "/test"))
+        }(authContext, req, localActions.messagesApi.preferred(req))
         r.map(_ => (ctx, r))
       }
 
@@ -213,7 +214,6 @@ class AuthorisedActionsSpec extends BaseSpec {
         override val messagesApi = injected[MessagesApi]
         override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = MockitoSugar.mock[PertaxRegime]
-        override val localErrorHandler = injected[LocalErrorHandler]
 
         when(configDecorator.allowSaPreview) thenReturn allowSaPreview
       }

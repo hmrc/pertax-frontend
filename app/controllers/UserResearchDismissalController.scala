@@ -45,7 +45,7 @@ class UserResearchDismissalController @Inject() (
   ) extends PertaxBaseController with AuthorisedActions {
 
 
-  def dismissUrBanner = ProtectedAction(Nil) { implicit request =>
+  def dismissUrBanner = VerifiedAction(Nil) { implicit request =>
     homePageCachingHelper.storeUserUrDismissal()
     Future.successful(NoContent)
   }
