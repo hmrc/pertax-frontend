@@ -1,6 +1,0 @@
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
-@main(Messages("label.were_unable_to_confirm_your_identity")) {
-  <h1 class="heading-large">@Messages("label.were_unable_to_confirm_your_identity")</h1>
-  <p>@Html(Messages("label.you_cant_access_this_service_because_hmrc_doesnt_know_enough_", pertaxContext.configDecorator.contactHrmcUrl))</p>
-}

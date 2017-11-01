@@ -1,6 +1,0 @@
-@(retryUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
-@views.html.iv.ivOutcomeWrapper(Messages("label.were_unable_to_confirm_your_identity"), Messages("label.unable_to_confirm_your_identity")) {
-  <p class="margin-bottom">@Html(Messages("label.cant_confirm_identity_and_have_query_contact_HMRC", "https://www.gov.uk/contact-hmrc"))</p>
-  <a href="@retryUrl">@Messages("label.try_confirm_identity_again")</a>
-}

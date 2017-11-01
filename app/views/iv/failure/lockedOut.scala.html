@@ -1,11 +1,7 @@
 @(allowContinue: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@views.html.iv.ivOutcomeWrapper(Messages("label.youve_tried_to_complete_your_identity_too_many_times"), Messages("label.youve_tried_to_complete_your_identity_too_many_times")) {
+@views.html.iv.ivOutcomeWrapper(Messages("label.we_cannot_confirm_your_identity"), Messages("label.we_cannot_confirm_your_identity")) {
+  <p class="margin-bottom">@Messages("label.you_have_tried_to_confirm_your_identity_")</p>
+
   <p class="margin-bottom">@Messages("label.try_again_in_24_hours")</p>
-  @if(allowContinue) {
-    <p class="margin-bottom">@Messages("label.you_can_continue_to_your_personal_tax_account_")</p>
-    <a href="@controllers.routes.ApplicationController.index" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
-  } else {
-    <p class="margin-bottom">@Html(Messages("label.if_you_have_query_contact_HMRC", "https://www.gov.uk/contact-hmrc"))</p>
-  }
 }

@@ -103,6 +103,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val selfAssessmentContactUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
   lazy val taxReturnByPostUrl = "https://www.gov.uk/government/publications/self-assessment-tax-return-sa100"
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
+  lazy val incomeTaxGeneralQueriesUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees"
   lazy val mainContentHeaderPartialUrl = s"$pertaxFrontendService/personal-account/integration/main-content-header"
   lazy val refreshInterval = 900 + 10 //FIXME this should be sourced from the AuthenticationProvider
   lazy val enableRefresh = configuration.getBoolean("enableRefresh").getOrElse(true)
