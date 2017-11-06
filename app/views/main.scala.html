@@ -6,7 +6,7 @@
   supportLinkEnabled: Boolean = true,
   headScripts: Option[Html] = None,
   scriptElement: Option[Html] = None,
-  bodyClasses: Option[String] = None,
+  bodyClass: Option[String] = None,
   articleClasses: Option[String] = None,
   includeGridWrapper: Boolean = false,
   additionalGaCalls: Option[Html] = None
@@ -121,6 +121,8 @@
     ),
     "getHelpForm" -> get_help_form(supportLinkEnabled, includeGridWrapper),
     "mainContentHeader" -> mainContentHeader,
+
+    "bodyClass" -> (if(bodyClass) bodyClass),
 
     "isGovernmentGateway" -> pertaxContext.user.map(_.isGovernmentGateway).getOrElse(false),
     "isSa" -> pertaxContext.user.map(_.isSa).getOrElse(false),
