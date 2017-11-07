@@ -49,7 +49,7 @@ class MessageController @Inject() (
     "label.all_messages" -> routes.MessageController.messageList.url ::
     baseBreadcrumb
 
-  def messageList = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) {
+  def messageList = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {
@@ -60,7 +60,7 @@ class MessageController @Inject() (
       }
   }
 
-  def messageDetail(messageToken: String) = ProtectedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) {
+  def messageDetail(messageToken: String) = VerifiedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {

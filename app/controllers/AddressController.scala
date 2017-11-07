@@ -102,7 +102,7 @@ class AddressController @Inject() (
     }
   }
 
-  def personalDetails: Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def personalDetails: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
 
       val personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards
@@ -114,7 +114,7 @@ class AddressController @Inject() (
       }
   }
 
-  def taxCreditsChoice = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+  def taxCreditsChoice = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personalDetails =>
       gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         enforceDisplayAddressPageVisited(addressPageVisitedDto) {
@@ -124,7 +124,7 @@ class AddressController @Inject() (
     }
   }
 
-  def processTaxCreditsChoice = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+  def processTaxCreditsChoice = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personalDetails =>
       TaxCreditsChoiceDto.form.bindFromRequest.fold(
         formWithErrors => {
@@ -143,7 +143,7 @@ class AddressController @Inject() (
     }
   }
 
-  def residencyChoice = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+  def residencyChoice = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personDetails =>
       gettingCachedTaxCreditsChoiceDto {
         case Some(TaxCreditsChoiceDto(false)) =>
@@ -156,7 +156,7 @@ class AddressController @Inject() (
     }
   }
 
-  def processResidencyChoice: Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+  def processResidencyChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personDetails =>
       ResidencyChoiceDto.form.bindFromRequest.fold(
         formWithErrors => {
@@ -172,7 +172,7 @@ class AddressController @Inject() (
     }
   }
 
-  def showPostcodeLookupForm(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def showPostcodeLookupForm(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
@@ -190,7 +190,7 @@ class AddressController @Inject() (
       }
   }
 
-  def processPostcodeLookupForm(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def processPostcodeLookupForm(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         AddressFinderDto.form.bindFromRequest.fold(
@@ -206,7 +206,7 @@ class AddressController @Inject() (
       }
   }
 
-  def showAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String], back: Option[Boolean] = None): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def showAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String], back: Option[Boolean] = None): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
 
       addressJourneyEnforcer { payeAccount => personDetails =>
@@ -241,7 +241,7 @@ class AddressController @Inject() (
       }
   }
 
-  def processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String]): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String]): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
 
@@ -283,7 +283,7 @@ class AddressController @Inject() (
       }
   }
 
-  def showUpdateAddressForm(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def showUpdateAddressForm(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord == None
@@ -304,7 +304,7 @@ class AddressController @Inject() (
       }
   }
 
-  def processUpdateAddressForm(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def processUpdateAddressForm(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord == None
@@ -335,7 +335,7 @@ class AddressController @Inject() (
     case PostalAddrType => Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
   }
 
-  def enterStartDate(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def enterStartDate(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         nonPostalJourneyEnforcer(typ) {
@@ -350,7 +350,7 @@ class AddressController @Inject() (
       }
   }
 
-  def processEnterStartDate(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def processEnterStartDate(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         nonPostalJourneyEnforcer(typ) {
@@ -385,7 +385,7 @@ class AddressController @Inject() (
       block
   }
 
-  def reviewChanges(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def reviewChanges(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
@@ -413,7 +413,7 @@ class AddressController @Inject() (
     case _ => "Residential"
   }
 
-  def submitChanges(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def submitChanges(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
 
       val addressType = mapAddressType(typ)
@@ -455,7 +455,7 @@ class AddressController @Inject() (
       }
   }
 
-  def showAddressAlreadyUpdated(typ: AddrType): Action[AnyContent] = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def showAddressAlreadyUpdated(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         Future.successful(Ok(views.html.personaldetails.addressAlreadyUpdated()))

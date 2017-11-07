@@ -21,16 +21,14 @@ import javax.inject.{Inject, Singleton}
 import akka.stream.Materializer
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuthConnector}
-import controllers.auth.{PertaxRegime, PublicActions}
+import controllers.auth.{AuthorisedActions, PertaxRegime}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import services.{CitizenDetailsService, UserDetailsService}
-import util.LocalPartialRetriever
-
-import scala.concurrent._
 import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
+import util.LocalPartialRetriever
 
 
 @Singleton
@@ -45,24 +43,20 @@ class LocalErrorHandler @Inject() (
   val authConnector: PertaxAuthConnector,
   val materializer: Materializer,
   val sessionCookieCryptoFilter: CookieCryptoFilter
-) extends HttpErrorHandler with PublicActions with I18nSupport {
-
+) extends HttpErrorHandler with AuthorisedActions with I18nSupport {
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
 
-    val errorKey = statusCode match {
-      case BAD_REQUEST => "badRequest400"
-      case NOT_FOUND => "pageNotFound404"
-      case _ => "InternalServerError500"
+    if(statusCode==BAD_REQUEST || statusCode==NOT_FOUND) {
+      AuthorisedAction() { implicit pertaxContext =>
+        renderError(statusCode)
+      }.apply(request).run()(materializer)
     }
-
-    PublicAction { implicit pertaxContext =>
-      Future.successful(Status(statusCode)(views.html.error(
-        s"global.error.$errorKey.title",
-        Some(s"global.error.$errorKey.heading"),
-        Some(s"global.error.$errorKey.message"))))
-    }.apply(request).run()(materializer)
-
+    else {
+      PublicAction { implicit pertaxContext =>
+        renderError(statusCode)
+      }.apply(request).run()(materializer)
+    }
   }
 
   def onServerError(request: RequestHeader, exception: Throwable) =
