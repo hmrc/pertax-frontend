@@ -12,6 +12,10 @@
         <p>@Html(Messages(body))</p>
       }
 
+      <a href="javascript:window.history.back();">
+        @Messages("label.back")
+      </a>
+
       @if(showContactHmrc) {
         <br />
 

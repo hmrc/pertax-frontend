@@ -45,7 +45,7 @@ class PaperlessPreferencesController @Inject() (
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def managePreferences = ProtectedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def managePreferences = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       showingWarningIfWelsh { implicit pertaxContext =>
         for {

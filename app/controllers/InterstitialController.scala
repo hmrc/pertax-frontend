@@ -58,7 +58,7 @@ class InterstitialController @Inject() (
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  def displayNationalInsurance: Action[AnyContent] = ProtectedAction(baseBreadcrumb) {
+  def displayNationalInsurance: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       showingWarningIfWelsh { implicit pertaxContext =>
         formPartialService.getNationalInsurancePartial.map { p =>
@@ -67,7 +67,7 @@ class InterstitialController @Inject() (
       }
   }
 
-  def displayChildBenefits: Action[AnyContent] = ProtectedAction(baseBreadcrumb) {
+  def displayChildBenefits: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       Future.successful(Ok(views.html.interstitial.viewChildBenefitsSummaryInterstitial(
         redirectUrl = currentUrl,
@@ -75,7 +75,7 @@ class InterstitialController @Inject() (
       )
   }
 
-  def displaySelfAssessment: Action[AnyContent] = ProtectedAction(baseBreadcrumb) {
+  def displaySelfAssessment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       showingWarningIfWelsh { implicit pertaxContext =>
         val formPartial = formPartialService.getSelfAssessmentPartial recoverWith {
@@ -101,7 +101,7 @@ class InterstitialController @Inject() (
       }
   }
 
-  def displaySa302Interrupt(year: Int): Action[AnyContent] = ProtectedAction(saBreadcrumb) {
+  def displaySa302Interrupt(year: Int): Action[AnyContent] = VerifiedAction(saBreadcrumb) {
     import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
     implicit pertaxContext =>
       enforceSaAccount { saAccount =>

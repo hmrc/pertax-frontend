@@ -28,12 +28,15 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
 import play.api.libs.json.JsBoolean
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessagePartialService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
@@ -43,8 +46,6 @@ import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 
 
 class ApplicationControllerSpec extends BaseSpec {
@@ -68,7 +69,7 @@ class ApplicationControllerSpec extends BaseSpec {
     .build()
 
   override def beforeEach: Unit = {
-    reset(injected[PertaxAuditConnector], injected[TaxCalculationService], injected[CitizenDetailsService],
+    reset(injected[PertaxAuditConnector], injected[PertaxAuthConnector], injected[TaxCalculationService], injected[CitizenDetailsService],
       injected[TaiService], injected[MessagePartialService],
       injected[UserDetailsService])
   }
@@ -155,6 +156,11 @@ class ApplicationControllerSpec extends BaseSpec {
       c
     }
 
+    def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
+      controller //Call to inject mocks
+      route(app, req)
+    }
+
   }
 
   "Calling ApplicationController.uplift" should {
@@ -193,7 +199,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override val allowLowConfidenceSA = false
 
 
-      val r = route(app, FakeRequest("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
       status(r) shouldBe BAD_REQUEST
       redirectLocation(r) shouldBe None
 
@@ -429,7 +435,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
       override val allowLowConfidenceSA = false
 
-      val r = route(app, FakeRequest("GET", "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX")).get
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX")).get
 
       status(r) shouldBe BAD_REQUEST
     }
@@ -503,7 +509,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = route(app, FakeRequest("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
       status(r) shouldBe BAD_REQUEST
     }
   }
@@ -568,7 +574,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val r = route(app, FakeRequest("GET", "/personal-account/sa-continue?continueUrl=http://example.com")).get
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/sa-continue?continueUrl=http://example.com")).get
 
       status(r) shouldBe BAD_REQUEST
     }

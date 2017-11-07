@@ -19,20 +19,28 @@ package controllers
 import _root_.connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import config.ConfigDecorator
 import controllers.auth.PublicActions
+import controllers.helpers.ControllerLikeHelpers
 import models.{Breadcrumb, PertaxContext}
 import play.api.i18n.{I18nSupport, Messages}
 import play.api.mvc._
-import uk.gov.hmrc.play.frontend.auth._
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.frontend.controller.Utf8MimeTypes
 import util.LocalPartialRetriever
 
-abstract class PertaxBaseController extends PublicActions with FrontendController with I18nSupport {
+import scala.concurrent.Future
+
+
+
+abstract class PertaxBaseController extends Controller with Utf8MimeTypes with PublicActions with I18nSupport with ControllerLikeHelpers {
 
   def auditConnector: PertaxAuditConnector
   def authConnector: PertaxAuthConnector
 
   def partialRetriever: LocalPartialRetriever
   def configDecorator: ConfigDecorator
+
+  implicit class SessionKeyRemover(result: Future[Result]) {
+    def removeSessionKey(key: String)(implicit request: Request[_]) = result.map {_.withSession(request.session - key)}
+  }
 
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.ApplicationController.index().url)

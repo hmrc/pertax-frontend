@@ -27,11 +27,10 @@ import util.LocalPartialRetriever
 import scala.concurrent.Future
 
 
-trait PublicActions extends DelegationAwareActions { this: I18nSupport =>
+trait PublicActions extends DelegationAwareActions {
 
   def partialRetriever: LocalPartialRetriever
   def configDecorator: ConfigDecorator
-  def messagesApi: MessagesApi
 
   def PublicAction(block: PertaxContext => Future[Result]): Action[AnyContent] = {
     UnauthorisedAction.async { implicit request =>

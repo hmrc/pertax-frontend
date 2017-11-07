@@ -122,6 +122,7 @@
     "getHelpForm" -> get_help_form(supportLinkEnabled, includeGridWrapper),
     "mainContentHeader" -> mainContentHeader,
 
+    "hideAccountMenu" -> pertaxContext.user.isEmpty,
     "isGovernmentGateway" -> pertaxContext.user.map(_.isGovernmentGateway).getOrElse(false),
     "isSa" -> pertaxContext.user.map(_.isSa).getOrElse(false),
     "isVerify" -> pertaxContext.user.map(_.isVerify).getOrElse(false),

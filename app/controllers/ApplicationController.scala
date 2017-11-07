@@ -67,7 +67,7 @@ class ApplicationController @Inject() (
   val homePageCachingHelper: HomePageCachingHelper
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
-  def index: Action[AnyContent] = ProtectedAction(Nil, activeTab = Some(ActiveTabHome)) {
+  def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
     implicit pertaxContext =>
 
       val year = TaxYearResolver.currentTaxYear
@@ -200,7 +200,7 @@ class ApplicationController @Inject() (
       }
   }
 
-  def handleSelfAssessment = ProtectedAction(baseBreadcrumb) {
+  def handleSelfAssessment = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
 
