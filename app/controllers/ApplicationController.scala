@@ -18,11 +18,11 @@ package controllers
 
 import javax.inject.Inject
 
-import config.{ConfigDecorator, StaticGlobalDependencies}
+import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
-import controllers.bindable.{AddrType, Origin, StrictContinueUrl}
-import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, PersonalDetailsCardGenerator}
+import controllers.bindable.{Origin, StrictContinueUrl}
+import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import error.LocalErrorHandler
 import models._
 import play.api.Logger
@@ -30,17 +30,11 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
 import services._
-import services.partials.{CspPartialService, MessagePartialService}
+import services.partials.CspPartialService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.time.TaxYearResolver
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}
-import util.DateTimeTools._
-import java.net.URLEncoder
-
-import models.dto.{AddressFinderDto, AddressPageVisitedDto}
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.config.RunMode
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 

@@ -23,9 +23,6 @@ import play.api.mvc._
 
 import scala.concurrent.Future
 
-/**
-  * Created by nic on 02/11/2017.
-  */
 trait RendersErrors extends Results {
 
   def renderError(statusCode: Int)(implicit context: PertaxContext, messages: Messages) = {

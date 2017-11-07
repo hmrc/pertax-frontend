@@ -100,7 +100,7 @@ class AuthorisedActionsSpec extends BaseSpec {
         val r = localActions.createPertaxContextAndExecute(true) { c =>
           ctx = Some(c)
           Future.successful(Ok)
-        }(authContext, req, localActions.messagesApi.preferred(req))
+        }(authContext, req)
         r.map(_ => (ctx, r))
       }
 
