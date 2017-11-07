@@ -165,12 +165,13 @@ class ApplicationController @Inject() (
 
               response match {
                 case IdentityVerificationSuccessResponse(InsufficientEvidence) => Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
-                case IdentityVerificationSuccessResponse(UserAborted) => Unauthorized(views.html.iv.failure.userAbortedOrIncomplete(retryUrl, allowContinue))
-                case IdentityVerificationSuccessResponse(FailedMatching) => Unauthorized(views.html.iv.failure.failedMatching(retryUrl))
+                case IdentityVerificationSuccessResponse(UserAborted) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+                case IdentityVerificationSuccessResponse(FailedMatching) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+                case IdentityVerificationSuccessResponse(Incomplete) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+                case IdentityVerificationSuccessResponse(PrecondFailed) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
                 case IdentityVerificationSuccessResponse(LockedOut) => Unauthorized(views.html.iv.failure.lockedOut(allowContinue))
-                case IdentityVerificationSuccessResponse(Incomplete) => Unauthorized(views.html.iv.failure.userAbortedOrIncomplete(retryUrl, allowContinue))
-                case IdentityVerificationSuccessResponse(PrecondFailed) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl, allowContinue))
                 case IdentityVerificationSuccessResponse(Success) => Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
+                case IdentityVerificationSuccessResponse(Timeout) => InternalServerError(views.html.iv.failure.timeOut(retryUrl))
                 case IdentityVerificationSuccessResponse(TechnicalIssue) =>
                   Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
                   InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
@@ -222,6 +223,8 @@ class ApplicationController @Inject() (
 
       val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url))
 
+      val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
+
       selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
         case ActivatedOnlineFilerSelfAssessmentUser(x) =>
           handleIvExemptAuditing("Activated online SA filer")
@@ -236,7 +239,7 @@ class ApplicationController @Inject() (
           }
 
         case NonFilerSelfAssessmentUser =>
-          Future.successful(Ok(views.html.iv.failure.insufficientEvidenceNonSaFiler()))
+          Future.successful(Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl)))
       }
   }
 

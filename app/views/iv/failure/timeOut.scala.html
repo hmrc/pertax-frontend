@@ -1,0 +1,15 @@
+@(retryUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import pertaxContext.configDecorator._
+
+@views.html.iv.ivOutcomeWrapper(Messages("label.you_have_been_signed_out"), Messages("label.you_have_been_signed_out")) {
+
+  <p class="margin-bottom">@Messages("label.you_have_not_done_anything_for_15_minutes_")</p>
+
+  <p class="margin-bottom">@Messages("label.you_can")</p>
+
+  <ul class="list list-bullet">
+    <li><a href="@retryUrl">@Messages("label.try_confirm_identity_again")</a></li>
+      <li><a class="ga-track-anchor-click" href="@incomeTaxGeneralQueriesUrl" data-ga-event-category="link - click" data-ga-event-action="You have been signed out" data-ga-event-label="contact HM Revenue and Customs for help">@Messages("label.contact_hm_revenues_and_customs_for_help")</a></li>
+  </ul>
+}

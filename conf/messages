@@ -366,7 +366,6 @@ label.continue_to_your_personal_tax_account=​Continue to your personal tax acc
 label.to_continue_you_can=To continue you can:
 label.see_your_current_address=see your <a href="{0}">current address</a>
 label.go_to_your_personal_tax_account_home=go to your <a href="{0}">personal tax account home</a>
-label.try_confirm_identity_again=Try to confirm your identity again
 
 label.based_on_your_answers_we_cant_confirm_your_identity=Based on your answers, we can''t confirm your identity
 label.continue_to_complete_sa_your_details_are_secure=You can continue to complete your Self Assessment. Your details are still secure.
@@ -374,6 +373,19 @@ label.you_can_continue_to_your_personal_tax_account_=You can continue to your pe
 label.you_can_continue_but_you_will_not_be_able_to_access_=You can continue but you will not be able to access all parts of your personal tax account. Your details are still secure.
 label.we_can_show_you_more_if_you_complete_2fa=We can show you more details from your HM Revenue and Customs record if you complete 2-step verification. We''ll remind you to set this up the next time you sign in.
 label.you_can_continue_to_complete_your_sa_confirm_next_login=You can continue to complete your Self Assessment. Your details are still secure. We''ll ask you to confirm your identity the next time you sign in.
+label.we_cannot_confirm_your_identity=We cannot confirm your identity
+label.you_have_tried_to_confirm_your_identity_=You have tried to confirm your identity too many times.
+label.try_again_in_24_hours=Try again in 24 hours.
+label.you_can=You can:
+label.contact_hm_revenues_and_customs_for_help=contact HM Revenue and Customs for help
+label.try_confirm_identity_again=try to confirm your identity again
+label.you_have_not_given_us_enough_information=You have not given us enough information.
+label.we_have_confirmed_your_identity=We have confirmed your identity
+label.you_can_sign_in_to_your_personal_tax_account=You can now sign in to your personal tax account
+label.you_have_been_signed_out=You have been signed out
+label.you_have_not_done_anything_for_15_minutes_=You have not done anything for 15 minutes, so we have signed you out to keep your account secure.
+label.service_unavailable=Service unavailable
+label.sorry_we_are_currently_experiencing_technical_issues=Sorry, we are currently experiencing technical issues.
 label.youve_tried_to_complete_your_identity_too_many_times=You''ve tried to confirm your identity too many times
 label.try_again_in_24_hours=You can try again in 24 hours.
 label.try_again=Try again
