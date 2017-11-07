@@ -4,11 +4,7 @@
   showUserResearchBanner: Boolean
 )(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import tags._
-@import uk.gov.hmrc.play.views.formatting.Money.pounds
-@import models.PertaxUser
 @import models.PertaxUser._
-@import pertaxContext.configDecorator._
 
 @main(Messages("label.your_personal_tax_account"),Some(Messages("label.your_personal_tax_account")), showUserResearchBanner) {
 
@@ -31,21 +27,27 @@
       <section>
         <h2 class="section-header">@Messages("title.income")</h2>
         <div class="grid-row">
-          @incomeCards
+          <div class="flex-container">
+            @incomeCards
+          </div>
         </div>
       </section>
 
       <section>
         <h2 class="section-header">@Messages("title.benefits")</h2>
         <div class="grid-row">
-          @benefitCards
+          <div class="flex-container">
+            @benefitCards
+          </div>
         </div>
       </section>
 
       <section>
         <h2 class="section-header">@Messages("title.pensions")</h2>
         <div class="grid-row">
-          @pensionCards
+          <div class="flex-container">
+            @pensionCards
+          </div>
         </div>
       </section>
 

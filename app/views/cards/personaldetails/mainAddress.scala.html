@@ -4,26 +4,36 @@
   if(taxCreditsEnabled) controllers.routes.AddressController.taxCreditsChoice else controllers.routes.AddressController.residencyChoice
 }
 
+@cardContent = {
+  <p><strong>
+    @personDetails.address.map { address =>
+      @address.lines.map { line =>
+        @upperCaseToTitleCase(line)<br>
+      }
+    @address.postcode.map(_.toUpperCase)
+  }
+  </strong></p>
+  @startDate.map { startDate =>
+    <p>@Messages("label.this_has_been_your_main_home_since_date", startDate)</p>
+  }
+  @if(show2016Message) {
+    <p>@Messages("label.this_has_been_your_main_home_since_at_least_6_april_2016")</p>
+  }
+}
+
 <div class="card column-third">
-  <a class="card-link ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
+  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.main_address")</h3>
-      <p><strong>
-        @personDetails.address.map { address =>
-          @address.lines.map { line =>
-            @upperCaseToTitleCase(line)<br>
-          }
-          @address.postcode.map(_.toUpperCase)
-        }
-      </strong></p>
-      @startDate.map { startDate =>
-        <p>@Messages("label.this_has_been_your_main_home_since_date", startDate)</p>
-      }
-      @if(show2016Message) {
-        <p>@Messages("label.this_has_been_your_main_home_since_at_least_6_april_2016")</p>
-      }
+      @cardContent
     </div>
   </a>
+
+  <div class="visually-hidden">
+    <h3>@Messages("label.main_address")</h3>
+    @cardContent
+  </div>
+
   <div class="card-actions">
     <ul>
       <li>

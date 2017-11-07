@@ -400,10 +400,21 @@ address {
       }
     }
 
+    .visually-hidden {
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+
     .card-content {
       background: $grey-4;
       display: block;
-      padding: 10px;
+      padding: 12px;
       text-decoration: none;
 
       &:hover {
@@ -433,14 +444,20 @@ address {
       border: 1px solid $grey-4;
       border-top: none;
       min-height: 40px;
-      padding: 10px;
+      padding: 12px;
 
       ul {
         margin: 0;
+        padding: 0;
 
         li {
-          margin-left: 0;
+          margin: 0 0 1em 0;
         }
+
+        li:last-child {
+          margin-bottom: 0;
+        }
+
       }
     }
   }
@@ -487,11 +504,19 @@ address {
   }
 }
 
+.flex-container {
+  -js-display: flex;
+  display: flex;
+  flex-wrap: wrap;
+  width:100%;
+}
+
 @include media(desktop) {
   .pertax-home,
   .pertax-personal-details {
+
     .card {
-      min-height: 350px;
+      flex-direction: row;
 
       &.column-half {
         @include grid-column(1 / 2);
@@ -500,12 +525,7 @@ address {
       a > .card-content {
         min-height: 160px;
       }
-
-      .card-actions {
-        min-height: 85px;
-      }
     }
-
   }
 }
 

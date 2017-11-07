@@ -1,21 +1,27 @@
 @(isCompanyBenefitsRecipient: Boolean)(implicit messages: play.api.i18n.Messages)
 
 <div class="card column-third">
-  <a class="card-link ga-track-anchor-click" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
+  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
     <div class="card-content" role="link">
       <h3 class="heading-small no-margin-top">@Messages("label.pay_as_you_earn_paye")</h3>
       <p>@Messages("label.your_income_from_employers_and_private_pensions_")</p>
     </div>
   </a>
+
+  <div class="visually-hidden">
+    <h3>@Messages("label.pay_as_you_earn_paye")</h3>
+    <p>@Messages("label.your_income_from_employers_and_private_pensions_")</p>
+  </div>
+
   <div class="card-actions">
     <ul>
       <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your Income Tax estimate">@Messages("label.view_your_income_tax_estimate")</a></li>
       <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check how much tax you paid last year">@Messages("label.check_how_much_tax_you_paid_last_year")</a></li>
-    @if(isCompanyBenefitsRecipient) {
-      <li><a class="ga-track-anchor-click" href="/check-income-tax/taxable-income" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your company benefits">@Messages("label.view_your_company_benefits")</a></li>
-    } else {
-      <li><a class="ga-track-anchor-click" href="/check-income-tax/tax-codes" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Understand your tax code">@Messages("label.understand_your_tax_code")</a></li>
-    }
+      @if(isCompanyBenefitsRecipient) {
+        <li><a class="ga-track-anchor-click" href="/check-income-tax/taxable-income" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your company benefits">@Messages("label.view_your_company_benefits")</a></li>
+      } else {
+        <li><a class="ga-track-anchor-click" href="/check-income-tax/tax-codes" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Understand your tax code">@Messages("label.understand_your_tax_code")</a></li>
+      }
     </ul>
   </div>
 </div>
