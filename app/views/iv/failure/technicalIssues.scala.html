@@ -1,7 +1,15 @@
 @(retryUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@views.html.iv.ivOutcomeWrapper(Messages("label.there_s_a_technical_problem"), Messages("label.there_s_a_technical_problem")) {
-  <p class="margin-bottom">@Messages("label.this_online_service_is_experiencing_technical_difficulties")</p>
-  <p class="margin-botton">@Messages("label.please_try_again_in_5_minutes")</p>
-  <a href="@retryUrl" class="button" role="button">@Messages("label.try_again")</a>
+@import pertaxContext.configDecorator._
+
+@views.html.iv.ivOutcomeWrapper(Messages("label.service_unavailable"), Messages("label.service_unavailable")) {
+
+  <p class="margin-bottom">@Messages("label.sorry_we_are_currently_experiencing_technical_issues")</p>
+
+  <p class="margin-bottom">@Messages("label.you_can")</p>
+
+  <ul class="list list-bullet">
+    <li><a href="@retryUrl">@Messages("label.try_confirm_identity_again")</a></li>
+    <li><a class="ga-track-anchor-click" href="@incomeTaxGeneralQueriesUrl" data-ga-event-category="link - click" data-ga-event-action="Service unavailable" data-ga-event-label="contact HM Revenue and Customs for help">@Messages("label.contact_hm_revenues_and_customs_for_help")</a></li>
+  </ul>
 }

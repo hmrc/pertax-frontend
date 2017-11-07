@@ -303,6 +303,19 @@ label.before_you_continue_we_need_to_check=Cyn i chi fynd yn eich blaen, mae ang
 label.we_re_going_to_ask_you_some_security_questions=Rydym yn mynd i ofyn rhai cwestiynau diogelwch i chi er mwyn i ni sicrhau mai chi sy''n mewngofnodi i''ch cyfrif.
 label.we_ve_confirmed_your_identity=Rydym wedi cadarnhau pwy ydych
 label.you_can_continue_to_complete_your_sa=Gallwch fynd yn eich blaen i lenwi''ch Hunanasesiad.
+label.we_cannot_confirm_your_identity=Ni allwn gadarnhau pwy ydych
+label.you_have_tried_to_confirm_your_identity_=Rydych wedi ceisio rhoi prawf o bwy ydych ormod o weithiau.
+label.try_again_in_24_hours=Rhowch gynnig arall arni mewn 24 awr.
+label.you_can=Gallwch wneud y canlynol:
+label.contact_hm_revenues_and_customs_for_help=cysylltu â Chyllid a Thollau EM am gymorth
+label.try_confirm_identity_again=ceisio rhoi prawf o bwy ydych eto
+label.you_have_not_given_us_enough_information=Nid ydych wedi rhoi digon o wybodaeth i ni.
+label.we_have_confirmed_your_identity=Rydym wedi cadarnhau pwy ydych
+label.you_can_sign_in_to_your_personal_tax_account=Gallwch bellach fewngofnodi i''ch cyfrif treth personol.
+label.you_have_been_signed_out=Rydych wedi cael eich allgofnodi
+label.you_have_not_done_anything_for_15_minutes_=Nid ydych wedi gwneud unrhyw beth am 15 munud, felly rydym wedi''ch allgofnodi er mwyn cadw''ch cyfrif yn ddiogel.
+label.service_unavailable=Nid yw''r gwasanaeth ar gael
+label.sorry_we_are_currently_experiencing_technical_issues=Mae''n ddrwg gennym. Mae anawsterau technegol wedi codi.
 label.we_can_t_confirm_your_identity=Ni allwn gadarnhau pwy ydych
 label.were_unable_to_confirm_your_identity=Ni allwn gadarnhau pwy ydych
 label.you_can_still_complete_your_sa=Gallwch lenwi''ch Ffurflen Dreth Hunanasesiad o hyd.
@@ -365,7 +378,6 @@ label.continue_to_your_personal_tax_account=Mynd yn eich blaen i''ch cyfrif tret
 label.to_continue_you_can=I fynd yn eich blaen, gallwch wneud y canlynol:
 label.see_your_current_address=gweld eich <a href="{0}">cyfeiriad presennol</a>
 label.go_to_your_personal_tax_account_home=mynd i <a href="{0}">hafan eich cyfrif treth personol</a>
-label.try_confirm_identity_again=Ceisio rhoi prawf o bwy ydych eto
 
 label.based_on_your_answers_we_cant_confirm_your_identity=Ar sail eich atebion, ni allwn gadarnhau pwy ydych
 label.continue_to_complete_sa_your_details_are_secure=Gallwch fynd yn eich blaen i lenwi''ch Hunanasesiad. Mae''ch manylion yn dal i fod yn ddiogel.

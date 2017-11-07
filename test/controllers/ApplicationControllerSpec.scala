@@ -556,7 +556,7 @@ class ApplicationControllerSpec extends BaseSpec {
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
-    "redirect to 'We're unable to confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
+    "redirect to 'We cannot confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
 
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
@@ -564,7 +564,7 @@ class ApplicationControllerSpec extends BaseSpec {
       val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
       val doc = Jsoup.parse(contentAsString(r))
       status(r) shouldBe OK
-      doc.getElementsByClass("heading-large").toString().contains("We're unable to confirm your identity") shouldBe true
+      doc.getElementsByClass("heading-large").toString().contains("We cannot confirm your identity") shouldBe true
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any()) //TODO - check captured event
 
     }
