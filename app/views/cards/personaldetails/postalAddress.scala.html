@@ -2,23 +2,33 @@
 
 @import controllers.bindable.PostalAddrType
 
+@cardContent = {
+  <p><strong>
+  @personDetails.correspondenceAddress.map { correspondenceAddress =>
+    @correspondenceAddress.lines.map { line =>
+      @upperCaseToTitleCase(line)<br>
+    }
+    @correspondenceAddress.postcode.map(_.toUpperCase)
+  }
+  </strong></p>
+  <p>@Messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+}
+
 <div class="card column-third">
   @if(canUpdatePostalAddress){
     <a class="card-link ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
   }
   <div class="card-content" role="link">
     <h3 class="heading-small no-margin-top">@Messages("label.postal_address")</h3>
-    <p><strong>
-      @personDetails.correspondenceAddress.map { correspondenceAddress =>
-        @correspondenceAddress.lines.map { line =>
-          @upperCaseToTitleCase(line)<br>
-        }
-        @correspondenceAddress.postcode.map(_.toUpperCase)
-      }
-    </strong></p>
-    <p>@Messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+    @cardContent
   </div>
   @if(canUpdatePostalAddress){</a>}
+
+  <div class="visually-hidden">
+    <h3>@Messages("label.postal_address")</h3>
+    @cardContent
+  </div>
+
   <div class="card-actions">
     <ul>
       <li>
