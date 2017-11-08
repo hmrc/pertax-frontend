@@ -387,7 +387,6 @@ label.you_have_not_done_anything_for_15_minutes_=You have not done anything for 
 label.service_unavailable=Service unavailable
 label.sorry_we_are_currently_experiencing_technical_issues=Sorry, we are currently experiencing technical issues.
 label.youve_tried_to_complete_your_identity_too_many_times=You''ve tried to confirm your identity too many times
-label.try_again_in_24_hours=You can try again in 24 hours.
 label.try_again=Try again
 label.find_an_address=Find an address
 label.tell_us_your_main_home=Tell us your main home

@@ -161,7 +161,7 @@ class ApplicationController @Inject() (
                 case IdentityVerificationSuccessResponse(InsufficientEvidence) => Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
                 case IdentityVerificationSuccessResponse(UserAborted) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
                 case IdentityVerificationSuccessResponse(FailedMatching) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-                case IdentityVerificationSuccessResponse(Incomplete) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+                case IdentityVerificationSuccessResponse(Incomplete) => Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
                 case IdentityVerificationSuccessResponse(PrecondFailed) => Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
                 case IdentityVerificationSuccessResponse(LockedOut) => Unauthorized(views.html.iv.failure.lockedOut(allowContinue))
                 case IdentityVerificationSuccessResponse(Success) => Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
