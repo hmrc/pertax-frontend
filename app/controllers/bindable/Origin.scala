@@ -17,8 +17,5 @@
 package controllers.bindable
 
 case class Origin(value: String) {
-  lazy val validOrigins = play.Play.application.configuration.getString("validOrigins").split(",").toList
   override def toString : String = value
-
-  def isValid: Boolean = validOrigins.contains(value)
 }
