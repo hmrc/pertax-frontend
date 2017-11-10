@@ -40,10 +40,8 @@ package object bindable {
      params.get(key) match {
        case None =>
          None
-       case Some(Seq(originString)) if(Origin(originString).isValid) =>
+       case Some(Seq(originString)) =>
          Some(Right(Origin(originString)))
-       case _ =>
-         Some(Left("Invalid origin in queryString"))
      }
    }
  }

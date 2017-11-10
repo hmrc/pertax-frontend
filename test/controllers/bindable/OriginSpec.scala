@@ -22,26 +22,8 @@ class OriginSpec extends BaseSpec {
 
   "The validation of an origin" should {
 
-    "pass with valid PTA origin" in {
-      Origin("PERTAX").isValid shouldBe true
+    "pass when created with string" in {
+      Origin("SOME_ORIGIN").value shouldBe "SOME_ORIGIN"
      }
-    "pass with valid TCS origin" in {
-      Origin("TCS").isValid shouldBe true
-    }
-    "pass with valid NISP origin" in {
-      Origin("NISP").isValid shouldBe true
-    }
-    "pass with valid PAYE origin" in {
-      Origin("PAYE").isValid shouldBe true
-    }
-    "pass with valid 'REPAYMENTS' origin" in {
-      Origin("REPAYMENTS").isValid shouldBe true
-    }
-    "pass with valid P800 origin"  in {
-      Origin("P800").isValid shouldBe true
-    }
-    "fail with an invalid origin"  in {
-      Origin("INVALID").isValid shouldBe false
-    }
   }
 }

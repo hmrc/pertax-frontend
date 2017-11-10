@@ -42,12 +42,6 @@ class BindableSpec extends BaseSpec {
     "return an origin when called with a valid string" in new LocalSetup {
       controllers.bindable.originBinder.bind("origin", Map("origin" -> Seq("PERTAX"))) shouldBe Some(Right(Origin("PERTAX")))
     }
-    "return error message when called with an empty string" in new LocalSetup {
-      controllers.bindable.originBinder.bind("origin", Map("origin" -> Seq(""))) shouldBe Some(Left("Invalid origin in queryString"))
-    }
-    "return error message when called with an invalid string" in new LocalSetup {
-      controllers.bindable.originBinder.bind("origin", Map("origin" -> Seq("INVALID"))) shouldBe Some(Left("Invalid origin in queryString"))
-    }
     "return None when called with an empty map" in new LocalSetup {
       controllers.bindable.originBinder.bind("origin", Map()) shouldBe None
     }
