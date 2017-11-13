@@ -2,7 +2,7 @@
 
 @cardContent = @{
   saActionNeeded match {
-    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => Messages("label.view_and_manage_your_self_assessment_tax_return_your_tax_return_is_due_by_")
+    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_")
     case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => Messages("label.use_your_activation_code_to_access_this_service_")
     case AmbiguousFilerSelfAssessmentUser(saUtr) => Messages("label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_")
     case _ => {}
