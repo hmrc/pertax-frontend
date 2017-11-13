@@ -359,17 +359,19 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
+      println(cardBody)
+
       cardBody shouldBe
         Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/personal-account/self-assessment-summary" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Self Assessment">
                |    <div class="card-content" role="link">
                |      <h3 class="heading-small no-margin-top">Self Assessment</h3>
-               |      <p>View and manage your Self Assessment tax return. Your tax return is due by 31 January 2018.</p>
+               |      <p>View and manage your Self Assessment tax return. The deadline for online returns is 31 January 2018.</p>
                |    </div>
                |  </a>
                |  <div class="visually-hidden">
                |    <h3>Self Assessment</h3>
-               |    <p>View and manage your Self Assessment tax return. Your tax return is due by 31 January 2018.</p>
+               |    <p>View and manage your Self Assessment tax return. The deadline for online returns is 31 January 2018.</p>
                |  </div>
                |  <div class="card-actions">
                |    <ul>
