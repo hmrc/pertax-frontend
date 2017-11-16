@@ -457,6 +457,9 @@ label.no_thanks=Dim diolch
 #
 # Error messages
 #
+head.error.enter_valid_characters=Gwirio enw neu rif eich tŷ
+head.error.address_not_selected=Dewiswch gyfeiriad
+head.error.residency_choice=Mae angen i chi ddewis ateb
 head.error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 head.error.line1_required=Gwirio llinell gyntaf eich cyfeiriad
