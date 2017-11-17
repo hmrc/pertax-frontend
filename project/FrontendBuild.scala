@@ -15,7 +15,7 @@ private object AppDependencies {
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "play-breadcrumb" % "1.0.0",
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.7.0", // includes the global object and error handling, as well as the FrontendController classes
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.9.0", // includes the global object and error handling, as well as the FrontendController classes
     "uk.gov.hmrc" %% "play-partials" % "6.1.0", // includes code for retrieving partials, e.g. the Help with this page form
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "7.0.0",
