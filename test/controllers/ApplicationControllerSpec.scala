@@ -165,21 +165,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
   "Calling ApplicationController.uplift" should {
 
-    "send the user to IV using the PTA-TCS origin when the redirectUrl contains 'tax-credits-summary'" in new LocalSetup {
-
-      override lazy val confidenceLevel = ConfidenceLevel.L0
-      override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
-      override val allowLowConfidenceSA = false
-
-      val r = controller.uplift(Some(StrictContinueUrl("/personal-account/tax-credits-summary")))(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PTA-TCS&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Ftax-credits-summary")
-
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())
-    }
-
-    "send the user to IV using the PERTAX origin when the redirectUrl does not contain 'tax-credits-summary'" in new LocalSetup {
+    "send the user to IV using the PERTAX origin" in new LocalSetup {
 
       override lazy val confidenceLevel = ConfidenceLevel.L0
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
