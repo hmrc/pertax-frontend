@@ -125,10 +125,7 @@ class ApplicationController @Inject() (
   }
 
   def uplift(redirectUrl: Option[StrictContinueUrl]): Action[AnyContent] = {
-    val pvp = if (redirectUrl.fold(false)(_.url.containsSlice("tax-credits-summary")))
-      localPageVisibilityPredicateFactory.build(redirectUrl, Origin("PTA-TCS")) //FIXME, this needs injected for tests
-    else
-      localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin) //FIXME, this needs injected for tests
+    val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
 
     AuthorisedFor(pertaxRegime, pageVisibility = pvp).async {
       implicit authContext =>
