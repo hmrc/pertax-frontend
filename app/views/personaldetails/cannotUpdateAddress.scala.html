@@ -1,6 +1,9 @@
 @(typ: AddrType, proposedStartDate: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@main(Messages("label.your_address_cannot_be_updated"),Some(Messages("label.your_personal_tax_account"))) {
+@main(title = Messages("label.your_address_cannot_be_updated"),
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(controllers.routes.AddressController.enterStartDate(typ))
+) {
 
   <div class="grid-row">
     <div class="column-two-thirds">
@@ -22,12 +25,4 @@
 
     </div>
    </div>
-
-  <p>
-    <a href="@controllers.routes.AddressController.enterStartDate(typ)" class="back-to-account-home">
-      @Messages("label.back")
-    </a>
-  </p>
-
 }
-

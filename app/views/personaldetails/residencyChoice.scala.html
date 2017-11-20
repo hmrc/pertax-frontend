@@ -4,7 +4,10 @@
 @import tags._
 
 
-@main(Messages("label.update_your_postal_address"),Some(Messages("label.your_personal_tax_account"))) {
+@main(title = Messages("label.do_you_live_in_more_than_one_place"),
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(controllers.routes.AddressController.personalDetails)
+) {
 <div class="personal-details">
   <div class="grid-row">
     <div class="column-full">
@@ -31,11 +34,6 @@
               <button type="submit">@Messages("global.label.continue_button")</button>
             </div>
           }
-          <p>
-            <a href="@controllers.routes.AddressController.taxCreditsChoice" class="back-to-account-home">
-              @Messages("label.back")
-            </a>
-          </p>
         </div>
       </div>
     </div>

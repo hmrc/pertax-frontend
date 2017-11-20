@@ -2,7 +2,10 @@
 
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@main(Messages("label.update_your_postal_address"),Some(Messages("label.your_personal_tax_account"))) {
+@main(title = Messages("label.do_you_get_tax_credits"),
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(controllers.routes.AddressController.personalDetails)
+) {
   <div class="personal-details">
     <div class="grid-row">
       <div class="column-full">
@@ -27,9 +30,6 @@
                 <button type="submit">@Messages("global.label.continue_button")</button>
               </div>
             }
-            <p>
-              <a href="@controllers.routes.AddressController.personalDetails" class="back-to-account-home">@Messages("label.back")</a>
-            </p>
           </div>
         </div>
       </div>

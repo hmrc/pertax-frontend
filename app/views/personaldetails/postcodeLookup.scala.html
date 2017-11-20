@@ -5,10 +5,17 @@
 @import tags._
 @import scala.util.Try
 
-
-@main(typ.ifIs(primary = Messages("label.tell_us_your_main_home"), sole = Messages("label.find_your_address"), postal = Messages("label.find_an_address")),
-    Some(Messages("label.your_personal_tax_account"))) {
-
+@main(title = typ.ifIs(
+    primary = Messages("label.tell_us_your_main_home"),
+    sole = Messages("label.find_your_address"),
+    postal = Messages("label.find_an_address")),
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(
+    typ.ifIs(
+      primary = controllers.routes.AddressController.residencyChoice,
+      sole = controllers.routes.AddressController.residencyChoice,
+      postal = controllers.routes.AddressController.personalDetails))
+) {
   <div class="grid-row">
     <div class="column-full">
       <div class="page-heading">
@@ -67,15 +74,4 @@
     </div>
 
   </div>
-
-  @typ.ifIsPrimary {
-    <a href="@controllers.routes.AddressController.residencyChoice">@Messages("label.back")</a>
-  }
-  @typ.ifIsSole {
-    <a href="@controllers.routes.AddressController.residencyChoice">@Messages("label.back")</a>
-  }
-  @typ.ifIsPostal {
-    <a href="@controllers.routes.AddressController.personalDetails">@Messages("label.back")</a>
-  }
-
 }
