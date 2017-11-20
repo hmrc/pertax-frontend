@@ -1,6 +1,9 @@
 @(title: String, heading: Option[String] = None, body: Option[String] = None, showContactHmrc: Boolean = true)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@main(Messages(title),Some(Messages("label.your_personal_tax_account"))) {
+@main(title = Messages(title),
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some("javascript:window.history.back();")
+) {
 
   <div class="grid-row pertax-error">
     <div class="column-two-thirds">
@@ -11,10 +14,6 @@
       @body.map { body =>
         <p>@Html(Messages(body))</p>
       }
-
-      <a href="javascript:window.history.back();">
-        @Messages("label.back")
-      </a>
 
       @if(showContactHmrc) {
         <br />
