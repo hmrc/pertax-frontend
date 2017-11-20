@@ -18,15 +18,14 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import uk.gov.hmrc.play.validators.Validators
 
 object AddressSelectorDto {
   val form = Form(
     mapping(
-      "addressId" -> text
-        .verifying("error.form.field.message.addressId", e => Validators.notBlank(e))
+      "addressId" -> optional(text)
+        .verifying("error.address_not_selected", !_.isEmpty)
     )(AddressSelectorDto.apply)(AddressSelectorDto.unapply)
   )
 }
 
-case class AddressSelectorDto(addressId: String)
+case class AddressSelectorDto(addressId: Option[String])

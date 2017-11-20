@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  @errorsNew(updateAddressForm)
+  @errors(updateAddressForm)
   <div class="grid-row postal-address-block">
     <div class="column-two-thirds">
       @helpers.form(action = controllers.routes.AddressController.processUpdateAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {

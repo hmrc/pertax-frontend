@@ -21,7 +21,6 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
-import uk.gov.hmrc.play.validators.Validators
 
 object ResidencyChoiceDto {
 
@@ -47,10 +46,9 @@ object ResidencyChoiceDto {
 
   val form = Form(
     mapping(
-      "residencyChoice" -> nonEmptyText
-        .verifying("error.form.field.message.residencyChoice", e => Validators.notBlank(e))
-        .verifying(AddrType(_).isDefined)
-        .transform[AddrType](x => AddrType(x).getOrElse(SoleAddrType), ad => ad.toString)  //getOrElse here will never fall back to default because of isDefined above
+      "residencyChoice" -> optional(text)
+        .verifying("error.residency_choice", e => e.flatMap(a => AddrType(a)).isDefined)
+        .transform[AddrType](x => AddrType(x.fold("")(_.toString)).getOrElse(SoleAddrType), ad => Some(ad.toString))  //getOrElse here will never fall back to default because of isDefined above
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)
   )
 }
