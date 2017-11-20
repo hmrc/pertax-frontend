@@ -81,7 +81,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) = s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
   lazy val analyticsToken = configuration.getString(s"google-analytics.token")
-  lazy val analyticsHost = configuration.getString(s"google-analytics.host").getOrElse("service.gov.uk")
+  lazy val analyticsHost = Some(configuration.getString(s"google-analytics.host").getOrElse("service.gov.uk"))
   lazy val ssoUrl = configuration.getString(s"portal.ssoUrl")
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val deskproToken = "PTA"

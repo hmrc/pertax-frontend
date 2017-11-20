@@ -30,7 +30,7 @@
 
     @layouts.footer(
       analyticsToken = analyticsToken,
-      analyticsHost = analyticsHost,
+      analyticsHost = analyticsHost.get,
       ssoUrl = ssoUrl,
       scriptElem = None,
       gaCalls = Some(gaCalls)

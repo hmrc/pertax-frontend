@@ -19,7 +19,6 @@ package controllers.auth
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.{PaperlessPreferencesController, PertaxBaseController}
-import error.LocalErrorHandler
 import models._
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -32,6 +31,7 @@ import play.api.test.Helpers._
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.renderer.{ActiveTab, ActiveTabHome}
 import util.Fixtures._
 import util.{BaseSpec, Fixtures}
 
@@ -88,7 +88,7 @@ class AuthorisedActionsSpec extends BaseSpec {
 
         when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
         when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
-
+        when(configDecorator.analyticsToken) thenReturn Some("N/A")
       }
 
 

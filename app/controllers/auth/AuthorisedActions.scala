@@ -27,6 +27,7 @@ import play.api.mvc._
 import services._
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
+import uk.gov.hmrc.renderer.ActiveTab
 
 import scala.concurrent.Future
 
