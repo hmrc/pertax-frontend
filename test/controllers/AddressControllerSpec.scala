@@ -115,6 +115,8 @@ class AddressControllerSpec extends BaseSpec  {
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
       when(c.configDecorator.taxCreditsEnabled) thenReturn true
       when(c.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
+      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
+
       c
     }
   }

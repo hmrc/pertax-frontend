@@ -39,17 +39,6 @@ configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messag
   }
 </div>
 
-@langReturnUrl.map { url =>
-  <div class="lang-select">
-    @if(messages.lang == Lang("cy")) {
-      <a id="switch-to-english" lang="en" href="@controllers.routes.LanguageController.enGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="English">English</a>
-      | @Messages("label.welsh")
-    } else {
-      @Messages("label.english") |
-      <a id="switch-to-welsh" lang="cy" href="@controllers.routes.LanguageController.cyGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="Cymraeg">Cymraeg</a>
-    }
-  </div>
-}
 
 @if(!breadcrumb.isEmpty) {
   <div id="global-breadcrumb" class="header-context">

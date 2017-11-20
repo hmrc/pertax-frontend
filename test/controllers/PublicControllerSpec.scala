@@ -47,6 +47,7 @@ class PublicControllerSpec extends BaseSpec  {
       when(c.configDecorator.tcsServiceRouterUrl) thenReturn "/tax-credits-service/renewals/service-router"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
       when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
+      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
       c
     }
   }

@@ -152,6 +152,7 @@ class ApplicationControllerSpec extends BaseSpec {
       when(c.configDecorator.gg_web_context) thenReturn "gg"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
       when(c.configDecorator.urLinkUrl) thenReturn None
+      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
 
       c
     }

@@ -7,7 +7,15 @@
 @import play.api.i18n.Messages
 
 
-@main(typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = ""),Some(Messages("label.your_personal_tax_account"))) {
+@main(
+  title = typ.ifIs(
+    primary = Messages("label.when_did_this_become_your_main_home"),
+    sole = Messages("label.when_did_you_start_living_here"),
+    postal = ""
+  ),
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(controllers.routes.AddressController.showUpdateAddressForm(typ).url)
+) {
   <div class="personal-details">
     <div class="grid-row">
       <div class="column-full">
@@ -46,11 +54,6 @@
 
                   <button type="submit" class="button" role="button">@Messages("label.continue")</button>
                 }
-              <p>
-                <a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)" class="back-to-account-home">
-                  @Messages("label.back")
-                </a>
-            </p>
           </div>
         </div>
       </div>
