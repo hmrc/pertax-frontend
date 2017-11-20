@@ -9,15 +9,14 @@
   bodyClasses: Option[String] = None,
   articleClasses: Option[String] = None,
   includeGridWrapper: Boolean = false,
+  backlinkUrl: Option[Any] = None,
   additionalGaCalls: Option[Html] = None
 )(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import uk.gov.hmrc.play.config.RunMode._
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
 @import uk.gov.hmrc.play.language.LanguageUtils.Dates._
-@import uk.gov.hmrc.urls.Link
 
 
 @links = @{
@@ -78,21 +77,8 @@
 }
 
 @mainContentHeader = {
-
   @if(pertaxContext.welshWarning) {
     @tags.welshContentWarning()
-  }
-
-  @Some(pertaxContext.uri).map { url =>
-    <div class="lang-select">
-      @if(messages.lang == Lang("cy")) {
-        <a id="switch-to-english" lang="en" href="@controllers.routes.LanguageController.enGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="English">@Messages("label.english")</a>
-        | @Messages("label.welsh")
-      } else {
-        @Messages("label.english") |
-        <a id="switch-to-welsh" lang="cy" href="@controllers.routes.LanguageController.cyGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="Cymraeg">@Messages("label.welsh")</a>
-      }
-    </div>
   }
 }
 
@@ -100,6 +86,10 @@
 
   val prev = formatEasyReadingTimestamp((for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t), "")
   val name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n)
+
+  val (languageSelectUrlEn, languageSelectUrlCy) = Some(pertaxContext.uri).map { url =>
+    (controllers.routes.LanguageController.enGb(StrictContinueUrl(url)), controllers.routes.LanguageController.cyGb(StrictContinueUrl(url)))
+  }.getOrElse(None)
 
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), Map[String,Any](
     "pageTitle" -> title,
@@ -123,6 +113,14 @@
     "mainContentHeader" -> mainContentHeader,
 
     "hideAccountMenu" -> pertaxContext.user.isEmpty,
+
+    "languageMenu" -> Map(
+      "enUrl" -> Some(languageSelectUrlEn),
+      "cyUrl" -> Some(languageSelectUrlCy)
+    ),
+
+    "backlinkUrl" -> backlinkUrl,
+
     "isGovernmentGateway" -> pertaxContext.user.map(_.isGovernmentGateway).getOrElse(false),
     "isSa" -> pertaxContext.user.map(_.isSa).getOrElse(false),
     "isVerify" -> pertaxContext.user.map(_.isVerify).getOrElse(false),
