@@ -257,7 +257,7 @@ class AddressController @Inject() (
             addressSelectorDto => {
               lookingUpAddress(typ, postcode, journeyData) {
                 case AddressLookupSuccessResponse(recordSet) =>
-                  recordSet.addresses.filter(_.id == addressSelectorDto.addressId).headOption map { addressRecord =>
+                  recordSet.addresses.filter(_.id == addressSelectorDto.addressId.getOrElse("")).headOption map { addressRecord =>
 
                       val addressDto = AddressDto.fromAddressRecord(addressRecord)
                       cacheSelectedAddressRecord(typ, addressRecord) flatMap { _ =>
