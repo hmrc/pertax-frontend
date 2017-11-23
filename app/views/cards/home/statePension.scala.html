@@ -1,22 +1,13 @@
 @()(implicit messages: play.api.i18n.Messages)
 
-<div class="card column-third">
-  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="State Pension">
-    <div class="card-content" role="link">
-      <h3 class="heading-small no-margin-top">@Messages("title.state_pension")</h3>
-      <p>@Messages("label.view_your_state_pension_and_national_insurance_contributions")</p>
-    </div>
-  </a>
+@import tags._
 
-  <div class="visually-hidden">
-    <h3>@Messages("title.state_pension")</h3>
-    <p>@Messages("label.view_your_state_pension_and_national_insurance_contributions")</p>
-  </div>
-
-  <div class="card-actions">
-    <ul>
+@cardHelper(
+  cardLinkHref = "/check-your-state-pension/account/pta",
+  gaAction = "Pensions",
+  gaLabel = "State Pension",
+  tileTitle = Messages("title.state_pension"),
+  tileText = Messages("label.view_your_state_pension_and_national_insurance_contributions")) {
       <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your State Pension forecast">@Messages("label.view_your_state_pension_forecast")</a></li>
       <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your National Insurance record">@Messages("label.view_your_national_insurance_record")</a></li>
-    </ul>
-  </div>
-</div>
+  }

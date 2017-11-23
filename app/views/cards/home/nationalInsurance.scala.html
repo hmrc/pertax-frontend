@@ -1,22 +1,13 @@
 @()(implicit messages: play.api.i18n.Messages)
 
-<div class="card column-third">
-  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="@controllers.routes.InterstitialController.displayNationalInsurance" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="National Insurance">
-    <div class="card-content" role="link">
-      <h3 class="heading-small no-margin-top">@Messages("label.national_insurance")</h3>
-      <p>@Messages("label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_")</p>
-    </div>
-  </a>
+@import tags._
 
-  <div class="visually-hidden">
-    <h3>@Messages("label.national_insurance")</h3>
-    <p>@Messages("label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_")</p>
-  </div>
-
-  <div class="card-actions">
-    <ul>
+@cardHelper(
+  cardLinkHref = controllers.routes.InterstitialController.displayNationalInsurance.url,
+  gaAction = "Income",
+  gaLabel = "National Insurance",
+  tileTitle = Messages("label.national_insurance"),
+  tileText = Messages("label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_")) {
       <li><a class="ga-track-anchor-click" href="@controllers.routes.PrintController.printNationalInsuranceNumber()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Print your National Insurance number">@Messages("label.print_your_national_insurance_number")</a></li>
       <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View gaps in your record">@Messages("label.view_gaps_in_your_record")</a></li>
-    </ul>
-  </div>
-</div>
+  }
