@@ -1,0 +1,55 @@
+.card {
+  margin-bottom: 30px;
+}
+
+.card-link {
+  min-height: 160px;
+  display: block;
+  padding: 12px;
+  text-decoration: none;
+  background-color: $grey-4;
+
+  h3 {
+    color: $govuk-blue;
+  }
+
+  &:hover {
+    background: $govuk-blue;
+
+    h3,
+    p {
+      color: $white;
+    }
+
+  }
+
+  &:focus {
+    background-color: $govuk-blue;
+
+    h3,
+    p {
+      color: $white;
+    }
+
+  }
+}
+
+.card-actions {
+  min-height: 40px;
+  border: 1px solid $grey-4;
+  border-top: 0;
+  padding: 12px;
+
+  ul {
+    margin: 0;
+
+    li {
+      margin: 0 0 1em;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+  }
+}

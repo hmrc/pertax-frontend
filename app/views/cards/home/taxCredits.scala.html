@@ -1,22 +1,12 @@
 @()(implicit messages: play.api.i18n.Messages)
 
-<div class="card column-third">
-  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-credits-service/home" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tax credits">
-    <div class="card-content" role="link">
-      <h3 class="heading-small no-margin-top">@Messages("label.tax_credits")</h3>
-      <p>@Messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim")</p>
-    </div>
-  </a>
+@import tags._
 
-  <div class="visually-hidden">
-    <h3>@Messages("label.tax_credits")</h3>
-    <p>@Messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim")</p>
-  </div>
-
-  <div class="card-actions">
-    <ul>
+@cardHelper(
+  cardLinkHref = "/tax-credits-service/home",
+  gaAction = "Benefits",
+  gaLabel = "Tax credits",
+  tileTitle = Messages("label.tax_credits"),
+  tileText = Messages("label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim")) {
       <li><a class="ga-track-anchor-click" href="/tax-credits-service/home/payment-schedule" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="View your tax credits payments">@Messages("label.view_your_tax_credits_payments")</a></li>
-    </ul>
-  </div>
-</div>
-
+  }

@@ -3,6 +3,17 @@
 @import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/conditionals';
 @import 'taxCreditsAdditional';
 
+@import 'pta-card';
+
+.lang-select {
+  border-bottom: 0px;
+  float: right;
+  padding: 0.65em 0px;
+  text-align: right;
+  width: 100%;
+  font-size: 16px;
+}
+
 //Global
 .page-heading {
   border-bottom: 5px solid $link-colour;
@@ -372,85 +383,6 @@ address {
   p {
     color: $black;
     font-size: 16px;
-  }
-
-  .card {
-    font-size: 16px;
-    margin-bottom: 30px;
-
-    h3 {
-      color: $govuk-blue;
-    }
-
-    a.card-link {
-      text-decoration: none;
-      width: 100%;
-
-      &:focus {
-        outline: none;
-      }
-    }
-
-    .visually-hidden {
-      border: 0;
-      clip: rect(0 0 0 0);
-      height: 1px;
-      margin: -1px;
-      overflow: hidden;
-      padding: 0;
-      position: absolute;
-      width: 1px;
-    }
-
-    .card-content {
-      background: $grey-4;
-      display: block;
-      padding: 12px;
-      text-decoration: none;
-
-      &:hover {
-        color: $white;
-        background: $govuk-blue;
-
-        h3, p {
-          color: $white;
-        }
-
-      }
-    }
-
-    a:focus {
-      .card-content {
-        color: $white;
-        background: $govuk-blue;
-
-        h3, p {
-          color: $white;
-        }
-
-      }
-    }
-
-    .card-actions {
-      border: 1px solid $grey-4;
-      border-top: none;
-      min-height: 40px;
-      padding: 12px;
-
-      ul {
-        margin: 0;
-        padding: 0;
-
-        li {
-          margin: 0 0 1em 0;
-        }
-
-        li:last-child {
-          margin-bottom: 0;
-        }
-
-      }
-    }
   }
 
   .sidebar-panel {
