@@ -32,6 +32,7 @@ import play.twirl.api.Html
 import services._
 import services.partials.CspPartialService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.renderer.ActiveTabHome
 import uk.gov.hmrc.time.TaxYearResolver
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}

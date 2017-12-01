@@ -22,10 +22,10 @@ import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
-import models.ActiveTabYourAccount
 import play.api.i18n.{Messages, MessagesApi}
 import services.partials.PreferencesFrontendPartialService
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
+import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.LocalPartialRetriever
 
 

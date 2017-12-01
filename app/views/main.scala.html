@@ -9,15 +9,16 @@
   bodyClasses: Option[String] = None,
   articleClasses: Option[String] = None,
   includeGridWrapper: Boolean = false,
+  backlinkUrl: Option[String] = None,
   additionalGaCalls: Option[Html] = None
 )(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import uk.gov.hmrc.play.config.RunMode._
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
 @import uk.gov.hmrc.play.language.LanguageUtils.Dates._
-@import uk.gov.hmrc.urls.Link
+@import uk.gov.hmrc.renderer._
+@import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
 
 
 @links = @{
@@ -78,21 +79,8 @@
 }
 
 @mainContentHeader = {
-
   @if(pertaxContext.welshWarning) {
     @tags.welshContentWarning()
-  }
-
-  @Some(pertaxContext.uri).map { url =>
-    <div class="lang-select">
-      @if(messages.lang == Lang("cy")) {
-        <a id="switch-to-english" lang="en" href="@controllers.routes.LanguageController.enGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="English">@Messages("label.english")</a>
-        | @Messages("label.welsh")
-      } else {
-        @Messages("label.english") |
-        <a id="switch-to-welsh" lang="cy" href="@controllers.routes.LanguageController.cyGb(StrictContinueUrl(url))" target="_self" data-sso="false" class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="lang-select" data-ga-event-label="Cymraeg">@Messages("label.welsh")</a>
-      }
-    </div>
   }
 }
 
@@ -101,54 +89,56 @@
   val prev = formatEasyReadingTimestamp((for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t), "")
   val name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n)
 
-  config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), Map[String,Any](
-    "pageTitle" -> title,
-    "linkElems" -> Map(
-      "url" -> controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css")
-    ),
-    "scriptElems" -> Seq(
-      Map("url" -> controllers.routes.AssetsController.versioned("javascripts/pertax.js")),
-      Map("url" -> controllers.routes.AssetsController.versioned("javascripts/gaTracking.js")),
-      Map("url" -> controllers.routes.AssetsController.versioned("javascripts/webChat.js"))
-    ),
-    "inlineScript" -> inlineScript,
-    "ssoUrl" -> pertaxContext.configDecorator.ssoUrl,
-    "googleAnalytics" -> Map(
-      "trackingId" -> {{ if(pertaxContext.configDecorator.analyticsToken==Some("N/A")) null else pertaxContext.configDecorator.analyticsToken }},
-      "cookieDomain" -> pertaxContext.configDecorator.analyticsHost,
-      "confidenceLevel" -> pertaxContext.user.map(_.confidenceLevel.toString).getOrElse(false),
-      "authProvider" -> pertaxContext.authProvider
-    ),
-    "getHelpForm" -> get_help_form(supportLinkEnabled, includeGridWrapper),
-    "mainContentHeader" -> mainContentHeader,
+  val arguments = TemplateArgumentsBuilder(
 
-    "hideAccountMenu" -> pertaxContext.user.isEmpty,
-    "isGovernmentGateway" -> pertaxContext.user.map(_.isGovernmentGateway).getOrElse(false),
-    "isSa" -> pertaxContext.user.map(_.isSa).getOrElse(false),
-    "isVerify" -> pertaxContext.user.map(_.isVerify).getOrElse(false),
-    "signOutUrl" -> controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None),
+    Some(AccountMenuStyleComponent(
+      langUrls = Some((
+        controllers.routes.LanguageController.enGb(StrictContinueUrl(pertaxContext.uri)).url,
+        controllers.routes.LanguageController.cyGb(StrictContinueUrl(pertaxContext.uri)).url
+      )),
+      signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(StrictContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None).url),
+      activeTab = pertaxContext.activeTab,
+      hideAccountMenu = pertaxContext.user.isEmpty
+    )),
+    Some(CssLinksComponent(
+      CssLinkElement(controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css").url)
+    )),
+    Some(ScriptsComponent(
+      controllers.routes.AssetsController.versioned("javascripts/pertax.js").url,
+      controllers.routes.AssetsController.versioned("javascripts/gaTracking.js").url,
+      controllers.routes.AssetsController.versioned("javascripts/webChat.js").url
+    )),
+    Some(PageTitleComponent(title)),
+    Some(InlineScriptComponent(inlineScript.toString)),
+    pertaxContext.configDecorator.ssoUrl.map(SsoUrlComponent(_)),
+    pertaxContext.configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
+      GoogleAnalyticsComponent(
+        trackingId,
+        cookieDomain = pertaxContext.configDecorator.analyticsHost,
+        "confidenceLevel" -> pertaxContext.user.map(_.confidenceLevel.toString),
+        "authProvider" -> pertaxContext.authProvider
+      )
+    },
+    Some(FullWidthBannerComponent(
+      Messages("label.help_improve_gov_uk"),
+      Messages("label.get_involved_in_making_government_services_better_"),
+      pertaxContext.configDecorator.urLinkUrl,
+      Some(Messages("label.no_thanks")),
+      Some("homepage UR banner")
+    )).filter(x => showUserResearchBanner),
+    Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
+    Some(MainContentHeaderComponent(mainContentHeader)),
+    backlinkUrl.map(BackLinkUrlComponent(_)),
+    Some(UserPropertiesComponent(
+      isGovernmentGateway = pertaxContext.user.map(_.isGovernmentGateway).getOrElse(false),
+      isVerify = pertaxContext.user.map(_.isVerify).getOrElse(false),
+      isSa = pertaxContext.user.map(_.isSa).getOrElse(false)
+    )),
+    Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
+    pageName.map(NavTitleComponent(_)),
+    Some(BetaBannerComponent(pertaxContext.configDecorator.deskproToken))
+  )
 
-    "activeTabHome" -> (pertaxContext.activeTab == Some(ActiveTabHome)),
-    "activeTabMessages" -> (pertaxContext.activeTab == Some(ActiveTabMessages)),
-    "activeTabCheckProgress" -> (pertaxContext.activeTab == Some(ActiveTabCheckProgress)),
-    "activeTabYourAccount" -> (pertaxContext.activeTab == Some(ActiveTabYourAccount)),
+  config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), arguments)
 
-    "actingAttorneyBanner" -> actingAttorneyBanner,
-    "navTitle" -> pageName,
-    "navLinks" -> links,
-    "hasNavLinks" -> true,
-
-    "betaBanner" -> true,
-    "feedbackIdentifier" -> pertaxContext.configDecorator.deskproToken,
-    "includeHMRCBranding" -> true,
-
-    "showLastLogInStatus" -> true,
-    "previouslyLoggedInAt" -> (if(prev.isEmpty) false else prev),
-    "userDisplayName" -> name,
-    "fullWidthBannerTitle" -> (if(showUserResearchBanner) Messages("label.help_improve_gov_uk") else false),
-    "fullWidthBannerText" -> Messages("label.get_involved_in_making_government_services_better_"),
-    "fullWidthBannerLink" -> pertaxContext.configDecorator.urLinkUrl,
-    "fullWidthBannerDismissText" -> Messages("label.no_thanks"),
-    "fullWidthBannerGaAction" -> "homepage UR banner"
-  ))
 }

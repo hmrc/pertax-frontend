@@ -24,6 +24,7 @@ import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.frontend.auth.AuthContext
+import uk.gov.hmrc.renderer.ActiveTab
 import util.LocalPartialRetriever
 
 class AuthContextDecorator(authContext: Option[AuthContext]) { //FIXME - PertaxContext should probably be refactored to 1. Contain an AuthContext 2. Implement this
@@ -53,8 +54,6 @@ class PertaxContext(val request: Request[AnyContent], val partialRetriever: Loca
   def withBreadcrumb(b: Option[Breadcrumb]) = new PertaxContext(request, partialRetriever, configDecorator, user, b, welshWarning, activeTab)
   def withWelshWarning(ww: Boolean) = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, ww, activeTab)
   def withActiveTab(at: Option[ActiveTab])  = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, at)
-
-  request.session.get(SessionKeys.authProvider)==Some("GGW")
 
   def authContext = user.map(_.authContext)
 
