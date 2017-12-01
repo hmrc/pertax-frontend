@@ -22,12 +22,13 @@ import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
-import models.{ActiveTabMessages, Breadcrumb}
+import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
 import play.twirl.api.Html
 import services.partials.MessagePartialService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.renderer.ActiveTabMessages
 import util.LocalPartialRetriever
   
 

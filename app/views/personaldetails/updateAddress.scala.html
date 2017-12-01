@@ -16,7 +16,15 @@
   }
 }
 
-@main(getYourAddressLabels.toString,Some(Messages("label.your_personal_tax_account"))) {
+@main(
+  title = getYourAddressLabels.toString,
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = if(addressLookupServiceDown) {
+    Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
+  } else {
+    addressFinderDto.map(a => controllers.routes.AddressController.showAddressSelectorForm(typ, a.postcode, a.filter, Some(true)).url)
+  }
+) {
 
   <div class="grid-row">
     <div class="column-full">
@@ -103,16 +111,4 @@
       }(pertaxContext.request, messages)
     </div>
   </div>
-
-  @if(addressLookupServiceDown) {
-    <a href="@controllers.routes.AddressController.showPostcodeLookupForm(typ)">
-      @Messages("label.back")
-    </a>
-  } else {
-    @addressFinderDto.map { a =>
-      <a href="@controllers.routes.AddressController.showAddressSelectorForm(typ, a.postcode, a.filter, Some(true) )">
-        @Messages("label.back")
-      </a>
-    }
-  }
 }

@@ -5,7 +5,15 @@
 @import tags._
 @import scala.util.Try
 
-@main(typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address")),Some(Messages("label.your_personal_tax_account"))) {
+@main(
+  title = typ.ifIs(
+    primary = Messages("label.select_your_address"),
+    sole = Messages("label.select_your_address"),
+    postal = Messages("label.select_an_address")
+  ),
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
+) {
 
   <div class="grid-row">
     <div class="column-full">
@@ -36,7 +44,4 @@
       }(pertaxContext.request, messages)
     </div>
   </div>
-  <a href="@controllers.routes.AddressController.showPostcodeLookupForm(typ)">
-    @Messages("label.back")
-  </a>
 }
