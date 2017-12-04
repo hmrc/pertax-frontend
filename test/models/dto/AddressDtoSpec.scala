@@ -49,6 +49,27 @@ class AddressDtoSpec extends BaseSpec {
       )
     }
 
+    "allow valid characters to be submitted" in {
+
+      val formData = Map(
+        "line1" -> " A-Za-z0-9&’'(),-./",
+        "line2" -> "Line 2",
+        "line3" -> "",
+        "line4" -> "",
+        "line5" -> "",
+        "postcode" -> "AA1 1AA"
+      )
+
+      AddressDto.form.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 0
+        },
+        success => {
+          success shouldBe AddressDto(" A-Za-z0-9&’'(),-./", "Line 2", None, None, None, "AA1 1AA", None)
+        }
+      )
+    }
+
     "return an error when no data is submitted in line 1" in {
 
       val formData = Map(
@@ -184,6 +205,7 @@ class AddressDtoSpec extends BaseSpec {
     }
 
     "return an error when invalid data is submitted in line 3" in {
+
       val formData = Map(
         "line1" -> "Line 1",
         "line2" -> "Line 2",
