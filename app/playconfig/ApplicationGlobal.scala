@@ -41,6 +41,6 @@ object ApplicationGlobal extends GlobalSettings with GraphiteConfig
     super.onStart(app)
   }
 
-  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig(s"$env.microservice.metrics")
+  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig("microservice.metrics")
   override def appName: String = configuration.getString("appName").getOrElse("APP NAME NOT SET")
 }
