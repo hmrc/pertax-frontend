@@ -1,21 +1,12 @@
 @()(implicit messages: play.api.i18n.Messages)
 
-<div class="card column-third">
-  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="@routes.InterstitialController.displayChildBenefits()" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Child Benefit">
-    <div class="card-content" role="link">
-      <h3 class="heading-small no-margin-top">@Messages("label.child_benefit")</h3>
-      <p>@Messages("label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children")</p>
-    </div>
-  </a>
+@import tags._
 
-  <div class="visually-hidden">
-    <h3>@Messages("label.child_benefit")</h3>
-    <p>@Messages("label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children")</p>
-  </div>
-
-  <div class="card-actions">
-    <ul>
+@cardHelper(
+  cardLinkHref = routes.InterstitialController.displayChildBenefits().url,
+  gaAction = "Benefits",
+  gaLabel = "Child Benefit",
+  tileTitle = Messages("label.child_benefit"),
+  tileText = Messages("label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children")) {
       <li><a class="ga-track-anchor-click" href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your child is staying in full-time education">@Messages("label.tell_us_if_your_child_is_staying_in_full_time_education")</a></li>
-    </ul>
-  </div>
-</div>
+  }

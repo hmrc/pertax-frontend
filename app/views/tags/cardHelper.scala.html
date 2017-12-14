@@ -1,0 +1,22 @@
+@(cardLinkHref: String,
+  gaAction: String,
+  gaLabel: String,
+  tileTitle: String,
+  tileText: String
+  )(tileLinks: Html)(implicit messages: play.api.i18n.Messages)
+
+<div class="card column-third">
+  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="@cardLinkHref" data-ga-event-category="link - click" data-ga-event-action="@gaAction" data-ga-event-label="@gaLabel">
+    <h3 class="heading-small no-margin-top">@tileTitle</h3>
+    <p>@tileText</p>
+  </a>
+  <div class="visuallyhidden">
+    <h3>@tileTitle</h3>
+    <p>@tileText</p>
+  </div>
+  <div class="card-actions">
+    <ul>
+      @tileLinks
+    </ul>
+  </div>
+</div>
