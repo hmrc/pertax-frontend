@@ -3,15 +3,6 @@
 @import '../../../node_modules/govuk_frontend_toolkit/govuk_frontend_toolkit/stylesheets/conditionals';
 @import 'taxCreditsAdditional';
 
-.lang-select {
-  border-bottom: 0px;
-  float: right;
-  padding: 0.65em 0px;
-  text-align: right;
-  width: 100%;
-  font-size: 16px;
-}
-
 //Global
 .page-heading {
   border-bottom: 5px solid $link-colour;
