@@ -1,5 +1,7 @@
 @(taxCalculationState: TaxCalculationState)(implicit messages: play.api.i18n.Messages)
 
+@import tags._
+
 @heading = @{
   taxCalculationState match {
     case _:TaxCalculationUnderpaidPaidAllState => (Messages("label.you_do_not_owe_any_more_tax"), "You do not owe any more tax")
@@ -50,24 +52,13 @@
   }
 }
 
-<div class="card column-third">
-  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@heading._2">
-    <div class="card-content" role="link">
-      <h3 class="heading-small no-margin-top">@heading._1</h3>
-      <p>@contentAndLinks._1</p>
-    </div>
-  </a>
-
-  <div class="visually-hidden">
-    <h3>@heading._1</h3>
-    <p>@contentAndLinks._1</p>
-  </div>
-
-  <div class="card-actions">
-    <ul>
-      @contentAndLinks._2.map { case (label, url, trackingLabel) =>
+@cardHelper(
+  cardLinkHref = "/tax-you-paid/status",
+  gaAction = "Income",
+  gaLabel = heading._2,
+  tileTitle = heading._1,
+  tileText = contentAndLinks._1) {
+    @contentAndLinks._2.map { case (label, url, trackingLabel) =>
         <li><a class="ga-track-anchor-click" href="@url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">@label</a></li>
-      }
-    </ul>
-  </div>
-</div>
+    }
+  }
