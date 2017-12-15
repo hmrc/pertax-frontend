@@ -17,14 +17,20 @@
 <div class="card column-third">
   @if(canUpdatePostalAddress){
     <a class="card-link ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
+  } else {
+    <div class="card-link">
   }
   <div class="card-content" role="link">
     <h3 class="heading-small no-margin-top">@Messages("label.postal_address")</h3>
     @cardContent
   </div>
-  @if(canUpdatePostalAddress){</a>}
+  @if(canUpdatePostalAddress){
+    </a>
+  } else {
+    </div>
+  }
 
-  <div class="visually-hidden">
+  <div class="visuallyhidden">
     <h3>@Messages("label.postal_address")</h3>
     @cardContent
   </div>
