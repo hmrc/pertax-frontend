@@ -103,7 +103,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |    <p>This has been your main home since 15 March 2015.</p>
             |    </div>
             |  </a>
-            |  <div class="visually-hidden">
+            |  <div class="visuallyhidden">
             |    <h3>Main address</h3>
             |  <p><strong>
             |        1 Fake Street<br>
@@ -145,7 +145,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |    <p>This has been your main home since 15 March 2015.</p>
             |    </div>
             |  </a>
-            |  <div class="visually-hidden">
+            |  <div class="visuallyhidden">
             |    <h3>Main address</h3>
             |  <p><strong>
             |        1 Fake Street<br>
@@ -190,7 +190,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |    <p>This has been your main home since 15 March 2015.</p>
             |    </div>
             |  </a>
-            |  <div class="visually-hidden">
+            |  <div class="visuallyhidden">
             |    <h3>Main address</h3>
             |  <p><strong>
             |        1 Fake Street<br>
@@ -232,7 +232,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |    <p>This has been your main home since 15 March 2015.</p>
             |    </div>
             |  </a>
-            |  <div class="visually-hidden">
+            |  <div class="visuallyhidden">
             |    <h3>Main address</h3>
             |  <p><strong>
             |        1 Fake Street<br>
@@ -327,8 +327,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |  <p>All your letters will be sent to this address.</p>
             |  </div>
-            |  </a>
-            |  <div class="visually-hidden">
+            |    </a>
+            |  <div class="visuallyhidden">
             |    <h3>Postal address</h3>
             |  <p><strong>
             |      1 Fake Street<br>
@@ -357,6 +357,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe
         Some(
           """<div class="card column-third">
+            |    <div class="card-link">
             |  <div class="card-content" role="link">
             |    <h3 class="heading-small no-margin-top">Postal address</h3>
             |  <p><strong>
@@ -368,7 +369,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |  <p>All your letters will be sent to this address.</p>
             |  </div>
-            |  <div class="visually-hidden">
+            |    </div>
+            |  <div class="visuallyhidden">
             |    <h3>Postal address</h3>
             |  <p><strong>
             |      1 Fake Street<br>
@@ -409,7 +411,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
              |      <p>Your National Insurance number is your unique identifier.</p>
              |    </div>
              |  </a>
-             |  <div class="visually-hidden">
+             |  <div class="visuallyhidden">
              |    <h3>National Insurance</h3>
              |    <p><strong>${formattedNino(pertaxUser.get.nino.get)}</strong></p>
              |    <p>Your National Insurance number is your unique identifier.</p>
