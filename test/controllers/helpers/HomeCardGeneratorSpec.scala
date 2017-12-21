@@ -175,8 +175,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </div>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Claim your tax refund">Claim your tax refund</a></li>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Claim your tax refund">Claim your tax refund</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -198,7 +198,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </div>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -220,7 +220,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </div>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -242,15 +242,15 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </div>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-much/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too much">Find out why you paid too much</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState" in new LocalSetup {
+    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus or due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016)
+      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, None, None)
 
       cardBody shouldBe
         Some("""<div class="card column-third">
@@ -264,15 +264,60 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </div>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState" in new LocalSetup {
+    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016)
+      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlineApproachingStatus))
+
+      cardBody shouldBe
+        Some("""<div class="card column-third">
+               |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too little tax last year">
+               |    <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
+               |    <p>You owe HMRC £100 for the 2015 to 2016 tax year. You must pay by 31 January 2016.</p>
+               |  </a>
+               |  <div class="visuallyhidden">
+               |    <h3>You paid too little tax last year</h3>
+               |    <p>You owe HMRC £100 for the 2015 to 2016 tax year. You must pay by 31 January 2016.</p>
+               |  </div>
+               |  <div class="card-actions">
+               |    <ul>
+               |      <li><a class="ga-track-anchor-click" href="https://www.gov.uk/simple-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">Make a payment</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
+               |    </ul>
+               |  </div>
+               |</div>""".stripMargin)
+    }
+
+    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
+
+      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlinePassedStatus))
+
+      cardBody shouldBe
+        Some("""<div class="card column-third">
+               |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You missed the deadline to pay your tax">
+               |    <h3 class="heading-small no-margin-top">You missed the deadline to pay your tax</h3>
+               |    <p>You owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |  </a>
+               |  <div class="visuallyhidden">
+               |    <h3>You missed the deadline to pay your tax</h3>
+               |    <p>You owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |  </div>
+               |  <div class="card-actions">
+               |    <ul>
+               |      <li><a class="ga-track-anchor-click" href="https://www.gov.uk/simple-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You missed the deadline to pay your tax">Make a payment</a></li>
+               |    </ul>
+               |  </div>
+               |</div>""".stripMargin)
+    }
+
+    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus or due date" in new LocalSetup {
+
+      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, None, None)
 
       cardBody shouldBe
         Some("""<div class="card column-third">
@@ -286,15 +331,60 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </div>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaidAllState" in new LocalSetup {
+    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016)
+      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlineApproachingStatus))
+
+      cardBody shouldBe
+        Some("""<div class="card column-third">
+               |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too little tax last year">
+               |    <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
+               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |  </a>
+               |  <div class="visuallyhidden">
+               |    <h3>You paid too little tax last year</h3>
+               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |  </div>
+               |  <div class="card-actions">
+               |    <ul>
+               |      <li><a class="ga-track-anchor-click" href="https://www.gov.uk/simple-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">Make a payment</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
+               |    </ul>
+               |  </div>
+               |</div>""".stripMargin)
+    }
+
+    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
+
+      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlinePassedStatus))
+
+      cardBody shouldBe
+        Some("""<div class="card column-third">
+               |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You missed the deadline to pay your tax">
+               |    <h3 class="heading-small no-margin-top">You missed the deadline to pay your tax</h3>
+               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |  </a>
+               |  <div class="visuallyhidden">
+               |    <h3>You missed the deadline to pay your tax</h3>
+               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |  </div>
+               |  <div class="card-actions">
+               |    <ul>
+               |      <li><a class="ga-track-anchor-click" href="https://www.gov.uk/simple-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You missed the deadline to pay your tax">Make a payment</a></li>
+               |    </ul>
+               |  </div>
+               |</div>""".stripMargin)
+    }
+
+    "return correct markup when called with TaxCalculationUnderpaidPaidAllState with no due date" in new LocalSetup {
+
+      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, None)
 
       cardBody shouldBe
         Some("""<div class="card column-third">
@@ -308,7 +398,29 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  </div>
                |  <div class="card-actions">
                |    <ul>
-               |        <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
+               |    </ul>
+               |  </div>
+               |</div>""".stripMargin)
+    }
+
+    "return correct markup when called with TaxCalculationUnderpaidPaidAllState with a due date" in new LocalSetup {
+
+      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, Some("01/01/2016"))
+
+      cardBody shouldBe
+        Some("""<div class="card column-third">
+               |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You do not owe any more tax">
+               |    <h3 class="heading-small no-margin-top">You do not owe any more tax</h3>
+               |    <p>You have no payments to make to HMRC for the 2015 to 2016 tax year.</p>
+               |  </a>
+               |  <div class="visuallyhidden">
+               |    <h3>You do not owe any more tax</h3>
+               |    <p>You have no payments to make to HMRC for the 2015 to 2016 tax year.</p>
+               |  </div>
+               |  <div class="card-actions">
+               |    <ul>
+               |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
@@ -340,8 +452,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-
-      println(cardBody)
 
       cardBody shouldBe
         Some("""<div class="card column-third">

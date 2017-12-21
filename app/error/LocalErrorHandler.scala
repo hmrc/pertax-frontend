@@ -63,4 +63,3 @@ class LocalErrorHandler @Inject() (
     onClientError(request, INTERNAL_SERVER_ERROR, "")
 
 }
-

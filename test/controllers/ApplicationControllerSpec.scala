@@ -82,7 +82,7 @@ class ApplicationControllerSpec extends BaseSpec {
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
     lazy val year = TaxYearResolver.currentTaxYear
-    lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None))
+    lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true

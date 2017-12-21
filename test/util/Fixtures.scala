@@ -85,7 +85,7 @@ trait TaiFixtures {
 }
 
 trait TaxCalculationFixtures {
-  def buildTaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None)
+  def buildTaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
 }
 
 trait CitizenDetailsFixtures {

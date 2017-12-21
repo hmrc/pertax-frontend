@@ -546,6 +546,9 @@ label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund.
 label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund.
 label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}.
 label.you_owe_hmrc_for_the_to_tax_year=You owe HMRC £{0} for the {1} to {2} tax year.
+label.you_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=You owe HMRC £{0} for the {1} to {2} tax year. You should have paid by {3} but you can still make a payment now.
+label.you_still_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=You still owe HMRC £{0} for the {1} to {2} tax year. You should have paid by {3} but you can still make a payment now.
+label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_=You owe HMRC £{0} for the {1} to {2} tax year. You must pay by {3}.
 label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=You have no payments to make to HMRC for the {0} to {1} tax year.
 label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=You do not owe HMRC anything for the {0} to {1} tax year.
 label.please_wait_for_your_tax_calculation_letter_p800=Please wait for your tax calculation letter (P800).
@@ -570,6 +573,7 @@ label.check_your_state_pension=Check your State Pension
 
 label.you_paid_too_much_tax_last_year=You paid too much tax last year
 label.you_paid_too_little_tax_last_year=You paid too little tax last year
+label.you_missed_the_deadline_to_pay_your_tax=You missed the deadline to pay your tax
 label.you_do_not_owe_any_more_tax=You do not owe any more tax
 label.you_paid_the_right_amount_of_tax_last_year=You paid the right amount of tax last year
 label.your_tax_has_not_yet_been_calculated=Your tax has not yet been calculated
