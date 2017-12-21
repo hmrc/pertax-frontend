@@ -476,6 +476,7 @@ error.enter_a_valid_uk_postcode=Enter a valid UK postcode
 error.enter_valid_characters=Enter valid characters
 error.enter_valid_date=Enter a valid date
 error.address_doesnt_exist_try_to_enter_manually=Your address cannot be found. You can try again or enter your address yourself.
+head.error.address_doesnt_exist_try_to_enter_manually=Your address cannot be found. You can try again or enter your address yourself.
 error.form.field.message.postcode=Check your postcode is correct
 error.form.field.message.addressId=Please select an address
 error.form.field.message.filter=Check your House name or number
