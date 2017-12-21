@@ -568,6 +568,10 @@ label.hmrc_is_processing_your_refund=Mae CThEM yn prosesu''ch ad-daliad o £{0}.
 label.hmrc_has_paid_your_refund=Talodd CThEM eich ad-daliad o £{0}.
 label.hmrc_sent_you_a_cheque_for=Anfonodd CThEM siec i chi am £{0}.
 label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}.
+label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Rhaid i chi dalu erbyn {3}.
+label.you_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Dylech fod wedi talu erbyn {3}. Rydych, fodd bynnag, yn dal i allu talu nawr.
+label.you_still_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Dylech fod wedi talu erbyn {3}. Rydych, fodd bynnag, yn dal i allu talu nawr.
+
 label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=Nid oes gennych daliadau i''w gwneud i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=nid oes arnoch unrhyw beth i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 label.please_wait_for_your_tax_calculation_letter_p800=Arhoswch am eich llythyr cyfrifiad treth (P800).
@@ -593,6 +597,7 @@ label.check_your_state_pension=Gwirio''ch Pensiwn y Wladwriaeth
 
 label.you_paid_too_much_tax_last_year=gwnaethoch dalu gormod o dreth y llynedd
 label.you_paid_too_little_tax_last_year=ni wnaethoch dalu digon o dreth y llynedd
+label.you_missed_the_deadline_to_pay_your_tax=Rydych wedi methu''r dyddiad cau ar gyfer talu''ch treth
 label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth
 label.you_paid_the_right_amount_of_tax_last_year=Gwnaethoch dalu''r swm cywir o dreth y llynedd
 label.your_tax_has_not_yet_been_calculated=Nid yw''ch treth wedi''i chyfrifo eto

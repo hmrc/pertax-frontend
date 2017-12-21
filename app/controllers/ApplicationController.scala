@@ -59,7 +59,8 @@ class ApplicationController @Inject() (
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val homeCardGenerator: HomeCardGenerator,
-  val homePageCachingHelper: HomePageCachingHelper
+  val homePageCachingHelper: HomePageCachingHelper,
+  val taxCalculationStateFactory: TaxCalculationStateFactory
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
@@ -113,7 +114,7 @@ class ApplicationController @Inject() (
           } yield {
 
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-              pertaxContext.user, taxSummary, TaxCalculationState.buildFromTaxCalculation(taxCalculation), saUserType)
+              pertaxContext.user, taxSummary, taxCalculationStateFactory.buildFromTaxCalculation(taxCalculation), saUserType)
 
             val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummary)
 
