@@ -43,7 +43,7 @@ case class TaxCalculationErrorResponse(cause: Exception) extends TaxCalculationR
 class TaxCalculationService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
   lazy val taxCalcUrl = baseUrl("taxcalc")
-  
+
   /**
    * Gets a tax calc summary
    */

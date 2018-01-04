@@ -427,4 +427,3 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     }
   }
 }
-
