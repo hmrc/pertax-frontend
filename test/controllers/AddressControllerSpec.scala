@@ -59,7 +59,7 @@ class AddressControllerSpec extends BaseSpec  {
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[AddressControllerConfiguration].toInstance(new AddressControllerConfiguration {
-      override val maxStartDate = DateTime.parse("2016-02-02").withTimeAtStartOfDay
+      override val currentDateWithTimeAtStartOfDay = DateTime.parse("2016-02-02").withTimeAtStartOfDay
     }))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
     .build()

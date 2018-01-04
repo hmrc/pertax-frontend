@@ -47,7 +47,7 @@ import scala.concurrent.Future
 
 
 class AddressControllerConfiguration {
-  def maxStartDate = DateTime.now.withTimeAtStartOfDay
+  def currentDateWithTimeAtStartOfDay = DateTime.now.withTimeAtStartOfDay
 }
 
 class AddressController @Inject() (
@@ -67,7 +67,7 @@ class AddressController @Inject() (
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator
 ) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
 
-  def dateDtoForm = DateDto.form(addressControllerConfiguration.maxStartDate)
+  def dateDtoForm = DateDto.form(addressControllerConfiguration.currentDateWithTimeAtStartOfDay)
 
   def currentAddressType(personDetails: PersonDetails) = personDetails.address.flatMap(_.`type`).getOrElse("Residential")
 

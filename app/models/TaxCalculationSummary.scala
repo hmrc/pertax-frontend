@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Json}
+import play.api.libs.json.Json
 
 object TaxCalculation {
   implicit val formats = Json.format[TaxCalculation]
@@ -27,5 +27,7 @@ case class TaxCalculation(
   amount: BigDecimal,
   taxYear: Int,
   paymentStatus: Option[String],
-  datePaid: Option[String]
+  datePaid: Option[String],
+  businessReason: Option[String],
+  dueDate: Option[String]
 )
