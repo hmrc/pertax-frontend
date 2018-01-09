@@ -69,7 +69,7 @@ class TaxCalculationStateFactory @Inject()(val addressControllerConfiguration: A
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"),_, _, None)) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
 
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"),_, _, Some(dueDate))) =>
+      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"),_, Some("P302"), Some(dueDate))) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(dueDate), getSaDeadlineStatus(asDateFromUnixDate(dueDate)))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, None)) =>
