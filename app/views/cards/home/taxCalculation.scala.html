@@ -79,7 +79,7 @@
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
       saDeadlineStatus match {
         case SaDeadlineApproachingStatus =>
-          (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_should_have_paid_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
+          (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
             (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
             (Messages("label.find_out_why_you_paid_too_little"), "/tax-you-paid/paid-too-little/reasons", "Find out why you paid too little")
           ))
