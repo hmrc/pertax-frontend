@@ -386,16 +386,16 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlineApproachingStatus))
-
+      
       cardBody shouldBe
         Some("""<div class="card column-third">
                |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="You paid too little tax last year">
                |    <h3 class="heading-small no-margin-top">You paid too little tax last year</h3>
-               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You must pay by 31 January 2016.</p>
                |  </a>
                |  <div class="visuallyhidden">
                |    <h3>You paid too little tax last year</h3>
-               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You should have paid by 31 January 2016 but you can still make a payment now.</p>
+               |    <p>You still owe HMRC £100 for the 2015 to 2016 tax year. You must pay by 31 January 2016.</p>
                |  </div>
                |  <div class="card-actions">
                |    <ul>
