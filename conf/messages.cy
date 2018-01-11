@@ -571,6 +571,7 @@ label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch £{0} i CThEM ar gyfer blwyddy
 label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Rhaid i chi dalu erbyn {3}.
 label.you_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Dylech fod wedi talu erbyn {3}. Rydych, fodd bynnag, yn dal i allu talu nawr.
 label.you_still_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Dylech fod wedi talu erbyn {3}. Rydych, fodd bynnag, yn dal i allu talu nawr.
+label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Rhaid i chi dalu erbyn {3}.
 
 label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=Nid oes gennych daliadau i''w gwneud i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=nid oes arnoch unrhyw beth i CThEM ar gyfer blwyddyn dreth {0} i {1}.
