@@ -47,10 +47,10 @@ class ConfigDecoratorSpec extends BaseSpec {
     "return a properly formatted sa302 url when calling sa302Url" in new LocalSetup {
 
       configDecorator.sa302Url("1111111111", "1516") shouldBe
-        "http://company-auth-frontend.service/ssoout/non-digital?continue=http%3A%2F%2Fportal.service%2Fself-assessment-file%2F1516%2Find%2F1111111111%2Freturn%2FviewYourCalculation%2FreviewYourFullCalculation"
+        "/self-assessment-file/1516/ind/1111111111/return/viewYourCalculation/reviewYourFullCalculation"
     }
 
-    "return a properly formatted sa302 url when calling ssoToSaAccountSummaryUrl" in new LocalSetup {
+    "return a properly formatted SA Account Summary Url url when calling ssoToSaAccountSummaryUrl" in new LocalSetup {
 
       configDecorator.ssoToSaAccountSummaryUrl("1111111111", "1516") shouldBe
         "http://company-auth-frontend.service/ssoout/non-digital?continue=http%3A%2F%2Fportal.service%2Fself-assessment%2Find%2F1111111111%2Ftaxreturn%2F1516%2Foptions"
