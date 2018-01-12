@@ -16,12 +16,13 @@
 
 package models
 
+import java.text.SimpleDateFormat
 import javax.inject.{Inject, Singleton}
 
 import controllers.AddressControllerConfiguration
 import org.joda.time.{DateTime, LocalDateTime}
 import uk.gov.hmrc.time.TaxYearResolver
-import util.DateTimeTools.{asDateFromUnixDate, defaultTZ}
+import util.DateTimeTools._
 
 trait SaDeadlineStatus
 object SaDeadlineApproachingStatus extends SaDeadlineStatus
@@ -64,19 +65,19 @@ class TaxCalculationStateFactory @Inject()(val addressControllerConfiguration: A
         TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, None, None)
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, Some(dueDate))) =>
-        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(dueDate), getSaDeadlineStatus(asDateFromUnixDate(dueDate)))
+        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(asLongDateFromUnixDate(dueDate)), getSaDeadlineStatus(asDateFromUnixDate(dueDate)))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"),_, _, None)) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"),_, Some("P302"), Some(dueDate))) =>
-        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(dueDate), getSaDeadlineStatus(asDateFromUnixDate(dueDate)))
+        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(asLongDateFromUnixDate(dueDate)), getSaDeadlineStatus(asDateFromUnixDate(dueDate)))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, None)) =>
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, None)
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))) =>
-        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(dueDate))
+        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(asLongDateFromUnixDate(dueDate)))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _, _, _)) =>
         TaxCalculationUnderpaidPaymentsDownState(taxYear, taxYear + 1)
@@ -86,7 +87,6 @@ class TaxCalculationStateFactory @Inject()(val addressControllerConfiguration: A
   }
 
   def getSaDeadlineStatus(dueDate: DateTime): Option[SaDeadlineStatus] = {
-
     val now                               = new LocalDateTime(addressControllerConfiguration.currentDateWithTimeAtStartOfDay).toDateTime.withZone(defaultTZ)
     val dueDateEquals31stJanuary          = dueDate.getMonthOfYear==1 && dueDate.getDayOfMonth==31
     val dueDatePassed                     = now.toDateTime.withZone(defaultTZ).isAfter(dueDate)
