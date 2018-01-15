@@ -16,6 +16,8 @@
 
 package util
 
+import java.text.SimpleDateFormat
+
 import uk.gov.hmrc.time.TaxYearResolver
 import org.joda.time._
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
@@ -28,6 +30,7 @@ object DateTimeTools {
   val defaultTZ = DateTimeZone.forID("Europe/London")
   val unixDateFormat = "yyyy-MM-dd"
   val unixDateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"
+  val cardDateFormat = "dd MMMMM yyyy"
 
   //Returns for example 1516 in March 2016
   def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(TaxYearResolver.currentTaxYear)
@@ -43,8 +46,12 @@ object DateTimeTools {
   def asDateFromUnixDateTime(s: String): DateTime =
     DateTime.parse(s, DateTimeFormat.forPattern(unixDateTimeFormat).withZone(defaultTZ))
 
-  private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(DateTimeZone.forID("Europe/London"))
+  private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
 
   def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime)
+
+  def asLongDateFromUnixDate(unixDate: String): String = {
+    new SimpleDateFormat(cardDateFormat).format(new SimpleDateFormat(unixDateFormat).parse(unixDate))
+  }
 
 }
