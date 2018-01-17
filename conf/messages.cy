@@ -499,6 +499,7 @@ error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
 error.enter_valid_characters=Nodwch gymeriadau dilys
 error.enter_valid_date=Nodwch ddyddiad dilys
 error.address_doesnt_exist_try_to_enter_manually=Ni ellir canfod eich cyfeiriad. Gallwch roi cynnig arall arni neu nodi''r cyfeiriad eich hun.
+head.error.address_doesnt_exist_try_to_enter_manually=Ni ellir canfod eich cyfeiriad. Gallwch roi cynnig arall arni neu nodi''r cyfeiriad eich hun.
 error.form.field.message.postcode=Gwirio bod eich cod post yn gywir
 error.form.field.message.addressId=Dewiswch gyfeiriad
 error.form.field.message.filter=Gwirio enw neu rif eich tŷ
