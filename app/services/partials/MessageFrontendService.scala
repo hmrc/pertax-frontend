@@ -20,28 +20,56 @@ import javax.inject.{Inject, Singleton}
 
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
+import models.MessageCount
+import play.api.Logger
 import play.api.mvc.RequestHeader
 import services.http.WsAllMethods
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
 
 @Singleton
-class MessagePartialService @Inject() (override val http: WsAllMethods, val metrics: Metrics) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig {
+class MessageFrontendService @Inject()(override val http: WsAllMethods, val metrics: Metrics) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig {
+
+
+  lazy val messageFrontendUrl: String = baseUrl("message-frontend")
 
   def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(baseUrl("message-frontend") + "/messages")
+    loadPartial(messageFrontendUrl + "/messages")
   }
 
   def getMessageDetailPartial(messageToken: String)(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(baseUrl("message-frontend") + "/messages/" + messageToken)
+    loadPartial(messageFrontendUrl + "/messages/" + messageToken)
   }
 
   def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(baseUrl("message-frontend") + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController.messageList())
+    loadPartial(messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController.messageList())
   }
 
+
+
+  def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] =
+    loadJson(messageFrontendUrl + "/messages/count").map(_.map(_.count))
+
+
+  private def loadJson(url: String)(implicit hc: HeaderCarrier): Future[Option[MessageCount]] = {
+
+    withMetricsTimer("load-json") { t =>
+
+      http.GET[Option[MessageCount]](url) recover {
+        case e =>
+          t.completeTimerAndIncrementFailedCounter()
+          Logger.warn(s"Failed to load json", e)
+          None
+      }
+
+    }
+  }
 }
+
+

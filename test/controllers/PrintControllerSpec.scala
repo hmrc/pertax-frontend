@@ -25,6 +25,7 @@ import play.api.Application
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
+import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
@@ -44,6 +45,7 @@ class PrintControllerSpec extends BaseSpec {
     .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[PartialRetriever].toInstance(MockitoSugar.mock[PartialRetriever]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
+    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .build()
 
 
@@ -66,6 +68,9 @@ class PrintControllerSpec extends BaseSpec {
 
       when(c.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = true, confidenceLevel = if (isHighGG) ConfidenceLevel.L200 else ConfidenceLevel.L50)))
+      }
+      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
+        Future.successful(None)
       }
 
       val authProviderType = if(isVerify) UserDetails.VerifyAuthProvider else UserDetails.GovernmentGatewayAuthProvider

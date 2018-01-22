@@ -26,6 +26,7 @@ import play.api.http.HttpErrorHandler
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
+import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
 import util.LocalPartialRetriever
@@ -36,6 +37,7 @@ class LocalErrorHandler @Inject() (
   val messagesApi: MessagesApi,
   val userDetailsService: UserDetailsService,
   val citizenDetailsService: CitizenDetailsService,
+  val messageFrontendService: MessageFrontendService,
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,

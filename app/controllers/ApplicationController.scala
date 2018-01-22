@@ -30,7 +30,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
 import services._
-import services.partials.CspPartialService
+import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.ActiveTabHome
 import uk.gov.hmrc.time.TaxYearResolver
@@ -50,6 +50,7 @@ class ApplicationController @Inject() (
   val selfAssessmentService: SelfAssessmentService,
   val cspPartialService: CspPartialService,
   val userDetailsService: UserDetailsService,
+  val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val auditConnector: PertaxAuditConnector,
   val authConnector: PertaxAuthConnector,
