@@ -25,6 +25,7 @@ import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import play.api.i18n.MessagesApi
 import services._
+import services.partials.MessageFrontendService
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -34,6 +35,7 @@ class UserResearchDismissalController @Inject() (
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
+  val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val auditConnector: PertaxAuditConnector,
   val authConnector: PertaxAuthConnector,

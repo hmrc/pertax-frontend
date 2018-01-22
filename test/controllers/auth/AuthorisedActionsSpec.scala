@@ -24,10 +24,12 @@ import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
@@ -48,6 +50,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       def similateUserDetailsFailure: Boolean
       def userDetailsLink: Option[String]
       def confidenceLevel: ConfidenceLevel
+      def messageCountResponse: Option[Int]
 
       lazy val authContext = AuthContext(
         buildFakeAuthority(
@@ -69,10 +72,16 @@ class AuthorisedActionsSpec extends BaseSpec {
         override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = injected[PertaxRegime]
         override lazy val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]
+        override val messageFrontendService = MockitoSugar.mock[MessageFrontendService]
 
 
         when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
           Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
+        }
+
+
+        when(messageFrontendService.getUnreadMessageCount(any())) thenReturn {
+          Future.successful(messageCountResponse)
         }
 
         if(similateUserDetailsFailure) {
@@ -108,12 +117,62 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val result: Future[Result] = await(t.map(_._2))
     }
 
+
+    "set number of unread messages to 0 when unreadable json response returned by the message partial service" in new LocalSetup {
+      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      lazy val similateUserDetailsFailure = false
+      lazy val userDetailsLink = Some("/userDetailsLink")
+      lazy val confidenceLevel = ConfidenceLevel.L200
+      lazy val messageCountResponse = None
+
+      status(result) shouldBe OK
+
+      pertaxContext.get.unreadMessageCount shouldBe None
+    }
+
+    "set number of unread messages to 0 when json with count set to 0 is returned by the message partial service" in new LocalSetup {
+      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      lazy val similateUserDetailsFailure = false
+      lazy val userDetailsLink = Some("/userDetailsLink")
+      lazy val confidenceLevel = ConfidenceLevel.L200
+      lazy val messageCountResponse = Some(0)
+
+      status(result) shouldBe OK
+
+      pertaxContext.get.unreadMessageCount shouldBe Some(0)
+    }
+
+    "set number of unread messages to 2 when json with count set to 2 is returned by the message partial service" in new LocalSetup {
+      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      lazy val similateUserDetailsFailure = false
+      lazy val userDetailsLink = Some("/userDetailsLink")
+      lazy val confidenceLevel = ConfidenceLevel.L200
+      lazy val messageCountResponse = Some(2)
+
+      status(result) shouldBe OK
+
+      pertaxContext.get.unreadMessageCount shouldBe Some(2)
+    }
+
+    "set number of unread messages to 99+ when json with count set to 100 is returned by the message partial service" in new LocalSetup {
+      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      lazy val similateUserDetailsFailure = false
+      lazy val userDetailsLink = Some("/userDetailsLink")
+      lazy val confidenceLevel = ConfidenceLevel.L200
+      lazy val messageCountResponse = Some(100)
+
+      status(result) shouldBe OK
+
+      pertaxContext.get.unreadMessageCount shouldBe Some(100)
+    }
+
     "Create a non-gg user when the the auth-provider is not GG" in new LocalSetup {
 
       lazy val authProviderType = UserDetails.VerifyAuthProvider
       lazy val similateUserDetailsFailure = false
       lazy val userDetailsLink = Some("/userDetailsLink")
       lazy val confidenceLevel = ConfidenceLevel.L0
+      lazy val messageCountResponse = None
 
       status(result) shouldBe OK
       pertaxContext.get.user.get.isGovernmentGateway shouldBe false
@@ -126,6 +185,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val similateUserDetailsFailure = false
       lazy val userDetailsLink = Some("/userDetailsLink")
       lazy val confidenceLevel = ConfidenceLevel.L0
+      lazy val messageCountResponse = None
 
       status(result) shouldBe OK
       pertaxContext.get.user.get.isGovernmentGateway shouldBe true
@@ -138,6 +198,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val similateUserDetailsFailure = false
       lazy val userDetailsLink = Some("/userDetailsLink")
       lazy val confidenceLevel = ConfidenceLevel.L50
+      lazy val messageCountResponse = None
 
       status(result) shouldBe OK
       pertaxContext.get.user.get.isGovernmentGateway shouldBe true
@@ -150,6 +211,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val similateUserDetailsFailure = false
       lazy val userDetailsLink = Some("/userDetailsLink")
       lazy val confidenceLevel = ConfidenceLevel.L100
+      lazy val messageCountResponse = None
 
       status(result) shouldBe OK
       pertaxContext.get.user.get.isGovernmentGateway shouldBe true
@@ -162,6 +224,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val similateUserDetailsFailure = false
       lazy val userDetailsLink = Some("/userDetailsLink")
       lazy val confidenceLevel = ConfidenceLevel.L200
+      lazy val messageCountResponse = None
 
       status(result) shouldBe OK
       pertaxContext.get.user.get.isGovernmentGateway shouldBe true
@@ -174,6 +237,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val similateUserDetailsFailure = false
       lazy val userDetailsLink = None
       lazy val confidenceLevel = ConfidenceLevel.L0
+      lazy val messageCountResponse = None
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
       await(pertaxContext) shouldBe None
@@ -185,6 +249,7 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val similateUserDetailsFailure = true
       lazy val userDetailsLink = Some("/userDetailsLink")
       lazy val confidenceLevel = ConfidenceLevel.L0
+      lazy val messageCountResponse = None
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
       await(pertaxContext) shouldBe None
@@ -214,6 +279,7 @@ class AuthorisedActionsSpec extends BaseSpec {
         override val messagesApi = injected[MessagesApi]
         override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = MockitoSugar.mock[PertaxRegime]
+        override val messageFrontendService = MockitoSugar.mock[MessageFrontendService]
 
         when(configDecorator.allowSaPreview) thenReturn allowSaPreview
       }

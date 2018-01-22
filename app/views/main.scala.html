@@ -136,7 +136,10 @@
     )),
     Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
     pageName.map(NavTitleComponent(_)),
-    Some(BetaBannerComponent(pertaxContext.configDecorator.deskproToken))
+    Some(BetaBannerComponent(pertaxContext.configDecorator.deskproToken)),
+    Some(MessagesMenuItemComponent(pertaxContext.unreadMessageCount))
+  ) ++ Map[String,Any](
+    "assetsPath" -> pertaxContext.configDecorator.assetsPrefix
   )
 
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), arguments)

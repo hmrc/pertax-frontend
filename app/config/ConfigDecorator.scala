@@ -158,6 +158,8 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
+  lazy val assetsPrefix = configuration.getString(s"assets.url").getOrElse("") + configuration.getString(s"assets.version").getOrElse("") + '/'
+
   def getFeedbackSurveyUrl(origin: Origin): String = {
     feedbackSurveyFrontendHost + "/feedback-survey?origin=" + enc(origin.value)
   }

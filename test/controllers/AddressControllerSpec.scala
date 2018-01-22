@@ -35,6 +35,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.partials.MessageFrontendService
 import services.{AddressLookupResponse, _}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -58,6 +59,7 @@ class AddressControllerSpec extends BaseSpec  {
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
+    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[AddressControllerConfiguration].toInstance(new AddressControllerConfiguration {
       override val currentDateWithTimeAtStartOfDay = DateTime.parse("2016-02-02").withTimeAtStartOfDay
     }))
@@ -110,6 +112,9 @@ class AddressControllerSpec extends BaseSpec  {
       }
       when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
         Future.successful(sessionCacheResponse)
+      }
+      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
+        Future.successful(None)
       }
       when(c.configDecorator.tcsChangeAddressUrl) thenReturn "/tax-credits-service/personal/change-address"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")

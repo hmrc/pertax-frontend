@@ -37,7 +37,7 @@ class AuthContextDecorator(authContext: Option[AuthContext]) { //FIXME - PertaxC
 }
 
 class PertaxContext(val request: Request[AnyContent], val partialRetriever: LocalPartialRetriever, val configDecorator: ConfigDecorator, val user: Option[PertaxUser],
-                    val breadcrumb: Option[Breadcrumb], val welshWarning: Boolean, val activeTab: Option[ActiveTab]) extends Request[AnyContent] {
+                    val breadcrumb: Option[Breadcrumb], val welshWarning: Boolean, val activeTab: Option[ActiveTab], val unreadMessageCount: Option[Int]) extends Request[AnyContent] {
   override def body: AnyContent = request.body
   override def secure: Boolean = request.secure
   override def uri: String = request.uri
@@ -50,10 +50,11 @@ class PertaxContext(val request: Request[AnyContent], val partialRetriever: Loca
   override def tags: Map[String, String] = request.tags
   override def id: Long = request.id
   override def clientCertificateChain: Option[Seq[X509Certificate]] = request.clientCertificateChain
-  def withUser(u: Option[PertaxUser])       = new PertaxContext(request, partialRetriever, configDecorator, u, breadcrumb, welshWarning, activeTab)
-  def withBreadcrumb(b: Option[Breadcrumb]) = new PertaxContext(request, partialRetriever, configDecorator, user, b, welshWarning, activeTab)
-  def withWelshWarning(ww: Boolean) = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, ww, activeTab)
-  def withActiveTab(at: Option[ActiveTab])  = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, at)
+  def withUser(u: Option[PertaxUser])           = new PertaxContext(request, partialRetriever, configDecorator, u, breadcrumb, welshWarning, activeTab, unreadMessageCount)
+  def withBreadcrumb(b: Option[Breadcrumb])     = new PertaxContext(request, partialRetriever, configDecorator, user, b, welshWarning, activeTab, unreadMessageCount)
+  def withWelshWarning(ww: Boolean)             = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, ww, activeTab, unreadMessageCount)
+  def withActiveTab(at: Option[ActiveTab])      = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, at, unreadMessageCount)
+  def withUnreadMessageCount(umc: Option[Int])  = new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, activeTab, umc)
 
   def authContext = user.map(_.authContext)
 
@@ -72,8 +73,8 @@ object PertaxContext {
   def apply(request: Request[AnyContent], partialRetriever: LocalPartialRetriever,
             configDecorator: ConfigDecorator, user: Option[PertaxUser] = None,
             breadcrumb: Option[Breadcrumb] = None, welshWarning: Boolean = false,
-            activeTab: Option[ActiveTab] = None): PertaxContext =
-    new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, activeTab)
+            activeTab: Option[ActiveTab] = None, unreadMessageCount: Option[Int] = None): PertaxContext =
+    new PertaxContext(request, partialRetriever, configDecorator, user, breadcrumb, welshWarning, activeTab, unreadMessageCount)
 }
 
 case class PertaxUser(val authContext: AuthContext, val userDetails: UserDetails, val personDetails: Option[PersonDetails], private val isHighGG: Boolean) {
