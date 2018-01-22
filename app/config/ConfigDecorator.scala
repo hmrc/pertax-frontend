@@ -23,7 +23,7 @@ import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.Langs
-import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
 class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) extends ServicesConfig {
@@ -63,6 +63,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val dfsFrontendHost                              = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
   lazy val plaBackEndHost                               = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost = decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
+  lazy val governmentGatewayRegistrationFrontendHost    = decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
 
 
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
@@ -91,8 +92,8 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val formTrackingServiceUrl = s"$formTrackingHost/track"
   lazy val messageInboxLinkUrl = s"$messageFrontendService/messages/inbox-link"
   lazy val fandfUrl = s"$fandfHost/trusted-helpers"
-  def lostCredentialsChooseAccountUrl(continueUrl: String) = {
-    s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}&forgottenOption=userId"
+  def lostCredentialsChooseAccountUrl(continueUrl: String, forgottenOption: String) = {
+    s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}&forgottenOption=$forgottenOption"
   }
   lazy val notShownSaRecoverYourUserId = s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
   lazy val tamcTransferAllowanceUrl = s"$tamcHost/marriage-allowance-application/history"
@@ -102,6 +103,9 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val onlineServicesHelpdeskUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
   lazy val contactHrmcUrl = "https://www.gov.uk/contact-hmrc"
   lazy val selfAssessmentContactUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+  def registerForSelfAssessmentUrl(continueUrl: String) = {
+    s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}"
+  }
   lazy val taxReturnByPostUrl = "https://www.gov.uk/government/publications/self-assessment-tax-return-sa100"
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val incomeTaxGeneralQueriesUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees"

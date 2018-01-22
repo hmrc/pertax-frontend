@@ -1,0 +1,39 @@
+@(f: Form[dto.AmbiguousUserFlowDto])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html.helpers._
+
+@main(title = Messages("label.have_you_ever_filed_your_tax_return_online"),
+pageName = Some(Messages("label.your_personal_tax_account")),
+backlinkUrl = Some(controllers.routes.ApplicationController.handleSelfAssessment().url)
+) {
+<div class="personal-details">
+    <div class="grid-row">
+        <div class="column-full">
+            <p class="pre-heading no-margin-bottom lede">@Messages("label.self_assessment")</p>
+            <h1 class="heading-xlarge no-margin-top">@Messages("label.have_you_ever_filed_your_tax_return_online")</h1>
+        </div>
+    </div>
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            <div class="grid-row pertax-panel">
+                <div class="column-full">
+                    @form(action = controllers.routes.AmbiguousJourneyController.processFileReturnOnlineChoice) {
+                    <div class="form-group inline">
+                        @inputRadioGroup(
+                        f("value"),
+                        Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
+                        '_labelClass -> "block-label",
+                        '_legendClass -> "visuallyhidden",
+                        '_legend -> Messages("label.have_you_ever_filed_your_tax_return_online")
+                        )
+                    </div>
+                    <div class="form-group inline">
+                        <button type="submit">@Messages("global.label.continue_button")</button>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
