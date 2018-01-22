@@ -1,0 +1,30 @@
+@(utr: Option[SaUtr], continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@main(title = Messages("label.you_need_to_register_for_self_assessment_online"),
+pageName = Some(Messages("label.your_personal_tax_account")),
+backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.usedUtrToEnrolChoice().url)
+) {
+<div class="personal-details">
+    <div class="grid-row">
+        <div class="column-full">
+            <p class="pre-heading no-margin-bottom lede">@Messages("label.self_assessment")</p>
+            <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_register_for_self_assessment_online")</h1>
+        </div>
+    </div>
+    <div class="column-two-thirds">
+        <div class="grid-row pertax-panel lede">
+            <p>@Html(Messages("label.use_your_utr_to_register_for_self_assessment_online", pertaxContext.configDecorator.registerForSelfAssessmentUrl(continueUrl)))</p>
+        </div>
+    </div>
+    <div class="column-two-thirds">
+        <div class="grid-row pertax-panel">
+            <p>@Html(Messages("label.your_utr_is_", utr.getOrElse("")))</p>
+        </div>
+    </div>
+    <div class="column-two-thirds">
+        <div class="grid-row panel panel-border-wide">
+            <p>@Messages("label.registration_can_take_up_to_ten_days_")</p>
+        </div>
+    </div>
+</div>
+}
