@@ -27,7 +27,7 @@ import models.Breadcrumb
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, Request}
 import play.twirl.api.Html
-import services.partials.{FormPartialService, SaPartialService}
+import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.LocalPartialRetriever
@@ -43,6 +43,7 @@ class InterstitialController @Inject() (
   val userDetailsService: UserDetailsService,
   val delegationConnector: FrontEndDelegationConnector,
   val preferencesFrontendService: PreferencesFrontendService,
+  val messageFrontendService: MessageFrontendService,
   val auditConnector: PertaxAuditConnector,
   val authConnector: PertaxAuthConnector,
   val partialRetriever: LocalPartialRetriever,

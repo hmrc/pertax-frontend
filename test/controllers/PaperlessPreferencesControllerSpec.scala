@@ -27,7 +27,7 @@ import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.partials.PreferencesFrontendPartialService
+import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -48,6 +48,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
     .overrides(bind[PreferencesFrontendPartialService].toInstance(MockitoSugar.mock[PreferencesFrontendPartialService]))
     .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
+    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .build()
 
 
@@ -76,6 +77,9 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
       }
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(UserDetails.GovernmentGatewayAuthProvider)))
+      }
+      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
+        Future.successful(None)
       }
 
       c
