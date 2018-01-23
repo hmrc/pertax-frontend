@@ -4,6 +4,7 @@
 @import 'taxCreditsAdditional';
 
 @import 'pta-card';
+@import 'af-upgrade';
 
 .lang-select {
   border-bottom: 0px;
@@ -109,6 +110,11 @@ address {
   padding: 20px 15px 15px;
 }
 
+#errors.error-summary,
+#errors.validation-summary {
+  padding: 20px 15px 15px;
+}
+
 .validation-summary {
   @extend .error-summary;
 
@@ -121,29 +127,6 @@ address {
     }
   }
 }
-
-.highlighted-event {
-  margin-left: 0;
-  margin-right: 0;
-  padding: 1.25em 2em;
-
-  @include media(mobile) {
-    padding: .65em 1em;
-  }
-
-  h2 {
-    color: $white;
-
-    &.heading-large {
-      &.address-updated {
-        background: $turquoise url('/personal-account/assets/images/tick.png') no-repeat left center;
-        padding-left: 30px;
-      }
-    }
-  }
-}
-
-
 
 //This is to override the content__body class attached to .article wrapper - don't know where that is defined
 .content__body {
@@ -873,23 +856,6 @@ p.lede {
 
 .nino > span {
   margin-right: 5px;
-}
-
-.child-benefit-partial {
-   ul {
-    list-style: inherit;
-    margin: 10px 0 20px;
-    padding-left: 20px;
-  }
-
-  h2 {
-    margin-top: 60px;
-  }
-
-  h3 {
-    font-size: 24px;
-    margin: 45px 0 25px;
-  }
 }
 
 body {

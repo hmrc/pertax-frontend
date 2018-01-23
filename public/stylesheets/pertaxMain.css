@@ -148,6 +148,10 @@
   margin-bottom: 0;
 }
 
+table {
+  margin-bottom: 1.57895em;
+}
+
 .lang-select {
   border-bottom: 0px;
   float: right;
@@ -236,30 +240,17 @@ address {
   padding: 20px 15px 15px;
 }
 
+#errors.error-summary, #errors.validation-summary,
+#errors.validation-summary {
+  padding: 20px 15px 15px;
+}
+
 .validation-summary li {
   font-size: 19px;
   font-weight: bold;
 }
 .validation-summary li a {
   color: #b10e1e;
-}
-
-.highlighted-event {
-  margin-left: 0;
-  margin-right: 0;
-  padding: 1.25em 2em;
-}
-@media (max-width: 640px) {
-  .highlighted-event {
-    padding: .65em 1em;
-  }
-}
-.highlighted-event h2 {
-  color: #fff;
-}
-.highlighted-event h2.heading-large.address-updated {
-  background: #28a197 url("/personal-account/assets/images/tick.png") no-repeat left center;
-  padding-left: 30px;
 }
 
 .content__body {
@@ -311,7 +302,7 @@ address {
 @media (min-width: 641px) {
   .column-third {
     float: left;
-    width: 33.33333%;
+    width: 33.3333333333%;
   }
 }
 
@@ -322,7 +313,7 @@ address {
 @media (min-width: 641px) {
   .column-two-thirds {
     float: left;
-    width: 66.66667%;
+    width: 66.6666666667%;
   }
 }
 
@@ -916,19 +907,6 @@ p.lede {
   margin-right: 5px;
 }
 
-.child-benefit-partial ul {
-  list-style: inherit;
-  margin: 10px 0 20px;
-  padding-left: 20px;
-}
-.child-benefit-partial h2 {
-  margin-top: 60px;
-}
-.child-benefit-partial h3 {
-  font-size: 24px;
-  margin: 45px 0 25px;
-}
-
 body.print-page {
   background: #A9A9A9;
   font-family: "nta", Arial, sans-serif;
@@ -1116,7 +1094,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-third {
     float: left;
-    width: 33.33333%;
+    width: 33.3333333333%;
   }
 }
 @media (min-width: 641px) {
@@ -1128,7 +1106,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-two-thirds {
     float: left;
-    width: 66.66667%;
+    width: 66.6666666667%;
   }
 }
 @media (min-width: 641px) {
