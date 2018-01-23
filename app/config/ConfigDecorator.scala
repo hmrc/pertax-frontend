@@ -144,7 +144,6 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val welshLangEnabled = langs.availables.exists(l => l.code == "cy")
   lazy val taxCreditsEnabled = configuration.getString("feature.tax-credits.enabled").getOrElse("true").toBoolean
   lazy val activateSALinkEnabled = configuration.getString("feature.activate-sa-link.enabled").getOrElse("true").toBoolean
-  lazy val ivExeptionsEnabled = configuration.getString("feature.iv-exeptions.enabled").getOrElse("true").toBoolean
   lazy val allowLowConfidenceSAEnabled = configuration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
   lazy val ltaEnabled = configuration.getString("feature.lta.enabled").getOrElse("true").toBoolean
   lazy val urLinkUrl = configuration.getString("feature.ur-link.url")
