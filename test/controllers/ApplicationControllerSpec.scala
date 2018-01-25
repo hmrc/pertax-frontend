@@ -140,7 +140,6 @@ class ApplicationControllerSpec extends BaseSpec {
       when(c.configDecorator.allowSaPreview) thenReturn true
       when(c.configDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
       when(c.configDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
-      when(c.configDecorator.ivExeptionsEnabled) thenReturn true
       when(c.configDecorator.companyAuthHost) thenReturn ""
       when(c.configDecorator.pertaxFrontendHost) thenReturn ""
       when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
