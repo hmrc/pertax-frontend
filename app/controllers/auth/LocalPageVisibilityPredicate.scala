@@ -20,7 +20,7 @@ import javax.inject._
 
 import config.ConfigDecorator
 import controllers.bindable.{Origin, StrictContinueUrl}
-import controllers.routes._
+import controllers.routes
 import models.{AmbiguousFilerSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser}
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Request}
@@ -30,18 +30,16 @@ import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent._
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
 @Singleton
 class LocalPageVisibilityPredicateFactory @Inject() (
-  enrolmentExceptionListService: EnrolmentExceptionListService,
   citizenDetailsService: CitizenDetailsService,
   selfAssessmentService: SelfAssessmentService,
   configDecorator: ConfigDecorator
 ) {
 
-  val (eels, cds, sas) = (enrolmentExceptionListService, citizenDetailsService, selfAssessmentService)
+  val (cds, sas) = (citizenDetailsService, selfAssessmentService)
 
   def build(successUrl: Option[StrictContinueUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.toString)
@@ -51,17 +49,12 @@ class LocalPageVisibilityPredicateFactory @Inject() (
       override lazy val successUrl = s
       override lazy val upliftUrl = configDecorator.identityVerificationUpliftUrl
       override lazy val origin = o
-      override lazy val onwardUrl = configDecorator.pertaxFrontendHost + ApplicationController.showUpliftJourneyOutcome(successUrl)
-      override lazy val ivExceptionListEnabled = configDecorator.ivExeptionsEnabled
+      override lazy val onwardUrl = configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(successUrl)
       override lazy val allowLowConfidenceSAEnabled = configDecorator.allowLowConfidenceSAEnabled
-      override lazy val enrolmentExceptionListService = eels
       override lazy val citizenDetailsService = cds
       override lazy val selfAssessmentService = sas
     }
-
   }
-
-
 }
 
 
@@ -71,43 +64,21 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
   def upliftUrl: String
   def origin: String
   def onwardUrl: String
-  def ivExceptionListEnabled: Boolean
   def allowLowConfidenceSAEnabled: Boolean
-  def enrolmentExceptionListService: EnrolmentExceptionListService
-
   def selfAssessmentService: SelfAssessmentService
-
   def citizenDetailsService: CitizenDetailsService
+
   private lazy val failureUrl = onwardUrl
   private lazy val completionUrl = onwardUrl
 
   def apply(authContext: AuthContext, request: Request[AnyContent]): Future[PageVisibilityResult] = {
     implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    if ( userHasHighConfidenceLevel(authContext) ) {
+    if ( userHasHighConfidenceLevel(authContext) )
       Future.successful(PageIsVisible)
-    } else {
-      val saUtr = authContext.principal.accounts.sa.map(_.utr) match {
-        case Some(x) => Future.successful(Some(x))
-        case None =>
-          selfAssessmentService.getSelfAssessmentUserType(Some(authContext)) map {
-            case NotYetActivatedOnlineFilerSelfAssessmentUser(x) => Some(x)
-            case AmbiguousFilerSelfAssessmentUser(x) => Some(x)
-            case _ => None
-          }
-      }
-
-      val ivExempt = if (allowLowConfidenceSAEnabled) Future.successful(true) else {
-        if (ivExceptionListEnabled) {
-          saUtr flatMap {
-            case Some(x) => enrolmentExceptionListService.isAccountIdentityVerificationExempt(x)
-            case None => Future.successful(false)
-          }
-        } else Future.successful(false)
-      }
-
-      ivExempt map {
-        case true => new PageBlocked(Future.successful(Redirect(ApplicationController.ivExemptLandingPage(successUrl))))
-        case false => new PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200)))
+    else {
+      allowLowConfidenceSAEnabled match {
+        case true => Future.successful(new PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
+        case false => Future.successful(new PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
       }
     }
   }
@@ -121,5 +92,4 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
         "failureURL" -> Seq(failureUrl)
       )
     )
-
 }
