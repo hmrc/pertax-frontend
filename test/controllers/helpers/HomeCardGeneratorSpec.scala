@@ -144,7 +144,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def taxCalcState: TaxCalculationState
 
-      lazy val cardBody = c.getTaxCalculationCard(taxCalcState).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getTaxCalculationCard(Some(taxCalcState)).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with TaxCalculationUnderpaidPaymentsDownState" in new LocalSetup {
@@ -467,6 +467,26 @@ class HomeCardGeneratorSpec extends BaseSpec {
                |  <div class="card-actions">
                |    <ul>
                |      <li><a class="ga-track-anchor-click" href="/tax-you-paid/paid-too-little/reasons" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out why you paid too little">Find out why you paid too little</a></li>
+               |    </ul>
+               |  </div>
+               |</div>""".stripMargin)
+    }
+
+    "return correct markup when called with TaxCalculationDisabledState" in new LocalSetup {
+      val taxCalcState = TaxCalculationDisabledState(2015, 2016)
+
+      cardBody shouldBe
+        Some("""<div class="card column-third">
+               |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Your Income Tax for last year">
+               |    <h3 class="heading-small no-margin-top">Your Income Tax for last year</h3>
+               |    <p>Check to see if you paid the right amount of tax from 6 April 2015 to 5 April 2016.</p>
+               |  </a>
+               |  <div class="visuallyhidden">
+               |    <h3>Your Income Tax for last year</h3>
+               |    <p>Check to see if you paid the right amount of tax from 6 April 2015 to 5 April 2016.</p>
+               |  </div>
+               |  <div class="card-actions">
+               |    <ul>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)

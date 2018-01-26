@@ -29,7 +29,7 @@ import util.DateTimeTools.previousAndCurrentTaxYear
 class HomeCardGenerator {
 
   def getIncomeCards(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary],
-                     taxCalculationState: TaxCalculationState,
+                     taxCalculationState: Option[TaxCalculationState],
                      saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxSummary),
     getTaxCalculationCard(taxCalculationState),
@@ -55,12 +55,15 @@ class HomeCardGenerator {
     }
   }
 
-  def getTaxCalculationCard(taxCalculationState: TaxCalculationState)(implicit pertaxContext: PertaxContext, messages: Messages) = {
+  def getTaxCalculationCard(taxCalculationState: Option[TaxCalculationState])(implicit pertaxContext: PertaxContext, messages: Messages) = {
+
+    println(taxCalculationState)
 
     taxCalculationState match {
-      case _:TaxCalculationUnderpaidPaymentsDownState => None
-      case TaxCalculationUnkownState => None
-      case taxCalculationState => Some(views.html.cards.home.taxCalculation(taxCalculationState))
+      case Some(TaxCalculationUnderpaidPaymentsDownState(_,_)) => None
+      case Some(TaxCalculationUnkownState) => None
+      case Some(taxCalculationState) => Some(views.html.cards.home.taxCalculation(taxCalculationState))
+      case _ => None
     }
   }
 
