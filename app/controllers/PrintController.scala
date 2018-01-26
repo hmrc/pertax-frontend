@@ -23,6 +23,7 @@ import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuth
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import play.api.i18n.MessagesApi
+import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import util.LocalPartialRetriever
 
@@ -33,6 +34,7 @@ class PrintController @Inject() (
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
+  val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val auditConnector: PertaxAuditConnector,
   val authConnector: PertaxAuthConnector,

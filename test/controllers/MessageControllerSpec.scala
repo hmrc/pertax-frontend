@@ -26,7 +26,7 @@ import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.partials.MessagePartialService
+import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
@@ -44,14 +44,14 @@ class MessageControllerSpec extends BaseSpec  {
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[MessagePartialService].toInstance(MockitoSugar.mock[MessagePartialService]))
+    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .build()
 
 
   override def beforeEach: Unit = {
-    reset(injected[MessagePartialService], injected[CitizenDetailsService])
+    reset(injected[MessageFrontendService], injected[CitizenDetailsService])
   }
 
 
@@ -68,6 +68,10 @@ class MessageControllerSpec extends BaseSpec  {
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
       }
+      when(c.messageFrontendService.getUnreadMessageCount(any())) thenReturn {
+        Future.successful(None)
+      }
+
 
       c
     }
@@ -83,14 +87,15 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
       }
 
-      when(controller.messagePartialService.getMessageListPartial(any())) thenReturn {
+      when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
 
-      verify(controller.messagePartialService, times(1)).getMessageListPartial(any())
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(1)).getMessageListPartial(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
@@ -106,14 +111,15 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
-      when(controller.messagePartialService.getMessageListPartial(any())) thenReturn {
+      when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
 
-      verify(controller.messagePartialService, times(1)).getMessageListPartial(any())
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(1)).getMessageListPartial(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
     }
 
@@ -127,7 +133,9 @@ class MessageControllerSpec extends BaseSpec  {
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
-      verify(controller.messagePartialService, times(0)).getMessageListPartial(any())
+
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
@@ -145,7 +153,9 @@ class MessageControllerSpec extends BaseSpec  {
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
-      verify(controller.messagePartialService, times(0)).getMessageListPartial(any())
+
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
     }
 
@@ -163,7 +173,9 @@ class MessageControllerSpec extends BaseSpec  {
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
-      verify(controller.messagePartialService, times(0)).getMessageListPartial(any())
+
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
     }
 
@@ -179,13 +191,15 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
       }
 
-      when(controller.messagePartialService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
-      verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
+
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(1)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
@@ -201,13 +215,15 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
-      when(controller.messagePartialService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
       }
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
-      verify(controller.messagePartialService, times(1)).getMessageDetailPartial(any())(any())
+
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(1)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
     }
 
@@ -221,7 +237,7 @@ class MessageControllerSpec extends BaseSpec  {
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
-      verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
+      verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
@@ -239,7 +255,9 @@ class MessageControllerSpec extends BaseSpec  {
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
-      verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
+
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
     }
 
@@ -257,7 +275,9 @@ class MessageControllerSpec extends BaseSpec  {
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
-      verify(controller.messagePartialService, times(0)).getMessageDetailPartial(any())(any())
+
+      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+      verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
     }
   }

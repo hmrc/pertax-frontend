@@ -25,7 +25,7 @@ import error.LocalErrorHandler
 import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
 import play.twirl.api.Html
-import services.partials.MessagePartialService
+import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.ActiveTabMessages
@@ -34,7 +34,7 @@ import util.LocalPartialRetriever
 
 class MessageController @Inject() (
   val messagesApi: MessagesApi,
-  val messagePartialService: MessagePartialService,
+  val messageFrontendService: MessageFrontendService,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
   val delegationConnector: FrontEndDelegationConnector,
@@ -54,7 +54,7 @@ class MessageController @Inject() (
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {
-          messagePartialService.getMessageListPartial map { p =>
+          messageFrontendService.getMessageListPartial map { p =>
             Ok(views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
           }
         }
@@ -65,7 +65,7 @@ class MessageController @Inject() (
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {
-          messagePartialService.getMessageDetailPartial(messageToken).map {
+          messageFrontendService.getMessageDetailPartial(messageToken).map {
             case HtmlPartial.Success(Some(title), content) => Ok(views.html.message.messageDetail(message = content, title = title))
             case HtmlPartial.Success(None, content) => Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
             case HtmlPartial.Failure(_,_) => Ok(views.html.message.messageDetail(message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")), title = Messages("label.message")))

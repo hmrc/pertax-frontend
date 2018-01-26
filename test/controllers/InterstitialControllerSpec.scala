@@ -28,7 +28,7 @@ import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
-import services.partials.{FormPartialService, SaPartialService}
+import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -61,6 +61,7 @@ class InterstitialControllerSpec extends BaseSpec {
       MockitoSugar.mock[UserDetailsService],
       MockitoSugar.mock[FrontEndDelegationConnector],
       MockitoSugar.mock[PreferencesFrontendService],
+      MockitoSugar.mock[MessageFrontendService],
       MockitoSugar.mock[PertaxAuditConnector],
       MockitoSugar.mock[PertaxAuthConnector],
       MockitoSugar.mock[LocalPartialRetriever],
@@ -94,6 +95,9 @@ class InterstitialControllerSpec extends BaseSpec {
       when(preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
         Future.successful(paperlessResponse)
       }
+      when(messageFrontendService.getUnreadMessageCount(any())) thenReturn {
+        Future.successful(None)
+      }
       when(configDecorator.taxCreditsEnabled) thenReturn true
       when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
       when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
@@ -117,6 +121,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val r = c.displayNationalInsurance(request)
       status(r) shouldBe OK
+
+      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(c.formPartialService, times(1)).getNationalInsurancePartial(any())
       verify(c.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
 
@@ -138,6 +144,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val r = c.displayChildBenefits(request)
       status(r) shouldBe OK
+
+      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(c.citizenDetailsService, times(0)).personDetails(meq(Fixtures.fakeNino))(any())
     }
   }
@@ -157,6 +165,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val r = c.displaySelfAssessment(request)
       status(r) shouldBe OK
+
+      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(c.formPartialService, times(1)).getSelfAssessmentPartial(any()) //Not called at the min due to DFS bug
       verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
     }
@@ -174,6 +184,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val r = c.displaySelfAssessment(request)
       status(r) shouldBe UNAUTHORIZED
+
+      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(c.formPartialService, times(1)).getSelfAssessmentPartial(any())
       verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
     }
@@ -191,11 +203,14 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val r = c.displaySelfAssessment(request)
       status(r) shouldBe UNAUTHORIZED
+
+      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(c.formPartialService, times(1)).getSelfAssessmentPartial(any())
       verify(c.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
     }
 
     "Calling getSa302" should {
+
       "should return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
         lazy val withPaye = true
         lazy val withSa = true
@@ -207,6 +222,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
         val r = c.displaySa302Interrupt(2014)(request)
         status(r) shouldBe OK
+
+        verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
       }
 
       "should return UNAUTHORIZED response when accessing with a none SA user with a valid tax year" in new LocalSetup {
@@ -220,6 +237,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
         val r = c.displaySa302Interrupt(2014)(request)
         status(r) shouldBe UNAUTHORIZED
+
+        verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
       }
     }
   }

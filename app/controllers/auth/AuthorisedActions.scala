@@ -22,9 +22,10 @@ import error.RendersErrors
 import models._
 import play.api.Logger
 import play.api.http.Status._
-import play.api.i18n.{I18nSupport, Messages}
+import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services._
+import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
 import uk.gov.hmrc.renderer.ActiveTab
@@ -35,6 +36,7 @@ import scala.concurrent.Future
 trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with ControllerLikeHelpers with RendersErrors with I18nSupport {
 
   def citizenDetailsService: CitizenDetailsService
+  def messageFrontendService: MessageFrontendService
   def userDetailsService: UserDetailsService
   def pertaxRegime: PertaxRegime
 
@@ -78,6 +80,8 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with C
 
 
 
+
+
   def createPertaxContextAndExecute(fetchPersonDetails: Boolean)(block: PertaxContext => Future[Result])(implicit authContext: AuthContext, request: Request[AnyContent]): Future[Result] = {
 
     def withUserDetails(block: UserDetails => Future[Result]): Future[Result] = {
@@ -101,19 +105,25 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with C
       isGovernmentGateway && userHasHighConfidenceLevel
     }
 
+    def populatingUnreadMessageCount(block: PertaxContext => Future[Result])(implicit pertaxContext: PertaxContext) =
+      messageFrontendService.getUnreadMessageCount.flatMap { count =>
+        block(pertaxContext.withUnreadMessageCount(count))
+      }
+
     withUserDetails { userDetails =>
 
       val isHigh = isHighGovernmentGatewayUser(userDetails.hasGovernmentGatewayAuthProvider)
 
       val pertaxUser = PertaxUser(authContext, userDetails, None, isHigh)
       implicit val context = PertaxContext(request, partialRetriever, configDecorator, Some(pertaxUser))
-
-      if (fetchPersonDetails)
-        withPersonDetailsIfPaye { personDetails =>
-          block(context.withUser(Some(pertaxUser.withPersonDetails(personDetails))))
-        }
-      else
-        block(context.withUser(Some(pertaxUser)))
+      populatingUnreadMessageCount { implicit context =>
+        if (fetchPersonDetails)
+          withPersonDetailsIfPaye { personDetails =>
+            block(context.withUser(Some(pertaxUser.withPersonDetails(personDetails))))
+          }
+        else
+          block(context.withUser(Some(pertaxUser)))
+      }
     }
 
   }
