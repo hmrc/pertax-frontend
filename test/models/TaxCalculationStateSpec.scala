@@ -68,25 +68,25 @@ class TaxCalculationStateSpec extends BaseSpec {
       result shouldBe TaxCalculationUnkownState
     }
 
-    "return a TaxCalculationPaymentDueState when called with a TaxCalculation with a P800 status of PAYMENT_DUE" in new TaxCalculationStateSimpleSpecSetup {
+    "return a TaxCalculationPaymentDueState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PAYMENT_DUE" in new TaxCalculationStateSimpleSpecSetup {
       val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAYMENT_DUE"), None, None, None)
       val result = controller.buildFromTaxCalculation(Some(taxCalculation))
       result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2015, 2016, None, None)
     }
 
-    "return a TaxCalculationPartPaidState when called with a TaxCalculation with a P800 status of PART_PAID" in new TaxCalculationStateSimpleSpecSetup {
+    "return a TaxCalculationPartPaidState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PART_PAID" in new TaxCalculationStateSimpleSpecSetup {
       val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PART_PAID"), None, None, None)
       val result = controller.buildFromTaxCalculation(Some(taxCalculation))
       result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2015, 2016, None, None)
     }
 
-    "return a TaxCalculationPaidAllState when called with a TaxCalculation with a P800 status of PAID_ALL" in new TaxCalculationStateSimpleSpecSetup {
+    "return a TaxCalculationPaidAllState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PAID_ALL" in new TaxCalculationStateSimpleSpecSetup {
       val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAID_ALL"), None, None, None)
       val result = controller.buildFromTaxCalculation(Some(taxCalculation))
       result shouldBe TaxCalculationUnderpaidPaidAllState(2015, 2016, None)
     }
 
-    "return a TaxCalculationPaymentsDownState when called with a TaxCalculation with a P800 status of PAYMENTS_DOWN" in new TaxCalculationStateSimpleSpecSetup {
+    "return a TaxCalculationPaymentsDownState when called with a TaxCalculation with a P800 status of Underpaid and a paymentStatus of PAYMENTS_DOWN" in new TaxCalculationStateSimpleSpecSetup {
       val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2015, Some("PAYMENTS_DOWN"), None, None, None)
       val result = controller.buildFromTaxCalculation(Some(taxCalculation))
       result shouldBe TaxCalculationUnderpaidPaymentsDownState(2015, 2016)

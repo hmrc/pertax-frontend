@@ -70,18 +70,19 @@ class ApplicationController @Inject() (
 
       val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
 
-      val serviceCallResponses = userAndNino.fold[Future[(Option[TaxSummary],Option[TaxCalculation])]](Future.successful( (None, None) )) { userAndNino =>
+      val serviceCallResponses = userAndNino.fold[Future[(Option[TaxSummary],Option[TaxCalculationState])]](Future.successful( (None, None) )) { userAndNino =>
 
         val (user, nino) = userAndNino
 
-        val taxCalculation: Future[Option[TaxCalculation]] = if (configDecorator.taxcalcEnabled) {
+        val taxCalculationState: Future[Option[TaxCalculationState]] = if (configDecorator.taxcalcEnabled) {
           taxCalculationService.getTaxCalculation(nino, year - 1) map {
-            case TaxCalculationSuccessResponse(taxCalc) => Some(taxCalc)
+            case TaxCalculationSuccessResponse(taxCalc) => {
+              Some(taxCalculationStateFactory.buildFromTaxCalculation(Some(taxCalc)))
+            }
             case _ => None
           }
-        }
-        else {
-          Future.successful(None)
+        } else {
+          Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
         }
 
         val taxSummary: Future[Option[TaxSummary]] = if (configDecorator.taxSummaryEnabled) {
@@ -89,15 +90,14 @@ class ApplicationController @Inject() (
             case TaxSummarySuccessResponse(ts) => Some(ts)
             case _ => None
           }
-        }
-        else {
+        } else {
           Future.successful(None)
         }
 
         for {
-          taxCalculation <- taxCalculation
+          taxCalculationState <- taxCalculationState
           taxSummary <- taxSummary
-        } yield (taxSummary, taxCalculation)
+        } yield (taxSummary, taxCalculationState)
       }
 
       val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
@@ -109,12 +109,12 @@ class ApplicationController @Inject() (
       showUserResearchBanner flatMap { showUserResearchBanner =>
         enforcePaperlessPreference {
           for {
-            (taxSummary, taxCalculation) <- serviceCallResponses
+            (taxSummary, taxCalculationState) <- serviceCallResponses
             saUserType <- saUserType
           } yield {
 
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-              pertaxContext.user, taxSummary, taxCalculationStateFactory.buildFromTaxCalculation(taxCalculation), saUserType)
+              pertaxContext.user, taxSummary, taxCalculationState, saUserType)
 
             val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummary)
 
