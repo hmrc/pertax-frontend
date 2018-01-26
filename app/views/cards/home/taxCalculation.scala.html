@@ -14,6 +14,7 @@
     case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlineApproachingStatus)) => (Messages("label.you_paid_too_little_tax_last_year"), "You paid too little tax last year")
     case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlinePassedStatus)) => (Messages("label.you_missed_the_deadline_to_pay_your_tax"), "You missed the deadline to pay your tax")
     case _:TaxCalculationOverpaidState => (Messages("label.you_paid_too_much_tax_last_year"), "You paid too much tax last year")
+    case _:TaxCalculationDisabledState => (Messages("label.your_income_tax_for_last_year"), "Your Income Tax for last year")
     case _ => ("", "")
   }
 }
@@ -94,6 +95,9 @@
       (Messages("label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year", startOfTaxYear.toString, endOfTaxYear.toString), List(
         (Messages("label.find_out_why_you_paid_too_little"), "/tax-you-paid/paid-too-little/reasons", "Find out why you paid too little")
       ))
+
+    case TaxCalculationDisabledState(startOfTaxYear, endOfTaxYear) =>
+      (Messages("label.check_to_see_if_you_paid_the_right_amount_of_tax_from_", startOfTaxYear.toString, endOfTaxYear.toString), List())
 
     case _ => ("", List())
   }
