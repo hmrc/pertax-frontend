@@ -57,8 +57,6 @@ class HomeCardGenerator {
 
   def getTaxCalculationCard(taxCalculationState: Option[TaxCalculationState])(implicit pertaxContext: PertaxContext, messages: Messages) = {
 
-    println(taxCalculationState)
-
     taxCalculationState match {
       case Some(TaxCalculationUnderpaidPaymentsDownState(_,_)) => None
       case Some(TaxCalculationUnkownState) => None
