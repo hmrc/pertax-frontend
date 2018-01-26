@@ -36,6 +36,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
 import services._
+import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
@@ -55,6 +56,7 @@ class AddressController @Inject() (
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
   val addressLookupService: AddressLookupService,
+  val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val sessionCache: LocalSessionCache,
   val auditConnector: PertaxAuditConnector,

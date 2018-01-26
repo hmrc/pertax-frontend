@@ -23,7 +23,7 @@ import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuth
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import play.api.i18n.{Messages, MessagesApi}
-import services.partials.PreferencesFrontendPartialService
+import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.LocalPartialRetriever
@@ -36,6 +36,7 @@ class PaperlessPreferencesController @Inject() (
   val userDetailsService: UserDetailsService,
   val preferencesFrontendService: PreferencesFrontendService,
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
+  val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val auditConnector: PertaxAuditConnector,
   val authConnector: PertaxAuthConnector,
