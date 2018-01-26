@@ -563,6 +563,8 @@ label.find_out_why_you_paid_too_little=Cael gwybod pam nad ydych wedi talu digon
 label.view_the_tax_you_paid=Gweld y dreth a dalwyd gennych
 label.get_more_information_about_when_your_p800_will_arrive=Cael rhagor o wybodaeth am bryd y bydd eich P800 yn cyrraedd
 label.get_more_information_about_the_tax_you_paid=Cael rhagor o wybodaeth am y dreth a daloch
+label.your_income_tax_for_last_year=Eich Treth Incwm am y flwyddyn ddiwethaf
+label.check_to_see_if_you_paid_the_right_amount_of_tax_from_=Gwiriwch eich bod wedi talu''r swm cywir o dreth o 6 Ebrill {0} i 5 Ebrill {1}.
 
 label.hmrc_owes_you_a_refund_for_the_to_tax_year=Mae ar CThEM ad-daliad o £{0} i chi ar gyfer blwyddyn dreth {1} i {2}.
 label.hmrc_is_processing_your_refund=Mae CThEM yn prosesu''ch ad-daliad o £{0}.

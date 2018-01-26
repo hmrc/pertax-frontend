@@ -41,6 +41,7 @@ case class TaxCalculationUnderpaidPaymentDueState(amount: BigDecimal, startOfTax
 case class TaxCalculationUnderpaidPartPaidState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[String], saDeadlineStatus: Option[SaDeadlineStatus]) extends TaxCalculationUnderpaidState with SaDeadlineStatus
 case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[String]) extends TaxCalculationUnderpaidState
 case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationUnderpaidState
+case class TaxCalculationDisabledState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
 
 case object TaxCalculationUnkownState extends TaxCalculationState
 
