@@ -103,13 +103,17 @@
   }
 }
 
-@cardHelper(
-  cardLinkHref = "/tax-you-paid/status",
-  gaAction = "Income",
-  gaLabel = heading._2,
-  tileTitle = heading._1,
-  tileText = contentAndLinks._1) {
+@card(
+  url = Some("/tax-you-paid/status"),
+  gaAction = Some("Income"),
+  gaLabel = Some(heading._2),
+  heading = heading._1,
+  headingTag = "h3",
+  bodyContent = Some(Html("<p>" + contentAndLinks._1 + "</p>"))
+) {
+    <ul>
     @contentAndLinks._2.map { case (label, url, trackingLabel) =>
       <li><a class="ga-track-anchor-click" href="@url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">@label</a></li>
     }
+    </ul>
   }

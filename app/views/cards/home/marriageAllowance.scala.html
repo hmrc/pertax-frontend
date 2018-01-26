@@ -10,15 +10,19 @@
   }
 }
 
-@cardHelper(
-  cardLinkHref = "/marriage-allowance-application/history",
-  gaAction = "Benefits",
-  gaLabel = "Marriage Allowance",
-  tileTitle = Messages("title.marriage_allowance"),
-  tileText = cardContent) {
+@card(
+  url = Some("/marriage-allowance-application/history"),
+  gaAction = Some("Benefits"),
+  gaLabel = Some("Marriage Allowance"),
+  heading = Messages("title.marriage_allowance"),
+  headingTag = "h3",
+  bodyContent = Some(Html("<p>" + cardContent + "</p>"))
+){
+    <ul>
     @if(taxSummary.map(_.notMarriageAllowanceCustomer).getOrElse(true)) {
       <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/how-it-works" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
     } else {
       <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/make-changes" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Manage your Marriage Allowance">@Messages("label.manage_your_marriage_allowance")</a></li>
     }
+    </ul>
 }
