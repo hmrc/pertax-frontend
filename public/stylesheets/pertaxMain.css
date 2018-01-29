@@ -104,48 +104,133 @@
   }
 }
 .card {
-  margin-bottom: 30px;
+  flex-grow: 0;
+  flex-basis: 100%;
+  margin-bottom: 2em;
 }
 
-.card-link {
-  min-height: 160px;
-  display: block;
+@media screen and (min-width: 600px) and (max-width: 900px) {
+  .card {
+    flex-basis: 45.99%;
+  }
+  .card:nth-child(2n-1) {
+    margin-right: 3%;
+  }
+  .card:nth-child(2n-2) {
+    margin-left: 3%;
+  }
+}
+@media screen and (min-width: 900px) {
+  .card {
+    flex-basis: 31%;
+  }
+  .card:nth-child(3n-1) {
+    margin-left: 3%;
+    margin-right: 3%;
+  }
+}
+html[data-useragent*='MSIE 10.0'] .flex-container .card {
+  flex-basis: 31%;
+  margin: 3%;
+}
+
+.card {
+  border: 1px solid #dee0e2;
+  font-size: 16px;
+}
+.card.inactive {
+  color: #6f777b;
+}
+.card .card-heading {
+  margin-top: 0;
+}
+.card .card-body {
+  border-bottom: 1px solid #dee0e2;
   padding: 12px;
-  text-decoration: none;
+}
+.card .card-body *:last-child {
+  margin-bottom: 0;
+}
+.card .card-body.active {
   background-color: #f8f8f8;
+  transition: .1s ease-in-out;
 }
-.card-link h3 {
+.card .card-body.active .card-heading a {
   color: #005ea5;
+  margin-top: 0;
 }
-.card-link:hover {
-  background: #005ea5;
+.card .card-body .detail-large {
+  color: #6f777b;
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
-.card-link:hover h3,
-.card-link:hover p {
-  color: #fff;
+.card .card-body .detail {
+  font-weight: 600;
+  margin-bottom: 8px;
 }
-.card-link:focus {
-  background-color: #005ea5;
-}
-.card-link:focus h3,
-.card-link:focus p {
-  color: #fff;
-}
-
-.card-actions {
-  min-height: 40px;
-  border: 1px solid #f8f8f8;
+.card .card-action {
   border-top: 0;
   padding: 12px;
 }
-.card-actions ul {
+.card .card-action a {
+  display: inline;
+  border-bottom: 1px solid #C7DCEB;
+  color: #005ea5;
+  line-height: 1.5em;
+}
+.card .card-action a:link, .card .card-action a:visited {
+  color: #005ea5;
+}
+.card .card-action a:hover {
+  text-decoration: none;
+  border-bottom: 1px solid #005ea5;
+  color: #2e8aca;
+}
+.card .card-action ul {
   margin: 0;
 }
-.card-actions ul li {
+.card .card-action ul li {
   margin: 0 0 1em;
 }
-.card-actions ul li:last-child {
+.card .card-action ul li:last-child {
   margin-bottom: 0;
+}
+
+.js .card-body.active:hover {
+  background-color: #005ea5;
+  color: #fff;
+  cursor: pointer;
+  transition: .1s ease-in-out;
+  transition-delay: .25s;
+}
+.js .card-body.active:hover .card-heading, .js .card-body.active:hover p {
+  color: #fff;
+  transition: .1s ease-in-out;
+  transition-delay: .25s;
+}
+.js .card-body.active:hover .card-heading a {
+  color: #fff;
+  transition-delay: .25s;
+}
+.js .card-body.active:hover .detail-large {
+  color: #fff;
+  transition-delay: .25s;
+}
+.js .card-body.active a {
+  text-decoration: none;
+}
+
+.flex-container {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 0 15px;
 }
 
 table {
@@ -302,7 +387,7 @@ address {
 @media (min-width: 641px) {
   .column-third {
     float: left;
-    width: 33.33333%;
+    width: 33.3333333333%;
   }
 }
 
@@ -313,7 +398,7 @@ address {
 @media (min-width: 641px) {
   .column-two-thirds {
     float: left;
-    width: 66.66667%;
+    width: 66.6666666667%;
   }
 }
 
@@ -1094,7 +1179,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-third {
     float: left;
-    width: 33.33333%;
+    width: 33.3333333333%;
   }
 }
 @media (min-width: 641px) {
@@ -1106,7 +1191,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-two-thirds {
     float: left;
-    width: 66.66667%;
+    width: 66.6666666667%;
   }
 }
 @media (min-width: 641px) {

@@ -4,9 +4,9 @@
 
 @cardContent = @{
   saActionNeeded match {
-    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_")
-    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => Messages("label.use_your_activation_code_to_access_this_service_")
-    case AmbiguousFilerSelfAssessmentUser(saUtr) => Messages("label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_")
+    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => "<p>" + Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_") + "</p>"
+    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => "<p>" + Messages("label.use_your_activation_code_to_access_this_service_") + "</p>"
+    case AmbiguousFilerSelfAssessmentUser(saUtr) => "<p>" + Messages("label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_") + "</p>"
     case _ => {""}
   }
 }
@@ -27,11 +27,15 @@
   }
 }
 
-@cardHelper(
-  cardLinkHref = cardLink.url,
-  gaAction = "Income",
-  gaLabel = "Self Assessment",
-  tileTitle = Messages("label.self_assessment"),
-  tileText = cardContent) {
-      @cardAction
+@card(
+  url = Some(cardLink.url),
+  gaAction = Some("Income"),
+  gaLabel = Some("Self Assessment"),
+  heading = Messages("label.self_assessment"),
+  headingTag = "h3",
+  bodyContent = Some(Html(cardContent))
+){
+      <ul>
+        @cardAction
+      </ul>
   }

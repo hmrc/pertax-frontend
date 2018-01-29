@@ -2,12 +2,16 @@
 
 @import tags._
 
-@cardHelper(
-  cardLinkHref = "/check-your-state-pension/account/pta",
-  gaAction = "Pensions",
-  gaLabel = "State Pension",
-  tileTitle = Messages("title.state_pension"),
-  tileText = Messages("label.view_your_state_pension_and_national_insurance_contributions")) {
+@card(
+  url = Some("/check-your-state-pension/account/pta"),
+  gaAction = Some("Pensions"),
+  gaLabel = Some("State Pension"),
+  heading = Messages("title.state_pension"),
+  headingTag = "h3",
+  bodyContent = Some(Html("<p>" + Messages("label.view_your_state_pension_and_national_insurance_contributions") + "</p>"))
+) {
+    <ul>
       <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your State Pension forecast">@Messages("label.view_your_state_pension_forecast")</a></li>
       <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your National Insurance record">@Messages("label.view_your_national_insurance_record")</a></li>
+    </ul>
   }

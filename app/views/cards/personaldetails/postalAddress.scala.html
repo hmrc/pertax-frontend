@@ -1,5 +1,7 @@
 @(personDetails: models.PersonDetails, canUpdatePostalAddress: Boolean)(implicit messages: play.api.i18n.Messages)
 
+@import tags._
+
 @import controllers.bindable.PostalAddrType
 
 @cardContent = {
@@ -14,36 +16,25 @@
   <p>@Messages("label.all_your_letters_will_be_sent_to_this_address")</p>
 }
 
-<div class="card column-third">
-  @if(canUpdatePostalAddress){
-    <a class="card-link ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
-  } else {
-    <div class="card-link">
-  }
-  <div class="card-content" role="link">
-    <h3 class="heading-small no-margin-top">@Messages("label.postal_address")</h3>
-    @cardContent
-  </div>
-  @if(canUpdatePostalAddress){
-    </a>
-  } else {
-    </div>
-  }
-
-  <div class="visuallyhidden">
-    <h3>@Messages("label.postal_address")</h3>
-    @cardContent
-  </div>
-
-  <div class="card-actions">
+@if(canUpdatePostalAddress) {
+  @card(
+    url = Some(controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType).url),
+    gaAction = Some("Postal address"),
+    gaLabel = Some("Postal address"),
+    heading = Messages("label.postal_address"),
+    bodyContent = Some(cardContent)
+  ){
     <ul>
       <li>
-        @if(canUpdatePostalAddress) {
-          <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@Messages("label.change_your_postal_address")</a>
-        } else {
-          <p>@Messages("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow")</p>
-        }
+        <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@Messages("label.change_your_postal_address")</a>
       </li>
     </ul>
-  </div>
-</div>
+  }
+} else {
+  @card(
+    heading = Messages("label.postal_address"),
+    bodyContent = Some(cardContent)
+  ){
+    <p>@Messages("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow")</p>
+  }
+}
