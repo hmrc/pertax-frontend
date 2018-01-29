@@ -1,0 +1,12 @@
+.button--payment, .button--payment:visited {
+    background-color: $govuk-blue;
+}
+
+.button--payment:hover, .button--payment:focus  {
+    background-color: darken($govuk-blue, 5%);
+}
+
+.button--payment:active {
+    top: 2px;
+    box-shadow: 0 0 0 $govuk-blue;
+}
