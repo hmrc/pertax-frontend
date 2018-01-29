@@ -152,6 +152,19 @@ table {
   margin-bottom: 1.57895em;
 }
 
+.button--payment, .button--payment:visited {
+  background-color: #005ea5;
+}
+
+.button--payment:hover, .button--payment:focus {
+  background-color: #004f8c;
+}
+
+.button--payment:active {
+  top: 2px;
+  box-shadow: 0 0 0 #005ea5;
+}
+
 .lang-select {
   border-bottom: 0px;
   float: right;
@@ -302,7 +315,7 @@ address {
 @media (min-width: 641px) {
   .column-third {
     float: left;
-    width: 33.33333%;
+    width: 33.3333333333%;
   }
 }
 
@@ -313,7 +326,7 @@ address {
 @media (min-width: 641px) {
   .column-two-thirds {
     float: left;
-    width: 66.66667%;
+    width: 66.6666666667%;
   }
 }
 
@@ -1094,7 +1107,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-third {
     float: left;
-    width: 33.33333%;
+    width: 33.3333333333%;
   }
 }
 @media (min-width: 641px) {
@@ -1106,7 +1119,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-two-thirds {
     float: left;
-    width: 66.66667%;
+    width: 66.6666666667%;
   }
 }
 @media (min-width: 641px) {
