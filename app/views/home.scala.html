@@ -21,36 +21,25 @@
   </div>
 
 
-  <div class="grid-row pertax-home">
-    <div class="column-full" role="main">
+  <div class="pertax-home" role="main">
 
-      <section>
-        <h2 class="section-header flush--top">@Messages("title.income")</h2>
-        <div class="grid-row">
-          <div class="flex-container">
-            @incomeCards
-          </div>
-        </div>
-      </section>
+    <h2 class="section-header flush--top">@Messages("title.income")</h2>
 
-      <section>
-        <h2 class="section-header flush--top">@Messages("title.benefits")</h2>
-        <div class="grid-row">
-          <div class="flex-container">
-            @benefitCards
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <h2 class="section-header flush--top">@Messages("title.pensions")</h2>
-        <div class="grid-row">
-          <div class="flex-container">
-            @pensionCards
-          </div>
-        </div>
-      </section>
-
+    <div class="flex-container grid-row">
+      @incomeCards
     </div>
+
+    <h2 class="section-header flush--top">@Messages("title.benefits")</h2>
+
+    <div class="flex-container grid-row">
+      @benefitCards
+    </div>
+
+    <h2 class="section-header flush--top">@Messages("title.pensions")</h2>
+
+    <div class="flex-container grid-row">
+      @pensionCards
+    </div>
+
   </div>
 }

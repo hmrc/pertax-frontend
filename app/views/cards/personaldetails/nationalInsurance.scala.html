@@ -2,26 +2,21 @@
 
 @(nino: Nino)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-<div class="card column-third">
-  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="@controllers.routes.InterstitialController.displayNationalInsurance" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="National Insurance">
-    <div class="card-content" role="link">
-      <h3 class="heading-small no-margin-top">@messages("label.national_insurance")</h3>
-      <p><strong>@formattedNino(nino)</strong></p>
-      <p>@Messages("label.your_national_insurance_number_is_your_unique_identifier")</p>
-    </div>
-  </a>
+@cardContent = {
+  <p><strong>@formattedNino(nino)</strong></p>
+  <p>@Messages("label.your_national_insurance_number_is_your_unique_identifier")</p>
+}
 
-  <div class="visuallyhidden">
-    <h3>@messages("label.national_insurance")</h3>
-    <p><strong>@formattedNino(nino)</strong></p>
-    <p>@Messages("label.your_national_insurance_number_is_your_unique_identifier")</p>
-  </div>
-
-  <div class="card-actions">
-    <ul>
-      <li><a class="ga-track-anchor-click" href="@controllers.routes.PrintController.printNationalInsuranceNumber()" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">@Messages("label.print_your_national_insurance_letter")</a></li>
-      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="View gaps in your record">@Messages("label.view_gaps_in_your_record")</a></li>
-      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Check your State Pension">@Messages("label.check_your_state_pension")</a></li>
-    </ul>
-  </div>
-</div>
+@card(
+  url = Some(controllers.routes.InterstitialController.displayNationalInsurance.url),
+  gaAction = Some("National Insurance"),
+  gaLabel = Some("National Insurance"),
+  heading = Messages("label.national_insurance"),
+  bodyContent = Some(cardContent)
+){
+  <ul>
+    <li><a class="ga-track-anchor-click" href="@controllers.routes.PrintController.printNationalInsuranceNumber()" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">@Messages("label.print_your_national_insurance_letter")</a></li>
+    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="View gaps in your record">@Messages("label.view_gaps_in_your_record")</a></li>
+    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Check your State Pension">@Messages("label.check_your_state_pension")</a></li>
+  </ul>
+}

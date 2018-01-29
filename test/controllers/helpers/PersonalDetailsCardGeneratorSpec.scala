@@ -89,22 +89,13 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-third">
-            |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
-            |    <div class="card-content" role="link">
-            |      <h3 class="heading-small no-margin-top">Main address</h3>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |    </div>
-            |  </a>
-            |  <div class="visuallyhidden">
-            |    <h3>Main address</h3>
+          """<div class="card">
+            |  <div class="card-body active">
+            |    <h2 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
+            |          Main address
+            |        </a>
+            |    </h2>
             |  <p><strong>
             |        1 Fake Street<br>
             |        Fake Town<br>
@@ -114,12 +105,12 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |    <p>This has been your main home since 15 March 2015.</p>
             |  </div>
-            |  <div class="card-actions">
-            |    <ul>
-            |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |      </li>
-            |    </ul>
+            |  <div class="card-action">
+            |  <ul>
+            |    <li>
+            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
+            |    </li>
+            |  </ul>
             |  </div>
             |</div>""".stripMargin)
     }
@@ -131,22 +122,13 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-third">
-            |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
-            |    <div class="card-content" role="link">
-            |      <h3 class="heading-small no-margin-top">Main address</h3>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |    </div>
-            |  </a>
-            |  <div class="visuallyhidden">
-            |    <h3>Main address</h3>
+          """<div class="card">
+            |  <div class="card-body active">
+            |    <h2 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
+            |          Main address
+            |        </a>
+            |    </h2>
             |  <p><strong>
             |        1 Fake Street<br>
             |        Fake Town<br>
@@ -156,15 +138,15 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |    <p>This has been your main home since 15 March 2015.</p>
             |  </div>
-            |  <div class="card-actions">
-            |    <ul>
-            |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |      </li>
-            |        <li>
-            |          <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">Change where we send your letters</a>
-            |        </li>
-            |    </ul>
+            |  <div class="card-action">
+            |  <ul>
+            |    <li>
+            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
+            |    </li>
+            |    <li>
+            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">Change where we send your letters</a>
+            |    </li>
+            |  </ul>
             |  </div>
             |</div>""".stripMargin)
     }
@@ -176,22 +158,13 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-third">
-            |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
-            |    <div class="card-content" role="link">
-            |      <h3 class="heading-small no-margin-top">Main address</h3>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |    </div>
-            |  </a>
-            |  <div class="visuallyhidden">
-            |    <h3>Main address</h3>
+          """<div class="card">
+            |  <div class="card-body active">
+            |    <h2 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
+            |          Main address
+            |        </a>
+            |    </h2>
             |  <p><strong>
             |        1 Fake Street<br>
             |        Fake Town<br>
@@ -201,14 +174,15 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |    <p>This has been your main home since 15 March 2015.</p>
             |  </div>
-            |  <div class="card-actions">
-            |    <ul>
-            |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |      </li>
-            |    </ul>
+            |  <div class="card-action">
+            |  <ul>
+            |    <li>
+            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
+            |    </li>
+            |  </ul>
             |  </div>
             |</div>""".stripMargin)
+
     }
 
     "return the correct markup when tax credits is disabled" in new MainAddressSetup {
@@ -218,22 +192,13 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-third">
-            |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main Address">
-            |    <div class="card-content" role="link">
-            |      <h3 class="heading-small no-margin-top">Main address</h3>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |    </div>
-            |  </a>
-            |  <div class="visuallyhidden">
-            |    <h3>Main address</h3>
+          """<div class="card">
+            |  <div class="card-body active">
+            |    <h2 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
+            |          Main address
+            |        </a>
+            |    </h2>
             |  <p><strong>
             |        1 Fake Street<br>
             |        Fake Town<br>
@@ -243,14 +208,15 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |    <p>This has been your main home since 15 March 2015.</p>
             |  </div>
-            |  <div class="card-actions">
-            |    <ul>
-            |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |      </li>
-            |    </ul>
+            |  <div class="card-action">
+            |  <ul>
+            |    <li>
+            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
+            |    </li>
+            |  </ul>
             |  </div>
             |</div>""".stripMargin)
+
     }
   }
 
@@ -314,10 +280,13 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-third">
-            |    <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
-            |  <div class="card-content" role="link">
-            |    <h3 class="heading-small no-margin-top">Postal address</h3>
+          """<div class="card">
+            |  <div class="card-body active">
+            |    <h2 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
+            |          Postal address
+            |        </a>
+            |    </h2>
             |  <p><strong>
             |      1 Fake Street<br>
             |      Fake Town<br>
@@ -327,26 +296,15 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |  <p>All your letters will be sent to this address.</p>
             |  </div>
-            |    </a>
-            |  <div class="visuallyhidden">
-            |    <h3>Postal address</h3>
-            |  <p><strong>
-            |      1 Fake Street<br>
-            |      Fake Town<br>
-            |      Fake City<br>
-            |      Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |  <p>All your letters will be sent to this address.</p>
-            |  </div>
-            |  <div class="card-actions">
+            |  <div class="card-action">
             |    <ul>
             |      <li>
-            |          <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">Change your postal address</a>
+            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">Change your postal address</a>
             |      </li>
             |    </ul>
             |  </div>
             |</div>""".stripMargin)
+
     }
 
     "return the correct markup when there is a correspondence address and the postal address cannot be updated" in new PostalAddressSetup {
@@ -356,10 +314,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          """<div class="card column-third">
-            |    <div class="card-link">
-            |  <div class="card-content" role="link">
-            |    <h3 class="heading-small no-margin-top">Postal address</h3>
+          """<div class="card">
+            |  <div class="card-body ">
+            |    <h2 class="heading-small card-heading">
+            |        Postal address
+            |    </h2>
             |  <p><strong>
             |      1 Fake Street<br>
             |      Fake Town<br>
@@ -369,24 +328,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
             |  </strong></p>
             |  <p>All your letters will be sent to this address.</p>
             |  </div>
-            |    </div>
-            |  <div class="visuallyhidden">
-            |    <h3>Postal address</h3>
-            |  <p><strong>
-            |      1 Fake Street<br>
-            |      Fake Town<br>
-            |      Fake City<br>
-            |      Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |  <p>All your letters will be sent to this address.</p>
-            |  </div>
-            |  <div class="card-actions">
-            |    <ul>
-            |      <li>
-            |          <p>You can only change this address once a day. Please try again tomorrow.</p>
-            |      </li>
-            |    </ul>
+            |  <div class="card-action">
+            |    <p>You can only change this address once a day. Please try again tomorrow.</p>
             |  </div>
             |</div>""".stripMargin)
     }
@@ -403,27 +346,24 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe
         Some(
-          s"""<div class="card column-third">
-             |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/personal-account/national-insurance-summary" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="National Insurance">
-             |    <div class="card-content" role="link">
-             |      <h3 class="heading-small no-margin-top">National Insurance</h3>
-             |      <p><strong>${formattedNino(pertaxUser.get.nino.get)}</strong></p>
-             |      <p>Your National Insurance number is your unique identifier.</p>
-             |    </div>
-             |  </a>
-             |  <div class="visuallyhidden">
-             |    <h3>National Insurance</h3>
-             |    <p><strong>${formattedNino(pertaxUser.get.nino.get)}</strong></p>
-             |    <p>Your National Insurance number is your unique identifier.</p>
-             |  </div>
-             |  <div class="card-actions">
-             |    <ul>
-             |      <li><a class="ga-track-anchor-click" href="/personal-account/national-insurance-summary/print-letter" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">Print your National Insurance letter</a></li>
-             |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="View gaps in your record">View gaps in your record</a></li>
-             |      <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Check your State Pension">Check your State Pension</a></li>
-             |    </ul>
-             |  </div>
-             |</div>""".stripMargin)
+          s"""<div class="card">
+            |  <div class="card-body active">
+            |    <h2 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/personal-account/national-insurance-summary" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="National Insurance">
+            |          National Insurance
+            |        </a>
+            |    </h2>
+            |  <p><strong>${formattedNino(pertaxUser.get.nino.get)}</strong></p>
+            |  <p>Your National Insurance number is your unique identifier.</p>
+            |  </div>
+            |  <div class="card-action">
+            |  <ul>
+            |    <li><a class="ga-track-anchor-click" href="/personal-account/national-insurance-summary/print-letter" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">Print your National Insurance letter</a></li>
+            |    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="View gaps in your record">View gaps in your record</a></li>
+            |    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Check your State Pension">Check your State Pension</a></li>
+            |  </ul>
+            |  </div>
+            |</div>""".stripMargin)
     }
   }
 }
