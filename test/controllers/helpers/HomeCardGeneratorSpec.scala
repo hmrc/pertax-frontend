@@ -73,13 +73,26 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe None
     }
 
-    "return nothing when called with with a Pertax user that is PAYE but has no tax summary" in new LocalSetup {
+    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but has no tax summary" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
       val hasTaxSummary = false
       val iabdType = 0
 
-      cardBody shouldBe None
+      cardBody shouldBe
+        Some(
+          """<div class="card">
+            |  <div class="card-body active">
+            |    <h3 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
+            |          Pay As You Earn (PAYE)
+            |        </a>
+            |    </h3>
+            |    <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
+            |  </div>
+            |  <div class="card-action">
+            |  </div>
+            |</div>""".stripMargin)
     }
 
     "return correct markup when called with with a Pertax user that is PAYE with company benefits" in new LocalSetup {
@@ -100,11 +113,11 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |    <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
             |  </div>
             |  <div class="card-action">
-            |  <ul>
-            |    <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your Income Tax estimate">View your Income Tax estimate</a></li>
-            |    <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check how much tax you paid last year">Check how much tax you paid last year</a></li>
-            |    <li><a class="ga-track-anchor-click" href="/check-income-tax/taxable-income" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your company benefits">View your company benefits</a></li>
-            |  </ul>
+            |    <ul>
+            |      <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your Income Tax estimate">View your Income Tax estimate</a></li>
+            |      <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check how much tax you paid last year">Check how much tax you paid last year</a></li>
+            |      <li><a class="ga-track-anchor-click" href="/check-income-tax/taxable-income" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your company benefits">View your company benefits</a></li>
+            |    </ul>
             |  </div>
             |</div>""".stripMargin)
     }
@@ -127,11 +140,11 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |    <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
             |  </div>
             |  <div class="card-action">
-            |  <ul>
-            |    <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your Income Tax estimate">View your Income Tax estimate</a></li>
-            |    <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check how much tax you paid last year">Check how much tax you paid last year</a></li>
-            |    <li><a class="ga-track-anchor-click" href="/check-income-tax/tax-codes" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Understand your tax code">Understand your tax code</a></li>
-            |  </ul>
+            |    <ul>
+            |      <li><a class="ga-track-anchor-click" href="/check-income-tax/income-tax" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your Income Tax estimate">View your Income Tax estimate</a></li>
+            |      <li><a class="ga-track-anchor-click" href="/check-income-tax/last-year-paye" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check how much tax you paid last year">Check how much tax you paid last year</a></li>
+            |      <li><a class="ga-track-anchor-click" href="/check-income-tax/tax-codes" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Understand your tax code">Understand your tax code</a></li>
+            |    </ul>
             |  </div>
             |</div>""".stripMargin)
     }

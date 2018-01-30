@@ -50,7 +50,13 @@ class HomeCardGenerator {
   def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary])(implicit messages: Messages) = {
 
     pertaxUser match {
-      case Some(u) if u.isPaye => taxSummary.map(ts => views.html.cards.home.payAsYouEarn(ts.isCompanyBenefitRecipient))
+
+      case Some(u) if u.isPaye =>
+
+        taxSummary match {
+          case Some(ts) => Some(views.html.cards.home.payAsYouEarn(ts.isCompanyBenefitRecipient, displayCardActions = true))
+          case None => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
+        }
       case _ => None
     }
   }

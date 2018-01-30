@@ -224,7 +224,6 @@ label.activate_your_self_assessment=Cychwyn eich Hunanasesiad
 label.you_need_to_activate_your_self_assessment_registration_using_your_=Mae angen i chi gychwyn eich cofrestriad Hunanasesiad drwy ddefnyddio''ch cod cychwn.<br /><br />Anfonwyd eich cod cychwyn atoch drwy''r post pan wnaethoch gofrestru i wneud eich Hunanasesiad ar-lein.<br /><br />Os oes mwy na 10 diwrnod gwaith wedi mynd heibio (21 os ydych dramor) ac nad yw wedi dod i law <a href="{0}" target="_blank" rel="noopener noreferrer">cysylltwch â''r Ddesg Gymorth Gwasanaethau Ar-lein (yn agor ffenestr newydd)</a>.
 
 label.income_tax=Treth incwm
-label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
 label.understand_your_tax_code=Deall eich cod treth
 label.benefits_and_tax_credits=Budd-daliadau a chredydau treth
 label.do_you_get_tax_credits=A ydych yn cael credydau treth?
