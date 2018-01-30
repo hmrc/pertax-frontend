@@ -492,22 +492,21 @@ class HomeCardGeneratorSpec extends BaseSpec {
       val taxCalcState = TaxCalculationDisabledState(2015, 2016)
 
       cardBody shouldBe
-        Some("""<div class="card column-third">
-               |  <a class="card-link ga-track-anchor-click" aria-hidden="true" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Your Income Tax for last year">
-               |    <h3 class="heading-small no-margin-top">Your Income Tax for last year</h3>
-               |    <p>Check to see if you paid the right amount of tax from 6 April 2015 to 5 April 2016.</p>
-               |  </a>
-               |  <div class="visuallyhidden">
-               |    <h3>Your Income Tax for last year</h3>
+        Some("""<div class="card">
+               |  <div class="card-body active">
+               |    <h3 class="heading-small card-heading">
+               |        <a class="card-link ga-track-anchor-click" href="/tax-you-paid/status" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Your Income Tax for last year">
+               |          Your Income Tax for last year
+               |        </a>
+               |    </h3>
                |    <p>Check to see if you paid the right amount of tax from 6 April 2015 to 5 April 2016.</p>
                |  </div>
-               |  <div class="card-actions">
+               |  <div class="card-action">
                |    <ul>
                |    </ul>
                |  </div>
                |</div>""".stripMargin)
     }
-
   }
 
 
