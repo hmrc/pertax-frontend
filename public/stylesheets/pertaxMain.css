@@ -400,7 +400,7 @@ address {
 @media (min-width: 641px) {
   .column-third {
     float: left;
-    width: 33.3333333333%;
+    width: 33.33333%;
   }
 }
 
@@ -411,7 +411,7 @@ address {
 @media (min-width: 641px) {
   .column-two-thirds {
     float: left;
-    width: 66.6666666667%;
+    width: 66.66667%;
   }
 }
 
@@ -1192,7 +1192,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-third {
     float: left;
-    width: 33.3333333333%;
+    width: 33.33333%;
   }
 }
 @media (min-width: 641px) {
@@ -1204,7 +1204,7 @@ body .webchat-container.self-assessment {
 @media (min-width: 641px) and (min-width: 641px) {
   body.print-page .column-two-thirds {
     float: left;
-    width: 66.6666666667%;
+    width: 66.66667%;
   }
 }
 @media (min-width: 641px) {
