@@ -43,41 +43,74 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def hasPertaxUser: Boolean
       def isPayeUser: Boolean
-      def hasTaxSummary: Boolean
       def iabdType: Int
+      def taxSummaryState: TaxSummaryState
 
-      lazy val taxSummary = if (hasTaxSummary) Some(Fixtures.buildTaxSummary.copy(companyBenefits = Seq(iabdType))) else None
+      lazy val fakeTaxSummary = Fixtures.buildTaxSummary.copy(companyBenefits = Seq(iabdType))
 
       lazy val pertaxUser = if(hasPertaxUser)
         Some(PertaxUser(Fixtures.buildFakeAuthContext(withPaye = isPayeUser),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
       else None
 
-      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxSummary).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxSummaryState).map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
     }
 
     "return nothing when called with no Pertax user" in new LocalSetup {
       val hasPertaxUser = false
       val isPayeUser = false
-      val hasTaxSummary = false
       val iabdType = 0
+      val taxSummaryState = TaxSummaryUnreachableState
 
       cardBody shouldBe None
+
     }
 
     "return nothing when called with a Pertax user that is not PAYE" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = false
-      val hasTaxSummary = false
       val iabdType = 0
+      val taxSummaryState = TaxSummaryUnreachableState
 
       cardBody shouldBe None
     }
 
-    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but has no tax summary" in new LocalSetup {
+    "return no content when called with with a Pertax user that is PAYE but has no tax summary" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val hasTaxSummary = false
       val iabdType = 0
+      val taxSummaryState = TaxSummaryNotAvailiableState
+
+      cardBody shouldBe None
+    }
+
+    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but there was an error calling the endpoint" in new LocalSetup {
+      val hasPertaxUser = true
+      val isPayeUser = true
+      val iabdType = 0
+      val taxSummaryState = TaxSummaryUnreachableState
+
+      cardBody shouldBe
+        Some(
+          """<div class="card">
+            |  <div class="card-body active">
+            |    <h3 class="heading-small card-heading">
+            |        <a class="card-link ga-track-anchor-click" href="/check-income-tax/what-do-you-want-to-do" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Pay As You Earn (PAYE)">
+            |          Pay As You Earn (PAYE)
+            |        </a>
+            |    </h3>
+            |    <p>Your income from employers and private pensions that is taxed before it is paid to you.</p>
+            |  </div>
+            |  <div class="card-action">
+            |  </div>
+            |</div>""".stripMargin)
+    }
+
+    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in new LocalSetup {
+      val hasPertaxUser = true
+      val isPayeUser = true
+      //      val hasTaxSummary = false
+      val iabdType = 0
+      val taxSummaryState = TaxSummaryDisabledState
 
       cardBody shouldBe
         Some(
@@ -98,8 +131,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with with a Pertax user that is PAYE with company benefits" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val hasTaxSummary = true
       val iabdType = 31
+      val taxSummaryState = TaxSummaryAvailiableState(fakeTaxSummary)
 
       cardBody shouldBe
         Some(
@@ -125,8 +158,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with with a Pertax user that is PAYE without company benefits" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val hasTaxSummary = true
       val iabdType = 0
+      val taxSummaryState = TaxSummaryAvailiableState(fakeTaxSummary)
 
       cardBody shouldBe
         Some(
