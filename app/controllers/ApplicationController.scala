@@ -71,7 +71,7 @@ class ApplicationController @Inject() (
 
       val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
 
-      val serviceCallResponses = userAndNino.fold[Future[(Option[TaxSummary],Option[TaxCalculationState])]](Future.successful( (None, None) )) { userAndNino =>
+      val serviceCallResponses = userAndNino.fold[Future[(TaxSummaryState,Option[TaxCalculationState])]](Future.successful( (TaxSummaryDisabledState, None) )) { userAndNino =>
 
         val (user, nino) = userAndNino
 
@@ -86,19 +86,23 @@ class ApplicationController @Inject() (
           Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
         }
 
-        val taxSummary: Future[Option[TaxSummary]] = if (configDecorator.taxSummaryEnabled) {
+        val taxSummaryState: Future[TaxSummaryState] = if (configDecorator.taxSummaryEnabled) {
           taiService.taxSummary(nino, year) map {
-            case TaxSummarySuccessResponse(ts) => Some(ts)
-            case _ => None
+            case TaxSummarySuccessResponse(ts) =>
+              TaxSummaryAvailiableState(ts)
+            case TaxSummaryNotFoundResponse =>
+              TaxSummaryNotAvailiableState
+            case _ =>
+              TaxSummaryUnreachableState
           }
         } else {
-          Future.successful(None)
+          Future.successful(TaxSummaryDisabledState)
         }
 
         for {
           taxCalculationState <- taxCalculationState
-          taxSummary <- taxSummary
-        } yield (taxSummary, taxCalculationState)
+          taxSummaryState <- taxSummaryState
+        } yield (taxSummaryState, taxCalculationState)
       }
 
       val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
@@ -110,14 +114,14 @@ class ApplicationController @Inject() (
       showUserResearchBanner flatMap { showUserResearchBanner =>
         enforcePaperlessPreference {
           for {
-            (taxSummary, taxCalculationState) <- serviceCallResponses
+            (taxSummaryState, taxCalculationState) <- serviceCallResponses
             saUserType <- saUserType
           } yield {
 
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-              pertaxContext.user, taxSummary, taxCalculationState, saUserType)
+              pertaxContext.user, taxSummaryState, taxCalculationState, saUserType)
 
-            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummary)
+            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxSummary)
 
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(pertaxContext.user)
 

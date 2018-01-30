@@ -16,7 +16,6 @@
 
 package models
 
-import java.text.SimpleDateFormat
 import javax.inject.{Inject, Singleton}
 
 import controllers.AddressControllerConfiguration
