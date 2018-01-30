@@ -28,10 +28,10 @@ import util.DateTimeTools.previousAndCurrentTaxYear
 @Singleton
 class HomeCardGenerator {
 
-  def getIncomeCards(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary],
+  def getIncomeCards(pertaxUser: Option[PertaxUser], taxSummaryState: TaxSummaryState,
                      taxCalculationState: Option[TaxCalculationState],
                      saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
-    getPayAsYouEarnCard(pertaxUser, taxSummary),
+    getPayAsYouEarnCard(pertaxUser, taxSummaryState),
     getTaxCalculationCard(taxCalculationState),
     getSelfAssessmentCard(saActionNeeded),
     getNationalInsuranceCard()
@@ -47,15 +47,17 @@ class HomeCardGenerator {
     getStatePensionCard()
   ).flatten
 
-  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxSummary: Option[TaxSummary])(implicit messages: Messages) = {
+  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxSummaryState: TaxSummaryState)(implicit messages: Messages) = {
 
     pertaxUser match {
 
       case Some(u) if u.isPaye =>
 
-        taxSummary match {
-          case Some(ts) => Some(views.html.cards.home.payAsYouEarn(ts.isCompanyBenefitRecipient, displayCardActions = true))
-          case None => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
+        taxSummaryState match {
+          case TaxSummaryAvailiableState(ts) => Some(views.html.cards.home.payAsYouEarn(ts.isCompanyBenefitRecipient, displayCardActions = true))
+          case TaxSummaryDisabledState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
+          case TaxSummaryUnreachableState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
+          case TaxSummaryNotAvailiableState => None
         }
       case _ => None
     }

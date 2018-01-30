@@ -34,7 +34,7 @@ import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 sealed trait TaxSummaryResponse
 case class TaxSummarySuccessResponse(taxSummary: TaxSummary) extends TaxSummaryResponse
-case object TaxSummaryNotFoundResponse extends TaxSummaryResponse
+case object TaxSummaryUnavailiableResponse extends TaxSummaryResponse
 case class TaxSummaryUnexpectedResponse(r: HttpResponse) extends TaxSummaryResponse
 case class TaxSummaryErrorResponse(cause: Exception) extends TaxSummaryResponse
 
@@ -56,10 +56,10 @@ class TaiService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) ex
             t.completeTimerAndIncrementSuccessCounter()
             TaxSummarySuccessResponse(TaxSummary.fromJsonTaxSummaryDetails(r.json))
 
-          case r if r.status == NOT_FOUND =>
-            t.completeTimerAndIncrementFailedCounter()
+          case r if r.status == NOT_FOUND | r.status == BAD_REQUEST =>
+            t.completeTimerAndIncrementSuccessCounter()
             Logger.warn("Unable to find tax summary record from the tai-service")
-            TaxSummaryNotFoundResponse
+            TaxSummaryUnavailiableResponse
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
