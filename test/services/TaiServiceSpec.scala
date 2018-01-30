@@ -92,16 +92,29 @@ class TaiServiceSpec extends BaseSpec {
       verify(timer, times(1)).stop()
     }
 
-    "return TaxSummaryNotFoundResponse when called with a nino that causes a 404 error" in new LocalSetup {
+    "return TaxSummaryUnavailiableResponse when called with a nino that returns 404" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
       override lazy val httpResponse = HttpResponse(NOT_FOUND)
 
       val r = service.taxSummary(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxSummaryNotFoundResponse
+      await(r) shouldBe TaxSummaryUnavailiableResponse
       verify(metrics, times(1)).startTimer(metricId)
-      verify(metrics, times(1)).incrementFailedCounter(metricId)
+      verify(metrics, times(1)).incrementSuccessCounter(metricId)
+      verify(timer, times(1)).stop()
+    }
+
+    "return TaxSummaryUnavailiableResponse when called with a nino that returns 400" in new LocalSetup {
+
+      override lazy val simulateTaiServiceIsDown = false
+      override lazy val httpResponse = HttpResponse(BAD_REQUEST)
+
+      val r = service.taxSummary(Fixtures.fakeNino, 2014)
+
+      await(r) shouldBe TaxSummaryUnavailiableResponse
+      verify(metrics, times(1)).startTimer(metricId)
+      verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
     }
 
