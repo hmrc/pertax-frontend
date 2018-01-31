@@ -1,0 +1,46 @@
+@(utr: Option[SaUtr], continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import pertaxContext.configDecorator._
+
+@main(title = Messages("label.sign_in_with_different_account_details"),
+pageName = Some(Messages("label.your_personal_tax_account")),
+backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
+) {
+<div class="personal-details">
+    <div class="grid-row">
+        <div class="column-full">
+            <p class="pre-heading no-margin-bottom lede">@Messages("label.self_assessment")</p>
+            <h1 class="heading-xlarge no-margin-top">@Messages("label.sign_in_with_different_account_details")</h1>
+        </div>
+    </div>
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            <div class="grid-row pertax-panel">
+                <p>@Messages("label.you_may_be_using_the_wrong_government_gateway_account_")</p>
+            </div>
+            <div class="grid-row pertax-panel">
+                <p>@Messages("label.you_need_to_use_the_government_gateway_user_id_")</p>
+            </div>
+            <div class="grid-row pertax-panel">
+                <h2>@Messages("label.get_help_signing_in")</h2>
+            </div>
+            <div class="grid-row pertax-panel">
+                <p>@Messages("label.get_help_if_you_have")</p>
+                <ul class="list list-bullet">
+                    <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.lostCredentialsChooseAccountUrl(continueUrl, "userId")" data-ga-event-category="link - click" data-ga-event-action="Get help signing in" data-ga-event-label="forgotten your Self Assessment user ID">@Messages("label.forgotten_your_self_assessment_user_id")</a></li>
+                    <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.lostCredentialsChooseAccountUrl(continueUrl, "password")" data-ga-event-category="link - click" data-ga-event-action="Get help signing in" data-ga-event-label="forgotten your Self Assessment password">@Messages("label.forgotten_your_self_assessment_password")</a></li>
+                    <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.notShownSaRecoverYourUserId" data-ga-event-category="link - click" data-ga-event-action="Get help signing in" data-ga-event-label="forgotten your Self Assessment user ID and password">@Messages("label.forgotten_your_self_assessment_user_id_and_password")</a></li>
+                </ul>
+                <div class="panel panel-border-wide">
+                    <p>@Html(Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_", utr.getOrElse("")))</p>
+                </div>
+            </div>
+            <div class="grid-row form-group inline">
+                <a href="@pertaxContext.configDecorator.citizenAuthFrontendSignOut">
+                    <button type="submit">@Messages("label.sign_out_of_this_account")</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+}

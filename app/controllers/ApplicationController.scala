@@ -208,18 +208,17 @@ class ApplicationController @Inject() (
           case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
             Future.successful(Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl))
           case _ =>
-            cspPartialService.webchatClickToChatScriptPartial("pertax") map { p =>
-              Ok(views.html.selfAssessmentNotShown(p.successfulContentOrEmpty))
-            }
+            Future.successful(Ok(views.html.selfAssessmentNotShown(pertaxContext.user.flatMap(_.saUtr))))
         }
-
       }
+
   }
+
 
   def ivExemptLandingPage(continueUrl: Option[StrictContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
-      val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url))
+      val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url), "userId")
 
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
@@ -232,10 +231,7 @@ class ApplicationController @Inject() (
           Future.successful(Ok(views.html.iv.failure.failedIvContinueToActivateSa()))
         case AmbiguousFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Ambiguous SA filer")
-          cspPartialService.webchatClickToChatScriptPartial("pertax") map { p =>
-            Ok(views.html.iv.failure.failedIvSaFilerWithNoEnrolment(c, p.successfulContentOrEmpty))
-          }
-
+          Future.successful(Ok(views.html.selfAssessmentNotShown(pertaxContext.user.flatMap(_.saUtr))))
         case NonFilerSelfAssessmentUser =>
           Future.successful(Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl)))
       }
