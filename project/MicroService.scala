@@ -55,7 +55,6 @@ trait MicroService {
       ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
       libraryDependencies ++= appDependencies,
       routesGenerator := StaticRoutesGenerator,
-      playRunHooks <+= baseDirectory.map(base => Grunt(base)),
       retrieveManaged := true,
       wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.NonUnitStatements, Wart.Nothing, Wart.Product, Wart.Serializable, Wart.Any),
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
