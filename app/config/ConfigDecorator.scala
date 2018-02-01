@@ -97,7 +97,6 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   }
   lazy val notShownSaRecoverYourUserId = s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
   lazy val tamcTransferAllowanceUrl = s"$tamcHost/marriage-allowance-application/history"
-  lazy val taiCompanyBenefitsUrl = s"$taiHost/check-income-tax/taxable-income"
   lazy val incomeTaxFormsUrl = "https://www.gov.uk/government/collections/hmrc-forms"
   lazy val selfAssessmentFormsAndHelpsheetsUrl = "https://www.gov.uk/self-assessment-forms-and-helpsheets"
   lazy val onlineServicesHelpdeskUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
