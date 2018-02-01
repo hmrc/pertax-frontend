@@ -20,3 +20,5 @@ dist
 node_modules
 .sass-cache
 *tmp.sc
+yarn.lock
+package-lock.json
