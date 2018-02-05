@@ -168,7 +168,7 @@ class AmbiguousJourneyController @Inject() (
       case "need-to-enrol-again" => Future.successful(Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(utr, continueUrl)))
       case "need-to-use-created-creds" => Future.successful(Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(utr, continueUrl)))
       case "deadline" => Future.successful(Ok(views.html.ambiguousjourney.deadlineIs(utr, continueUrl)))
-      case "letter-in-post" => Future.successful(Ok(views.html.ambiguousjourney.letterMayBeInPost(utr)))
+      case "letter-in-post" => Future.successful(Ok(views.html.ambiguousjourney.letterMayBeInPost(utr, continueUrl)))
       case "pin-expired" => Future.successful(Ok(views.html.ambiguousjourney.pinExpired(utr, continueUrl)))
       case _ => Future.successful(Redirect(routes.ApplicationController.handleSelfAssessment))
     }
