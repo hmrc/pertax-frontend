@@ -1,0 +1,94 @@
+.form-group {
+  &.postcode-container {
+    position: relative;
+
+    a {
+      display: inline-block;
+      margin-top: 15px;
+    }
+  }
+
+  span {
+    display: block;
+    width: 100%;
+  }
+}
+
+
+@include media(mobile) {
+  .find-address-form {
+    label {
+      &.postcode-label {
+        span {
+          display: inline-block;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@include media(desktop) {
+  .find-address-form {
+    label {
+      span {
+        display: block;
+      }
+    }
+  }
+
+  label {
+    .form-control {
+      &#postcode {
+        width: 25%;
+      }
+    }
+  }
+}
+
+input[type='radio']:checked {
+  background-color: transparent;
+}
+
+input {
+  background-color: transparent;
+}
+
+.find-address-form-block {
+  margin-bottom: 30px;
+  margin-top: 15px;
+}
+
+.select-address-list-block {
+  margin-bottom: 75px;
+
+  h2 {
+    font-size: 30px;
+  }
+
+  #select-address-form {
+    fieldset {
+      display: block;
+      margin-bottom: 30px;
+
+      .block-label {
+        box-sizing: border-box;
+        width: 100%;
+      }
+    }
+
+    a {
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+  }
+}
+
+.postal-address-block {
+  margin-bottom: 75px;
+  margin-top: 30px;
+
+  h2 {
+    font-size: 30px;
+  }
+}
