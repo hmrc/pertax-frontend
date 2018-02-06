@@ -1,0 +1,9 @@
+.notice-banner {
+  margin-bottom: 20px;
+
+  a {
+    &:link, &:visited, &:hover, &:active {
+      color: #ffffff;
+    }
+  }
+}
