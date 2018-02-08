@@ -2,21 +2,36 @@
 
 @import tags._
 
-@cardContent = @{
-  saActionNeeded match {
-    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => "<p>" + Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_") + "</p>"
-    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => "<p>" + Messages("label.use_your_activation_code_to_access_this_service_") + "</p>"
-    case AmbiguousFilerSelfAssessmentUser(saUtr) => "<p>" + Messages("label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_") + "</p>"
-    case _ => {""}
+@cardContent = {
+  @saActionNeeded match {
+    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+    <p>@Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_")</p>
+    }
+    case _ => {}
   }
 }
 
-@cardAction = @{
-  saActionNeeded match {
-    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => Html("""<li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">""" + Messages("label.make_a_payment") + """</a></li>""")
-    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => Html("""<li><a class="ga-track-anchor-click" href="""" + controllers.routes.ApplicationController.handleSelfAssessment()+ """" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">""" + Messages("label.activate_your_self_assessment") + """</a></li>""")
-    case AmbiguousFilerSelfAssessmentUser(saUtr) => Html("""<li><a class="ga-track-anchor-click" href="""" + controllers.routes.ApplicationController.handleSelfAssessment()+ """" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">""" + Messages("label.find_out_how_to_access_self_assessment") + """</a></li>""")
-    case _ => {""}
+@cardActions = {
+  @saActionNeeded match {
+    case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+        <li>
+          <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">@Messages("label.complete_your_tax_return")</a>
+        </li>
+        <li>
+          <a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@Messages("label.make_a_payment")</a>
+        </li>
+    }
+    case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
+        <li>
+          <a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@Messages("label.activate_your_self_assessment")</a>
+        </li>
+    }
+    case AmbiguousFilerSelfAssessmentUser(saUtr) => {
+        <li>
+          <a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@Messages("label.find_out_how_to_access_self_assessment")</a>
+        </li>
+    }
+    case _ => {}
   }
 }
 
@@ -33,9 +48,9 @@
   gaLabel = Some("Self Assessment"),
   heading = Messages("label.self_assessment"),
   headingTag = "h3",
-  bodyContent = Some(Html(cardContent))
+  bodyContent = Some(cardContent)
 ){
       <ul>
-        @cardAction
+        @cardActions
       </ul>
   }

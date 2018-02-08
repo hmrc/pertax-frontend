@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
-import play.api.i18n.Langs
+import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
@@ -75,7 +75,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
 
   def sa302Url(saUtr: String, taxYear: String) = s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
-  def completeYourTaxReturnUrl(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment-file/$taxYear/ind/$saUtr/return?lang=eng"))
+  def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) = ssoifyUrl(toPortalUrl(s"/self-assessment-file/$taxYear/ind/$saUtr/return/welcome?lang=" + (if(lang.code equals("en"))"eng" else "cym")))
   lazy val ssoToActivateSaEnrolmentPinUrl = ssoifyUrl(toPortalUrl("/service/self-assessment?action=activate&step=enteractivationpin"))
   lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
   lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))
