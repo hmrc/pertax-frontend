@@ -74,6 +74,12 @@
         }
 
       };
+      window._gaq.push = function(args) {
+        console.log(JSON.stringify({
+          call: '_gaq.push',
+          args: args
+        }));
+      };
     </script>
   }
 }
