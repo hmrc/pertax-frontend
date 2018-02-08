@@ -562,7 +562,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       lazy val configDecorator = {
         val cd = MockitoSugar.mock[ConfigDecorator]
-        when(cd.completeYourTaxReturnUrl(any(), any())).thenReturn("/submit/your/return/url")
+        when(cd.completeYourTaxReturnUrl(any(), any(), any())).thenReturn("/submit/your/return/url")
 
         cd
       }
@@ -593,7 +593,12 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |  </div>
             |  <div class="card-action">
             |      <ul>
-            |        <li><a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">Make a payment</a></li>
+            |        <li>
+            |          <a class="ga-track-anchor-click" href="/submit/your/return/url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">Complete your tax return</a>
+            |        </li>
+            |        <li>
+            |          <a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">Make a payment</a>
+            |        </li>
             |      </ul>
             |  </div>
             |</div>""".stripMargin)
@@ -612,11 +617,12 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |          Self Assessment
             |        </a>
             |    </h3>
-            |    <p>Use your activation code to access this service. The code is on the letter we sent to you when you enrolled.</p>
             |  </div>
             |  <div class="card-action">
             |      <ul>
-            |        <li><a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">Activate your Self Assessment</a></li>
+            |        <li>
+            |          <a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">Activate your Self Assessment</a>
+            |        </li>
             |      </ul>
             |  </div>
             |</div>""".stripMargin)
@@ -636,11 +642,12 @@ class HomeCardGeneratorSpec extends BaseSpec {
             |          Self Assessment
             |        </a>
             |    </h3>
-            |    <p>You cannot use this service. You may not be enrolled for Self Assessment, or you may have enrolled using a different account.</p>
             |  </div>
             |  <div class="card-action">
             |      <ul>
-            |        <li><a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">Find out how to access Self Assessment</a></li>
+            |        <li>
+            |          <a class="ga-track-anchor-click" href="/personal-account/self-assessment" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">Find out how to access Self Assessment</a>
+            |        </li>
             |      </ul>
             |  </div>
             |</div>""".stripMargin)
