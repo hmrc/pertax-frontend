@@ -28,7 +28,6 @@ Installing sass
     sudo apt-get install nodejs-legacy 
 
     npm install
-    sudo npm install -g grunt
     sudo gem install sass 
     sudo gem install scss_lint
     
