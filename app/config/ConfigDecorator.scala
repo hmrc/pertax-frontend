@@ -62,6 +62,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val taxCalcFrontendHost                          = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
   lazy val dfsFrontendHost                              = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
   lazy val plaBackEndHost                               = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
+  lazy val saFrontendHost                               = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost = decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
   lazy val governmentGatewayRegistrationFrontendHost    = decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
 
@@ -69,13 +70,11 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
 
-  def ssoifyUrl(url: URL) = {
-    s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
-  }
+  def ssoifyUrl(url: URL) = s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
   def sa302Url(saUtr: String, taxYear: String) = s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
-  def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) = ssoifyUrl(toPortalUrl(s"/self-assessment-file/$taxYear/ind/$saUtr/return/welcome?lang=" + (if(lang.code equals("en"))"eng" else "cym")))
+  def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) = s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if(lang.code equals("en"))"eng" else "cym")
   lazy val ssoToActivateSaEnrolmentPinUrl = ssoifyUrl(toPortalUrl("/service/self-assessment?action=activate&step=enteractivationpin"))
   lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
   lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))
