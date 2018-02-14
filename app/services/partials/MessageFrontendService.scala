@@ -54,7 +54,7 @@ class MessageFrontendService @Inject()(override val http: WsAllMethods, val metr
 
 
   def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] =
-    loadJson(messageFrontendUrl + "/messages/count").map(_.map(_.count))
+    loadJson(messageFrontendUrl + "/messages/count?read=No").map(_.map(_.count))
 
 
   private def loadJson(url: String)(implicit hc: HeaderCarrier): Future[Option[MessageCount]] = {
