@@ -26,8 +26,10 @@
   }
 ) {
 
+  @errors(updateAddressForm)
+
   <div class="grid-row">
-    <div class="column-full">
+    <div class="column-two-thirds">
       <div class="page-heading">
         <h1 class="heading-xlarge no-margin-bottom">
           @getYourAddressLabels
@@ -36,7 +38,6 @@
     </div>
   </div>
 
-  @errors(updateAddressForm)
   <div class="grid-row postal-address-block">
     <div class="column-two-thirds">
       @helpers.form(action = controllers.routes.AddressController.processUpdateAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
