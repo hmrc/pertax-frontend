@@ -16,19 +16,20 @@
   pageName = Some(Messages("label.your_personal_tax_account")),
   backlinkUrl = Some(controllers.routes.AddressController.showUpdateAddressForm(typ).url)
 ) {
+
+  @errors(residenceStartDateForm)
+
   <div class="personal-details">
     <div class="grid-row">
-      <div class="column-full">
+      <div class="column-two-thirds">
         <div class="page-heading">
           <h1 class="heading-xlarge no-margin-bottom">@typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = "")</h1>
         </div>
       </div>
     </div>
+
     <div class="grid-row">
       <div class="column-two-thirds">
-
-        @errors(residenceStartDateForm)
-
         <div class="grid-row pertax-panel">
           <div class="column-full">
             <div class="form-start-date">

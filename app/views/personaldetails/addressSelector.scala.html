@@ -15,8 +15,10 @@
   backlinkUrl = Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
 ) {
 
+  @errors(addressSelectorForm)
+
   <div class="grid-row">
-    <div class="column-full">
+    <div class="column-two-thirds">
       <div class="page-heading">
         <h1 class="heading-xlarge no-margin-bottom">
           @typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address"))
@@ -25,7 +27,6 @@
     </div>
   </div>
 
-  @errors(addressSelectorForm)
   <div class="grid-row select-address-list-block">
     <div class="column-two-thirds">
       @helpers.form(action = controllers.routes.AddressController.processAddressSelectorForm(typ, postcode, filter), args = 'class -> "select-address-form", 'id -> "select-address-form") {
