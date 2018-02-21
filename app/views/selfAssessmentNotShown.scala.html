@@ -1,4 +1,4 @@
-@(utr: Option[SaUtr])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(utr: SaUtr)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(Messages("label.find_out_how_to_access_your_self_assessment"),Some(Messages("label.your_personal_tax_account"))) {
 
@@ -7,7 +7,7 @@
       <p class="pre-heading no-margin-bottom lede">@Messages("label.self_assessment")</p>
       <h1 class="heading-xlarge no-margin-top">@Messages("label.find_out_how_to_access_your_self_assessment")</h1>
       <p class="lede">@Messages("label.you_already_have_a_utr")</p>
-      <p class="lede">@Html(Messages("label.your_utr_is_", utr.getOrElse("")))</p>
+      <p class="lede">@Html(Messages("label.your_utr_is_", utr))</p>
 
       <p>@Messages("label.we_need_to_ask_you_some_questions_")</p>
       <div class="form-group inline">

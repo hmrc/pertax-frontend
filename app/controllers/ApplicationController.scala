@@ -31,6 +31,7 @@ import play.api.mvc._
 import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.ActiveTabHome
 import uk.gov.hmrc.time.TaxYearResolver
@@ -62,6 +63,7 @@ class ApplicationController @Inject() (
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
   val taxCalculationStateFactory: TaxCalculationStateFactory
+
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
@@ -199,19 +201,17 @@ class ApplicationController @Inject() (
       }
   }
 
-  def handleSelfAssessment = VerifiedAction(baseBreadcrumb) {
+  def handleSelfAssessment:Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       enforceGovernmentGatewayUser {
-
         selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
-
           case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
             Future.successful(Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl))
-          case _ =>
-            Future.successful(Ok(views.html.selfAssessmentNotShown(pertaxContext.user.flatMap(_.saUtr))))
+          case ambigUser: AmbiguousFilerSelfAssessmentUser =>
+            Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
+          case _ => Future.successful(Redirect(routes.ApplicationController.index()))
         }
       }
-
   }
 
 
@@ -229,9 +229,9 @@ class ApplicationController @Inject() (
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
           Future.successful(Ok(views.html.iv.failure.failedIvContinueToActivateSa()))
-        case AmbiguousFilerSelfAssessmentUser(_) =>
+        case ambigUser: AmbiguousFilerSelfAssessmentUser =>
           handleIvExemptAuditing("Ambiguous SA filer")
-          Future.successful(Ok(views.html.selfAssessmentNotShown(pertaxContext.user.flatMap(_.saUtr))))
+          Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
         case NonFilerSelfAssessmentUser =>
           Future.successful(Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl)))
       }

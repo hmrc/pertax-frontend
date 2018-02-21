@@ -1,4 +1,4 @@
-@(utr: Option[SaUtr], continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(title = Messages("label.you_need_to_register_for_self_assessment_online"),
 pageName = Some(Messages("label.your_personal_tax_account")),
@@ -18,7 +18,7 @@ backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.usedUtrToEnrolC
     </div>
     <div class="column-two-thirds">
         <div class="grid-row pertax-panel">
-            <p>@Html(Messages("label.your_utr_is_", utr.getOrElse("")))</p>
+            <p>@Html(Messages("label.your_utr_is_", utr))</p>
         </div>
     </div>
     <div class="column-two-thirds">

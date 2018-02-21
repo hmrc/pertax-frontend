@@ -1,4 +1,4 @@
-@(utr: Option[SaUtr], continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import pertaxContext.configDecorator._
 
@@ -31,7 +31,7 @@ backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromS
                 <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.notShownSaRecoverYourUserId" data-ga-event-category="link - click" data-ga-event-action="Get help signing in" data-ga-event-label="forgotten your Self Assessment user ID and password">@Messages("label.forgotten_your_self_assessment_user_id_and_password")</a></li>
             </ul>
             <div class="panel panel-border-wide">
-                <p>@Html(Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_", utr.getOrElse("")))</p>
+                <p>@Html(Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_", utr))</p>
             </div>
         </div>
         <div class="grid-row form-group inline">
