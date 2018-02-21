@@ -8,11 +8,11 @@
 
 <div class="card">
 
-  <div class="card-body @if(url){active}">
+  <div class="card-body @if(url){active}" @if(url){data-journey-click="link - click:@gaAction:@gaLabel"}>
 
     <@headingTag class="heading-small card-heading">
       @if(url){
-        <a class="card-link ga-track-anchor-click" href="@url" data-ga-event-category="link - click" data-ga-event-action="@gaAction" data-ga-event-label="@gaLabel">
+        <a class="card-link" href="@url">
           @heading
         </a>
       } else {
@@ -22,8 +22,10 @@
     @bodyContent
   </div>
 
+@if(actionContent.body.trim.nonEmpty) {
   <div class="card-action">
     @actionContent
   </div>
+}
 
 </div>

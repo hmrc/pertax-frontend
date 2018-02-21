@@ -25,8 +25,9 @@ import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.inject.bind
 import play.api.test.FakeRequest
+import uk.gov.hmrc.domain.Nino
 import util.{BaseSpec, Fixtures}
-import views.html.tags.formattedNino
+import views.html.cards.personaldetails._
 
 
 class PersonalDetailsCardGeneratorSpec extends BaseSpec {
@@ -50,6 +51,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
     def userHasPersonDetails: Boolean
     def userHasCorrespondenceAddress: Boolean
+    def mainHomeStartDate: Option[String]
+    def show2016Message: Boolean
 
     def buildPersonDetails = PersonDetails("115", Person(
       Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
@@ -69,7 +72,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       c
     }
 
-    lazy val cardBody = controller.getMainAddressCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+    lazy val cardBody = controller.getMainAddressCard()
   }
 
   "Calling getMainAddressCard" should {
@@ -78,110 +81,43 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = false
       override lazy val userHasCorrespondenceAddress = false
+      override lazy val mainHomeStartDate = None
+      override lazy val show2016Message = false
 
       cardBody shouldBe None
+
     }
 
     "return the correct markup when there are person details and the user has a correspondence address" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
+      override lazy val mainHomeStartDate = Some("15 March 2015")
+      override lazy val show2016Message = false
 
-      cardBody shouldBe
-        Some(
-          """<div class="card">
-            |  <div class="card-body active">
-            |    <h2 class="heading-small card-heading">
-            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
-            |          Main address
-            |        </a>
-            |    </h2>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |  </div>
-            |  <div class="card-action">
-            |  <ul>
-            |    <li>
-            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |    </li>
-            |  </ul>
-            |  </div>
-            |</div>""".stripMargin)
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+
     }
 
     "return the correct markup when there are person details and the user does not have a correspondence address" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = false
+      override lazy val mainHomeStartDate = Some("15 March 2015")
+      override lazy val show2016Message = false
 
-      cardBody shouldBe
-        Some(
-          """<div class="card">
-            |  <div class="card-body active">
-            |    <h2 class="heading-small card-heading">
-            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
-            |          Main address
-            |        </a>
-            |    </h2>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |  </div>
-            |  <div class="card-action">
-            |  <ul>
-            |    <li>
-            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |    </li>
-            |    <li>
-            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">Change where we send your letters</a>
-            |    </li>
-            |  </ul>
-            |  </div>
-            |</div>""".stripMargin)
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+
     }
 
-    "return the correct markup when tax credits is enabled" in new MainAddressSetup {
+      "return the correct markup when tax credits is enabled" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
+      override lazy val mainHomeStartDate = Some("15 March 2015")
+      override lazy val show2016Message = false
 
-      cardBody shouldBe
-        Some(
-          """<div class="card">
-            |  <div class="card-body active">
-            |    <h2 class="heading-small card-heading">
-            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
-            |          Main address
-            |        </a>
-            |    </h2>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |  </div>
-            |  <div class="card-action">
-            |  <ul>
-            |    <li>
-            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/tax-credits-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |    </li>
-            |  </ul>
-            |  </div>
-            |</div>""".stripMargin)
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
 
@@ -189,33 +125,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val taxCreditsEnabled = false
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
+      override lazy val mainHomeStartDate = Some("15 March 2015")
+      override lazy val show2016Message = false
 
-      cardBody shouldBe
-        Some(
-          """<div class="card">
-            |  <div class="card-body active">
-            |    <h2 class="heading-small card-heading">
-            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Main address">
-            |          Main address
-            |        </a>
-            |    </h2>
-            |  <p><strong>
-            |        1 Fake Street<br>
-            |        Fake Town<br>
-            |        Fake City<br>
-            |        Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |    <p>This has been your main home since 15 March 2015.</p>
-            |  </div>
-            |  <div class="card-action">
-            |  <ul>
-            |    <li>
-            |      <a class="ga-track-anchor-click" href="/personal-account/your-address/residency-choice" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">Change your main address</a>
-            |    </li>
-            |  </ul>
-            |  </div>
-            |</div>""".stripMargin)
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
   }
@@ -252,7 +165,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       true)
     )
 
-    lazy val cardBody = controller.getPostalAddressCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+    lazy val cardBody = controller.getPostalAddressCard()
   }
 
   "Calling getPostalAddressCard" should {
@@ -278,32 +191,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = true
 
-      cardBody shouldBe
-        Some(
-          """<div class="card">
-            |  <div class="card-body active">
-            |    <h2 class="heading-small card-heading">
-            |        <a class="card-link ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Postal address">
-            |          Postal address
-            |        </a>
-            |    </h2>
-            |  <p><strong>
-            |      1 Fake Street<br>
-            |      Fake Town<br>
-            |      Fake City<br>
-            |      Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |  <p>All your letters will be sent to this address.</p>
-            |  </div>
-            |  <div class="card-action">
-            |    <ul>
-            |      <li>
-            |        <a class="ga-track-anchor-click" href="/personal-account/your-address/postal/find-address" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">Change your postal address</a>
-            |      </li>
-            |    </ul>
-            |  </div>
-            |</div>""".stripMargin)
+      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
 
     }
 
@@ -312,26 +200,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = false
 
-      cardBody shouldBe
-        Some(
-          """<div class="card">
-            |  <div class="card-body ">
-            |    <h2 class="heading-small card-heading">
-            |        Postal address
-            |    </h2>
-            |  <p><strong>
-            |      1 Fake Street<br>
-            |      Fake Town<br>
-            |      Fake City<br>
-            |      Fake Region<br>
-            |    AA1 1AA
-            |  </strong></p>
-            |  <p>All your letters will be sent to this address.</p>
-            |  </div>
-            |  <div class="card-action">
-            |    <p>You can only change this address once a day. Please try again tomorrow.</p>
-            |  </div>
-            |</div>""".stripMargin)
+      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
+
     }
   }
 
@@ -339,31 +209,14 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
   "Calling getNationalInsuranceCard" should {
 
     trait LocalSetup extends SpecSetup {
-      lazy val cardBody = controller.getNationalInsuranceCard().map(_.body.split("\n").filter(!_.trim.isEmpty).mkString("\n")) //remove empty lines
+      lazy val cardBody = controller.getNationalInsuranceCard()
+      def nino: Nino
     }
 
     "always return the same markup" in new LocalSetup {
+      override lazy val nino = pertaxUser.get.nino.get
 
-      cardBody shouldBe
-        Some(
-          s"""<div class="card">
-            |  <div class="card-body active">
-            |    <h2 class="heading-small card-heading">
-            |        <a class="card-link ga-track-anchor-click" href="/personal-account/national-insurance-summary" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="National Insurance">
-            |          National Insurance
-            |        </a>
-            |    </h2>
-            |  <p><strong>${formattedNino(pertaxUser.get.nino.get)}</strong></p>
-            |  <p>Your National Insurance number is your unique identifier.</p>
-            |  </div>
-            |  <div class="card-action">
-            |  <ul>
-            |    <li><a class="ga-track-anchor-click" href="/personal-account/national-insurance-summary/print-letter" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Print your National Insurance letter">Print your National Insurance letter</a></li>
-            |    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="View gaps in your record">View gaps in your record</a></li>
-            |    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="National Insurance" data-ga-event-label="Check your State Pension">Check your State Pension</a></li>
-            |  </ul>
-            |  </div>
-            |</div>""".stripMargin)
+      cardBody shouldBe Some(nationalInsurance(nino))
     }
   }
 }
