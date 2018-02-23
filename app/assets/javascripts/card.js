@@ -18,15 +18,17 @@ var card = (function () {
   // make .card-body full height
   var fullHeight = function () {
     var cardEle = $('.card').not(':has(.card-action)')
-    cardEle.each(function () {
-      var $cardBody = $(this).children('.card-body')
-      var maxHeight = getMaxHeight('.card')
-      var paddingTop = $cardBody.css('padding-top').replace('px', '')
-      var paddingBottom = $cardBody.css('padding-bottom').replace('px', '')
-      var totalHeight = maxHeight - paddingTop - paddingBottom
-      $cardBody.css('border-bottom', '0')
-      setMaxheight($cardBody, totalHeight)
-    })
+    if (cardEle.length > 0) {
+      cardEle.each(function () {
+        var $cardBody = $(this).children('.card-body')
+        var maxHeight = getMaxHeight('.card')
+        var paddingTop = $cardBody.css('padding-top').replace('px', '')
+        var paddingBottom = $cardBody.css('padding-bottom').replace('px', '')
+        var totalHeight = maxHeight - paddingTop - paddingBottom
+        $cardBody.css('border-bottom', '0')
+        setMaxheight($cardBody, totalHeight)
+      })
+    }
   }
 
   isNotMobile(checkSize)
@@ -44,7 +46,8 @@ var card = (function () {
   function getMaxHeight (ele) {
     var height = []
     $(ele).each(function () {
-      height.push($(this).height())
+      if ($(this).height() > 0)
+        height.push($(this).height())
     })
     var maxHeight = height.sort(function (a, b) { return b - a })[0]
     return maxHeight
