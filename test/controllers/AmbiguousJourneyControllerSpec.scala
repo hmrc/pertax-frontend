@@ -18,15 +18,18 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import models.UserDetails
+import models._
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.bind
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
-import uk.gov.hmrc.domain.Nino
+import services.partials.MessageFrontendService
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import util.Fixtures._
@@ -44,7 +47,10 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
       .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
       .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-      .build()
+      .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
+      .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
+
+    .build()
 
 
     override def beforeEach: Unit = {
@@ -55,12 +61,16 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
       def nino: Nino
       def personDetailsResponse: PersonDetailsResponse
+      def getSelfAssessmentServiceResponse: SelfAssessmentUserType
 
       lazy val personDetails = Fixtures.buildPersonDetails
 
       lazy val controller = {
         val c = injected[AmbiguousJourneyController]
 
+        when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
+          Future.successful(getSelfAssessmentServiceResponse)
+        }
         when(injected[PertaxAuditConnector].sendEvent(any())(any(), any())) thenReturn {
           Future.successful(AuditResult.Success)
         }
@@ -72,6 +82,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
         }
         when(injected[UserDetailsService].getUserDetails(any())(any())) thenReturn {
           Future.successful(Some(UserDetails(UserDetails.GovernmentGatewayAuthProvider)))
+        }
+        when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
+          Future.successful(None)
         }
         when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
         when(c.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
@@ -91,6 +104,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'Have you de-enrolled from self assessment' page when supplied with value Yes (true)" in new LocalSetupJourney {
       val r = controller.processFileReturnOnlineChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/de-enrolled-sa")
@@ -98,6 +112,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'Have you filed your tax return by post' page when supplied with value No (false)" in new LocalSetupJourney {
       val r = controller.processFileReturnOnlineChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/sa-filed-post")
@@ -105,6 +120,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
       val r = controller.processFileReturnOnlineChoice(buildFakeRequestWithAuth("POST"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
     }
@@ -115,6 +131,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'You need to enrol' page when supplied with value Yes (true)" in new LocalSetupJourney {
       val r = controller.processDeEnroleedFromSaChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/need-to-enrol-again")
@@ -122,6 +139,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in new LocalSetupJourney {
       val r = controller.processDeEnroleedFromSaChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/need-to-use-created-creds")
@@ -129,6 +147,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
       val r = controller.processDeEnroleedFromSaChoice(buildFakeRequestWithAuth("POST"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
     }
@@ -139,6 +158,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'Have you used your utr to register' page when supplied with value Yes (true)" in new LocalSetupJourney {
       val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-register")
@@ -146,6 +166,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in new LocalSetupJourney {
       val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/received-utr-letter")
@@ -153,6 +174,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
       val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
     }
@@ -162,6 +184,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'Have you used your utr to enrol' page when supplied with value Yes (true)" in new LocalSetupJourney {
       val r = controller.processReceivedUtrLetterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
@@ -169,6 +192,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'Your letter may still be in the post' page when supplied with value No (false)" in new LocalSetupJourney {
       val r = controller.processReceivedUtrLetterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/letter-in-post")
@@ -176,6 +200,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
       val r = controller.processReceivedUtrLetterChoice(buildFakeRequestWithAuth("POST"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
     }
@@ -185,6 +210,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in new LocalSetupJourney {
       val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/pin-expired")
@@ -192,6 +218,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'You need to enrol for sa' page when supplied with value No (false)" in new LocalSetupJourney {
       val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/need-to-enrol")
@@ -199,6 +226,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
       val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
     }
@@ -208,6 +236,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in new LocalSetupJourney {
       val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/pin-expired")
@@ -215,6 +244,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "redirect to 'The deadline is' page when supplied with value No (false)" in new LocalSetupJourney {
       val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/deadline")
@@ -222,40 +252,147 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
       val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
     }
   }
 
-  "Calling AmbiguousJourneyController" should {
-    "return 200 when AmbiguousJourneyController.filedReturnOnlineChoice is called" in new LocalSetupJourney {
+  "Calling AmbiguousJourneyController.filedReturnOnlineChoice" should {
+    "return 200 when self assessment user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
       val r = controller.filedReturnOnlineChoice(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe OK
     }
+  }
 
+  "Calling AmbiguousJourneyController.deEnrolledFromSaChoice " should {
     "return 200 when AmbiguousJourneyController.deEnrolledFromSaChoice is called" in new LocalSetupJourney {
       val r = controller.deEnrolledFromSaChoice(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe OK
     }
+  }
 
+  "Calling AmbiguousJourneyController.filedReturnByPostChoice" should {
     "return 200 when AmbiguousJourneyController.filedReturnByPostChoice is called" in new LocalSetupJourney {
       val r = controller.filedReturnByPostChoice(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe OK
     }
+  }
 
+  "Calling AmbiguousJourneyController.receivedUtrLetterChoice" should {
     "return 200 when AmbiguousJourneyController.receivedUtrLetterChoice is called" in new LocalSetupJourney {
       val r = controller.receivedUtrLetterChoice(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe OK
     }
+  }
 
+  "Calling AmbiguousJourneyController.usedUtrToEnrolChoice" should {
     "return 200 when AmbiguousJourneyController.usedUtrToEnrolChoice is called" in new LocalSetupJourney {
       val r = controller.usedUtrToEnrolChoice(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe OK
+    }
+  }
+
+  "Calling AmbiguousJourneyController.handleAmbiguousJourneyLandingPages" should {
+    "return 200 when supplied with value of 'need-to-enrol' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
+      val page = "need-to-enrol"
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe 200
+    }
+
+    "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
+      val page = "need-to-enrol-again"
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe 200
+    }
+
+    "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
+      val page = "need-to-use-created-creds"
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe 200
+    }
+
+    "return 200 when supplied with value of 'deadline' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
+      val page = "deadline"
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe 200
+    }
+
+    "return 200 when supplied with value of 'letter-in-post' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
+      val page = "letter-in-post"
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe 200
+    }
+
+    "return 200 when supplied with value of 'pin-expired' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
+      val page = "pin-expired"
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe 200
+    }
+  }
+
+  "Calling AmbiguousJourneyController.enforceAmbiguousUser" should {
+
+    trait AmbiguousUserEnforcerSetup extends LocalSetupJourney {
+      implicit lazy val context = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(PertaxUser(buildFakeAuthContext(),
+        UserDetails(UserDetails.GovernmentGatewayAuthProvider),
+        None, true)))
+
+      implicit lazy val messages = Messages(Lang("en"), injected[MessagesApi])
+
+      val result = controller.deEnrolledFromSaChoice(buildFakeRequestWithAuth("GET"))
+
+      val block = { _: SaUtr => result }
+    }
+
+    "return 200 when SA user type is AmbiguousFilerSelfAssessmentUser" in new AmbiguousUserEnforcerSetup {
+      val r = controller.enforceAmbiguousUser(block)
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe 200
+    }
+
+    "redirect to 'personal-account' when SA user type is ActivatedOnlineFilerSelfAssessmentUser" in new AmbiguousUserEnforcerSetup {
+      val r = controller.enforceAmbiguousUser(block)
+      override lazy val getSelfAssessmentServiceResponse = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      redirectLocation(await(r)) shouldBe Some("/personal-account")
+    }
+
+    "redirect to 'personal-account' when SA user type is NotYetActivatedOnlineFilerSelfAssessmentUser" in new AmbiguousUserEnforcerSetup {
+      val r = controller.enforceAmbiguousUser(block)
+      override lazy val getSelfAssessmentServiceResponse = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      redirectLocation(await(r)) shouldBe Some("/personal-account")
+    }
+
+    "redirect to 'personal-account' when SA user type is NonFilerSelfAssessmentUser" in new AmbiguousUserEnforcerSetup {
+      val r = controller.enforceAmbiguousUser(block)
+      override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
+
+      redirectLocation(await(r)) shouldBe Some("/personal-account")
     }
   }
 }

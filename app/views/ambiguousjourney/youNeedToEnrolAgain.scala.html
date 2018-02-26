@@ -1,4 +1,4 @@
-@(utr: Option[SaUtr], continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import pertaxContext.configDecorator._
 
@@ -20,7 +20,7 @@ backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromS
     </div>
     <div class="column-two-thirds">
         <div class="grid-row pertax-panel">
-            <p>@Html(Messages("label.your_utr_is_", utr.getOrElse("")))</p>
+            <p>@Html(Messages("label.your_utr_is_", utr))</p>
         </div>
     </div>
     <div class="column-two-thirds">
