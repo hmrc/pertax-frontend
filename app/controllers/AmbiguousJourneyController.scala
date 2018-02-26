@@ -22,10 +22,12 @@ import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import models.dto.AmbiguousUserFlowDto
+import models.{AmbiguousFilerSelfAssessmentUser, PertaxContext}
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, Result}
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, LocalSessionCache, UserDetailsService}
+import services.{CitizenDetailsService, LocalSessionCache, SelfAssessmentService, UserDetailsService}
+import uk.gov.hmrc.domain.SaUtr
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -41,12 +43,22 @@ class AmbiguousJourneyController @Inject() (
   val delegationConnector: FrontEndDelegationConnector,
   val sessionCache: LocalSessionCache,
   val authConnector: PertaxAuthConnector,
-  val messageFrontendService: MessageFrontendService
+  val messageFrontendService: MessageFrontendService,
+  val selfAssessmentService: SelfAssessmentService
 
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def filedReturnOnlineChoice = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    Future.successful(Ok(views.html.ambiguousjourney.filedReturnOnlineChoice(AmbiguousUserFlowDto.form)))
+  def enforceAmbiguousUser(block: SaUtr => Future[Result])(implicit context: PertaxContext): Future[Result] = {
+    selfAssessmentService.getSelfAssessmentUserType(context.authContext) flatMap {
+      case ambigUser: AmbiguousFilerSelfAssessmentUser => block(ambigUser.saUtr)
+      case _ => Future.successful(Redirect(routes.ApplicationController.index()))
+    }
+  }
+
+  def filedReturnOnlineChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    enforceAmbiguousUser {_ =>
+      Future.successful(Ok(views.html.ambiguousjourney.filedReturnOnlineChoice(AmbiguousUserFlowDto.form)))
+    }
   }
 
   def processFileReturnOnlineChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
@@ -65,7 +77,9 @@ class AmbiguousJourneyController @Inject() (
   }
 
   def deEnrolledFromSaChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    Future.successful(Ok(views.html.ambiguousjourney.deEnrolledFromSaChoice(AmbiguousUserFlowDto.form)))
+    enforceAmbiguousUser {_ =>
+      Future.successful(Ok(views.html.ambiguousjourney.deEnrolledFromSaChoice(AmbiguousUserFlowDto.form)))
+    }
   }
 
   def processDeEnroleedFromSaChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
@@ -84,7 +98,9 @@ class AmbiguousJourneyController @Inject() (
   }
 
   def filedReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    Future.successful(Ok(views.html.ambiguousjourney.filedReturnByPostChoice(AmbiguousUserFlowDto.form)))
+    enforceAmbiguousUser {_ =>
+      Future.successful(Ok(views.html.ambiguousjourney.filedReturnByPostChoice(AmbiguousUserFlowDto.form)))
+    }
   }
 
   def processFiledReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
@@ -103,7 +119,9 @@ class AmbiguousJourneyController @Inject() (
   }
 
   def usedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    Future.successful(Ok(views.html.ambiguousjourney.usedUtrToRegisterChoice(AmbiguousUserFlowDto.form)))
+    enforceAmbiguousUser {_ =>
+      Future.successful(Ok(views.html.ambiguousjourney.usedUtrToRegisterChoice(AmbiguousUserFlowDto.form)))
+    }
   }
 
   def processUsedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
@@ -122,7 +140,9 @@ class AmbiguousJourneyController @Inject() (
   }
 
   def receivedUtrLetterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    Future.successful(Ok(views.html.ambiguousjourney.receivedUtrLetterChoice(AmbiguousUserFlowDto.form)))
+    enforceAmbiguousUser { _ =>
+      Future.successful(Ok(views.html.ambiguousjourney.receivedUtrLetterChoice(AmbiguousUserFlowDto.form)))
+    }
   }
 
   def processReceivedUtrLetterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
@@ -141,7 +161,9 @@ class AmbiguousJourneyController @Inject() (
   }
 
   def usedUtrToEnrolChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form)))
+    enforceAmbiguousUser { _ =>
+      Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form)))
+    }
   }
 
   def processUsedUtrToEnrolChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
@@ -160,17 +182,20 @@ class AmbiguousJourneyController @Inject() (
   }
 
   def handleAmbiguousJourneyLandingPages(page: String): Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    val utr = pertaxContext.user.flatMap(_.saUtr)
-    val continueUrl = controllers.routes.ApplicationController.index().url
 
-    page match {
-      case "need-to-enrol" => Future.successful(Ok(views.html.ambiguousjourney.youNeedToEnrol(utr, continueUrl)))
-      case "need-to-enrol-again" => Future.successful(Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(utr, continueUrl)))
-      case "need-to-use-created-creds" => Future.successful(Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(utr, continueUrl)))
-      case "deadline" => Future.successful(Ok(views.html.ambiguousjourney.deadlineIs(utr, continueUrl)))
-      case "letter-in-post" => Future.successful(Ok(views.html.ambiguousjourney.letterMayBeInPost(utr, continueUrl)))
-      case "pin-expired" => Future.successful(Ok(views.html.ambiguousjourney.pinExpired(utr, continueUrl)))
-      case _ => Future.successful(Redirect(routes.ApplicationController.handleSelfAssessment))
+      val continueUrl = controllers.routes.ApplicationController.index().url
+      enforceAmbiguousUser { saUtr =>
+        Future.successful {
+          page match {
+            case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr, continueUrl))
+            case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr, continueUrl))
+            case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
+            case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
+            case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
+            case "pin-expired" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl))
+            case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
+          }
+        }
+      }
     }
-  }
 }
