@@ -6,3 +6,5 @@ $(".full-width-banner__close").click(function(){
     }
   })
 });
+
+$(".print-this").css('display', 'inline-block');

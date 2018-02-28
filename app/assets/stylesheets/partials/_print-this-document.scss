@@ -1,0 +1,95 @@
+.print-this {
+  border-bottom: 1px solid $black;
+  display: none;
+  margin: 0 0 15px 0;
+  position: relative;
+    
+  &__icon {
+    left: 0;
+    position: absolute;
+    top: 2px;
+  }
+
+  &__link {
+    color: $black;
+    font-size: 16px;
+    padding-left: 25px;
+    text-decoration: none;
+  }
+}
+
+.print-document {
+  border: 1px solid $grey-1;
+  box-shadow: 6px 6px 0 0 $grey-3;
+  padding: 25px 50px;
+  width: 75%;
+
+  .print-header {
+    border-bottom: 10px solid $black;
+    margin-bottom: 15px;
+  
+    &__heading {
+     text-align: right;
+    }
+  } 
+
+  .document-address {
+    &__recipient {
+      margin-top: 50px;
+    }
+    
+    &__sender {
+      float:right;
+      text-align: left;
+    }
+  }
+
+
+ &__information-box {
+    border: 2px solid $black;
+    display: inline-block;
+    margin-bottom: 1em;
+    padding: 5px 10px;
+  }
+}
+
+@media print {
+  .printable {
+    visibility: hidden;
+  }
+
+  .print-document * {
+    visibility: visible;
+  }
+
+  .print-document {
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 85%;
+
+    &__recipient {
+      float: left;
+      width: 50%;
+    }
+
+    &__sender {
+      float: right;
+      width: 50%;
+    }
+
+    .print-header {
+      &__hmrc-logo {
+        float: left;
+        margin-bottom: 10px;
+        width: 220px;
+      }
+    }
+
+    p, 
+    li {
+      font-size: 16px;
+    }
+  }
+}
