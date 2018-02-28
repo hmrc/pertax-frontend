@@ -6,11 +6,11 @@
   supportLinkEnabled: Boolean = true,
   headScripts: Option[Html] = None,
   scriptElement: Option[Html] = None,
-  bodyClasses: Option[String] = None,
   articleClasses: Option[String] = None,
   includeGridWrapper: Boolean = false,
   backlinkUrl: Option[String] = None,
-  additionalGaCalls: Option[Html] = None
+  additionalGaCalls: Option[Html] = None,
+  printableDocument: Boolean = false
 )(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import uk.gov.hmrc.play.views.html.layouts
@@ -84,6 +84,12 @@
   }
 }
 
+@printable = @{
+  if(printableDocument) {
+    "printable"
+  }
+}
+
 @mainContentHeader = {
   @if(pertaxContext.welshWarning) {
     @tags.welshContentWarning()
@@ -146,6 +152,7 @@
     Some(BetaBannerComponent(pertaxContext.configDecorator.deskproToken)),
     Some(MessagesMenuItemComponent(pertaxContext.unreadMessageCount))
   ) ++ Map[String,Any](
+      "bodyClass" -> printable,
       "assetsPath" -> pertaxContext.configDecorator.assetsPrefix
     )
 
