@@ -10,7 +10,7 @@
 
         <ul class="error-summary-list">
           @form.errors.map { error =>
-            <li><a href="#@error.key.filter(_.isLetter)">@Messages(s"head.${error.message}")</a></li>
+            <li><a href="#@error.key">@Messages(s"head.${error.message}")</a></li>
           }
         </ul>
       </div>
