@@ -15,24 +15,20 @@ backlinkUrl = Some(controllers.routes.ApplicationController.handleSelfAssessment
     </div>
     <div class="grid-row">
         <div class="column-two-thirds">
-            <div class="grid-row pertax-panel">
-                <div class="column-full">
-                    @form(action = controllers.routes.AmbiguousJourneyController.processFileReturnOnlineChoice) {
-                    <div class="form-group inline">
-                        @inputRadioGroup(
-                        f("value"),
-                        Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
-                        '_labelClass -> "block-label",
-                        '_legendClass -> "visuallyhidden",
-                        '_legend -> Messages("label.have_you_ever_filed_your_tax_return_online")
-                        )
-                    </div>
-                    <div class="form-group inline">
-                        <button type="submit">@Messages("global.label.continue_button")</button>
-                    </div>
-                    }
+            @form(action = controllers.routes.AmbiguousJourneyController.processFileReturnOnlineChoice) {
+                <div class="form-group inline">
+                    @inputRadioGroup(
+                    f("value"),
+                    Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
+                    '_labelClass -> "block-label",
+                    '_legendClass -> "visuallyhidden",
+                    '_legend -> Messages("label.have_you_ever_filed_your_tax_return_online")
+                    )
                 </div>
-            </div>
+                <div class="form-group inline">
+                    <button type="submit">@Messages("global.label.continue_button")</button>
+                </div>
+            }
         </div>
     </div>
 </div>
