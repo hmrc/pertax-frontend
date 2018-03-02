@@ -21,25 +21,23 @@
 
     <div class="grid-row">
       <div class="column-two-thirds">
-        <div class="grid-row pertax-panel">
-          <div class="column-full">
-            @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
-              <div class="form-group inline">
-                @inputRadioGroup(
-                  taxCreditsChoiceForm("value"),
-                    Seq(
-                      "true" -> Messages("label.yes"),
-                      "false" -> Messages("label.no")
-                    ),
-                    '_labelClass -> "block-label"
-                  )
-              </div>
-              <div class="form-group inline">
-                <button type="submit">@Messages("global.label.continue_button")</button>
-              </div>
-            }
+        @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
+          <div class="form-group inline">
+            @inputRadioGroup(
+              taxCreditsChoiceForm("value"),
+                Seq(
+                  "true" -> Messages("label.yes"),
+                  "false" -> Messages("label.no")
+                ),
+                '_labelClass -> "block-label",
+                '_legend -> Messages("label.do_you_get_tax_credits"),
+                '_legendClass -> "visuallyhidden"
+              )
           </div>
-        </div>
+          <div class="form-group inline">
+            <button type="submit">@Messages("global.label.continue_button")</button>
+          </div>
+        }
       </div>
     </div>
   </div>

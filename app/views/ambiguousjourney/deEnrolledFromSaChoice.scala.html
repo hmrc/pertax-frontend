@@ -16,24 +16,20 @@ backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.filedReturnOnli
     </div>
     <div class="grid-row">
         <div class="column-two-thirds">
-            <div class="grid-row pertax-panel">
-                <div class="column-full">
-                    @form(action = controllers.routes.AmbiguousJourneyController.processDeEnroleedFromSaChoice) {
-                    <div class="form-group inline">
-                        @inputRadioGroup(
-                        f("value"),
-                        Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
-                        '_labelClass -> "block-label",
-                        '_legendClass -> "visuallyhidden",
-                        '_legend -> Messages("label.did_you_deregister_from_sa_online")
-                        )
-                    </div>
-                    <div class="form-group inline">
-                        <button type="submit">@Messages("global.label.continue_button")</button>
-                    </div>
-                    }
+            @form(action = controllers.routes.AmbiguousJourneyController.processDeEnroleedFromSaChoice) {
+                <div class="form-group inline">
+                    @inputRadioGroup(
+                    f("value"),
+                    Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
+                    '_labelClass -> "block-label",
+                    '_legendClass -> "visuallyhidden",
+                    '_legend -> Messages("label.did_you_deregister_from_sa_online")
+                    )
                 </div>
-            </div>
+                <div class="form-group inline">
+                    <button type="submit">@Messages("global.label.continue_button")</button>
+                </div>
+            }
         </div>
     </div>
 </div>
