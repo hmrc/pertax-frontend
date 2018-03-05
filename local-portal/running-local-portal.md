@@ -43,7 +43,7 @@ then re-run
 
 # prh-activemq  
 In the "portal-environment" directory, clone the repo:  
-[https://github.tools.tax.service.gov.uk/HMRC/prh-activemq](https://github.tools.tax.service.gov.uk/HMRC/prh-activemq)    
+[https://github.com/HMRC/prh-activemq](https://github.com/HMRC/prh-activemq)
 
 * Navigate into the `prh-activemq` directory
 * `./build`
@@ -51,7 +51,7 @@ In the "portal-environment" directory, clone the repo:
 
 # portal-content-proxy  
 In the "portal-environment" directory, clone the repo:  
-[https://github.tools.tax.service.gov.uk/HMRC/portal-content-proxy](https://github.tools.tax.service.gov.uk/HMRC/portal-content-proxy)  
+[https://github.com/HMRC/portal-content-proxy](https://github.com/HMRC/portal-content-proxy)
 
 * Navigate into the `portal-content-proxy` directory
 * `./build.sh`
@@ -83,7 +83,7 @@ In the "portal-environment" directory, clone the repo:
 
 # sa-filing-1617
 In the "portal-environment" directory, clone the repo:  
-[https://github.tools.tax.service.gov.uk/HMRC/sa-filing-1617](https://github.tools.tax.service.gov.uk/HMRC/sa-filing-1617)  
+[https://github.com/HMRC/sa-filing-1617](https://github.com/HMRC/sa-filing-1617)
 
 * Navigate into the `sa-filing-1617/sa-filing-1617-service` directory - *Please note the additional directory depth*  
 * `mvn -DDOCKER_IP=127.0.0.1 -Ptomcat tomcat7:run-war`
