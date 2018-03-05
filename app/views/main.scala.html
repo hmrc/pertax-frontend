@@ -121,7 +121,7 @@
       controllers.routes.AssetsController.versioned("javascripts/webChat.js").url,
       controllers.routes.AssetsController.versioned("javascripts/card.js").url
     )),
-    Some(PageTitleComponent(title)),
+    Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
     Some(InlineScriptComponent(inlineScript.toString)),
     pertaxContext.configDecorator.ssoUrl.map(SsoUrlComponent(_)),
     pertaxContext.configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
