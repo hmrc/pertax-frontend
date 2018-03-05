@@ -42,6 +42,7 @@ label.return_to_your_address=Dychwelyd i’ch cyfeiriad
 label.continue=Parhau
 label.annual_taxable_income=Incwm trethadwy blynyddol
 label.your_personal_tax_account=Cyfrif treth personol
+label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
 label.estimate_for=Amcangyfrif ar gyfer {0} i {1}
 label.personal_details=Manylion personol
 label.track_your_forms=Dilyn eich ffurflenni
