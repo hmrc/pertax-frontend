@@ -24,12 +24,13 @@
         @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">
             @inputRadioGroup(
-              taxCreditsChoiceForm("value"),
+              taxCreditsChoiceForm("taxCreditsChoice"),
                 Seq(
                   "true" -> Messages("label.yes"),
                   "false" -> Messages("label.no")
                 ),
                 '_labelClass -> "block-label",
+                '_error -> taxCreditsChoiceForm("taxCreditsChoice").error.map(_.withMessage({Messages("label.select_an_answer")})),
                 '_legend -> Messages("label.do_you_get_tax_credits"),
                 '_legendClass -> "visuallyhidden"
               )
