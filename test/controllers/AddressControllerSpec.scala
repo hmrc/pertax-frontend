@@ -192,14 +192,14 @@ class AddressControllerSpec extends BaseSpec  {
     }
 
     "redirect to expected tax credits page when supplied with value = Yes (true)" in new LocalSetup {
-      val r = controller.processTaxCreditsChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody( "value" -> "true" ))
+      val r = controller.processTaxCreditsChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody( "taxCreditsChoice" -> "true" ))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/tax-credits-service/personal/change-address")
     }
 
     "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
-      val r = controller.processTaxCreditsChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      val r = controller.processTaxCreditsChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("taxCreditsChoice" -> "false"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/residency-choice")

@@ -391,7 +391,7 @@ label.find_an_address=Chwilio am gyfeiriad
 label.tell_us_your_main_home=Rhowch wybod i ni beth yw’ch prif gartref
 label.update_your_postal_address=Diweddaru’ch cyfeiriad post
 label.select_an_address=Dewis cyfeiriad
-label.select_an_answer=Dewis cyfeiriad
+label.select_an_answer=Dewis ateb
 label.edit_your_address_optional=Golygu’ch cyfeiriad (dewisol)
 label.edit_the_address_optional=Golygu’r cyfeiriad (dewisol)
 label.enter_your_address=Nodwch eich cyfeiriad
@@ -458,7 +458,7 @@ label.no_thanks=Dim diolch
 #
 head.error.enter_valid_characters=Gwirio enw neu rif eich tŷ
 head.error.address_not_selected=Dewiswch gyfeiriad
-head.error.residency_choice=Mae angen i chi ddewis ateb
+head.error.you_need_to_select_an_answer=Mae angen i chi ddewis ateb
 head.error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 head.error.line1_required=Gwirio llinell gyntaf eich cyfeiriad
