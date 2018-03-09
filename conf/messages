@@ -477,7 +477,7 @@ label.no_thanks=No thanks
 #
 head.error.enter_valid_characters=Check your House name or number
 head.error.address_not_selected=Please select an address
-head.error.residency_choice=You need to select an answer
+head.error.you_need_to_select_an_answer=You need to select an answer
 head.error.required=This line is required
 error.required=This line is required
 head.error.line1_required=Check the first line of your address
