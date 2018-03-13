@@ -27,7 +27,7 @@ object TaxCreditsChoiceDto {
   val form = Form(
     mapping(
       "taxCreditsChoice" -> optional(boolean)
-        .verifying("error.you_need_to_select_an_answer", _.isDefined)
+        .verifying("error.you_must_select_an_answer", _.isDefined)
         .transform[Boolean](_.getOrElse(false), Some(_))  //getOrElse here will never fall back to default because of isDefined above
     )(TaxCreditsChoiceDto.apply)(TaxCreditsChoiceDto.unapply)
   )
