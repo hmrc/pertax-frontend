@@ -3,30 +3,35 @@
 @import pertaxContext.configDecorator._
 
 @main(title = Messages("label.you_need_to_register_again_for_sa_online"),
-pageName = Some(Messages("label.your_personal_tax_account")),
-backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
 ) {
-<div class="personal-details">
+  <div class="personal-details">
+
     <div class="grid-row">
-        <div class="column-full">
-            <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-            <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_register_again_for_sa_online")</h1>
-        </div>
+      <div class="column-full">
+        <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
+        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_register_again_for_sa_online")</h1>
+      </div>
     </div>
+
     <div class="column-two-thirds">
-        <div class="grid-row pertax-panel">
-            <p>@Html(Messages("label.use_your_utr_to_register_again_", pertaxContext.configDecorator.registerForSelfAssessmentUrl(continueUrl)))</p>
-        </div>
+      <div class="grid-row pertax-panel">
+        <p>@Html(Messages("label.use_your_utr_to_register_again_", pertaxContext.configDecorator.registerForSelfAssessmentUrl(continueUrl)))</p>
+      </div>
     </div>
+
     <div class="column-two-thirds">
-        <div class="grid-row pertax-panel">
-            <p>@Html(Messages("label.your_utr_is_", utr))</p>
-        </div>
+      <div class="grid-row pertax-panel">
+        <p>@Html(Messages("label.your_utr_is_", utr))</p>
+      </div>
     </div>
+
     <div class="column-two-thirds">
-        <div class="grid-row panel panel-border-wide">
-            <p>@Messages("label.registration_can_take_up_to_ten_days_")</p>
-        </div>
+      <div class="grid-row panel panel-border-wide">
+        <p>@Messages("label.registration_can_take_up_to_ten_days_")</p>
+      </div>
     </div>
-</div>
+
+  </div>
 }

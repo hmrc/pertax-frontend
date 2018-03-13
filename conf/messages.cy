@@ -462,7 +462,7 @@ label.no_thanks=Dim diolch
 #
 head.error.enter_valid_characters=Gwirio enw neu rif eich tŷ
 head.error.address_not_selected=Dewiswch gyfeiriad
-head.error.you_need_to_select_an_answer=Mae angen i chi ddewis ateb
+head.error.you_must_select_an_answer=You must select an answer
 head.error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 head.error.line1_required=Gwirio llinell gyntaf eich cyfeiriad
