@@ -47,6 +47,7 @@ label.we_are_processing_your-details=We are processing your details
 label.this_may_take_up_to_30_seconds=This may take up to 30 seconds.
 label.if_you_are_not_redirected_in_=If you are not redirected within 30 seconds <a href="{0}">click here</a>
 label.your_personal_tax_account=Personal tax account
+label.your_personal_tax_account_gov_uk=Personal tax account - GOV.UK
 label.estimate_for=Estimate for {0} to {1}
 label.track_your_forms=Track your forms
 label.tax_youll_pay=Tax you’ll pay
