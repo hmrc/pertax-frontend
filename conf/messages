@@ -322,6 +322,8 @@ label.national_insurance_summary=National Insurance summary
 label.national_insurance_forms=National Insurance forms
 label.report_changes_that_affect_your_child_benefit=Report changes that affect your Child Benefit
 label.if_your_childs_circumstances_change=If your child’s circumstances change
+label.tell_us_if_your_childs_circumstances_change=Tell us if your child’s circumstances change
+label.tell_us_if_your_circumstances_change=Tell us if your circumstances change
 label.child_benefit_stops_on_31_august_=Child Benefit stops on 31 August on or after your child’s 16th birthday if they leave approved education or training.
 label.tell_us_if_your_child=Tell us if your child:
 label.tax_credits_summary=Your tax credits
@@ -547,7 +549,7 @@ text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}
 text.if_you_dont_claim_child_benefit_=If you don’t claim Child Benefit you normally qualify for it if you’re responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Check if you can claim Child Benefit (opens in new window)</a>
 text.stays_in_education_or_training=stays in education or training
 text.leaves_education_or_training=leaves education or training
-text.has_any_other_change_in_their_circumstances=has any other change in their circumstances
+text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">has any other change in their circumstances</a> such as they leave the household
 
 #
 # Frontend-bootstrap  overrides
