@@ -47,7 +47,7 @@ object ResidencyChoiceDto {
   val form = Form(
     mapping(
       "residencyChoice" -> optional(text)
-        .verifying("error.you_need_to_select_an_answer", e => e.flatMap(a => AddrType(a)).isDefined)
+        .verifying("error.you_must_select_an_answer", e => e.flatMap(a => AddrType(a)).isDefined)
         .transform[AddrType](x => AddrType(x.fold("")(_.toString)).getOrElse(SoleAddrType), ad => Some(ad.toString))  //getOrElse here will never fall back to default because of isDefined above
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)
   )
