@@ -586,6 +586,7 @@ label.use_your_activation_code_to_access_this_service_=Defnyddiwch eich cod cych
 label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_=Ni allwch ddefnyddio’r gwasanaeth hwn. Efallai nad ydych wedi’ch cofrestru ar gyfer Hunanasesiad, neu efallai’ch bod wedi cofrestru gan ddefnyddio cyfrif gwahanol.
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
+label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.understand_self_assessment=Deall Hunanasesiad
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr 2018.
