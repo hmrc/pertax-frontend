@@ -42,6 +42,7 @@ label.return_to_your_address=Dychwelyd i’ch cyfeiriad
 label.continue=Parhau
 label.annual_taxable_income=Incwm trethadwy blynyddol
 label.your_personal_tax_account=Cyfrif treth personol
+label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
 label.estimate_for=Amcangyfrif ar gyfer {0} i {1}
 label.personal_details=Manylion personol
 label.track_your_forms=Dilyn eich ffurflenni
@@ -269,6 +270,8 @@ label.national_insurance_forms=Ffurflenni Yswiriant Gwladol
 label.child_benefit=Budd-dal Plant
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
 label.if_your_childs_circumstances_change=Os yw amgylchiadau eich plentyn yn newid
+label.tell_us_if_your_childs_circumstances_change=Tell us if your child’s circumstances change
+label.tell_us_if_your_circumstances_change=Tell us if your circumstances change
 label.child_benefit_stops_on_31_august_=Mae Budd-dal Plant yn dod i ben ar 31 Awst ar neu ar ôl pen-blwydd eich plentyn yn 16 oed os yw’n gadael addysg neu hyfforddiant cymeradwy
 label.tell_us_if_your_child=Rhowch wybod i ni:
 label.tax_credits_summary=Eich credydau treth
@@ -459,7 +462,7 @@ label.no_thanks=Dim diolch
 #
 head.error.enter_valid_characters=Gwirio enw neu rif eich tŷ
 head.error.address_not_selected=Dewiswch gyfeiriad
-head.error.you_need_to_select_an_answer=Mae angen i chi ddewis ateb
+head.error.you_must_select_an_answer=You must select an answer
 head.error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 head.error.line1_required=Gwirio llinell gyntaf eich cyfeiriad
@@ -530,7 +533,7 @@ text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}
 text.if_you_dont_claim_child_benefit_=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Gwiriwch a allwch hawlio Budd-dal Plant (yn agor ffenestr newydd)</a>
 text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
 text.leaves_education_or_training=yn gadael hyfforddiant neu addysg
-text.has_any_other_change_in_their_circumstances=os oes unrhyw newidiadau eraill yn amgylchiadau eich plentyn
+text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">has any other change in their circumstances</a> such as they leave the household
 
 #
 # Frontend-bootstrap  overrides

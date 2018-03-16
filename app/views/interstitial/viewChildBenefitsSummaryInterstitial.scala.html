@@ -12,7 +12,7 @@
       <ul class="list list-bullet">
         <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsStaysInEducation">@Messages("text.stays_in_education_or_training")</a></li>
         <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsLaterLeavesEducation">@Messages("text.leaves_education_or_training")</a></li>
-        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsHasAnyChangeInCircumstances">@Messages("text.has_any_other_change_in_their_circumstances")</a></li>
+        <li>@Html(Messages("text.has_any_other_change_in_their_circumstances_", pertaxContext.configDecorator.childBenefitsHasAnyChangeInCircumstances))</li>
       </ul>
 
       <h3 class="heading-small">@Messages("label.apply_for_an_extension")</h3>

@@ -103,7 +103,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
   "Calling AmbiguousJourneyController.processFileReturnOnlineChoice" should {
 
     "redirect to 'Have you de-enrolled from self assessment' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processFileReturnOnlineChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      val r = controller.processFileReturnOnlineChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -111,7 +111,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
     }
 
     "redirect to 'Have you filed your tax return by post' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processFileReturnOnlineChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      val r = controller.processFileReturnOnlineChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -130,7 +130,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
   "Calling AmbiguousJourneyController.processDeEnroleedFromSaChoice" should {
 
     "redirect to 'You need to enrol' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processDeEnroleedFromSaChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      val r = controller.processDeEnroleedFromSaChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -138,7 +138,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processDeEnroleedFromSaChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      val r = controller.processDeEnroleedFromSaChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -157,7 +157,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
   "Calling AmbiguousJourneyController.processFiledReturnByPostChoice" should {
 
     "redirect to 'Have you used your utr to register' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -165,7 +165,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -183,7 +183,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
   "Calling AmbiguousJourneyController.processReceivedUtrLetterChoice" should {
 
     "redirect to 'Have you used your utr to enrol' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processReceivedUtrLetterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      val r = controller.processReceivedUtrLetterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -191,7 +191,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
     }
 
     "redirect to 'Your letter may still be in the post' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processReceivedUtrLetterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      val r = controller.processReceivedUtrLetterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -209,7 +209,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
   "Calling AmbiguousJourneyController.processUsedUtrToEnrolChoice" should {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -217,7 +217,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
     }
 
     "redirect to 'You need to enrol for sa' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -235,7 +235,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
   "Calling AmbiguousJourneyController.processUsedUtrToRegisterChoice" should {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "true"))
+      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -243,7 +243,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
     }
 
     "redirect to 'The deadline is' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("value" -> "false"))
+      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER

@@ -1,38 +1,46 @@
-@(f: Form[dto.AmbiguousUserFlowDto])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
 
 @main(title = Messages("label.have_you_used_your_utr_to_register"),
-pageName = Some(Messages("label.your_personal_tax_account")),
-backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.receivedUtrLetterChoice().url)
+  pageName = Some(Messages("label.your_personal_tax_account")),
+  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.receivedUtrLetterChoice().url)
 ) {
-<div class="personal-details">
+  <div class="personal-details">
+
+    @errors(AmbiguousUserForm)
+
     <div class="grid-row">
-        <div class="column-full">
-            <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-            <h1 class="heading-xlarge no-margin-top">@Messages("label.have_you_used_your_utr_to_register")</h1>
-            <div>
-                <p>@Messages("label.your_utr_is_a_ten_digit_number_we_sent_by_post")</p>
-            </div>
+      <div class="column-full">
+        <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
+        <h1 class="heading-xlarge no-margin-top">@Messages("label.have_you_used_your_utr_to_register")</h1>
+        <div>
+          <p>@Messages("label.your_utr_is_a_ten_digit_number_we_sent_by_post")</p>
         </div>
+      </div>
     </div>
+
     <div class="grid-row">
-        <div class="column-two-thirds">
-            @form(action = controllers.routes.AmbiguousJourneyController.processUsedUtrToEnrolChoice) {
-                <div class="form-group inline">
-                    @inputRadioGroup(
-                    f("value"),
-                    Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
-                    '_labelClass -> "block-label",
-                    '_legendClass -> "visuallyhidden",
-                    '_legend -> Messages("label.have_you_used_your_utr_to_register")
-                    )
-                </div>
-                <div class="form-group inline">
-                    <button type="submit">@Messages("global.label.continue_button")</button>
-                </div>
-            }
-        </div>
+      <div class="column-two-thirds">
+        @form(action = controllers.routes.AmbiguousJourneyController.processUsedUtrToEnrolChoice) {
+          <div class="form-group inline">
+            @inputRadioGroup(
+              AmbiguousUserForm("ambiguousUserFormChoice"),
+              Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
+              '_labelClass -> "block-label",
+              '_error -> AmbiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({
+                Messages("label.select_an_answer")
+              })),
+              '_legendClass -> "visuallyhidden",
+              '_legend -> Messages("label.have_you_used_your_utr_to_register")
+            )
+          </div>
+          <div class="form-group inline">
+            <input type="submit" class="button" value="@Messages("global.label.continue_button")" />
+          </div>
+        }
+      </div>
     </div>
-</div>
+  </div>
 }
