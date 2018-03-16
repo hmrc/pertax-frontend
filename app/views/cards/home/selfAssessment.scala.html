@@ -1,3 +1,19 @@
+@*
+ * Copyright 2018 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
 @(saActionNeeded: SelfAssessmentUserType, taxYear: String)(implicit messages: play.api.i18n.Messages, pertaxContext: PertaxContext)
 
 @import tags._
@@ -19,6 +35,9 @@
       </li>
       <li>
         <a class="ga-track-anchor-click" href="/pay-online/self-assessment/make-a-payment?mode=pta" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@Messages("label.make_a_payment")</a>
+      </li>
+      <li>
+        <a class="ga-track-anchor-click" href="https://www.gov.uk/check-if-you-need-a-tax-return" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check if you need to fill in a tax return">@Messages("label.check_if_you_need_to_fill_in_a_tax_return")</a>
       </li>
     }
     case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
