@@ -16,6 +16,7 @@
 
 package controllers.bindable
 
+import uk.gov.hmrc.play.binders.ContinueUrl
 import util.BaseSpec
 
 class BindableSpec extends BaseSpec {
@@ -24,26 +25,38 @@ class BindableSpec extends BaseSpec {
 
   }
 
-  "Calling originBinder.unbind" should {
+  "Calling continueUrlBinder.unbind" should {
 
-    "return origin=PERTAX when key is origin and value is PERTAX" in {
-      controllers.bindable.originBinder.unbind("origin", Origin("PERTAX")) shouldBe "origin=PERTAX"
-    }
-    "UrlEncode keys" in {
-      controllers.bindable.originBinder.unbind("£", Origin("PERTAX")) shouldBe "%C2%A3=PERTAX"
-    }
-    "UrlEncode values" in {
-      controllers.bindable.originBinder.unbind("origin", Origin("£")) shouldBe "origin=%C2%A3"
+    "return the key and the ContinueUrl" in {
+
+      controllers.bindable.continueUrlBinder.unbind("continue", ContinueUrl("/relative/url")) shouldBe "continue=%2Frelative%2Furl"
     }
   }
 
-  "Calling originBinder.bind" should {
+  "Calling continueUrlBinder.bind" should {
 
-    "return an origin when called with a valid string" in new LocalSetup {
-      controllers.bindable.originBinder.bind("origin", Map("origin" -> Seq("PERTAX"))) shouldBe Some(Right(Origin("PERTAX")))
+    "return an url when called with a relative url" in {
+
+      val url = "/relative/url"
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Right(ContinueUrl(url)))
     }
-    "return None when called with an empty map" in new LocalSetup {
-      controllers.bindable.originBinder.bind("origin", Map()) shouldBe None
+
+    "return error when not url" in {
+
+      val url = "gtuygyg"
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"'$url' is not a valid continue URL"))
+    }
+
+    "return error for urls with /\\" in {
+
+      val url = "/\\www.example.com"
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"'$url' is not a valid continue URL"))
+    }
+
+    "return error for none relative urls" in {
+
+      val url = "http://nonrelativeurl.com"
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"'$url' is not a valid continue URL"))
     }
   }
 }

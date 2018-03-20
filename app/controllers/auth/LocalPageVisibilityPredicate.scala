@@ -19,18 +19,16 @@ package controllers.auth
 import javax.inject._
 
 import config.ConfigDecorator
-import controllers.bindable.{Origin, StrictContinueUrl}
 import controllers.routes
-import models.{AmbiguousFilerSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser}
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Request}
 import services._
+import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent._
-import uk.gov.hmrc.play.HeaderCarrierConverter
 
 @Singleton
 class LocalPageVisibilityPredicateFactory @Inject() (
@@ -41,7 +39,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
   val (cds, sas) = (citizenDetailsService, selfAssessmentService)
 
-  def build(successUrl: Option[StrictContinueUrl] = None, origin: Origin) = {
+  def build(successUrl: Option[ContinueUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.toString)
 
     new LocalConfidenceLevelPredicate {
@@ -60,7 +58,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
 trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with ConfidenceLevelChecker {
 
-  def successUrl: Option[StrictContinueUrl]
+  def successUrl: Option[ContinueUrl]
   def upliftUrl: String
   def origin: String
   def onwardUrl: String
