@@ -18,7 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.bindable.{Origin, PostalAddrType, PrimaryAddrType, SoleAddrType}
+import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.addresslookup.{AddressRecord, Country, RecordSet, _}
 import models.dto._
 import models.{AddressJourneyData, PertaxContext, PertaxUser, UserDetails}
