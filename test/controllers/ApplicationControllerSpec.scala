@@ -18,7 +18,6 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.bindable.{Origin, StrictContinueUrl}
 import models._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -39,6 +38,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
+import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.TaxYearResolver
@@ -174,9 +174,9 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val r = controller.uplift(Some(StrictContinueUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
+      val r = controller.uplift(Some(ContinueUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
+      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
       verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())
@@ -375,7 +375,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
       override val allowLowConfidenceSA = false
 
-      val r = controller.showUpliftJourneyOutcome(Some(StrictContinueUrl("/relative/url")))(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val r = controller.showUpliftJourneyOutcome(Some(ContinueUrl("/relative/url")))(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -464,7 +464,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some(StrictContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(ContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/personal-account")
     }
@@ -474,7 +474,7 @@ class ApplicationControllerSpec extends BaseSpec {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some(StrictContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(ContinueUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/ida/signout")
       session(r).get("postLogoutPage") shouldBe Some("/personal-account")

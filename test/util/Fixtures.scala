@@ -23,7 +23,6 @@ import akka.stream.Materializer
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
-import modules.LocalGuiceModule
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -39,19 +38,18 @@ import play.api.mvc.{AnyContentAsEmpty, RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 import uk.gov.hmrc.play.frontend.auth.{AuthContext, AuthenticationProviderIds}
+import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
+import scala.concurrent.Future
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.Random
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
-
-import scala.concurrent.Future
 
 
 trait PafFixtures {
@@ -141,9 +139,9 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
-  def buildFakeRequestWithSessionId(method: String) = FakeRequest(method, "/").withSession("sessionId" -> "FAKE_SESSION_ID")
+  def buildFakeRequestWithSessionId(method: String) = FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
-  def buildFakeRequestWithAuth(method: String, uri: String = "/"): FakeRequest[AnyContentAsEmpty.type] = {
+  def buildFakeRequestWithAuth(method: String, uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,

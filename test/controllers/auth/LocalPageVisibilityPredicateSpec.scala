@@ -17,20 +17,19 @@
 package controllers.auth
 
 import config.ConfigDecorator
-import controllers.bindable.{Origin, StrictContinueUrl}
 import models._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.play.frontend.auth.PageIsVisible
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength}
+import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
@@ -72,7 +71,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
           cd
         }
       )
-      fac.build(Some(StrictContinueUrl("/personal-account/success-page")), Origin("PERTAX"))
+      fac.build(Some(ContinueUrl("/personal-account/success-page")), Origin("PERTAX"))
     }
 
     def nonVisibleRedirectLocation: Option[String] = {
@@ -100,7 +99,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
+      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
@@ -111,7 +110,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
+      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
@@ -134,7 +133,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val allowLowConfidenceSA = false
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
+      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }

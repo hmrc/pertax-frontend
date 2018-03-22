@@ -20,10 +20,10 @@ import javax.inject.Inject
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.bindable.StrictContinueUrl
 import error.LocalErrorHandler
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.play.binders.ContinueUrl
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -38,10 +38,10 @@ class LanguageController @Inject() (
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController {
 
-  def enGb(redirectUrl: StrictContinueUrl): Action[AnyContent] = changeLang(redirectUrl=redirectUrl, language="en")
-  def cyGb(redirectUrl: StrictContinueUrl): Action[AnyContent] = changeLang(redirectUrl=redirectUrl, language="cy")
+  def enGb(redirectUrl: ContinueUrl): Action[AnyContent] = changeLang(redirectUrl=redirectUrl, language="en")
+  def cyGb(redirectUrl: ContinueUrl): Action[AnyContent] = changeLang(redirectUrl=redirectUrl, language="cy")
 
-  def changeLang(redirectUrl: StrictContinueUrl, language: String): Action[AnyContent] = PublicAction { implicit pertaxContext =>
+  def changeLang(redirectUrl: ContinueUrl, language: String): Action[AnyContent] = PublicAction { implicit pertaxContext =>
       Future.successful(Redirect(redirectUrl.url).withLang(Lang(language)))
   }
 }
