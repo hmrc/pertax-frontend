@@ -19,10 +19,10 @@ package config
 import java.net.{URL, URLEncoder}
 import javax.inject.{Inject, Singleton}
 
-import controllers.bindable.Origin
 import controllers.routes
 import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
+import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
@@ -163,7 +163,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val assetsPrefix = configuration.getString(s"assets.url").getOrElse("") + configuration.getString(s"assets.version").getOrElse("") + '/'
 
   def getFeedbackSurveyUrl(origin: Origin): String = {
-    feedbackSurveyFrontendHost + "/feedback-survey?origin=" + enc(origin.value)
+    feedbackSurveyFrontendHost + "/feedback-survey?origin=" + enc(origin.origin)
   }
 
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String = {

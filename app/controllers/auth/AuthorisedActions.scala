@@ -16,7 +16,6 @@
 
 package controllers.auth
 
-import controllers.bindable.StrictContinueUrl
 import controllers.helpers.ControllerLikeHelpers
 import error.RendersErrors
 import models._
@@ -26,6 +25,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services._
 import services.partials.MessageFrontendService
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
 import uk.gov.hmrc.renderer.ActiveTab
@@ -132,7 +132,7 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with C
     pertaxContext.user.filter(user => user.isHighGovernmentGatewayOrVerify || (configDecorator.allowSaPreview && user.isSa)).map {
       user => block
     } getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationController.uplift(redirectUrl = Some(StrictContinueUrl(pertaxContext.request.uri)))))
+      Future.successful(Redirect(controllers.routes.ApplicationController.uplift(redirectUrl = Some(ContinueUrl(pertaxContext.request.uri)))))
     }
   }
 
