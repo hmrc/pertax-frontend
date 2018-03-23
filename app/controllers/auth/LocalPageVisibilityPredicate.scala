@@ -40,7 +40,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
   val (cds, sas) = (citizenDetailsService, selfAssessmentService)
 
   def build(successUrl: Option[ContinueUrl] = None, origin: Origin) = {
-    val (s, o) = (successUrl, origin.toString)
+    val (s, o) = (successUrl, origin.origin)
 
     new LocalConfidenceLevelPredicate {
 
