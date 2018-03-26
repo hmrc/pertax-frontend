@@ -176,7 +176,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       val r = controller.uplift(Some(ContinueUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
+      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
       verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())
