@@ -32,8 +32,8 @@
         <li>@Html(Messages("text.stop_or_restart_your_child_benefit_payments_", pertaxContext.configDecorator.childBenefitsStopOrRestart))</li>
       </ul>
 
-      <h2 class="heading-medium">@Messages("label.if_you_dont_currently_claim_child_benefit")</h2>
-      <p>@Html(Messages("text.if_you_dont_claim_child_benefit_", pertaxContext.configDecorator.childBenefitsCheckIfYouCanClaim))</p>
+      <h2 class="heading-medium">@Messages("label.if_you_do_not_currently_claim_child_benefit")</h2>
+      <p>@Html(Messages("text.if_you_do_not_claim_child_benefit_", pertaxContext.configDecorator.childBenefitsCheckIfYouCanClaim))</p>
     }
     @ifLowGovernmentGatewayUser {
       <p class="lede">@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
