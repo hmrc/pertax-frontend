@@ -15,10 +15,10 @@ private object AppDependencies {
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "play-breadcrumb" % "1.0.0",
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.19.0", // includes the global object and error handling, as well as the FrontendController classes
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.20.0", // includes the global object and error handling, as well as the FrontendController classes
     "uk.gov.hmrc" %% "play-partials" % "6.1.0", // includes code for retrieving partials, e.g. the Help with this page form
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
-    "uk.gov.hmrc" %% "http-caching-client" % "7.0.0",
+    "uk.gov.hmrc" %% "http-caching-client" % "7.1.0",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "local-template-renderer" % "1.3.0",
     "uk.gov.hmrc" %% "play-ui" % "7.14.0"
@@ -32,7 +32,7 @@ private object AppDependencies {
   object Test {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
-        "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % scope,
+        "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % scope,
         "org.scalatest" %% "scalatest" % "3.0.0" % scope,
         "org.mockito" % "mockito-all" % "2.0.2-beta" % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.0" % scope,
