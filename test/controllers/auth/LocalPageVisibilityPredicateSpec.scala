@@ -99,7 +99,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200" +
+      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
@@ -110,7 +110,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200" +
+      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
@@ -133,7 +133,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val allowLowConfidenceSA = false
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=Origin%28PERTAX%29&confidenceLevel=200" +
+      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
         "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
         "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
