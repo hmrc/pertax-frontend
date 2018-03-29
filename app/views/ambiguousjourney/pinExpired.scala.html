@@ -16,7 +16,7 @@
 
 @(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@main(title = Messages("label.you_need_to_register_again_for_sa_online"),
+@main(title = Messages("label.you_need_to_get_a_new_activation_code"),
   pageName = Some(Messages("label.your_personal_tax_account")),
   backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.usedUtrToRegisterChoice().url)
 ) {
@@ -25,7 +25,7 @@
     <div class="grid-row">
       <div class="column-full">
         <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_register_again_for_sa_online")</h1>
+        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_get_a_new_activation_code")</h1>
       </div>
     </div>
 
@@ -34,13 +34,13 @@
         <p class="lede">@Messages("label.after_you_registered_we_sent_you_an_activation_code_by_post")</p>
       </div>
       <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.to_get_a_new_code_you_must_use_your_utr_", pertaxContext.configDecorator.registerForSelfAssessmentUrl(continueUrl)))</p>
+        <p>@Html(Messages("label.you_need_to_get_a_new_activation_code_by_enrolling", pertaxContext.configDecorator.selfAssessmentEnrolUrl))</p>
       </div>
     </div>
 
     <div class="column-two-thirds">
       <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.your_utr_is_", utr))</p>
+        <p>@Messages("label.you_will_need_your_utr_to_get_a_new_activation_code") @Html(Messages("label.your_utr_is_", utr))</p>
       </div>
     </div>
 
@@ -49,12 +49,5 @@
         <p>@Messages("label.you_must_use_your-new_code_within_")</p>
       </div>
     </div>
-
-    <div class="column-two-thirds">
-      <div class="grid-row panel panel-border-wide">
-        <p>@Messages("label.registration_can_take_up_to_ten_days_when_you_register_")</p>
-      </div>
-    </div>
-
   </div>
 }
