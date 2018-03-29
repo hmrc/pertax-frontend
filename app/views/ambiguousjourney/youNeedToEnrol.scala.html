@@ -16,7 +16,7 @@
 
 @(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@main(title = Messages("label.you_need_to_register_for_self_assessment_online"),
+@main(title = Messages("label.you_need_to_get_an_activation_code"),
   pageName = Some(Messages("label.your_personal_tax_account")),
   backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.usedUtrToEnrolChoice().url)
 ) {
@@ -25,19 +25,19 @@
     <div class="grid-row">
       <div class="column-full">
         <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_register_for_self_assessment_online")</h1>
+        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_get_an_activation_code")</h1>
       </div>
     </div>
 
     <div class="column-two-thirds">
       <div class="grid-row pertax-panel lede">
-        <p>@Html(Messages("label.use_your_utr_to_register_for_self_assessment_online", pertaxContext.configDecorator.registerForSelfAssessmentUrl(continueUrl)))</p>
+        <p>@Html(Messages("label.get_an_activation_code_by_enrolling_", pertaxContext.configDecorator.selfAssessmentEnrolUrl))</p>
       </div>
     </div>
 
     <div class="column-two-thirds">
       <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.your_utr_is_", utr))</p>
+        <p>@Messages("label.you_will_need_your_unique_taxpayer_reference") @Html(Messages("label.your_utr_is_", utr))</p>
       </div>
     </div>
 
