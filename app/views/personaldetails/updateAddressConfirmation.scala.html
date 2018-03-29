@@ -25,29 +25,23 @@
   }
 }
 
-@main(Messages("label.your_address_has_been_updated"), Some(Messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
+@main(Messages("label.your_address_has_been_changed"), Some(Messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
 
   <div class="grid-row">
     <div class="column-two-thirds">
       <br />
       <div class="govuk-box-highlight">
-        <h1 class="heading-xlarge">@Messages("label.your_address_has_been_saved")</h1>
+        <h1 class="heading-xlarge">@Messages("label.your_address_has_been_changed")</h1>
       </div>
 
       @typ.ifIs(primary = {
         <br/>
-        <h2 class="heading-large">{Messages("label.next_steps")}</h2>
-        <ul class="list list-bullet">
-          <li>{Messages("label.if_youve_moved_to_or_from_scotland_")}</li>
-          <li>{Messages("label.tell_us_if_your_main_home_changes_in_the_future")}</li>
-        </ul>
+        <h2 class="heading-large">{Messages("label.what_happens_next")}</h2>
+        <p>{Messages("label.if_youve_moved_to_or_from_scotland_")}</p>
       }, sole = {
         <br/>
-        <h2 class="heading-large">{Messages("label.next_steps")}</h2>
-        <ul class="list list-bullet">
-          <li>{Messages("label.if_youve_moved_to_or_from_scotland_")}</li>
-          <li>{Messages("label.tell_us_if_your_main_home_changes_in_the_future")}</li>
-        </ul>
+        <h2 class="heading-large">{Messages("label.what_happens_next")}</h2>
+        <p>{Messages("label.if_youve_moved_to_or_from_scotland_")}</p>
       }, postal = Html(""))
 
       <p><a href="@controllers.routes.ApplicationController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
