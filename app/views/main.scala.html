@@ -168,8 +168,7 @@
     Some(BetaBannerComponent(pertaxContext.configDecorator.deskproToken)),
     Some(MessagesMenuItemComponent(pertaxContext.unreadMessageCount))
   ) ++ Map[String,Any](
-      "bodyClass" -> printable,
-      "assetsPath" -> pertaxContext.configDecorator.assetsPrefix
+      "bodyClass" -> printable
     )
 
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), arguments)
