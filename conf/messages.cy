@@ -6,6 +6,7 @@ global.label.you_last_signed_in=Y tro diwethaf i chi fewngofnodi oedd {0}
 global.label.sign_out=Allgofnodi
 global.label.submit_button=Cyflwyno
 global.label.continue_button=Parhau
+global.label.start_button=Dechrau
 global.label.find_your_address=Chwilio am eich cyfeiriad
 global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it=Mae hwn yn wasanaeth newydd – bydd eich <a href="{0}">adborth</a> yn ein helpu i’w wella.
 global.label.this_is_a_trial_service=Mae hwn yn wasanaeth sy’n cael ei brofi.
@@ -110,7 +111,7 @@ label.check_the_income_tax_youll_pay=gwirio’ch cod treth ac amcangyfrif o’r 
 label.update_your_address_with_hmrc=diweddaru’ch cyfeiriad gyda CThEM
 label.apply_for_ma_if_youre_eligible=gwneud cais am Lwfans Priodasol os ydych yn gymwys
 label.content.this_is_a_new_service_that_will_be_continually_improved=Mae hwn yn wasanaeth newydd sy’n cael ei wella drwy’r amser.
-label.before_you_start=Cyn i chi ddechrau
+label.before_you_start=Cyn i chi dechrau
 label.you_must_verify_your_identity_to_use_this_service_for_the_first_time=Mae’n rhaid i chi roi prawf o bwy ydych er mwyn defnyddio’r gwasanaeth hwn am y tro cyntaf. Bydd angen y canlynol arnoch:
 label.valid_uk_passport_or_driving_licence=pasbort neu drwydded yrru (trwydded cerdyn-llun) dilys yn y DU
 label.access_to_your_financial_information=mynediad at eich gwybodaeth ariannol
