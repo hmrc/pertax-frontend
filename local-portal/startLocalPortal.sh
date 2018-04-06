@@ -8,7 +8,7 @@ portalnginx=/home/richardb/Applications/hmrc-development-environment/portal-envi
 #
 # local portal will be created at: -
 #
-# https://localhost/auth-login-stub/sign-in?continue=%2Fself-assessment-file%2F1617%2Find%2F1097172564%2Freturn?lang=eng
+# https://localhost/auth-login-stub/gg-sign-in?continue=%2Fself-assessment-file%2F1617%2Find%2F1097172564%2Freturn?lang=eng
 
 clear
 read -n 1 -s -r -p "Make sure your VPN is connected - Press any key to continue"
@@ -86,10 +86,10 @@ cd $portalnginx
 
 if which xdg-open > /dev/null
 then
-  xdg-open https://localhost/auth-login-stub/sign-in?continue=%2Fself-assessment-file%2F1617%2Find%2F1097172564%2Freturn?lang=eng
+  xdg-open https://localhost/auth-login-stub/gg-sign-in?continue=%2Fself-assessment-file%2F1617%2Find%2F1097172564%2Freturn?lang=eng
 elif which gnome-open > /dev/null
 then
-  gnome-open https://localhost/auth-login-stub/sign-in?continue=%2Fself-assessment-file%2F1617%2Find%2F1097172564%2Freturn?lang=eng
+  gnome-open https://localhost/auth-login-stub/gg-sign-in?continue=%2Fself-assessment-file%2F1617%2Find%2F1097172564%2Freturn?lang=eng
 fi
 
 printf "Starting sa-filing-1617-service"

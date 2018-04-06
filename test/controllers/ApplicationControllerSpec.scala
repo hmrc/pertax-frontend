@@ -151,7 +151,7 @@ class ApplicationControllerSpec extends BaseSpec {
       when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
       when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback-survey?origin=PERTAX"
       when(c.configDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
-      when(c.configDecorator.gg_web_context) thenReturn "gg"
+      when(c.configDecorator.gg_web_context) thenReturn "gg-sign-in"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
       when(c.configDecorator.urLinkUrl) thenReturn None
       when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
@@ -205,7 +205,7 @@ class ApplicationControllerSpec extends BaseSpec {
       val r = controller.index()(FakeRequest("GET", "/personal-account")) //No auth in this fake request
 
       status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some("/gg/sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account&accountType=individual&origin=PERTAX")
+      redirectLocation(r) shouldBe Some("/gg-sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account&accountType=individual&origin=PERTAX")
     }
 
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
