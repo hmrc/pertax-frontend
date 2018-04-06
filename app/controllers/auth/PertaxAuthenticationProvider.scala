@@ -63,7 +63,7 @@ class PertaxAuthenticationProvider @Inject()(val configDecorator: ConfigDecorato
   }
 
   private def ggRedirect(implicit request: Request[_]): Future[Result] = {
-    lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}/sign-in"
+    lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
     Future.successful(Redirect(ggSignIn, Map(
       "continue" -> Seq(postSignInRedirectUrl),
       "accountType" -> Seq("individual"),
