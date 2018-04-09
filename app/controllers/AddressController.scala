@@ -29,7 +29,7 @@ import error.LocalErrorHandler
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.{DateTime, DateTimeZone, LocalDate}
 import play.api.Logger
 import play.api.data.FormError
 import play.api.i18n.MessagesApi
@@ -47,10 +47,6 @@ import util.LocalPartialRetriever
 import scala.concurrent.Future
 
 
-class AddressControllerConfiguration {
-  def currentDateWithTimeAtStartOfDay = DateTime.now.withTimeAtStartOfDay
-}
-
 class AddressController @Inject() (
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
@@ -62,14 +58,13 @@ class AddressController @Inject() (
   val auditConnector: PertaxAuditConnector,
   val authConnector: PertaxAuthConnector,
   val partialRetriever: LocalPartialRetriever,
-  val addressControllerConfiguration: AddressControllerConfiguration,
   val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator
 ) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
 
-  def dateDtoForm = DateDto.form(addressControllerConfiguration.currentDateWithTimeAtStartOfDay)
+  def dateDtoForm = DateDto.form(configDecorator.currentLocalDate)
 
   def currentAddressType(personDetails: PersonDetails) = personDetails.address.flatMap(_.`type`).getOrElse("Residential")
 
@@ -364,7 +359,7 @@ class AddressController @Inject() (
             dateDto => {
               cacheSubmittedStartDate(typ, dateDto) map { _ =>
 
-                val proposedStartDate = dateDto.toLocalDate
+                val proposedStartDate = dateDto.startDate
 
                 personDetails.address match {
                   case Some(Address(_, _, _, _, _, _, Some(currentStartDate), _)) =>
@@ -431,7 +426,7 @@ class AddressController @Inject() (
 
             journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
 
-              val address = addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.toLocalDate))
+              val address = addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
 
               citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
 

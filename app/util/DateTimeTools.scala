@@ -30,7 +30,7 @@ object DateTimeTools {
   val defaultTZ = DateTimeZone.forID("Europe/London")
   val unixDateFormat = "yyyy-MM-dd"
   val unixDateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"
-  val cardDateFormat = "dd MMMMM yyyy"
+  val humanDateFormat = "dd MMMMM yyyy"
 
   //Returns for example 1516 in March 2016
   def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(TaxYearResolver.currentTaxYear)
@@ -40,18 +40,16 @@ object DateTimeTools {
     (y-1).toString.takeRight(2) + (y).toString.takeRight(2)
   }
 
-  def asDateFromUnixDate(s: String): DateTime =
-    DateTime.parse(s, DateTimeFormat.forPattern(unixDateFormat).withZone(defaultTZ))
-
-  def asDateFromUnixDateTime(s: String): DateTime =
+  def asDateFromUnixDateTime(s: String): DateTime = //FIXME - remove as unused in non-test code
     DateTime.parse(s, DateTimeFormat.forPattern(unixDateTimeFormat).withZone(defaultTZ))
 
+
+  def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime)  //FIXME - remove and use LocalDate instead
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
+  
 
-  def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime)
-
-  def asLongDateFromUnixDate(unixDate: String): String = {
-    new SimpleDateFormat(cardDateFormat).format(new SimpleDateFormat(unixDateFormat).parse(unixDate))
+  def asHumanDateFromUnixDate(unixDate: String): String = {
+    new SimpleDateFormat(humanDateFormat).format(new SimpleDateFormat(unixDateFormat).parse(unixDate))
   }
 
 }

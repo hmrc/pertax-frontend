@@ -19,9 +19,11 @@ package modules
 import com.google.inject.AbstractModule
 import config.LocalTemplateRenderer
 import filters._
+import models.LocalTaxYearResolver
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.renderer.TemplateRenderer
-import uk.gov.hmrc.play.frontend.filters.{ CSRFExceptionsFilter, CacheControlFilter, CookieCryptoFilter, DeviceIdFilter, HeadersFilter, SessionTimeoutFilter }
+import uk.gov.hmrc.play.frontend.filters.{CSRFExceptionsFilter, CacheControlFilter, CookieCryptoFilter, DeviceIdFilter, HeadersFilter, SessionTimeoutFilter}
+import uk.gov.hmrc.time.TaxYearResolver
 
 class LocalGuiceModule extends AbstractModule {
   override def configure() = {

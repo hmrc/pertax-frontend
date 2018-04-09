@@ -27,7 +27,7 @@ import uk.gov.hmrc.domain.Nino
 
 object Person {
   implicit val formats = {
-    implicit val localDateReads = new Reads[LocalDate] {  //Temporary compatibility fix, remove when citizen-details >= 2.23.0
+    implicit val localDateReads = new Reads[LocalDate] {  //FIXME - Temporary compatibility fix, remove when citizen-details >= 2.23.0
       override def reads(json: JsValue): JsResult[LocalDate] = json match {
         case JsNumber(num) => JsSuccess((new Instant(num.toLong)).toDateTime( DateTimeTools.defaultTZ ).toLocalDate)
         case other => implicitly[Reads[LocalDate]].reads(other)
@@ -56,7 +56,7 @@ case class Person(
 object Address {
 
   implicit val formats = {
-    implicit val localDateReads = new Reads[LocalDate] {  //Temporary compatibility fix, remove when citizen-details >= 2.23.0
+    implicit val localDateReads = new Reads[LocalDate] {  //FIXME - Temporary compatibility fix, remove when citizen-details >= 2.23.0
       override def reads(json: JsValue): JsResult[LocalDate] = json match {
         case JsNumber(num) => JsSuccess((new Instant(num.toLong)).toDateTime( DateTimeTools.defaultTZ ).toLocalDate)
         case other => implicitly[Reads[LocalDate]].reads(other)
