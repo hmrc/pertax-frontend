@@ -28,18 +28,15 @@ object DateDto {
 
   def build(day: Int, month: Int, year: Int) = DateDto(new LocalDate(year, month, day))
 
-  def form(today: DateTime) = Form(
+  def form(today: LocalDate) = Form(
     mapping(
-      "startDate" -> validDateTuple
+      "startDate" -> mandatoryDateTuple("error.enter_valid_date")
         .verifying("error.date_in_future", !_.isAfter(today))
-        .verifying("error.enter_valid_date", !_.isBefore(new DateTime("1000-01-01T00:00:00")))
-        .transform[LocalDate](_.toLocalDate, _.toDateTimeAtStartOfDay)
+        .verifying("error.enter_valid_date", !_.isBefore(new LocalDate("1000-01-01")))
     )(DateDto.apply)(DateDto.unapply)
   )
 }
 
 case class DateDto(
   startDate: LocalDate
-) {
-  def toLocalDate = new LocalDate(startDate.getYear, startDate.getMonthOfYear, startDate.getDayOfMonth)
-}
+)

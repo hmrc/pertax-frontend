@@ -20,6 +20,7 @@ import java.net.{URL, URLEncoder}
 import javax.inject.{Inject, Singleton}
 
 import controllers.routes
+import org.joda.time.{DateTime, LocalDate}
 import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
@@ -34,6 +35,8 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val gg_web_context   = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg")
 
   val defaultOrigin = Origin("PERTAX")
+
+  def currentLocalDate: LocalDate = LocalDate.now()
 
   private lazy val contactFrontendService = baseUrl("contact-frontend")
   private lazy val messageFrontendService = baseUrl("message-frontend")
