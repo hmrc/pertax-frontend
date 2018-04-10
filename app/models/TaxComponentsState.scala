@@ -17,13 +17,13 @@
 package models
 
 
-sealed trait TaxSummaryState {
-  def getTaxSummary: Option[TaxSummary] = this match {
-    case TaxSummaryAvailiableState(ts) => Some(ts)
+sealed trait TaxComponentsState {
+  def getTaxComponents: Option[TaxComponents] = this match {
+    case TaxComponentsAvailableState(tc) => Some(tc)
     case _ => None
   }
 }
-case object TaxSummaryDisabledState extends TaxSummaryState
-case object TaxSummaryUnreachableState extends TaxSummaryState
-case object TaxSummaryNotAvailiableState extends TaxSummaryState
-case class TaxSummaryAvailiableState(taxSummary: TaxSummary) extends TaxSummaryState
+case object TaxComponentsDisabledState extends TaxComponentsState
+case object TaxComponentsUnreachableState extends TaxComponentsState
+case object TaxComponentsNotAvailableState extends TaxComponentsState
+case class TaxComponentsAvailableState(taxComponents: TaxComponents) extends TaxComponentsState

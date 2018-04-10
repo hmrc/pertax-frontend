@@ -14,14 +14,14 @@
  * limitations under the License.
  *@
 
-@(taxSummary: Option[TaxSummary])(implicit messages: play.api.i18n.Messages)
+@(taxComponents: Option[TaxComponents])(implicit messages: play.api.i18n.Messages)
 
 @import tags._
 
 @cardContent = @{
-  taxSummary match {
-    case Some(ts) if ts.isMarriageAllowanceTransferee => Messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")
-    case Some(ts) if ts.isMarriageAllowanceTransferor => Messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")
+  taxComponents match {
+    case Some(tc) if tc.isMarriageAllowanceRecipient => Messages("label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you")
+    case Some(tc) if tc.isMarriageAllowanceTransferor => Messages("label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner")
     case _ => Messages("label.transfer_part_of_your_personal_allowance_to_your_partner_")
   }
 }
@@ -35,7 +35,7 @@
   bodyContent = Some(Html("<p>" + cardContent + "</p>"))
 ){
     <ul>
-    @if(taxSummary.map(_.notMarriageAllowanceCustomer).getOrElse(true)) {
+    @if(taxComponents.map(_.notMarriageAllowanceCustomer).getOrElse(true)) {
       <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/how-it-works" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Find out if you qualify for Marriage Allowance">@Messages("label.find_out_if_you_qualify_for_marriage_allowance")</a></li>
     } else {
       <li><a class="ga-track-anchor-click" href="/marriage-allowance-application/make-changes" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Manage your Marriage Allowance">@Messages("label.manage_your_marriage_allowance")</a></li>

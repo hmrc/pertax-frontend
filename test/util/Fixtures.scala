@@ -72,14 +72,8 @@ trait PafFixtures {
 }
 
 trait TaiFixtures {
-  def exampleTaxSummaryDetailsJson = Source.fromInputStream(getClass.getResourceAsStream("/tai/taxSummaryDetails/AA111111.json"), "UTF-8").mkString
-  def exampleTaxSummaryDetailsJsonTaxCodeEndsN = Source.fromInputStream(getClass.getResourceAsStream("/tai/taxSummaryDetails/AA111111A.json"), "UTF-8").mkString
-  def exampleTaxSummaryDetailsJsonTaxCodeEndsM = Source.fromInputStream(getClass.getResourceAsStream("/tai/taxSummaryDetails/AA111112A.json"), "UTF-8").mkString
-  def exampleTaxSummaryDetailsJsonBothCompanyBenefits = Source.fromInputStream(getClass.getResourceAsStream("/tai/taxSummaryDetails/AA111113A.json"), "UTF-8").mkString
-  def exampleTaxSummaryDetailsJsonCompanyBenefitsCarOnly = Source.fromInputStream(getClass.getResourceAsStream("/tai/taxSummaryDetails/AA111114A.json"), "UTF-8").mkString
-  def exampleTaxSummaryDetailsJsonCompanyBenefitsMedicalOnly = Source.fromInputStream(getClass.getResourceAsStream("/tai/taxSummaryDetails/AA111115A.json"), "UTF-8").mkString
 
-  def buildTaxSummary = TaxSummary(Seq("500T"), Seq())
+  def buildTaxComponents: TaxComponents = TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
 }
 
 trait TaxCalculationFixtures {
