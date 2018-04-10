@@ -19,9 +19,9 @@ package controllers
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
-import models.addresslookup.{AddressRecord, Country, RecordSet, _}
+import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
-import models.{AddressJourneyData, PertaxContext, PertaxUser, UserDetails}
+import models._
 import org.joda.time.{DateTime, LocalDate}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -30,7 +30,6 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.FakeRequest
@@ -60,9 +59,6 @@ class AddressControllerSpec extends BaseSpec  {
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[AddressControllerConfiguration].toInstance(new AddressControllerConfiguration {
-      override val currentDateWithTimeAtStartOfDay = DateTime.parse("2016-02-02").withTimeAtStartOfDay
-    }))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
     .build()
 
@@ -121,6 +117,7 @@ class AddressControllerSpec extends BaseSpec  {
       when(c.configDecorator.taxCreditsEnabled) thenReturn true
       when(c.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
       when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
+      when(c.configDecorator.currentLocalDate) thenReturn LocalDate.parse("2016-02-02")
 
       c
     }
@@ -1256,8 +1253,8 @@ class AddressControllerSpec extends BaseSpec  {
 
       val validAddressRecordSet = RecordSet(
         List(
-          AddressRecord("GB990091234514",Address(List("1 Fake Street", "Fake Town"),Some("Fake City"), None,"AA1 1AA",Country("UK","United Kingdom")),"en"),
-          AddressRecord("GB990091234515",Address(List("2 Fake Street", "Fake Town"),Some("Fake City"), None,"AA1 1AA",Country("UK","United Kingdom")),"en")
+          AddressRecord("GB990091234514",PafAddress(List("1 Fake Street", "Fake Town"),Some("Fake City"), None,"AA1 1AA",Country("UK","United Kingdom")),"en"),
+          AddressRecord("GB990091234515",PafAddress(List("2 Fake Street", "Fake Town"),Some("Fake City"), None,"AA1 1AA",Country("UK","United Kingdom")),"en")
         )
       )
 

@@ -18,9 +18,8 @@ package models
 
 import javax.inject.{Inject, Singleton}
 
-import controllers.AddressControllerConfiguration
-import org.joda.time.{DateTime, LocalDateTime}
-import uk.gov.hmrc.time.TaxYearResolver
+import config.ConfigDecorator
+import org.joda.time.LocalDate
 import util.DateTimeTools._
 
 trait SaDeadlineStatus
@@ -45,7 +44,10 @@ case class TaxCalculationDisabledState(startOfTaxYear: Int, endOfTaxYear: Int) e
 case object TaxCalculationUnkownState extends TaxCalculationState
 
 @Singleton
-class TaxCalculationStateFactory @Inject()(val addressControllerConfiguration: AddressControllerConfiguration) {
+class TaxCalculationStateFactory @Inject() (
+  val configDecorator: ConfigDecorator,
+  val localTaxYearResolver: LocalTaxYearResolver
+) {
 
   def buildFromTaxCalculation(taxCalculation: Option[TaxCalculation]): TaxCalculationState = {
     taxCalculation match {
@@ -56,28 +58,28 @@ class TaxCalculationStateFactory @Inject()(val addressControllerConfiguration: A
         TaxCalculationOverpaidPaymentProcessingState(amount)
 
       case Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), Some(datePaid), _, _)) =>
-        TaxCalculationOverpaidPaymentPaidState(amount, datePaid)
+        TaxCalculationOverpaidPaymentPaidState(amount, asHumanDateFromUnixDate(datePaid))
 
       case Some(TaxCalculation("Overpaid", amount, _, Some("CHEQUE_SENT"), Some(datePaid), _, _)) =>
-        TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid)
+        TaxCalculationOverpaidPaymentChequeSentState(amount, asHumanDateFromUnixDate(datePaid))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, None)) =>
         TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, None, None)
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, Some(dueDate))) =>
-        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(asLongDateFromUnixDate(dueDate)), getSaDeadlineStatus(asDateFromUnixDate(dueDate)))
+        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"),_, _, None)) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"),_, Some("P302"), Some(dueDate))) =>
-        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(asLongDateFromUnixDate(dueDate)), getSaDeadlineStatus(asDateFromUnixDate(dueDate)))
+        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, None)) =>
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, None)
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))) =>
-        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(asLongDateFromUnixDate(dueDate)))
+        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)))
 
       case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _, _, _)) =>
         TaxCalculationUnderpaidPaymentsDownState(taxYear, taxYear + 1)
@@ -86,11 +88,12 @@ class TaxCalculationStateFactory @Inject()(val addressControllerConfiguration: A
     }
   }
 
-  def getSaDeadlineStatus(dueDate: DateTime): Option[SaDeadlineStatus] = {
-    val now                               = new LocalDateTime(addressControllerConfiguration.currentDateWithTimeAtStartOfDay).toDateTime.withZone(defaultTZ)
+  def getSaDeadlineStatus(dueDate: LocalDate): Option[SaDeadlineStatus] = {
+
+    val now                               = new LocalDate(configDecorator.currentLocalDate)
     val dueDateEquals31stJanuary          = dueDate.getMonthOfYear==1 && dueDate.getDayOfMonth==31
-    val dueDatePassed                     = now.toDateTime.withZone(defaultTZ).isAfter(dueDate)
-    val datePassed14thDec                 = now.isAfter(asDateFromUnixDate(TaxYearResolver.currentTaxYear + "-12-14"))
+    val dueDatePassed                     = now.isAfter(dueDate)
+    val datePassed14thDec                 = now.isAfter(new LocalDate(localTaxYearResolver.currentTaxYear + "-12-14"))
     val dateWithin30DaysOfDueDate         = now.isAfter(dueDate.minusDays(31))
 
     (dueDateEquals31stJanuary, dueDatePassed, datePassed14thDec, dateWithin30DaysOfDueDate) match {
