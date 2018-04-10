@@ -22,42 +22,42 @@ import models._
 import play.api.i18n.Messages
 import play.twirl.api.Html
 import models.SelfAssessmentUserType
-import models.TaxSummary
+import models.TaxComponents
 import util.DateTimeTools.previousAndCurrentTaxYear
 
 @Singleton
 class HomeCardGenerator {
 
-  def getIncomeCards(pertaxUser: Option[PertaxUser], taxSummaryState: TaxSummaryState,
+  def getIncomeCards(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState,
                      taxCalculationState: Option[TaxCalculationState],
                      saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
-    getPayAsYouEarnCard(pertaxUser, taxSummaryState),
+    getPayAsYouEarnCard(pertaxUser, taxComponentsState),
     getTaxCalculationCard(taxCalculationState),
     getSelfAssessmentCard(saActionNeeded),
     getNationalInsuranceCard()
   ).flatten
 
-  def getBenefitCards(taxSummary: Option[TaxSummary])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
+  def getBenefitCards(taxComponents: Option[TaxComponents])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getTaxCreditsCard(),
     getChildBenefitCard(),
-    getMarriageAllowanceCard(taxSummary)
+    getMarriageAllowanceCard(taxComponents)
   ).flatten
 
   def getPensionCards(pertaxUser: Option[PertaxUser])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getStatePensionCard()
   ).flatten
 
-  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxSummaryState: TaxSummaryState)(implicit messages: Messages) = {
+  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(implicit messages: Messages) = {
 
     pertaxUser match {
 
       case Some(u) if u.isPaye =>
 
-        taxSummaryState match {
-          case TaxSummaryAvailiableState(ts) => Some(views.html.cards.home.payAsYouEarn(ts.isCompanyBenefitRecipient, displayCardActions = true))
-          case TaxSummaryDisabledState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
-          case TaxSummaryUnreachableState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
-          case TaxSummaryNotAvailiableState => None
+        taxComponentsState match {
+          case TaxComponentsAvailableState(tc) => Some(views.html.cards.home.payAsYouEarn(tc.isCompanyBenefitRecipient, displayCardActions = true))
+          case TaxComponentsDisabledState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
+          case TaxComponentsUnreachableState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
+          case TaxComponentsNotAvailableState => None
         }
       case _ => None
     }
@@ -97,8 +97,8 @@ class HomeCardGenerator {
     Some(views.html.cards.home.childBenefit())
   }
 
-  def getMarriageAllowanceCard(taxSummary: Option[TaxSummary])(implicit messages: Messages) = {
-    Some(views.html.cards.home.marriageAllowance(taxSummary))
+  def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit messages: Messages) = {
+    Some(views.html.cards.home.marriageAllowance(taxComponents))
   }
 
   def getStatePensionCard()(implicit messages: Messages) = {

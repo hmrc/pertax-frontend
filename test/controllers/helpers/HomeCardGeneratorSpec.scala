@@ -44,25 +44,26 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def hasPertaxUser: Boolean
       def isPayeUser: Boolean
-      def iabdType: Int
-      def taxSummaryState: TaxSummaryState
+      def taxComponentType: String
+      def taxComponentsState: TaxComponentsState
       def isCompanyBenefits: Boolean
       def displayCardActions: Boolean
 
-      lazy val fakeTaxSummary = Fixtures.buildTaxSummary.copy(companyBenefits = Seq(iabdType))
+      lazy val fakeTaxComponents = Fixtures.buildTaxComponents.copy(taxComponents = Seq(taxComponentType))
 
-      lazy val pertaxUser = if(hasPertaxUser)
-        Some(PertaxUser(Fixtures.buildFakeAuthContext(withPaye = isPayeUser),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
-      else None
+      lazy val pertaxUser: Option[PertaxUser] = if(hasPertaxUser)
+        Some(PertaxUser(Fixtures.buildFakeAuthContext(withPaye = isPayeUser), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
+      else
+        None
 
-      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxSummaryState)
+      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
     }
 
     "return nothing when called with no Pertax user" in new LocalSetup {
       val hasPertaxUser = false
       val isPayeUser = false
-      val iabdType = 0
-      val taxSummaryState = TaxSummaryUnreachableState
+      val taxComponentType = "unused"
+      val taxComponentsState = TaxComponentsUnreachableState
       val isCompanyBenefits = false
       val displayCardActions = false
 
@@ -73,8 +74,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return nothing when called with a Pertax user that is not PAYE" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = false
-      val iabdType = 0
-      val taxSummaryState = TaxSummaryUnreachableState
+      val taxComponentType = "unused"
+      val taxComponentsState = TaxComponentsUnreachableState
       val isCompanyBenefits = false
       val displayCardActions = false
 
@@ -84,8 +85,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return no content when called with with a Pertax user that is PAYE but has no tax summary" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val iabdType = 0
-      val taxSummaryState = TaxSummaryNotAvailiableState
+      val taxComponentType = "unused"
+      val taxComponentsState = TaxComponentsNotAvailableState
       val isCompanyBenefits = false
       val displayCardActions = false
 
@@ -95,8 +96,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but there was an error calling the endpoint" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val iabdType = 0
-      val taxSummaryState = TaxSummaryUnreachableState
+      val taxComponentType = "unused"
+      val taxComponentsState = TaxComponentsUnreachableState
       val isCompanyBenefits = false
       val displayCardActions = false
 
@@ -107,9 +108,9 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      //      val hasTaxSummary = false
-      val iabdType = 0
-      val taxSummaryState = TaxSummaryDisabledState
+      val hasTaxComponents = false
+      val taxComponentType = "unused"
+      val taxComponentsState = TaxComponentsDisabledState
       val isCompanyBenefits = false
       val displayCardActions = false
 
@@ -120,8 +121,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with with a Pertax user that is PAYE with company benefits" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val iabdType = 31
-      val taxSummaryState = TaxSummaryAvailiableState(fakeTaxSummary)
+      val taxComponentType = "CarBenefit"
+      val taxComponentsState = TaxComponentsAvailableState(fakeTaxComponents)
       val isCompanyBenefits = true
       val displayCardActions = true
 
@@ -132,8 +133,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with with a Pertax user that is PAYE without company benefits" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val iabdType = 0
-      val taxSummaryState = TaxSummaryAvailiableState(fakeTaxSummary)
+      val taxComponentType = "unused"
+      val taxComponentsState = TaxComponentsAvailableState(fakeTaxComponents)
       val isCompanyBenefits = false
       val displayCardActions = true
 
@@ -375,42 +376,42 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      def hasTaxSummary: Boolean
-      def taxCodeEndsWith: String
+      def hasTaxComponents: Boolean
+      def taxComponents: Seq[String]
 
-      lazy val taxSummary = if (hasTaxSummary) Some(Fixtures.buildTaxSummary.copy(taxCodes = Seq("500"+taxCodeEndsWith))) else None
-      lazy val cardBody = c.getMarriageAllowanceCard(taxSummary)
+      lazy val tc = if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+      lazy val cardBody = c.getMarriageAllowanceCard(tc)
     }
 
 
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in new LocalSetup {
-      override val hasTaxSummary: Boolean = true
-      override val taxCodeEndsWith = "M"
+      override val hasTaxComponents: Boolean = true
+      override val taxComponents = Seq("MarriageAllowanceReceived")
 
-      cardBody shouldBe Some(marriageAllowance(taxSummary))
+      cardBody shouldBe Some(marriageAllowance(tc))
     }
 
     "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in new LocalSetup {
-      override val hasTaxSummary: Boolean = true
-      override val taxCodeEndsWith = "N"
+      override val hasTaxComponents: Boolean = true
+      override val taxComponents = Seq("MarriageAllowanceTransferred")
 
-      cardBody shouldBe Some(marriageAllowance(taxSummary))
+      cardBody shouldBe Some(marriageAllowance(tc))
     }
 
     "return correct markup when called with a user who has no tax summary" in new LocalSetup {
 
-      override val hasTaxSummary = false
-      override val taxCodeEndsWith = "unused"
+      override val hasTaxComponents = false
+      override val taxComponents = Seq()
 
-      cardBody shouldBe Some(marriageAllowance(taxSummary))
+      cardBody shouldBe Some(marriageAllowance(tc))
     }
 
     "return correct markup when called with a user who has tax summary but no marriage allowance" in new LocalSetup {
 
-      override val hasTaxSummary = true
-      override val taxCodeEndsWith = "T"
+      override val hasTaxComponents = true
+      override val taxComponents = Seq("MedicalInsurance")
 
-      cardBody shouldBe Some(marriageAllowance(taxSummary))
+      cardBody shouldBe Some(marriageAllowance(tc))
     }
   }
 

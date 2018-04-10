@@ -32,11 +32,11 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 
-sealed trait TaxSummaryResponse
-case class TaxSummarySuccessResponse(taxSummary: TaxSummary) extends TaxSummaryResponse
-case object TaxSummaryUnavailiableResponse extends TaxSummaryResponse
-case class TaxSummaryUnexpectedResponse(r: HttpResponse) extends TaxSummaryResponse
-case class TaxSummaryErrorResponse(cause: Exception) extends TaxSummaryResponse
+sealed trait TaxComponentsResponse
+case class TaxComponentsSuccessResponse(taxComponents: TaxComponents) extends TaxComponentsResponse
+case object TaxComponentsUnavailableResponse extends TaxComponentsResponse
+case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponentsResponse
+case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 
 
 @Singleton
@@ -45,32 +45,32 @@ class TaiService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) ex
   lazy val taiUrl = baseUrl("tai")
 
   /**
-    * Gets a tax summary
+    * Gets a list of tax components
     */
-  def taxSummary(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxSummaryResponse] = {
-    withMetricsTimer("get-tax-summary") { t =>
+  def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] = {
+    withMetricsTimer("get-tax-components") { t =>
 
-      simpleHttp.get[TaxSummaryResponse](s"$taiUrl/tai/$nino/tax-summary/$year")(
+      simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()
-            TaxSummarySuccessResponse(TaxSummary.fromJsonTaxSummaryDetails(r.json))
+            TaxComponentsSuccessResponse(TaxComponents.fromJsonTaxComponents(r.json))
 
           case r if r.status == NOT_FOUND | r.status == BAD_REQUEST =>
             t.completeTimerAndIncrementSuccessCounter()
-            Logger.warn("Unable to find tax summary record from the tai-service")
-            TaxSummaryUnavailiableResponse
+            Logger.warn("Unable to find tax components from the tai-service")
+            TaxComponentsUnavailableResponse
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting tax summary record from the tai-service")
-            TaxSummaryUnexpectedResponse(r)
+            Logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
+            TaxComponentsUnexpectedResponse(r)
         },
         onError = {
           case e =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.error("Error getting tax summary record from the tai-service", e)
-            TaxSummaryErrorResponse(e)
+            Logger.error("Error getting tax components from the tai-service", e)
+            TaxComponentsErrorResponse(e)
         }
       )
     }

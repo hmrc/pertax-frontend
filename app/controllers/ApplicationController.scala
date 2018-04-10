@@ -72,7 +72,7 @@ class ApplicationController @Inject() (
 
       val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
 
-      val serviceCallResponses = userAndNino.fold[Future[(TaxSummaryState,Option[TaxCalculationState])]](Future.successful( (TaxSummaryDisabledState, None) )) { userAndNino =>
+      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState,Option[TaxCalculationState])]](Future.successful( (TaxComponentsDisabledState, None) )) { userAndNino =>
 
         val (user, nino) = userAndNino
 
@@ -87,17 +87,17 @@ class ApplicationController @Inject() (
           Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
         }
 
-        val taxSummaryState: Future[TaxSummaryState] = if (configDecorator.taxSummaryEnabled) {
-          taiService.taxSummary(nino, year) map {
-            case TaxSummarySuccessResponse(ts) =>
-              TaxSummaryAvailiableState(ts)
-            case TaxSummaryUnavailiableResponse =>
-              TaxSummaryNotAvailiableState
+        val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
+          taiService.taxComponents(nino, year) map {
+            case TaxComponentsSuccessResponse(ts) =>
+              TaxComponentsAvailableState(ts)
+            case TaxComponentsUnavailableResponse =>
+              TaxComponentsNotAvailableState
             case _ =>
-              TaxSummaryUnreachableState
+              TaxComponentsUnreachableState
           }
         } else {
-          Future.successful(TaxSummaryDisabledState)
+          Future.successful(TaxComponentsDisabledState)
         }
 
         for {
@@ -122,7 +122,7 @@ class ApplicationController @Inject() (
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
               pertaxContext.user, taxSummaryState, taxCalculationState, saUserType)
 
-            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxSummary)
+            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
             val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(pertaxContext.user)
 
