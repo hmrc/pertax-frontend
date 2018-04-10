@@ -30,7 +30,7 @@ object DateDto {
 
   def form(today: LocalDate) = Form(
     mapping(
-      "startDate" -> mandatoryDateTuple("error.enter_valid_date")
+      "startDate" -> mandatoryDateTuple("error.enter_a_date")
         .verifying("error.date_in_future", !_.isAfter(today))
         .verifying("error.enter_valid_date", !_.isBefore(new LocalDate("1000-01-01")))
     )(DateDto.apply)(DateDto.unapply)
