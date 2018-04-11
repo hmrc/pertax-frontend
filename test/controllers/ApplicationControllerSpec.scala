@@ -100,8 +100,8 @@ class ApplicationControllerSpec extends BaseSpec {
       when(c.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(authority))
       }
-      when(c.taiService.taxSummary(meq(nino), any[Int])(any[HeaderCarrier])) thenReturn {
-        Future.successful(TaxSummarySuccessResponse(buildTaxSummary))
+      when(c.taiService.taxComponents(meq(nino), any[Int])(any[HeaderCarrier])) thenReturn {
+        Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
       }
       when(c.taxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
@@ -137,7 +137,7 @@ class ApplicationControllerSpec extends BaseSpec {
         Future.successful(None)
       }
 
-      when(c.configDecorator.taxSummaryEnabled) thenReturn true
+      when(c.configDecorator.taxComponentsEnabled) thenReturn true
       when(c.configDecorator.taxcalcEnabled) thenReturn true
       when(c.configDecorator.ltaEnabled) thenReturn true
       when(c.configDecorator.allowSaPreview) thenReturn true
@@ -219,7 +219,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
+      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
@@ -235,7 +235,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
+      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
@@ -252,7 +252,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxSummaryEnabled) verify(controller.taiService, times(1)).taxSummary(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
+      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
@@ -279,7 +279,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(meq(nino))(any())
-      verify(controller.taiService, times(0)).taxSummary(any(), meq(TaxYearResolver.currentTaxYear))(any())
+      verify(controller.taiService, times(0)).taxComponents(any(), meq(TaxYearResolver.currentTaxYear))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {

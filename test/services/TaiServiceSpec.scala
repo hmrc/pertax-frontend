@@ -18,7 +18,7 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
-import models.TaxSummary
+import models.TaxComponents
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -36,8 +36,23 @@ class TaiServiceSpec extends BaseSpec {
     def httpResponse: HttpResponse
     def simulateTaiServiceIsDown: Boolean
 
-    val taxSummaryDetails = Fixtures.exampleTaxSummaryDetailsJson
-    val jsonTaxSummaryDetails = Json.parse(taxSummaryDetails)
+    val taxComponentsJson = Json.parse("""{
+                                         |   "data" : [ {
+                                         |      "componentType" : "EmployerProvidedServices",
+                                         |      "employmentId" : 12,
+                                         |      "amount" : 12321,
+                                         |      "description" : "Some Description",
+                                         |      "iabdCategory" : "Benefit"
+                                         |   }, {
+                                         |      "componentType" : "PersonalPensionPayments",
+                                         |      "employmentId" : 31,
+                                         |      "amount" : 12345,
+                                         |      "description" : "Some Description Some",
+                                         |      "iabdCategory" : "Allowance"
+                                         |   } ],
+                                         |   "links" : [ ]
+                                         |}""".stripMargin)
+
     val anException = new RuntimeException("Any")
 
     lazy val (service, metrics, timer) = {
@@ -62,70 +77,70 @@ class TaiServiceSpec extends BaseSpec {
   "Calling TaiService.taxSummary" should {
 
     trait LocalSetup extends SpecSetup {
-      val metricId = "get-tax-summary"
+      val metricId = "get-tax-components"
     }
 
-    "return a TaxSummarySuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {
+    "return a TaxComponentsSuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(jsonTaxSummaryDetails))
+      override lazy val httpResponse = HttpResponse(OK, Some(taxComponentsJson))
 
-      val r = service.taxSummary(Fixtures.fakeNino, 2014)
+      val r = service.taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxSummarySuccessResponse(TaxSummary(Seq("500T"), Seq()))
+      await(r) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
     }
 
-    "return TaxSummaryUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
+    "return TaxComponentsUnexpectedResponse when an unexpected status is returned" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
       val seeOtherResponse = HttpResponse(SEE_OTHER)
       override lazy val httpResponse = seeOtherResponse  //For example
 
-      val r = service.taxSummary(Fixtures.fakeNino, 2014)
+      val r = service.taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxSummaryUnexpectedResponse(seeOtherResponse)
+      await(r) shouldBe TaxComponentsUnexpectedResponse(seeOtherResponse)
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
     }
 
-    "return TaxSummaryUnavailiableResponse when called with a nino that returns 404" in new LocalSetup {
+    "return TaxComponentsUnavailableResponse when called with a nino that returns 404" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
       override lazy val httpResponse = HttpResponse(NOT_FOUND)
 
-      val r = service.taxSummary(Fixtures.fakeNino, 2014)
+      val r = service.taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxSummaryUnavailiableResponse
+      await(r) shouldBe TaxComponentsUnavailableResponse
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
     }
 
-    "return TaxSummaryUnavailiableResponse when called with a nino that returns 400" in new LocalSetup {
+    "return TaxComponentsUnavailableResponse when called with a nino that returns 400" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
       override lazy val httpResponse = HttpResponse(BAD_REQUEST)
 
-      val r = service.taxSummary(Fixtures.fakeNino, 2014)
+      val r = service.taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxSummaryUnavailiableResponse
+      await(r) shouldBe TaxComponentsUnavailableResponse
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
     }
 
-    "return TaxSummaryErrorResponse when called and service is down" in new LocalSetup {
+    "return TaxComponentsErrorResponse when called and service is down" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = true
       override lazy val httpResponse = ???
 
-      val r = service.taxSummary(Fixtures.fakeNino, 2014)
+      val r = service.taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxSummaryErrorResponse(anException)
+      await(r) shouldBe TaxComponentsErrorResponse(anException)
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
