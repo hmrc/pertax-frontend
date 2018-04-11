@@ -32,7 +32,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   // Define the web contexts to access the IV-FE and AUTH frontend applications.
   lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")
   lazy val ida_web_context  = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
-  lazy val gg_web_context   = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg")
+  lazy val gg_web_context   = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
 
   val defaultOrigin = Origin("PERTAX")
 
