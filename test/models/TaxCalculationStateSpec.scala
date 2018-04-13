@@ -117,7 +117,6 @@ class TaxCalculationStateSpec extends BaseSpec {
       result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("31 January 2018"), None)
     }
 
-
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
     "    today's date is 15/12 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
     "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
