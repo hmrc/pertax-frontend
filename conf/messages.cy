@@ -225,6 +225,50 @@ label.activate_your_self_assessment_registration=Cychwyn eich cofrestriad ar gyf
 label.activate_your_self_assessment=Cychwyn eich Hunanasesiad
 
 label.you_need_to_activate_your_self_assessment_registration_using_your_=Mae angen i chi gychwyn eich cofrestriad Hunanasesiad drwy ddefnyddio’ch cod cychwn.<br /><br />Anfonwyd eich cod cychwyn atoch drwy’r post pan wnaethoch gofrestru i wneud eich Hunanasesiad ar-lein.<br /><br />Os oes mwy na 10 diwrnod gwaith wedi mynd heibio (21 os ydych dramor) ac nad yw wedi dod i law <a href="{0}" target="_blank" rel="noopener noreferrer">cysylltwch â’r Ddesg Gymorth Gwasanaethau Ar-lein (yn agor ffenestr newydd)</a>.
+label.find_out_how_to_access_your_self_assessment=Cael gwybod sut i gyrchu’ch Hunanasesiad
+label.you_already_have_a_utr=Mae Cyfeirnod Unigryw y Trethdalwr (UTR) eisoes gennych.
+label.your_utr_is_=Eich UTR yw {0}.
+label.we_need_to_ask_you_some_questions_=Mae’n rhaid i ni ofyn ambell gwestiwn i chi cyn y gallwn eich helpu.
+label.have_you_ever_filed_your_tax_return_online=Ydych chi wedi cyflwyno’ch Ffurflen Dreth ar-lein erioed?
+label.did_you_deregister_from_sa_online=Ydych chi wedi dadgofrestru rhag defnyddio Hunanasesiad Ar-lein?
+label.for_example_if_you_told_us_you_had_=Er enghraifft, os rhoesoch wybod i ni eich bod wedi rhoi’r gorau i fod yn hunangyflogedig.
+label.you_need_to_register_again_for_sa_online=Mae’n rhaid i chi gofrestru eto ar gyfer Hunanasesiad Ar-lein
+label.use_your_utr_to_register_again_=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">gofrestru eto ar gyfer Hunanasesiad ar-lein</a>.
+label.registration_can_take_up_to_ten_days_=Gall gymryd hyd at 10 diwrnod i gofrestru. Ar ôl cofrestru, mae’n rhaid i chi gychwyn eich cyfrif gyda’r cod rydym yn ei anfon atoch drwy’r post.
+label.sign_in_with_different_account_details=Mewngofnodi gan ddefnyddio manylion cyfrif gwahanol
+label.you_may_be_using_the_wrong_government_gateway_account_=Mae’n bosibl eich bod yn defnyddio’r cyfrif anghywir ar gyfer Porth y Llywodraeth. Allgofnodwch, ac yna mewngofnodwch eto gan ddefnyddio’r manylion cywir.
+label.you_need_to_use_the_government_gateway_user_id_=Mae angen i chi ddefnyddio’r Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer Porth y Llywodraeth a grëwyd gennych wrth gofrestru y tro cyntaf ar gyfer Hunanasesiad ar-lein.
+label.get_help_signing_in=Cael help i fewngofnodi
+label.get_help_if_you_have=Gallwch gael help os ydych wedi:
+label.forgotten_your_self_assessment_user_id=anghofio’ch Dynodydd Defnyddiwr ar gyfer Hunanasesiad
+label.forgotten_your_self_assessment_password=anghofio’ch cyfrinair ar gyfer Hunanasesiad
+label.forgotten_your_self_assessment_user_id_and_password=anghofio’ch Dynodydd Defnyddiwr (ID) a’ch cyfrinair ar gyfer Hunanasesiad
+label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_=Efallai y bydd yn rhaid i chi ddefnyddio’ch Cyfeirnod Unigryw y Trethdalwr (UTR) i adfer eich manylion mewngofnodi.
+label.sign_out_of_this_account=Allgofnodi o’r cyfrif hwn
+label.have_you_ever_done_your_tax_return_by_post=Ydych chi wedi cyflwyno’ch Ffurflen Dreth drwy’r post erioed?
+label.you_need_to_register_to_do__your_tax_return_online=Mae’n rhaid i chi gofrestru i wneud eich Ffurflen Dreth ar-lein
+label.do_your_tax_return_before_the_deadline=Llenwch eich Ffurflen Dreth cyn y dyddiad cau
+label.the_deadline_to_do_your_tax_return_by_post_was_=Y dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth drwy’r post yw 31 Hydref 2018. Gallwch gyflwyno’ch Ffurflen Dreth ar-lein cyn canol nos ar 31 Ionawr 2019.
+label.did_you_get_your_utr_letter=Ydy’r llythyr sy’n cadarnhau’ch UTR wedi eich cyrraedd?
+label.your_utr_is_a_ten_digit_number_=Rhif 10 digid yw’ch Cyfeirnod Unigryw y Trethdalwr (UTR) sydd ei angen arnoch i gofrestru ar gyfer Hunanasesiad ar-lein.
+label.have_you_used_your_utr_to_register_for_self_assessment_online=Ydych chi wedi defnyddio’ch UTR i gofrestru ar gyfer Hunanasesiad Ar-lein?
+label.your_utr_is_a_ten_digit_number_we_sent_by_post=Rhif 10 digid yw’ch Cyfeirnod Unigryw y Trethdalwr (UTR) ac rydym wedi anfon hwnnw atoch drwy’r post.
+label.you_need_to_register_for_self_assessment_online=Mae’n rhaid i chi gofrestru ar gyfer Hunanasesiad Ar-lein
+label.you_need_to_get_an_activation_code=Mae angen cod cychwyn arnoch
+label.you_need_to_get_a_new_activation_code=Mae angen cod cychwyn newydd arnoch
+label.you_need_to_get_a_new_activation_code_by_enrolling=Mae angen cod cychwyn newydd arnoch, ewch ati i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment">ymrestru ar gyfer Hunanasesiad</a> eto.
+label.you_will_need_your_utr_to_get_a_new_activation_code=Bydd angen eich UTR arnoch i gael cod cyrchu newydd, bydd y cod yn eich cyrraedd drwy’r post.
+label.get_an_activation_code_by_enrolling_=Cewch god cychwyn drwy <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment online">ymrestru ar gyfer Hunanasesiad ar-lein.</a>
+label.you_will_need_your_unique_taxpayer_reference=Bydd angen eich Cyfeirnod Unigryw y Trethdalwr (UTR) arnoch.
+label.your_utr_letter_may_still_be_in_the_post=Mae’n bosibl bod y llythyr sy’n cadarnhau’ch UTR yn y post o hyd
+label.we_sent_your_utr_to_you_by_post_=Rydym wedi anfon eich UTR atoch drwy’r post. Gall gymryd hyd at 14 diwrnod gwaith i gyrraedd.
+label.have_you_used_your_utr_to_register=Ydych chi wedi defnyddio’ch UTR i gofrestru ar gyfer Hunanasesiad Ar-lein?
+label.after_you_registered_we_sent_you_an_activation_code_by_post=Ar ôl i chi gofrestru, gwnaethom anfon god cychwyn atoch. Mae’ch cod cychwyn wedi dod i ben.
+label.to_get_a_new_code_you_must_use_your_utr_=I gael cod newydd, mae’n rhaid i chi ddefnyddio’ch Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">gofrestru eto ar gyfer Hunanasesiad ar-lein</a>.
+label.you_must_use_your-new_code_within_=Mae’n rhaid i chi ddefnyddio’ch cod newydd cyn pen 28 diwrnod.
+label.registration_can_take_up_to_ten_days_when_you_register_=Gall gymryd hyd at 10 diwrnod i gofrestru. Wrth gofrestru, gofynnir i chi greu cyfrif newydd ar Borth y Llywodraeth.
+label.use_your_utr_to_register_for_self_assessment_online=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register for Self Assessment online">gofrestru ar gyfer Hunanasesiad ar-lein</a>.
+label.how_to_access_your_self_assessment=Sut i gyrchu’ch Hunanasesiad
 
 label.income_tax=Treth incwm
 label.understand_your_tax_code=Deall eich cod treth
