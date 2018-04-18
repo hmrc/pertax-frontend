@@ -242,12 +242,12 @@ label.get_help_signing_in=Cael help i fewngofnodi
 label.get_help_if_you_have=Gallwch gael help os ydych wedi:
 label.forgotten_your_self_assessment_user_id=anghofio’ch Dynodydd Defnyddiwr ar gyfer Hunanasesiad
 label.forgotten_your_self_assessment_password=anghofio’ch cyfrinair ar gyfer Hunanasesiad
-label.forgotten_your_self_assessment_user_id_and_password=anghofio’ch Dynodydd Defnyddiwr (ID) a’ch cyfrinair ar gyfer Hunanasesiad
+label.forgotten_your_self_assessment_user_id_and_password=anghofio’ch Dynodydd Defnyddiwr a’ch cyfrinair ar gyfer Hunanasesiad
 label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_=Efallai y bydd yn rhaid i chi ddefnyddio’ch Cyfeirnod Unigryw y Trethdalwr (UTR) i adfer eich manylion mewngofnodi.
 label.sign_out_of_this_account=Allgofnodi o’r cyfrif hwn
 label.have_you_ever_done_your_tax_return_by_post=Ydych chi wedi cyflwyno’ch Ffurflen Dreth drwy’r post erioed?
-label.you_need_to_register_to_do__your_tax_return_online=Mae’n rhaid i chi gofrestru i wneud eich Ffurflen Dreth ar-lein
-label.do_your_tax_return_before_the_deadline=Llenwch eich Ffurflen Dreth cyn y dyddiad cau
+label.you_need_to_register_to_do__your_tax_return_online=Mae’n rhaid i chi gofrestru i gyflwyno’ch Ffurflen Dreth ar-lein
+label.do_your_tax_return_before_the_deadline=Cyflwynwch eich Ffurflen Dreth cyn y dyddiad cau
 label.the_deadline_to_do_your_tax_return_by_post_was_=Y dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth drwy’r post yw 31 Hydref 2018. Gallwch gyflwyno’ch Ffurflen Dreth ar-lein cyn canol nos ar 31 Ionawr 2019.
 label.did_you_get_your_utr_letter=Ydy’r llythyr sy’n cadarnhau’ch UTR wedi eich cyrraedd?
 label.your_utr_is_a_ten_digit_number_=Rhif 10 digid yw’ch Cyfeirnod Unigryw y Trethdalwr (UTR) sydd ei angen arnoch i gofrestru ar gyfer Hunanasesiad ar-lein.
@@ -256,8 +256,8 @@ label.your_utr_is_a_ten_digit_number_we_sent_by_post=Rhif 10 digid yw’ch Cyfei
 label.you_need_to_register_for_self_assessment_online=Mae’n rhaid i chi gofrestru ar gyfer Hunanasesiad Ar-lein
 label.you_need_to_get_an_activation_code=Mae angen cod cychwyn arnoch
 label.you_need_to_get_a_new_activation_code=Mae angen cod cychwyn newydd arnoch
-label.you_need_to_get_a_new_activation_code_by_enrolling=Mae angen cod cychwyn newydd arnoch, ewch ati i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment">ymrestru ar gyfer Hunanasesiad</a> eto.
-label.you_will_need_your_utr_to_get_a_new_activation_code=Bydd angen eich UTR arnoch i gael cod cyrchu newydd, bydd y cod yn eich cyrraedd drwy’r post.
+label.you_need_to_get_a_new_activation_code_by_enrolling=Mae angen cod cychwyn newydd arnoch. Ewch ati i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment">ymrestru ar gyfer Hunanasesiad</a> eto.
+label.you_will_need_your_utr_to_get_a_new_activation_code=Bydd angen eich UTR arnoch i gael cod cyrchu newydd. Bydd y cod yn eich cyrraedd drwy’r post.
 label.get_an_activation_code_by_enrolling_=Cewch god cychwyn drwy <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment online">ymrestru ar gyfer Hunanasesiad ar-lein.</a>
 label.you_will_need_your_unique_taxpayer_reference=Bydd angen eich Cyfeirnod Unigryw y Trethdalwr (UTR) arnoch.
 label.your_utr_letter_may_still_be_in_the_post=Mae’n bosibl bod y llythyr sy’n cadarnhau’ch UTR yn y post o hyd
