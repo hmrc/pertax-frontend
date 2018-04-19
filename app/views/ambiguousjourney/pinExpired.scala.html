@@ -14,11 +14,11 @@
  * limitations under the License.
  *@
 
-@(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(utr: SaUtr, continueUrl: String, backlinkUrl: Call)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(title = Messages("label.you_need_to_get_a_new_activation_code"),
   pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.usedUtrToEnrolChoice().url)
+  backlinkUrl = Some(backlinkUrl.url)
 ) {
   <div class="personal-details">
 
