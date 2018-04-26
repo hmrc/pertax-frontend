@@ -132,7 +132,7 @@ class AmbiguousJourneyController @Inject() (
         },
         ambiguousFiledOnlineChoiceDto => {
           ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("pin-expired")))
+            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("pin-expired-register")))
             case false => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("deadline")))
           }
         }
@@ -174,7 +174,7 @@ class AmbiguousJourneyController @Inject() (
         },
         ambiguousFiledOnlineChoiceDto => {
           ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("pin-expired")))
+            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("pin-expired-enrol")))
             case false => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("need-to-enrol")))
           }
         }
@@ -192,7 +192,8 @@ class AmbiguousJourneyController @Inject() (
             case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
             case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
             case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
-            case "pin-expired" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl))
+            case "pin-expired-enrol" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+            case "pin-expired-register" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
             case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
           }
         }
