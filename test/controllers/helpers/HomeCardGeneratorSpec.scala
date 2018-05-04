@@ -34,7 +34,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     override def messagesApi: MessagesApi = injected[MessagesApi]
 
-    val c = new HomeCardGenerator
+    val c = new HomeCardGenerator(configDecorator = injected[ConfigDecorator])
   }
 
 
@@ -348,12 +348,18 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getTaxCreditsCard()
+      def showTaxCreditsPaymentLink: Boolean
+      lazy val cardBody = c.getTaxCreditsCard(showTaxCreditsPaymentLink)
     }
 
-    "always return the same markup" in new LocalSetup {
+    "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in new LocalSetup {
+      override lazy val showTaxCreditsPaymentLink = true
+      cardBody shouldBe Some(taxCredits(showTaxCreditsPaymentLink))
+    }
 
-      cardBody shouldBe Some(taxCredits())
+    "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in new LocalSetup {
+      override lazy val showTaxCreditsPaymentLink = false
+      cardBody shouldBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
   }
 
