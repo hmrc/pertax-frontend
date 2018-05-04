@@ -159,8 +159,9 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val saReminderBannerEnabled = configuration.getString("feature.sa-banner.enabled").getOrElse("true").toBoolean
   lazy val nispEnabled = configuration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
   lazy val allowSaPreview = configuration.getString("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
+  lazy val taxCreditsPaymentLinkEnabled = configuration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
 
-  lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id ").getOrElse("TT55004894")
+  lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
