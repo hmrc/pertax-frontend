@@ -16,8 +16,8 @@
 
 package controllers.helpers
 
-import javax.inject.Singleton
-
+import config.ConfigDecorator
+import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.Messages
 import play.twirl.api.Html
@@ -26,7 +26,7 @@ import models.TaxComponents
 import util.DateTimeTools.previousAndCurrentTaxYear
 
 @Singleton
-class HomeCardGenerator {
+class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
 
   def getIncomeCards(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState,
                      taxCalculationState: Option[TaxCalculationState],
@@ -38,7 +38,7 @@ class HomeCardGenerator {
   ).flatten
 
   def getBenefitCards(taxComponents: Option[TaxComponents])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
-    getTaxCreditsCard(),
+    getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
     getChildBenefitCard(),
     getMarriageAllowanceCard(taxComponents)
   ).flatten
@@ -89,8 +89,8 @@ class HomeCardGenerator {
     Some(views.html.cards.home.nationalInsurance())
   }
 
-  def getTaxCreditsCard()(implicit messages: Messages) = {
-    Some(views.html.cards.home.taxCredits())
+  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages) = {
+    Some(views.html.cards.home.taxCredits(showTaxCreditsPaymentLink))
   }
 
   def getChildBenefitCard()(implicit messages: Messages) = {
