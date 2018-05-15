@@ -28,11 +28,14 @@ import util.DateTimeTools.previousAndCurrentTaxYear
 @Singleton
 class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
 
-  def getIncomeCards(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState,
+  def getIncomeCards(pertaxUser: Option[PertaxUser],
+                     taxComponentsState: TaxComponentsState,
                      taxCalculationState: Option[TaxCalculationState],
-                     saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
+                     saActionNeeded: SelfAssessmentUserType,
+                     previousTaxYear: Int,
+                     currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxComponentsState),
-    getTaxCalculationCard(taxCalculationState),
+    getTaxCalculationCard(taxCalculationState, previousTaxYear, currentTaxYear),
     getSelfAssessmentCard(saActionNeeded),
     getNationalInsuranceCard()
   ).flatten
@@ -63,12 +66,12 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     }
   }
 
-  def getTaxCalculationCard(taxCalculationState: Option[TaxCalculationState])(implicit pertaxContext: PertaxContext, messages: Messages) = {
+  def getTaxCalculationCard(taxCalculationState: Option[TaxCalculationState], previousTaxYear: Int, currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages) = {
 
     taxCalculationState match {
       case Some(TaxCalculationUnderpaidPaymentsDownState(_,_)) => None
       case Some(TaxCalculationUnkownState) => None
-      case Some(taxCalculationState) => Some(views.html.cards.home.taxCalculation(taxCalculationState))
+      case Some(taxCalculationState) => Some(views.html.cards.home.taxCalculation(taxCalculationState, previousTaxYear, currentTaxYear))
       case _ => None
     }
   }
