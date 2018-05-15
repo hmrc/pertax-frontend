@@ -120,7 +120,12 @@ class ApplicationController @Inject() (
           } yield {
 
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-              pertaxContext.user, taxSummaryState, taxCalculationState, saUserType)
+              pertaxContext.user,
+              taxSummaryState,
+              taxCalculationState,
+              saUserType,
+              TaxYearResolver.currentTaxYear-1,
+              TaxYearResolver.currentTaxYear)
 
             val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 

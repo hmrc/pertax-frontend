@@ -152,7 +152,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def taxCalcState: TaxCalculationState
 
-      lazy val cardBody = c.getTaxCalculationCard(Some(taxCalcState))
+      lazy val cardBody = c.getTaxCalculationCard(Some(taxCalcState), 2015, 2016)
     }
 
     "return nothing when called with TaxCalculationUnderpaidPaymentsDownState" in new LocalSetup {
@@ -170,103 +170,103 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return correct markup when called with TaxCalculationOverpaidRefundState" in new LocalSetup {
       val taxCalcState = TaxCalculationOverpaidRefundState(100, 2015, 2016)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationOverpaidPaymentProcessingState" in new LocalSetup {
       val taxCalcState = TaxCalculationOverpaidPaymentProcessingState(100)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationOverpaidPaymentPaidState" in new LocalSetup {
 
       val taxCalcState = TaxCalculationOverpaidPaymentPaidState(100, "01 Jan 2016")
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationOverpaidPaymentChequeSentState" in new LocalSetup {
 
       val taxCalcState = TaxCalculationOverpaidPaymentChequeSentState(100, "01 Jan 2016")
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus or due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, None, None)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus and due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), None)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlineApproachingStatus))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlinePassedStatus))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus or due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, None, None)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus and due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), None)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlineApproachingStatus))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlinePassedStatus))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaidAllState with no due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, None)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaidAllState with a due date" in new LocalSetup {
 
       val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, Some("01/01/2016"))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationDisabledState" in new LocalSetup {
       val taxCalcState = TaxCalculationDisabledState(2015, 2016)
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState))
+      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
   }
 
