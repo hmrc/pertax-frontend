@@ -285,25 +285,26 @@ class HomeCardGeneratorSpec extends BaseSpec {
       implicit lazy val pertaxContext = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, configDecorator, pertaxUser)
 
       def saUserType: SelfAssessmentUserType
-      val taxYear = DateTimeTools.previousAndCurrentTaxYear
+      val taxYear = "1718"
+      val nextDeadlineTaxYear = 2019
 
       lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
 
-      lazy val cardBody = c.getSelfAssessmentCard(saUserType)
+      lazy val cardBody = c.getSelfAssessmentCard(saUserType, nextDeadlineTaxYear)
     }
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      cardBody shouldBe Some(selfAssessment(saUserType, taxYear))
+      cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
     "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
 
       val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      cardBody shouldBe Some(selfAssessment(saUserType, taxYear))
+      cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
 
@@ -311,7 +312,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       val saUserType = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      cardBody shouldBe Some(selfAssessment(saUserType, taxYear))
+      cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
     "return nothing when called with NonFilerSelfAssessmentUser" in new LocalSetup {

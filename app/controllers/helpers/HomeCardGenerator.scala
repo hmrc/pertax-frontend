@@ -32,11 +32,10 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
                      taxComponentsState: TaxComponentsState,
                      taxCalculationState: Option[TaxCalculationState],
                      saActionNeeded: SelfAssessmentUserType,
-                     previousTaxYear: Int,
                      currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxComponentsState),
-    getTaxCalculationCard(taxCalculationState, previousTaxYear, currentTaxYear),
-    getSelfAssessmentCard(saActionNeeded),
+    getTaxCalculationCard(taxCalculationState, currentTaxYear-1, currentTaxYear),
+    getSelfAssessmentCard(saActionNeeded, currentTaxYear+1),
     getNationalInsuranceCard()
   ).flatten
 
@@ -76,12 +75,12 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     }
   }
 
-  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType)(implicit pertaxContext: PertaxContext, messages: Messages) = {
+  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages) = {
     if (!pertaxContext.user.fold(false)(_.isVerify)) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saActionNeeded =>
-          Some(views.html.cards.home.selfAssessment(saActionNeeded, previousAndCurrentTaxYear))
+          Some(views.html.cards.home.selfAssessment(saActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
       }
     } else {
       None
