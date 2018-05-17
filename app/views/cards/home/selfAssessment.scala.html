@@ -14,14 +14,14 @@
  * limitations under the License.
  *@
 
-@(saActionNeeded: SelfAssessmentUserType, taxYear: String)(implicit messages: play.api.i18n.Messages, pertaxContext: PertaxContext)
+@(saActionNeeded: SelfAssessmentUserType, taxYear: String, nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages, pertaxContext: PertaxContext)
 
 @import tags._
 
 @cardContent = {
   @saActionNeeded match {
     case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-    <p>@Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_")</p>
+      <p>@Messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_", nextDeadlineTaxYear)</p>
     }
     case _ => {}
   }
