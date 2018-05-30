@@ -60,6 +60,7 @@
     &__sender {
       float:right;
       text-align: left;
+      width: 90%;
 
       .phone {
         margin-top: 1.05263em;
@@ -115,13 +116,6 @@
       width: 50%;
     }
 
-    .print-header {
-      &__hmrc-logo {
-        float: left;
-        margin-bottom: 10px;
-        width: 220px;
-      }
-    }
 
     p, 
     li {
