@@ -125,6 +125,11 @@ font-size: 24px;
     margin-top: -5em;
   }
 
+    @page {
+        size: auto;
+        margin: 0;
+    }
+
   .print-document {
     left: 0;
     position: absolute;
