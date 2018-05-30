@@ -82,11 +82,25 @@
 
 
  &__information-box {
-    border: 2px solid $black;
+    border: 2px solid #28a197;
     display: inline-block;
     margin-bottom: 1em;
     padding: 5px 10px;
+    width: 100%;
+    background: #e1f3f1;
+    text-align:center;
   }
+}
+
+.insurance-number-text {
+	font-weight: 600;
+	font-size: 26px;
+	margin-bottom: 5px;
+}
+
+.insurance-number{
+    font-weight: 600;
+    font-size: 36px;
 }
 
 @media print {

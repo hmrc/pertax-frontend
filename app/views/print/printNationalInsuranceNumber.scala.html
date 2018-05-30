@@ -90,7 +90,8 @@
         @ifHighGovernmentGatewayOrVerifyUser {
           @ifPayeUserLoanNino { nino =>
             <div class="print-document__information-box bold-small">
-              @Messages("label.your_national_insurance_number_is")@formattedNino(nino)
+              <p class="insurance-number-text">@Messages("label.your_national_insurance_number_is")</p>
+              <span class="insurance-number">@formattedNino(nino)</span>
             </div>
           }
         }
