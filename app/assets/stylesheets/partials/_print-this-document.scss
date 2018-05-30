@@ -25,11 +25,30 @@
   width: 75%;
 
   .print-header {
-    border-bottom: 10px solid $black;
     margin-bottom: 15px;
+
+    .column-one-third {
+        border-left: #28A197 solid;
+        padding-left: 8px;
+    }
+
+    h2 {
+        font-size: 1.4em;
+        font-weight: normal;
+        margin: 0;
+        line-height: 1;
+
+        span {
+            display: block;
+        }
+    }
   
-    &__heading {
+    h3 {
      text-align: right;
+     margin-top: 2em;
+     font-size: 1.2em;
+     color: #28A197;
+     font-weight: 600;
     }
   } 
 
@@ -41,6 +60,23 @@
     &__sender {
       float:right;
       text-align: left;
+
+      .phone {
+        margin-top: 1.05263em;
+      }
+      .phone-number {
+        margin-left: 1em;
+      }
+      @media (min-width: 641px) {
+          .your-nino {
+            width: 60%;
+            float: left;
+          }
+          .your-nino-number {
+            width: 40%;
+            float: left;
+          }
+      }
     }
   }
 
@@ -93,3 +129,4 @@
     }
   }
 }
+
