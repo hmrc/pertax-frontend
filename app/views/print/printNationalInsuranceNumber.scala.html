@@ -43,11 +43,12 @@
     <div class="grid-row print-header">
       <div class="column-one-third">
         <img class="print-header__hmrc-logo" src="/personal-account/assets/images/HMRC-logo.png" alt="@Messages("label.hm_revenue_and_customs")">
+        <h2><span>HM Revenue </span>&amp; Customs</h2>
       </div>
       <div class="column-two-thirds">
-        <h2 class="heading-medium margin-top-small no-margin-bottom print-header__heading">
-          @Messages("label.your_national_insurance_letter")
-        </h2>
+        <h3 class="heading-medium margin-top-small no-margin-bottom print-header__heading">
+          @Messages("label.your_national_insurance_number")
+        </h3>
       </div>
     </div>
 
@@ -68,8 +69,15 @@
           <address>
             @Html(Messages("label.nic_eo_hmrc_address"))
           </address>
+          <p class="phone">@Messages("label.phone_text")<span class="phone-number">@Messages("label.phone_0300_200_3500")</span></p>
           <p class="url">@Messages("label.www_hmrc_gov_uk")</p>
-          <p class="date"><strong>@Messages("label.date")</strong> @util.DateTimeTools.short(new org.joda.time.DateTime())</p>
+
+          @ifHighGovernmentGatewayOrVerifyUser {
+            @ifPayeUserLoanNino { nino =>
+              <div class="your-nino"><p>@Messages("label.national_insurance_number")</p></div>
+              <div class="your-nino-number"><p>@formattedNino(nino)</p></div>
+            }
+          }
         </div>
       </div>
     </div>
