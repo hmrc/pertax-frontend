@@ -60,7 +60,6 @@
     &__sender {
       float:right;
       text-align: left;
-      width: 90%;
 
       .phone {
         margin-top: 1.05263em;
@@ -69,6 +68,8 @@
         margin-left: 1em;
       }
       @media (min-width: 641px) {
+        width: 90%;
+
           .your-nino {
             width: 60%;
             float: left;
@@ -127,13 +128,22 @@
 
     .document-address__recipient {
       float: left;
-      width: 60%;
+      width: 59%;
     }
 
     .document-address__sender {
       float: right;
-      width: 40%;
+      width: 41%;
       margin-top: -5em;
+
+        .your-nino {
+          width: 60%;
+          float: left;
+        }
+        .your-nino-number {
+          width: 40%;
+          float: left;
+        }
     }
 
     p, 
