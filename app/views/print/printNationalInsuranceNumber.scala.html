@@ -96,7 +96,31 @@
           }
         }
 
-        @Html(Messages("label.print_nino_page_text_"))
+        <h2 class="keep-heading">@Messages("label.print_nino_page_text_heading")</h2>
+
+        <div class="grid-row">
+          <div class="column-two-thirds">
+            <h3>@Messages("label.print_nino_page_text_about_ni")</h3>
+            <p>@Messages("label.print_nino_page_text_about_ni_text")</p>
+            <p>@Messages("label.print_nino_page_text_about_ni_ui_li_text")</p>
+            <ul class="list list-bullet">
+              <li>@Messages("label.print_nino_page_text_about_li1")</li>
+              <li>@Messages("label.print_nino_page_text_about_li2")</li>
+              <li>@Messages("label.print_nino_page_text_about_li3")</li>
+              <li>@Messages("label.print_nino_page_text_about_li4")</li>
+              <li>@Messages("label.print_nino_page_text_about_li5")</li>
+            </ul>
+            <h3>@Messages("label.print_nino_page_text_about_ni_welsh_heading")</h3>
+            <p>@Messages("label.print_nino_page_text_about_ni_welsh_text_info")</p>
+            </div>
+          <div class="column-one-third">
+            vvvvvvvvvvvvvvvv
+            </div>
+
+          </div>
+        <p class="available-information">@Messages("label.print_nino_page_text_about_ni_available_information_text")<br/>
+          @Messages("label.print_nino_page_text_about_ni_available_information_text_relay_info")</p>
+
 
       </div>
     </div>
