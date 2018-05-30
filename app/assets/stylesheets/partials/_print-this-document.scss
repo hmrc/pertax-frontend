@@ -94,6 +94,10 @@
   }
 }
 
+.keep-heading{
+text-align:center;
+}
+
 .insurance-number-text {
 	font-weight: 600;
 	font-size: 26px;
@@ -103,6 +107,9 @@
 .insurance-number{
     font-weight: 600;
     font-size: 36px;
+}
+.available-information{
+font-size: 24px;
 }
 
 @media print {
