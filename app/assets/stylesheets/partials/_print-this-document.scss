@@ -113,6 +113,10 @@
     visibility: visible;
   }
 
+  .print-header .column-two-thirds {
+    margin-top: -5em;
+  }
+
   .print-document {
     left: 0;
     position: absolute;
@@ -120,16 +124,17 @@
     top: 0;
     width: 85%;
 
-    &__recipient {
+
+    .document-address__recipient {
       float: left;
-      width: 50%;
+      width: 60%;
     }
 
-    &__sender {
+    .document-address__sender {
       float: right;
-      width: 50%;
+      width: 40%;
+      margin-top: -5em;
     }
-
 
     p, 
     li {
