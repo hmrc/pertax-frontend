@@ -99,14 +99,35 @@
 
 }
 
+.ni-number-right {
+    border-bottom: 2px solid #28a197;
+
+}
+
+.ni-number-right h3 {
+    margin-bottom: 0;
+}
+
+.you-download-and-use,  .view-more-info-app{
+margin-top:15px;
+
+}
+.hmrc-app{
+ border-bottom: 2px solid #28a197;
+
+ ul {
+    margin-bottom: 10px;
+ }
+}
+
 
 .ni-letter .column-two-thirds{
-width: 64.667%;
+width: 62%;
 
 }
 
 .ni-letter .column-one-third {
-width: 35.333%;
+width: 38%;
 
 }
 
@@ -141,6 +162,9 @@ text-align:center;
 font-size: 24px;
 }
 
+#view-more-info-chanel {
+    margin-bottom: 10px;
+}
 @media print {
   .printable {
     visibility: hidden;
@@ -187,19 +211,24 @@ font-size: 24px;
         }
     }
     .ni-letter .column-two-thirds{
-        width: 63%;
+        width: 62%;
         float: left;
 
     }
 
     .ni-letter .column-one-third {
-     width: 37%;
+     width: 38%;
      float: left;
 
     }
     p, 
     li {
       font-size: 16px;
+    }
+
+    .available-information{
+        font-size: 22px;
+        margin-bottom: 0;
     }
   }
 }
