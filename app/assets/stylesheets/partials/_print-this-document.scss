@@ -89,14 +89,16 @@
        margin-bottom: 1em;
        padding: 5px 10px;
        width: 100%;
-       background: #e1f3f1;
+       background-color: #e1f3f1 !important;
        text-align: center;
        margin-left: auto;
        margin-right: auto;
        box-sizing: border-box;
+       -webkit-print-color-adjust: exact;
    }
-  }
+
 }
+
 
 .ni-letter .column-two-thirds{
 width: 64.667%;
@@ -108,11 +110,14 @@ width: 35.333%;
 
 }
 
-.got-ni-box, .got-ni-box ul li {
+.got-ni-box {
 	background: #e1f3f1;
 	padding: 1px 10px;
 	font-size: 15px;
+	-webkit-print-color-adjust: exact;
+
 }
+
 .got-ni-box, .got-ni-box ul li {
 	font-size: 15px;
 }
@@ -181,7 +186,17 @@ font-size: 24px;
           float: left;
         }
     }
+    .ni-letter .column-two-thirds{
+        width: 63%;
+        float: left;
 
+    }
+
+    .ni-letter .column-one-third {
+     width: 37%;
+     float: left;
+
+    }
     p, 
     li {
       font-size: 16px;
