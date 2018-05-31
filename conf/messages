@@ -79,6 +79,17 @@ label.print_nino_page_text_about_ni_welsh_heading=Welsh Language
 label.print_nino_page_text_about_ni_welsh_text_info=To continue to receive a Welsh language service please email gwasanaeth.cymraeg@hmrc.gsi.gov.uk or phone us on the number above.
 label.print_nino_page_text_about_ni_available_information_text=Information is available in large print, audio tape and Braille formats.
 label.print_nino_page_text_about_ni_available_information_text_relay_info=Text Relay service prefix number - 18001
+label.print_nino_page_text_got_ni_heading=Now you’ve got your
+label.print_nino_page_text_got_ni_heading_part2=National Insurance number
+label.print_nino_page_text_got_ni_download=You can download and use the HMRC App or go online to:
+label.print_nino_page_text_got_ni_download_li1=create and access your Personal Tax Account
+label.print_nino_page_text_got_ni_download_li2=update and track your tax information online
+label.print_nino_page_text_got_ni_download_li3=check if you’re due a tax refund
+label.print_nino_page_text_got_ni_download_li4=view your tax code
+label.print_nino_page_text_got_ni_more_info=View more information about National Insurance at
+label.print_nino_page_text_got_ni_more_info_url=www.gov.uk/national-insurance
+label.print_nino_page_text_got_ni_more_info_youtube=or our YouTube channel at:
+label.print_nino_page_text_got_ni_more_info_youtube_url=www.youtube.com/HMRCgovuk
 
 label.print_nino_page_text_=<p><strong>This document cannot be used to prove your identity or your right to work in the UK.</strong></p><p>Examples of when you will be asked to give your National Insurance number are:</p><ul class="list list-bullet"><li>when you start working</li><li>when you apply for a Student Loan</li><li>when you claim state benefits</li><li>when you register to vote</li></ul><p>It’s important that you give every employer you work for your National Insurance number as soon as you start working for them - you can give them a copy of this document.</p><p>You can print another copy of this document by signing in to your personal tax account at <strong>www.gov.uk/personal-tax-account</strong></p><h2>What your National Insurance contributions are for</h2><p>You pay National Insurance contributions on what you earn, and these count towards your basic state pension and benefits. For more information about National Insurance contributions go to <strong>www.gov.uk/national-insurance</strong></p>
 label.your_national_insurance_number=Your National Insurance Number
