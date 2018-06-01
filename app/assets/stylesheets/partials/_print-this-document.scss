@@ -58,7 +58,6 @@
     }
     
     &__sender {
-      float:right;
       text-align: left;
 
       .phone {
@@ -68,7 +67,10 @@
         margin-left: 1em;
       }
       @media (min-width: 641px) {
-        width: 90%;
+        .sender-details {
+            width: 90%;
+            float: right;
+        }
 
           .your-nino {
             width: 60%;
@@ -178,6 +180,12 @@ font-size: 24px;
     margin-top: -5em;
   }
 
+  @-moz-document url-prefix(){
+      .print-header .column-two-thirds {
+        margin-top: 0;
+      }
+  }
+
     @page {
         size: auto;
         margin: 0;
@@ -199,7 +207,6 @@ font-size: 24px;
     .document-address__sender {
       float: right;
       width: 41%;
-      margin-top: -5em;
 
         .your-nino {
           width: 60%;
