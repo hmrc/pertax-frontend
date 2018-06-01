@@ -66,12 +66,13 @@
       .phone-number {
         margin-left: 1em;
       }
+      .sender-details {
+          float: right;
+      }
       @media (min-width: 641px) {
         .sender-details {
             width: 90%;
-            float: right;
         }
-
           .your-nino {
             width: 60%;
             float: left;
@@ -81,9 +82,19 @@
             float: left;
           }
       }
+      @media (max-width: 640px) {
+        margin-top: 1em;
+
+        .your-nino-number {
+            margin-bottom: 1em;
+        }
+      }
     }
   }
 
+.list li {
+    margin-bottom: 0;
+}
 
  &__information-box {
        border: 2px solid #28a197;
@@ -101,7 +112,7 @@
 
 }
 
-.ni-number-right {
+.ni-number-right, .hmrc-app {
     border-bottom: 2px solid #28a197;
 
 }
@@ -111,26 +122,22 @@
 }
 
 .you-download-and-use,  .view-more-info-app{
-margin-top:15px;
-
+    margin-top:15px;
 }
-.hmrc-app{
- border-bottom: 2px solid #28a197;
 
- ul {
-    margin-bottom: 10px;
- }
+.hmrc-app ul {
+   margin-bottom: 10px;
 }
 
 
-.ni-letter .column-two-thirds{
-width: 62%;
+@media (min-width: 641px) {
+    .ni-letter .column-two-thirds{
+        width: 62%;
+    }
 
-}
-
-.ni-letter .column-one-third {
-width: 38%;
-
+    .ni-letter .column-one-third {
+        width: 38%;
+    }
 }
 
 .got-ni-box {
@@ -147,7 +154,7 @@ width: 38%;
 
 
 .keep-heading{
-text-align:center;
+    text-align:center;
 }
 
 .insurance-number-text {
@@ -184,6 +191,14 @@ font-size: 24px;
       .print-header .column-two-thirds {
         margin-top: 0;
       }
+
+      .keep-heading {
+          margin:0;
+      }
+
+      .sender-details p {
+        margin: 0.5em 0;
+      }
   }
 
     @page {
@@ -197,6 +212,7 @@ font-size: 24px;
     right: 0;
     top: 0;
     width: 85%;
+    padding-bottom: 0;
 
 
     .document-address__recipient {
@@ -217,19 +233,20 @@ font-size: 24px;
           float: left;
         }
     }
+
+
+
     .ni-letter .column-two-thirds{
         width: 62%;
         float: left;
-
     }
 
     .ni-letter .column-one-third {
      width: 38%;
      float: left;
-
     }
-    p, 
-    li {
+
+    p, li {
       font-size: 16px;
     }
 
