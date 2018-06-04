@@ -72,6 +72,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
 
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
+  lazy val frontendTemplatePath: String = configuration.getString("microservice.services.frontend-template-provider.path").getOrElse("/template/mustache")
 
   def ssoifyUrl(url: URL) = s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
