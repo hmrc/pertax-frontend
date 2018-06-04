@@ -18,6 +18,7 @@ package controllers
 
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models.UserDetails
+import org.jsoup.Jsoup
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -103,6 +104,12 @@ class PrintControllerSpec extends BaseSpec {
 
       status(r) shouldBe OK
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
+      val doc = Jsoup.parse(contentAsString(r))
+      doc.getElementById("page-title").text() shouldBe "Your National Insurance letter"
+      doc.getElementById("keep-ni-number-safe").text() shouldBe "Keep this number in a safe place. Do not destroy this letter."
+      doc.getElementById("available-information-text-relay").text() should include("Information is available in large print, audio tape and Braille formats.")
+      doc.getElementById("available-information-text-relay").text() should include("Text Relay service prefix number - 18001")
+      doc.getElementById("your-ni-number-unique").text() shouldBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, don’t share it with anyone who doesn’t need it."
     }
   }
 }
