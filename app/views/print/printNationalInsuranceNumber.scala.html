@@ -29,7 +29,7 @@
   
   <div class="page-header home">
     <div class="page-info">@Messages("label.personal_details")</div>
-    <h1 class="heading-xlarge no-margin-top no-margin-bottom">
+    <h1 id="page-title" class="heading-xlarge no-margin-top no-margin-bottom">
       @Messages("label.your_national_insurance_letter")
     </h1>
   </div>
@@ -96,13 +96,13 @@
           }
         }
 
-        <h2 class="keep-heading">@Messages("label.print_nino_page_text_heading")</h2>
+        <h2 class="keep-heading" id="keep-ni-number-safe">@Messages("label.print_nino_page_text_heading")</h2>
 
         <div class="grid-row ni-letter">
           <div class="column-two-thirds">
             <h3>@Messages("label.print_nino_page_text_about_ni")</h3>
-            <p>@Messages("label.print_nino_page_text_about_ni_text")</p>
-            <p class="list-paragraph">@Messages("label.print_nino_page_text_about_ni_ui_li_text")</p>
+            <p id="your-ni-number-unique">@Messages("label.print_nino_page_text_about_ni_text")</p>
+            <p class="list-paragraph" >@Messages("label.print_nino_page_text_about_ni_ui_li_text")</p>
             <ul class="list list-bullet">
               <li>@Messages("label.print_nino_page_text_about_li1")</li>
               <li>@Messages("label.print_nino_page_text_about_li2")</li>
@@ -140,7 +140,7 @@
             </div>
 
           </div>
-        <p class="available-information">@Messages("label.print_nino_page_text_about_ni_available_information_text")<br/>
+        <p class="available-information" id="available-information-text-relay">@Messages("label.print_nino_page_text_about_ni_available_information_text")<br/>
           @Messages("label.print_nino_page_text_about_ni_available_information_text_relay_info")</p>
 
 
