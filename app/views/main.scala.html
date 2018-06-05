@@ -171,6 +171,10 @@
       "bodyClass" -> printable
     )
 
-  config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(layouts.article(mainContent, includeGridWrapper, articleClasses), arguments)
+  config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(
+    pertaxContext.configDecorator.frontendTemplatePath,
+    layouts.article(mainContent, includeGridWrapper, articleClasses),
+    arguments
+  )
 
 }
