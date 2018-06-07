@@ -169,6 +169,7 @@
 }
 .available-information{
 font-size: 24px;
+margin-bottom:0px;
 }
 
 #view-more-info-chanel {
@@ -177,6 +178,13 @@ font-size: 24px;
 @media print {
   .printable {
     visibility: hidden;
+  }
+  p.url, p.phone{
+  margin-bottom:5px;
+  margin-to:0px;
+  }
+  .your-nino, .your-nino-number{
+  display:none;
   }
 
   .print-document * {
@@ -201,18 +209,13 @@ font-size: 24px;
       }
   }
 
-    @page {
-        size: auto;
-        margin: 0;
-    }
 
   .print-document {
-    left: 0;
+    left: -30px;
     position: absolute;
     right: 0;
     top: 0;
-    width: 85%;
-    padding-bottom: 0;
+    width: 95%;
 
 
     .document-address__recipient {
@@ -254,8 +257,10 @@ font-size: 24px;
     }
 
     p.available-information{
-        font-size: 22px;
+        font-size: 24px;
         margin-bottom: 0;
+       -webkit-print-color-adjust: exact;
+
     }
   }
 }
