@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, dateString:String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import models.PertaxUser._
 @import tags._
@@ -116,7 +116,7 @@
               <li>@Messages("label.print_nino_page_not_proof_li2")</li>
             </ul>
             <h3>@Messages("label.print_nino_page_text_about_ni_welsh_heading")</h3>
-            <p>@Messages("label.print_nino_page_text_about_ni_welsh_text_info")</p>
+            <p class="welsh-info-text">@Messages("label.print_nino_page_text_about_ni_welsh_text_info")</p>
             </div>
           <div class="column-one-third">
            <div class="got-ni-box">
@@ -142,7 +142,7 @@
           </div>
         <p class="available-information" id="available-information-text-relay">@Messages("label.print_nino_page_text_about_ni_available_information_text")<br/>
           @Messages("label.print_nino_page_text_about_ni_available_information_text_relay_info")</p>
-
+        <div class="ni-footer-info"><span class="footer-page-no">Page 1</span><span class="footer-page-date">@Messages("label.print_nino_page_footer_hmrc_date", "11/17")</span></div>
 
       </div>
     </div>
