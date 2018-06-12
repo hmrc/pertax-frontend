@@ -183,20 +183,21 @@ class AmbiguousJourneyController @Inject() (
 
   def handleAmbiguousJourneyLandingPages(page: String): Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
 
-      val continueUrl = controllers.routes.ApplicationController.index().url
-      enforceAmbiguousUser { saUtr =>
-        Future.successful {
-          page match {
-            case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr, continueUrl))
-            case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr, continueUrl))
-            case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
-            case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
-            case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
-            case "pin-expired-enrol" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
-            case "pin-expired-register" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
-            case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
-          }
+    val continueUrl = controllers.routes.ApplicationController.index().url
+
+    enforceAmbiguousUser { saUtr =>
+      Future.successful {
+        page match {
+          case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr, continueUrl))
+          case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr, continueUrl))
+          case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
+          case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
+          case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
+          case "pin-expired-enrol" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+          case "pin-expired-register" => Ok(views.html.ambiguousjourney.pinExpired(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
+          case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
         }
       }
     }
+  }
 }
