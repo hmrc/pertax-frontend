@@ -20,7 +20,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "7.1.0",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
-    "uk.gov.hmrc" %% "local-template-renderer" % "1.4.0",
+    "uk.gov.hmrc" %% "local-template-renderer" % "2.0.0",
     "uk.gov.hmrc" %% "play-ui" % "7.14.0"
   )
 
