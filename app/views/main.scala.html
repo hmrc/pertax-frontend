@@ -130,7 +130,7 @@
       hideAccountMenu = pertaxContext.user.isEmpty
     )),
     Some(CssLinksComponent(
-      CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie8.css").url, ieVersionCondition = Some("IE")),
+      CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie.css").url, ieVersionCondition = Some("IE")),
       CssLinkElement(controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css").url)
     )),
     Some(ScriptsComponent(
