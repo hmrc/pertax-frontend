@@ -71,13 +71,6 @@
           </address>
           <p class="phone">@Messages("label.phone_text")<span class="phone-number">@Messages("label.phone_0300_200_3500")</span></p>
           <p class="url">@Messages("label.www_gov_uk_hmrc")</p>
-
-          @ifHighGovernmentGatewayOrVerifyUser {
-            @ifPayeUserLoanNino { nino =>
-              <div class="your-nino"><p>@Messages("label.national_insurance_number")</p></div>
-              <div class="your-nino-number"><p>@formattedNino(nino)</p></div>
-            }
-          }
         </div>
       </div>
     </div>
