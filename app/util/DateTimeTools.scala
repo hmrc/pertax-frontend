@@ -16,12 +16,11 @@
 
 package util
 
-import java.text.SimpleDateFormat
-
-import uk.gov.hmrc.time.TaxYearResolver
-import org.joda.time._
+import org.joda.time.{DateTime, _}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
-import org.joda.time.DateTime
+import play.api.Logger
+import uk.gov.hmrc.time.TaxYearResolver
+import scala.util.{Failure, Success, Try}
 
 
 object DateTimeTools {
@@ -40,15 +39,20 @@ object DateTimeTools {
     (y-1).toString.takeRight(2) + (y).toString.takeRight(2)
   }
 
-  def asDateFromUnixDateTime(s: String): DateTime = //FIXME - remove as unused in non-test code
-    DateTime.parse(s, DateTimeFormat.forPattern(unixDateTimeFormat).withZone(defaultTZ))
-
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
 
   def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime) //FIXME - remove and use LocalDate instead
 
-  def asHumanDateFromUnixDate(unixDate: String): String = {
-    new SimpleDateFormat(humanDateFormat).format(new SimpleDateFormat(unixDateFormat).parse(unixDate))
-  }
+  private def parseUnixDate(date: String): Try[String] =
+    Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(date)))
 
+  def asHumanDateFromUnixDate(unixDate: String): String = {
+    parseUnixDate(unixDate) match {
+      case Success(v) => v
+      case Failure(e) => {
+        Logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
+        unixDate
+      }
+    }
+  }
 }
