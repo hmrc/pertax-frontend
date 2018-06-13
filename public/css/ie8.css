@@ -1,0 +1,27 @@
+      .ni-footer-info { display:none; }
+
+       p.url, p.phone{
+        margin-bottom:5px;
+        margin-to:0px;
+        }
+
+       p, li {
+            font-size: 16px;
+          }
+          p.list-paragraph {
+          margin-bottom:5px;
+          }
+
+        h2.keep-heading{
+        margin-top:5px;
+
+        }
+
+        p.available-information{
+              font-size: 24px;
+              margin-bottom: 0;
+             -webkit-print-color-adjust: exact;
+
+          }
+
+
