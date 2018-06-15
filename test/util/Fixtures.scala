@@ -50,7 +50,7 @@ import scala.concurrent.Future
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.Random
-
+import org.joda.time.DateTime
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK","United Kingdom")
@@ -165,7 +165,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
       sa = if(withSa) Some(SaAccount("/sa/1111111111", SaUtr("1111111111"))) else None
     ),
     loggedInAt = None,
-    previouslyLoggedInAt = Some(DateTimeTools.asDateFromUnixDateTime("1982-04-30T00:00:00")),
+    previouslyLoggedInAt = Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
     credentialStrength = CredentialStrength.Strong,
     confidenceLevel = confidenceLevel,
     userDetailsLink = userDetailsLink,

@@ -17,6 +17,7 @@
 package views.html.integration
 
 import config.ConfigDecorator
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import play.api.i18n.Messages
 import util.{BaseSpec, DateTimeTools}
@@ -29,13 +30,13 @@ class mainContentHeaderSpec extends BaseSpec {
   "Rendering mainContentHeader.scala.html" should {
 
     "show last logged in details with name when a name is present and a lastLogin is supplied" in {
-      val millis = DateTimeTools.asDateFromUnixDateTime("1982-04-30T00:00:00")
+      val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
       val document = Jsoup.parse(views.html.integration.mainContentHeader(Some("Firstname"), Some(millis), Nil, false, None, None, injected[ConfigDecorator]).toString)
       document.select(".last-login > p").text shouldBe "Firstname, you last signed in 12:00am, Friday 30 April 1982"
     }
 
     "show last logged in details without name when no name is present and a lastLogin is supplied" in {
-      val millis = DateTimeTools.asDateFromUnixDateTime("1982-04-30T00:00:00")
+      val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
       val document = Jsoup.parse(views.html.integration.mainContentHeader(None, Some(millis), Nil, false, None, None, injected[ConfigDecorator]).toString)
       document.select(".last-login > p").text shouldBe "You last signed in 12:00am, Friday 30 April 1982"
     }
@@ -44,7 +45,6 @@ class mainContentHeaderSpec extends BaseSpec {
       val document = Jsoup.parse(views.html.integration.mainContentHeader(None, None, Nil, false, None, None, injected[ConfigDecorator]).toString)
       document.select(".last-login").isEmpty shouldBe true
     }
-
 
     "show breadcrumb when one is passed" in {
       val document = Jsoup.parse(views.html.integration.mainContentHeader(None, None, List( ("/url", "Link Text"), ("/url2", "Link Text 2") ), true, None, None, injected[ConfigDecorator]).toString)
