@@ -18,6 +18,7 @@ package views.html
 
 import config.ConfigDecorator
 import models._
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
@@ -25,7 +26,7 @@ import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import services._
-import uk.gov.hmrc.domain. SaUtr
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 import util.{BaseSpec, DateTimeTools, Fixtures}
@@ -54,7 +55,7 @@ class homeSpec extends BaseSpec {
             sa = None
           ),
           loggedInAt = None,
-          previouslyLoggedInAt = Some(DateTimeTools.asDateFromUnixDateTime("1982-04-30T00:00:00")),
+          previouslyLoggedInAt = Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
           credentialStrength = CredentialStrength.Strong,
           confidenceLevel = ConfidenceLevel.L0,
           userDetailsLink = Some("/userDetailsLink"),
