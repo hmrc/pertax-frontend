@@ -17,10 +17,10 @@
 package config
 
 import java.net.{URL, URLEncoder}
-import javax.inject.{Inject, Singleton}
 
 import controllers.routes
-import org.joda.time.{DateTime, LocalDate}
+import javax.inject.{Inject, Singleton}
+import org.joda.time.LocalDate
 import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
