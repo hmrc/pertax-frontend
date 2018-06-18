@@ -16,6 +16,7 @@
 
 package controllers
 
+import java.util.Calendar
 import javax.inject.Inject
 
 import config.ConfigDecorator
@@ -28,26 +29,33 @@ import services.{CitizenDetailsService, UserDetailsService}
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
+import org.joda.time.LocalDate
+
+
 
 
 class PrintController @Inject() (
-  val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler
-) extends PertaxBaseController with AuthorisedActions {
+                                  val messagesApi: MessagesApi,
+                                  val citizenDetailsService: CitizenDetailsService,
+                                  val userDetailsService: UserDetailsService,
+                                  val messageFrontendService: MessageFrontendService,
+                                  val delegationConnector: FrontEndDelegationConnector,
+                                  val auditConnector: PertaxAuditConnector,
+                                  val authConnector: PertaxAuthConnector,
+                                  val partialRetriever: LocalPartialRetriever,
+                                  val configDecorator: ConfigDecorator,
+                                  val pertaxRegime: PertaxRegime,
+                                  val localErrorHandler: LocalErrorHandler
+                                ) extends PertaxBaseController with AuthorisedActions {
 
   def printNationalInsuranceNumber = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       enforcePersonDetails { payeAccount => personDetails =>
-        Future.successful(Ok(views.html.print.printNationalInsuranceNumber(personDetails)))
+
+
+        val dateString: String = LocalDate.now.toString("MM/YY")
+
+        Future.successful(Ok(views.html.print.printNationalInsuranceNumber(personDetails,dateString)))
       }
   }
 }
