@@ -43,11 +43,8 @@ object DateTimeTools {
 
   def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime) //FIXME - remove and use LocalDate instead
 
-  private def parseUnixDate(date: String): Try[String] =
-    Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(date)))
-
   def asHumanDateFromUnixDate(unixDate: String): String = {
-    parseUnixDate(unixDate) match {
+    Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
       case Success(v) => v
       case Failure(e) => {
         Logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
