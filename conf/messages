@@ -32,6 +32,7 @@ title.type=Type
 #
 label.beta=BETA
 label.hm_revenue_customs=HM Revenue & Customs
+label.hm_revenue_customs_ni_print=<span>HM Revenue </span>&amp; Customs
 label.english=English
 label.welsh=Cymraeg
 label.service_not_available=Service not available
