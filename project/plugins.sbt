@@ -13,11 +13,11 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.6.0")
 
 addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.11")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "1.8.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "1.9.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "0.9.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "0.10.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "1.0.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "1.1.0")
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.12")
 
