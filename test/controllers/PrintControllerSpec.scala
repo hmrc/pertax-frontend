@@ -109,7 +109,7 @@ class PrintControllerSpec extends BaseSpec {
       doc.getElementById("keep-ni-number-safe").text() shouldBe "Keep this number in a safe place. Do not destroy this letter."
       doc.getElementById("available-information-text-relay").text() should include("Information is available in large print, audio tape and Braille formats.")
       doc.getElementById("available-information-text-relay").text() should include("Text Relay service prefix number - 18001")
-      doc.getElementById("your-ni-number-unique").text() shouldBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, don’t share it with anyone who doesn’t need it."
+      doc.getElementById("your-ni-number-unique").text() shouldBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, do not share it with anyone who does not need it."
     }
   }
 }
