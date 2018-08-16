@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models.UserDetails
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{eq => meq, _}
@@ -37,7 +37,7 @@ import util.{BaseSpec, Fixtures}
 import scala.concurrent.Future
 
 
-class PrintControllerSpec extends BaseSpec {
+class NiLetterControllerSpec extends BaseSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
@@ -61,7 +61,7 @@ class PrintControllerSpec extends BaseSpec {
 
     lazy val controller =  {
 
-      val c = injected[PrintController]
+      val c = injected[NiLetterController]
 
       when(c.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
@@ -84,7 +84,7 @@ class PrintControllerSpec extends BaseSpec {
 
   }
 
-  "Calling PrintControllers.printNationalInsuranceNumber" should {
+  "Calling NiLetterController.printNationalInsuranceNumber" should {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in new LocalSetup {
       override lazy val isHighGG = true

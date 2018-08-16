@@ -57,8 +57,8 @@ GET    /personal-account/self-assessment-summary                             @co
 GET    /personal-account/self-assessment/sa302/:year                         @controllers.InterstitialController.displaySa302Interrupt(year: Int)
 
 GET    /personal-account/national-insurance-summary                          @controllers.InterstitialController.displayNationalInsurance
-GET    /personal-account/national-insurance-summary/print-letter             @controllers.PrintController.printNationalInsuranceNumber
-GET    /personal-account/national-insurance-summary/save-leter-as-pdf        @controllers.PrintController.saveNationalInsuranceNumberLetterAsPdf
+GET    /personal-account/national-insurance-summary/print-letter             @controllers.NiLetterController.printNationalInsuranceNumber
+GET    /personal-account/national-insurance-summary/save-leter-as-pdf        @controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
 GET    /personal-account/child-benefit-forms                                 @controllers.InterstitialController.displayChildBenefits
 GET    /personal-account/integration/main-content-header                     @controllers.PartialsController.mainContentHeader(name: Option[String], lastLogin: Option[Long], item_text: List[String], item_url: List[String], showBetaBanner: Option[Boolean], deskProToken: Option[String], langReturnUrl: Option[String], lang: Option[String], showLastItem: Boolean ?= false)
 

@@ -1,23 +1,20 @@
+import com.typesafe.sbt.digest.Import.digest
+import com.typesafe.sbt.web.Import.pipelineStages
+import play.sbt.routes.RoutesKeys._
 import play.twirl.sbt.Import.TwirlKeys
-import wartremover._
 import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
 import sbt._
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
-import play.sbt.PlayImport.PlayKeys._
-import play.sbt.routes.RoutesKeys._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
-import com.typesafe.sbt.digest.Import.digest
-import com.typesafe.sbt.web.Import.pipelineStages
+import wartremover._
 
 trait MicroService {
 
   import uk.gov.hmrc._
-  import DefaultBuildSettings._
-  import uk.gov.hmrc.{SbtBuildInfo, ShellPrompt}
-
-  import TestPhases._
+  import DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
+  import TestPhases.{TemplateItTest, TemplateTest, oneForkedJvmPerTest}
 
   val appName: String
 
