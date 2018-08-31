@@ -13,7 +13,7 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "0.6.0")
 
 addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.11")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "1.9.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-auto-build" % "1.13.0")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-git-versioning" % "0.10.0")
 

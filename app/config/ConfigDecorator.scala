@@ -73,7 +73,9 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
   lazy val frontendTemplatePath: String = configuration.getString("microservice.services.frontend-template-provider.path").getOrElse("/template/mustache")
-
+  lazy val frontendPath: String = configuration.getString("microservice.services.frontend-template-provider.protocol").getOrElse("")
+    .concat("://" + configuration.getString("microservice.services.frontend-template-provider.host").getOrElse(""))
+    .concat(":" + configuration.getString("microservice.services.frontend-template-provider.port").getOrElse(""))
   def ssoifyUrl(url: URL) = s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
   def sa302Url(saUtr: String, taxYear: String) = s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
@@ -154,6 +156,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val allowLowConfidenceSAEnabled = configuration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
   lazy val ltaEnabled = configuration.getString("feature.lta.enabled").getOrElse("true").toBoolean
   lazy val urLinkUrl = configuration.getString("feature.ur-link.url")
+  lazy val platformFrontendHost = configuration.getString("platform.frontend.host").getOrElse("")
 
   lazy val taxcalcEnabled = configuration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
   lazy val taxComponentsEnabled = configuration.getString("feature.tax-components.enabled").getOrElse("true").toBoolean
@@ -167,6 +170,8 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
   lazy val assetsPrefix = configuration.getString(s"assets.url").getOrElse("") + configuration.getString(s"assets.version").getOrElse("") + '/'
+  lazy val assetsUrl = configuration.getString(s"assets.url").getOrElse("")
+  lazy val assetsVersion = configuration.getString(s"assets.version").getOrElse("")
 
   def getFeedbackSurveyUrl(origin: Origin): String = {
     feedbackSurveyFrontendHost + "/feedback-survey?origin=" + enc(origin.origin)

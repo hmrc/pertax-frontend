@@ -16,9 +16,6 @@
 
 @(personDetails: models.PersonDetails, dateString:String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import models.PertaxUser._
-@import tags._
-
 @main(Messages("label.print_your_national_insurance_summary"), Some(Messages("label.national_insurance")), printableDocument = true) {
 
   <div class="grid-row">
@@ -26,11 +23,11 @@
       <a class="link-back" href="@controllers.routes.InterstitialController.displayNationalInsurance()" data-journey-click="link - click:Your National Insurance letter:@Messages("label.back")">@Messages("label.back")</a>
     </div>
   </div>
-  
+
   <div class="page-header home">
     <div class="page-info">@Messages("label.personal_details")</div>
     <h1 id="page-title" class="heading-xlarge no-margin-top no-margin-bottom">
-      @Messages("label.your_national_insurance_letter")
+    @Messages("label.your_national_insurance_letter")
     </h1>
   </div>
 
@@ -38,108 +35,10 @@
     <img class="print-this__icon" src="@pertaxContext.configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
     <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@Messages("label.print")">@Messages("label.print")</a>
   </div>
-  
-  <div class="print-document">
-    <div class="grid-row print-header">
-      <div class="column-one-third">
-        <img class="print-header__hmrc-logo" src="/personal-account/assets/images/HMRC-logo.png" alt="@Messages("label.hm_revenue_and_customs")">
-        <h2>@Html(Messages("label.hm_revenue_customs_ni_print"))</h2>
-      </div>
-      <div class="column-two-thirds">
-        <h3 class="heading-medium margin-top-small no-margin-bottom print-header__heading">
-          @Messages("label.your_national_insurance_number")
-        </h3>
-      </div>
-    </div>
-
-    <div class="grid-row document-address">
-      <div class="column-half document-address__recipient">
-        @personDetails.person.initialsName
-        @personDetails.correspondenceAddress.map { correspondenceAddress =>
-          @fullAddress(correspondenceAddress)
-        }.getOrElse {
-          @personDetails.address.map { residentialAddress =>
-            @fullAddress(residentialAddress)
-          }
-        }
-      </div>
-
-      <div class="column-half document-address__sender">
-        <div class="sender-details">
-          <address>
-            @Html(Messages("label.nic_eo_hmrc_address"))
-          </address>
-          <p class="phone">@Messages("label.phone_text")<span class="phone-number">@Messages("label.phone_0300_200_3500")</span></p>
-          <p class="url">@Messages("label.www_gov_uk_hmrc")</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid-row main-content">
-      <div class="column-full">
-
-        <p class="name">@personDetails.person.fullName</p>
-
-        @ifHighGovernmentGatewayOrVerifyUser {
-          @ifPayeUserLoanNino { nino =>
-            <div class="print-document__information-box bold-small">
-              <p class="insurance-number-text">@Messages("label.your_national_insurance_number_is")</p>
-              <span class="insurance-number">@formattedNino(nino)</span>
-            </div>
-          }
-        }
-
-        <h2 class="keep-heading" id="keep-ni-number-safe">@Messages("label.print_nino_page_text_heading")</h2>
-
-        <div class="grid-row ni-letter">
-          <div class="column-two-thirds">
-            <h3>@Messages("label.print_nino_page_text_about_ni")</h3>
-            <p id="your-ni-number-unique">@Messages("label.print_nino_page_text_about_ni_text")</p>
-            <p class="list-paragraph" >@Messages("label.print_nino_page_text_about_ni_ui_li_text")</p>
-            <ul class="list list-bullet">
-              <li>@Messages("label.print_nino_page_text_about_li1")</li>
-              <li>@Messages("label.print_nino_page_text_about_li2")</li>
-              <li>@Messages("label.print_nino_page_text_about_li3")</li>
-              <li>@Messages("label.print_nino_page_text_about_li4")</li>
-              <li>@Messages("label.print_nino_page_text_about_li5")</li>
-            </ul>
-            <p class="list-paragraph">@Messages("label.print_nino_page_text_about_ni_ui_li_text_not_proof")</p>
-            <ul class="list list-bullet">
-              <li>@Messages("label.print_nino_page_not_proof_li1")</li>
-              <li>@Messages("label.print_nino_page_not_proof_li2")</li>
-            </ul>
-            <h3>@Messages("label.print_nino_page_text_about_ni_welsh_heading")</h3>
-            <p class="welsh-info-text">@Messages("label.print_nino_page_text_about_ni_welsh_text_info")</p>
-            </div>
-          <div class="column-one-third">
-           <div class="got-ni-box">
-             <div class="ni-number-right">
-             <h3>@Messages("label.print_nino_page_text_got_ni_heading")<br/>@Messages("label.print_nino_page_text_got_ni_heading_part2")</h3>
-             </div>
-             <p id="you-download" class="you-download-and-use">@Messages("label.print_nino_page_text_got_ni_download")</p>
-             <div class="hmrc-app">
-             <ul class="list list-bullet">
-               <li>@Messages("label.print_nino_page_text_got_ni_download_li1")</li>
-               <li>@Messages("label.print_nino_page_text_got_ni_download_li2")</li>
-               <li>@Messages("label.print_nino_page_text_got_ni_download_li3")</li>
-               <li>@Messages("label.print_nino_page_text_got_ni_download_li4")</li>
-             </ul>
-             </div>
-             <p id="view-more-info" class="view-more-info-app">@Messages("label.print_nino_page_text_got_ni_more_info")</p>
-             <p id="view-more-info-url">@Messages("label.print_nino_page_text_got_ni_more_info_url")</p>
-             <p id="view-more-info-text">@Messages("label.print_nino_page_text_got_ni_more_info_youtube")</p>
-             <p id="view-more-info-chanel">@Messages("label.print_nino_page_text_got_ni_more_info_youtube_url")</p>
-           </div>
-            </div>
-
-          </div>
-        <p class="available-information" id="available-information-text-relay">@Messages("label.print_nino_page_text_about_ni_available_information_text")<br/>
-          @Messages("label.print_nino_page_text_about_ni_available_information_text_relay_info")</p>
-        <div class="ni-footer-info"><span class="footer-page-no">Page 1</span><span class="footer-page-date">@Messages("label.print_nino_page_footer_hmrc_date", dateString)</span></div>
-
-      </div>
-    </div>
-  
+  <div class="save-this">
+    <a class="save-this__link" href="/personal-account/national-insurance-summary/save-leter-as-pdf" data-journey-click="save - click:Your National Insurance letter:@Messages("label.save_as_a_PDF")">@Messages("label.save_as_a_PDF")</a>
   </div>
-</html>
+
+  @views.html.print.niLetter(personDetails, dateString)
+
 }
