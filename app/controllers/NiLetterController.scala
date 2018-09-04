@@ -53,7 +53,7 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
       enforcePersonDetails {
         payeAccount =>
           personDetails =>
-            Future.successful(Ok(views.html.print.printNationalInsuranceNumber(personDetails, LocalDate.now.toString("MM/YY"))))
+            Future.successful(Ok(views.html.print.printNationalInsuranceNumber(personDetails, LocalDate.now.toString("MM/YY"), configDecorator.saveNiLetterAsPdfLinkEnabled)))
       }
   }
 

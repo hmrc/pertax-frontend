@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails, dateString:String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, dateString:String, saveNiLetterAsPdfLinkEnabled: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(Messages("label.print_your_national_insurance_summary"), Some(Messages("label.national_insurance")), printableDocument = true) {
 
@@ -35,10 +35,11 @@
     <img class="print-this__icon" src="@pertaxContext.configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
     <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@Messages("label.print")">@Messages("label.print")</a>
   </div>
-  <div class="save-this">
-    <a class="save-this__link" href="/personal-account/national-insurance-summary/save-leter-as-pdf" data-journey-click="save - click:Your National Insurance letter:@Messages("label.save_as_a_PDF")">@Messages("label.save_as_a_PDF")</a>
-  </div>
-
+  @if(saveNiLetterAsPdfLinkEnabled) {
+    <div class="save-this">
+      <a class="save-this__link" href="/personal-account/national-insurance-summary/save-leter-as-pdf" data-journey-click="save - click:Your National Insurance letter:@Messages("label.save_as_a_PDF")">@Messages("label.save_as_a_PDF")</a>
+    </div>
+  }
   @views.html.print.niLetter(personDetails, dateString)
 
 }
