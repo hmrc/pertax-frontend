@@ -24,6 +24,7 @@ import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import org.joda.time.LocalDate
+import play.api.Logger
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.partials.MessageFrontendService
@@ -70,6 +71,7 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
               views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
               .replace("</head>" , s"<style>${minifiedCss} html{background: #FFF !important;} * {font-family: nta !important;}</style>${fontPath}${applicationMin}</head>").filter(_ >= ' ').trim.replaceAll("  +", "")
               .concat("</body></html>").trim()
+            Logger.logger.info(htmlPayload)
             pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
               if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
               else Ok(response.bodyAsBytes.toArray).as("application/pdf")
