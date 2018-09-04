@@ -16,15 +16,12 @@
 
 package controllers
 
-import java.io.PrintWriter
-
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import org.joda.time.LocalDate
-import play.api.Logger
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.partials.MessageFrontendService
@@ -64,14 +61,13 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
         payeAccount =>
           personDetails =>
             val fontPath = s"""<link href="${configDecorator.frontendPath}/template/assets/stylesheets/fonts.css" media="all" rel="stylesheet" type="text/css" />"""
-            val applicationMin = s"""<link rel="stylesheet" href="${configDecorator.assetsUrl}${configDecorator.assetsVersion}/stylesheets/application.min.css" />"""
+            val applicationMinCss = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/application.min.css").url}" />"""
             val minifiedCss = Source.fromURL(s"${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css").url}")
               .mkString.replaceAll("media print", "media all")
             val htmlPayload = "<!doctype html><html><head></head><body>".concat(
               views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
-              .replace("</head>" , s"<style>${minifiedCss} html{background: #FFF !important;} * {font-family: nta !important;}</style>${fontPath}${applicationMin}</head>").filter(_ >= ' ').trim.replaceAll("  +", "")
+              .replace("</head>" , s"<style>${minifiedCss} html{background: #FFF !important;} * {font-family: nta !important;}</style>${fontPath}${applicationMinCss}</head>").filter(_ >= ' ').trim.replaceAll("  +", "")
               .concat("</body></html>").trim()
-            Logger.logger.info(htmlPayload)
             pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
               if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
               else Ok(response.bodyAsBytes.toArray).as("application/pdf")
