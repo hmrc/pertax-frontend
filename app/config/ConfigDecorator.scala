@@ -106,10 +106,10 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val selfAssessmentFormsAndHelpsheetsUrl = "https://www.gov.uk/self-assessment-forms-and-helpsheets"
   lazy val onlineServicesHelpdeskUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
   lazy val contactHrmcUrl = "https://www.gov.uk/contact-hmrc"
-  lazy val selfAssessmentEnrolUrl = "/enrolment-management-frontend/IR-SA/request-access-tax-scheme?continue=/personal-tax-account"
+  lazy val selfAssessmentEnrolUrl = "https://online.hmrc.gov.uk/service/self-assessment?action=enrol"
   lazy val selfAssessmentContactUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
   def registerForSelfAssessmentUrl(continueUrl: String) = {
-    "/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-tax-account"
+    s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}"
   }
   lazy val taxReturnByPostUrl = "https://www.gov.uk/government/publications/self-assessment-tax-return-sa100"
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
@@ -164,6 +164,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val nispEnabled = configuration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
   lazy val allowSaPreview = configuration.getString("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
   lazy val taxCreditsPaymentLinkEnabled = configuration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
+  lazy val saveNiLetterAsPdfLinkEnabled = configuration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
 
   lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
 
