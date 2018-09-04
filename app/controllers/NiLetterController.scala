@@ -24,6 +24,7 @@ import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import org.joda.time.LocalDate
+import play.api.Logger
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.partials.MessageFrontendService
