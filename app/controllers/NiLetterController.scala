@@ -60,14 +60,16 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
       enforcePersonDetails {
         payeAccount =>
           personDetails =>
-            val fontPath = s"""<link href="${configDecorator.frontendPath}/template/assets/stylesheets/fonts.css" media="all" rel="stylesheet" type="text/css" />"""
-            val applicationMinCss = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/application.min.css").url}" />"""
-            val minifiedCss = Source.fromURL(s"${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css").url}")
-              .mkString.replaceAll("media print", "media all")
+            val fontPath = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/fonts.css").url}" />"""
+            val applicationMinCss = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/applicationMin.css").url}" />"""
+            val pertaxCssPath = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").url}" />"""
             val htmlPayload = "<!doctype html><html><head></head><body>".concat(
               views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
-              .replace("</head>" , s"<style>${minifiedCss} html{background: #FFF !important;} * {font-family: nta !important;}</style>${fontPath}${applicationMinCss}</head>").filter(_ >= ' ').trim.replaceAll("  +", "")
+              .replace("</head>" , s"<style> html{background: #FFF !important;} * {font-family: nta !important;}</style>${pertaxCssPath}${fontPath}${applicationMinCss}</head>").filter(_ >= ' ').trim.replaceAll("  +", "")
               .concat("</body></html>").trim()
+
+            println(htmlPayload)
+
             pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
               if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
               else Ok(response.bodyAsBytes.toArray).as("application/pdf")
