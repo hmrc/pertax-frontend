@@ -67,9 +67,6 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
               views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
               .replace("</head>" , s"<style> html{background: #FFF !important;} * {font-family: nta !important;}</style>${pertaxCssPath}${fontPath}${applicationMinCss}</head>").filter(_ >= ' ').trim.replaceAll("  +", "")
               .concat("</body></html>").trim()
-
-            println(htmlPayload)
-
             pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
               if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
               else Ok(response.bodyAsBytes.toArray).as("application/pdf")
