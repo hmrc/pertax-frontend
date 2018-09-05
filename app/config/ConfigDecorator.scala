@@ -68,6 +68,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val saFrontendHost                               = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost = decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
   lazy val governmentGatewayRegistrationFrontendHost    = decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
+  lazy val enrolmentManagementFrontendHost              = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
 
 
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
@@ -81,7 +82,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   def sa302Url(saUtr: String, taxYear: String) = s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
   def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) = s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if(lang.code equals("en"))"eng" else "cym")
-  lazy val ssoToActivateSaEnrolmentPinUrl = "/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
+  lazy val ssoToActivateSaEnrolmentPinUrl = s"${enrolmentManagementFrontendHost}/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
   lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
   lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))
   def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
@@ -106,7 +107,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val selfAssessmentFormsAndHelpsheetsUrl = "https://www.gov.uk/self-assessment-forms-and-helpsheets"
   lazy val onlineServicesHelpdeskUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
   lazy val contactHrmcUrl = "https://www.gov.uk/contact-hmrc"
-  lazy val selfAssessmentEnrolUrl = "/enrolment-management-frontend/IR-SA/request-access-tax-scheme?continue=/personal-account"
+  lazy val selfAssessmentEnrolUrl = s"${enrolmentManagementFrontendHost}/enrolment-management-frontend/IR-SA/request-access-tax-scheme?continue=/personal-account"
   lazy val selfAssessmentContactUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
   def registerForSelfAssessmentUrl(continueUrl: String) = {
     s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}"
