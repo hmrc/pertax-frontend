@@ -34,17 +34,17 @@ import scala.io.Source
 
 
 class NiLetterController @Inject()(val messagesApi: MessagesApi,
-                                   val citizenDetailsService: CitizenDetailsService,
-                                   val userDetailsService: UserDetailsService,
-                                   val messageFrontendService: MessageFrontendService,
-                                   val delegationConnector: FrontEndDelegationConnector,
-                                   val auditConnector: PertaxAuditConnector,
-                                   val authConnector: PertaxAuthConnector,
-                                   val partialRetriever: LocalPartialRetriever,
-                                   val configDecorator: ConfigDecorator,
-                                   val pertaxRegime: PertaxRegime,
-                                   val localErrorHandler: LocalErrorHandler,
-                                   val pdfGeneratorConnector: PdfGeneratorConnector) extends PertaxBaseController with AuthorisedActions {
+  val citizenDetailsService: CitizenDetailsService,
+  val userDetailsService: UserDetailsService,
+  val messageFrontendService: MessageFrontendService,
+  val delegationConnector: FrontEndDelegationConnector,
+  val auditConnector: PertaxAuditConnector,
+  val authConnector: PertaxAuthConnector,
+  val partialRetriever: LocalPartialRetriever,
+  val configDecorator: ConfigDecorator,
+  val pertaxRegime: PertaxRegime,
+  val localErrorHandler: LocalErrorHandler,
+  val pdfGeneratorConnector: PdfGeneratorConnector) extends PertaxBaseController with AuthorisedActions {
 
   def printNationalInsuranceNumber: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
@@ -57,21 +57,26 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
 
   def saveNationalInsuranceNumberAsPdf: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
-      enforcePersonDetails {
-        payeAccount =>
-          personDetails =>
-            val fontPath = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/fonts.css").url}" />"""
-            val applicationMinCss = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/applicationMin.css").url}" />"""
-            val pertaxCssPath = s"""<link rel="stylesheet" href="${configDecorator.platformFrontendHost}${controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").url}" />"""
-            val htmlPayload = "<!doctype html><html><head></head><body>".concat(
-              views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
-              .replace("</head>" , s"<style> html{background: #FFF !important;} * {font-family: nta !important;}</style>${pertaxCssPath}${fontPath}${applicationMinCss}</head>").filter(_ >= ' ').trim.replaceAll("  +", "")
-              .concat("</body></html>").trim()
-            pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
-              if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
-              else Ok(response.bodyAsBytes.toArray).as("application/pdf")
-                .withHeaders("Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter").replaceAll(" ", "-")}.pdf")
-            }
+      if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
+        enforcePersonDetails {
+          payeAccount =>
+            personDetails =>
+              val applicationMinCss = Source.fromFile("public/css/applicationMin.css").mkString
+              val saveNiLetterAsPDFCss = Source.fromFile("public/css/saveNiLetterAsPDF.css").mkString
+              val htmlPayload = "<!doctype html><html><head></head><body>".concat(
+                views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
+                .replace("</head>", s"<style> html{background: #FFF !important;} * {font-family: Arial !important;}${saveNiLetterAsPDFCss}${applicationMinCss}</style></head>").filter(_ >= ' ').trim.replaceAll("  +", "")
+                .concat("</body></html>").trim()
+              pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
+                if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
+                else Ok(response.bodyAsBytes.toArray).as("application/pdf")
+                  .withHeaders("Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter").replaceAll(" ", "-")}.pdf")
+              }
+        }
+      } else {
+        Future.successful(InternalServerError(views.html.error("global.error.InternalServerError500.title",
+          Some("global.error.InternalServerError500.title"),
+          Some("global.error.InternalServerError500.message"), false)))
       }
   }
 }
