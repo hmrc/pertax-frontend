@@ -63,10 +63,12 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
             personDetails =>
               val applicationMinCss = Source.fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL()).mkString
               val saveNiLetterAsPDFCss = Source.fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL()).mkString
-              val htmlPayload = "<!doctype html><html><head></head><body>".concat(
-                views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
-                .replace("</head>", s"<style> html{background: #FFF !important;} * {font-family: Arial !important;}${saveNiLetterAsPDFCss}${applicationMinCss}</style></head>").filter(_ >= ' ').trim.replaceAll("  +", "")
-                .concat("</body></html>").trim()
+
+              val htmlPayload = views.html.print.niLetterPDfWrapper().toString()
+                .replace("<!-- minifiedCssPlaceholder -->", s"${saveNiLetterAsPDFCss}${applicationMinCss}")
+                .replace("<!-- niLetterPlaceHolder -->", views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
+                .filter(_ >= ' ').trim.replaceAll("  +", "")
+
               pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
                 if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
                 else Ok(response.bodyAsBytes.toArray).as("application/pdf")
