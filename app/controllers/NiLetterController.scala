@@ -61,8 +61,8 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
         enforcePersonDetails {
           payeAccount =>
             personDetails =>
-              val applicationMinCss = Source.fromFile("public/css/applicationMin.css").mkString
-              val saveNiLetterAsPDFCss = Source.fromFile("public/css/saveNiLetterAsPDF.css").mkString
+              val applicationMinCss = Source.fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL()).mkString
+              val saveNiLetterAsPDFCss = Source.fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL()).mkString
               val htmlPayload = "<!doctype html><html><head></head><body>".concat(
                 views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
                 .replace("</head>", s"<style> html{background: #FFF !important;} * {font-family: Arial !important;}${saveNiLetterAsPDFCss}${applicationMinCss}</style></head>").filter(_ >= ' ').trim.replaceAll("  +", "")
