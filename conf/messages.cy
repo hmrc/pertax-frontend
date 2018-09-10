@@ -38,7 +38,6 @@ label.welsh=Cymraeg
 label.service_not_available=Nid yw’r gwasanaeth ar gael
 label.we_are_currently_experiencing_some_technical_problems_=Mae problemau technegol wedi codi gyda’r gwasanaeth credydau treth ar hyn o bryd. Rhowch gynnig arall arni yn nes ymlaen.
 label.you_can_also_tell_us_about_a_change_to_your_details_=Gallwch hefyd roi gwybod i ni am newid i’ch manylion drwy ffonio’r <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/tax-credits-enquiries">Llinell Gymorth Credydau Treth</a>.
-label.this_has_been_your_main_home_since_at_least_6_april_2016=Dyma’ch prif gartref ers o leiaf 6 Ebrill 2016.
 label.letters_from_hm_revenue_and_customs_currently_get_sent_to_your_home_address=Ar hyn o bryd, mae llythyrau oddi wrth Gyllid a Thollau EM yn cael eu hanfon i’ch cyfeiriad cartref.
 label.return_to_your_address=Dychwelyd i’ch cyfeiriad
 label.continue=Parhau
@@ -138,7 +137,6 @@ label.second_line_of_your_address=Ail linell eich cyfeiriad
 label.third_line_of_your_address=Trydedd linell eich cyfeiriad (opsiynol)
 label.fourth_line_of_your_address=Pedwaredd linell eich cyfeiriad (opsiynol)
 label.fifth_line_of_your_address=Pumed linell eich cyfeiriad (opsiynol)
-label.this_has_been_your_main_home_since_date=Dyma’ch prif gartref ers {0}.
 label.contact_hmrc_if_you_cannot_access_your_pta=Cysylltwch â Chyllid a Thollau EM (CThEM) os na allwch gyrchu’ch cyfrif treth personol. Sicrhewch fod eich rhif Yswiriant Gwladol wrth law pan fyddwch yn ffonio.
 label.contact_hmrc=Cysylltu â CThEM
 label.phone_0300_200_3300=Ffôn 0300 200 1900

@@ -31,12 +31,6 @@
     @address.postcode.map(_.toUpperCase)
   }
   </strong></p>
-  @startDate.map { startDate =>
-    <p>@Messages("label.this_has_been_your_main_home_since_date", startDate)</p>
-  }
-  @if(show2016Message) {
-    <p>@Messages("label.this_has_been_your_main_home_since_at_least_6_april_2016")</p>
-  }
 }
 
 @card(
