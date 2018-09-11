@@ -139,6 +139,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     def canUpdatePostalAddress: Boolean
     def userHasPersonDetails: Boolean
     def userHasCorrespondenceAddress: Boolean
+    def userHasWelshLanguageUnitAddress: Boolean
 
     def buildPersonDetails = PersonDetails("115", Person(
       Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
@@ -174,6 +175,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = false
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasCorrespondenceAddress = false
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe None
     }
@@ -182,6 +184,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasCorrespondenceAddress = false
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe None
     }
@@ -190,6 +193,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = true
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
 
@@ -199,12 +203,21 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = false
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
 
     }
-  }
 
+    "return nothing when the correspondence address matches with a Welsh Language Unit" in new PostalAddressSetup {
+      override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = true
+      override lazy val canUpdatePostalAddress = false
+      override lazy val userHasWelshLanguageUnitAddress = true
+
+      cardBody shouldBe None
+    }
+  }
 
   "Calling getNationalInsuranceCard" should {
 
