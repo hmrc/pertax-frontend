@@ -16,7 +16,6 @@
 
 package models
 
-import org.joda.time.DateTime
 import play.api.libs.json.Json
 import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 
@@ -25,6 +24,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 
   trait LocalSetup {
     def firstName: Option[String]
+
     def lastName: Option[String]
 
     lazy val pd = Person(firstName, None,
@@ -71,60 +71,60 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
     "convert correctly when json is in the new citizen-details api format (string date)" in {
       Json.parse(
         s"""
-          |{
-          |  "etag" : "115",
-          |  "person" : {
-          |    "firstName" : "Firstname",
-          |    "middleName" : "Middlename",
-          |    "lastName" : "Lastname",
-          |    "initials" : "FML",
-          |    "title" : "Dr",
-          |    "honours" : "Phd.",
-          |    "sex" : "M",
-          |    "dateOfBirth" : "1945-03-18",
-          |    "nino" : "${Fixtures.fakeNino}"
-          |  },
-          |  "address" : {
-          |    "line1" : "1 Fake Street",
-          |    "line2" : "Fake Town",
-          |    "line3" : "Fake City",
-          |    "line4" : "Fake Region",
-          |    "postcode" : "AA1 1AA",
-          |    "startDate" : "2015-03-15",
-          |    "type" : "Residential"
-          |  }
-          |}
-          |
+           |{
+           |  "etag" : "115",
+           |  "person" : {
+           |    "firstName" : "Firstname",
+           |    "middleName" : "Middlename",
+           |    "lastName" : "Lastname",
+           |    "initials" : "FML",
+           |    "title" : "Dr",
+           |    "honours" : "Phd.",
+           |    "sex" : "M",
+           |    "dateOfBirth" : "1945-03-18",
+           |    "nino" : "${Fixtures.fakeNino}"
+           |  },
+           |  "address" : {
+           |    "line1" : "1 Fake Street",
+           |    "line2" : "Fake Town",
+           |    "line3" : "Fake City",
+           |    "line4" : "Fake Region",
+           |    "postcode" : "AA1 1AA",
+           |    "startDate" : "2015-03-15",
+           |    "type" : "Residential"
+           |  }
+           |}
+           |
         """.stripMargin).as[PersonDetails] shouldBe buildPersonDetails
     }
 
     "convert correctly when json is in the old citizen-details api format (numeric date)" in {
       Json.parse(
         s"""
-          |{
-          |  "etag" : "115",
-          |  "person" : {
-          |    "firstName" : "Firstname",
-          |    "middleName" : "Middlename",
-          |    "lastName" : "Lastname",
-          |    "initials" : "FML",
-          |    "title" : "Dr",
-          |    "honours" : "Phd.",
-          |    "sex" : "M",
-          |    "dateOfBirth" : -782355600000,
-          |    "nino" : "${Fixtures.fakeNino}"
-          |  },
-          |  "address" : {
-          |    "line1" : "1 Fake Street",
-          |    "line2" : "Fake Town",
-          |    "line3" : "Fake City",
-          |    "line4" : "Fake Region",
-          |    "postcode" : "AA1 1AA",
-          |    "startDate" : 1426377600000,
-          |    "type" : "Residential"
-          |  }
-          |}
-          |
+           |{
+           |  "etag" : "115",
+           |  "person" : {
+           |    "firstName" : "Firstname",
+           |    "middleName" : "Middlename",
+           |    "lastName" : "Lastname",
+           |    "initials" : "FML",
+           |    "title" : "Dr",
+           |    "honours" : "Phd.",
+           |    "sex" : "M",
+           |    "dateOfBirth" : -782355600000,
+           |    "nino" : "${Fixtures.fakeNino}"
+           |  },
+           |  "address" : {
+           |    "line1" : "1 Fake Street",
+           |    "line2" : "Fake Town",
+           |    "line3" : "Fake City",
+           |    "line4" : "Fake Region",
+           |    "postcode" : "AA1 1AA",
+           |    "startDate" : 1426377600000,
+           |    "type" : "Residential"
+           |  }
+           |}
+           |
         """.stripMargin).as[PersonDetails] shouldBe buildPersonDetails
     }
   }
@@ -171,6 +171,12 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
       val address = Address(None, None, None, None, None, postcode = Some("AA1 1AA"), None, None)
 
       address.isWelshLanguageUnit shouldBe false
+    }
+    "return true when the address does match a Welsh Language Unit" in {
+
+      val address = Address(None, None, None, None, None, postcode = Some("CF145Sh"), None, None)
+
+      address.isWelshLanguageUnit shouldBe true
     }
   }
 }
