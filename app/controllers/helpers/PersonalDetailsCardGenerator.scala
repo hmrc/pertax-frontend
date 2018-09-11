@@ -73,7 +73,7 @@ class PersonalDetailsCardGenerator @Inject() (
     getPersonDetails match {
       case Some(personDetails) => {
         hasCorrespondenceAddress match {
-          case true => {
+          case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) => {
             val canUpdatePostalAddress = personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
             Some (views.html.cards.personaldetails.postalAddress (personDetails = personDetails, canUpdatePostalAddress = canUpdatePostalAddress) )
           }

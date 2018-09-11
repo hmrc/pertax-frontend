@@ -144,7 +144,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     def buildPersonDetails = PersonDetails("115", Person(
       Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
       Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
-    ), Some(buildFakeAddress), if (userHasCorrespondenceAddress) Some(buildFakeAddress) else None)
+    ), Some(buildFakeAddress), if (userHasCorrespondenceAddress && userHasWelshLanguageUnitAddress) Some(buildFakeWLUAddress) else if(userHasCorrespondenceAddress) Some(buildFakeAddress) else None)
 
     def buildFakeAddress = Address(
       Some("1 Fake Street"),
@@ -153,6 +153,17 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("Fake Region"),
       None,
       Some("AA1 1AA"),
+      if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
+      Some("Residential")
+    )
+
+    def buildFakeWLUAddress = Address(
+      Some("1 Fake Street"),
+      Some("Fake Town"),
+      Some("Fake City"),
+      Some("Fake Region"),
+      None,
+      Some("CF145SH"),
       if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
       Some("Residential")
     )
@@ -213,7 +224,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = false
-      override lazy val userHasWelshLanguageUnitAddress = true
+      override val userHasWelshLanguageUnitAddress = true
 
       cardBody shouldBe None
     }

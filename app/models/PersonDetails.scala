@@ -16,11 +16,8 @@
 
 package models
 
-import java.time.ZoneId
-
+import org.joda.time.{Instant, LocalDate}
 import util.DateTimeTools
-import org.joda.time
-import org.joda.time.{DateTime, DateTimeZone, Instant, LocalDate}
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
 
@@ -78,7 +75,10 @@ case class Address(
 ) {
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
 
-  def isWelshLanguageUnit: Boolean = ???
+  def isWelshLanguageUnit: Boolean = {
+   val welshLanguageUnitPostcodes = Set("CF145SH", "CF145TS", "LL499BF", "BX55AB", "LL499AB")
+    welshLanguageUnitPostcodes.contains(postcode.getOrElse("").toUpperCase.trim.replace(" ", ""))
+  }
 }
 
 object PersonDetails {
