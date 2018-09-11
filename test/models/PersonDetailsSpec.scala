@@ -23,7 +23,6 @@ import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 
 class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 
-
   trait LocalSetup {
     def firstName: Option[String]
     def lastName: Option[String]
@@ -165,5 +164,13 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
         """.stripMargin)
     }
 
+  }
+  "Calling Address.isWelshLanguageUnit" should {
+    "return false when the address doesn't match a Welsh Language Unit" in {
+
+      val address = Address(None, None, None, None, None, postcode = Some("AA1 1AA"), None, None)
+
+      address.isWelshLanguageUnit shouldBe false
+    }
   }
 }

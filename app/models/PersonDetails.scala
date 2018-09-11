@@ -77,6 +77,8 @@ case class Address(
   `type`: Option[String]
 ) {
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
+
+  def isWelshLanguageUnit: Boolean = ???
 }
 
 object PersonDetails {
