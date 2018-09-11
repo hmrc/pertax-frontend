@@ -95,7 +95,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
 
@@ -106,7 +106,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
 
@@ -117,7 +117,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
 
@@ -128,7 +128,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
   }
