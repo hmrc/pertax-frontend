@@ -107,6 +107,10 @@ class AddressController @Inject() (
 
       import models.dto.AddressPageVisitedDto
 
+      val personDetails: Option[PersonDetails] = pertaxContext.user.flatMap(_.personDetails)
+
+      personDetails.map(p => auditConnector.sendEvent(buildAddressChangeEvent("personalDetailsPageLinkClicked", p)))
+
       cacheAddressPageVisited(AddressPageVisitedDto(true)) map { _ =>
         Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
       }
@@ -141,8 +145,9 @@ class AddressController @Inject() (
     }
   }
 
-  def residencyChoice = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+  def residencyChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personDetails =>
+      auditConnector.sendEvent(buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails))
       gettingCachedTaxCreditsChoiceDto {
         case Some(TaxCreditsChoiceDto(false)) =>
           Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
@@ -176,6 +181,7 @@ class AddressController @Inject() (
         gettingCachedJourneyData(typ) { journeyData =>
           typ match {
             case PostalAddrType =>
+              auditConnector.sendEvent(buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails))
               enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
               }
