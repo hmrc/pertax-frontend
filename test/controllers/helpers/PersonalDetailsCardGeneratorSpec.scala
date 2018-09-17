@@ -95,7 +95,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
 
@@ -106,7 +106,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
 
@@ -117,7 +117,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
 
@@ -128,7 +128,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, show2016Message, mainHomeStartDate, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
 
     }
   }
@@ -139,11 +139,12 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     def canUpdatePostalAddress: Boolean
     def userHasPersonDetails: Boolean
     def userHasCorrespondenceAddress: Boolean
+    def userHasWelshLanguageUnitAddress: Boolean
 
     def buildPersonDetails = PersonDetails("115", Person(
       Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
       Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
-    ), Some(buildFakeAddress), if (userHasCorrespondenceAddress) Some(buildFakeAddress) else None)
+    ), Some(buildFakeAddress), if (userHasCorrespondenceAddress && userHasWelshLanguageUnitAddress) Some(buildFakeWLUAddress) else if(userHasCorrespondenceAddress) Some(buildFakeAddress) else None)
 
     def buildFakeAddress = Address(
       Some("1 Fake Street"),
@@ -152,6 +153,17 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("Fake Region"),
       None,
       Some("AA1 1AA"),
+      if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
+      Some("Residential")
+    )
+
+    def buildFakeWLUAddress = Address(
+      Some("1 Fake Street"),
+      Some("Fake Town"),
+      Some("Fake City"),
+      Some("Fake Region"),
+      None,
+      Some("CF145SH"),
       if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
       Some("Residential")
     )
@@ -174,6 +186,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = false
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasCorrespondenceAddress = false
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe None
     }
@@ -182,6 +195,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasCorrespondenceAddress = false
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe None
     }
@@ -190,6 +204,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = true
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
 
@@ -199,12 +214,21 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = false
+      override lazy val userHasWelshLanguageUnitAddress = false
 
       cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
 
     }
-  }
 
+    "return nothing when the correspondence address matches with a Welsh Language Unit" in new PostalAddressSetup {
+      override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = true
+      override lazy val canUpdatePostalAddress = false
+      override val userHasWelshLanguageUnitAddress = true
+
+      cardBody shouldBe None
+    }
+  }
 
   "Calling getNationalInsuranceCard" should {
 

@@ -63,7 +63,7 @@ class PersonalDetailsCardGenerator @Inject() (
     getPersonDetails match {
       case Some(personDetails) => {
         val (show2016Message, startDate) = show2016AddressMessage(personDetails.address)
-        Some(views.html.cards.personaldetails.mainAddress(personDetails = personDetails, show2016Message = show2016Message, startDate = startDate, taxCreditsEnabled = configDecorator.taxCreditsEnabled, hasCorrespondenceAddress = hasCorrespondenceAddress))
+        Some(views.html.cards.personaldetails.mainAddress(personDetails = personDetails, taxCreditsEnabled = configDecorator.taxCreditsEnabled, hasCorrespondenceAddress = hasCorrespondenceAddress))
       }
       case _ => None
     }
@@ -73,7 +73,7 @@ class PersonalDetailsCardGenerator @Inject() (
     getPersonDetails match {
       case Some(personDetails) => {
         hasCorrespondenceAddress match {
-          case true => {
+          case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) => {
             val canUpdatePostalAddress = personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
             Some (views.html.cards.personaldetails.postalAddress (personDetails = personDetails, canUpdatePostalAddress = canUpdatePostalAddress) )
           }
