@@ -16,7 +16,7 @@
 
 package util
 
-import models.PertaxContext
+import models.{PersonDetails, PertaxContext}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
 import uk.gov.hmrc.http.HeaderCarrier
@@ -54,5 +54,11 @@ object AuditServiceTools {
       detail = standardAuditData ++ customAuditData
     )
 
+  }
+
+  def buildAddressChangeEvent(auditType: String, personDetails: PersonDetails)(implicit hc: HeaderCarrier, context: PertaxContext): DataEvent = {
+    buildEvent(auditType,"change_address",
+    Map("currentAddress" -> Some(personDetails.address.toString), "welshLanguageUnit" ->
+      personDetails.correspondenceAddress.fold(Some("false"))(address => Some(address.isWelshLanguageUnit.toString))))
   }
 }
