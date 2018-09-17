@@ -142,6 +142,16 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       verify(controller.sessionCache, times(1)).cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
     }
+
+    "send an audit event when user arrives on personal details page" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+      val r = controller.personalDetails(buildAddressRequest("GET", uri = "/personal-account/personal-details"))
+      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+
+      status(r) shouldBe OK
+      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+    }
   }
 
 
@@ -219,6 +229,7 @@ class AddressControllerSpec extends BaseSpec  {
       override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
+
     }
 
     "return OK when the user has indicated that they do not receive tax credits on the previous page" in new LocalSetup {
@@ -248,6 +259,18 @@ class AddressControllerSpec extends BaseSpec  {
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any(),any())
+    }
+
+    "verify that an audit event has been sent when a user chooses to change their main address" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))))
+
+      val r = controller.residencyChoice(buildFakeRequestWithAuth("GET"))
+
+      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
 
   }
@@ -341,6 +364,18 @@ class AddressControllerSpec extends BaseSpec  {
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
+    "verify an audit event has been sent for a user clicking the change postal address link" in new LocalSetup {
+
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+      val r = controller.showPostcodeLookupForm(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+
+      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+    }
   }
 
 
