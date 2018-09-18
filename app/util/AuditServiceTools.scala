@@ -58,7 +58,14 @@ object AuditServiceTools {
 
   def buildAddressChangeEvent(auditType: String, personDetails: PersonDetails)(implicit hc: HeaderCarrier, context: PertaxContext): DataEvent = {
     buildEvent(auditType,"change_address",
-    Map("currentAddress" -> Some(personDetails.address.toString), "welshLanguageUnit" ->
-      personDetails.correspondenceAddress.fold(Some("false"))(address => Some(address.isWelshLanguageUnit.toString))))
+    Map("line1" -> Some(personDetails.address.map(_.line1).toString),
+        "line2" ->  Some(personDetails.address.map(_.line2).toString),
+        "line3" -> Some(personDetails.address.map(_.line3).toString),
+        "line4" -> Some(personDetails.address.map(_.line4).toString),
+        "line5" -> Some(personDetails.address.map(_.line5).toString),
+        "postcode" -> Some(personDetails.address.map(_.postcode).toString),
+        "startDate" -> Some(personDetails.address.map(_.startDate).toString),
+        "type" -> Some(personDetails.address.map(_.`type`).toString),
+        "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(Some("false"))(address => Some(address.isWelshLanguageUnit.toString))))
   }
 }
