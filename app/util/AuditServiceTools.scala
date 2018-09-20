@@ -16,6 +16,8 @@
 
 package util
 
+import java.io
+
 import models.{PersonDetails, PertaxContext}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
@@ -57,15 +59,16 @@ object AuditServiceTools {
   }
 
   def buildAddressChangeEvent(auditType: String, personDetails: PersonDetails)(implicit hc: HeaderCarrier, context: PertaxContext): DataEvent = {
+
     buildEvent(auditType,"change_address",
-    Map("line1" -> Some(personDetails.address.map(_.line1).toString),
-        "line2" ->  Some(personDetails.address.map(_.line2).toString),
-        "line3" -> Some(personDetails.address.map(_.line3).toString),
-        "line4" -> Some(personDetails.address.map(_.line4).toString),
-        "line5" -> Some(personDetails.address.map(_.line5).toString),
-        "postcode" -> Some(personDetails.address.map(_.postcode).toString),
-        "startDate" -> Some(personDetails.address.map(_.startDate).toString),
-        "type" -> Some(personDetails.address.map(_.`type`).toString),
+    Map("line1" -> Some(personDetails.address.flatMap(_.line1).getOrElse(None).toString),
+        "line2" ->  Some(personDetails.address.flatMap(_.line2).getOrElse(None).toString),
+        "line3" -> Some(personDetails.address.flatMap(_.line3).getOrElse(None).toString),
+        "line4" -> Some(personDetails.address.flatMap(_.line4).getOrElse(None).toString),
+        "line5" -> Some(personDetails.address.flatMap(_.line5).getOrElse(None).toString),
+        "postcode" -> Some(personDetails.address.flatMap(_.postcode).getOrElse(None).toString),
+        "startDate" -> Some(personDetails.address.flatMap(_.startDate).getOrElse(None).toString),
+        "type" -> Some(personDetails.address.flatMap(_.`type`).getOrElse(None).toString),
         "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(Some("false"))(address => Some(address.isWelshLanguageUnit.toString))))
   }
 }
