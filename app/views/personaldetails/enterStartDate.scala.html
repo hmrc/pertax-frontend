@@ -22,6 +22,17 @@
 @import scala.util.Try
 @import play.api.i18n.Messages
 
+@scriptElem = {
+  @if(residenceStartDateForm.hasErrors) {
+    @residenceStartDateForm.errors.map { error =>
+      <script>
+        $(function(){
+          ga('send', 'event', 'error - field', 'When did you start living here?', '@Messages(s"head.${error.message}")');
+        });
+      </script>
+    }
+  }
+}
 
 @main(
   title = typ.ifIs(
@@ -30,7 +41,8 @@
     postal = ""
   ),
   pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AddressController.showUpdateAddressForm(typ).url)
+  backlinkUrl = Some(controllers.routes.AddressController.showUpdateAddressForm(typ).url),
+  scriptElement = Some(scriptElem)
 ) {
 
   @errors(residenceStartDateForm)
