@@ -498,6 +498,7 @@ label.you_have_no_payments_to_make_to_hmrc_=Nid oes gennych daliadau i’w gwneu
 label.you_owe_hmrc_for_the_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 label.help_improve_gov_uk=Helpwch i wella GOV.UK
 label.get_involved_in_making_government_services_better_=Byddwch yn rhan o wneud gwasanaethau’r Llywodraeth yn well (mae’r cysylltiad hwn yn agor ffenestr neu dab newydd)
+label.please_take_part_in_our_short_survey=Please take part in our short survey (opens in new window or tab)
 label.no_thanks=Dim diolch
 
 #
