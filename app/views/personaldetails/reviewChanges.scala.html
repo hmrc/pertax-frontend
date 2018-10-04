@@ -25,7 +25,11 @@
 
 @main(title = Messages("label.check_your_details"),
   pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AddressController.enterStartDate(typ).url)
+  backlinkUrl = if(displayDateAddressChanged) {
+    Some(controllers.routes.AddressController.enterStartDate(typ).url)
+  } else {
+    Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
+  }
 ) {
 <div class="personal-details">
   <div class="grid-row">
@@ -56,7 +60,7 @@
           <dd class="cya-answer">@Html(addressDto.toList.mkString(", <br>"))</dd>
           <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.change_address")</a></dd>
         </div>
-          @if(displayDateAddressChanged) {
+          <!--@if(displayDateAddressChanged) {-->
             <div>
               @startDateDto.map { startDateDto =>
                 <dt class="cya-question">
@@ -66,7 +70,7 @@
                 <dd class="cya-change"><a href="@controllers.routes.AddressController.enterStartDate(typ)">@Messages("label.change_start_date")</a></dd>
               }
             </div>
-          }
+          <!--}-->
       </dl>
 
       @form(controllers.routes.AddressController.submitChanges(typ)) {
