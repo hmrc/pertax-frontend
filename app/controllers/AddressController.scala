@@ -261,16 +261,17 @@ class AddressController @Inject() (
             addressSelectorDto => {
               lookingUpAddress(typ, postcode, journeyData) {
                 case AddressLookupSuccessResponse(recordSet) =>
-                  recordSet.addresses.filter(_.id == addressSelectorDto.addressId.getOrElse("")).headOption map { addressRecord =>
+                  recordSet.addresses.find(_.id == addressSelectorDto.addressId.getOrElse("")) map { addressRecord =>
 
                       val addressDto = AddressDto.fromAddressRecord(addressRecord)
                       cacheSelectedAddressRecord(typ, addressRecord) flatMap { _ =>
                         cacheSubmittedAddressDto(typ, addressDto) map { _ =>
-                          if (typ != PostalAddrType) {
-                            Redirect(routes.AddressController.enterStartDate(typ))
-                          }
-                          else {
-                            Redirect(routes.AddressController.showUpdateAddressForm(typ))
+                          val postCodeHasChanged = postcode!=personDetails.address.flatMap(_.postcode).getOrElse("")
+                          (typ, postCodeHasChanged) match {
+                            case (PostalAddrType, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (PostalAddrType, false) => Redirect(routes.AddressController.showUpdateAddressForm(typ))
+                            case (_, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (_, false) => Redirect(routes.AddressController.reviewChanges(typ))
                           }
                         }
                       }
