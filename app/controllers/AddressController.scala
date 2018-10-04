@@ -18,7 +18,6 @@ package controllers
 
 
 import javax.inject.Inject
-
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
@@ -322,10 +321,11 @@ class AddressController @Inject() (
               addressDto => {
                 cacheSubmittedAddressDto(typ, addressDto) flatMap { _ =>
                   typ match {
-                    case x: ResidentialAddrType =>
-                      Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
                     case PostalAddrType =>
                       Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
+                    case _ =>
+                      Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
+
                   }
                 }
               }
@@ -394,9 +394,12 @@ class AddressController @Inject() (
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
+          val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("")
+          val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
+          val showAddressChangedDate: Boolean = newPostcode != oldPostcode
           ensuringSubmissionRequirments(typ, journeyData) {
             journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
-              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto)))
+              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto,showAddressChangedDate)))
             }
           }
         }
