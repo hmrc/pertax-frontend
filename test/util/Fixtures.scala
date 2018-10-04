@@ -134,6 +134,15 @@ trait CitizenDetailsFixtures {
     ("line5", ""),
     ("postcode", "AA1 1AA")
   )
+
+  def fakeStreetTupleListAddressForModifiedPostcode: List[(String, String)] = List(
+    ("line1", "11 Fake Street"), //Note 11 not 1
+    ("line2", "Fake Town"),
+    ("line3", "Fake City"),
+    ("line4", "Fake Region"),
+    ("line5", ""),
+    ("postcode", "AA1 2AA")
+  )
 }
 
 object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures with TaxCalculationFixtures {

@@ -29,6 +29,7 @@ import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.mvc.Results
@@ -994,38 +995,38 @@ class AddressControllerSpec extends BaseSpec  {
 
     "return 200 if both SubmittedAddressDto and SubmittedStartDateDto are present in keystore for non-postal" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
         "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
 
       val r = controller.reviewChanges(PrimaryAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 200 if only SubmittedAddressDto is present in keystore for postal" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "postalSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+        "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
       )))
 
       val r = controller.reviewChanges(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
 
     "redirect back to start of journey if SubmittedAddressDto is missing from keystore for non-postal" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+        "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
       )))
 
       val r = controller.reviewChanges(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect back to start of journey if SubmittedAddressDto is missing from keystore for postal" in new LocalSetup {
@@ -1036,13 +1037,36 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
+    "display no message relating to the date the address started when the primary address has not changed" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+      )))
+
+      val r = controller.reviewChanges(PrimaryAddrType)(buildAddressRequest("GET"))
+      implicit val messages: Messages = Messages.Implicits.applicationMessages
+
+      contentAsString(r) shouldNot include(Messages("label.when_this_became_your_main_home"))
+    }
+
+    "display a message relating to the date the address started when the primary address has changed" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
+        "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+      )))
+
+      val r = controller.reviewChanges(PrimaryAddrType)(buildAddressRequest("GET"))
+      implicit val messages: Messages = Messages.Implicits.applicationMessages
+
+      contentAsString(r) should include(Messages("label.when_this_became_your_main_home"))
+    }
   }
 
 
-  "Calling AddressController.submitChanges" should {
+    "Calling AddressController.submitChanges" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
