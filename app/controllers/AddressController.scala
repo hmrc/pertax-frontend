@@ -18,6 +18,7 @@ package controllers
 
 
 import javax.inject.Inject
+
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
@@ -28,7 +29,7 @@ import error.LocalErrorHandler
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
-import org.joda.time.{DateTime, DateTimeZone, LocalDate}
+import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.data.FormError
 import play.api.i18n.MessagesApi
@@ -320,10 +321,15 @@ class AddressController @Inject() (
               },
               addressDto => {
                 cacheSubmittedAddressDto(typ, addressDto) flatMap { _ =>
-                  typ match {
-                    case PostalAddrType =>
+                  val postCodeHasChanged = addressDto.postcode != personDetails.address.flatMap(_.postcode).getOrElse("")
+
+                  println("/n/n/n/n" + addressDto.postcode + personDetails.address.flatMap(_.postcode).getOrElse("") + "   " + postCodeHasChanged)
+                  (typ, postCodeHasChanged) match {
+                    case (PostalAddrType, _) =>
                       Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
-                    case _ =>
+                    case (_, false) =>
+                      Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
+                    case (_, true) =>
                       Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
 
                   }
@@ -384,7 +390,7 @@ class AddressController @Inject() (
 
 
   def ensuringSubmissionRequirments(typ: AddrType, journeyData: AddressJourneyData)(block: => Future[Result]) = {
-    if(journeyData.submittedStartDateDto == None && (typ == PrimaryAddrType | typ == SoleAddrType))
+    if(journeyData.submittedAddressDto == None && (typ == PrimaryAddrType | typ == SoleAddrType))
       Future.successful(Redirect(routes.AddressController.personalDetails()))
     else
       block
@@ -398,6 +404,8 @@ class AddressController @Inject() (
           val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
           val showAddressChangedDate: Boolean = newPostcode != oldPostcode
           ensuringSubmissionRequirments(typ, journeyData) {
+
+
             journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
               Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto,showAddressChangedDate)))
             }
