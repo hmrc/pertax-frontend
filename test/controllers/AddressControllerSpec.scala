@@ -544,15 +544,22 @@ class AddressControllerSpec extends BaseSpec  {
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
 
-      val addressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+      val addressLookupResponseDifferentPostcode = AddressLookupSuccessResponse(newPostcodePlacePafRecordSet)
 
       lazy val c1 = {
         when(controller.addressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-          Future.successful(addressLookupResponse)
+          Future.successful(addressLookupResponseFirstPostcode)
         }
         controller
       }
 
+      lazy val c2 = {
+        when(controller.addressLookupService.lookup(meq("AA1 2AA"), any())(any())) thenReturn {
+          Future.successful(addressLookupResponseDifferentPostcode)
+        }
+        controller
+      }
     }
 
     "call the address lookup service and return 400 when supplied no addressId in the form" in new LocalSetup {
@@ -571,17 +578,6 @@ class AddressControllerSpec extends BaseSpec  {
       verify(c1.sessionCache, times(1)).fetch()(any(), any())
     }
 
-    "call the address lookup service and redirect to the enter start date form for a non postal address type when supplied with an addressId" in new LocalSetup {
-      val cacheAddress =  AddressDto.fromAddressRecord(oneOtherPlacePafAddressRecord)
-
-      val r = c1.processAddressSelectorForm(SoleAddrType, "AA1 1AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> "GB990091234514"))
-
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
-      verify(c1.sessionCache, times(1)).cache(meq("soleSubmittedAddressDto"), meq(cacheAddress))(any(), any(), any())
-      verify(c1.sessionCache, times(1)).fetch()(any(), any())
-    }
-
     "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in new LocalSetup {
       val r = c1.processAddressSelectorForm(PostalAddrType, "AA1 1AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> "GB000000000000"))
 
@@ -590,6 +586,23 @@ class AddressControllerSpec extends BaseSpec  {
       verify(c1.sessionCache, times(1)).fetch()(any(), any())
     }
 
+    "redirect to enter start date page if postcode is different to currently held postcode" in new LocalSetup {
+      val cacheAddress =  AddressDto.fromAddressRecord(otherPlacePafDifferentPostcodeAddressRecord)
+
+      val r = c2.processAddressSelectorForm(SoleAddrType, "AA1 2AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> "GB990091234516"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
+    }
+
+    "redirect to check address page if postcode is not different to currently held postcode" in new LocalSetup {
+      val cacheAddress =  AddressDto.fromAddressRecord(twoOtherPlacePafAddressRecord)
+
+      val r = c1.processAddressSelectorForm(SoleAddrType, "AA1 1AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> "GB990091234515"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/changes")
+    }
   }
 
 
