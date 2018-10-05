@@ -60,7 +60,7 @@
           <dd class="cya-answer">@Html(addressDto.toList.mkString(", <br>"))</dd>
           <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.change_address")</a></dd>
         </div>
-          <!--@if(displayDateAddressChanged) {-->
+          @if(displayDateAddressChanged) {
             <div>
               @startDateDto.map { startDateDto =>
                 <dt class="cya-question">
@@ -70,7 +70,7 @@
                 <dd class="cya-change"><a href="@controllers.routes.AddressController.enterStartDate(typ)">@Messages("label.change_start_date")</a></dd>
               }
             </div>
-          <!--}-->
+          }
       </dl>
 
       @form(controllers.routes.AddressController.submitChanges(typ)) {
