@@ -1062,6 +1062,33 @@ class AddressControllerSpec extends BaseSpec {
 
       contentAsString(r) should include(Messages("label.when_this_became_your_main_home"))
     }
+
+    "display the appropriate label for address when the sole address has changed" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
+        "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+      )))
+
+      val r = controller.reviewChanges(SoleAddrType)(buildAddressRequest("GET"))
+      implicit val messages: Messages = Messages.Implicits.applicationMessages
+
+      contentAsString(r) should include(Messages("label.your_new_address"))
+      contentAsString(r) should include(Messages("label.when_you_started_living_here"))
+    }
+
+    "display the appropriate label for address when the sole address has not changed" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+      )))
+
+      val r = controller.reviewChanges(SoleAddrType)(buildAddressRequest("GET"))
+      implicit val messages: Messages = Messages.Implicits.applicationMessages
+
+      contentAsString(r) should include(Messages("label.your_address"))
+      contentAsString(r) shouldNot include(Messages("label.when_you_started_living_here"))
+    }
+
   }
 
 
