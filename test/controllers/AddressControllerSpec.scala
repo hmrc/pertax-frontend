@@ -48,7 +48,7 @@ import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HttpResponse
 
-class AddressControllerSpec extends BaseSpec  {
+class AddressControllerSpec extends BaseSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
@@ -84,7 +84,7 @@ class AddressControllerSpec extends BaseSpec  {
     def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.form.bind(l.toMap).get
 
     def pruneDataEvent(dataEvent: DataEvent): DataEvent =
-      dataEvent.copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token",detail = dataEvent.detail - "credId")
+      dataEvent.copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
 
     lazy val controller = {
       val c = injected[AddressController]
@@ -172,7 +172,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.taxCreditsChoice(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new WithAddressControllerSpecSetup with LocalSetup {
@@ -182,7 +182,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
   }
@@ -200,7 +200,7 @@ class AddressControllerSpec extends BaseSpec  {
     }
 
     "redirect to expected tax credits page when supplied with value = Yes (true)" in new LocalSetup {
-      val r = controller.processTaxCreditsChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody( "taxCreditsChoice" -> "true" ))
+      val r = controller.processTaxCreditsChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("taxCreditsChoice" -> "true"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/tax-credits-service/personal/change-address")
@@ -239,7 +239,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.residencyChoice(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "return to the beginning of journey when the user has indicated that they receive tax credits on the previous page" in new LocalSetup {
@@ -249,7 +249,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "return to the beginning of journey when the user has not selected any tax credits choice on the previous page" in new LocalSetup {
@@ -259,7 +259,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "verify that an audit event has been sent when a user chooses to change their main address" in new LocalSetup {
@@ -270,7 +270,7 @@ class AddressControllerSpec extends BaseSpec  {
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
 
@@ -289,21 +289,21 @@ class AddressControllerSpec extends BaseSpec  {
     }
 
     "redirect to find address page with primary type when supplied value=primary" in new LocalSetup {
-      val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody( "residencyChoice" -> "primary" ))
+      val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("residencyChoice" -> "primary"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/primary/find-address")
     }
 
     "redirect to find address page with sole type when supplied value=sole" in new LocalSetup {
-      val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody( "residencyChoice" -> "sole" ))
+      val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("residencyChoice" -> "sole"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/find-address")
     }
 
     "return a bad request when supplied value=bad" in new LocalSetup {
-      val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody( "residencyChoice" -> "bad" ))
+      val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("residencyChoice" -> "bad"))
 
       status(r) shouldBe BAD_REQUEST
     }
@@ -333,7 +333,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showPostcodeLookupForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 200 if the user is on correspondence address journey and has postal address type" in new LocalSetup {
@@ -342,7 +342,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showPostcodeLookupForm(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in new LocalSetup {
@@ -351,7 +351,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showPostcodeLookupForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -361,7 +361,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showPostcodeLookupForm(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -372,7 +372,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showPostcodeLookupForm(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -411,9 +411,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe BAD_REQUEST
     }
-
   }
-
 
   "Calling AddressController.showAddressSelectorForm" should {
 
@@ -467,7 +465,7 @@ class AddressControllerSpec extends BaseSpec  {
       verify(c1.sessionCache, times(1)).fetch()(any(), any())
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(c1.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      pruneDataEvent(eventCaptor.getValue)  shouldBe comparatorDataEvent(eventCaptor.getValue, "addressLookupResults", "AA1 1AA")
+      pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(eventCaptor.getValue, "addressLookupResults", "AA1 1AA")
     }
 
     "redirect to the edit-address page for a non postal address type and log a addressLookupResults audit event when a single record is returned by the address lookup service" in new LocalSetup {
@@ -482,7 +480,7 @@ class AddressControllerSpec extends BaseSpec  {
       verify(c1.sessionCache, times(1)).fetch()(any(), any())
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(c1.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      pruneDataEvent(eventCaptor.getValue)  shouldBe comparatorDataEvent(eventCaptor.getValue, "addressLookupResults", "AA1 1AA")
+      pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(eventCaptor.getValue, "addressLookupResults", "AA1 1AA")
     }
 
     "return 200 and log a addressLookupResults audit event when multiple records are returned by the address lookup service" in new LocalSetup {
@@ -588,7 +586,7 @@ class AddressControllerSpec extends BaseSpec  {
     }
 
     "redirect to enter start date page if postcode is different to currently held postcode" in new LocalSetup {
-      val cacheAddress =  AddressDto.fromAddressRecord(otherPlacePafDifferentPostcodeAddressRecord)
+      val cacheAddress = AddressDto.fromAddressRecord(otherPlacePafDifferentPostcodeAddressRecord)
 
       val r = c2.processAddressSelectorForm(SoleAddrType, "AA1 2AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> "GB990091234516"))
 
@@ -596,13 +594,14 @@ class AddressControllerSpec extends BaseSpec  {
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
     }
 
-    "redirect to check address page if postcode is not different to currently held postcode" in new LocalSetup {
-      val cacheAddress =  AddressDto.fromAddressRecord(twoOtherPlacePafAddressRecord)
+    "redirect to check and submit page if postcode is not different to currently held postcode" in new LocalSetup {
+      val cacheAddress = AddressDto.fromAddressRecord(twoOtherPlacePafAddressRecord)
 
       val r = c1.processAddressSelectorForm(SoleAddrType, "AA1 1AA", None)(buildAddressRequest("GET").withFormUrlEncodedBody("addressId" -> "GB990091234515"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/changes")
+      verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
     }
   }
 
@@ -624,7 +623,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "fetch the selected address and a sole residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
@@ -634,7 +633,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no selected address with sole address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
@@ -643,7 +642,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no residency choice in the session cache and redirect to the beginning of the journey" in new LocalSetup {
@@ -652,7 +651,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -662,7 +661,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -673,7 +672,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(PostalAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in new LocalSetup {
@@ -681,8 +680,8 @@ class AddressControllerSpec extends BaseSpec  {
 
       val r = controller.showUpdateAddressForm(PostalAddrType)(buildAddressRequest("GET"))
 
-      status(r)shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no addresses in the session cache and return 303" in new LocalSetup {
@@ -692,7 +691,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "find sole selected and submitted addresses in the session cache and return 200" in new LocalSetup {
@@ -703,7 +702,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no selected address but a submitted address in the session cache and return 200" in new LocalSetup {
@@ -713,7 +712,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in new LocalSetup {
@@ -721,8 +720,8 @@ class AddressControllerSpec extends BaseSpec  {
 
       val r = controller.showUpdateAddressForm(PostalAddrType)(buildAddressRequest("GET"))
 
-      status(r)shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
       doc.getElementsByClass("heading-xlarge").toString().contains("Enter the address") shouldBe true
     }
@@ -732,8 +731,8 @@ class AddressControllerSpec extends BaseSpec  {
 
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
-      status(r)shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
       doc.getElementsByClass("heading-xlarge").toString().contains("Enter your address") shouldBe true
     }
@@ -746,8 +745,8 @@ class AddressControllerSpec extends BaseSpec  {
 
       val r = controller.showUpdateAddressForm(PostalAddrType)(buildAddressRequest("GET"))
 
-      status(r)shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
       doc.getElementsByClass("heading-xlarge").toString().contains("Edit the address (optional)") shouldBe true
     }
@@ -761,7 +760,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.showUpdateAddressForm(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
       doc.getElementsByClass("heading-xlarge").toString().contains("Edit your address (optional)") shouldBe true
     }
@@ -786,27 +785,27 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.processUpdateAddressForm(PostalAddrType)(buildAddressRequest("POST"))
 
       status(r) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a postal journey" in new LocalSetup {
-      val r = controller.processUpdateAddressForm(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified : _*))
+      val r = controller.processUpdateAddressForm(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/changes")
       verify(controller.sessionCache, times(1)).cache(meq("postalSubmittedAddressDto"), meq(asAddressDto(fakeStreetTupleListAddressForUnmodified)))(any(), any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
 
-
-    "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in new LocalSetup {
-      val r = controller.processUpdateAddressForm(SoleAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified : _*))
+    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a non postal journey and input default startDate into cache" in new LocalSetup {
+      val r = controller.processUpdateAddressForm(SoleAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/changes")
       verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedAddressDto"), meq(asAddressDto(fakeStreetTupleListAddressForUnmodified)))(any(), any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
   }
@@ -828,7 +827,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.enterStartDate(PrimaryAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 200 when passed SoleAddrType and submittedAddressDto is in keystore" in new LocalSetup {
@@ -837,7 +836,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.enterStartDate(SoleAddrType)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect to 'edit address' when passed PostalAddrType as this step is not valid for postal" in new LocalSetup {
@@ -857,7 +856,7 @@ class AddressControllerSpec extends BaseSpec  {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
   }
@@ -1066,7 +1065,7 @@ class AddressControllerSpec extends BaseSpec  {
   }
 
 
-    "Calling AddressController.submitChanges" should {
+  "Calling AddressController.submitChanges" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
@@ -1081,20 +1080,20 @@ class AddressControllerSpec extends BaseSpec  {
         Map(
           "nino" -> Some(Fixtures.fakeNino.nino),
           "etag" -> Some("115"),
-          "submittedLine1"    -> submittedLine1,
-          "submittedLine2"    -> Some("Fake Town"),
-          "submittedLine3"    -> Some("Fake City"),
-          "submittedLine4"    -> Some("Fake Region"),
+          "submittedLine1" -> submittedLine1,
+          "submittedLine2" -> Some("Fake Town"),
+          "submittedLine3" -> Some("Fake City"),
+          "submittedLine4" -> Some("Fake Region"),
           "submittedPostcode" -> Some("AA1 1AA"),
-          "addressType"       -> addressType,
-          "submittedUPRN"     -> uprn,
-          "originalLine1"     -> Some("1 Fake Street").filter(x => includeOriginals),
-          "originalLine2"     -> Some("Fake Town").filter(x => includeOriginals),
-          "originalLine3"     -> Some("Fake City").filter(x => includeOriginals),
-          "originalLine4"     -> Some("Fake Region").filter(x => includeOriginals),
-          "originalPostcode"  -> Some("AA1 1AA").filter(x => includeOriginals),
-          "originalUPRN"      -> uprn.filter(x => includeOriginals)
-        ).map(t => t._2.map( (t._1, _) )).flatten.toMap,
+          "addressType" -> addressType,
+          "submittedUPRN" -> uprn,
+          "originalLine1" -> Some("1 Fake Street").filter(x => includeOriginals),
+          "originalLine2" -> Some("Fake Town").filter(x => includeOriginals),
+          "originalLine3" -> Some("Fake City").filter(x => includeOriginals),
+          "originalLine4" -> Some("Fake Region").filter(x => includeOriginals),
+          "originalPostcode" -> Some("AA1 1AA").filter(x => includeOriginals),
+          "originalUPRN" -> uprn.filter(x => includeOriginals)
+        ).map(t => t._2.map((t._1, _))).flatten.toMap,
         dataEvent.generatedAt
       )
 
@@ -1103,7 +1102,7 @@ class AddressControllerSpec extends BaseSpec  {
 
     "redirect to start of journey if primarySubmittedStartDateDto is missing from the cache, and the journey type is PrimaryAddrType" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
       )))
 
       val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
@@ -1112,12 +1111,12 @@ class AddressControllerSpec extends BaseSpec  {
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect to start of journey if soleSubmittedStartDateDto is missing from the cache, and the journey type is SoleAddrType" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+        "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
       )))
 
       val r = controller.submitChanges(SoleAddrType)(buildAddressRequest("POST"))
@@ -1126,22 +1125,21 @@ class AddressControllerSpec extends BaseSpec  {
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "render the thank-you page if postalSubmittedStartDateDto is not in the cache, and the journey type is PostalAddrType" in new LocalSetup {
       override lazy val fakeAddress = buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "postalSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+        "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
       )))
 
       val r = controller.submitChanges(PostalAddrType)(buildAddressRequest("POST"))
 
       status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
-
 
 
     "redirect to start of journey if primarySubmittedAddressDto is missing from the cache" in new LocalSetup {
@@ -1155,13 +1153,13 @@ class AddressControllerSpec extends BaseSpec  {
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "render the thank-you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
         "primarySelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
         "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
 
@@ -1172,7 +1170,7 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "postcodeAddressSubmitted", Some("GB101"), false)
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
@@ -1180,23 +1178,23 @@ class AddressControllerSpec extends BaseSpec  {
       override lazy val fakeAddress = buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
         "postalSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-        "postalSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+        "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
       )))
 
-      val r = controller.submitChanges(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified : _*))
+      val r = controller.submitChanges(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*))
 
       status(r) shouldBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "postcodeAddressSubmitted", Some("GB101"), false, addressType = Some("Correspondence"))
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
     "render the thank you page and log a manualAddressSubmitted audit event upon successful submission of a manually entered address" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForManualyEntered)),
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForManualyEntered)),
         "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
 
@@ -1207,7 +1205,7 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
@@ -1215,7 +1213,7 @@ class AddressControllerSpec extends BaseSpec  {
       override lazy val fakeAddress = buildFakeAddress.copy(line1 = Some("11 Fake Street"))
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
         "primarySelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
         "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
 
@@ -1226,13 +1224,13 @@ class AddressControllerSpec extends BaseSpec  {
       verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "postcodeAddressModifiedSubmitted", Some("GB101"), true, Some("11 Fake Street"))
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
     "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
         "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
       override lazy val updateAddressResponse = UpdateAddressBadRequestResponse
@@ -1240,13 +1238,13 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
 
       status(r) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
     "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
         "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
       override lazy val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(SEE_OTHER))
@@ -1254,13 +1252,13 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(Fixtures.fakeNino), meq("115"), meq(buildFakeAddress))(any())
     }
 
     "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map(
-        "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
         "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
       )))
       override lazy val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("Any exception"))
@@ -1268,7 +1266,7 @@ class AddressControllerSpec extends BaseSpec  {
       val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
-      verify(controller.sessionCache, times(1)).fetch()(any(),any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
@@ -1325,8 +1323,8 @@ class AddressControllerSpec extends BaseSpec  {
 
       val validAddressRecordSet = RecordSet(
         List(
-          AddressRecord("GB990091234514",PafAddress(List("1 Fake Street", "Fake Town"),Some("Fake City"), None,"AA1 1AA",Country("UK","United Kingdom")),"en"),
-          AddressRecord("GB990091234515",PafAddress(List("2 Fake Street", "Fake Town"),Some("Fake City"), None,"AA1 1AA",Country("UK","United Kingdom")),"en")
+          AddressRecord("GB990091234514", PafAddress(List("1 Fake Street", "Fake Town"), Some("Fake City"), None, "AA1 1AA", Country("UK", "United Kingdom")), "en"),
+          AddressRecord("GB990091234515", PafAddress(List("2 Fake Street", "Fake Town"), Some("Fake City"), None, "AA1 1AA", Country("UK", "United Kingdom")), "en")
         )
       )
 
