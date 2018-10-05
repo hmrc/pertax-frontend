@@ -50,8 +50,11 @@
                 {Messages("label.your_main_home")}
               },
               sole = {
+              if(displayDateAddressChanged) {
                 {Messages("label.your_new_address")}
-              },
+              } else {
+                {Messages("label.your_address")}
+              }},
               postal = {
                 {Messages("label.your_new_postal_address")}
               }
