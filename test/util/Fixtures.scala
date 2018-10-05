@@ -59,14 +59,21 @@ trait PafFixtures {
 
   val oneOtherPlacePafAddress = PafAddress(Seq("2 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK)
   val twoOtherPlacePafAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK)
+  val otherPlacePafDifferentPostcodeAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 2AA",exampleCountryUK)
 
   val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514",oneOtherPlacePafAddress,"en")
   val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515",twoOtherPlacePafAddress,"en")
+  val otherPlacePafDifferentPostcodeAddressRecord = AddressRecord("GB990091234516",otherPlacePafDifferentPostcodeAddress,"en")
 
   def oneAndTwoOtherPlacePafRecordSet = RecordSet(List(
     oneOtherPlacePafAddressRecord,
     twoOtherPlacePafAddressRecord
   ))
+
+  def newPostcodePlacePafRecordSet = RecordSet(List(
+    otherPlacePafDifferentPostcodeAddressRecord
+  ))
+
 
   def oneAndTwoOtherPlacePafRecordSetJson = Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
 }
@@ -126,6 +133,15 @@ trait CitizenDetailsFixtures {
     ("line4", "Fake Region"),
     ("line5", ""),
     ("postcode", "AA1 1AA")
+  )
+
+  def fakeStreetTupleListAddressForModifiedPostcode: List[(String, String)] = List(
+    ("line1", "11 Fake Street"), //Note 11 not 1
+    ("line2", "Fake Town"),
+    ("line3", "Fake City"),
+    ("line4", "Fake Region"),
+    ("line5", ""),
+    ("postcode", "AA1 2AA")
   )
 }
 

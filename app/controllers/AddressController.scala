@@ -29,7 +29,7 @@ import error.LocalErrorHandler
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
-import org.joda.time.{DateTime, DateTimeZone, LocalDate}
+import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.data.FormError
 import play.api.i18n.MessagesApi
@@ -261,16 +261,20 @@ class AddressController @Inject() (
             addressSelectorDto => {
               lookingUpAddress(typ, postcode, journeyData) {
                 case AddressLookupSuccessResponse(recordSet) =>
-                  recordSet.addresses.filter(_.id == addressSelectorDto.addressId.getOrElse("")).headOption map { addressRecord =>
+                  recordSet.addresses.find(_.id == addressSelectorDto.addressId.getOrElse("")) map { addressRecord =>
 
                       val addressDto = AddressDto.fromAddressRecord(addressRecord)
                       cacheSelectedAddressRecord(typ, addressRecord) flatMap { _ =>
                         cacheSubmittedAddressDto(typ, addressDto) map { _ =>
-                          if (typ != PostalAddrType) {
-                            Redirect(routes.AddressController.enterStartDate(typ))
-                          }
-                          else {
-                            Redirect(routes.AddressController.showUpdateAddressForm(typ))
+                          val postCodeHasChanged = postcode!=personDetails.address.flatMap(_.postcode).getOrElse("")
+                          (typ, postCodeHasChanged) match {
+                            case (PostalAddrType, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (PostalAddrType, false) => Redirect(routes.AddressController.showUpdateAddressForm(typ))
+                            case (_, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (_, false) => {
+                              cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
+                              Redirect(routes.AddressController.reviewChanges(typ))
+                            }
                           }
                         }
                       }
@@ -320,11 +324,16 @@ class AddressController @Inject() (
               },
               addressDto => {
                 cacheSubmittedAddressDto(typ, addressDto) flatMap { _ =>
-                  typ match {
-                    case x: ResidentialAddrType =>
-                      Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
-                    case PostalAddrType =>
+                  val postCodeHasChanged = addressDto.postcode != personDetails.address.flatMap(_.postcode).getOrElse("")
+                  (typ, postCodeHasChanged) match {
+                    case (PostalAddrType, _) =>
+                      cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
                       Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
+                    case (_, false) =>
+                      cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
+                      Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
+                    case (_, true) =>
+                      Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
                   }
                 }
               }
@@ -393,9 +402,12 @@ class AddressController @Inject() (
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
+          val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("")
+          val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
+          val showAddressChangedDate: Boolean = newPostcode != oldPostcode
           ensuringSubmissionRequirments(typ, journeyData) {
             journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
-              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto)))
+              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto, showAddressChangedDate)))
             }
           }
         }
