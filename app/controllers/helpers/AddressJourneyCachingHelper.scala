@@ -21,6 +21,7 @@ import controllers.{AddressController, routes}
 import models.addresslookup.AddressRecord
 import models.dto._
 import models.{AddressJourneyData, PertaxContext}
+import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import uk.gov.hmrc.http.cache.client.CacheMap
 
@@ -46,7 +47,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
     sessionCache.cache(s"${residencyChoiceDto.residencyChoice}ResidencyChoiceDto", residencyChoiceDto)
 
   def cacheAddressPageVisited(hasVisited: AddressPageVisitedDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
-  sessionCache.cache("addressPageVisitedDto", hasVisited)
+    sessionCache.cache("addressPageVisitedDto", hasVisited)
 
   def cacheSubmitedTaxCreditsChoiceDto(taxCreditsChoice: TaxCreditsChoiceDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache("taxCreditsChoiceDto", taxCreditsChoice)
@@ -56,6 +57,18 @@ trait AddressJourneyCachingHelper { this: AddressController =>
 
   def clearCache()(implicit hc: HeaderCarrier): Unit =
     sessionCache.remove()
+
+  def replaceCacheWithoutDate(typ: AddrType)(implicit hc: HeaderCarrier): Future[Option[Unit]] = {
+    sessionCache.fetch() map { cache: Option[CacheMap] =>
+      cache.map(journeyData => {
+        val newCache = journeyData.copy(data = journeyData.data.-(s"${typ}SubmittedStartDateDto"))
+        sessionCache.remove()
+        newCache.data.foreach(entry => {
+          sessionCache.cache(entry._1, entry._2)
+        })
+      })
+    }
+  }
 
   //This is needed beacuse there is no AddrType available to call gettingCachedJourneyData
   def gettingCachedAddressPageVisitedDto[T](block: Option[AddressPageVisitedDto] => Future[T])(implicit hc: HeaderCarrier, context: PertaxContext): Future[T] = {
