@@ -38,6 +38,7 @@ import play.twirl.api.Html
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -333,6 +334,7 @@ class AddressController @Inject() (
                       cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
                       Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
                     case (_, true) =>
+                      replaceCacheWithoutDate(typ)
                       Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
                   }
                 }
@@ -353,8 +355,10 @@ class AddressController @Inject() (
       addressJourneyEnforcer { payeAccount => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           gettingCachedJourneyData(typ) { journeyData =>
+            val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("")
+            val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
             journeyData.submittedAddressDto map { a =>
-              Future.successful(Ok(views.html.personaldetails.enterStartDate(journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill), typ)))
+              Future.successful(Ok(views.html.personaldetails.enterStartDate(if(newPostcode != oldPostcode) journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill) else dateDtoForm, typ)))
             } getOrElse {
               Future.successful(Redirect(routes.AddressController.personalDetails()))
             }
