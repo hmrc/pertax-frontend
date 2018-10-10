@@ -38,7 +38,7 @@
   backlinkUrl = if(addressLookupServiceDown) {
     Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
   } else {
-    addressFinderDto.map(a => controllers.routes.AddressController.showAddressSelectorForm(typ, a.postcode, a.filter, Some(true)).url)
+    addressFinderDto.map(a => controllers.routes.AddressController.displayAddressSelectorForm(typ, Some(true)).url)
   }
 ) {
 

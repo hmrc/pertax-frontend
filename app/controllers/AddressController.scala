@@ -204,20 +204,28 @@ class AddressController @Inject() (
           },
           addressFinderDto => {
             cacheAddressFinderDto(typ, addressFinderDto) map { _ =>
-              Redirect(routes.AddressController.showAddressSelectorForm(typ, addressFinderDto.postcode, addressFinderDto.filter, None))
+              Redirect(routes.AddressController.displayAddressSelectorForm(typ, None))
             }
           }
         )
       }
   }
 
-  def showAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String], back: Option[Boolean] = None): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def displayAddressSelectorForm(typ: AddrType, back: Option[Boolean]): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
+      addressJourneyEnforcer { payeAccount =>
+        personDetails =>
+          gettingCachedJourneyData(typ) { journeyData => showAddressSelectorForm(journeyData, typ, back)
+          }
+      }
+  }
 
-      addressJourneyEnforcer { payeAccount => personDetails =>
-
-        gettingCachedJourneyData(typ) {
+  def showAddressSelectorForm(journeyData: AddressJourneyData, typ: AddrType, back: Option[Boolean])(implicit pertaxContext: PertaxContext, hc: HeaderCarrier): Future[Result] =  {
+      journeyData match {
           case journeyData@AddressJourneyData(_, _, Some(addressFinderDto), _, _, _, _) =>
+
+            val postcode = addressFinderDto.postcode
+            val filter = addressFinderDto.filter
 
             lookingUpAddress(typ, postcode, journeyData, filter, forceLookup = true) {
 
@@ -244,7 +252,6 @@ class AddressController @Inject() (
             Future.successful(Redirect(routes.AddressController.personalDetails))
         }
       }
-  }
 
   def processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String]): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
