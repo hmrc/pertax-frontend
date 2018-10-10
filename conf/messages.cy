@@ -656,7 +656,7 @@ label.you_paid_the_right_amount_of_tax_last_year=Gwnaethoch dalu’r swm cywir o
 label.your_tax_has_not_yet_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
 
 # Benefits
-title.benefits=Buddiannau
+title.benefits=Budd-daliadau
 
 label.company_benefits=Buddiannau cwmni
 label.benefits_you_receive_from_your_employer_in_addition_to_your_normal_salary=Buddiannau a gewch gan eich cyflogwr yn ychwanegol i’ch cyflog arferol.
@@ -665,7 +665,7 @@ label.tax_credits=Credydau treth
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=Bwrw golwg ar eich taliadau nesaf a’r bobl ar eich cais, a gwneud newidiadau i’ch cais.
 label.change_your_circumstances=Newid eich amgylchiadau
 label.find_out_if_you_qualify_for_tax_credits=Dod i wybod a ydych yn gymwys ar gyfer credydau treth
-label.view_your_tax_credits_payments=Gweld eich taliadau credydau treth
+label.view_your_tax_credits_payments=Bwrw golwg ar eich taliadau credydau treth
 
 title.marriage_allowance=Lwfans Priodasol
 label.transfer_part_of_your_personal_allowance_to_your_partner_=Trosglwyddo rhan o’ch Lwfans Personol i’ch partner fel ei fod/bod yn talu llai o dreth.
