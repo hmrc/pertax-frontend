@@ -43,7 +43,7 @@ GET    /personal-account/your-address/residency-choice                       @co
 POST   /personal-account/your-address/residency-choice                       @controllers.AddressController.processResidencyChoice
 GET    /personal-account/your-address/:typ/find-address                      @controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
 POST   /personal-account/your-address/:typ/find-address                      @controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
-GET    /personal-account/your-address/:typ/select-address                    @controllers.AddressController.showAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String], back: Option[Boolean])
+GET    /personal-account/your-address/:typ/select-address                    @controllers.AddressController.displayAddressSelectorForm(typ: AddrType, back: Option[Boolean])
 POST   /personal-account/your-address/:typ/select-address                    @controllers.AddressController.processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String])
 GET    /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.showUpdateAddressForm(typ: AddrType)
 POST   /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.processUpdateAddressForm(typ: AddrType)

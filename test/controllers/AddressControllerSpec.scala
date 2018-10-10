@@ -396,14 +396,14 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).cache(meq("postalAddressFinderDto"), meq(AddressFinderDto("AA1 1AA", None)))(any(), any(), any())
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/select-address?postcode=AA1+1AA")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/select-address")
     }
 
     "redirect to the select address page with the correct postcode and filter when one is supplied" in new LocalSetup {
       val r = controller.processPostcodeLookupForm(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody("postcode" -> "AA1 1AA", "filter" -> "16"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/select-address?postcode=AA1+1AA&filter=16")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/select-address")
     }
 
     "return a 400 status when given a badly formatted postcode" in new LocalSetup {
@@ -413,7 +413,7 @@ class AddressControllerSpec extends BaseSpec {
     }
   }
 
-  "Calling AddressController.showAddressSelectorForm" should {
+  "Calling AddressController.displayAddressSelectorForm" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
 
@@ -445,7 +445,7 @@ class AddressControllerSpec extends BaseSpec {
     "return 404 and log a addressLookupNotFound audit event when an empty recordset is returned by the address lookup service" in new LocalSetup {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(RecordSet(List()))
 
-      val r = c1.showAddressSelectorForm(PostalAddrType, "AA1 1AA", None)(buildAddressRequest("GET"))
+      val r = c1.displayAddressSelectorForm(PostalAddrType, None)(buildAddressRequest("GET"))
 
       status(r) shouldBe NOT_FOUND
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -457,7 +457,7 @@ class AddressControllerSpec extends BaseSpec {
     "redirect to the edit address page for a postal address type and log a addressLookupResults audit event when a single record is returned by the address lookup service" in new LocalSetup {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
 
-      val r = c1.showAddressSelectorForm(PostalAddrType, "AA1 1AA", None)(buildAddressRequest("GET"))
+      val r = c1.displayAddressSelectorForm(PostalAddrType, None)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/edit-address")
@@ -472,7 +472,7 @@ class AddressControllerSpec extends BaseSpec {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)))))
 
-      val r = c1.showAddressSelectorForm(SoleAddrType, "AA1 1AA", None)(buildAddressRequest("GET"))
+      val r = c1.displayAddressSelectorForm(SoleAddrType, None)(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/edit-address")
@@ -486,7 +486,7 @@ class AddressControllerSpec extends BaseSpec {
     "return 200 and log a addressLookupResults audit event when multiple records are returned by the address lookup service" in new LocalSetup {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
-      val r = c1.showAddressSelectorForm(PostalAddrType, "AA1 1AA", None)(buildAddressRequest("GET"))
+      val r = c1.displayAddressSelectorForm(PostalAddrType, None)(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -502,7 +502,7 @@ class AddressControllerSpec extends BaseSpec {
           "addressLookupServiceDown" -> Json.toJson(Some(false))
         )))
 
-      val r = c1.showAddressSelectorForm(PostalAddrType, "AA1 1AA", None, Some(true))(buildAddressRequest("GET"))
+      val r = c1.displayAddressSelectorForm(PostalAddrType, Some(true))(buildAddressRequest("GET"))
 
       status(r) shouldBe NOT_FOUND
       verify(c1.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
@@ -512,7 +512,7 @@ class AddressControllerSpec extends BaseSpec {
     "redirect to the postcodeLookupForm and when a single record is returned by the address lookup service and back = true" in new LocalSetup {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
 
-      val r = c1.showAddressSelectorForm(PostalAddrType, "AA1 1AA", None, Some(true))(buildAddressRequest("GET"))
+      val r = c1.displayAddressSelectorForm(PostalAddrType, Some(true))(buildAddressRequest("GET"))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/find-address")
@@ -523,7 +523,7 @@ class AddressControllerSpec extends BaseSpec {
     "return 200 and display the select-address page when multiple records are returned by the address lookup service back=true" in new LocalSetup {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
-      val r = c1.showAddressSelectorForm(PostalAddrType, "AA1 1AA", None, Some(true))(buildAddressRequest("GET"))
+      val r = c1.displayAddressSelectorForm(PostalAddrType, Some(true))(buildAddressRequest("GET"))
 
       status(r) shouldBe OK
       verify(c1.sessionCache, times(1)).fetch()(any(), any())
