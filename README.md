@@ -26,6 +26,7 @@ Installing sass
 
     sudo apt-get install ruby
     sudo apt-get install nodejs-legacy 
+    
 
     npm install
     sudo gem install sass 
