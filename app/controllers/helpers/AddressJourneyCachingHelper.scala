@@ -80,6 +80,13 @@ trait AddressJourneyCachingHelper { this: AddressController =>
     }
   }
 
+  def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier, context: PertaxContext): Future[T] = {
+    sessionCache.fetch() map { cacheMap => {
+      block(cacheMap.flatMap(_.getEntry[Boolean]("addressLookupServiceDown")))
+    }
+    }
+  }
+
   def gettingCachedTaxCreditsChoiceDto[T](block: Option[TaxCreditsChoiceDto] => T)(implicit hc: HeaderCarrier, context: PertaxContext): Future[T] = {
     sessionCache.fetch() map { cacheMap => {
         block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto]("taxCreditsChoiceDto")))

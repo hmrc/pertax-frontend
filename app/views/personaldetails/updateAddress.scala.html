@@ -35,11 +35,7 @@
 @main(
   title = getYourAddressLabels.toString,
   pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = if(addressLookupServiceDown) {
-    Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
-  } else {
-    addressFinderDto.map(a => controllers.routes.AddressController.displayAddressSelectorForm(typ, Some(true)).url)
-  }
+  backlinkUrl = Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
 ) {
 
   @errors(updateAddressForm)
