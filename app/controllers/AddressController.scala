@@ -322,7 +322,6 @@ class AddressController @Inject() (
                       cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
                       Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
                     case (_, true) =>
-                      replaceCacheWithoutDate(typ)
                       Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
                   }
                 }
