@@ -601,7 +601,7 @@ label.account_home=Hafan y cyfrif
 title.income=Incwm
 
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
-label.your_income_from_employers_and_private_pensions_=Gwirio a diweddaru’ch gwybodaeth am Dreth Incwm TWE. Gwirio’ch codau treth ar gyfer y flwyddyn bresennol a blynyddoedd blaenorol.
+label.your_income_from_employers_and_private_pensions_=Gwirio neu ddiweddaru’r wybodaeth am gyflogaeth, pensiwn neu incwm arall a ddefnyddir i gyfrifo’ch Treth Incwm a’ch codau treth TWE.
 label.make_sure_you_are_paying_the_right_amount_of_tax=Sicrhau eich bod yn talu’r swm cywir o dreth
 label.view_your_income_tax_estimate=Bwrw golwg ar eich amcangyfrif Treth Incwm
 label.check_how_much_tax_you_paid_last_year=Gwirio faint o dreth y taloch y llynedd
