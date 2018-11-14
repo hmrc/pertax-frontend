@@ -21,12 +21,11 @@ import controllers.{AddressController, routes}
 import models.addresslookup.AddressRecord
 import models.dto._
 import models.{AddressJourneyData, PertaxContext}
-import play.api.libs.json.JsValue
 import play.api.mvc.Result
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 
 trait AddressJourneyCachingHelper { this: AddressController =>
@@ -51,6 +50,9 @@ trait AddressJourneyCachingHelper { this: AddressController =>
 
   def cacheSubmitedTaxCreditsChoiceDto(taxCreditsChoice: TaxCreditsChoiceDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache("taxCreditsChoiceDto", taxCreditsChoice)
+
+  def cacheSubmittedInternationalAddressChoiceDto(internationalAddressChoiceDto: InternationalAddressChoiceDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
+    sessionCache.cache("internationalAddressChoiceDto", internationalAddressChoiceDto)
 
   def cacheAddressLookupServiceDown()(implicit  hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache("addressLookupServiceDown", true)
