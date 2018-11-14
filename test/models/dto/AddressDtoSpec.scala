@@ -16,13 +16,7 @@
 
 package models.dto
 
-import org.joda.time.LocalDate
-import play.api.data.FormError
-import play.api.libs.json.Json
-import play.api.test.FakeRequest
-import play.mvc.BodyParser.AnyContent
 import util.BaseSpec
-import util.Fixtures._
 
 class AddressDtoSpec extends BaseSpec {
 
@@ -45,6 +39,26 @@ class AddressDtoSpec extends BaseSpec {
         },
         success => {
           success shouldBe AddressDto("Line 1", "Line 2", None, None, None, "AA1 1AA", None)
+        }
+      )
+    }
+
+    "bind an AddressDto correctly when postcode has no spaces" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "",
+        "line4" -> "",
+        "line5" -> "",
+        "postcode" -> "AA11AA"
+      )
+
+      AddressDto.form.bind(formData).fold(
+        formWithErrors => {
+        },
+        success => {
+          success shouldBe AddressDto("Line 1", "Line 2", None, None, None, "AA11AA", None)
         }
       )
     }
@@ -406,6 +420,24 @@ class AddressDtoSpec extends BaseSpec {
         "line1" -> "Line 1",
         "line2" -> "Line 2",
         "postcode" -> "QN3 2E3"
+      )
+      AddressDto.form.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when a postcode with invalid characters is submitted in postcode field" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "postcode" -> "±±± §§§"
       )
       AddressDto.form.bind(formData).fold(
         formWithErrors => {

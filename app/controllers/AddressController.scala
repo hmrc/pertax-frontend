@@ -38,7 +38,6 @@ import play.twirl.api.Html
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -168,11 +167,50 @@ class AddressController @Inject() (
         },
         residencyChoiceDto => {
           cacheSubmitedResidencyChoiceDto(residencyChoiceDto) map { _ =>
-            Redirect(routes.AddressController.showPostcodeLookupForm(residencyChoiceDto.residencyChoice))
+            Redirect(routes.AddressController.internationalAddressChoice(residencyChoiceDto.residencyChoice))
           }
         }
       )
 
+    }
+  }
+
+  def internationalAddressChoice(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    addressJourneyEnforcer { payeAccount => personalDetails =>
+      gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+        enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+          Future.successful(Ok(views.html.personaldetails.internationalAddressChoice(InternationalAddressChoiceDto.form, typ)))
+        }
+      }
+    }
+  }
+
+  def processInternationalAddressChoice(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    addressJourneyEnforcer { payeAccount => personalDetails =>
+      InternationalAddressChoiceDto.form.bindFromRequest.fold(
+        formWithErrors => {
+          Future.successful(BadRequest(views.html.personaldetails.internationalAddressChoice(formWithErrors, typ)))
+        },
+        internationalAddressChoiceDto => {
+          cacheSubmittedInternationalAddressChoiceDto(internationalAddressChoiceDto) map { _ =>
+            internationalAddressChoiceDto.value match {
+              case true => Redirect(routes.AddressController.showPostcodeLookupForm(typ))
+              case false => Redirect(routes.AddressController.cannotUseThisService(typ))
+            }
+          }
+        }
+      )
+
+    }
+  }
+
+  def cannotUseThisService(typ: AddrType) = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    addressJourneyEnforcer { payeAccount => personalDetails =>
+      gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+        enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+          Future.successful(Ok(views.html.personaldetails.cannotUseService(typ)))
+        }
+      }
     }
   }
 

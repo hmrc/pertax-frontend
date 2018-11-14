@@ -30,8 +30,8 @@
   pageName = Some(Messages("label.your_personal_tax_account")),
   backlinkUrl = Some(
     typ.ifIs(
-      primary = controllers.routes.AddressController.residencyChoice().url,
-      sole = controllers.routes.AddressController.residencyChoice().url,
+      primary = controllers.routes.AddressController.internationalAddressChoice(typ).url,
+      sole = controllers.routes.AddressController.internationalAddressChoice(typ).url,
       postal = controllers.routes.AddressController.personalDetails().url
     )
   )

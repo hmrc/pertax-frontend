@@ -41,6 +41,9 @@ GET    /personal-account/your-address/tax-credits-choice                     @co
 POST   /personal-account/your-address/tax-credits-choice                     @controllers.AddressController.processTaxCreditsChoice
 GET    /personal-account/your-address/residency-choice                       @controllers.AddressController.residencyChoice
 POST   /personal-account/your-address/residency-choice                       @controllers.AddressController.processResidencyChoice
+GET    /personal-account/your-address/:typ/do-you-live-in-the-uk             @controllers.AddressController.internationalAddressChoice(typ: AddrType)
+POST   /personal-account/your-address/:typ/do-you-live-in-the-uk             @controllers.AddressController.processInternationalAddressChoice(typ: AddrType)
+GET    /personal-account/your-address/:typ/cannot-use-the-service            @controllers.AddressController.cannotUseThisService(typ: AddrType)
 GET    /personal-account/your-address/:typ/find-address                      @controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
 POST   /personal-account/your-address/:typ/find-address                      @controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
 POST   /personal-account/your-address/:typ/select-address                    @controllers.AddressController.processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String])
