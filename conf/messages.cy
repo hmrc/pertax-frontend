@@ -85,6 +85,11 @@ label.change_your_postal_address=Newid eich cyfeiriad post
 label.you_cannot_view_or_update_your_address_right_now=Ni allwch weld na diweddaru’ch cyfeiriad ar hyn o bryd
 label.home_address=Cyfeiriad cartref
 label.postal_address=Cyfeiriad post
+label.do_you_live_in_the_uk=A ydych yn byw yn y DU?
+label.the_uk_is_england_=Y DU yw Cymru, Lloegr, Yr Alban a Gogledd Iwerddon.
+label.this_is_because_you_do_not_live_in_the_uk=Mae hyn am nad ydych yn byw yn y DU.
+label.if_you_do_live_in_the_uk_=Os ydych yn byw yn y DU, gallwch <a href="{0}">newid eich cyfeiriad</a>
+label.if_you_do_not_live_in_the_uk_=Os nad ydych y byw yn y DU, <a href="{0}" target="_blank" rel="noopener noreferrer">llenwch y ffurflen ‘Notification of a change in personal details’ i ddiweddaru’ch cyfeiriad (yn agor ffenestr newydd – Saesneg yn unig)</a>.
 label.get_letters_sent_to_a_different_address=Gofyn bod llythyrau’n cael eu hanfon i gyfeiriad gwahanol
 label.all_your_letters_will_be_sent_to_this_address=Bydd eich llythyrau’n cael eu hanfon i’r cyfeiriad hwn.
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=Dim ond unwaith y diwrnod y gallwch newid y cyfeiriad hwn. Rhowch gynnig arall arni yfory.
