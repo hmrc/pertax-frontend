@@ -1,0 +1,44 @@
+@*
+ * Copyright 2018 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@(typ: AddrType)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@main(title = Messages("label.your_address_cannot_be_updated"),
+pageName = Some(Messages("label.your_personal_tax_account")),
+backlinkUrl = Some(controllers.routes.AddressController.internationalAddressChoice(typ).url)
+) {
+
+<div class="grid-row">
+  <div class="column-two-thirds">
+    <h1  class="heading-xlarge no-margin-bottom">@Messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
+  </div>
+</div>
+
+<div class="grid-row margin-top">
+  <div class="column-two-thirds">
+    <p class="lede margin-bottom">@Messages("label.this_is_because_you_do_not_live_in_the_uk")</p>
+
+    <p class="margin-top">@Html(Messages("label.if_you_do_live_in_the_uk_",
+      controllers.routes.AddressController.showPostcodeLookupForm(typ)))
+    </p>
+
+    <p>@Html(Messages("label.if_you_do_not_live_in_the_uk_",
+      pertaxContext.configDecorator.updateAddressShortFormUrl))
+    </p>
+
+  </div>
+</div>
+}

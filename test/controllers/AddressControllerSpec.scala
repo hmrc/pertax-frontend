@@ -19,10 +19,10 @@ package controllers
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
+import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
-import models._
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
@@ -38,6 +38,7 @@ import play.api.test.Helpers._
 import services.partials.MessageFrontendService
 import services.{AddressLookupResponse, _}
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -46,7 +47,6 @@ import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HttpResponse
 
 class AddressControllerSpec extends BaseSpec {
 
@@ -292,14 +292,14 @@ class AddressControllerSpec extends BaseSpec {
       val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("residencyChoice" -> "primary"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/primary/find-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
     }
 
     "redirect to find address page with sole type when supplied value=sole" in new LocalSetup {
       val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("residencyChoice" -> "sole"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/find-address")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
     }
 
     "return a bad request when supplied value=bad" in new LocalSetup {
@@ -310,6 +310,71 @@ class AddressControllerSpec extends BaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetup {
       val r = controller.processResidencyChoice(buildFakeRequestWithAuth("POST"))
+
+      status(r) shouldBe BAD_REQUEST
+    }
+  }
+
+
+  "Calling AddressController.internationalAddressChoice" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+      val r = controller.internationalAddressChoice(SoleAddrType)(buildFakeRequestWithAuth("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new WithAddressControllerSpecSetup with LocalSetup {
+      lazy val sessionCacheResponse = None
+
+      val r = controller.internationalAddressChoice(SoleAddrType)(buildFakeRequestWithAuth("GET"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+  }
+
+
+  "Calling AddressController.processInternationalAddressChoice" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
+      val r = controller.processInternationalAddressChoice(SoleAddrType)(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("internationalAddressChoice" -> "true"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/find-address")
+    }
+
+    "redirect to Contact HMRC iform page when supplied with value = No (false)" in new LocalSetup {
+      val r = controller.processInternationalAddressChoice(SoleAddrType)(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("internationalAddressChoice" -> "false"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/cannot-use-the-service")
+    }
+
+    "return a bad request when supplied no value" in new LocalSetup {
+      val r = controller.processInternationalAddressChoice(SoleAddrType)(buildFakeRequestWithAuth("POST"))
 
       status(r) shouldBe BAD_REQUEST
     }
