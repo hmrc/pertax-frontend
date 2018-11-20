@@ -14,11 +14,11 @@
  * limitations under the License.
  *@
 
-@(isCompanyBenefitsRecipient: Boolean = false, displayCardActions: Boolean)(implicit messages: play.api.i18n.Messages)
+@()(implicit messages: play.api.i18n.Messages)
 
 @import tags._
 
-@cardTitleOnly(
+@card(
   url = Some("/check-income-tax/what-do-you-want-to-do"),
   gaAction = Some("Income"),
   gaLabel = Some("Pay As You Earn (PAYE)"),
