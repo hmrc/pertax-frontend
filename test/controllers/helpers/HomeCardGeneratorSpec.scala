@@ -44,12 +44,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def hasPertaxUser: Boolean
       def isPayeUser: Boolean
-      def taxComponentType: String
       def taxComponentsState: TaxComponentsState
-      def isCompanyBenefits: Boolean
-      def displayCardActions: Boolean
-
-      lazy val fakeTaxComponents = Fixtures.buildTaxComponents.copy(taxComponents = Seq(taxComponentType))
 
       lazy val pertaxUser: Option[PertaxUser] = if(hasPertaxUser)
         Some(PertaxUser(Fixtures.buildFakeAuthContext(withPaye = isPayeUser), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
@@ -62,10 +57,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return nothing when called with no Pertax user" in new LocalSetup {
       val hasPertaxUser = false
       val isPayeUser = false
-      val taxComponentType = "unused"
       val taxComponentsState = TaxComponentsUnreachableState
-      val isCompanyBenefits = false
-      val displayCardActions = false
 
       cardBody shouldBe None
 
@@ -74,10 +66,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return nothing when called with a Pertax user that is not PAYE" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = false
-      val taxComponentType = "unused"
       val taxComponentsState = TaxComponentsUnreachableState
-      val isCompanyBenefits = false
-      val displayCardActions = false
 
       cardBody shouldBe None
     }
@@ -85,10 +74,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return no content when called with with a Pertax user that is PAYE but has no tax summary" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val taxComponentType = "unused"
       val taxComponentsState = TaxComponentsNotAvailableState
-      val isCompanyBenefits = false
-      val displayCardActions = false
 
       cardBody shouldBe None
     }
@@ -96,50 +82,25 @@ class HomeCardGeneratorSpec extends BaseSpec {
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but there was an error calling the endpoint" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val taxComponentType = "unused"
       val taxComponentsState = TaxComponentsUnreachableState
-      val isCompanyBenefits = false
-      val displayCardActions = false
 
-      cardBody shouldBe Some(payAsYouEarn(isCompanyBenefits, displayCardActions))
-
+      cardBody shouldBe Some(payAsYouEarn())
     }
 
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val hasTaxComponents = false
-      val taxComponentType = "unused"
       val taxComponentsState = TaxComponentsDisabledState
-      val isCompanyBenefits = false
-      val displayCardActions = false
 
-      cardBody shouldBe Some(payAsYouEarn(isCompanyBenefits, displayCardActions))
-
+      cardBody shouldBe Some(payAsYouEarn())
     }
 
-    "return correct markup when called with with a Pertax user that is PAYE with company benefits" in new LocalSetup {
+    "return correct markup when called with with a Pertax user that is PAYE" in new LocalSetup {
       val hasPertaxUser = true
       val isPayeUser = true
-      val taxComponentType = "CarBenefit"
-      val taxComponentsState = TaxComponentsAvailableState(fakeTaxComponents)
-      val isCompanyBenefits = true
-      val displayCardActions = true
+      val taxComponentsState = TaxComponentsAvailableState(Fixtures.buildTaxComponents)
 
-      cardBody shouldBe Some(payAsYouEarn(isCompanyBenefits, displayCardActions))
-
-    }
-
-    "return correct markup when called with with a Pertax user that is PAYE without company benefits" in new LocalSetup {
-      val hasPertaxUser = true
-      val isPayeUser = true
-      val taxComponentType = "unused"
-      val taxComponentsState = TaxComponentsAvailableState(fakeTaxComponents)
-      val isCompanyBenefits = false
-      val displayCardActions = true
-
-      cardBody shouldBe Some(payAsYouEarn(isCompanyBenefits, displayCardActions))
-
+      cardBody shouldBe Some(payAsYouEarn())
     }
   }
 
