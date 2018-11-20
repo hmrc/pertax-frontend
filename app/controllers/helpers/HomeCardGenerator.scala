@@ -56,10 +56,8 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
       case Some(u) if u.isPaye =>
 
         taxComponentsState match {
-          case TaxComponentsAvailableState(tc) => Some(views.html.cards.home.payAsYouEarn(tc.isCompanyBenefitRecipient, displayCardActions = true))
-          case TaxComponentsDisabledState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
-          case TaxComponentsUnreachableState => Some(views.html.cards.home.payAsYouEarn(displayCardActions = false))
           case TaxComponentsNotAvailableState => None
+          case _ => Some(views.html.cards.home.payAsYouEarn())
         }
       case _ => None
     }
