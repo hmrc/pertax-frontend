@@ -49,9 +49,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
       .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
       .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-
     .build()
-
 
     override def beforeEach: Unit = {
       reset(injected[LocalSessionCache], injected[CitizenDetailsService], injected[PertaxAuditConnector])
@@ -62,6 +60,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       def nino: Nino
       def personDetailsResponse: PersonDetailsResponse
       def getSelfAssessmentServiceResponse: SelfAssessmentUserType
+      def saSkipPage : Boolean = false
 
       lazy val personDetails = Fixtures.buildPersonDetails
 
@@ -89,6 +88,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
         when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
         when(c.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
         when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
+        when(c.configDecorator.saAmbigSkipUTRLetterEnabled) thenReturn saSkipPage
 
         c
       }
@@ -97,7 +97,6 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
   trait LocalSetupJourney extends WithAmbiguousJourneyControllerSpecSetup {
     override lazy val nino = Fixtures.fakeNino
     override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
-
   }
 
   "Calling AmbiguousJourneyController.processFileReturnOnlineChoice" should {
@@ -124,7 +123,6 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
       status(r) shouldBe BAD_REQUEST
     }
-
   }
 
   "Calling AmbiguousJourneyController.processDeEnroleedFromSaChoice" should {
@@ -151,7 +149,6 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
 
       status(r) shouldBe BAD_REQUEST
     }
-
   }
 
   "Calling AmbiguousJourneyController.processFiledReturnByPostChoice" should {
@@ -164,12 +161,23 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-register")
     }
 
-    "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
-      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+    "redirect to 'You need to use the creds you've created' page when supplied with value No (false) when skip sa page feature is set to false" in
+      new LocalSetupJourney {
+        val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
+        override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/received-utr-letter")
+        status(r) shouldBe SEE_OTHER
+        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/received-utr-letter")
+    }
+
+    "redirect to 'Have you used your utr to enrol' page when supplied with value No (false) when skip sa page feature is set to true" in
+      new LocalSetupJourney {
+        override val saSkipPage = true
+        val r = controller.processFiledReturnByPostChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
+        override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+        status(r) shouldBe SEE_OTHER
+        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-register")
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
