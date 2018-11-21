@@ -112,7 +112,12 @@ class AmbiguousJourneyController @Inject() (
         ambiguousFiledOnlineChoiceDto => {
           ambiguousFiledOnlineChoiceDto.value match {
             case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
-            case false => Future.successful(Redirect(routes.AmbiguousJourneyController.receivedUtrLetterChoice()))
+            case false => {
+              if (configDecorator.saAmbigSkipUTRLetterEnabled)
+                Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
+              else
+                Future.successful(Redirect(routes.AmbiguousJourneyController.receivedUtrLetterChoice()))
+            }
           }
         }
       )
