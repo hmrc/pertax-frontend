@@ -104,13 +104,6 @@ class AmbiguousJourneyController @Inject() (
   }
 
   def processFiledReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-        println("inside processFiledReturnByPostChoice ---------")
-        println("inside processFiledReturnByPostChoice ---------")
-        println("inside processFiledReturnByPostChoice ---------")
-        println("inside processFiledReturnByPostChoice ---------")
-        println("inside processFiledReturnByPostChoice ---------")
-        println("inside processFiledReturnByPostChoice ---------")
-        println("inside processFiledReturnByPostChoice ---------")
     implicit pertaxContext =>
       AmbiguousUserFlowDto.form.bindFromRequest.fold(
         formWithErrors => {
