@@ -121,9 +121,9 @@ label.postal_address=Postal address
 label.do_you_live_in_the_uk=Do you live in the UK?
 label.the_uk_is_england_=The UK is England, Northern Ireland, Scotland and Wales.
 label.this_is_because_you_do_not_live_in_the_uk=This is because you do not live in the UK.
-label.if_you_do_live_in_the_uk_=If you do live in the UK, you can <a class="ga-track-anchor-click" data-ga-event-category="link-click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="change your address" href="{0}">change your address</a>.
+label.if_you_do_live_in_the_uk_=If you do live in the UK, you can <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="change your address" href="{0}">change your address</a>.
 
-label.if_you_do_not_live_in_the_uk_=If you do not live in the UK, <a class="ga-track-anchor-click" data-ga-event-category="link-click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window)" href="{0}" target="_blank" rel="noopener noreferrer">fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window)</a>.
+label.if_you_do_not_live_in_the_uk_=If you do not live in the UK, <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window)" href="{0}" target="_blank" rel="noopener noreferrer">fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window)</a>.
 
 label.get_letters_sent_to_a_different_address=Get letters sent to a different address
 label.all_your_letters_will_be_sent_to_this_address=All your letters will be sent to this address.
