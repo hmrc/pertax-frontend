@@ -18,12 +18,12 @@
 
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
-
+@import views.html.back_link
 
 @main(title = Messages("label.do_you_live_in_the_uk"),
-pageName = Some(Messages("label.your_personal_tax_account")),
-backlinkUrl = Some(controllers.routes.AddressController.residencyChoice().url)
+pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
+  @back_link()
 <div class="personal-details">
 
   @errors(internationalAddressChoiceForm)
@@ -62,5 +62,4 @@ backlinkUrl = Some(controllers.routes.AddressController.residencyChoice().url)
     </div>
   </div>
 </div>
-
 }

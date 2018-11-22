@@ -41,10 +41,9 @@
     postal = ""
   ),
   pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AddressController.showUpdateAddressForm(typ).url),
   scriptElement = Some(scriptElem)
 ) {
-
+    @back_link()
   @errors(residenceStartDateForm)
 
   <div class="personal-details">
