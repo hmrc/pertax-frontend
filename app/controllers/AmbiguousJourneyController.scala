@@ -114,7 +114,7 @@ class AmbiguousJourneyController @Inject() (
             case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
             case false => {
               if (configDecorator.saAmbigSkipUTRLetterEnabled)
-                Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
+                Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
               else
                 Future.successful(Redirect(routes.AmbiguousJourneyController.receivedUtrLetterChoice()))
             }
@@ -165,9 +165,16 @@ class AmbiguousJourneyController @Inject() (
       )
   }
 
+  def saAmbigSkipUTRLetterBackLink(): String = {
+    if (configDecorator.saAmbigSkipUTRLetterEnabled)
+      controllers.routes.AmbiguousJourneyController.processFiledReturnByPostChoice().url
+    else
+      controllers.routes.AmbiguousJourneyController.receivedUtrLetterChoice().url
+  }
+
   def usedUtrToEnrolChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     enforceAmbiguousUser { _ =>
-      Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form)))
+      Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, saAmbigSkipUTRLetterBackLink)))
     }
   }
 
@@ -175,7 +182,7 @@ class AmbiguousJourneyController @Inject() (
     implicit pertaxContext =>
       AmbiguousUserFlowDto.form.bindFromRequest.fold(
         formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors)))
+          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors, saAmbigSkipUTRLetterBackLink)))
         },
         ambiguousFiledOnlineChoiceDto => {
           ambiguousFiledOnlineChoiceDto.value match {
