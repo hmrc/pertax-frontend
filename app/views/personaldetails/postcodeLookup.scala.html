@@ -19,7 +19,6 @@
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
-@import scala.util.Try
 
 @main(
   title = typ.ifIs(
@@ -27,16 +26,9 @@
     sole = Messages("label.find_your_address"),
     postal = Messages("label.find_an_address")
   ),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(
-    typ.ifIs(
-      primary = controllers.routes.AddressController.internationalAddressChoice(typ).url,
-      sole = controllers.routes.AddressController.internationalAddressChoice(typ).url,
-      postal = controllers.routes.AddressController.personalDetails().url
-    )
-  )
+  pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
-
+  @back_link()
   @errors(addressFinderForm)
 
   <div class="grid-row">
