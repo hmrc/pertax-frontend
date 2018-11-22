@@ -27,10 +27,9 @@
     sole = Messages("label.select_your_address"),
     postal = Messages("label.select_an_address")
   ),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
+  pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
-
+@back_link()
   @errors(addressSelectorForm)
 
   <div class="grid-row">

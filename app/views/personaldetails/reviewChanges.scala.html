@@ -24,13 +24,9 @@
 
 
 @main(title = Messages("label.check_your_details"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = if(displayDateAddressChanged) {
-    Some(controllers.routes.AddressController.enterStartDate(typ).url)
-  } else {
-    Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
-  }
+  pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
+    @back_link()
 <div class="personal-details">
   <div class="grid-row">
     <div class="column-full">

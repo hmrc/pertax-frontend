@@ -34,10 +34,8 @@
 
 @main(
   title = getYourAddressLabels.toString,
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AddressController.showPostcodeLookupForm(typ).url)
-) {
-
+  pageName = Some(Messages("label.your_personal_tax_account"))) {
+  @back_link()
   @errors(updateAddressForm)
 
   <div class="grid-row">

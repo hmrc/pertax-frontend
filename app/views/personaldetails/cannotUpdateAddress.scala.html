@@ -20,7 +20,7 @@
   pageName = Some(Messages("label.your_personal_tax_account")),
   backlinkUrl = Some(controllers.routes.AddressController.enterStartDate(typ).url)
 ) {
-
+    @back_link()
   <div class="grid-row">
     <div class="column-two-thirds">
       <h1  class="heading-xlarge no-margin-bottom">@Messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
