@@ -177,7 +177,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
         override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
         status(r) shouldBe SEE_OTHER
-        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-register")
+        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
