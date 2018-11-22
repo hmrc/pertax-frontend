@@ -21,13 +21,11 @@
 
 
 @main(title = Messages("label.do_you_live_in_more_than_one_place"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AddressController.taxCreditsChoice().url)
+  pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
+    @back_link()
 <div class="personal-details">
-
   @errors(residencyChoiceForm)
-
   <div class="grid-row">
     <div class="column-two-thirds">
       <div class="page-heading">
@@ -56,12 +54,4 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-
 }
