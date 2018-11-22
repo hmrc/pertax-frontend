@@ -14,14 +14,14 @@
  * limitations under the License.
  *@
 
-@(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto], backlinkUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 
 @main(title = Messages("label.have_you_used_your_utr_to_register"),
   pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.receivedUtrLetterChoice().url)
+  backlinkUrl = Some(backlinkUrl)
 ) {
   <div class="personal-details">
 
