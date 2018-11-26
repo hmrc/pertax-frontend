@@ -34,7 +34,7 @@
 
 @if(canUpdatePostalAddress) {
   @card(
-    url = Some(controllers.routes.AddressController.showPostcodeLookupForm(PostalAddrType).url),
+    url = Some(controllers.routes.AddressController.internationalAddressChoice(PostalAddrType).url),
     gaAction = Some("Postal address"),
     gaLabel = Some("Postal address"),
     heading = Messages("label.postal_address"),
