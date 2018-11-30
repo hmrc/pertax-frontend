@@ -74,15 +74,15 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
   }
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages) = {
-    if (!pertaxContext.user.fold(false)(_.isVerify)) {
+//    if (!pertaxContext.user.fold(false)(_.isVerify)) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saActionNeeded =>
           Some(views.html.cards.home.selfAssessment(saActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
       }
-    } else {
-      None
-    }
+//    } else {
+//      None
+//    }
   }
 
   def getNationalInsuranceCard()(implicit messages: Messages) = {
