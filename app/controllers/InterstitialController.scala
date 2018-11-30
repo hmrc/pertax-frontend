@@ -86,7 +86,7 @@ class InterstitialController @Inject() (
           case e => Future.successful(HtmlPartial.Failure(None, ""))
         }
 
-        enforceGovernmentGatewayUser {
+        //enforceGovernmentGatewayUser {
           enforceSaUser {
             for {
               formPartial <- formPartial
@@ -98,7 +98,7 @@ class InterstitialController @Inject() (
               ))
             }
           }
-        }
+        //}
       }
   }
 
