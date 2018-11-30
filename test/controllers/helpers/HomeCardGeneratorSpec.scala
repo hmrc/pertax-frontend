@@ -18,13 +18,13 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import models._
+import org.mockito.Matchers._
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
-import util.{BaseSpec, Fixtures, DateTimeTools}
-import org.mockito.Matchers._
-import org.mockito.Mockito._
+import util.{BaseSpec, Fixtures}
 import views.html.cards.home._
 
 
@@ -283,12 +283,12 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe None
     }
 
-    "return nothing for a verify user" in new LocalSetup {
-      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      override lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.VerifyAuthProvider),None, true))
-
-      cardBody shouldBe None
-    }
+//    "return nothing for a verify user" in new LocalSetup {
+//      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+//      override lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.VerifyAuthProvider),None, true))
+//
+//      cardBody shouldBe None
+//    }
   }
 
 
