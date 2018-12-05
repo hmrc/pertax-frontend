@@ -178,7 +178,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val assetsVersion = configuration.getString(s"assets.version").getOrElse("")
 
   def getFeedbackSurveyUrl(origin: Origin): String = {
-    feedbackSurveyFrontendHost + "/feedback-survey?origin=" + enc(origin.origin)
+    feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
   }
 
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String = {
