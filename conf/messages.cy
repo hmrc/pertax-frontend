@@ -78,6 +78,7 @@ label.your_address=Eich cyfeiriad
 label.main_address=Prif gyfeiriad
 label.find_your_address=Chwilio am eich cyfeiriad
 label.your_postal_address=Eich cyfeiriad post
+label.find_your_postal_address=Canfod eich cyfeiriad post
 label.update_your_address=Diweddaru’ch cyfeiriad
 label.change_your_address=Newid eich cyfeiriad
 label.change_your_main_address=Newid eich prif gyfeiriad
