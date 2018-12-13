@@ -70,7 +70,13 @@ class AmbiguousJourneyController @Inject() (
         ambiguousFiledOnlineChoiceDto => {
           ambiguousFiledOnlineChoiceDto.value match {
             case true => Future.successful(Redirect(routes.AmbiguousJourneyController.deEnrolledFromSaChoice))
-            case false => Future.successful(Redirect(routes.AmbiguousJourneyController.filedReturnByPostChoice))
+            case false => {
+              if (configDecorator.saAmbigSimplifiedJourneyEnabled)
+                Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice))
+              else {
+                Future.successful(Redirect(routes.AmbiguousJourneyController.filedReturnByPostChoice))
+              }
+            }
           }
         }
       )
@@ -82,7 +88,7 @@ class AmbiguousJourneyController @Inject() (
     }
   }
 
-  def processDeEnroleedFromSaChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
+  def processDeEnroledFromSaChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       AmbiguousUserFlowDto.form.bindFromRequest.fold(
         formWithErrors => {
