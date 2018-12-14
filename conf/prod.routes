@@ -24,7 +24,7 @@ POST   /personal-account/self-assessment/sa-filed-online                     @co
 GET    /personal-account/self-assessment/sa-filed-post                       @controllers.AmbiguousJourneyController.filedReturnByPostChoice
 POST   /personal-account/self-assessment/sa-filed-post                       @controllers.AmbiguousJourneyController.processFiledReturnByPostChoice
 GET    /personal-account/self-assessment/de-enrolled-sa                      @controllers.AmbiguousJourneyController.deEnrolledFromSaChoice
-POST   /personal-account/self-assessment/de-enrolled-sa                      @controllers.AmbiguousJourneyController.processDeEnroleedFromSaChoice
+POST   /personal-account/self-assessment/de-enrolled-sa                      @controllers.AmbiguousJourneyController.processDeEnroledFromSaChoice
 GET    /personal-account/self-assessment/received-utr-letter                 @controllers.AmbiguousJourneyController.receivedUtrLetterChoice
 POST   /personal-account/self-assessment/received-utr-letter                 @controllers.AmbiguousJourneyController.processReceivedUtrLetterChoice
 GET    /personal-account/self-assessment/used-utr-to-enrol                   @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
