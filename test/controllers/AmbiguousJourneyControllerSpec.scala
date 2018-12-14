@@ -225,6 +225,35 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
     }
   }
 
+  "Calling AmbiguousJourneyController.usedUtrToEnrolBackLink" should {
+
+    "have correct backlink when saAmbigSimplifiedJourneyEnabled is true" in
+      new LocalSetupJourney {
+        override lazy val saAmbigSimplifiedJourney = true
+        override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+        val r = controller.usedUtrToEnrolBackLink()
+        r shouldBe "/personal-account/self-assessment/sa-filed-online"
+    }
+
+    "have correct backlink when saAmbigSimplifiedJourneyEnabled is false, and saSkipLetterPage is true" in
+      new LocalSetupJourney {
+        override lazy val saAmbigSimplifiedJourney = false
+        override lazy val saSkipLetterPage = true
+        override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+        val r = controller.usedUtrToEnrolBackLink()
+        r shouldBe "/personal-account/self-assessment/sa-filed-post"
+    }
+
+    "have correct backlink when saAmbigSimplifiedJourneyEnabled is false,and saSkipLetterPage is false" in
+      new LocalSetupJourney {
+        override lazy val saAmbigSimplifiedJourney = false
+        override lazy val saSkipLetterPage = false
+        override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+        val r = controller.usedUtrToEnrolBackLink()
+        r shouldBe "/personal-account/self-assessment/received-utr-letter"
+    }
+  }
+
   "Calling AmbiguousJourneyController.processUsedUtrToEnrolChoice" should {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in new LocalSetupJourney {
