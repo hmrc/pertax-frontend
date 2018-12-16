@@ -17,37 +17,41 @@
 @(utr: SaUtr, continueUrl: String, backlinkUrl: Call)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(title = Messages("label.you_need_to_get_a_new_activation_code"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(backlinkUrl.url)
+pageName = Some(Messages("label.your_personal_tax_account")),
+backlinkUrl = Some(backlinkUrl.url)
 ) {
-  <div class="personal-details">
+<div class="personal-details">
 
     <div class="grid-row">
-      <div class="column-full">
-        <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_get_a_new_activation_code")</h1>
-      </div>
+        <div class="column-two-thirds">
+            <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
+            <h1 class="heading-xlarge no-margin-top">@Messages("label.sign_in_with_different_account_details")</h1>
+        </div>
     </div>
 
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p class="lede">@Messages("label.after_you_registered_we_sent_you_an_activation_code_by_post")</p>
-      </div>
-      <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.you_need_to_get_a_new_activation_code_by_enrolling", pertaxContext.configDecorator.selfAssessmentEnrolUrl))</p>
-      </div>
-    </div>
 
     <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p>@Messages("label.you_will_need_your_utr_to_get_a_new_activation_code") @Html(Messages("label.your_utr_is_", utr))</p>
-      </div>
-    </div>
+            <div class="grid-row pertax-panel">
+                <p>@Messages("label.you_need_to_sign_in_with_the_government_gateway_user_id")</p>
+                <h3 class="heading-medium">Problems signing in</h3>
+        </div>
 
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p>@Messages("label.you_must_use_your-new_code_within_")</p>
-      </div>
+        <div class="grid-row pertax-panel">
+            <p>@Messages("label.get_help_if_you_have")</p>
+            <ul class="list list-bullet">
+                <li><a class="ga-track-anchor-click" href="" data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details" data-ga-event-label="forgotten your Self Assessment user ID">@Messages("label.forgotten_your_self_assessment_user_id")</a></li>
+                <li><a class="ga-track-anchor-click" href="" data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details" data-ga-event-label="forgotten your Self Assessment password">@Messages("label.forgotten_your_self_assessment_password")</a></li>
+                <li><a class="ga-track-anchor-click" href="" data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details" data-ga-event-label="forgotten your Self Assessment user ID and password">@Messages("label.forgotten_your_self_assessment_user_id_and_password")</a></li>
+            </ul>
+        </div>
+
+        <div class="grid-row pertax-panel">
+            <div class="panel panel-border-wide">
+                <p>@Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_")
+                    @Html(Messages("label.your_utr_is_", utr))</p>
+            </div>
+        </div>
+
     </div>
-  </div>
+</div>
 }
