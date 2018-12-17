@@ -314,6 +314,7 @@ label.you_need_to_get_an_activation_code=You need to get an activation code
 label.you_need_to_get_a_new_activation_code=You need to get a new activation code
 label.you_need_to_get_a_new_activation_code_by_enrolling=You need to get a new activation code by <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment">enrolling for Self Assessment</a> again.
 label.you_need_to_sign_in_with_the_government_gateway_user_id=You need to sign in with the Government Gateway user ID and password you used when you enrolled for Self Assessment online. <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">Sign out, then sign in with the right details</a>.
+label.problems_signing_in=Problems signing in
 label.you_will_need_your_utr_to_get_a_new_activation_code=You will need your UTR to get a new activation code which will be sent to you by post.
 label.get_an_activation_code_by_enrolling_=Get an activation code by <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment online">enrolling for Self Assessment online.</a>
 label.you_will_need_your_unique_taxpayer_reference=You will need your Unique Taxpayer Reference (UTR).
