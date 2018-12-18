@@ -14,7 +14,11 @@
  * limitations under the License.
  *@
 
-@(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(utr: SaUtr,
+  continueUrl: String,
+  deadlineYear: String,
+  currentTaxYear: String,
+  showPostLink: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(title = Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online"),
   pageName = Some(Messages("label.your_personal_tax_account")),
@@ -43,7 +47,17 @@
 
     <div class="column-two-thirds">
       <div class="grid-row panel panel-border-wide">
-        <p>@Messages("label.registration_can_take_up_to_ten_days_")</p>
+        <p>@Messages("label.you_will_get_an_activation_code_in_the_post_")</p>
+      </div>
+    </div>
+
+    <div class="column-two-thirds">
+      <div class="grid-row pertax-panel">
+        <h2>@Messages("label.do_your_tax_return_before_the_deadline")</h2>
+        <p>@Messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
+        @if(showPostLink) {
+          <p>@Html(Messages("label.you_can_send_your_tax_return_by_post_", pertaxContext.configDecorator.selfAssessmentEnrolUrl, currentTaxYear))</p>
+        }
       </div>
     </div>
 
