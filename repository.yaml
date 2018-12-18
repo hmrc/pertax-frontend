@@ -1,0 +1,4 @@
+leakDetectionExemptions:
+  - ruleId: 'tax_service_gov_uk'
+    filePaths:
+      - 'https://www.access.tax.service.gov.uk/login/signin/creds'
