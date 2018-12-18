@@ -33,7 +33,7 @@
     <div class="column-two-thirds">
 
       <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.you_need_to_sign_in_with_the_government_gateway_user_id", "https://www.access.tax.service.gov.uk/login/signin/creds"))</p>
+        <p>@Html(Messages("label.you_need_to_sign_in_with_the_government_gateway_user_id", pertaxContext.configDecorator.ggLoginUrl))</p>
         <h3 class="heading-medium">@Messages("label.problems_signing_in")</h3>
       </div>
 
@@ -41,17 +41,17 @@
         <p>@Messages("label.get_help_if_you_have")</p>
         <ul class="list list-bullet">
           <li><a class="ga-track-anchor-click"
-                 href="https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
+                 href="@pertaxContext.configDecorator.lostUserIdUrl"
                  data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
                  data-ga-event-label="forgotten your Self Assessment user ID">@Messages("label.forgotten_your_self_assessment_user_id")</a>
           </li>
           <li><a class="ga-track-anchor-click"
-                 href="https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
+                 href="@pertaxContext.configDecorator.lostPasswordUrl"
                  data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
                  data-ga-event-label="forgotten your Self Assessment password">@Messages("label.forgotten_your_self_assessment_password")</a>
           </li>
           <li><a class="ga-track-anchor-click"
-                 href="https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
+                 href="@pertaxContext.configDecorator.problemsSigningInUrl"
                  data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
                  data-ga-event-label="forgotten your Self Assessment user ID and password">@Messages("label.forgotten_your_self_assessment_user_id_and_password")</a>
           </li>
