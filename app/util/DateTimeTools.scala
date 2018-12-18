@@ -39,6 +39,14 @@ object DateTimeTools {
     (y-1).toString.takeRight(2) + (y).toString.takeRight(2)
   }
 
+  def showSendTaxReturnByPost(now: DateTime) = {
+
+    val start = new DateTime(s"${now.getYear()}-11-01T00:00:00Z")
+    val end = new DateTime(s"${now.getYear()+1}-02-01T00:00:00Z")
+
+    now.isBefore(start) || now.isAfter(end)
+  }
+
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
 
   def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime) //FIXME - remove and use LocalDate instead
