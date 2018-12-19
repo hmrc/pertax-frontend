@@ -261,7 +261,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/pin-expired-enrol")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/result/wrong-account")
     }
 
     "redirect to 'You need to enrol for sa' page when supplied with value No (false)" in new LocalSetupJourney {
