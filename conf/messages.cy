@@ -198,6 +198,7 @@ label.nid_yw_rhai_or_tudalennau=Nid yw rhai o’r tudalennau hyn wedi’u cyfiei
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.explore_gov_uk=Chwilio drwy GOV.UK
 label.name=Enw
+label.change_your_name=Newid eich enw
 label.email=E-bost
 label.back=Yn ôl
 label.please_provide_your_name=Rhowch eich enw.

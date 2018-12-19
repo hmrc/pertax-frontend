@@ -18,14 +18,17 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import models._
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.inject.bind
 import play.api.test.FakeRequest
+import play.twirl.api.Html
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.play.frontend.auth.AuthContext
+import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 import util.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
 
@@ -241,6 +244,39 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val nino = pertaxUser.get.nino.get
 
       cardBody shouldBe Some(nationalInsurance(nino))
+    }
+  }
+
+  "Calling getChangeNameCard" should {
+
+    trait LocalSetup extends SpecSetup {
+      lazy val cardBody = controller.getChangeNameCard()
+
+      def userHasPersonDetails: Boolean
+
+      def buildPersonDetails = PersonDetails("115", Person(
+        Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
+        Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
+      ), Some(Fixtures.buildFakeAddress), None)
+
+      override lazy val pertaxUser = Some(PertaxUser(
+        Fixtures.buildFakeAuthContext(),
+        UserDetails(UserDetails.VerifyAuthProvider),
+        personDetails = if (userHasPersonDetails) Some(buildPersonDetails) else None,
+        true)
+      )
+    }
+
+    "always return the correct markup when user has a name" in new LocalSetup {
+      override def userHasPersonDetails = true
+
+      cardBody shouldBe Some(changeName())
+    }
+
+    "always return None when user does not have a name available" in new LocalSetup {
+      override def userHasPersonDetails = false
+
+      cardBody shouldBe None
     }
   }
 }
