@@ -43,7 +43,7 @@ object DateTimeTools {
 
     val start = new DateTime(s"$currentYear-11-01T00:00:00Z")
     val end = new DateTime(s"${currentYear+1}-01-31T23:59:59Z")
-    
+
     now.isBefore(start) || now.isAfter(end)
   }
 
