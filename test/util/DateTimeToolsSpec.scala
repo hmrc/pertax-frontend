@@ -34,23 +34,23 @@ class DateTimeToolsSpec extends BaseSpec {
   "Calling showSendTaxReturnByPost" should {
 
     "return true when the date is before 01-11-<currentyear>" in {
-      val now = new DateTime(s"${DateTime.now().getYear()}-10-31T23:59:59")
-      DateTimeTools.showSendTaxReturnByPost(now, DateTime.now().getYear) shouldBe true
+      val testDate = new DateTime(s"${DateTime.now().getYear()}-10-31T23:59:59")
+      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe true
     }
 
     "return false when the date is after 01-11-<currentyear>" in {
-      val now = new DateTime(s"${DateTime.now().getYear()}-11-01T00:00:01Z")
-      DateTimeTools.showSendTaxReturnByPost(now, DateTime.now().getYear) shouldBe false
+      val testDate = new DateTime(s"${DateTime.now().getYear()}-11-01T00:00:01Z")
+      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe false
     }
 
     "return true when the date is after 31-01-<nextyear>" in {
-      val now = new DateTime(s"${DateTime.now().getYear()+1}-02-01T00:00:00Z")
-      DateTimeTools.showSendTaxReturnByPost(now, DateTime.now().getYear) shouldBe true
+      val testDate = new DateTime(s"${DateTime.now().getYear()+1}-02-01T00:00:00Z")
+      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe true
     }
 
     "return false when the date is before 01-02-<nextyear>" in {
-      val now = new DateTime(s"${DateTime.now().getYear()+1}-01-31T23:59:59Z")
-      DateTimeTools.showSendTaxReturnByPost(now, DateTime.now().getYear) shouldBe false
+      val testDate = new DateTime(s"${DateTime.now().getYear()+1}-01-31T23:59:59Z")
+      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe false
     }
   }
 }
