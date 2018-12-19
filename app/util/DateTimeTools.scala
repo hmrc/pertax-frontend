@@ -39,11 +39,11 @@ object DateTimeTools {
     (y-1).toString.takeRight(2) + (y).toString.takeRight(2)
   }
 
-  def showSendTaxReturnByPost(now: DateTime) = {
+  def showSendTaxReturnByPost(now: DateTime, currentYear: Int) = {
 
-    val start = new DateTime(s"${now.getYear()}-11-01T00:00:00Z")
-    val end = new DateTime(s"${now.getYear()+1}-02-01T00:00:00Z")
-
+    val start = new DateTime(s"$currentYear-11-01T00:00:00Z")
+    val end = new DateTime(s"${currentYear+1}-01-31T23:59:59Z")
+    
     now.isBefore(start) || now.isAfter(end)
   }
 
