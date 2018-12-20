@@ -169,7 +169,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-register")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false) when skip sa page feature is set to false" in
