@@ -53,7 +53,7 @@ class PaperlessPreferencesController @Inject() (
           managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
         } yield {
           if (pertaxContext.authProvider.get.toString == "IDA") {
-            Ok(Html(Messages("preferences.verify_error")))
+            Ok(views.html.preferences.managePrefsVerify())
           } else Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
         }
       }
