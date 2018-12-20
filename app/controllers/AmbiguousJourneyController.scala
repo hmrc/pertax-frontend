@@ -206,11 +206,17 @@ class AmbiguousJourneyController @Inject() (
     val continueUrl = controllers.routes.ApplicationController.index().url
 
     enforceAmbiguousUser { saUtr =>
+
+      val currentTaxYear = TaxYearResolver.currentTaxYear
+      val deadlineYear = currentTaxYear + 1
+      val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost(DateTime.now())
+
       Future.successful {
         page match {
-          case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr, continueUrl,
-            (TaxYearResolver.currentTaxYear+1).toString, TaxYearResolver.currentTaxYear.toString, DateTimeTools.showSendTaxReturnByPost(DateTime.now())))
-          case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr, continueUrl))
+          case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr,
+            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
+          case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr,
+            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
           case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
           case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
           case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
