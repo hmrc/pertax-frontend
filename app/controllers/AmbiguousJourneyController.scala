@@ -17,18 +17,19 @@
 package controllers
 
 import javax.inject.Inject
-
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import models.dto.AmbiguousUserFlowDto
 import models.{AmbiguousFilerSelfAssessmentUser, PertaxContext}
+import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, Result}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, LocalSessionCache, SelfAssessmentService, UserDetailsService}
 import uk.gov.hmrc.domain.SaUtr
-import util.LocalPartialRetriever
+import uk.gov.hmrc.time.TaxYearResolver
+import util.{DateTimeTools, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
@@ -207,7 +208,8 @@ class AmbiguousJourneyController @Inject() (
     enforceAmbiguousUser { saUtr =>
       Future.successful {
         page match {
-          case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr, continueUrl))
+          case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr, continueUrl,
+            (TaxYearResolver.currentTaxYear+1).toString, TaxYearResolver.currentTaxYear.toString, DateTimeTools.showSendTaxReturnByPost(DateTime.now())))
           case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr, continueUrl))
           case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
           case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
