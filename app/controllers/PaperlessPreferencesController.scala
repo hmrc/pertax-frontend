@@ -16,13 +16,13 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
+import javax.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
+import play.twirl.api.Html
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -52,7 +52,9 @@ class PaperlessPreferencesController @Inject() (
         for {
           managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
         } yield {
-          Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
+          if (pertaxContext.authProvider.get.toString == "IDA") {
+            Ok(Html(Messages("preferences.verify_error")))
+          } else Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
         }
       }
   }
