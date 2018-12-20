@@ -288,7 +288,6 @@ label.your_utr_is_=Your UTR is {0}.
 label.we_need_to_ask_you_some_questions_=We need to ask you some questions before we can help you.
 label.have_you_ever_filed_your_tax_return_online=Have you ever done your tax return online?
 label.did_you_deregister_from_sa_online=Did you deregister from Self Assessment online?
-label.for_example_if_you_told_us_you_had_=For example, if you told us you had stopped being self-employed.
 label.you_need_to_register_again_for_sa_online=You need to register again for Self Assessment online
 label.use_your_utr_to_register_again_=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">register again for Self Assessment online</a>.
 label.registration_can_take_up_to_ten_days_=Registration can take up to 10 days. After registration you must activate your account with the code we send you by post.
