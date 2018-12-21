@@ -25,42 +25,48 @@
   <div class="personal-details">
 
     <div class="grid-row">
-      <div class="column-full">
+      <div class="column-two-thirds">
         <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
         <h1 class="heading-xlarge no-margin-top">@Messages("label.sign_in_with_different_account_details")</h1>
       </div>
     </div>
 
+    
     <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p>@Messages("label.you_may_be_using_the_wrong_government_gateway_account_")</p>
-      </div>
 
       <div class="grid-row pertax-panel">
-        <p>@Messages("label.you_need_to_use_the_government_gateway_user_id_")</p>
-      </div>
-
-      <div class="grid-row pertax-panel">
-        <h2>@Messages("label.get_help_signing_in")</h2>
+        <p>@Html(Messages("label.you_need_to_sign_in_with_the_government_gateway_user_id", pertaxContext.configDecorator.ggLoginUrl))</p>
+        <h3 class="heading-medium">@Messages("label.problems_signing_in")</h3>
       </div>
 
       <div class="grid-row pertax-panel">
         <p>@Messages("label.get_help_if_you_have")</p>
         <ul class="list list-bullet">
-          <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.lostCredentialsChooseAccountUrl(continueUrl, "userId")" data-ga-event-category="link - click" data-ga-event-action="Get help signing in" data-ga-event-label="forgotten your Self Assessment user ID">@Messages("label.forgotten_your_self_assessment_user_id")</a></li>
-          <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.lostCredentialsChooseAccountUrl(continueUrl, "password")" data-ga-event-category="link - click" data-ga-event-action="Get help signing in" data-ga-event-label="forgotten your Self Assessment password">@Messages("label.forgotten_your_self_assessment_password")</a></li>
-          <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.notShownSaRecoverYourUserId" data-ga-event-category="link - click" data-ga-event-action="Get help signing in" data-ga-event-label="forgotten your Self Assessment user ID and password">@Messages("label.forgotten_your_self_assessment_user_id_and_password")</a></li>
+          <li><a class="ga-track-anchor-click"
+                 href="@pertaxContext.configDecorator.lostUserIdUrl"
+                 data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
+                 data-ga-event-label="forgotten your Self Assessment user ID">@Messages("label.forgotten_your_self_assessment_user_id")</a>
+          </li>
+          <li><a class="ga-track-anchor-click"
+                 href="@pertaxContext.configDecorator.lostPasswordUrl"
+                 data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
+                 data-ga-event-label="forgotten your Self Assessment password">@Messages("label.forgotten_your_self_assessment_password")</a>
+          </li>
+          <li><a class="ga-track-anchor-click"
+                 href="@pertaxContext.configDecorator.problemsSigningInUrl"
+                 data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
+                 data-ga-event-label="forgotten your Self Assessment user ID and password">@Messages("label.forgotten_your_self_assessment_user_id_and_password")</a>
+          </li>
         </ul>
+      </div>
+
+      <div class="grid-row pertax-panel">
         <div class="panel panel-border-wide">
-          <p>@Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_") @Html(Messages("label.your_utr_is_", utr))</p>
+          <p>@Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_")
+            @Html(Messages("label.your_utr_is_", utr))</p>
         </div>
       </div>
 
-      <div class="grid-row form-group inline">
-        <a href="@pertaxContext.configDecorator.citizenAuthFrontendSignOut">
-          <input type="submit" class="button" value="@Messages("global.label.continue_button")" />
-        </a>
-      </div>
     </div>
 
   </div>
