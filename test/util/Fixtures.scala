@@ -17,13 +17,13 @@
 package util
 
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
 
 import akka.stream.Materializer
+import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
@@ -50,7 +50,6 @@ import scala.concurrent.Future
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.Random
-import org.joda.time.DateTime
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK","United Kingdom")
@@ -158,6 +157,18 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
       SessionKeys.userId -> "/auth/oid/flastname",
       SessionKeys.token -> "FAKEGGTOKEN",                                        //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
       SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId  //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+    )
+
+    FakeRequest(method, uri).withSession(session.toList: _*)
+  }
+
+  def buildFakeRequestWithVerify(method: String, uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
+    val session = Map(
+      SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
+      SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
+      SessionKeys.userId -> "/auth/oid/flastname",
+      SessionKeys.token -> "FAKEVERIFYTOKEN",                                        //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.authProvider -> AuthenticationProviderIds.VerifyProviderId  //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
