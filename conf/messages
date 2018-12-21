@@ -574,7 +574,7 @@ head.error.enter_numbers=Check the date you entered
 error.enter_numbers=Enter a valid date
 head.error.date_in_future=You cannot enter a date in the future
 error.date_in_future=Enter today’s date or a date in the past
-error.enrolled.to.send.tax.required = Select yes if you have enrolled to send your tax returns online
+head.error.enrolled.to.send.tax.required = Select yes if you have enrolled to send your tax returns online
 #
 # Messages in lower case
 #

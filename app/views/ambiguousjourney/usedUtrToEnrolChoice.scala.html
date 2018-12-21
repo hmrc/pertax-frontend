@@ -46,7 +46,7 @@
               Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
               '_labelClass -> "block-label",
               '_error -> AmbiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({
-                Messages("label.select_an_answer")
+                Messages("head.error.enrolled.to.send.tax.required")
               })),
               '_legendClass -> "visuallyhidden",
               '_legend -> Messages("label.have_you_used_your_utr_to_enrol")
