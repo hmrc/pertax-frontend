@@ -125,7 +125,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
@@ -169,7 +169,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-register")
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false) when skip sa page feature is set to false" in
@@ -188,7 +188,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
         override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
         status(r) shouldBe SEE_OTHER
-        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
+        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
@@ -206,7 +206,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
     }
 
     "redirect to 'Your letter may still be in the post' page when supplied with value No (false)" in new LocalSetupJourney {
