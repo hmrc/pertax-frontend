@@ -1,5 +1,3 @@
-preferences.verify_error=You cannot edit your paperless preferences if you are a Verify user
-
 #
 #  Global - REMOVE THIS SECTION, no need for global.*
 #
@@ -380,6 +378,7 @@ label.renew_your_tax_credits_claim=Renew your tax credit claim
 label.benefits_and_credits_other_benefits=Other benefits
 label.the_personal_tax_account_is_a_new_service_=The personal tax account is a new service – in the future we will show you more details from your record.
 label.paperless_preferences=Paperless preferences
+preferences.verify_error=You cannot edit your paperless preferences if you are a Verify user
 label.any_updates_to_your_contact_details=Any updates to your contact details take up to 2 days to appear on this site.
 label.services_for_businesses=Services for businesses
 label.if_you_are_self_employed_or_pay_business_tax=If you are self employed or pay business taxes like VAT or Corporation Tax you can see these services in <a id="business-tax-account-link" class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="your business tax account">your business tax account</a>.

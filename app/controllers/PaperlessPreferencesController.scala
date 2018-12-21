@@ -22,7 +22,7 @@ import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
-import play.twirl.api.Html
+import play.api.mvc.{Action, AnyContent}
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -46,15 +46,16 @@ class PaperlessPreferencesController @Inject() (
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def managePreferences = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def managePreferences: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       showingWarningIfWelsh { implicit pertaxContext =>
         for {
           managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
         } yield {
-          if (pertaxContext.authProvider.get.toString == "IDA") {
-            Ok(views.html.preferences.managePrefsVerify())
-          } else Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
+          pertaxContext.authProvider match {
+            case Some("IDA") => Ok(views.html.preferences.managePrefsVerify())
+            case _ => Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
+          }
         }
       }
   }
