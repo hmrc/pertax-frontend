@@ -41,19 +41,34 @@
       <div class="column-two-thirds">
         @form(action = controllers.routes.AmbiguousJourneyController.processUsedUtrToEnrolChoice) {
           <div class="form-group inline">
-            @inputRadioGroup(
-              AmbiguousUserForm("ambiguousUserFormChoice"),
-              Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
-              '_labelClass -> "block-label",
-              '_error -> AmbiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({
-                Messages("head.error.enrolled.to.send.tax.required")
-              })),
-              '_legendClass -> "visuallyhidden",
-              '_legend -> Messages("label.have_you_used_your_utr_to_enrol")
-            )
+              <div class="">
+                  <fieldset class="">
+                      <legend class="visuallyhidden">@Messages("label.have_you_used_your_utr_to_enrol")</legend>
+                      <div class="multiple-choice">
+                          <input
+                                  type="radio"
+                                  id="ambiguousUserFormChoice-true"
+                                  name="ambiguousUserFormChoice"
+                                  value="true"
+                                  data-journey-click="radio - select:@Messages("label.have_you_used_your_utr_to_enrol"):@Messages("label.yes")"
+                          />
+                          <label for="ambiguousUserFormChoice-true" class="block-label">@Messages("label.yes")</label>
+                      </div>
+                      <div class="multiple-choice">
+                          <input
+                                  type="radio"
+                                  id="ambiguousUserFormChoice-false"
+                                  name="ambiguousUserFormChoice"
+                                  value="false"
+                                  data-journey-click="radio - select:@Messages("label.have_you_used_your_utr_to_enrol"):@Messages("label.no")"
+                          />
+                          <label for="ambiguousUserFormChoice-false" class="block-label">@Messages("label.no")</label>
+                      </div>
+                  </fieldset>
+              </div>
           </div>
           <div class="form-group inline">
-            <input type="submit" class="button" value="@Messages("global.label.continue_button")" />
+            <input type="submit" class="button" value="@Messages("global.label.continue_button")" data-journey-click="button - click:@Messages("label.have_you_used_your_utr_to_enrol"):@Messages("global.label.continue_button")"/>
           </div>
         }
       </div>

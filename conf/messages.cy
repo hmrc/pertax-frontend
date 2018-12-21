@@ -569,7 +569,7 @@ head.error.enter_numbers=Gwirio’r dyddiad a nodwyd gennych
 error.enter_numbers=Nodwch ddyddiad dilys
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
 error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
-error.enrolled.to.send.tax.required=Dewiswch ‘Iawn’ os ydych wedi’ch ymrestru i anfon eich Ffurflenni Treth ar-lein
+head.error.enrolled.to.send.tax.required=Dewiswch ‘Iawn’ os ydych wedi’ch ymrestru i anfon eich Ffurflenni Treth ar-lein
 
 
 #
