@@ -27,8 +27,8 @@ GET    /personal-account/self-assessment/de-enrolled-sa                      @co
 POST   /personal-account/self-assessment/de-enrolled-sa                      @controllers.AmbiguousJourneyController.processDeEnroledFromSaChoice
 GET    /personal-account/self-assessment/received-utr-letter                 @controllers.AmbiguousJourneyController.receivedUtrLetterChoice
 POST   /personal-account/self-assessment/received-utr-letter                 @controllers.AmbiguousJourneyController.processReceivedUtrLetterChoice
-GET    /personal-account/self-assessment/used-utr-to-enrol                   @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
-POST   /personal-account/self-assessment/used-utr-to-enrol                   @controllers.AmbiguousJourneyController.processUsedUtrToEnrolChoice
+GET    /personal-account/self-assessment/have-you-enrolled                   @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
+POST   /personal-account/self-assessment/have-you-enrolled                   @controllers.AmbiguousJourneyController.processUsedUtrToEnrolChoice
 GET    /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.usedUtrToRegisterChoice
 POST   /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.processUsedUtrToRegisterChoice
 GET    /personal-account/self-assessment/result/:page                        @controllers.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages(page: String)
