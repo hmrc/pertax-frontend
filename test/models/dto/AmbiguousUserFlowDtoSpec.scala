@@ -16,21 +16,23 @@
 
 package models.dto
 
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.libs.json.Json
+import util.BaseSpec
 
-object AmbiguousUserFlowDto {
+class AmbiguousUserFlowDtoSpec extends BaseSpec {
 
-  implicit val formats = Json.format[AmbiguousUserFlowDto]
+  "AmbiguousUserFlowDto" should {
+    "fail on invalid data" in {
+      AmbiguousUserFlowDto.form.bind(Map.empty[String, String]).fold(
+        formErrors => {
+          formErrors.errors.length shouldBe 1
+          formErrors.errors.head.message shouldBe "error.enrolled.to.send.tax.required"
 
-  val form = Form(
-    mapping(
-      "ambiguousUserFormChoice" -> optional(boolean)
-        .verifying("error.enrolled.to.send.tax.required", _.isDefined)
-        .transform[Boolean](_.getOrElse(false), Some(_))  //getOrElse here will never fall back to default because of isDefined above
-    )(AmbiguousUserFlowDto.apply)(AmbiguousUserFlowDto.unapply)
-  )
+        },
+        _ => fail("There is a problem")
+
+      )
+
+    }
+  }
+
 }
-
-case class AmbiguousUserFlowDto(value: Boolean)

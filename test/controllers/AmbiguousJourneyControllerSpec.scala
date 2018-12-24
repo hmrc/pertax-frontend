@@ -125,7 +125,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
@@ -188,7 +188,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
         override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
         status(r) shouldBe SEE_OTHER
-        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
+        redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
@@ -206,7 +206,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/used-utr-to-enrol")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/self-assessment/have-you-enrolled")
     }
 
     "redirect to 'Your letter may still be in the post' page when supplied with value No (false)" in new LocalSetupJourney {
@@ -303,6 +303,16 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
+    }
+
+  }
+
+  "Calling AmbiguousJourneyController.usedUtrToRegisterChoice" should {
+    "return 200 when AmbiguousJourneyController.usedUtrToRegisterChoice is called" in new LocalSetupJourney {
+      val r = controller.usedUtrToRegisterChoice(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      status(r) shouldBe OK
     }
   }
 
