@@ -256,7 +256,7 @@ label.have_you_ever_done_your_tax_return_by_post=Ydych chi wedi cyflwyno’ch Ff
 label.you_need_to_register_to_do__your_tax_return_online=Mae’n rhaid i chi gofrestru i gyflwyno’ch Ffurflen Dreth ar-lein
 label.do_your_tax_return_before_the_deadline=Cyflwynwch eich Ffurflen Dreth cyn y dyddiad cau
 label.the_deadline_to_do_your_tax_return_by_post_was_=Y dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth drwy’r post yw 31 Hydref 2018. Gallwch gyflwyno’ch Ffurflen Dreth ar-lein cyn canol nos ar 31 Ionawr 2019.
-label.the_deadline_to_do_your_tax_return_online_is_=Y dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth ar-lein yw 23:59 ar 31 Ionawr {0}
+label.the_deadline_to_do_your_tax_return_online_is_=Y dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth ar-lein yw 23:59 ar 31 Ionawr {0}.
 label.did_you_get_your_utr_letter=Ydy’r llythyr sy’n cadarnhau’ch UTR wedi eich cyrraedd?
 label.your_utr_is_a_ten_digit_number_=Rhif 10 digid yw’ch Cyfeirnod Unigryw y Trethdalwr (UTR) sydd ei angen arnoch i gofrestru ar gyfer Hunanasesiad ar-lein.
 label.have_you_used_your_utr_to_enrol_for_self_assessment_online=Ydych chi wedi defnyddio’ch UTR i cofrestru ar gyfer Hunanasesiad Ar-lein?
@@ -269,7 +269,7 @@ label.you_need_to_sign_in_with_the_government_gateway_user_id=Mae angen i chi fe
 label.problems_signing_in=Problemau wrth fewngofnodi
 label.you_will_need_your_utr_to_get_a_new_activation_code=Bydd angen eich UTR arnoch i gael cod cyrchu newydd. Bydd y cod yn eich cyrraedd drwy’r post.
 label.use_your_unique_taxpayer_reference_utr_to_=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i<br /><a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">ymrestru ar gyfer Hunanasesiad ar-lein.</a>
-label.you_can_send_your_tax_return_by_post_=Gallwch <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">anfon eich Ffurflen Dreth drwy’r bost</a> cyn 31 Hydref {1}
+label.you_can_send_your_tax_return_by_post_=Gallwch <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">anfon eich Ffurflen Dreth drwy’r post</a> cyn 31 Hydref {1}.
 label.your_utr_letter_may_still_be_in_the_post=Mae’n bosibl bod y llythyr sy’n cadarnhau’ch UTR yn y post o hyd
 label.we_sent_your_utr_to_you_by_post_=Rydym wedi anfon eich UTR atoch drwy’r post. Gall gymryd hyd at 14 diwrnod gwaith i gyrraedd.
 label.have_you_used_your_utr_to_enrol=A ydych wedi’ch ymrestru i anfon eich Ffurflenni Treth ar-lein?

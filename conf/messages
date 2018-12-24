@@ -306,7 +306,7 @@ label.have_you_ever_done_your_tax_return_by_post=Have you ever done your tax ret
 label.you_need_to_register_to_do__your_tax_return_online=You need to register to do your tax return online
 label.do_your_tax_return_before_the_deadline=Do your tax return before the deadline
 label.the_deadline_to_do_your_tax_return_by_post_was_=The deadline to do your tax return by post is 31 October 2018. You can do your tax return online before midnight on 31 January 2019.
-label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is midnight on 31 January {0}
+label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is midnight on 31 January {0}.
 label.did_you_get_your_utr_letter=Did you get your UTR letter?
 label.your_utr_is_a_ten_digit_number_=Your Unique Taxpayer Reference (UTR) is a 10 digit number you need to register for Self Assessment online.
 label.have_you_used_your_utr_to_enrol_for_self_assessment_online=Have you used your UTR to sign up for Self Assessment online?
@@ -319,7 +319,7 @@ label.you_need_to_sign_in_with_the_government_gateway_user_id=You need to sign i
 label.problems_signing_in=Problems signing in
 label.you_will_need_your_utr_to_get_a_new_activation_code=You will need your UTR to get a new activation code which will be sent to you by post.
 label.use_your_unique_taxpayer_reference_utr_to_=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">enrol for Self Assement online.</a>
-label.you_can_send_your_tax_return_by_post_=You can <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">send your tax return by post</a> before 31 October {1}
+label.you_can_send_your_tax_return_by_post_=You can <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">send your tax return by post</a> before 31 October {1}.
 label.your_utr_letter_may_still_be_in_the_post=Your UTR letter may still be in the post
 label.we_sent_your_utr_to_you_by_post_=We sent your UTR to you by post. It can take up to 14 working days to arrive.
 label.have_you_used_your_utr_to_enrol=Have you enrolled to send your tax returns online?
