@@ -506,6 +506,7 @@ label.help_improve_gov_uk=Helpwch i wella GOV.UK
 label.get_involved_in_making_government_services_better_=Byddwch yn rhan o wneud gwasanaethau’r Llywodraeth yn well (mae’r cysylltiad hwn yn agor ffenestr neu dab newydd)
 label.please_take_part_in_our_short_survey=Please take part in our short survey (opens in new window or tab)
 label.no_thanks=Dim diolch
+label.select_yes_if_you_have_enrolled_to_send_your_tax_returns_online=Dewiswch ‘Iawn’ os ydych wedi’ch ymrestru i anfon eich Ffurflenni Treth ar-lein
 
 #
 # Error messages
@@ -569,8 +570,6 @@ head.error.enter_numbers=Gwirio’r dyddiad a nodwyd gennych
 error.enter_numbers=Nodwch ddyddiad dilys
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
 error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
-head.error.enrolled.to.send.tax.required=Dewiswch ‘Iawn’ os ydych wedi’ch ymrestru i anfon eich Ffurflenni Treth ar-lein
-
 
 #
 # Messages in lower case
