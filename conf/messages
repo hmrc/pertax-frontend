@@ -511,6 +511,7 @@ label.help_improve_gov_uk=Help improve GOV.UK
 label.get_involved_in_making_government_services_better_=Get involved in making government services better (this link opens in a new window or tab)
 label.please_take_part_in_our_short_survey=Please take part in our short survey (opens in new window or tab)
 label.no_thanks=No thanks
+label.select_yes_if_you_have_enrolled_to_send_your_tax_returns_online=Select yes if you have enrolled to send your tax returns online
 
 #
 # Error messages
@@ -574,7 +575,7 @@ head.error.enter_numbers=Check the date you entered
 error.enter_numbers=Enter a valid date
 head.error.date_in_future=You cannot enter a date in the future
 error.date_in_future=Enter today’s date or a date in the past
-head.error.enrolled.to.send.tax.required = Select yes if you have enrolled to send your tax returns online
+
 #
 # Messages in lower case
 #
