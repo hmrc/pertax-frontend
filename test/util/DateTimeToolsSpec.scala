@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,24 +33,24 @@ class DateTimeToolsSpec extends BaseSpec {
 
   "Calling showSendTaxReturnByPost" should {
 
-    "return true when the date is before 01-11-<currentyear>" in {
+    "return false when the date is before 01-11-<currentyear>" in {
       val testDate = new DateTime(s"${DateTime.now().getYear()}-10-31T23:59:59")
-      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe true
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
     }
 
     "return false when the date is after 01-11-<currentyear>" in {
       val testDate = new DateTime(s"${DateTime.now().getYear()}-11-01T00:00:01Z")
-      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe false
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
     }
 
-    "return true when the date is after 31-01-<nextyear>" in {
+    "return false when the date is after 31-01-<nextyear>" in {
       val testDate = new DateTime(s"${DateTime.now().getYear()+1}-02-01T00:00:00Z")
-      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe true
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
     }
 
     "return false when the date is before 01-02-<nextyear>" in {
       val testDate = new DateTime(s"${DateTime.now().getYear()+1}-01-31T23:59:59Z")
-      DateTimeTools.showSendTaxReturnByPost(testDate) shouldBe false
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
     }
   }
 }
