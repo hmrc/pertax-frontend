@@ -214,9 +214,9 @@ class AmbiguousJourneyController @Inject() (
       Future.successful {
         page match {
           case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr,
-            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
+            continueUrl, deadlineYear.toString, (currentTaxYear+1).toString, showSendTaxReturnByPost))
           case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr,
-            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
+            continueUrl, deadlineYear.toString, (currentTaxYear+1).toString, showSendTaxReturnByPost))
           case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
           case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
           case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
