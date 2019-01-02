@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -209,7 +209,7 @@ class AmbiguousJourneyController @Inject() (
 
       val currentTaxYear = TaxYearResolver.currentTaxYear
       val deadlineYear = currentTaxYear + 1
-      val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost(DateTime.now())
+      val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost
 
       Future.successful {
         page match {
