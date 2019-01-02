@@ -55,7 +55,7 @@
       <div class="grid-row pertax-panel">
         <h2>@Messages("label.do_your_tax_return_before_the_deadline")</h2>
         <p>@Messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
-        @if(!showPostLink) {
+        @if(showPostLink) {
           <p>@Html(Messages("label.you_can_send_your_tax_return_by_post_", pertaxContext.configDecorator.selfAssessmentEnrolUrl, currentTaxYear))</p>
         }
       </div>
