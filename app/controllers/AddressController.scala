@@ -293,7 +293,7 @@ class AddressController @Inject() (
                       val addressDto = AddressDto.fromAddressRecord(addressRecord)
                       cacheSelectedAddressRecord(typ, addressRecord) flatMap { _ =>
                         cacheSubmittedAddressDto(typ, addressDto) map { _ =>
-                          val postCodeHasChanged = postcode!=personDetails.address.flatMap(_.postcode).getOrElse("")
+                          val postCodeHasChanged = !postcode.replace(" ", "").equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
                           (typ, postCodeHasChanged) match {
                             case (PostalAddrType, true) => Redirect(routes.AddressController.enterStartDate(typ))
                             case (PostalAddrType, false) => Redirect(routes.AddressController.showUpdateAddressForm(typ))
@@ -351,7 +351,7 @@ class AddressController @Inject() (
               },
               addressDto => {
                 cacheSubmittedAddressDto(typ, addressDto) flatMap { _ =>
-                  val postCodeHasChanged = addressDto.postcode != personDetails.address.flatMap(_.postcode).getOrElse("")
+                  val postCodeHasChanged = !addressDto.postcode.replace(" ", "").equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
                   (typ, postCodeHasChanged) match {
                     case (PostalAddrType, _) =>
                       cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
@@ -383,7 +383,7 @@ class AddressController @Inject() (
             val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("")
             val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
             journeyData.submittedAddressDto map { a =>
-              Future.successful(Ok(views.html.personaldetails.enterStartDate(if(newPostcode != oldPostcode) journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill) else dateDtoForm, typ)))
+              Future.successful(Ok(views.html.personaldetails.enterStartDate(if(newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill) else dateDtoForm, typ)))
             } getOrElse {
               Future.successful(Redirect(routes.AddressController.personalDetails()))
             }
@@ -433,7 +433,7 @@ class AddressController @Inject() (
         gettingCachedJourneyData(typ) { journeyData =>
           val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("")
           val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
-          val showAddressChangedDate: Boolean = newPostcode != oldPostcode
+          val showAddressChangedDate: Boolean = !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
           ensuringSubmissionRequirments(typ, journeyData) {
             journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
               Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto, showAddressChangedDate)))
