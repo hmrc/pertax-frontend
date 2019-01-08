@@ -1084,6 +1084,30 @@ class AddressControllerSpec extends BaseSpec {
       contentAsString(r) shouldNot include(Messages("label.when_this_became_your_main_home"))
     }
 
+    "display no message relating to the date the address started when the primary address has not changed when the postcode is in lower case" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodifiedLowerCase)),
+        "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+      )))
+
+      val r = controller.reviewChanges(PrimaryAddrType)(buildAddressRequest("GET"))
+      implicit val messages: Messages = Messages.Implicits.applicationMessages
+
+      contentAsString(r) shouldNot include(Messages("label.when_this_became_your_main_home"))
+    }
+
+    "display no message relating to the date the address started when the primary address has not changed when the postcode entered has no space" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map(
+        "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode)),
+        "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+      )))
+
+      val r = controller.reviewChanges(PrimaryAddrType)(buildAddressRequest("GET"))
+      implicit val messages: Messages = Messages.Implicits.applicationMessages
+
+      contentAsString(r) shouldNot include(Messages("label.when_this_became_your_main_home"))
+    }
+
     "display a message relating to the date the address started when the primary address has changed" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map(
         "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
