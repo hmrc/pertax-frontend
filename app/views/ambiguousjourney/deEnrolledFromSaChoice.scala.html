@@ -1,5 +1,5 @@
 @*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,12 @@
       <div class="column-full">
         <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
         <h1 class="heading-xlarge no-margin-top">@Messages("label.did_you_deregister_from_sa_online")</h1>
-        <p>@Messages("label.for_example_if_you_told_us_you_had_")</p>
       </div>
     </div>
 
     <div class="grid-row">
       <div class="column-two-thirds">
-        @form(action = controllers.routes.AmbiguousJourneyController.processDeEnroleedFromSaChoice) {
+        @form(action = controllers.routes.AmbiguousJourneyController.processDeEnroledFromSaChoice) {
           <div class="form-group inline">
             @inputRadioGroup(
               AmbiguousUserForm("ambiguousUserFormChoice"),

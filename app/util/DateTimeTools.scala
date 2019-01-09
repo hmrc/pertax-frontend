@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,14 @@ object DateTimeTools {
   def previousAndCurrentTaxYearFromGivenYear(year: Int) = {
     def y = year
     (y-1).toString.takeRight(2) + (y).toString.takeRight(2)
+  }
+
+  def showSendTaxReturnByPost = {
+
+    val start = new DateTime(s"${DateTime.now().getYear}-11-01T00:00:00Z")
+    val end = new DateTime(s"${DateTime.now().getYear+1}-01-31T23:59:59Z")
+
+    DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
   }
 
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)

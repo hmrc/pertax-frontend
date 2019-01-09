@@ -1,5 +1,5 @@
 @*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,30 @@
  * limitations under the License.
  *@
 
-@(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(utr: SaUtr,
+  continueUrl: String,
+  deadlineYear: String,
+  currentTaxYear: String,
+  showPostLink: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import pertaxContext.configDecorator._
 
-@main(title = Messages("label.you_need_to_register_again_for_sa_online"),
+@main(title = Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again"),
   pageName = Some(Messages("label.your_personal_tax_account")),
   backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
 ) {
   <div class="personal-details">
 
     <div class="grid-row">
-      <div class="column-full">
+      <div class="column-two-thirds">
         <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_register_again_for_sa_online")</h1>
+        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again")</h1>
       </div>
     </div>
 
     <div class="column-two-thirds">
       <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.use_your_utr_to_register_again_", pertaxContext.configDecorator.registerForSelfAssessmentUrl(continueUrl)))</p>
+        <p>@Html(Messages("label.use_your_unique_taxpayer_reference_utr_to_", pertaxContext.configDecorator.selfAssessmentEnrolUrl)))</p>
       </div>
     </div>
 
@@ -45,7 +49,17 @@
 
     <div class="column-two-thirds">
       <div class="grid-row panel panel-border-wide">
-        <p>@Messages("label.registration_can_take_up_to_ten_days_")</p>
+        <p>@Messages("label.you_will_get_an_activation_code_in_the_post_")</p>
+      </div>
+    </div>
+
+    <div class="column-two-thirds">
+      <div class="grid-row pertax-panel">
+        <h2>@Messages("label.do_your_tax_return_before_the_deadline")</h2>
+        <p>@Messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
+        @if(showPostLink) {
+          <p>@Html(Messages("label.you_can_send_your_tax_return_by_post_", pertaxContext.configDecorator.selfAssessmentEnrolUrl, currentTaxYear))</p>
+        }
       </div>
     </div>
 
