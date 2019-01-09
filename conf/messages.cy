@@ -261,7 +261,7 @@ label.the_deadline_to_do_your_tax_return_online_is_=Y dyddiad cau ar gyfer cyflw
 label.did_you_get_your_utr_letter=Ydy’r llythyr sy’n cadarnhau’ch UTR wedi eich cyrraedd?
 label.your_utr_is_a_ten_digit_number_=Rhif 10 digid yw’ch Cyfeirnod Unigryw y Trethdalwr (UTR) sydd ei angen arnoch i gofrestru ar gyfer Hunanasesiad ar-lein.
 label.have_you_used_your_utr_to_enrol_for_self_assessment_online=Ydych chi wedi defnyddio’ch UTR i cofrestru ar gyfer Hunanasesiad Ar-lein?
-label.your_utr_is_a_ten_digit_number_we_sent_by_post=Os ydych, cewch god cychwyn drwy’r post i greu’ch cyfrif Hunanasesiad ar-lein.
+label.your_utr_is_a_ten_digit_number_we_sent_by_post=Os ydych, cewch god cychwyn drwy’r post i greu’ch cyfrif Hunanasesiad <span class="no-wrap">ar-lein</span>.
 label.you_need_to_register_for_self_assessment_online=Mae’n rhaid i chi gofrestru ar gyfer Hunanasesiad Ar-lein
 label.you_need_to_sign_up_to_send_your_tax_returns_online=Mae’n rhaid i chi gofrestru er mwyn anfon eich Ffurflenni Treth ar-lein
 label.you_need_to_get_a_new_activation_code=Mae angen cod cychwyn newydd arnoch
