@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,6 +112,10 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   def registerForSelfAssessmentUrl(continueUrl: String) = {
     s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}"
   }
+  lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
+  lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
+  lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
+  lazy val problemsSigningInUrl = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val taxReturnByPostUrl = "https://www.gov.uk/government/publications/self-assessment-tax-return-sa100"
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val generalQueriesUrl = "https://www.gov.uk/contact-hmrc"
@@ -130,6 +134,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val tcsChangeAddressUrl = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
+  lazy val changeNameLinkUrl = s"$dfsFrontendHost/forms/form/notification-of-a-change-in-personal-details/new"
 
   lazy val childBenefitsStaysInEducation = s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
   lazy val childBenefitsLaterLeavesEducation = s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-leaving-non-advanced-education-or-approved-training/guide"
@@ -168,6 +173,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val taxCreditsPaymentLinkEnabled = configuration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
   lazy val saveNiLetterAsPdfLinkEnabled = configuration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
   lazy val saAmbigSkipUTRLetterEnabled = configuration.getString("feature.sa-skip-utr-letter.enabled").getOrElse("true").toBoolean
+  lazy val saAmbigSimplifiedJourneyEnabled = configuration.getString("feature.sa-simplified-journey.enabled").getOrElse("true").toBoolean
 
   lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
 

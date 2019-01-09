@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@
 package controllers.helpers
 
 import javax.inject.{Inject, Singleton}
-
 import config.ConfigDecorator
-import models.{Address, PertaxContext}
+import models.{Address, PertaxContext, PertaxUser}
 import play.twirl.api.{Html, HtmlFormat}
 import org.joda.time.LocalDate
 import uk.gov.hmrc.play.language.LanguageUtils.Dates.formatDate
@@ -30,6 +29,7 @@ class PersonalDetailsCardGenerator @Inject() (
 ) {
 
   def getPersonalDetailsCards()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Seq[Html] = List(
+    getChangeNameCard(),
     getMainAddressCard(),
     getPostalAddressCard(),
     getNationalInsuranceCard()
@@ -88,6 +88,12 @@ class PersonalDetailsCardGenerator @Inject() (
     pertaxContext.user match {
       case Some(u) if (u.isHighGovernmentGatewayOrVerify && (u.isPaye || u.isSa)) => u.nino.map(n => views.html.cards.personaldetails.nationalInsurance(n))
       case _ => None
+    }
+  }
+
+  def getChangeNameCard()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] = {
+    PertaxUser.ifNameAvailable {
+      views.html.cards.personaldetails.changeName()
     }
   }
 }

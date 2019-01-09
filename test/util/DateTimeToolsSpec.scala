@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package util
 
+import org.joda.time.DateTime
+
 class DateTimeToolsSpec extends BaseSpec {
 
   "Calling asHumanDateFromUnixDate" should {
@@ -26,6 +28,29 @@ class DateTimeToolsSpec extends BaseSpec {
 
     "return passed date when provided with an invalid date" in {
       DateTimeTools.asHumanDateFromUnixDate("INVALID DATE FORMAT") shouldBe "INVALID DATE FORMAT"
+    }
+  }
+
+  "Calling showSendTaxReturnByPost" should {
+
+    "return false when the date is before 01-11-<currentyear>" in {
+      val testDate = new DateTime(s"${DateTime.now().getYear()}-10-31T23:59:59")
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
+    }
+
+    "return false when the date is after 01-11-<currentyear>" in {
+      val testDate = new DateTime(s"${DateTime.now().getYear()}-11-01T00:00:01Z")
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
+    }
+
+    "return false when the date is after 31-01-<nextyear>" in {
+      val testDate = new DateTime(s"${DateTime.now().getYear()+1}-02-01T00:00:00Z")
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
+    }
+
+    "return false when the date is before 01-02-<nextyear>" in {
+      val testDate = new DateTime(s"${DateTime.now().getYear()+1}-01-31T23:59:59Z")
+      DateTimeTools.showSendTaxReturnByPost shouldBe false
     }
   }
 }
