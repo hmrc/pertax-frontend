@@ -18,13 +18,10 @@ package controllers
 
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models.UserDetails
-import org.jsoup.Jsoup
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
 import play.api.inject._
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -123,17 +120,14 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
         verify(controller.preferencesFrontendPartialService, times(1)).getManagePreferencesPartial(any(), any())(any())
       }
 
-      "Return 200 and direct verify users to Verify Messages view" in new LocalSetup {
+      "Return 400 for Verify users" in new LocalSetup {
 
         lazy val withPaye = false
         lazy val withSa = true
         lazy val confidenceLevel = ConfidenceLevel.L500
 
         val r = verifyController.managePreferences(verifyRequest)
-        status(r) shouldBe OK
-        val doc = Jsoup.parse(contentAsString(r))
-        doc.getElementById("verify-message").text() shouldBe Messages("preferences.verify_error")
-
+        status(r) shouldBe BAD_REQUEST
       }
     }
   }

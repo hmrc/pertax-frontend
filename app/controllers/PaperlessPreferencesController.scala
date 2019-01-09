@@ -53,7 +53,10 @@ class PaperlessPreferencesController @Inject() (
           managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
         } yield {
           pertaxContext.authProvider match {
-            case Some("IDA") => Ok(views.html.preferences.managePrefsVerify())
+            case Some("IDA") => BadRequest(views.html.error(
+              s"global.error.BadRequest.title",
+              Some(s"global.error.BadRequest.heading"),
+              Some(s"global.error.BadRequest.message"), showContactHmrc = false))
             case _ => Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
           }
         }
