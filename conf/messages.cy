@@ -5,7 +5,7 @@ global.label._last_signed_in={0}, y tro diwethaf i chi fewngofnodi oedd {1}
 global.label.you_last_signed_in=Y tro diwethaf i chi fewngofnodi oedd {0}
 global.label.sign_out=Allgofnodi
 global.label.submit_button=Cyflwyno
-global.label.continue_button=Parhau
+global.label.continue_button=Yn eich blaen
 global.label.start_button=Dechrau
 global.label.find_your_address=Chwilio am eich cyfeiriad
 global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it=Mae hwn yn wasanaeth newydd – bydd eich <a href="{0}">adborth</a> yn ein helpu i’w wella.
