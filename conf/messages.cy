@@ -597,6 +597,7 @@ global.error.InternalServerError500.title=Mae problem wedi codi
 global.error.InternalServerError500.heading=Mae problem wedi codi
 global.error.InternalServerError500.message=Mae"n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>
 global.error.BadRequest.title=Mae problem wedi codi
+global.error.BadRequest.heading=Mae problem wedi codi
 global.error.BadRequest.message=Mae’n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>
 
 
