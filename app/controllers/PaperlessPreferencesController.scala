@@ -28,6 +28,8 @@ import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsS
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.LocalPartialRetriever
 
+import scala.concurrent.Future
+
 
 
 class PaperlessPreferencesController @Inject() (
@@ -48,18 +50,19 @@ class PaperlessPreferencesController @Inject() (
 
   def managePreferences: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
-      showingWarningIfWelsh { implicit pertaxContext =>
-        for {
-          managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
-        } yield {
-          pertaxContext.authProvider match {
-            case Some("IDA") => BadRequest(views.html.error(
-              s"global.error.BadRequest.title",
-              Some(s"global.error.BadRequest.heading"),
-              Some(s"global.error.BadRequest.message"), showContactHmrc = false))
-            case _ => Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
+      pertaxContext.authProvider match {
+        case Some("IDA") => Future.successful(BadRequest(views.html.error(
+          "global.error.BadRequest.title",
+          Some("global.error.BadRequest.heading"),
+          Some("global.error.BadRequest.message"), showContactHmrc = false)))
+        case _ => showingWarningIfWelsh {
+          implicit pertaxContext =>
+            for {
+              managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
+            } yield {
+              Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
+            }
           }
-        }
       }
   }
 }
