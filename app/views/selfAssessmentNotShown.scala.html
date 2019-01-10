@@ -24,14 +24,8 @@
       <h1 class="heading-xlarge no-margin-top">@Messages("label.find_out_how_to_access_your_self_assessment")</h1>
       <p class="lede">@Messages("label.you_already_have_a_utr")</p>
       <p class="lede">@Html(Messages("label.your_utr_is_", utr))</p>
-
       <p>@Messages("label.we_need_to_ask_you_some_questions_")</p>
-      <div class="form-group inline">
-        <form action="@controllers.routes.AmbiguousJourneyController.filedReturnOnlineChoice">
-          <button type="submit">@Messages("global.label.start_button")</button>
-        </form>
-      </div>
-    </div>
-
+      <a href="@controllers.routes.AmbiguousJourneyController.filedReturnOnlineChoice" class="button startSa">@Messages("global.label.start_button")</a>
+   </div>
   </div>
 }
