@@ -69,6 +69,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val governmentGatewayLostCredentialsFrontendHost = decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
   lazy val governmentGatewayRegistrationFrontendHost    = decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
   lazy val enrolmentManagementFrontendHost              = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
+  lazy val payFrontendHost                              = decorateUrlForLocalDev(s"pay-frontend.host").getOrElse("")
 
 
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
@@ -112,6 +113,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   def registerForSelfAssessmentUrl(continueUrl: String) = {
     s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}"
   }
+  lazy val selfAssessmentMakePaymentUrl = s"${payFrontendHost}/pay/self-assessment/choose-a-way-to-pay?mode=pta&returnUrl=%2Fpersonal-account&backUrl=%2Fpersonal-account"
   lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
   lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
   lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"

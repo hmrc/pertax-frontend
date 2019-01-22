@@ -18,6 +18,7 @@ GET    /personal-account/signout                                             @co
 GET    /personal-account/dismiss-ur-banner                                   @controllers.UserResearchDismissalController.dismissUrBanner
 
 GET    /personal-account/self-assessment                                     @controllers.ApplicationController.handleSelfAssessment
+GET    /personal-account/self-assessment/make-a-payment                      @controllers.ApplicationController.selfAssessmentMakePayment
 GET    /personal-account/sa-continue                                         @controllers.ApplicationController.ivExemptLandingPage(continueUrl: Option[ContinueUrl])
 GET    /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
 POST   /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice
