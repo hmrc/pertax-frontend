@@ -116,6 +116,24 @@ trait CitizenDetailsFixtures {
     ("postcode", "AA1 1AA")
   )
 
+  def fakeStreetTupleListAddressForUnmodifiedLowerCase: List[(String, String)] = List(
+    ("line1", "1 Fake Street"),
+    ("line2", "Fake Town"),
+    ("line3", "Fake City"),
+    ("line4", "Fake Region"),
+    ("line5", ""),
+    ("postcode", "aa1 1aa")
+  )
+
+  def fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode: List[(String, String)] = List(
+    ("line1", "1 Fake Street"),
+    ("line2", "Fake Town"),
+    ("line3", "Fake City"),
+    ("line4", "Fake Region"),
+    ("line5", ""),
+    ("postcode", "AA11AA")
+  )
+
   def fakeStreetTupleListAddressForManualyEntered: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
     ("line2", "Fake Town"),
