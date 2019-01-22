@@ -5,7 +5,7 @@ global.label._last_signed_in={0}, y tro diwethaf i chi fewngofnodi oedd {1}
 global.label.you_last_signed_in=Y tro diwethaf i chi fewngofnodi oedd {0}
 global.label.sign_out=Allgofnodi
 global.label.submit_button=Cyflwyno
-global.label.continue_button=Parhau
+global.label.continue_button=Yn eich blaen
 global.label.start_button=Dechrau
 global.label.find_your_address=Chwilio am eich cyfeiriad
 global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it=Mae hwn yn wasanaeth newydd – bydd eich <a href="{0}">adborth</a> yn ein helpu i’w wella.
@@ -78,6 +78,7 @@ label.your_address=Eich cyfeiriad
 label.main_address=Prif gyfeiriad
 label.find_your_address=Chwilio am eich cyfeiriad
 label.your_postal_address=Eich cyfeiriad post
+label.find_your_postal_address=Canfod eich cyfeiriad post
 label.update_your_address=Diweddaru’ch cyfeiriad
 label.change_your_address=Newid eich cyfeiriad
 label.change_your_main_address=Newid eich prif gyfeiriad
@@ -238,7 +239,7 @@ label.your_utr_is_=Eich UTR yw {0}.
 label.we_need_to_ask_you_some_questions_=Mae’n rhaid i ni ofyn ambell gwestiwn i chi cyn y gallwn eich helpu.
 label.have_you_ever_filed_your_tax_return_online=Ydych chi wedi cyflwyno’ch Ffurflen Dreth ar-lein erioed?
 label.did_you_deregister_from_sa_online=Ydych chi wedi dadgofrestru rhag defnyddio Hunanasesiad Ar-lein?
-label.you_need_to_sign_up_to_send_your_tax_returns_online_again=You need to sign up to send your tax returns online again
+label.you_need_to_sign_up_to_send_your_tax_returns_online_again=Mae’n rhaid i chi gofrestru er mwyn anfon eich Ffurflenni Treth ar-lein eto
 label.use_your_utr_to_register_again_=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">gofrestru eto ar gyfer Hunanasesiad ar-lein</a>.
 label.registration_can_take_up_to_ten_days_=Gall gymryd hyd at 10 diwrnod i gofrestru. Ar ôl cofrestru, mae’n rhaid i chi gychwyn eich cyfrif gyda’r cod rydym yn ei anfon atoch drwy’r post.
 label.you_will_get_an_activation_code_in_the_post_=Byddwch yn cael cod cychwyn drwy’r post cyn pen 10 diwrnod ar ôl ymrestru. Cychwynnwch eich cyfrif gyda’r un Dynodydd Defnyddiwr (ID) Porth y Llywodraeth a chyfrinair a defnyddiwyd gennych i ymrestru.
@@ -260,7 +261,7 @@ label.the_deadline_to_do_your_tax_return_online_is_=Y dyddiad cau ar gyfer cyflw
 label.did_you_get_your_utr_letter=Ydy’r llythyr sy’n cadarnhau’ch UTR wedi eich cyrraedd?
 label.your_utr_is_a_ten_digit_number_=Rhif 10 digid yw’ch Cyfeirnod Unigryw y Trethdalwr (UTR) sydd ei angen arnoch i gofrestru ar gyfer Hunanasesiad ar-lein.
 label.have_you_used_your_utr_to_enrol_for_self_assessment_online=Ydych chi wedi defnyddio’ch UTR i cofrestru ar gyfer Hunanasesiad Ar-lein?
-label.your_utr_is_a_ten_digit_number_we_sent_by_post=Os ydych, cewch god cychwyn drwy’r post i greu’ch cyfrif Hunanasesiad ar-lein.
+label.your_utr_is_a_ten_digit_number_we_sent_by_post=Os ydych, cewch god cychwyn drwy’r post i greu’ch cyfrif Hunanasesiad <span class="no-wrap">ar-lein</span>.
 label.you_need_to_register_for_self_assessment_online=Mae’n rhaid i chi gofrestru ar gyfer Hunanasesiad Ar-lein
 label.you_need_to_sign_up_to_send_your_tax_returns_online=Mae’n rhaid i chi gofrestru er mwyn anfon eich Ffurflenni Treth ar-lein
 label.you_need_to_get_a_new_activation_code=Mae angen cod cychwyn newydd arnoch
