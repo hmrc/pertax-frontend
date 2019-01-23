@@ -217,11 +217,6 @@ class ApplicationController @Inject() (
       }
   }
 
-  def selfAssessmentMakePayment: Action[AnyContent] = AuthorisedAction() {
-    implicit pertaxContext =>
-      Future.successful(Redirect(s"${configDecorator.selfAssessmentMakePaymentUrl}").withSession("mode" -> "pta"))
-  }
-
   def ivExemptLandingPage(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
