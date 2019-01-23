@@ -51,7 +51,6 @@ class TaxCalculationService @Inject() (environment: Environment, configuration: 
    */
   def getTaxCalculation(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxCalculationResponse] = {
     withMetricsTimer("get-taxcalc-summary") { t =>
-
       simpleHttp.get[TaxCalculationResponse](s"$taxCalcUrl/taxcalc/$nino/taxSummary/$year") (
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
