@@ -217,7 +217,6 @@ class ApplicationController @Inject() (
       }
   }
 
-
   def ivExemptLandingPage(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
