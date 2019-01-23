@@ -113,7 +113,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   def registerForSelfAssessmentUrl(continueUrl: String) = {
     s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}"
   }
-  lazy val selfAssessmentMakePaymentUrl = s"${payFrontendHost}/pay/self-assessment/choose-a-way-to-pay?mode=pta&returnUrl=%2Fpersonal-account&backUrl=%2Fpersonal-account"
+  lazy val selfAssessmentMakePaymentUrl = s"${payFrontendHost}/pay/self-assessment/choose-a-way-to-pay?mode=pta"
   lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
   lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
   lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
