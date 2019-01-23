@@ -34,7 +34,7 @@
         <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">@Messages("label.complete_your_tax_return")</a>
       </li>
       <li>
-        <a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.selfAssessmentMakePayment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@Messages("label.make_a_payment")</a>
+        <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.selfAssessmentMakePaymentUrl" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@Messages("label.make_a_payment")</a>
       </li>
       <li>
         <a class="ga-track-anchor-click" href="https://www.gov.uk/check-if-you-need-a-tax-return" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check if you need to fill in a tax return">@Messages("label.check_if_you_need_to_fill_in_a_tax_return")</a>
