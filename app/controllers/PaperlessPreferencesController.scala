@@ -16,17 +16,19 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
+import javax.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent}
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.LocalPartialRetriever
+
+import scala.concurrent.Future
 
 
 
@@ -46,14 +48,21 @@ class PaperlessPreferencesController @Inject() (
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def managePreferences = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def managePreferences: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
-      showingWarningIfWelsh { implicit pertaxContext =>
-        for {
-          managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
-        } yield {
-          Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
-        }
+      pertaxContext.authProvider match {
+        case Some("IDA") => Future.successful(BadRequest(views.html.error(
+          "global.error.BadRequest.title",
+          Some("global.error.BadRequest.heading"),
+          Some("global.error.BadRequest.message"), showContactHmrc = false)))
+        case _ => showingWarningIfWelsh {
+          implicit pertaxContext =>
+            for {
+              managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
+            } yield {
+              Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
+            }
+          }
       }
   }
 }

@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.LocalTemplateRenderer
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models.UserDetails
 import org.mockito.Matchers.{eq => meq, _}
@@ -24,7 +23,6 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
@@ -32,7 +30,7 @@ import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsS
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._
-import util.{BaseSpec, LocalPartialRetriever, MockTemplateRenderer}
+import util.{BaseSpec, LocalPartialRetriever}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -63,6 +61,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
     def confidenceLevel: ConfidenceLevel
 
     lazy val request = buildFakeRequestWithAuth("GET")
+    lazy val verifyRequest = buildFakeRequestWithVerify("GET")
     lazy val authority = buildFakeAuthority(withPaye, withSa, confidenceLevel)
 
     lazy val controller =  {
@@ -84,19 +83,52 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
 
       c
     }
+
+    lazy val verifyController =  {
+
+      val c = injected[PaperlessPreferencesController]
+
+      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
+        Future.successful(Some(authority))
+      }
+      when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
+        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
+      }
+      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
+        Future.successful(Some(UserDetails(UserDetails.VerifyAuthProvider)))
+      }
+      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
+        Future.successful(None)
+      }
+
+      c
+    }
   }
 
   "Calling PaperlessPreferencesController.managePreferences" should {
 
-    "call getManagePreferences should return 200" in new LocalSetup {
+    "call getManagePreferences" should {
 
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
+      "Return 200 and show messages when a user is logged in using GG" in new LocalSetup {
 
-      val r = controller.managePreferences(request)
-      status(r) shouldBe OK
-      verify(controller.preferencesFrontendPartialService, times(1)).getManagePreferencesPartial(any(), any())(any())
+        lazy val withPaye = false
+        lazy val withSa = false
+        lazy val confidenceLevel = ConfidenceLevel.L200
+
+        val r = controller.managePreferences(request)
+        status(r) shouldBe OK
+        verify(controller.preferencesFrontendPartialService, times(1)).getManagePreferencesPartial(any(), any())(any())
+      }
+
+      "Return 400 for Verify users" in new LocalSetup {
+
+        lazy val withPaye = false
+        lazy val withSa = true
+        lazy val confidenceLevel = ConfidenceLevel.L500
+
+        val r = verifyController.managePreferences(verifyRequest)
+        status(r) shouldBe BAD_REQUEST
+      }
     }
   }
 }
