@@ -43,8 +43,7 @@ object DateTimeTools {
 
     val start = new DateTime(s"${DateTime.now().getYear}-11-01T00:00:00Z")
     val end = new DateTime(s"${DateTime.now().getYear+1}-01-31T23:59:59Z")
-
-    DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
+    !DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
   }
 
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)

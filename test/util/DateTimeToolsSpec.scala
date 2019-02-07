@@ -30,27 +30,4 @@ class DateTimeToolsSpec extends BaseSpec {
       DateTimeTools.asHumanDateFromUnixDate("INVALID DATE FORMAT") shouldBe "INVALID DATE FORMAT"
     }
   }
-
-  "Calling showSendTaxReturnByPost" should {
-
-    "return false when the date is before 01-11-<currentyear>" in {
-      val testDate = new DateTime(s"${DateTime.now().getYear()}-10-31T23:59:59")
-      DateTimeTools.showSendTaxReturnByPost shouldBe false
-    }
-
-    "return false when the date is after 01-11-<currentyear>" in {
-      val testDate = new DateTime(s"${DateTime.now().getYear()}-11-01T00:00:01Z")
-      DateTimeTools.showSendTaxReturnByPost shouldBe false
-    }
-
-    "return false when the date is after 31-01-<nextyear>" in {
-      val testDate = new DateTime(s"${DateTime.now().getYear()+1}-02-01T00:00:00Z")
-      DateTimeTools.showSendTaxReturnByPost shouldBe false
-    }
-
-    "return false when the date is before 01-02-<nextyear>" in {
-      val testDate = new DateTime(s"${DateTime.now().getYear()+1}-01-31T23:59:59Z")
-      DateTimeTools.showSendTaxReturnByPost shouldBe false
-    }
-  }
 }
