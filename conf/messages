@@ -602,6 +602,7 @@ global.error.InternalServerError500.title=There is a problem
 global.error.InternalServerError500.heading=There is a problem
 global.error.InternalServerError500.message=Sorry, we are experiencing technical difficulties. <p>Please try again later.</p>
 global.error.BadRequest.title=There is a problem
+global.error.BadRequest.heading=There is a problem
 global.error.BadRequest.message=Sorry, we are experiencing technical difficulties. <p>Please try again later.</p>
 
 #
