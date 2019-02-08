@@ -19,6 +19,9 @@
 	  margin-top: 45px;
 	  text-align: left;
 	}
+	.amount {
+	  color: black;
+	}
 }
 .ft-header {
   color: #005EA5;
@@ -30,7 +33,7 @@
 }
 
 .flextile:hover * {
-  color: #fff;
+  color: #fff !important;
 }
 
 
