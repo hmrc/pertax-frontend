@@ -16,14 +16,15 @@
 
 package connectors
 
-import javax.inject.Singleton
-
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
+import play.api.Mode.Mode
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.{RunMode, AppName}
+import uk.gov.hmrc.play.config.{AppName, RunMode}
 import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
 
 
 @Singleton
-class PertaxAuditConnector extends AuditConnector with AppName with RunMode {
+class PertaxAuditConnector @Inject()(val mode:Mode, val runModeConfiguration: Configuration, val appNameConfiguration: Configuration) extends AuditConnector with AppName with RunMode {
   override lazy val auditingConfig = LoadAuditingConfig("auditing")
 }

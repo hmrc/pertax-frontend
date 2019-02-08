@@ -17,15 +17,16 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import config.ConfigDecorator
+import play.api.Configuration
+import play.api.Mode.Mode
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}
 
 
 @Singleton
-class LocalSessionCache @Inject() (override val http: WsAllMethods, configDecorator: ConfigDecorator) extends SessionCache with AppName with ServicesConfig {
+class LocalSessionCache @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val appNameConfiguration: Configuration, override val http: WsAllMethods, configDecorator: ConfigDecorator) extends SessionCache with AppName with ServicesConfig {
   override lazy val defaultSource = appName
   override lazy val baseUri = baseUrl("cachable.session-cache")
   override lazy val domain = getConfString("cachable.session-cache.domain", "keystore")

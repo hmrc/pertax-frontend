@@ -17,18 +17,21 @@
 package filters
 
 import javax.inject._
-
 import com.typesafe.config.Config
 import connectors.PertaxAuditConnector
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
+import play.api.Mode.Mode
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
-import uk.gov.hmrc.play.frontend.filters.{ FrontendAuditFilter, MicroserviceFilterSupport }
+import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, MicroserviceFilterSupport}
 
 
 @Singleton
 class LocalFrontendAuditFilter @Inject()(
+  val mode:Mode,
+  val runModeConfiguration: Configuration,
   val config: Configuration,
+  val appNameConfiguration: Configuration,
   val auditConnector: PertaxAuditConnector
 ) extends FrontendAuditFilter with MicroserviceFilterSupport with RunMode with AppName with ControllerConfig {
 

@@ -19,11 +19,12 @@ package util
 import org.joda.time.{DateTime, _}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import play.api.Logger
-import uk.gov.hmrc.time.TaxYearResolver
+import uk.gov.hmrc.time.CurrentTaxYear
+
 import scala.util.{Failure, Success, Try}
 
 
-object DateTimeTools {
+object DateTimeTools extends CurrentTaxYear {
 
   //Timezone causing problem on dev server
   val defaultTZ = DateTimeZone.forID("Europe/London")
@@ -32,7 +33,7 @@ object DateTimeTools {
   val humanDateFormat = "dd MMMMM yyyy"
 
   //Returns for example 1516 in March 2016
-  def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(TaxYearResolver.currentTaxYear)
+  def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(current.currentYear)
 
   def previousAndCurrentTaxYearFromGivenYear(year: Int) = {
     def y = year
@@ -59,4 +60,6 @@ object DateTimeTools {
       }
     }
   }
+
+  override def now: () => DateTime = ???
 }

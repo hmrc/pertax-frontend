@@ -18,6 +18,7 @@ package playconfig
 
 import config.StaticGlobalDependencies
 import org.slf4j.MDC
+import play.api.Mode.Mode
 import play.api._
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.bootstrap.Routing.RemovingOfTrailingSlashes
@@ -27,6 +28,10 @@ import uk.gov.hmrc.play.frontend.config.ErrorAuditingSettings
 
 object ApplicationGlobal extends GlobalSettings with GraphiteConfig
     with RemovingOfTrailingSlashes with ErrorAuditingSettings with RunMode {
+
+
+  override protected def mode: Mode = Play.current.mode
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 
   private lazy val configuration = StaticGlobalDependencies.deps.configuration
   override lazy val auditConnector = StaticGlobalDependencies.deps.pertaxAuditConnector
@@ -43,4 +48,5 @@ object ApplicationGlobal extends GlobalSettings with GraphiteConfig
 
   override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig("microservice.metrics")
   override def appName: String = configuration.getString("appName").getOrElse("APP NAME NOT SET")
+
 }

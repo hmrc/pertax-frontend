@@ -17,12 +17,14 @@
 package services.partials
 
 import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
+import play.api.Configuration
+import play.api.Mode.Mode
 import play.api.mvc.Request
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
@@ -30,7 +32,7 @@ import scala.concurrent.Future
 
 
 @Singleton
-class CspPartialService @Inject() (val http: WsAllMethods, val metrics: Metrics) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig {
+class CspPartialService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val http: WsAllMethods, val metrics: Metrics, sessionCookieCryptoFilter: SessionCookieCryptoFilter) extends EnhancedPartialRetriever(sessionCookieCryptoFilter) with HasMetrics with ServicesConfig {
 
   lazy val serviceUrl = baseUrl("csp-partials")
 

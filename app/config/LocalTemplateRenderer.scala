@@ -17,7 +17,8 @@
 package config
 
 import javax.inject.Inject
-
+import play.api.Configuration
+import play.api.Mode.Mode
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -26,7 +27,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class LocalTemplateRenderer @Inject() (wsHttp: WsAllMethods) extends TemplateRenderer with ServicesConfig {
+class LocalTemplateRenderer @Inject() (val mode:Mode, val runModeConfiguration: Configuration, wsHttp: WsAllMethods) extends TemplateRenderer with ServicesConfig {
 
   override lazy val templateServiceBaseUrl = baseUrl("frontend-template-provider")
   override lazy val refreshAfter: Duration = runModeConfiguration.getInt("template.refreshInterval").getOrElse(600) seconds

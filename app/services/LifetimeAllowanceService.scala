@@ -17,22 +17,22 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import models.LtaProtections
-import play.api.Logger
+import play.api.{Configuration, Logger}
+import play.api.Mode.Mode
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
 
 @Singleton
-class LifetimeAllowanceService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class LifetimeAllowanceService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
   lazy val lifetimeAllowanceUrl = baseUrl("pensions-lifetime-allowance")
 

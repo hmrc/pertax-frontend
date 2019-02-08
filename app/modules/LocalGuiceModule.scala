@@ -23,13 +23,12 @@ import models.LocalTaxYearResolver
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.play.frontend.filters.{CSRFExceptionsFilter, CacheControlFilter, CookieCryptoFilter, DeviceIdFilter, HeadersFilter, SessionTimeoutFilter}
-import uk.gov.hmrc.time.TaxYearResolver
 
 class LocalGuiceModule extends AbstractModule {
   override def configure() = {
 
     //These library components must be bound in this way, or using providers
-    bind(classOf[CookieCryptoFilter]).toInstance(SessionCookieCryptoFilter)
+    bind(classOf[CookieCryptoFilter]).to(classOf[SessionCookieCryptoFilter])
     bind(classOf[HeadersFilter]).toInstance(HeadersFilter)
     bind(classOf[DeviceIdFilter]).toProvider(classOf[DeviceIdCookieFilterProvider])
     bind(classOf[CSRFExceptionsFilter]).toProvider(classOf[CSRFExceptionsFilterProvider])

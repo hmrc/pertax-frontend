@@ -17,13 +17,14 @@
 package connectors
 
 import javax.inject.{Inject, Singleton}
-
+import play.api.Configuration
+import play.api.Mode.Mode
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.connectors.DelegationConnector
 
 
 @Singleton
-class FrontEndDelegationConnector @Inject() (override val http: WsAllMethods) extends DelegationConnector  with ServicesConfig {
+class FrontEndDelegationConnector @Inject() (val mode:Mode, val runModeConfiguration: Configuration, override val http: WsAllMethods) extends DelegationConnector  with ServicesConfig {
   override protected def serviceUrl: String = baseUrl("delegation")
 }

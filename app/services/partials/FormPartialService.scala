@@ -17,13 +17,15 @@
 package services.partials
 
 import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
+import play.api.Configuration
+import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
@@ -31,7 +33,7 @@ import scala.concurrent.Future
 
 
 @Singleton
-class FormPartialService @Inject() (override val http: WsAllMethods, val metrics: Metrics, val configDecorator: ConfigDecorator) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig {
+class FormPartialService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, override val http: WsAllMethods, val metrics: Metrics, val configDecorator: ConfigDecorator, sessionCookieCryptoFilter: SessionCookieCryptoFilter) extends EnhancedPartialRetriever(sessionCookieCryptoFilter) with HasMetrics with ServicesConfig {
 
   def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] = {
     loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
