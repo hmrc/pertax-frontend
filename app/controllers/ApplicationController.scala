@@ -17,7 +17,6 @@
 package controllers
 
 import javax.inject.Inject
-
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
@@ -33,7 +32,7 @@ import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.renderer.ActiveTabHome
-import uk.gov.hmrc.time.TaxYearResolver
+import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}
 
@@ -63,12 +62,12 @@ class ApplicationController @Inject() (
   val homePageCachingHelper: HomePageCachingHelper,
   val taxCalculationStateFactory: TaxCalculationStateFactory
 
-) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
+) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear{
 
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
     implicit pertaxContext =>
 
-      val year = TaxYearResolver.currentTaxYear
+      val year = current.currentYear
 
       val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
 
@@ -124,7 +123,7 @@ class ApplicationController @Inject() (
               taxSummaryState,
               taxCalculationState,
               saUserType,
-              TaxYearResolver.currentTaxYear)
+              current.currentYear)
 
             val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 

@@ -17,11 +17,11 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models.TaxCalculation
-import play.api.Logger
+import play.api.{Configuration, Logger}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
@@ -29,7 +29,7 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 
 sealed trait TaxCalculationResponse
@@ -40,7 +40,7 @@ case class TaxCalculationErrorResponse(cause: Exception) extends TaxCalculationR
 
 
 @Singleton
-class TaxCalculationService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class TaxCalculationService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
   lazy val taxCalcUrl = baseUrl("taxcalc")
 

@@ -17,13 +17,13 @@
 package filters
 
 import javax.inject.{Inject, Provider, Singleton}
-
 import connectors.PertaxAuditConnector
+import play.api.Configuration
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.filters.DeviceIdCookieFilter
 
 
 @Singleton
-class DeviceIdCookieFilterProvider @Inject()(auditConnector: PertaxAuditConnector) extends Provider[DeviceIdCookieFilter] with AppName {
+class DeviceIdCookieFilterProvider @Inject()(auditConnector: PertaxAuditConnector, val appNameConfiguration: Configuration) extends Provider[DeviceIdCookieFilter] with AppName {
   override def get(): DeviceIdCookieFilter = new DeviceIdCookieFilter(appName, auditConnector)
 }

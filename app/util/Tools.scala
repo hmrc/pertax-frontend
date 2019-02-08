@@ -18,10 +18,11 @@ package util
 
 import java.net.{URI, URL, URLEncoder}
 
+import javax.inject.Inject
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 
-object Tools {
+class Tools @Inject()(val applicationCrypto: ApplicationCrypto) {
   def urlEncode(u: String): String = URLEncoder.encode(u, "UTF-8")
-  def encryptAndEncode(s: String): String = urlEncode(ApplicationCrypto.QueryParameterCrypto.encrypt(PlainText(s)).value)
+  def encryptAndEncode(s: String): String = urlEncode(applicationCrypto.QueryParameterCrypto.encrypt(PlainText(s)).value)
   def isRelative(url: String): Boolean = !new URI(url).isAbsolute && url.take(2) != "//"
 }
