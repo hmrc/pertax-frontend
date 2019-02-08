@@ -1,130 +1,38 @@
-.tile-payments span {
-  font-size: 48px;
-  font-weight: bold;
-  margin-top: 45px;
-  text-align: left;
-}
-
-.tile-payments {
-  margin-bottom: 10px;
-}
-
-.tile-payments span:hover {
-  color: #fff;
-}
-
-.ft-section {
-  box-sizing: border-box;
-  width: 100%;
-  clear: both;
-}
-
-.flextile {
-  position: relative;
-  float: left;
-  width: 30%;
-  margin: 0 3.5% 3em 0;
-  border: 1px solid #dee0e2;
-  border-radius: 3px;
-  font-size: 16px;
-  height: 100%;
-}
-
-.flextile * {
-  text-decoration: none !important;
-}
-
-.ft-main {
+.card .flextile {
   display: block;
-  background: #FFF;
-  color: #0B0C0C;
-  border-radius: 3px;
   padding: 12px;
+  border-radius: 3px;
+  background: #F8F8F8;
+  text-decoration: none !important;
   height: 100%;
   transition: all 0.1s ease-in;
+	.ft-header {
+	  font-size: 18px;
+	  font-weight: 600;
+	}
+	.tile-payments {
+  		margin-bottom: 10px;
+	}
+	.tile-payments span {
+	  font-size: 48px;
+	  font-weight: bold;
+	  margin-top: 45px;
+	  text-align: left;
+	}
 }
-
-.ft-main.ft-linked {
-  background: #F8F8F8;
-  color: #0B0C0C;
-  text-decoration: none;
-}
-
-.ft-main.ft-linked:hover {
-  background: #005EA5;
-  color: #FFF;
-  transition: all 0.1s ease-in;
-}
-
 .ft-header {
-  font-weight: 600;
-}
-
-.ft-main.ft-linked .ft-header {
-  color: #005EA5;
-  font-size: 18px;
-}
-
-.ft-main.ft-linked:hover * {
-  color: #FFF !important;
-  transition: all 0.1s ease-in;
-}
-
-@media screen and (min-width: 850px) {
-  .flextile:nth-of-type(3n+3) {
-      margin-right: 0;
-    }
-  .flextile:nth-of-type(3n+4) {
-    clear: left;
-    }
-}
-
-@media screen and (max-width: 849px) and (min-width: 415px) {
-  .flextile {
-    width: 47%;
-    margin: 0 4% 2em 0;
-  }
-  .flextile:nth-of-type(2n+2) {
-    margin-right: 0;
-  }
-  .flextile:nth-of-type(2n+3) {
-    clear: left;
-  }
-}
-
-@media screen and (max-width: 414px) {
-  .flextile {
-    width: 100%;
-    margin: 0 0 2em 0;
-  }
-  .flextile:nth-of-type(1n+1) {
-    margin-right: 0;
-  }
-  .flextile:nth-of-type(1n+2) {
-    clear: left;
-  }
-}
-
-.row-flex-wrap {
-  -webkit-flex-flow: row wrap;
-  align-content: flex-start;
-  flex: 0;
-}
-
-.ft-section {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.ft-main.ft-linked .link-style {
-  text-decoration: underline;
-  border:1px solid red;
   color: #005EA5;
 }
 
-.ft-main.ft-linked:hover .link-style {
+
+.flextile:hover {
+  background: #005EA5;
+}
+
+.flextile:hover * {
   color: #fff;
 }
+
 
 .flextile p {
   font-size: 19px;
