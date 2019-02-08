@@ -23,42 +23,42 @@
     case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) => {
       (
         Messages("label.hmrc_owe_you"),
-        amount.toString,
+        "%,d".format(amount.toInt),
         Messages("label.find_out_about_your_refund_options")
       )
     }
     case TaxCalculationOverpaidPaymentProcessingState(amount) => {
       (
         Messages("label.hmrc_owe_you"),
-        amount.toString,
+        "%,d".format(amount.toInt),
         Messages("label.hmrc_is_processing_your_refund")
         )
     }
     case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) => {
       (
         Messages("label.your_refund"),
-        amount.toString,
+        "%,d".format(amount.toInt),
         Messages("label.hmrc_has_paid_your_refund_on_a", datePaid.toString)
       )
     }
     case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) => {
       (
         Messages("label.your_refund"),
-        amount.toString,
-        Messages("label.hmrc_sent_you_a_cheque_for_a_on_b", amount.toString, datePaid.toString)
+        "%,d".format(amount.toInt),
+        Messages("label.hmrc_sent_you_a_cheque_for_a_on_b", "%,d".format(amount.toInt), datePaid.toString)
       )
     }
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, None, None) => {
       (
         Messages("label.you_owe"),
-        amount.toString,
+        "%,d".format(amount.toInt),
         Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available")
       )
     }
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) => {
       (
         Messages("label.you_owe"),
-        amount.toString,
+        "%,d".format(amount.toInt),
         Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
       )
     }
@@ -67,14 +67,14 @@
         case SaDeadlineApproachingStatus => {
           (
             Messages("label.you_owe"),
-            amount.toString,
+            "%,d".format(amount.toInt),
             Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
           )
         }
         case SaDeadlinePassedStatus => {
           (
             Messages("label.you_owe"),
-            amount.toString,
+            "%,d".format(amount.toInt),
             Messages("label.you_should_have_paid_", dueDate.toString)
           )
         }
@@ -83,14 +83,14 @@
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) => {
       (
         Messages("label.you_owe"),
-        amount.toString,
+        "%,d".format(amount.toInt),
         Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available")
       )
     }
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) => {
       (
         Messages("label.you_owe"),
-        amount.toString,
+        "%,d".format(amount.toInt),
         Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
       )
     }
@@ -99,14 +99,14 @@
         case SaDeadlineApproachingStatus => {
           (
             Messages("label.you_owe"),
-            amount.toString,
+            "%,d".format(amount.toInt),
             Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
           )
         }
         case SaDeadlinePassedStatus => {
           (
             Messages("label.you_owe"),
-            amount.toString,
+            "%,d".format(amount.toInt),
             Messages("label.you_should_have_paid_", dueDate.toString)
           )
         }
