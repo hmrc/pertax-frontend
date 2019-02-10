@@ -19,6 +19,7 @@ package util
 import javax.inject.Inject
 import metrics.HasMetrics
 import play.api.Logger
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.partials.HtmlPartial._
@@ -30,9 +31,11 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpGet}
 /*
  * This is a PartialRetriever with a HeaderCarrierForPartialsConverter to forward request headers on
  */
-abstract class EnhancedPartialRetriever @Inject()(val sessionCookieCryptoFilter: SessionCookieCryptoFilter) extends HeaderCarrierForPartialsConverter with HasMetrics {
+abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: ApplicationCrypto) extends HeaderCarrierForPartialsConverter with HasMetrics {
 
   def http: HttpGet
+
+  val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
 
   override def crypto = sessionCookieCryptoFilter.encrypt
 

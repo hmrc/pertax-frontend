@@ -16,17 +16,17 @@
 
 package services.partials
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import play.api.Configuration
+import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import services.http.WsAllMethods
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
 
@@ -34,9 +34,10 @@ import scala.concurrent.Future
 
 
 @Singleton
-class SaPartialService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, override val http: WsAllMethods, override val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator, sessionCookieCryptoFilter: SessionCookieCryptoFilter, val tools: Tools) extends EnhancedPartialRetriever(sessionCookieCryptoFilter) with HasMetrics with ServicesConfig with I18nSupport {
+class SaPartialService @Inject()(environment: Environment, configuration: Configuration, override val http: WsAllMethods, override val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator, applicationCrypto: ApplicationCrypto, val tools: Tools) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig with I18nSupport {
 
-
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   private val returnUrl = configDecorator.pertaxFrontendHomeUrl
   private val returnLinkText = Messages("label.back_to_account_home")  //TODO remove ref to Messages as this is the service layer
 

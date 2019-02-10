@@ -21,7 +21,7 @@ import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
 import play.api.http.Status._
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
@@ -40,8 +40,10 @@ case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsRes
 
 
 @Singleton
-class TaiService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class TaiService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val taiUrl = baseUrl("tai")
 
   /**

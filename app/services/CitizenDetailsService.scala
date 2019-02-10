@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
 import play.api.libs.json.{JsObject, Json}
 import services.http.SimpleHttp
@@ -53,8 +53,10 @@ case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetail
 
 
 @Singleton
-class CitizenDetailsService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class CitizenDetailsService @Inject() (environment: Environment, configuration: Configuration,val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val citizenDetailsUrl = baseUrl("citizen-details")
 
   /**

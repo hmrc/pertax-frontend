@@ -23,6 +23,8 @@ import models._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
@@ -67,7 +69,7 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
       when(citizenDetailsService.getMatchingDetails(any())(any())) thenReturn Future.successful(getMatchingDetailsResponse)
 
       val timer = MockitoSugar.mock[Timer.Context]
-      new SelfAssessmentService(fakeSimpleHttp, citizenDetailsService, MockitoSugar.mock[Metrics]) {
+      new SelfAssessmentService(injected[Environment], injected[Configuration], fakeSimpleHttp, citizenDetailsService, MockitoSugar.mock[Metrics]) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }

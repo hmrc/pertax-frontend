@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import models.LtaProtections
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
@@ -32,8 +32,10 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
 
 @Singleton
-class LifetimeAllowanceService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class LifetimeAllowanceService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val lifetimeAllowanceUrl = baseUrl("pensions-lifetime-allowance")
 
   def getCount(nino: Nino)(implicit hc: HeaderCarrier, rds: HttpReads[LtaProtections]): Future[Option[Int]] = {

@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.PertaxAuthenticationProvider
 import metrics._
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import models.addresslookup.RecordSet
 import play.api.Mode.Mode
@@ -38,8 +38,10 @@ case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupRes
 
 
 @Singleton
-class AddressLookupService @Inject() (val mode:Mode, val runModeConfiguration:Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics, val pertaxAuthenticationProvider: PertaxAuthenticationProvider, val tools: Tools) extends ServicesConfig with HasMetrics {
+class AddressLookupService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics, val pertaxAuthenticationProvider: PertaxAuthenticationProvider, val tools: Tools) extends ServicesConfig with HasMetrics {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val addressLookupUrl = baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(implicit hc: HeaderCarrier): Future[AddressLookupResponse] = {

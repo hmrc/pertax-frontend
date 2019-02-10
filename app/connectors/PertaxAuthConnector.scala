@@ -17,7 +17,7 @@
 package connectors
 
 import javax.inject.{Inject, Singleton}
-import play.api.Configuration
+import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -25,6 +25,8 @@ import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 
 @Singleton
-class PertaxAuthConnector @Inject() (val mode:Mode, val runModeConfiguration: Configuration, override val http: WsAllMethods) extends AuthConnector with ServicesConfig {
+class PertaxAuthConnector @Inject()(environment: Environment, configuration: Configuration, override val http: WsAllMethods) extends AuthConnector with ServicesConfig {
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   override lazy val serviceUrl = baseUrl("auth")
 }

@@ -18,14 +18,15 @@ package util
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
-import play.twirl.api.Html
-import uk.gov.hmrc.play.partials.HtmlPartial
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.twirl.api.Html
+import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
+import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ GatewayTimeoutException, HttpGet }
 
 class EnhancedPartialRetrieverSpec extends BaseSpec {
 
@@ -41,7 +42,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      val epr = new EnhancedPartialRetriever with HasMetrics {
+      val epr = new EnhancedPartialRetriever(injected[ApplicationCrypto]) with HasMetrics {
 
         override val http: HttpGet = MockitoSugar.mock[HttpGet]
         if(simulateCallFailed) when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.failed(new GatewayTimeoutException("Gateway timeout"))
