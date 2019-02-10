@@ -19,12 +19,14 @@ package util
 import java.util.UUID
 
 import akka.stream.Materializer
+import com.typesafe.config.Config
 import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.joda.time.{DateTime, LocalDate}
 import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar
@@ -243,9 +245,13 @@ trait BaseSpec extends UnitSpec with OneAppPerSuite with PatienceConfiguration w
 
   implicit val hc = HeaderCarrier()
 
+  val fakeConfig = MockitoSugar.mock[Config]
+
   lazy val localGuiceApplicationBuilder = GuiceApplicationBuilder()
     .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
     .overrides(bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter]))
+    .overrides(bind[Config].to(fakeConfig))
+
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder.build()
 

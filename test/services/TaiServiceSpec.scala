@@ -22,6 +22,8 @@ import models.TaxComponents
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.Json
 import services.http.FakeSimpleHttp
@@ -64,7 +66,7 @@ class TaiServiceSpec extends BaseSpec {
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      lazy val taiService: TaiService = new TaiService(fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      lazy val taiService: TaiService = new TaiService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer

@@ -26,8 +26,11 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import services.http.FakeSimpleHttp
 import models.addresslookup.RecordSet
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import util.Fixtures._
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, Fixtures, Tools}
 import uk.gov.hmrc.http.HttpResponse
 
 class AddressLookupServiceSpec extends BaseSpec {
@@ -52,7 +55,9 @@ class AddressLookupServiceSpec extends BaseSpec {
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      val addressLookupService: AddressLookupService = new AddressLookupService(fakeSimpleHttp, MockitoSugar.mock[Metrics], MockitoSugar.mock[PertaxAuthenticationProvider]) {
+      val fakeTools = new Tools(injected[ApplicationCrypto])
+
+      val addressLookupService: AddressLookupService = new AddressLookupService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics], MockitoSugar.mock[PertaxAuthenticationProvider], fakeTools) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
         when(pertaxAuthenticationProvider.defaultOrigin) thenReturn "PERTAX"

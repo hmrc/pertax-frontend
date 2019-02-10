@@ -28,7 +28,7 @@ class LocalGuiceModule extends AbstractModule {
   override def configure() = {
 
     //These library components must be bound in this way, or using providers
-    bind(classOf[CookieCryptoFilter]).to(classOf[SessionCookieCryptoFilter])
+    //bind(classOf[CookieCryptoFilter]).to(classOf[SessionCookieCryptoFilter])
     bind(classOf[HeadersFilter]).toInstance(HeadersFilter)
     bind(classOf[DeviceIdFilter]).toProvider(classOf[DeviceIdCookieFilterProvider])
     bind(classOf[CSRFExceptionsFilter]).toProvider(classOf[CSRFExceptionsFilterProvider])

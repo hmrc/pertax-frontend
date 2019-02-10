@@ -16,15 +16,15 @@
 
 package services.partials
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import play.api.Configuration
+import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import services.http.WsAllMethods
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
 
@@ -32,8 +32,10 @@ import scala.concurrent.Future
 
 
 @Singleton
-class PreferencesFrontendPartialService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val http: WsAllMethods, val metrics: Metrics, sessionCookieCryptoFilter: SessionCookieCryptoFilter, val tools: Tools) extends EnhancedPartialRetriever(sessionCookieCryptoFilter) with HasMetrics with ServicesConfig {
+class PreferencesFrontendPartialService @Inject()(environment: Environment, configuration: Configuration, val http: WsAllMethods, val metrics: Metrics, applicationCrypto: ApplicationCrypto, val tools: Tools) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
   def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(implicit request: RequestHeader): Future[HtmlPartial] = {

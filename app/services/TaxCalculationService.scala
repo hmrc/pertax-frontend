@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models.TaxCalculation
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
 import play.api.http.Status._
 import services.http.SimpleHttp
@@ -40,8 +40,10 @@ case class TaxCalculationErrorResponse(cause: Exception) extends TaxCalculationR
 
 
 @Singleton
-class TaxCalculationService @Inject() (val mode:Mode, val runModeConfiguration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class TaxCalculationService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val taxCalcUrl = baseUrl("taxcalc")
 
   /**

@@ -21,6 +21,8 @@ import com.kenshoo.play.metrics.Metrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.Json
 import services.http.FakeSimpleHttp
@@ -44,7 +46,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val identityVerificationFrontendService: IdentityVerificationFrontendService = new IdentityVerificationFrontendService(fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      val identityVerificationFrontendService: IdentityVerificationFrontendService = new IdentityVerificationFrontendService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
