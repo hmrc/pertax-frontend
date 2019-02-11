@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector, PertaxAuditConnector, PertaxAuthConnector}
+import com.typesafe.config.Config
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models.UserDetails
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{eq => meq, _}
@@ -28,18 +29,24 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
 import uk.gov.hmrc.play.partials.PartialRetriever
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, Fixtures, MockTemplateRenderer}
 
 import scala.concurrent.Future
 
 
 class NiLetterControllerSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(new ApplicationCrypto(fakeConfig))
+
+  override implicit lazy val app: Application = GuiceApplicationBuilder()
+    .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
+    .overrides(bind[Config].toInstance(fakeConfig))
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
@@ -47,6 +54,7 @@ class NiLetterControllerSpec extends BaseSpec {
     .overrides(bind[PartialRetriever].toInstance(MockitoSugar.mock[PartialRetriever]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
+    .overrides(bind[CookieCryptoFilter].toInstance(sessionCookieCryptoFilter))
     .build()
 
 

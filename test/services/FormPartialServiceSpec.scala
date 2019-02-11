@@ -41,7 +41,7 @@ class FormPartialServiceSpec extends BaseSpec {
   trait LocalSetup {
 
     val timer = MockitoSugar.mock[Timer.Context]
-    val formPartialService: FormPartialService = new FormPartialService(injected[Environment], injected[Configuration], MockitoSugar.mock[WsAllMethods], MockitoSugar.mock[Metrics], MockitoSugar.mock[ConfigDecorator], MockitoSugar.mock[ApplicationCrypto]) {
+    val formPartialService: FormPartialService = new FormPartialService(injected[Environment], injected[Configuration], MockitoSugar.mock[WsAllMethods], MockitoSugar.mock[Metrics], MockitoSugar.mock[ConfigDecorator], injected[ApplicationCrypto]) {
       override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
     }

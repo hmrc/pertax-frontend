@@ -61,5 +61,5 @@ object DateTimeTools extends CurrentTaxYear {
     }
   }
 
-  override def now: () => DateTime = ???
+  override def now: () => DateTime = DateTime.now
 }
