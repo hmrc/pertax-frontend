@@ -258,7 +258,7 @@ trait BaseSpec extends UnitSpec with OneAppPerSuite with PatienceConfiguration w
   lazy val localGuiceApplicationBuilder = GuiceApplicationBuilder()
     .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
     .overrides(bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter]))
-    .overrides(bind[Config].toInstance(fakeConfig))
+    //.overrides(bind[Config].toInstance(fakeConfig))
 
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder.build()
