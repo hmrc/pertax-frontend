@@ -17,7 +17,7 @@
 package modules
 
 import com.google.inject.AbstractModule
-import config.{ApplicationCryptoProvider, CookieCryptoFilterProvider, LocalTemplateRenderer}
+import config.{ApplicationCryptoProvider, LocalTemplateRenderer, SessionCookieCryptoFilterProvider}
 import filters._
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters._
@@ -32,6 +32,6 @@ class LocalGuiceModule extends AbstractModule {
     bind(classOf[CacheControlFilter]).toInstance(CacheControlFilter.fromConfig("caching.allowedContentTypes"))
     bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
     bind(classOf[ApplicationCrypto]).toProvider(classOf[ApplicationCryptoProvider])
-    bind(classOf[CookieCryptoFilter]).toProvider(classOf[CookieCryptoFilterProvider])
+    bind(classOf[CookieCryptoFilter]).toProvider(classOf[SessionCookieCryptoFilterProvider])
   }
 }

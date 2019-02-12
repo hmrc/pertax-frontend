@@ -16,24 +16,12 @@
 
 package util
 
-import com.typesafe.config.ConfigFactory
 import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.crypto.ApplicationCrypto
 
-import scala.collection.JavaConverters._
-
 class ToolsSpec extends BaseSpec with OneAppPerSuite {
 
-  val config = ConfigFactory.parseMap(
-    Map(
-      "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ=="
-    ).asJava
-  )
-
-  val tools = new Tools(new ApplicationCrypto(config))
+  val tools = new Tools(injected[ApplicationCrypto])
 
   "Calling urlEncode" should {
 
