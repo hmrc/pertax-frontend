@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Provider}
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
 
-class CookieCryptoFilterProvider @Inject()(applicationCrypto: ApplicationCrypto) extends Provider[CookieCryptoFilter] {
+class SessionCookieCryptoFilterProvider @Inject()(applicationCrypto: ApplicationCrypto) extends Provider[CookieCryptoFilter] {
   override def get(): CookieCryptoFilter = {
     new SessionCookieCryptoFilter(applicationCrypto)
   }

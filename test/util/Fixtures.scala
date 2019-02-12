@@ -246,25 +246,23 @@ trait BaseSpec extends UnitSpec with OneAppPerSuite with PatienceConfiguration w
 
   implicit val hc = HeaderCarrier()
 
-  val fakeConfig = ConfigFactory.parseMap(
+  val encryptionConfig =
     Map(
       "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ=="
-    ).asJava
-  )
+    )
 
   lazy val localGuiceApplicationBuilder = GuiceApplicationBuilder()
     .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
     .overrides(bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter]))
-    //.overrides(bind[Config].toInstance(fakeConfig))
-
+    .configure(encryptionConfig)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder.build()
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
-  def injected[T](implicit evidence: ClassTag[T]) = app.injector.instanceOf[T]
+  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
   val mockLocalPartialRetreiver: LocalPartialRetriever = {
     val pr = MockitoSugar.mock[LocalPartialRetriever]

@@ -16,17 +16,16 @@
 
 package controllers
 
-import com.typesafe.config.Config
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models.UserDetails
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers._
+import play.api.{Application, Configuration}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
 import uk.gov.hmrc.crypto.ApplicationCrypto
@@ -42,11 +41,10 @@ import scala.concurrent.Future
 
 class NiLetterControllerSpec extends BaseSpec {
 
-  val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(new ApplicationCrypto(fakeConfig))
+  val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(injected[ApplicationCrypto])
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
-    .overrides(bind[Config].toInstance(fakeConfig))
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
@@ -55,6 +53,7 @@ class NiLetterControllerSpec extends BaseSpec {
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[CookieCryptoFilter].toInstance(sessionCookieCryptoFilter))
+    .configure(encryptionConfig)
     .build()
 
 
