@@ -16,19 +16,17 @@
 
 package error
 
-import javax.inject.{Inject, Singleton}
-
 import akka.stream.Materializer
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
+import javax.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
-import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
 import util.LocalPartialRetriever
 
 
@@ -43,8 +41,7 @@ class LocalErrorHandler @Inject() (
   val pertaxRegime: PertaxRegime,
   val delegationConnector: FrontEndDelegationConnector,
   val authConnector: PertaxAuthConnector,
-  val materializer: Materializer,
-  val sessionCookieCryptoFilter: CookieCryptoFilter
+  val materializer: Materializer
 ) extends HttpErrorHandler with AuthorisedActions with I18nSupport {
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
