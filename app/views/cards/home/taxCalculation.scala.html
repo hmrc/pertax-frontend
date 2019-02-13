@@ -24,84 +24,60 @@
       (
         Messages("label.hmrc_owe_you"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.find_out_about_your_refund_options")
-=======
         Messages("label.find_out_about_your_refund_options"),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
       )
     }
     case TaxCalculationOverpaidPaymentProcessingState(amount) => {
       (
         Messages("label.hmrc_owe_you"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.hmrc_is_processing_your_refund")
-=======
         Messages("label.hmrc_is_processing_your_refund"),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
         )
     }
     case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) => {
       (
         Messages("label.your_refund"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.hmrc_has_paid_your_refund_on_a", datePaid.toString)
-=======
         Messages("label.hmrc_has_paid_your_refund_on_a", datePaid.toString),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
       )
     }
     case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) => {
       (
         Messages("label.your_refund"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.hmrc_sent_you_a_cheque_for_a_on_b", "%,d".format(amount.toInt), datePaid.toString)
-=======
         Messages("label.hmrc_sent_you_a_cheque_for_a_on_b", "%,d".format(amount.toInt), datePaid.toString),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
       )
     }
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, None, None) => {
       (
         Messages("label.you_owe"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available")
-=======
         Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available"),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
       )
     }
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) => {
       (
         Messages("label.you_owe"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
-=======
         Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
       )
     }
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) => {
@@ -110,28 +86,20 @@
           (
             Messages("label.you_owe"),
             "%,d".format(amount.toInt),
-<<<<<<< HEAD
-            Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
-=======
             Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
             "",
             "",
             ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
           )
         }
         case SaDeadlinePassedStatus => {
           (
             Messages("label.you_owe"),
             "%,d".format(amount.toInt),
-<<<<<<< HEAD
-            Messages("label.you_should_have_paid_", dueDate.toString)
-=======
             Messages("label.you_should_have_paid_", dueDate.toString),
             "",
             "",
             ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
           )
         }
       }
@@ -140,28 +108,20 @@
       (
         Messages("label.you_owe"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available")
-=======
         Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available"),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
       )
     }
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) => {
       (
         Messages("label.you_owe"),
         "%,d".format(amount.toInt),
-<<<<<<< HEAD
-        Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
-=======
         Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
         "",
         "",
         ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
       )
     }
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) => {
@@ -170,28 +130,20 @@
           (
             Messages("label.you_owe"),
             "%,d".format(amount.toInt),
-<<<<<<< HEAD
-            Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString)
-=======
             Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
             "",
             "",
             ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
           )
         }
         case SaDeadlinePassedStatus => {
           (
             Messages("label.you_owe"),
             "%,d".format(amount.toInt),
-<<<<<<< HEAD
-            Messages("label.you_should_have_paid_", dueDate.toString)
-=======
             Messages("label.you_should_have_paid_", dueDate.toString),
             "",
             "",
             ""
->>>>>>> DDCNLS-5285 number formatting on new taxcalc tiles
           )
         }
       }
