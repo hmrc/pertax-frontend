@@ -221,7 +221,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(2)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -237,7 +237,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(2)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -254,7 +254,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(2)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -314,7 +314,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(nino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(2)).getTaxCalculation(meq(nino), meq(current.currentYear - 1))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
