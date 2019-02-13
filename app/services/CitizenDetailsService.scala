@@ -17,11 +17,11 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
-import play.api.Logger
+import play.api.{Configuration, Environment, Logger}
+import play.api.Mode.Mode
 import play.api.libs.json.{JsObject, Json}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
 import play.api.http.Status._
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 sealed trait PersonDetailsResponse
 case class PersonDetailsSuccessResponse(personDetails: PersonDetails) extends PersonDetailsResponse
@@ -53,8 +53,10 @@ case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetail
 
 
 @Singleton
-class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class CitizenDetailsService @Inject() (environment: Environment, configuration: Configuration,val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val citizenDetailsUrl = baseUrl("citizen-details")
 
   /**

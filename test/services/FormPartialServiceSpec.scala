@@ -22,9 +22,12 @@ import config.ConfigDecorator
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.twirl.api.Html
 import services.http.WsAllMethods
 import services.partials.FormPartialService
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
@@ -38,7 +41,7 @@ class FormPartialServiceSpec extends BaseSpec {
   trait LocalSetup {
 
     val timer = MockitoSugar.mock[Timer.Context]
-    val formPartialService: FormPartialService = new FormPartialService(MockitoSugar.mock[WsAllMethods], MockitoSugar.mock[Metrics], MockitoSugar.mock[ConfigDecorator]) {
+    val formPartialService: FormPartialService = new FormPartialService(injected[Environment], injected[Configuration], MockitoSugar.mock[WsAllMethods], MockitoSugar.mock[Metrics], MockitoSugar.mock[ConfigDecorator], injected[ApplicationCrypto]) {
       override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
     }

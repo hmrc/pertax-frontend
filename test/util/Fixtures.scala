@@ -19,12 +19,14 @@ package util
 import java.util.UUID
 
 import akka.stream.Materializer
+import com.typesafe.config.{Config, ConfigFactory}
 import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.joda.time.{DateTime, LocalDate}
 import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar
@@ -50,6 +52,7 @@ import scala.concurrent.Future
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.Random
+import scala.collection.JavaConverters._
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK","United Kingdom")
@@ -243,14 +246,23 @@ trait BaseSpec extends UnitSpec with OneAppPerSuite with PatienceConfiguration w
 
   implicit val hc = HeaderCarrier()
 
+  val encryptionConfig =
+    Map(
+      "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ=="
+    )
+
   lazy val localGuiceApplicationBuilder = GuiceApplicationBuilder()
     .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
     .overrides(bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter]))
+    .configure(encryptionConfig)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder.build()
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
-  def injected[T](implicit evidence: ClassTag[T]) = app.injector.instanceOf[T]
+  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
   val mockLocalPartialRetreiver: LocalPartialRetriever = {
     val pr = MockitoSugar.mock[LocalPartialRetriever]

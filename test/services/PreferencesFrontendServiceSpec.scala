@@ -23,15 +23,19 @@ import models.{PertaxUser, UserDetails}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import services.http.FakeSimpleHttp
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.http._
-import util.BaseSpec
+import util.{BaseSpec, Tools}
 import util.Fixtures._
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 
 class PreferencesFrontendServiceSpec extends BaseSpec {
 
@@ -51,7 +55,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val preferencesFrontendService: PreferencesFrontendService = new PreferencesFrontendService(fakeSimpleHttp, injected[MessagesApi], MockitoSugar.mock[Metrics], injected[ConfigDecorator]) {
+      val preferencesFrontendService: PreferencesFrontendService = new PreferencesFrontendService(injected[Environment], injected[Configuration], fakeSimpleHttp, injected[MessagesApi], MockitoSugar.mock[Metrics], injected[ConfigDecorator], injected[ApplicationCrypto], injected[Tools]) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }

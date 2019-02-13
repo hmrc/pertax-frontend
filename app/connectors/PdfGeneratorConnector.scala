@@ -18,6 +18,8 @@ package connectors
 
 import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Singleton}
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.libs.ws.{WSClient, WSResponse}
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -35,7 +37,9 @@ trait PdfGeneratorConnector {
 }
 
 @Singleton
-class FrontendPdfGeneratorConnector @Inject() (wsHttp: WsAllMethods) extends PdfGeneratorConnector with ServicesConfig {
+class FrontendPdfGeneratorConnector @Inject() (environment: Environment, configuration: Configuration, wsHttp: WsAllMethods) extends PdfGeneratorConnector with ServicesConfig {
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   val pdfServiceUrl: String = baseUrl("pdf-generator-service")
   val serviceURL = pdfServiceUrl + "/pdf-generator-service/generate"
   def getWsClient:WSClient = wsHttp.wsClient

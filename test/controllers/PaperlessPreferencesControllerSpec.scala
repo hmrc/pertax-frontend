@@ -28,6 +28,7 @@ import play.twirl.api.Html
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._
 import util.{BaseSpec, LocalPartialRetriever}

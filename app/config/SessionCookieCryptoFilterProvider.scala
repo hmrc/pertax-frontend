@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package util
+package config
 
-import javax.inject.{Inject, Singleton}
-import services.http.WsAllMethods
+import com.google.inject.{Inject, Provider}
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
-import uk.gov.hmrc.play.partials.FormPartialRetriever
+import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
 
-
-@Singleton
-class LocalPartialRetriever @Inject() (override val httpGet: WsAllMethods, val applicationCrypto: ApplicationCrypto) extends FormPartialRetriever {
-
-  val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
-  override def crypto = sessionCookieCryptoFilter.encrypt
+class SessionCookieCryptoFilterProvider @Inject()(applicationCrypto: ApplicationCrypto) extends Provider[CookieCryptoFilter] {
+  override def get(): CookieCryptoFilter = {
+    new SessionCookieCryptoFilter(applicationCrypto)
+  }
 }

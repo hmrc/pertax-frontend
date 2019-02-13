@@ -16,27 +16,30 @@
 
 package services.partials
 
-import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import services.http.WsAllMethods
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.EnhancedPartialRetriever
-import util.Tools._
+import util.{EnhancedPartialRetriever, Tools}
 
 import scala.concurrent.Future
 
 
 @Singleton
-class PreferencesFrontendPartialService @Inject() (val http: WsAllMethods, val metrics: Metrics) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig {
+class PreferencesFrontendPartialService @Inject()(environment: Environment, configuration: Configuration, val http: WsAllMethods, val metrics: Metrics, applicationCrypto: ApplicationCrypto, val tools: Tools) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
   def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${encryptAndEncode(returnUrl)}&returnLinkText=${encryptAndEncode(returnLinkText)}")
+    loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}")
   }
 
 }

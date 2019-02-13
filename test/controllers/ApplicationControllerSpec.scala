@@ -19,6 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models._
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
@@ -41,14 +42,14 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.time.TaxYearResolver
+import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
 
-class ApplicationControllerSpec extends BaseSpec {
+class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
@@ -81,7 +82,7 @@ class ApplicationControllerSpec extends BaseSpec {
     lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
-    lazy val year = TaxYearResolver.currentTaxYear
+    lazy val year = current.currentYear
     lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
@@ -219,8 +220,8 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
+      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -235,8 +236,8 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
+      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -252,8 +253,8 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(TaxYearResolver.currentTaxYear - 1))(any())
+      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -279,7 +280,7 @@ class ApplicationControllerSpec extends BaseSpec {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(0)).personDetails(meq(nino))(any())
-      verify(controller.taiService, times(0)).taxComponents(any(), meq(TaxYearResolver.currentTaxYear))(any())
+      verify(controller.taiService, times(0)).taxComponents(any(), meq(current.currentYear))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
@@ -313,7 +314,7 @@ class ApplicationControllerSpec extends BaseSpec {
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(nino), meq(TaxYearResolver.currentTaxYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(nino), meq(current.currentYear - 1))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal deails in citizen-details" in new LocalSetup {
@@ -615,4 +616,5 @@ class ApplicationControllerSpec extends BaseSpec {
     }
   }
 
+  override def now: () => DateTime = DateTime.now
 }

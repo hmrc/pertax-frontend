@@ -17,13 +17,12 @@
 package models
 
 import javax.inject.{Inject, Singleton}
-
 import config.ConfigDecorator
-import uk.gov.hmrc.time.TaxYearResolver
+import uk.gov.hmrc.time.{CurrentTaxYear}
 
 
 @Singleton
-class LocalTaxYearResolver @Inject() (val configDecorator: ConfigDecorator) extends TaxYearResolver {
+class LocalTaxYearResolver @Inject() (val configDecorator: ConfigDecorator) extends CurrentTaxYear {
 
   override lazy val now = () => {
     configDecorator.currentLocalDate.toDateTimeAtStartOfDay
