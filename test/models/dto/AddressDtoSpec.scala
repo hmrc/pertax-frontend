@@ -34,11 +34,11 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
         },
         success => {
-          success shouldBe AddressDto("Line 1", "Line 2", None, None, None, "AA1 1AA", None)
+          success shouldBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
         }
       )
     }
@@ -54,11 +54,11 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA11AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
         },
         success => {
-          success shouldBe AddressDto("Line 1", "Line 2", None, None, None, "AA11AA", None)
+          success shouldBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA11AA"), None, None)
         }
       )
     }
@@ -74,12 +74,12 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 0
         },
         success => {
-          success shouldBe AddressDto(" A-Za-z0-9&’'(),-./", "Line 2", None, None, None, "AA1 1AA", None)
+          success shouldBe AddressDto(" A-Za-z0-9&’'(),-./", "Line 2", None, None, None,Some("AA1 1AA"), None, None)
         }
       )
     }
@@ -92,7 +92,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line1_required"
@@ -111,7 +111,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line1_contains_more_than_35_characters"
@@ -130,7 +130,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line1_invalid_characters"
@@ -149,7 +149,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line2_required"
@@ -168,7 +168,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line2_contains_more_than_35_characters"
@@ -187,7 +187,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line2_invalid_characters"
@@ -207,7 +207,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line3_contains_more_than_35_characters"
@@ -227,7 +227,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line3_invalid_characters"
@@ -248,7 +248,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line3_required"
@@ -270,7 +270,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line4_contains_more_than_35_characters"
@@ -291,7 +291,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line4_invalid_characters"
@@ -313,7 +313,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line4_required"
@@ -335,7 +335,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 2
           formWithErrors.errors(0).message shouldBe "error.line3_required"
@@ -358,7 +358,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line5_contains_more_than_35_characters"
@@ -380,7 +380,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.line5_invalid_characters"
@@ -402,7 +402,7 @@ class AddressDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 2
           formWithErrors.errors(1).message shouldBe "error.line5_invalid_characters"
@@ -421,7 +421,7 @@ class AddressDtoSpec extends BaseSpec {
         "line2" -> "Line 2",
         "postcode" -> "QN3 2E3"
       )
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
@@ -439,10 +439,335 @@ class AddressDtoSpec extends BaseSpec {
         "line2" -> "Line 2",
         "postcode" -> "±±± §§§"
       )
-      AddressDto.form.bind(formData).fold(
+      AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
           formWithErrors.errors.length shouldBe 1
           formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+  }
+
+  "Posting the updateInternationalAddressForm" should {
+
+    "bind an AddressDto correctly" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "",
+        "line4" -> "",
+        "line5" -> "",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+        },
+        success => {
+          success shouldBe AddressDto("Line 1", "Line 2", None, None, None, None, Some("Gibraltar"), None)
+        }
+      )
+    }
+
+    "allow valid characters to be submitted" in {
+
+      val formData = Map(
+        "line1" -> " A-Za-z0-9&’'(),-./",
+        "line2" -> "Line 2",
+        "line3" -> "",
+        "line4" -> "",
+        "line5" -> "",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 0
+        },
+        success => {
+          success shouldBe AddressDto(" A-Za-z0-9&’'(),-./", "Line 2", None, None, None, None, Some("Gibraltar"), None)
+        }
+      )
+    }
+
+    "return an error when no data is submitted in line 1" in {
+
+      val formData = Map(
+        "line1" -> "",
+        "line2" -> "Line 2",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line1_required"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when no more than 35 characters entered in line 1" in {
+
+      val formData = Map(
+        "line1" -> "This is a string with more than thirty five characters",
+        "line2" -> "Line 2",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line1_contains_more_than_35_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when invalid data is submitted in line 1" in {
+
+      val formData = Map(
+        "line1" -> "§",
+        "line2" -> "Line 2",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line1_invalid_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when no data is submitted in line 2" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line2_required"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when more than 35 characters entered in line 2" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "This is a string with more than thirty five characters",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line2_contains_more_than_35_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when invalid data is submitted in line 2" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "±",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line2_invalid_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when more than 35 characters entered in line 3" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "This is a string with more than thirty five characters",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line3_contains_more_than_35_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when invalid data is submitted in line 3" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "±",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line3_invalid_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when more than 35 characters entered in line 4" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "Line 3",
+        "line4" -> "This is a string with more than thirty five characters",
+        "line5" -> "Line 5",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line4_contains_more_than_35_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when invalid data is submitted in line 4" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "Line 3",
+        "line4" -> "§",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line4_invalid_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when more than 35 characters entered in line 5" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "Line 3",
+        "line4" -> "Line 4",
+        "line5" -> "This is a string with more than thirty five characters",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line5_contains_more_than_35_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when invalid data is submitted in line 5" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "Line 3",
+        "line4" -> "Line 4",
+        "line5" -> "§",
+        "country" -> "Gibraltar"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.line5_invalid_characters"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when invalid country is submitted" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "line3" -> "Line 3",
+        "line4" -> "Line 4",
+        "line5" -> "Line 5",
+        "country" -> "Country"
+      )
+
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.country_required"
+        },
+        success => {
+          fail("Form should give an error")
+        }
+      )
+    }
+
+    "return an error when a country field is empty" in {
+
+      val formData = Map(
+        "line1" -> "Line 1",
+        "line2" -> "Line 2",
+        "country" -> ""
+      )
+      AddressDto.internationalForm.bind(formData).fold(
+        formWithErrors => {
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors.head.message shouldBe "error.country_required"
         },
         success => {
           fail("Form should give an error")

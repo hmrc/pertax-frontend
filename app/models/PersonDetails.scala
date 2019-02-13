@@ -70,13 +70,14 @@ case class Address(
   line4: Option[String],
   line5: Option[String],
   postcode: Option[String],
+  country: Option[String],
   startDate: Option[LocalDate],
   `type`: Option[String]
 ) {
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
 
   def isWelshLanguageUnit: Boolean = {
-   val welshLanguageUnitPostcodes = Set("CF145SH", "CF145TS", "LL499BF", "BX55AB", "LL499AB")
+    val welshLanguageUnitPostcodes = Set("CF145SH", "CF145TS", "LL499BF", "BX55AB", "LL499AB")
     welshLanguageUnitPostcodes.contains(postcode.getOrElse("").toUpperCase.trim.replace(" ", ""))
   }
 }

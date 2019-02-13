@@ -176,6 +176,7 @@ class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) ext
   lazy val saveNiLetterAsPdfLinkEnabled = configuration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
   lazy val saAmbigSkipUTRLetterEnabled = configuration.getString("feature.sa-skip-utr-letter.enabled").getOrElse("true").toBoolean
   lazy val saAmbigSimplifiedJourneyEnabled = configuration.getString("feature.sa-simplified-journey.enabled").getOrElse("true").toBoolean
+  lazy val updateInternationalAddressInPta = configuration.getString("feature.update-international-address-form.enabled").getOrElse("false").toBoolean
 
   lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
 

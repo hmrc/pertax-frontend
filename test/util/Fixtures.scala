@@ -100,13 +100,16 @@ trait CitizenDetailsFixtures {
     Some("Fake Region"),
     None,
     Some("AA1 1AA"),
+    None,
     Some(new LocalDate(2015, 3, 15)),
     Some("Residential")
   )
 
   def buildFakeJsonAddress = Json.toJson(buildFakeAddress)
 
-  def asAddressDto(l: List[(String, String)]) = AddressDto.form.bind(l.toMap).get
+  def asAddressDto(l: List[(String, String)]) = AddressDto.ukForm.bind(l.toMap).get
+
+  def asInternationalAddressDto(l: List[(String, String)]) = AddressDto.internationalForm.bind(l.toMap).get
 
   def fakeStreetTupleListAddressForUnmodified: List[(String, String)] = List(
     ("line1", "1 Fake Street"),
@@ -115,6 +118,15 @@ trait CitizenDetailsFixtures {
     ("line4", "Fake Region"),
     ("line5", ""),
     ("postcode", "AA1 1AA")
+  )
+
+  def fakeStreetTupleListInternationalAddress: List[(String, String)] = List(
+    ("line1", "1 Fake Street"),
+    ("line2", "Fake Town"),
+    ("line3", "Fake City"),
+    ("line4", "Fake Region"),
+    ("line5", ""),
+    ("country", "South Georgia and South Sandwich Island")
   )
 
   def fakeStreetTupleListAddressForUnmodifiedLowerCase: List[(String, String)] = List(

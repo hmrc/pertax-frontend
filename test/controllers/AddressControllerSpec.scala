@@ -81,7 +81,7 @@ class AddressControllerSpec extends BaseSpec {
 
     lazy val personDetails = Fixtures.buildPersonDetails
 
-    def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.form.bind(l.toMap).get
+    def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
 
     def pruneDataEvent(dataEvent: DataEvent): DataEvent =
       dataEvent.copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
@@ -119,6 +119,7 @@ class AddressControllerSpec extends BaseSpec {
       when(c.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
       when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
       when(c.configDecorator.currentLocalDate) thenReturn LocalDate.parse("2016-02-02")
+      when(c.configDecorator.updateInternationalAddressInPta) thenReturn false
 
       c
     }
@@ -366,7 +367,7 @@ class AddressControllerSpec extends BaseSpec {
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/find-address")
     }
 
-    "redirect to Contact HMRC iform page when supplied with value = No (false)" in new LocalSetup {
+    "redirect to 'cannot use this service' page when value = No (false)" in new LocalSetup {
       val r = controller.processInternationalAddressChoice(SoleAddrType)(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("internationalAddressChoice" -> "false"))
 
       status(r) shouldBe SEE_OTHER
@@ -843,6 +844,169 @@ class AddressControllerSpec extends BaseSpec {
 
   }
 
+  "Calling AddressController.showUpdateInternationalAddressForm" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "find only the selected address from the session cache and no residency choice and return 303" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "fetch the selected address and a sole residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
+        "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType)))))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "find no selected address with sole address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "find no residency choice in the session cache and redirect to the beginning of the journey" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe SEE_OTHER
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+    }
+
+    "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in new LocalSetup {
+      lazy val sessionCacheResponse = None
+
+      val r = controller.showUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe SEE_OTHER
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+    }
+
+    "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)),
+        "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
+
+      val r = controller.showUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+      val r = controller.showUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "find no addresses in the session cache and return 303" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
+
+      val r = controller.showUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "find sole selected and submitted addresses in the session cache and return 200" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
+        "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "find no selected address but a submitted address in the session cache and return 200" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+        "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+      val r = controller.showUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      val doc = Jsoup.parse(contentAsString(r))
+      doc.getElementsByClass("heading-xlarge").toString().contains("Enter the address") shouldBe true
+    }
+
+    "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      val doc = Jsoup.parse(contentAsString(r))
+      doc.getElementsByClass("heading-xlarge").toString().contains("Enter your address") shouldBe true
+    }
+  }
+
+  "Calling AddressController.processUpdateInternationalAddressForm" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "return 400 when supplied invalid form input" in new LocalSetup {
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("selectedAddressRecord" -> Json.toJson(""))))
+
+      val r = controller.processUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("POST"))
+
+      status(r) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a non postal journey and input default startDate into cache" in new LocalSetup {
+      val r = controller.processUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/changes")
+      verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedAddressDto"), meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
+      verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+  }
 
   "Calling AddressController.enterStartDate" should {
 
@@ -1169,6 +1333,7 @@ class AddressControllerSpec extends BaseSpec {
           "submittedLine3" -> Some("Fake City"),
           "submittedLine4" -> Some("Fake Region"),
           "submittedPostcode" -> Some("AA1 1AA"),
+          "submittedCountry" -> None,
           "addressType" -> addressType,
           "submittedUPRN" -> uprn,
           "originalLine1" -> Some("1 Fake Street").filter(x => includeOriginals),
@@ -1176,6 +1341,7 @@ class AddressControllerSpec extends BaseSpec {
           "originalLine3" -> Some("Fake City").filter(x => includeOriginals),
           "originalLine4" -> Some("Fake Region").filter(x => includeOriginals),
           "originalPostcode" -> Some("AA1 1AA").filter(x => includeOriginals),
+          "originalCountry" -> Some("Country(UK,United Kingdom)").filter(x => includeOriginals),
           "originalUPRN" -> uprn.filter(x => includeOriginals)
         ).map(t => t._2.map((t._1, _))).flatten.toMap,
         dataEvent.generatedAt
