@@ -105,7 +105,6 @@ class ApplicationController @Inject() (
           Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
         }
 
-
         val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
           taiService.taxComponents(nino, year) map {
             case TaxComponentsSuccessResponse(ts) =>
