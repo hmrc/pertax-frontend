@@ -1,11 +1,21 @@
 .card .flextile {
-  display: block;
-  padding: 12px;
-  border-radius: 3px;
-  background: #F8F8F8;
-  text-decoration: none !important;
-  height: 100%;
-  transition: all 0.1s ease-in;
+    display: block;
+    padding: 12px;
+    background: #F8F8F8;
+    text-decoration: none;
+    height: 100%;
+    box-sizing: border-box;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -moz-transition: all 0.1s ease-in;
+    -mstransition-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    -webkit-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+
 	.ft-header {
 	  font-size: 18px;
 	  font-weight: 600;
@@ -19,14 +29,42 @@
 	  margin-top: 45px;
 	  text-align: left;
 	}
+<<<<<<< HEAD
 	.amount {
 	  color: black;
 	}
-}
-.ft-header {
-  color: #005EA5;
+=======
+	p {
+      font-size: 19px;
+    }
+    .lede {
+      font-size: 24px;
+      margin-bottom:-5px;
+    }
+>>>>>>> more css update
 }
 
+.ft-header {
+    color: #005EA5;
+    -moz-transition: all 0.1s ease-in;
+    -mstransition-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    -webkit-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
+
+.tile-payments li span, .flextile p {
+    color: #000;
+    -moz-transition: all 0.1s ease-in;
+    -mstransition-transition: all 0.1s ease-in;
+    -o-transition: all 0.1s ease-in;
+    -webkit-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
+.card .flextile:hover, .card .flextile:visited, .card .flextile:link, .card .flextile:active {
+    text-decoration: none;
+
+}
 
 .flextile:hover {
   background: #005EA5;
@@ -34,14 +72,4 @@
 
 .flextile:hover * {
   color: #fff !important;
-}
-
-
-.flextile p {
-  font-size: 19px;
-}
-
-.flextile .lede {
-  font-size: 24px;
-  margin-bottom:-5px;
 }
