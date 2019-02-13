@@ -18,11 +18,14 @@
   heading: String,
   subHeading: String,
   amount: Option[String],
-  bodyContent: String
+  bodyContent: String,
+  url: Option[String] = None,
+  gaAction: Option[String] = None,
+  gaLabel: Option[String] = None
 )(actionContent: Html)(implicit messages: play.api.i18n.Messages)
 
 <div class="card">
-  <a href="sa-your-underpayment" class="flextile">
+  <a href="sa-your-underpayment" class="flextile" @if(url){data-journey-click="link - click:@gaAction:@gaLabel"}>
     <div class="ft-header">
       @{heading}
     </div>
