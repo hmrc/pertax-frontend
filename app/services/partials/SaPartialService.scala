@@ -16,14 +16,16 @@
 
 package services.partials
 
-import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import services.http.WsAllMethods
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
@@ -32,15 +34,15 @@ import scala.concurrent.Future
 
 
 @Singleton
-class SaPartialService @Inject() (override val http: WsAllMethods, override val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig with I18nSupport {
+class SaPartialService @Inject()(environment: Environment, configuration: Configuration, override val http: WsAllMethods, override val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator, applicationCrypto: ApplicationCrypto, val tools: Tools) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig with I18nSupport {
 
-  import Tools._
-
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   private val returnUrl = configDecorator.pertaxFrontendHomeUrl
   private val returnLinkText = Messages("label.back_to_account_home")  //TODO remove ref to Messages as this is the service layer
 
   def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${urlEncode(returnUrl)}&returnLinkText=${urlEncode(returnLinkText)}")
+    loadPartial(configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${tools.urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}")
   }
 
 }

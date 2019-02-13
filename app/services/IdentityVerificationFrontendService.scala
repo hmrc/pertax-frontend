@@ -17,16 +17,16 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
-import play.api.Logger
+import play.api.{Configuration, Environment, Logger}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import services.http.SimpleHttp
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 
 trait IdentityVerificationResponse
@@ -49,8 +49,10 @@ object IdentityVerificationSuccessResponse {
 
 
 @Singleton
-class IdentityVerificationFrontendService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class IdentityVerificationFrontendService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val identityVerificationFrontendUrl = baseUrl("identity-verification-frontend")
 
   def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] = {

@@ -38,7 +38,7 @@
     <div class="column-two-thirds">
           @form(action = controllers.routes.AddressController.processResidencyChoice) {
             <div class="form-group inline">
-              @inputRadioGroup(
+              @input_radio_group(
               residencyChoiceForm("residencyChoice"),
                 Seq("primary" -> Messages("label.yes"), "sole" -> Messages("label.no")),
                 '_labelClass -> "block-label inputLabelBeforeError",

@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, Result}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, LocalSessionCache, SelfAssessmentService, UserDetailsService}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.time.TaxYearResolver
+import uk.gov.hmrc.time.{CurrentTaxYear}
 import util.{DateTimeTools, LocalPartialRetriever}
 
 import scala.concurrent.Future
@@ -47,7 +47,7 @@ class AmbiguousJourneyController @Inject() (
   val messageFrontendService: MessageFrontendService,
   val selfAssessmentService: SelfAssessmentService
 
-) extends PertaxBaseController with AuthorisedActions {
+) extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
 
   def enforceAmbiguousUser(block: SaUtr => Future[Result])(implicit context: PertaxContext): Future[Result] = {
     selfAssessmentService.getSelfAssessmentUserType(context.authContext) flatMap {
@@ -207,7 +207,7 @@ class AmbiguousJourneyController @Inject() (
 
     enforceAmbiguousUser { saUtr =>
 
-      val currentTaxYear = TaxYearResolver.currentTaxYear
+      val currentTaxYear = current.currentYear
       val deadlineYear = currentTaxYear + 1
       val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost
 

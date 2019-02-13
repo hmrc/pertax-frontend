@@ -19,7 +19,8 @@ package config
 import java.net.{MalformedURLException, URL}
 
 import org.mockito.Matchers.{eq => meq}
-import play.api.Configuration
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.i18n.Langs
 import util.BaseSpec
 
@@ -32,7 +33,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
     trait LocalSetup {
 
-      lazy val configDecorator = new ConfigDecorator(injected[Configuration], injected[Langs]) {
+      lazy val configDecorator = new ConfigDecorator(injected[Environment], injected[Configuration], injected[Langs]) {
         override lazy val portalBaseUrl = "http://portal.service"
         override lazy val companyAuthFrontendHost = "http://company-auth-frontend.service"
       }
@@ -63,7 +64,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       def portalBaseUrlToTest: Option[String]
 
-      lazy val configDecorator = new ConfigDecorator(injected[Configuration], injected[Langs]) {
+      lazy val configDecorator = new ConfigDecorator(injected[Environment], injected[Configuration], injected[Langs]) {
         override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
       }
     }

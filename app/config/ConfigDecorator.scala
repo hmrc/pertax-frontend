@@ -21,13 +21,16 @@ import java.net.{URL, URLEncoder}
 import controllers.routes
 import javax.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
-import play.api.Configuration
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
-class ConfigDecorator @Inject() (configuration: Configuration, langs: Langs) extends ServicesConfig {
+class ConfigDecorator @Inject() (environment: Environment, configuration: Configuration, langs: Langs) extends ServicesConfig {
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
 
   // Define the web contexts to access the IV-FE and AUTH frontend applications.
   lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")

@@ -16,12 +16,14 @@
 
 package services.partials
 
-import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import play.api.mvc.Request
 import services.http.WsAllMethods
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
@@ -30,8 +32,10 @@ import scala.concurrent.Future
 
 
 @Singleton
-class CspPartialService @Inject() (val http: WsAllMethods, val metrics: Metrics) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig {
+class CspPartialService @Inject() (environment: Environment, configuration: Configuration, val http: WsAllMethods, val metrics: Metrics, applicationCrypto: ApplicationCrypto) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   lazy val serviceUrl = baseUrl("csp-partials")
 
   def webchatClickToChatScriptPartial(sourceService: String)(implicit request: Request[_]): Future[HtmlPartial] = {

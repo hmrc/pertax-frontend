@@ -41,7 +41,7 @@
       <div class="column-two-thirds">
         @form(action = controllers.routes.AmbiguousJourneyController.processUsedUtrToRegisterChoice) {
           <div class="form-group inline">
-            @inputRadioGroup(
+            @input_radio_group(
               AmbiguousUserForm("ambiguousUserFormChoice"),
               Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
               '_labelClass -> "block-label",

@@ -17,22 +17,27 @@
 package filters
 
 import javax.inject._
-
 import com.typesafe.config.Config
 import connectors.PertaxAuditConnector
 import net.ceedubs.ficus.Ficus._
-import play.api.Configuration
+import play.api.{Configuration, Environment}
+import play.api.Mode.Mode
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
-import uk.gov.hmrc.play.frontend.filters.{ FrontendAuditFilter, MicroserviceFilterSupport }
+import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, MicroserviceFilterSupport}
 
 
 @Singleton
 class LocalFrontendAuditFilter @Inject()(
-  val config: Configuration,
+  environment: Environment,
+  configuration: Configuration,
   val auditConnector: PertaxAuditConnector
 ) extends FrontendAuditFilter with MicroserviceFilterSupport with RunMode with AppName with ControllerConfig {
 
-  lazy val controllerConfigs = config.underlying.as[Config]("controllers")
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
+  val appNameConfiguration:Configuration = configuration
+
+  lazy val controllerConfigs = configuration.underlying.as[Config]("controllers")
 
   override lazy val maskedFormFields = Seq("password")
   override lazy val applicationPort = None

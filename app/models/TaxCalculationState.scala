@@ -93,7 +93,7 @@ class TaxCalculationStateFactory @Inject() (
     val now                               = new LocalDate(configDecorator.currentLocalDate)
     val dueDateEquals31stJanuary          = dueDate.getMonthOfYear==1 && dueDate.getDayOfMonth==31
     val dueDatePassed                     = now.isAfter(dueDate)
-    val datePassed14thDec                 = now.isAfter(new LocalDate(localTaxYearResolver.currentTaxYear + "-12-14"))
+    val datePassed14thDec                 = now.isAfter(new LocalDate(taxYearFor(configDecorator.currentLocalDate).currentYear  + "-12-14"))
     val dateWithin30DaysOfDueDate         = now.isAfter(dueDate.minusDays(31))
 
     (dueDateEquals31stJanuary, dueDatePassed, datePassed14thDec, dateWithin30DaysOfDueDate) match {

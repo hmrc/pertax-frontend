@@ -16,7 +16,9 @@
 
 package controllers
 
-import config.ConfigDecorator
+import com.kenshoo.play.metrics.{DisabledMetrics, DisabledMetricsFilter, Metrics, MetricsFilter}
+import com.typesafe.config.Config
+import config.{ConfigDecorator, LocalTemplateRenderer}
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import org.mockito.Matchers.{eq => meq}
 import org.mockito.Mockito.when
@@ -25,18 +27,30 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Session
 import play.api.test.Helpers._
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.binders.Origin
+import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.{BaseSpec, LocalPartialRetriever}
 
 class PublicControllerSpec extends BaseSpec  {
 
+  val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(injected[ApplicationCrypto])
+
+
   override lazy val app = new GuiceApplicationBuilder()
+    .overrides(bind[MetricsFilter].to[DisabledMetricsFilter].eagerly)
+    .overrides(bind[Metrics].to[DisabledMetrics].eagerly)
+    .disable[com.kenshoo.play.metrics.PlayModule]
+    .configure("metrics.enabled" -> false)
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+    .overrides(bind(classOf[CookieCryptoFilter]).toInstance(MockitoSugar.mock[SessionCookieCryptoFilter]))
+    .overrides(bind[Config].toInstance(MockitoSugar.mock[Config]))
     .build()
 
   trait LocalSetup {

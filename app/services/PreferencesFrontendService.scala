@@ -17,20 +17,22 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
 import models.PertaxUser
-import play.api.Logger
+import play.api.{Configuration, Environment, Logger}
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, Request}
 import services.http.SimpleHttp
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
+import util.Tools
 
 import scala.concurrent.Future
 
@@ -41,12 +43,14 @@ case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) exte
 
 
 @Singleton
-class PreferencesFrontendService @Inject() (val simpleHttp: SimpleHttp, val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator) extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
+class PreferencesFrontendService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator, val applicationCrypto: ApplicationCrypto, val tools: Tools) extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
   val preferencesFrontendUrl = baseUrl("preferences-frontend")
-  override def crypto = SessionCookieCryptoFilter.encrypt
 
-  import util.Tools._
+  val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
+  override def crypto = sessionCookieCryptoFilter.encrypt
 
   def getPaperlessPreference(pertaxUser: PertaxUser)(implicit request: Request[AnyContent]): Future[ActivatePaperlessResponse] = {
 
@@ -56,7 +60,7 @@ class PreferencesFrontendService @Inject() (val simpleHttp: SimpleHttp, val mess
 
       withMetricsTimer("get-activate-paperless") { t =>
 
-        val url = s"$preferencesFrontendUrl/paperless/activate?returnUrl=${encryptAndEncode(absoluteUrl)}&returnLinkText=${encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
+        val url = s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools.encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
         simpleHttp.put[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true))(
           onComplete = {

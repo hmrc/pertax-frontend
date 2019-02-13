@@ -16,26 +16,29 @@
 
 package services.partials
 
-import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
 import models.MessageCount
-import play.api.Logger
+import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
+import play.api.{Configuration, Environment, Logger}
 import services.http.WsAllMethods
+import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
 
 @Singleton
-class MessageFrontendService @Inject()(override val http: WsAllMethods, val metrics: Metrics) extends EnhancedPartialRetriever with HasMetrics with ServicesConfig {
+class MessageFrontendService @Inject()(environment: Environment, configuration: Configuration, override val http: WsAllMethods, val metrics: Metrics, val applicationCrypto: ApplicationCrypto) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
+  val mode:Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
 
   lazy val messageFrontendUrl: String = baseUrl("message-frontend")
 
