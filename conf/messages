@@ -178,6 +178,13 @@ label.second_line_of_your_address=Second line of your address
 label.third_line_of_your_address=Third line of your address (optional)
 label.fourth_line_of_your_address=Fourth line of your address (optional)
 label.fifth_line_of_your_address=Fifth line of your address (optional)
+label.address_line_one=Address line 1
+label.address_line_two=Address line 2
+label.address_line_three=Address line 3 (optional)
+label.address_line_four=Address line 4 (optional)
+label.address_line_five=Address line 5 (optional)
+label.country=Country
+label.change=Change
 label.contact_hmrc_if_you_cannot_access_your_pta=Contact HM Revenue and Customs (HMRC) if you cannot access your personal tax account. Make sure you have your National Insurance number before you call.
 label.contact_hmrc=Contact HMRC
 label.phone_0300_200_3300=Phone 0300 200 3300
@@ -579,7 +586,8 @@ head.error.enter_numbers=Check the date you entered
 error.enter_numbers=Enter a valid date
 head.error.date_in_future=You cannot enter a date in the future
 error.date_in_future=Enter today’s date or a date in the past
-
+head.error.country_required=Enter country
+error.country_required=Enter country
 #
 # Messages in lower case
 #

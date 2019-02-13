@@ -17,14 +17,15 @@
 package controllers
 
 
-import javax.inject.Inject
+import java.io
 
+import javax.inject.Inject
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
-import controllers.helpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
+import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import models._
 import models.addresslookup.RecordSet
@@ -61,7 +62,8 @@ class AddressController @Inject() (
   val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
-  val personalDetailsCardGenerator: PersonalDetailsCardGenerator
+  val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
+  val countryHelper: CountryHelper
 ) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
 
   def dateDtoForm = DateDto.form(configDecorator.currentLocalDate)
@@ -195,7 +197,11 @@ class AddressController @Inject() (
           cacheSubmittedInternationalAddressChoiceDto(internationalAddressChoiceDto) map { _ =>
             internationalAddressChoiceDto.value match {
               case true => Redirect(routes.AddressController.showPostcodeLookupForm(typ))
-              case false => Redirect(routes.AddressController.cannotUseThisService(typ))
+              case false => if(configDecorator.updateInternationalAddressInPta) {
+                Redirect(routes.AddressController.showUpdateInternationalAddressForm(typ))
+              } else {
+                Redirect(routes.AddressController.cannotUseThisService(typ))
+              }
             }
           }
         }
@@ -204,7 +210,7 @@ class AddressController @Inject() (
     }
   }
 
-  def cannotUseThisService(typ: AddrType) = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+  def cannotUseThisService(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personalDetails =>
       gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         enforceDisplayAddressPageVisited(addressPageVisitedDto) {
@@ -218,6 +224,7 @@ class AddressController @Inject() (
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
+          cacheSubmittedInternationalAddressChoiceDto(InternationalAddressChoiceDto.apply(true))
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails))
@@ -326,12 +333,12 @@ class AddressController @Inject() (
           typ match {
             case PostalAddrType =>
               enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.form)(AddressDto.form.fill)
+                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
                 Future.successful(Ok(views.html.personaldetails.updateAddress(addressForm.discardingErrors, typ, journeyData.addressFinderDto, journeyData.addressLookupServiceDown, showEnterAddressHeader)))
               }
             case _ =>
               enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.form)(AddressDto.form.fill)
+                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
                 Future.successful(Ok(views.html.personaldetails.updateAddress(addressForm.discardingErrors, typ, journeyData.addressFinderDto, journeyData.addressLookupServiceDown, showEnterAddressHeader)))
               }
           }
@@ -345,13 +352,13 @@ class AddressController @Inject() (
         val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord == None
         addressJourneyEnforcer {
           payeAccount => personDetails => {
-            AddressDto.form.bindFromRequest.fold(
+            AddressDto.ukForm.bindFromRequest.fold(
               formWithErrors => {
                 Future.successful(BadRequest(views.html.personaldetails.updateAddress(formWithErrors, typ, journeyData.addressFinderDto, journeyData.addressLookupServiceDown, showEnterAddressHeader)))
               },
               addressDto => {
                 cacheSubmittedAddressDto(typ, addressDto) flatMap { _ =>
-                  val postCodeHasChanged = !addressDto.postcode.replace(" ", "").equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
+                  val postCodeHasChanged = !addressDto.postcode.getOrElse("").replace(" ", "").equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
                   (typ, postCodeHasChanged) match {
                     case (PostalAddrType, _) =>
                       cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
@@ -370,6 +377,46 @@ class AddressController @Inject() (
       }
   }
 
+  def showUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+    implicit pertaxContext =>
+      gettingCachedJourneyData[Result](typ) { journeyData =>
+        addressJourneyEnforcer { payeAccount => personDetails =>
+          typ match {
+            case PostalAddrType =>
+              enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
+                Future.successful(Ok(views.html.personaldetails.updateInternationalAddress(journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(AddressDto.internationalForm.fill), typ, countryHelper.countries)))
+              }
+
+            case _ =>
+              enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
+                Future.successful(Ok(views.html.personaldetails.updateInternationalAddress(AddressDto.internationalForm, typ, countryHelper.countries)))
+              }
+          }
+        }
+      }
+  }
+
+  def processUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+    implicit pertaxContext =>
+      gettingCachedJourneyData[Result](typ) { journeyData =>
+        addressJourneyEnforcer {
+          payeAccount => personDetails => {
+            AddressDto.internationalForm.bindFromRequest.fold(
+              formWithErrors => {
+                Future.successful(BadRequest(views.html.personaldetails.updateInternationalAddress(formWithErrors, typ, countryHelper.countries)))
+              },
+              addressDto => {
+                cacheSubmittedAddressDto(typ, addressDto) flatMap { _ =>
+                  cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
+                  Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
+                }
+              }
+            )
+          }
+        }
+      }
+  }
+
   def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result])(implicit pertaxContext: PertaxContext) = typ match {
     case x: ResidentialAddrType => block
     case PostalAddrType => Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
@@ -380,7 +427,7 @@ class AddressController @Inject() (
       addressJourneyEnforcer { payeAccount => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           gettingCachedJourneyData(typ) { journeyData =>
-            val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("")
+            val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
             val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
             journeyData.submittedAddressDto map { a =>
               Future.successful(Ok(views.html.personaldetails.enterStartDate(if(newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill) else dateDtoForm, typ)))
@@ -406,7 +453,7 @@ class AddressController @Inject() (
                 val proposedStartDate = dateDto.startDate
 
                 personDetails.address match {
-                  case Some(Address(_, _, _, _, _, _, Some(currentStartDate), _)) =>
+                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _)) =>
                     if(!currentStartDate.isBefore(proposedStartDate))
                       BadRequest(views.html.personaldetails.cannotUpdateAddress(typ, formatDate(proposedStartDate)))
                     else Redirect(routes.AddressController.reviewChanges(typ))
@@ -431,12 +478,28 @@ class AddressController @Inject() (
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
-          val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("")
-          val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
-          val showAddressChangedDate: Boolean = !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
-          ensuringSubmissionRequirments(typ, journeyData) {
-            journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
-              Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, journeyData.submittedStartDateDto, showAddressChangedDate)))
+
+          val isUkAddress: Boolean = journeyData.subbmittedInternationalAddressChoiceDto.map(_.value).getOrElse(true)
+          val doYouLiveInTheUK: String = journeyData.subbmittedInternationalAddressChoiceDto.map(_.value).getOrElse(true) match {
+            case true => "label.yes"
+            case false => "label.no"
+          }
+
+          if (isUkAddress) {
+            val newPostcode: String = journeyData.submittedAddressDto.map(_.postcode).fold("")(_.getOrElse(""))
+            val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).fold("")(_.toString)
+
+            val showAddressChangedDate: Boolean = !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
+            ensuringSubmissionRequirments(typ, journeyData) {
+              journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
+                Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, doYouLiveInTheUK, isUkAddress, journeyData.submittedStartDateDto, showAddressChangedDate)))
+              }
+            }
+          } else {
+            ensuringSubmissionRequirments(typ, journeyData) {
+              journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
+                Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, doYouLiveInTheUK, isUkAddress, journeyData.submittedStartDateDto, false)))
+              }
             }
           }
         }
@@ -493,8 +556,8 @@ class AddressController @Inject() (
                   handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
                   clearCache() //This clears ENTIRE session cache, no way to target individual keys
                   Ok(views.html.personaldetails.updateAddressConfirmation(typ))
+                }
               }
-            }
           }
         }
       }

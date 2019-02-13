@@ -143,6 +143,13 @@ label.second_line_of_your_address=Ail linell eich cyfeiriad
 label.third_line_of_your_address=Trydedd linell eich cyfeiriad (opsiynol)
 label.fourth_line_of_your_address=Pedwaredd linell eich cyfeiriad (opsiynol)
 label.fifth_line_of_your_address=Pumed linell eich cyfeiriad (opsiynol)
+label.address_line_one=Llinell cyfeiriad 1
+label.address_line_two=Llinell cyfeiriad 2
+label.address_line_three=Llinell cyfeiriad 3 (dewisol)
+label.address_line_four=Llinell cyfeiriad 4 (dewisol)
+label.address_line_five=Llinell cyfeiriad 5 (dewisol)
+label.country=Gwlad
+label.change=Newid
 label.contact_hmrc_if_you_cannot_access_your_pta=Cysylltwch â Chyllid a Thollau EM (CThEM) os na allwch gyrchu’ch cyfrif treth personol. Sicrhewch fod eich rhif Yswiriant Gwladol wrth law pan fyddwch yn ffonio.
 label.contact_hmrc=Cysylltu â CThEM
 label.phone_0300_200_3300=Ffôn 0300 200 1900
@@ -574,6 +581,8 @@ head.error.enter_numbers=Gwirio’r dyddiad a nodwyd gennych
 error.enter_numbers=Nodwch ddyddiad dilys
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
 error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
+head.error.country_required=Nodwch wlad
+error.country_required=Nodwch wlad
 
 #
 # Messages in lower case
