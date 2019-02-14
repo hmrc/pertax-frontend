@@ -21,23 +21,27 @@ import models.dto.AddressDto
 object AddressJourneyAuditingHelper {
 
   def addressWasUnmodified(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean = {
-    originalAddressDto.map { o =>
-      o.postcode == addressDto.postcode &&
-        o.line1 == addressDto.line1 &&
-        o.line2 == addressDto.line2 &&
-        o.line3 == addressDto.line3 &&
-        o.line4 == addressDto.line4
-    } getOrElse false
+
+        originalAddressDto.map { o =>
+          o.postcode == addressDto.postcode &&
+            o.line1 == addressDto.line1 &&
+            o.line2 == addressDto.line2 &&
+            o.line3 == addressDto.line3 &&
+            o.line4 == addressDto.line4 &&
+            o.line5 == addressDto.line5
+        } getOrElse false
   }
 
   def addressWasHeavilyModifiedOrManualEntry(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean = {
-    originalAddressDto.map { o =>
-      //Count address line changes
-      val lines = List(addressDto.line1, addressDto.line2, addressDto.line3, addressDto.line4)
-      val originalLines = List(o.line1, o.line2, o.line3, o.line4)
-      val changeCount = (lines zip originalLines).filter(e => e._1 != e._2).size
 
-      o.postcode != addressDto.postcode ||
+    originalAddressDto.map {
+        o =>
+          //Count address line changes
+        val lines = List (addressDto.line1, addressDto.line2, addressDto.line3, addressDto.line4)
+        val originalLines = List (o.line1, o.line2, o.line3, o.line4)
+        val changeCount = (lines zip originalLines).filter (e => e._1 != e._2).size
+
+        o.postcode != addressDto.postcode ||
         (changeCount > 2)
     } getOrElse true
   }
@@ -48,7 +52,9 @@ object AddressJourneyAuditingHelper {
       s"${prefix}Line2"    -> Some(addressDto.line2),
       s"${prefix}Line3"    -> addressDto.line3,
       s"${prefix}Line4"    -> addressDto.line4,
-      s"${prefix}Postcode" -> Some(addressDto.postcode),
+      s"${prefix}Line5"    -> addressDto.line5,
+      s"${prefix}Postcode" -> addressDto.postcode,
+      s"${prefix}Country"  -> addressDto.country,
       s"${prefix}UPRN"     -> addressDto.propertyRefNo
     ).foldLeft(List[(String,Option[String])]())( (acc, cur) => cur._2.fold(acc)( x => cur :: acc ) ).toMap
   }

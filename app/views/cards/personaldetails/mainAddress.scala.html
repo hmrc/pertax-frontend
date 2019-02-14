@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean)(implicit messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
 
 @import tags._
 
@@ -23,14 +23,15 @@
 }
 
 @cardContent = {
-  <p><strong>
+  <p>
     @personDetails.address.map { address =>
       @address.lines.map { line =>
-        @upperCaseToTitleCase(line)<br>
+        <div class="address-line">@upperCaseToTitleCase(line)</div>
       }
-    @address.postcode.map(_.toUpperCase)
+      <div class ="address-line">@address.postcode.map(_.toUpperCase)</div>
+    @if(!countries.contains(Country(address.country.map(_.toUpperCase).getOrElse("")))) {@address.country.map(_.toUpperCase)}
   }
-  </strong></p>
+  </p>
 }
 
 @card(
