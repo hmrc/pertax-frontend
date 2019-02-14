@@ -92,10 +92,11 @@ trait AddressJourneyCachingHelper { this: AddressController =>
               cacheMap.getEntry[AddressFinderDto](s"${typ}AddressFinderDto"),
               cacheMap.getEntry[AddressRecord](s"${typ}SelectedAddressRecord"),
               cacheMap.getEntry[AddressDto](s"${typ}SubmittedAddressDto"),
+              cacheMap.getEntry[InternationalAddressChoiceDto]("internationalAddressChoiceDto"),
               cacheMap.getEntry[DateDto](s"${typ}SubmittedStartDateDto"),
               cacheMap.getEntry[Boolean]("addressLookupServiceDown").getOrElse(false)))
       case None =>
-        block(AddressJourneyData(None, None, None, None, None, None, false))
+        block(AddressJourneyData(None, None, None, None, None, None, None, false))
     }
   }
 
@@ -111,9 +112,9 @@ trait AddressJourneyCachingHelper { this: AddressController =>
 
   def enforceResidencyChoiceSubmitted(journeyData: AddressJourneyData)(block: AddressJourneyData => Future[Result]): Future[Result] = {
     journeyData match {
-      case AddressJourneyData(_, Some(_), _, _, _, _ , _) =>
+      case AddressJourneyData(_, Some(_), _, _, _, _, _, _) =>
         block(journeyData)
-      case AddressJourneyData(_, None, _, _, _, _, _) =>
+      case AddressJourneyData(_, None, _, _, _, _, _, _) =>
         Future.successful(Redirect(routes.AddressController.personalDetails))
     }
   }

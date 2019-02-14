@@ -49,6 +49,8 @@ POST   /personal-account/your-address/:typ/find-address                      @co
 POST   /personal-account/your-address/:typ/select-address                    @controllers.AddressController.processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String])
 GET    /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.showUpdateAddressForm(typ: AddrType)
 POST   /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.processUpdateAddressForm(typ: AddrType)
+GET    /personal-account/your-address/:typ/enter-international-address       @controllers.AddressController.showUpdateInternationalAddressForm(typ: AddrType)
+POST   /personal-account/your-address/:typ/enter-international-address       @controllers.AddressController.processUpdateInternationalAddressForm(typ: AddrType)
 GET    /personal-account/your-address/:typ/enter-start-date                  @controllers.AddressController.enterStartDate(typ: AddrType)
 POST   /personal-account/your-address/:typ/enter-start-date                  @controllers.AddressController.processEnterStartDate(typ: AddrType)
 GET    /personal-account/your-address/:typ/changes                           @controllers.AddressController.reviewChanges(typ: AddrType)

@@ -127,3 +127,10 @@ address {
   margin-right: 5px;
 }
 
+input[type="text"].autocomplete__input {
+  width: 75%;
+}
+
+.address-line {
+  display: block;
+}

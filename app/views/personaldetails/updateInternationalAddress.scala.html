@@ -1,0 +1,141 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+
+@getYourAddressLabels = {
+@typ.ifIs(primary = Messages("label.enter_your_address"),
+sole = Messages("label.enter_your_address"),
+postal = Messages("label.enter_the_address"))
+}
+
+@scriptElems = {
+
+<script src="@controllers.routes.AssetsController.versioned("javascripts/accessible-autocomplete.min.js").url"></script>
+
+
+    <script>
+        document.onreadystatechange = function () {
+            if (document.readyState == "interactive") {
+                accessibleAutocomplete.enhanceSelectElement({
+                  selectElement: document.querySelector('#country')
+                })
+            }
+        }
+    </script>
+
+}
+
+<link rel="stylesheet" href="@routes.AssetsController.versioned("stylesheets/modules/accessible-autocomplete.min.css")" >
+
+
+@main(
+title = getYourAddressLabels.toString,
+pageName = Some(Messages("label.your_personal_tax_account")),
+scriptElement = Some(scriptElems)) {
+@back_link()
+@errors(updateAddressForm)
+
+<div class="personal-details">
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            <div class="page-heading">
+                <h1 class="heading-xlarge no-margin-bottom">
+                    @getYourAddressLabels
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-row postal-address-block">
+        <div class="column-two-thirds">
+            @helpers.form(action = controllers.routes.AddressController.processUpdateInternationalAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
+
+            <div class="form-group">
+                @input(
+                updateAddressForm("line1"),
+                '_inputClass -> "form-control form-control-3-4",
+                '_labelClass -> "form-label-bold inputLabelBeforeError",
+                '_label -> Messages("label.address_line_one"),
+                'divClass -> "form-group",
+                '_maxlength -> 35
+                )
+            </div>
+            <div class="form-group">
+                @input(
+                updateAddressForm("line2"),
+                '_inputClass -> "form-control form-control-3-4",
+                '_labelClass -> "form-label-bold",
+                '_label -> Messages("label.address_line_two"),
+                'divClass -> "form-group",
+                '_maxlength -> 35
+                )
+            </div>
+            <div class="form-group">
+                @input(
+                updateAddressForm("line3"),
+                '_inputClass -> "form-control form-control-3-4",
+                '_labelClass -> "form-label-bold",
+                '_label -> Messages("label.address_line_three"),
+                'divClass -> "form-group",
+                '_maxlength -> 35
+                )
+            </div>
+            <div class="form-group">
+                @input(
+                updateAddressForm("line4"),
+                '_inputClass -> "form-control form-control-3-4",
+                '_labelClass -> "form-label-bold",
+                '_label -> Messages("label.address_line_four"),
+                'divClass -> "form-group",
+                '_maxlength -> 35
+                )
+            </div>
+            <div class="form-group">
+                @input(
+                updateAddressForm("line5"),
+                '_inputClass -> "form-control form-control-3-4",
+                '_labelClass -> "form-label-bold",
+                '_label -> Messages("label.address_line_five"),
+                'divClass -> "form-group",
+                '_maxlength -> 35
+                )
+            </div>
+
+            <div class="form-group">
+                @countryInput(
+                 field = updateAddressForm("country"),
+                elementOptions = ("","") :: countries.map(c => (c.countryName,c.countryName)),
+                displayEmptyValue = true,
+                '_labelClass -> "form-label-bold",
+                '_label -> Messages("label.country"),
+                '_inputClass -> "form-control",
+                '_errorsAboveInput -> true
+                )
+            </div>
+
+            <input type="hidden" name="type" value="@updateAddressForm("type").value" />
+            <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
+            <input type="submit" class="button" id="updateAddress" value='@Messages("label.continue")' >
+            }(pertaxContext.request, messages)
+        </div>
+    </div>
+</div>
+}
