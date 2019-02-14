@@ -47,6 +47,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       Some("Fake City"),
       Some("Fake Region"),
       None,
+      None,
       Some("AA1 1AA"),
       Some(new LocalDate(2015, 3, 15)),
       Some("Residential")

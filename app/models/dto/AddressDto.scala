@@ -16,30 +16,30 @@
 
 package models.dto
 
-import models.Address
+import controllers.helpers.CountryHelper
+import models.{Address, Country, addresslookup}
 import org.joda.time.{DateTime, LocalDate}
 import play.api.data.{Form, FormError}
 import play.api.data.Forms._
 import play.api.i18n.Messages
 import play.api.libs.json.Json
-import models.addresslookup
 import models.addresslookup.AddressRecord
 import play.api.mvc.Request
 import play.mvc.BodyParser.AnyContent
 import uk.gov.hmrc.play.validators._
 import util.PertaxValidators._
 
-object AddressDto {
+object AddressDto extends CountryHelper {
 
   implicit val formats = Json.format[AddressDto]
 
   def fromAddressRecord(addressRecord: AddressRecord) = {
     val address = addressRecord.address
     val List(line1, line2, line3, line4, line5) = (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
-    AddressDto(line1.getOrElse(""), line2.getOrElse(""), line3, line4, line5, address.postcode, Some(addressRecord.id))
+    AddressDto(line1.getOrElse(""), line2.getOrElse(""), line3, line4, line5, Some(address.postcode), Some(address.country.toString), Some(addressRecord.id))
   }
 
-  val form = Form(
+  val ukForm = Form(
     mapping(
       "line1" -> text
         .verifying("error.line1_required", _.size > 0)
@@ -58,11 +58,38 @@ object AddressDto {
       "line5" -> optional(text)
         .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
-      "postcode" -> text
+      "postcode" -> optional(text)
         .verifying("error.enter_a_valid_uk_postcode", e => e match {
-          case PostcodeRegex(_*) => true
+          case Some(PostcodeRegex(_*)) => true
           case _ => false
         }),
+      "country" -> optional(text),
+      "propertyRefNo" -> optional(nonEmptyText)
+    )(AddressDto.apply)(AddressDto.unapply)
+  )
+
+  val internationalForm = Form(
+    mapping(
+      "line1" -> text
+        .verifying("error.line1_required", _.size > 0)
+        .verifying("error.line1_contains_more_than_35_characters", _.size <= 35)
+        .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
+      "line2" -> text
+        .verifying("error.line2_required", _.size > 0)
+        .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
+        .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
+      "line3" -> optional(text)
+        .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+        .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
+      "line4" -> optional(text)
+        .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+        .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
+      "line5" -> optional(text)
+        .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+        .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
+      "postcode" -> optional(text),
+      "country" -> optional(text)
+        .verifying("error.country_required", (e => countries.contains(Country(e.getOrElse(""))) && (e.isDefined))),
       "propertyRefNo" -> optional(nonEmptyText)
     )(AddressDto.apply)(AddressDto.unapply)
   )
@@ -74,9 +101,10 @@ case class AddressDto(
   line3: Option[String],
   line4: Option[String],
   line5: Option[String],
-  postcode: String,
+  postcode: Option[String],
+  country: Option[String],
   propertyRefNo: Option[String]
 ) {
-  def toAddress(`type`: String, startDate: LocalDate) = Address(Some(line1), Some(line2), line3, line4, line5, Some(postcode.toUpperCase), Some(startDate), Some(`type`))
-  def toList = Seq( Some(line1), Some(line2), line3, line4, line5, Some(postcode) ).flatten
+  def toAddress(`type`: String, startDate: LocalDate) = Address(Some(line1), Some(line2), line3, line4, line5, postcode.map(_.toUpperCase), country, Some(startDate), Some(`type`))
+  def toList = Seq( Some(line1), Some(line2), line3, line4, line5, postcode, country ).flatten
 }

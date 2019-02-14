@@ -75,6 +75,14 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       c
     }
 
+    lazy val excludedCountries = List(
+      Country("GREAT BRITAIN"),
+      Country("SCOTLAND"),
+      Country("ENGLAND"),
+      Country("WALES"),
+      Country("NORTHERN IRELAND")
+    )
+
     lazy val cardBody = controller.getMainAddressCard()
   }
 
@@ -98,7 +106,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
 
     }
 
@@ -109,7 +117,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
 
     }
 
@@ -120,7 +128,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
 
     }
 
@@ -131,7 +139,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
 
     }
   }
@@ -156,6 +164,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("Fake Region"),
       None,
       Some("AA1 1AA"),
+      None,
       if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
       Some("Residential")
     )
@@ -167,6 +176,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("Fake Region"),
       None,
       Some("CF145SH"),
+      None,
       if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
       Some("Residential")
     )
@@ -181,6 +191,14 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     )
 
     lazy val cardBody = controller.getPostalAddressCard()
+
+    lazy val excludedCountries = List(
+      Country("GREAT BRITAIN"),
+      Country("SCOTLAND"),
+      Country("ENGLAND"),
+      Country("WALES"),
+      Country("NORTHERN IRELAND")
+    )
   }
 
   "Calling getPostalAddressCard" should {
@@ -209,7 +227,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val canUpdatePostalAddress = true
       override lazy val userHasWelshLanguageUnitAddress = false
 
-      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
+      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries))
 
     }
 
@@ -219,7 +237,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasWelshLanguageUnitAddress = false
 
-      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress))
+      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries))
 
     }
 
