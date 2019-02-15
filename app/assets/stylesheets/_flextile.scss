@@ -32,6 +32,14 @@
 	.amount {
 	  color: black;
 	}
+	.lede {
+    font-size: 24px;
+    margin-bottom: -5px;
+  }
+  .content {
+    font-size: 19px;
+    line-height: 1.25;
+  }
 }
 
 .ft-header {
@@ -51,6 +59,7 @@
     -webkit-transition: all 0.1s ease-in;
     transition: all 0.1s ease-in;
 }
+
 .card .flextile:hover, .card .flextile:visited, .card .flextile:link, .card .flextile:active {
     text-decoration: none;
 }
