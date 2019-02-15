@@ -18,173 +18,120 @@
 
 @import tags._
 
-@content = @{
+@heading = @{
   taxCalculationState match {
-    case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) => {
-      (
-        Messages("label.hmrc_owe_you"),
-        "%,d".format(amount.toInt),
-        Messages("label.find_out_about_your_refund_options"),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationOverpaidPaymentProcessingState(amount) => {
-      (
-        Messages("label.hmrc_owe_you"),
-        "%,d".format(amount.toInt),
-        Messages("label.hmrc_is_processing_your_refund"),
-        "",
-        "Income",
-        ""
-        )
-    }
-    case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) => {
-      (
-        Messages("label.your_refund"),
-        "%,d".format(amount.toInt),
-        Messages("label.hmrc_has_paid_your_refund_on_a", datePaid.toString),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) => {
-      (
-        Messages("label.your_refund"),
-        "%,d".format(amount.toInt),
-        Messages("label.hmrc_sent_you_a_cheque_for_a_on_b", "%,d".format(amount.toInt), datePaid.toString),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, None, None) => {
-      (
-        Messages("label.you_owe"),
-        "%,d".format(amount.toInt),
-        Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available"),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) => {
-      (
-        Messages("label.you_owe"),
-        "%,d".format(amount.toInt),
-        Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) => {
-      saDeadlineStatus match {
-        case SaDeadlineApproachingStatus => {
-          (
-            Messages("label.you_owe"),
-            "%,d".format(amount.toInt),
-            Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
-            "",
-            "Income",
-            ""
-          )
-        }
-        case SaDeadlinePassedStatus => {
-          (
-            Messages("label.you_owe"),
-            "%,d".format(amount.toInt),
-            Messages("label.you_should_have_paid_", dueDate.toString),
-            "",
-            "Income",
-            ""
-          )
-        }
-      }
-    }
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) => {
-      (
-        Messages("label.you_owe"),
-        "%,d".format(amount.toInt),
-        Messages("label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available"),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) => {
-      (
-        Messages("label.you_owe"),
-        "%,d".format(amount.toInt),
-        Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) => {
-      saDeadlineStatus match {
-        case SaDeadlineApproachingStatus => {
-          (
-            Messages("label.you_owe"),
-            "%,d".format(amount.toInt),
-            Messages("label.you_paid_too_little_tax_you_must_pay_by_", dueDate.toString),
-            "",
-            "Income",
-            ""
-          )
-        }
-        case SaDeadlinePassedStatus => {
-          (
-            Messages("label.you_owe"),
-            "%,d".format(amount.toInt),
-            Messages("label.you_should_have_paid_", dueDate.toString),
-            "",
-            "Income",
-            ""
-          )
-        }
-      }
-    }
-    case TaxCalculationUnderpaidPaidAllState(startOfTaxYear, endOfTaxYear, _) => {
-      (
-        Messages("label.you_do_not_owe_any_more_tax"),
-        "",
-        Messages("label.you_have_no_more_payments_to_make_to_HMRC"),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case TaxCalculationDisabledState(startOfTaxYear, endOfTaxYear) => {
-      (
-        "",
-        "",
-        Messages("label.check_to_see_if_you_paid_the_right_amount_of_tax_from_", startOfTaxYear.toString, endOfTaxYear.toString),
-        "",
-        "Income",
-        ""
-      )
-    }
-    case _ => {
-      (
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-      )
-    }
+    case _:TaxCalculationUnderpaidPaidAllState => (Messages("label.you_do_not_owe_any_more_tax"), "You do not owe any more tax")
+    case TaxCalculationUnderpaidPaymentDueState(_, _, _, None, _) => (Messages("label.you_paid_too_little_tax_last_year"), "You paid too little tax last year")
+    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), None) => (Messages("label.you_paid_too_little_tax_last_year"), "You paid too little tax last year")
+    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), Some(SaDeadlineApproachingStatus)) => (Messages("label.you_paid_too_little_tax_last_year"), "You paid too little tax last year")
+    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), Some(SaDeadlinePassedStatus)) => (Messages("label.you_missed_the_deadline_to_pay_your_tax"), "You missed the deadline to pay your tax")
+    case TaxCalculationUnderpaidPartPaidState(_, _, _, None, _) => (Messages("label.you_paid_too_little_tax_last_year"), "You paid too little tax last year")
+    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), None) => (Messages("label.you_paid_too_little_tax_last_year"), "You paid too little tax last year")
+    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlineApproachingStatus)) => (Messages("label.you_paid_too_little_tax_last_year"), "You paid too little tax last year")
+    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlinePassedStatus)) => (Messages("label.you_missed_the_deadline_to_pay_your_tax"), "You missed the deadline to pay your tax")
+    case _:TaxCalculationOverpaidState => (Messages("label.you_paid_too_much_tax_last_year"), "You paid too much tax last year")
+    case _:TaxCalculationDisabledState => (Messages("label.your_income_tax_for_last_year"), "Your Income Tax for last year")
+    case _ => ("", "")
   }
 }
 
-@flextile(
-  heading = Messages("label.taxcalc_year", previousTaxYear.toString, currentTaxYear.toString),
-  subHeading = content._1,
-  amount = if(!content._2.isEmpty)Some(content._2) else None,
-  bodyContent = content._3
-) {
+@contentAndLinks = @{
+  taxCalculationState match {
+    case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
+      (Messages("label.hmrc_owes_you_a_refund_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
+        (Messages("label.claim_your_tax_refund"), "/tax-you-paid/status", "Claim your tax refund"),
+        (Messages("label.find_out_why_you_paid_too_much"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons", "Find out why you paid too much")
+      ))
+
+    case TaxCalculationOverpaidPaymentProcessingState(amount) =>
+      (Messages("label.hmrc_is_processing_your_refund", amount), List(
+        (Messages("label.find_out_why_you_paid_too_much"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons", "Find out why you paid too much")
+      ))
+
+    case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) =>
+      (Messages("label.hmrc_has_paid_your_refund", amount), List(
+        (Messages("label.find_out_why_you_paid_too_much"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons", "Find out why you paid too much")
+      ))
+
+    case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) =>
+      (Messages("label.hmrc_sent_you_a_cheque_for", amount), List(
+        (Messages("label.find_out_why_you_paid_too_much"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons", "Find out why you paid too much")
+      ))
+
+    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
+      (Messages("label.you_owe_hmrc_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
+        (Messages("label.find_out_why_you_paid_too_little"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+      ))
+
+    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
+      (Messages("label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
+        (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
+        (Messages("label.find_out_why_you_paid_too_little"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+      ))
+
+    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
+      saDeadlineStatus match {
+        case SaDeadlineApproachingStatus =>
+          (Messages("label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
+            (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
+            (Messages("label.find_out_why_you_paid_too_little"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+          ))
+        case SaDeadlinePassedStatus =>
+          (Messages("label.you_owe_hmrc_for_the_to_tax_year_you_should_have_paid_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
+            (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "You missed the deadline to pay your tax")
+          ))
+      }
+
+    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
+      (Messages("label.you_owe_hmrc_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
+        (Messages("label.find_out_why_you_paid_too_little"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+      ))
+
+    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
+      (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
+        (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
+        (Messages("label.find_out_why_you_paid_too_little"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+      ))
+
+    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
+      saDeadlineStatus match {
+        case SaDeadlineApproachingStatus =>
+          (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
+            (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
+            (Messages("label.find_out_why_you_paid_too_little"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+          ))
+        case SaDeadlinePassedStatus => {
+          (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_should_have_paid_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
+            (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "You missed the deadline to pay your tax")
+          ))
+        }
+      }
+
+    case TaxCalculationUnderpaidPaidAllState(startOfTaxYear, endOfTaxYear, _) =>
+      (Messages("label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year", startOfTaxYear.toString, endOfTaxYear.toString), List(
+        (Messages("label.find_out_why_you_paid_too_little"), s"/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+      ))
+
+    case TaxCalculationDisabledState(startOfTaxYear, endOfTaxYear) =>
+      (Messages("label.check_to_see_if_you_paid_the_right_amount_of_tax_from_", startOfTaxYear.toString, endOfTaxYear.toString), List())
+
+    case _ => ("", List())
+  }
 }
+
+@card(
+  url = Some("/tax-you-paid/status"),
+  gaAction = Some("Income"),
+  gaLabel = Some(heading._2),
+  heading = heading._1,
+  headingTag = "h3",
+  bodyContent = Some(Html("<p>" + contentAndLinks._1 + "</p>"))
+) {
+  @if(!contentAndLinks._2.isEmpty){
+    <ul>
+    @contentAndLinks._2.map { case (label, url, trackingLabel) =>
+      <li><a class="ga-track-anchor-click" href="@url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">@label</a></li>
+    }
+    </ul>
+  }
+  }
