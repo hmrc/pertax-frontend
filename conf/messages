@@ -715,19 +715,3 @@ label.give_friends_or_family_permission_to_access_your_account=Give friends or f
 label.view_your_trusted_helper_contacts=View your trusted helper contacts
 label.track_your_forms_and_letters=Track your forms and letters
 label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by=Find out how your form or letter is progressing and when you should expect a response by.
-
-#
-# New tax calculation tiles
-#
-label.taxcalc_year=6 April {0} to 5 April {1}
-label.you_owe=You owe
-label.hmrc_owe_you=HMRC owe you
-label.your_refund=Your refund
-label.you_should_have_paid_=You should have paid by {0} but you can still make a payment now.
-label.you_have_no_more_payments_to_make_to_HMRC=You have no more payments to make to HMRC.
-label.you_paid_too_little_tax_there_are_a_number_of_payment_options_available=You paid too little tax. There are a number of payment options available.
-label.you_paid_too_little_tax_you_must_pay_by_=You paid too little tax. You must pay by {0}.
-label.find_out_about_your_refund_options=Find out about your refund options.
-label.hmrc_is_processing_your_refund=HMRC is processing your refund.
-label.hmrc_has_paid_your_refund_on_a=HMRC has paid your refund on {0}.
-label.hmrc_sent_you_a_cheque_for_a_on_b=HMRC sent you a cheque for £{0} on {1}.
