@@ -11,6 +11,7 @@ var card = (function () {
 
   var checkSize = function () {
     var maxHeight = getMaxHeight('.card-body')
+    setMaxheight('.card-body', maxHeight)
   }
 
   // Check each card. If the card does not contain a .card-action

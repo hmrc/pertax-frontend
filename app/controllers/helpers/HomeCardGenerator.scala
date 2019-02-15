@@ -51,7 +51,7 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     getStatePensionCard()
   ).flatten
 
-  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(implicit messages: Messages) = {
+  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(implicit messages: Messages): Option[HtmlFormat.Appendable] = {
     pertaxUser match {
       case Some(u) if u.isPaye =>
         taxComponentsState match {
@@ -95,7 +95,7 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     Some(views.html.cards.home.taxCredits(showTaxCreditsPaymentLink))
   }
 
-  def getChildBenefitCard()(implicit messages: Messages) = {
+  def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
     Some(views.html.cards.home.childBenefit())
   }
 
@@ -106,5 +106,4 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
   def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
     Some(views.html.cards.home.statePension())
   }
-
 }
