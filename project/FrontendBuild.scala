@@ -15,15 +15,14 @@ private object AppDependencies {
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "play-breadcrumb" % "1.0.0",
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "12.3.0", // includes the global object and error handling, as well as the FrontendController classes
-    "uk.gov.hmrc" %% "play-partials" % "6.4.0", // includes code for retrieving partials, e.g. the Help with this page form
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "12.4.0", // includes the global object and error handling, as well as the FrontendController classes
+    "uk.gov.hmrc" %% "play-partials" % "6.5.0", // includes code for retrieving partials, e.g. the Help with this page form
     "uk.gov.hmrc" %% "url-builder" % "3.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "8.0.0",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "local-template-renderer" % "2.2.0",
-    "uk.gov.hmrc" %% "play-ui" % "7.31.0-play-25",
+    "uk.gov.hmrc" %% "play-ui" % "7.32.0-play-25",
     "uk.gov.hmrc" %% "tax-year" % "0.4.0"
-
   )
 
   trait TestDependencies {
@@ -47,5 +46,3 @@ private object AppDependencies {
 
   def apply() = compile ++ Test()
 }
-
-
