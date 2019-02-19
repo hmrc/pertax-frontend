@@ -90,20 +90,9 @@ class ApplicationController @Inject() (
 
         val taxCalculationStateCyMinusOne = getTaxCalculationState(nino, year - 1, includeOverPaidPayments = true)
         val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo)
-          getTaxCalculationState(nino, year - 2, includeOverPaidPayments = false)
+          getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
         else
           Future.successful(Some(TaxCalculationUnkownState))
-        
-        val taxCalculationState: Future[Option[TaxCalculationState]] = if (configDecorator.taxcalcEnabled) {
-          taxCalculationService.getTaxCalculation(nino, year - 1) map {
-            case TaxCalculationSuccessResponse(taxCalc) => {
-              Some(taxCalculationStateFactory.buildFromTaxCalculation(Some(taxCalc)))
-            }
-            case _ => None
-          }
-        } else {
-          Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
-        }
 
         val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
           taiService.taxComponents(nino, year) map {
