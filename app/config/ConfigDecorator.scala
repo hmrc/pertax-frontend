@@ -39,6 +39,7 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
 
   val defaultOrigin = Origin("PERTAX")
 
+  //def currentLocalDate: LocalDate = new LocalDate(2019, 1, 1)
   def currentLocalDate: LocalDate = LocalDate.now()
 
   private lazy val contactFrontendService = baseUrl("contact-frontend")
