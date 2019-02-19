@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.Messages
-import play.twirl.api.Html
+import play.twirl.api.{Html, HtmlFormat}
 import models.SelfAssessmentUserType
 import models.TaxComponents
 import util.DateTimeTools.previousAndCurrentTaxYear
@@ -30,11 +30,13 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
 
   def getIncomeCards(pertaxUser: Option[PertaxUser],
                      taxComponentsState: TaxComponentsState,
-                     taxCalculationState: Option[TaxCalculationState],
+                     taxCalculationStateCyMinusOne: Option[TaxCalculationState],
+                     taxCalculationStateCyMinusTwo: Option[TaxCalculationState],
                      saActionNeeded: SelfAssessmentUserType,
                      currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxComponentsState),
-    getTaxCalculationCard(taxCalculationState, currentTaxYear-1, currentTaxYear),
+    getTaxCalculationCard(taxCalculationStateCyMinusOne, currentTaxYear-1, currentTaxYear),
+    getTaxCalculationCard(taxCalculationStateCyMinusTwo, currentTaxYear-2, currentTaxYear-1),
     getSelfAssessmentCard(saActionNeeded, currentTaxYear+1),
     getNationalInsuranceCard()
   ).flatten
@@ -49,12 +51,9 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     getStatePensionCard()
   ).flatten
 
-  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(implicit messages: Messages) = {
-
+  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(implicit messages: Messages): Option[HtmlFormat.Appendable] = {
     pertaxUser match {
-
       case Some(u) if u.isPaye =>
-
         taxComponentsState match {
           case TaxComponentsNotAvailableState => None
           case _ => Some(views.html.cards.home.payAsYouEarn())
@@ -63,7 +62,9 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     }
   }
 
-  def getTaxCalculationCard(taxCalculationState: Option[TaxCalculationState], previousTaxYear: Int, currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages) = {
+  def getTaxCalculationCard(taxCalculationState: Option[TaxCalculationState],
+                            previousTaxYear: Int,
+                            currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
 
     taxCalculationState match {
       case Some(TaxCalculationUnderpaidPaymentsDownState(_,_)) => None
@@ -73,7 +74,8 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     }
   }
 
-  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages) = {
+  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType,
+                            nextDeadlineTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
     if (!pertaxContext.user.fold(false)(_.isVerify)) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
@@ -85,24 +87,23 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     }
   }
 
-  def getNationalInsuranceCard()(implicit messages: Messages) = {
+  def getNationalInsuranceCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
     Some(views.html.cards.home.nationalInsurance())
   }
 
-  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages) = {
+  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
     Some(views.html.cards.home.taxCredits(showTaxCreditsPaymentLink))
   }
 
-  def getChildBenefitCard()(implicit messages: Messages) = {
+  def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
     Some(views.html.cards.home.childBenefit())
   }
 
-  def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit messages: Messages) = {
+  def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
     Some(views.html.cards.home.marriageAllowance(taxComponents))
   }
 
-  def getStatePensionCard()(implicit messages: Messages) = {
+  def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
     Some(views.html.cards.home.statePension())
   }
-
 }

@@ -45,44 +45,45 @@ case object TaxCalculationUnkownState extends TaxCalculationState
 
 @Singleton
 class TaxCalculationStateFactory @Inject() (
-  val configDecorator: ConfigDecorator,
-  val localTaxYearResolver: LocalTaxYearResolver
-) {
+   val configDecorator: ConfigDecorator,
+   val localTaxYearResolver: LocalTaxYearResolver
+  ) {
 
-  def buildFromTaxCalculation(taxCalculation: Option[TaxCalculation]): TaxCalculationState = {
-    taxCalculation match {
-      case Some(TaxCalculation("Overpaid", amount, taxYear, Some("REFUND"), _, _, _)) =>
-        TaxCalculationOverpaidRefundState(amount,  taxYear, taxYear + 1)
+  def buildFromTaxCalculation(taxCalculation: Option[TaxCalculation], includeOverPaidPayments: Boolean = true): TaxCalculationState = {
 
-      case Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PROCESSING"), _, _, _)) =>
-        TaxCalculationOverpaidPaymentProcessingState(amount)
-
-      case Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), Some(datePaid), _, _)) =>
-        TaxCalculationOverpaidPaymentPaidState(amount, asHumanDateFromUnixDate(datePaid))
-
-      case Some(TaxCalculation("Overpaid", amount, _, Some("CHEQUE_SENT"), Some(datePaid), _, _)) =>
-        TaxCalculationOverpaidPaymentChequeSentState(amount, asHumanDateFromUnixDate(datePaid))
-
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, None)) =>
+    (taxCalculation, includeOverPaidPayments) match {
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, None)), _) =>
         TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, None, None)
 
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, Some(dueDate))) =>
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, Some(dueDate))), _) =>
         TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
 
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"),_, _, None)) =>
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _, _, None)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
 
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"),_, Some("P302"), Some(dueDate))) =>
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), Some(dueDate))), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
 
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, None)) =>
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, None)), _) =>
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, None)
 
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))) =>
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))), _) =>
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)))
 
-      case Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _, _, _)) =>
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _, _, _)), _) =>
         TaxCalculationUnderpaidPaymentsDownState(taxYear, taxYear + 1)
+
+      case (Some(TaxCalculation("Overpaid", amount, taxYear, Some("REFUND"), _, _, _)), _) =>
+        TaxCalculationOverpaidRefundState(amount, taxYear, taxYear + 1)
+
+      case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PROCESSING"), _, _, _)), true) =>
+        TaxCalculationOverpaidPaymentProcessingState(amount)
+
+      case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), Some(datePaid), _, _)), true) =>
+        TaxCalculationOverpaidPaymentPaidState(amount, asHumanDateFromUnixDate(datePaid))
+
+      case (Some(TaxCalculation("Overpaid", amount, _, Some("CHEQUE_SENT"), Some(datePaid), _, _)), true) =>
+        TaxCalculationOverpaidPaymentChequeSentState(amount, asHumanDateFromUnixDate(datePaid))
 
       case _ => TaxCalculationUnkownState
     }

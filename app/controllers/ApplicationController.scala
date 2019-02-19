@@ -29,6 +29,7 @@ import play.api.mvc._
 import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.renderer.ActiveTabHome
@@ -62,29 +63,36 @@ class ApplicationController @Inject() (
   val homePageCachingHelper: HomePageCachingHelper,
   val taxCalculationStateFactory: TaxCalculationStateFactory
 
-) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear{
+  ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
 
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
     implicit pertaxContext =>
 
-      val year = current.currentYear
-
-      val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
-
-      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState,Option[TaxCalculationState])]](Future.successful( (TaxComponentsDisabledState, None) )) { userAndNino =>
-
-        val (user, nino) = userAndNino
-
-        val taxCalculationState: Future[Option[TaxCalculationState]] = if (configDecorator.taxcalcEnabled) {
-          taxCalculationService.getTaxCalculation(nino, year - 1) map {
-            case TaxCalculationSuccessResponse(taxCalc) => {
-              Some(taxCalculationStateFactory.buildFromTaxCalculation(Some(taxCalc)))
-            }
+      def getTaxCalculationState(nino: Nino, year: Int, includeOverPaidPayments: Boolean): Future[Option[TaxCalculationState]] = {
+        if (configDecorator.taxcalcEnabled) {
+          taxCalculationService.getTaxCalculation(nino, year) map {
+            case TaxCalculationSuccessResponse(taxCalc) => Some(taxCalculationStateFactory.buildFromTaxCalculation(Some(taxCalc), includeOverPaidPayments))
             case _ => None
           }
         } else {
           Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
         }
+      }
+
+      val year = current.currentYear
+
+      val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
+
+      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState,Option[TaxCalculationState], Option[TaxCalculationState])]](
+        Future.successful( (TaxComponentsDisabledState, None, None) )) { userAndNino =>
+
+        val (user, nino) = userAndNino
+
+        val taxCalculationStateCyMinusOne = getTaxCalculationState(nino, year - 1, includeOverPaidPayments = true)
+        val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo)
+          getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
+        else
+          Future.successful(Some(TaxCalculationUnkownState))
 
         val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
           taiService.taxComponents(nino, year) map {
@@ -100,9 +108,10 @@ class ApplicationController @Inject() (
         }
 
         for {
-          taxCalculationState <- taxCalculationState
+          taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
+          taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
           taxSummaryState <- taxSummaryState
-        } yield (taxSummaryState, taxCalculationState)
+        } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
       }
 
       val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
@@ -114,14 +123,15 @@ class ApplicationController @Inject() (
       showUserResearchBanner flatMap { showUserResearchBanner =>
         enforcePaperlessPreference {
           for {
-            (taxSummaryState, taxCalculationState) <- serviceCallResponses
+            (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- serviceCallResponses
             saUserType <- saUserType
           } yield {
 
             val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
               pertaxContext.user,
               taxSummaryState,
-              taxCalculationState,
+              taxCalculationStateCyMinusOne,
+              taxCalculationStateCyMinusTwo,
               saUserType,
               current.currentYear)
 
@@ -193,12 +203,12 @@ class ApplicationController @Inject() (
     implicit pertaxContext =>
       Future.successful {
         continueUrl.map(_.url).orElse(origin.map(configDecorator.getFeedbackSurveyUrl)).fold(BadRequest("Missing origin")) { url: String =>
-            pertaxContext.user match {
-              case Some(user) if user.isGovernmentGateway =>
-                Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
-              case _ =>
-                Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
-            }
+          pertaxContext.user match {
+            case Some(user) if user.isGovernmentGateway =>
+              Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
+            case _ =>
+              Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
+          }
         }
       }
   }
