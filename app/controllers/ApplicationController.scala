@@ -93,7 +93,7 @@ class ApplicationController @Inject() (
           getTaxCalculationState(nino, year - 2, includeOverPaidPayments = false)
         else
           Future.successful(Some(TaxCalculationUnkownState))
-
+        
         val taxCalculationState: Future[Option[TaxCalculationState]] = if (configDecorator.taxcalcEnabled) {
           taxCalculationService.getTaxCalculation(nino, year - 1) map {
             case TaxCalculationSuccessResponse(taxCalc) => {
