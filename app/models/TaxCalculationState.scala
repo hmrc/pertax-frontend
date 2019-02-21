@@ -85,6 +85,9 @@ class TaxCalculationStateFactory @Inject() (
       case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), Some(datePaid), _, _)), true) =>
         TaxCalculationOverpaidPaymentPaidState(amount, asHumanDateFromUnixDate(datePaid))
 
+      case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), _, _, _)), true) =>
+        TaxCalculationOverpaidPaymentPaidState(amount, "")
+
       case (Some(TaxCalculation("Overpaid", amount, _, Some("CHEQUE_SENT"), Some(datePaid), _, _)), true) =>
         TaxCalculationOverpaidPaymentChequeSentState(amount, asHumanDateFromUnixDate(datePaid))
 
