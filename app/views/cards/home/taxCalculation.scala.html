@@ -84,13 +84,13 @@
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
       (Messages("label.you_owe_hmrc_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
-        (Messages("label.find_out_why_you_paid_too_little"), s"/${pertaxContext.configDecorator.taxCalcFrontendHost}tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+        (Messages("label.find_out_why_you_paid_too_little"), s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
       ))
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
       (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
         (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), s"/${pertaxContext.configDecorator.taxCalcFrontendHost}tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
+        (Messages("label.find_out_why_you_paid_too_little"), s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons", "Find out why you paid too little")
       ))
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
