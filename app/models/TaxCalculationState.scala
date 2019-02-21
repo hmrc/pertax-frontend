@@ -64,6 +64,9 @@ class TaxCalculationStateFactory @Inject() (
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), Some(dueDate))), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
 
+      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), _)), _) =>
+        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
+
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, None)), _) =>
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, None)
 
