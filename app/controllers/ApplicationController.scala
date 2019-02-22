@@ -89,8 +89,9 @@ class ApplicationController @Inject() (
         val (user, nino) = userAndNino
 
         val taxCalculationStateCyMinusOne = getTaxCalculationState(nino, year - 1, includeOverPaidPayments = true)
-        val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo)
+        val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo) {
           getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
+        }
         else
           Future.successful(Some(TaxCalculationUnkownState))
 
