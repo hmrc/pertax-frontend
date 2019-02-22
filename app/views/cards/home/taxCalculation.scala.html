@@ -18,8 +18,11 @@
 
 @import tags._
 
-@underpaidUrl = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons"}
-@overpaidUrl  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons"}
+@underpaidUrlReasons = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons"}
+@overpaidUrlReasons  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons"}
+
+@underpaidUrl = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little"}
+@overpaidUrl  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much"}
 
 @heading = @{
   taxCalculationState match {
@@ -115,13 +118,13 @@
   taxCalculationState match {
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
       (Messages("label.you_owe_hmrc_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrl, "Find out why you paid too little")
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
       (Messages("label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
         (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrl, "Find out why you paid too little")
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
     case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
@@ -129,7 +132,7 @@
         case SaDeadlineApproachingStatus =>
           (Messages("label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
             (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
-            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrl, "Find out why you paid too little")
+            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
           ))
         case SaDeadlinePassedStatus =>
           (Messages("label.you_owe_hmrc_for_the_to_tax_year_you_should_have_paid_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
@@ -139,13 +142,13 @@
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
       (Messages("label.you_owe_hmrc_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrl, "Find out why you paid too little")
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
       (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
         (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrl, "Find out why you paid too little")
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
@@ -153,7 +156,7 @@
         case SaDeadlineApproachingStatus =>
           (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
             (Messages("label.make_a_payment"), "https://www.gov.uk/simple-assessment", "Make a payment"),
-            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrl, "Find out why you paid too little")
+            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
           ))
         case SaDeadlinePassedStatus => {
           (Messages("label.you_still_owe_hmrc_for_the_to_tax_year_you_should_have_paid_", amount, startOfTaxYear.toString, endOfTaxYear.toString, dueDate), List(
@@ -164,7 +167,7 @@
 
     case TaxCalculationUnderpaidPaidAllState(startOfTaxYear, endOfTaxYear, _) =>
       (Messages("label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year", startOfTaxYear.toString, endOfTaxYear.toString), List(
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrl, "Find out why you paid too little")
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
     case TaxCalculationDisabledState(startOfTaxYear, endOfTaxYear) =>
@@ -173,25 +176,25 @@
     case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
       (Messages("label.hmrc_owes_you_a_refund_for_the_to_tax_year", amount, startOfTaxYear.toString, endOfTaxYear.toString), List(
       (Messages("label.claim_your_tax_refund"), s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/status", "Claim your tax refund"),
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrl, "Find out why you paid too much")
+      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))
 
     case TaxCalculationOverpaidPaymentProcessingState(amount) =>
       (Messages("label.hmrc_is_processing_your_refund", amount), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrl, "Find out why you paid too much")
+      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))
 
     case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) =>
       (Messages("label.hmrc_has_paid_your_refund", amount), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrl, "Find out why you paid too much")
+      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))
 
     case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) =>
       (Messages("label.hmrc_sent_you_a_cheque_for", amount), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrl, "Find out why you paid too much")
+      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))
 
-case _ => ("", List())
+    case _ => ("", List())
   }
 }
 
@@ -210,4 +213,4 @@ case _ => ("", List())
     }
     </ul>
   }
-  }
+}
