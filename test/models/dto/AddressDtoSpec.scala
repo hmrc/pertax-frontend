@@ -775,4 +775,24 @@ class AddressDtoSpec extends BaseSpec {
       )
     }
   }
+
+  "Calling AddressDto.toList" should {
+
+    "return address with postcode and not country" in {
+      val addressDto = AddressDto( "Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+
+      addressDto.toList shouldBe Seq("Line 1", "Line 2", "Line 3", "AA1 1AA")
+    }
+  }
+
+  "Calling AddressDto.toListWithCountry" should {
+
+    "return address with country and not postcode" in {
+      val addressDto = AddressDto( "Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+
+      addressDto.toListWithCountry shouldBe Seq("Line 1", "Line 2", "Line 3", "UK")
+    }
+  }
+
+
 }

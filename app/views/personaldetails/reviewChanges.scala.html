@@ -64,12 +64,16 @@
             )
           </dt>
 
+            @if(isUkAddress) {
+
             <dd class="cya-answer">@Html(addressDto.toList.map(item => s"<div>$item</div>").mkString)</dd>
 
-          @if(isUkAddress) {
             <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.change_address")</a></dd>
             } else {
-              <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateInternationalAddressForm(typ)">@Messages("label.change")</a></dd>
+
+            <dd class="cya-answer">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>
+
+            <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateInternationalAddressForm(typ)">@Messages("label.change")</a></dd>
             }
 
         </div>

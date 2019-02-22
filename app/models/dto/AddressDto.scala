@@ -106,5 +106,6 @@ case class AddressDto(
   propertyRefNo: Option[String]
 ) {
   def toAddress(`type`: String, startDate: LocalDate) = Address(Some(line1), Some(line2), line3, line4, line5, postcode.map(_.toUpperCase), country, Some(startDate), Some(`type`))
-  def toList = Seq( Some(line1), Some(line2), line3, line4, line5, postcode, country ).flatten
+  def toList = Seq( Some(line1), Some(line2), line3, line4, line5, postcode ).flatten
+  def toListWithCountry = Seq( Some(line1), Some(line2), line3, line4, line5, country ).flatten
 }
