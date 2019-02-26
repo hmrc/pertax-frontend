@@ -16,6 +16,8 @@
 
 package models.dto
 
+import models.Address
+import org.joda.time.LocalDate
 import util.BaseSpec
 
 class AddressDtoSpec extends BaseSpec {
@@ -791,6 +793,25 @@ class AddressDtoSpec extends BaseSpec {
       val addressDto = AddressDto( "Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
 
       addressDto.toListWithCountry shouldBe Seq("Line 1", "Line 2", "Line 3", "UK")
+    }
+  }
+
+  "Calling AddressDto.toAddress" should {
+
+    "return address with postcode and not country when postcode exists" in {
+      val addressDto = AddressDto( "Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+      val addressTye = "sole"
+      val startDate = new LocalDate(2019, 1, 1)
+
+      addressDto.toAddress(addressTye, startDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), None, Some(startDate), Some(addressTye))
+    }
+
+    "return address with country when postcode does not exist" in {
+      val addressDto = AddressDto( "Line 1", "Line 2", Some("Line 3"), None, None, None, Some("UK"), None)
+      val addressTye = "sole"
+      val startDate = new LocalDate(2019, 1, 1)
+
+      addressDto.toAddress(addressTye, startDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, None, Some("UK"), Some(startDate), Some(addressTye))
     }
   }
 
