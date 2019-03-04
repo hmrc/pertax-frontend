@@ -41,8 +41,8 @@ class PersonalDetailsCardGenerator @Inject() (
     def compare(a: LocalDate, y: Int, m: Int, d: Int)(f: (LocalDate, LocalDate) => Boolean) = f(a, new LocalDate(y, m, d))
 
     address match {
-      case Some(Address(_, _, _, _, _, _, _, Some(startDate), _)) if compare(startDate, 2016, 4, 6)(_.equals(_)) => (true, None)
-      case Some(Address(_, _, _, _, _, _, _,  Some(startDate), _)) if compare(startDate, 2016, 4, 6)(!_.equals(_)) => (false, Some(formatDate(startDate)))
+      case Some(Address(_, _, _, _, _, _, _, Some(startDate), _, _)) if compare(startDate, 2016, 4, 6)(_.equals(_)) => (true, None)
+      case Some(Address(_, _, _, _, _, _, _,  Some(startDate), _, _)) if compare(startDate, 2016, 4, 6)(!_.equals(_)) => (false, Some(formatDate(startDate)))
       case _ => (false, None)
     }
   }
@@ -76,7 +76,7 @@ class PersonalDetailsCardGenerator @Inject() (
         hasCorrespondenceAddress match {
           case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) => {
             val canUpdatePostalAddress = personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
-            Some (views.html.cards.personaldetails.postalAddress (personDetails = personDetails, canUpdatePostalAddress = canUpdatePostalAddress, countryHelper.excludedCountries) )
+            Some (views.html.cards.personaldetails.postalAddress (personDetails = personDetails, canUpdatePostalAddress = canUpdatePostalAddress, countryHelper.excludedCountries, configDecorator.closePostalAddressEnabled) )
           }
           case _ => None
         }

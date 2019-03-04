@@ -19,8 +19,8 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models._
-import org.joda.time.{DateTime, LocalDate}
-import org.mockito.Matchers.{eq => meq, _}
+import org.joda.time.LocalDate
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.{Configuration, Environment}
@@ -29,8 +29,8 @@ import play.api.http.Status._
 import play.api.libs.json.{JsNull, Json}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import util.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.HttpResponse
+import util.{BaseSpec, Fixtures}
 
 class CitizenDetailsServiceSpec extends BaseSpec {
 
@@ -50,9 +50,25 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       None,
       Some("AA1 1AA"),
       Some(new LocalDate(2015, 3, 15)),
+      None,
       Some("Residential")
     )
+
+    val correspondenceAddress = Address(
+      Some("3 Fake Street"),
+      Some("Fake Town"),
+      Some("FakeShire"),
+      Some("Fake Region"),
+      None,
+      None,
+      Some("AA1 2AA"),
+      Some(new LocalDate(2015, 3, 15)),
+      Some(LocalDate.now),
+      Some("Correspondence")
+    )
+
     val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
+    val jsonCorrespondenceAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(correspondenceAddress))
     val nino: Nino = Fixtures.fakeNino
     val anException = new RuntimeException("Any")
 
@@ -159,6 +175,18 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val httpResponse = HttpResponse(CREATED)
 
       val r = service.updateAddress(nino, "115", address)
+
+      await(r) shouldBe UpdateAddressSuccessResponse
+      verify(met, times(1)).startTimer(metricId)
+      verify(met, times(1)).incrementSuccessCounter(metricId)
+      verify(timer, times(1)).stop()
+    }
+
+    "return UpdateAddressSuccessResponse when called with a valid Nino and valid correspondence address with an end date" in new LocalSetup {
+      override lazy val simulateCitizenDetailsServiceIsDown = false
+      override lazy val httpResponse = HttpResponse(CREATED)
+
+      val r = service.updateAddress(nino, "115", correspondenceAddress)
 
       await(r) shouldBe UpdateAddressSuccessResponse
       verify(met, times(1)).startTimer(metricId)

@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails, canUpdatePostalAddress: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, canUpdatePostalAddress: Boolean, countries: List[Country], closePostalAddressEnabled: Boolean)(implicit messages: play.api.i18n.Messages)
 
 @import tags._
 
@@ -45,6 +45,11 @@
       <li>
         <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@Messages("label.change_your_postal_address")</a>
       </li>
+      @if(closePostalAddressEnabled) {
+        <li>
+          <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.closePostalAddressChoice" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Send letters to your main address">@Messages("label.send_your_letters_to_your_main_address")</a>
+        </li>
+      }
     </ul>
   }
 } else {

@@ -16,6 +16,8 @@
 
 package controllers.helpers
 
+import models.{Address, PersonDetails}
+import models.addresslookup.AddressRecord
 import models.dto.AddressDto
 
 object AddressJourneyAuditingHelper {
@@ -66,6 +68,23 @@ object AddressJourneyAuditingHelper {
       addressDtoToAuditData(addressDto, "submitted") ++
       Map(
         "submittedUPRN" -> propertyRefNo,
+        "etag" -> Some(etag),
+        "addressType" -> Some(addressType)
+      )
+
+  }
+
+  def auditForClosingPostalAddress(address: Address, etag: String, addressType: String): Map[String, Option[String]] = {
+      Map(
+        "submittedLine1"    -> address.line1,
+        "submittedLine2"    -> address.line2,
+        "submittedLine3"    -> address.line3,
+        "submittedLine4"    -> address.line4,
+        "submittedLine5"    -> address.line5,
+        "submittedPostcode" -> address.postcode,
+        "submittedCountry"  -> address.country
+      ).foldLeft(List[(String,Option[String])]())( (acc, cur) => cur._2.fold(acc)( x => cur :: acc ) ).toMap ++
+      Map(
         "etag" -> Some(etag),
         "addressType" -> Some(addressType)
       )

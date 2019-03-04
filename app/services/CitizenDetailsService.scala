@@ -98,7 +98,6 @@ class CitizenDetailsService @Inject() (environment: Environment, configuration: 
 
   def updateAddress(nino: Nino, etag: String, address: Address)(implicit headerCarrier: HeaderCarrier): Future[UpdateAddressResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
-
     withMetricsTimer("update-address") { t =>
       simpleHttp.post[JsObject, UpdateAddressResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address", body)(
         onComplete = {
