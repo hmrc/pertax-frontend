@@ -17,9 +17,6 @@
 package controllers
 
 
-import java.io
-
-import javax.inject.Inject
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
@@ -27,6 +24,7 @@ import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
+import javax.inject.Inject
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
@@ -69,6 +67,14 @@ class AddressController @Inject() (
   def dateDtoForm = DateDto.form(configDecorator.currentLocalDate)
 
   def currentAddressType(personDetails: PersonDetails) = personDetails.address.flatMap(_.`type`).getOrElse("Residential")
+
+  def getAddress(address: Option[Address]): Address = {
+    address match {
+      case Some(address) => address
+      case None => throw new Exception("Address does not exist in the current context")
+    }
+
+  }
 
   def addressBreadcrumb: Breadcrumb =
     "label.personal_details" -> routes.AddressController.personalDetails.url ::
@@ -453,7 +459,7 @@ class AddressController @Inject() (
                 val proposedStartDate = dateDto.startDate
 
                 personDetails.address match {
-                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _)) =>
+                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
                     if(!currentStartDate.isBefore(proposedStartDate))
                       BadRequest(views.html.personaldetails.cannotUpdateAddress(typ, formatDate(proposedStartDate)))
                     else Redirect(routes.AddressController.reviewChanges(typ))
@@ -473,6 +479,73 @@ class AddressController @Inject() (
     else
       block
   }
+
+  def closePostalAddressChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+    implicit pertaxContext =>
+      addressJourneyEnforcer { payeAccount =>
+        personDetails =>
+           val address = getAddress(personDetails.address).fullAddress
+              Future.successful(Ok(views.html.personaldetails.closeCorrespondenceAdressChoice(address, ClosePostalAddressChoiceDto.form )))
+      }
+  }
+
+  def processClosePostalAddressChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+    implicit pertaxContext =>
+      addressJourneyEnforcer { payeAccount =>
+        personalDetails =>
+          ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
+            formWithErrors => {
+              Future.successful(BadRequest(views.html.personaldetails.closeCorrespondenceAdressChoice(getAddress(personalDetails.address).fullAddress, formWithErrors)))
+            },
+            closePostalAddressChoiceDto => {
+                closePostalAddressChoiceDto.value match {
+                  case true => Future.successful(Redirect(routes.AddressController.confirmClosePostalAddress()))
+                  case false => Future.successful(Redirect(routes.AddressController.personalDetails()))
+                }
+            }
+          )
+      }
+  }
+
+  def confirmClosePostalAddress: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+    implicit pertaxContext =>
+      addressJourneyEnforcer { payeAccount =>
+        personDetails =>
+            val address = getAddress(personDetails.address).fullAddress
+            Future.successful(Ok(views.html.personaldetails.confirmCloseCorrespondenceAddress(address)))
+
+      }
+  }
+
+  def submitConfirmClosePostalAddress: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount))  {
+    implicit pertaxContext =>
+      val typ = PostalAddrType
+      addressJourneyEnforcer { payeAccount => personDetails =>
+
+        val address = getAddress(personDetails.correspondenceAddress)
+        val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
+
+        citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, closingAddress) map {
+
+          case UpdateAddressBadRequestResponse =>
+            BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
+              Some("global.error.BadRequest.message"), false))
+
+          case UpdateAddressUnexpectedResponse(response) =>
+            InternalServerError(views.html.error("global.error.InternalServerError500.title",
+              Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+
+          case UpdateAddressErrorResponse(cause) =>
+            InternalServerError(views.html.error("global.error.InternalServerError500.title",
+              Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+
+          case UpdateAddressSuccessResponse =>
+            auditConnector.sendEvent(buildEvent("closedAddressSubmitted", "closure_of_correspondence", auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
+            clearCache() //This clears ENTIRE session cache, no way to target individual keys
+            Ok(views.html.personaldetails.updateAddressConfirmation(typ, true, Some(getAddress(personDetails.address).fullAddress)))
+        }
+      }
+    }
 
   def reviewChanges(typ: AddrType): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
@@ -555,7 +628,7 @@ class AddressController @Inject() (
                 case UpdateAddressSuccessResponse =>
                   handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
                   clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                  Ok(views.html.personaldetails.updateAddressConfirmation(typ))
+                  Ok(views.html.personaldetails.updateAddressConfirmation(typ, false, None))
                 }
               }
           }

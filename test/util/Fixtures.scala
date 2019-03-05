@@ -19,14 +19,12 @@ package util
 import java.util.UUID
 
 import akka.stream.Materializer
-import com.typesafe.config.{Config, ConfigFactory}
 import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.joda.time.{DateTime, LocalDate}
-import org.mockito.Matchers.{eq => meq, _}
-import org.mockito.Mockito
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar
@@ -52,7 +50,6 @@ import scala.concurrent.Future
 import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.Random
-import scala.collection.JavaConverters._
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK","United Kingdom")
@@ -95,6 +92,12 @@ trait CitizenDetailsFixtures {
     Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
   ), Some( buildFakeAddress ), None)
 
+  def buildPersonDetailsCorrespondenceAddress = PersonDetails("115", Person(
+    Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
+    Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
+  ),  Some( buildFakeAddress), Some( buildFakeCorrespondenceAddress ))
+
+
   def buildFakeAddress = Address(
     Some("1 Fake Street"),
     Some("Fake Town"),
@@ -104,7 +107,34 @@ trait CitizenDetailsFixtures {
     Some("AA1 1AA"),
     None,
     Some(new LocalDate(2015, 3, 15)),
+    None,
     Some("Residential")
+  )
+
+  def buildFakeCorrespondenceAddress = Address(
+    Some("1 Fake Street"),
+    Some("Fake Town"),
+    Some("Fake City"),
+    Some("Fake Region"),
+    None,
+    Some("AA1 1AA"),
+    None,
+    Some(new LocalDate(2015, 3, 15)),
+    None,
+    Some("Correspondence")
+  )
+
+  def buildFakeAddressWithEndDate = Address(
+    Some("1 Fake Street"),
+    Some("Fake Town"),
+    Some("Fake City"),
+    Some("Fake Region"),
+    None,
+    Some("AA1 1AA"),
+    None,
+    Some(new LocalDate(now)),
+    Some(new LocalDate(now)),
+    Some("Correspondence")
   )
 
   def buildFakeJsonAddress = Json.toJson(buildFakeAddress)
