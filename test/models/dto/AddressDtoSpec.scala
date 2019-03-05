@@ -18,6 +18,7 @@ package models.dto
 
 import models.Address
 import org.joda.time.LocalDate
+import uk.gov.hmrc.time.DateTimeUtils.now
 import util.BaseSpec
 
 class AddressDtoSpec extends BaseSpec {
@@ -803,7 +804,7 @@ class AddressDtoSpec extends BaseSpec {
       val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
-      addressDto.toAddress(addressTye, startDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), None, Some(startDate), Some(addressTye))
+      addressDto.toAddress(addressTye, startDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), None, Some(startDate), None, Some(addressTye))
     }
 
     "return address with country when postcode does not exist" in {
@@ -811,7 +812,32 @@ class AddressDtoSpec extends BaseSpec {
       val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
-      addressDto.toAddress(addressTye, startDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, None, Some("UK"), Some(startDate), Some(addressTye))
+      addressDto.toAddress(addressTye, startDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, None, Some("UK"), Some(startDate), None, Some(addressTye))
+    }
+  }
+
+  "Calling AddressDto.toCloseAdress" should {
+
+    "return address with country and an end date" in {
+      val addressDto = AddressDto( "Line 1", "Line 2", Some("Line 3"), None, None, None, Some("SPAIN"), None)
+      val addressTye = "correspondence"
+      val startDate = new LocalDate(2018, 1, 1)
+      val endDate = new LocalDate(now)
+
+
+      addressDto.toCloseAddress(addressTye, startDate, endDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, None, Some("SPAIN"), Some(startDate), Some(endDate), Some(addressTye))
+
+    }
+
+    "return address with postcode and an end date" in {
+      val addressDto = AddressDto( "Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), None, None)
+      val addressTye = "correspondence"
+      val startDate = new LocalDate(2018, 1, 1)
+      val endDate = new LocalDate(now)
+
+
+      addressDto.toCloseAddress(addressTye, startDate, endDate) shouldBe Address(Some("Line 1"), Some("Line 2"), Some("Line 3"), None, None, Some("AA1 1AA"), None, Some(startDate), Some(endDate), Some(addressTye))
+
     }
   }
 

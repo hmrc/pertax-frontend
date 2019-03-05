@@ -72,9 +72,26 @@ case class Address(
   postcode: Option[String],
   country: Option[String],
   startDate: Option[LocalDate],
+  endDate: Option[LocalDate],
   `type`: Option[String]
 ) {
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
+  lazy val fullAddress = List(line1, line2, line3, line4, line5, postcode.map(_.toUpperCase), internationalAddressCountry(country)).flatten
+
+  val excludedCountries = List(
+    Country("GREAT BRITAIN"),
+    Country("SCOTLAND"),
+    Country("ENGLAND"),
+    Country("WALES"),
+    Country("NORTHERN IRELAND")
+  )
+
+  def internationalAddressCountry(country: Option[String]): Option[String] = {
+    excludedCountries.contains(Country(country.getOrElse(""))) match {
+      case false => country
+      case _ => None
+    }
+  }
 
   def isWelshLanguageUnit: Boolean = {
     val welshLanguageUnitPostcodes = Set("CF145SH", "CF145TS", "LL499BF", "BX55AB", "LL499AB")

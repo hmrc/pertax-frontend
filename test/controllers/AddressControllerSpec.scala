@@ -24,7 +24,7 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto._
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
-import org.mockito.ArgumentCaptor
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -153,6 +153,33 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe OK
       verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+    }
+  }
+
+  "Calling AddressController.getAddress" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "return Address when option contains address" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map()))
+
+      val r = controller.getAddress(Some(buildFakeAddress))
+
+      r shouldBe buildFakeAddress
+    }
+
+    "return error when address is None" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map()))
+
+      an[Exception] shouldBe thrownBy {
+        controller.getAddress(None)
+      }
     }
   }
 
@@ -976,6 +1003,77 @@ class AddressControllerSpec extends BaseSpec {
     }
   }
 
+  "Calling AddressController.closePostalAddressChoice" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "display the closeCorrespondenceAddressChoice form that contains the main address" in new LocalSetup {
+      val r = controller.closePostalAddressChoice(buildAddressRequest("GET"))
+
+      contentAsString(r) should include (fakeAddress.line1.getOrElse("line6"))
+
+      status(r) shouldBe OK
+    }
+  }
+
+  "Calling AddressController.processClosePostalAddressChoice" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "return 400 when supplied invalid form input" in new LocalSetup {
+      val r = controller.processClosePostalAddressChoice(buildAddressRequest("POST"))
+
+      status(r) shouldBe BAD_REQUEST
+    }
+
+    "return 303, caching closePostalAddressChoiceDto and redirecting to review changes page when supplied valid form input" in new LocalSetup {
+      val r = controller.processClosePostalAddressChoice(buildAddressRequest("POST").withFormUrlEncodedBody("closePostalAddressChoice" -> "true"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/close-correspondence-address-confirm")
+    }
+
+    "return 303, caching closePostalAddressChoiceDto and redirecting to personal details page" in new LocalSetup {
+      val r = controller.processClosePostalAddressChoice(buildAddressRequest("POST").withFormUrlEncodedBody("closePostalAddressChoice" -> "false"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+    }
+
+  }
+
+  "Calling AddressController.confirmClosePostalAddress" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "render the appropriate content that includes the address" in new LocalSetup {
+      val r = controller.confirmClosePostalAddress(buildAddressRequest("GET"))
+
+      contentAsString(r) should include (fakeAddress.line1.getOrElse("line6"))
+    }
+  }
+
   "Calling AddressController.processUpdateInternationalAddressForm" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
@@ -1311,6 +1409,149 @@ class AddressControllerSpec extends BaseSpec {
     }
 
   }
+
+  "Calling AddressController.closePostalAddressChoice" should {
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+      override lazy val sessionCacheResponse = None
+
+    }
+
+    "return OK when closePostalAddressChoice is called" in new LocalSetup {
+
+      val r = controller.closePostalAddressChoice(buildFakeRequestWithAuth("GET"))
+
+      status(r) shouldBe OK
+    }
+  }
+
+  "Calling AddressController.processClosePostalAddressChoice" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "redirect to expected confirm close correspondence confirmation page when supplied with value = Yes (true)" in new LocalSetup {
+      val r = controller.processClosePostalAddressChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("closePostalAddressChoice" -> "true"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/close-correspondence-address-confirm")
+    }
+
+    "redirect to personal details page when supplied with value = No (false)" in new LocalSetup {
+      val r = controller.processClosePostalAddressChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("closePostalAddressChoice" -> "false"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+    }
+
+    "return a bad request when supplied no value" in new LocalSetup {
+      val r = controller.processClosePostalAddressChoice(buildFakeRequestWithAuth("POST"))
+
+      status(r) shouldBe BAD_REQUEST
+    }
+  }
+
+  "Calling AddressController.confirmClosePostalAddress" should {
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+      override lazy val sessionCacheResponse = None
+
+    }
+
+    "return OK when confirmClosePostalAddress is called" in new LocalSetup {
+
+      val r = controller.confirmClosePostalAddress(buildFakeRequestWithAuth("GET"))
+
+      status(r) shouldBe OK
+    }
+  }
+
+
+  "Calling AddressController.submitConfirmClosePostalAddress" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddressWithEndDate
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(buildPersonDetailsCorrespondenceAddress)
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
+
+      def comparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
+        "pertax-frontend", auditType, dataEvent.eventId,
+        Map("path" -> "/test", "transactionName" -> "closure_of_correspondence"),
+        Map(
+          "nino" -> Some(Fixtures.fakeNino.nino),
+          "etag" -> Some("115"),
+          "submittedLine1" -> Some("1 Fake Street"),
+          "submittedLine2" -> Some("Fake Town"),
+          "submittedLine3" -> Some("Fake City"),
+          "submittedLine4" -> Some("Fake Region"),
+          "submittedPostcode" -> Some("AA1 1AA"),
+          "submittedCountry" -> None,
+          "addressType" -> Some("correspondence")
+        ).map(t => t._2.map((t._1, _))).flatten.toMap,
+        dataEvent.generatedAt
+      )
+
+    }
+
+    "render the thank you page upon successful submission of closing the correspondence address" in new LocalSetup {
+      val r = controller.submitConfirmClosePostalAddress(buildAddressRequest("POST"))
+
+      status(r) shouldBe OK
+
+      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      val dataEvent = arg.getValue
+
+      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+
+    }
+
+    "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
+      override lazy val updateAddressResponse = UpdateAddressBadRequestResponse
+
+      val r = controller.submitConfirmClosePostalAddress()(buildAddressRequest("POST"))
+
+      status(r) shouldBe BAD_REQUEST
+      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+    }
+
+    "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
+      override lazy val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(SEE_OTHER))
+
+      val r = controller.submitConfirmClosePostalAddress()(buildAddressRequest("POST"))
+
+      status(r) shouldBe INTERNAL_SERVER_ERROR
+      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(Fixtures.fakeNino), meq("115"), meq(fakeAddress))(any())
+    }
+
+    "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
+      override lazy val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("Any exception"))
+
+      val r = controller.submitConfirmClosePostalAddress()(buildAddressRequest("POST"))
+
+      status(r) shouldBe INTERNAL_SERVER_ERROR
+      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+    }
+  }
+
 
 
   "Calling AddressController.submitChanges" should {

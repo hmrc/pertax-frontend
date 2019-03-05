@@ -18,17 +18,14 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import models._
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.twirl.api.Html
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 import util.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
 
@@ -128,7 +125,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
+        cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
 
     }
 
@@ -151,6 +148,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     def userHasPersonDetails: Boolean
     def userHasCorrespondenceAddress: Boolean
     def userHasWelshLanguageUnitAddress: Boolean
+    def closePostalAddressEnabled: Boolean
 
     def buildPersonDetails = PersonDetails("115", Person(
       Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
@@ -166,6 +164,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("AA1 1AA"),
       None,
       if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
+      None,
       Some("Residential")
     )
 
@@ -178,6 +177,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("CF145SH"),
       None,
       if (canUpdatePostalAddress) Some(LocalDate.now().minusDays(1)) else Some(LocalDate.now()),
+      None,
       Some("Residential")
     )
 
@@ -191,6 +191,9 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     )
 
     lazy val cardBody = controller.getPostalAddressCard()
+
+    when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
+
 
     lazy val excludedCountries = List(
       Country("GREAT BRITAIN"),
@@ -208,6 +211,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasCorrespondenceAddress = false
       override lazy val userHasWelshLanguageUnitAddress = false
+      override lazy val closePostalAddressEnabled = false
+
 
       cardBody shouldBe None
     }
@@ -217,17 +222,31 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasCorrespondenceAddress = false
       override lazy val userHasWelshLanguageUnitAddress = false
+      override lazy val closePostalAddressEnabled = false
+
 
       cardBody shouldBe None
     }
 
-    "return the correct markup when there is a correspondence address and the postal address can be updated" in new PostalAddressSetup {
+    "return the correct markup when there is a correspondence address and the postal address can be updated when closePostalAddressToggle is off" in new PostalAddressSetup {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = true
       override lazy val userHasWelshLanguageUnitAddress = false
+      override lazy val closePostalAddressEnabled = false
 
-      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries))
+      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled ))
+
+    }
+
+    "return the correct markup when there is a correspondence address and the postal address can be updated when closePostalAddressToggle is on" in new PostalAddressSetup {
+      override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = true
+      override lazy val canUpdatePostalAddress = true
+      override lazy val userHasWelshLanguageUnitAddress = false
+      override lazy val closePostalAddressEnabled = true
+
+      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled ))
 
     }
 
@@ -236,8 +255,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = false
       override lazy val userHasWelshLanguageUnitAddress = false
+      override lazy val closePostalAddressEnabled = false
 
-      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries))
+
+      cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, false))
 
     }
 
@@ -246,6 +267,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val canUpdatePostalAddress = false
       override val userHasWelshLanguageUnitAddress = true
+      override lazy val closePostalAddressEnabled = false
+
 
       cardBody shouldBe None
     }
