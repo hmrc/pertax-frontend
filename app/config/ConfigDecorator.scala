@@ -189,6 +189,7 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val assetsPrefix = configuration.getString(s"assets.url").getOrElse("") + configuration.getString(s"assets.version").getOrElse("") + '/'
   lazy val assetsUrl = configuration.getString(s"assets.url").getOrElse("")
   lazy val assetsVersion = configuration.getString(s"assets.version").getOrElse("")
+  lazy val mongoUrl = configuration.getString("mongodb.uri").getOrElse("")
 
   def getFeedbackSurveyUrl(origin: Origin): String = {
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
