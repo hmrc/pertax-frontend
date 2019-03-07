@@ -24,7 +24,7 @@
 @underpaidUrl = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little"}
 @overpaidUrl  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much"}
 
-@makePaymentUrl = @{pertaxContext.configDecorator.selfAssessmentMakePaymentUrl}
+@makePaymentUrl = @{"https://www.gov.uk/simple-assessment"}
 
 @heading = @{
   taxCalculationState match {
@@ -145,6 +145,7 @@
 
     case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
       (Messages("label.you_owe_hmrc_for_the_to_tax_year", "%,.2f".format(amount), startOfTaxYear.toString, endOfTaxYear.toString), List(
+        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
         (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
