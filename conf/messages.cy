@@ -627,7 +627,6 @@ label.account_home=Hafan y cyfrif
 
 # Income
 title.income=Incwm
-
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
 label.your_income_from_employers_and_private_pensions_=Gwirio neu ddiweddaru’r wybodaeth am gyflogaeth, pensiwn neu incwm arall a ddefnyddir i gyfrifo’ch Treth Incwm a’ch codau treth TWE.
 label.make_sure_you_are_paying_the_right_amount_of_tax=Sicrhau eich bod yn talu’r swm cywir o dreth
@@ -640,21 +639,31 @@ label.find_out_why_you_paid_too_little=Cael gwybod pam nad ydych wedi talu digon
 label.view_the_tax_you_paid=Gweld y dreth a dalwyd gennych
 label.get_more_information_about_when_your_p800_will_arrive=Cael rhagor o wybodaeth am bryd y bydd eich P800 yn cyrraedd
 label.get_more_information_about_the_tax_you_paid=Cael rhagor o wybodaeth am y dreth a daloch
-label.your_income_tax_for_last_year=Eich Treth Incwm am y flwyddyn ddiwethaf
-label.check_to_see_if_you_paid_the_right_amount_of_tax_from_=Gwiriwch eich bod wedi talu’r swm cywir o dreth o 6 Ebrill {0} i 5 Ebrill {1}.
 
-label.hmrc_owes_you_a_refund_for_the_to_tax_year=Mae ar CThEM ad-daliad o £{0} i chi ar gyfer blwyddyn dreth {1} i {2}.
-label.hmrc_is_processing_your_refund=Mae CThEM yn prosesu’ch ad-daliad o £{0}.
-label.hmrc_has_paid_your_refund=Talodd CThEM eich ad-daliad o £{0}.
-label.hmrc_sent_you_a_cheque_for=Anfonodd CThEM siec i chi am £{0}.
-label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}.
-label.you_owe_hmrc_for_the_to_tax_year_you_must_pay_by_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Rhaid i chi dalu erbyn {3}.
-label.you_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Dylech fod wedi talu erbyn {3}. Rydych, fodd bynnag, yn dal i allu talu nawr.
-label.you_still_owe_hmrc_for_the_to_tax_year_you_should_have_paid_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Dylech fod wedi talu erbyn {3}. Rydych, fodd bynnag, yn dal i allu talu nawr.
-label.you_still_owe_hmrc_for_the_to_tax_year_you_must_pay_by_=Mae arnoch £{0} i CThEM ar gyfer blwyddyn dreth {1} i {2}. Rhaid i chi dalu erbyn {3}.
 
-label.you_have_no_payments_to_make_to_hmrc_for_the_to_tax_year=Nid oes gennych daliadau i’w gwneud i CThEM ar gyfer blwyddyn dreth {0} i {1}.
-label.you_do_not_owe_hmrc_anything_for_the_to_tax_year=nid oes arnoch unrhyw beth i CThEM ar gyfer blwyddyn dreth {0} i {1}.
+
+label.you_paid_too_much_tax=You paid too much tax in the {0} to {1} tax year
+label.you_paid_too_little_tax=You paid too little tax in the {0} to {1} tax year
+label.your_income_tax=Your Income Tax in the {0} to {1} tax year
+label.you_missed_the_deadline_to_pay_your_tax=You missed the deadline to pay your tax in the {0} to {1} tax year
+label.you_do_not_owe_any_more_tax=You do not owe any more tax in the {0} to {1} tax year
+
+label.check_to_see_if_you_paid_the_right_amount_of_tax_from_=Check to see if you paid the right amount of tax from 6 April {0} to 5 April {1}.
+label.hmrc_owes_you_a_refund=HMRC owes you a £{0} refund.
+label.hmrc_is_processing_your_refund=HMRC is processing your £{0} refund.
+label.hmrc_has_paid_your_refund=HMRC has paid your £{0} refund.
+label.hmrc_sent_you_a_cheque_for=HMRC sent you a cheque for £{0}.
+label.you_owe_hmrc=You owe HMRC £{0}.
+label.you_owe_hmrc_you_should_have_paid_=You owe HMRC £{0}. You should have paid by {1} but you can still make a payment now.
+label.you_still_owe_hmrc_you_should_have_paid_=You still owe HMRC £{0}. You should have paid by {1} but you can still make a payment now.
+label.you_still_owe_hmrc_you_must_pay_by_=You still owe HMRC £{0}. You must pay by {1}.
+label.you_owe_hmrc_you_must_pay_by_=You owe HMRC £{0}. You must pay by {1}.
+label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
+label.you_do_not_owe_hmrc_anything=You do not owe HMRC anything.
+
+
+
+
 label.please_wait_for_your_tax_calculation_letter_p800=Arhoswch am eich llythyr cyfrifiad treth (P800).
 label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddyn dreth {0} i {1}.
 
@@ -676,9 +685,7 @@ label.view_your_national_insurance_letter=Bwrw golwg ar eich llythyr Yswiriant G
 label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
-label.you_paid_too_much_tax_last_year=gwnaethoch dalu gormod o dreth y llynedd
-label.you_paid_too_little_tax_last_year=ni wnaethoch dalu digon o dreth y llynedd
-label.you_missed_the_deadline_to_pay_your_tax=Rydych wedi methu’r dyddiad cau ar gyfer talu’ch treth
+
 label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth
 label.you_paid_the_right_amount_of_tax_last_year=Gwnaethoch dalu’r swm cywir o dreth y llynedd
 label.your_tax_has_not_yet_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
