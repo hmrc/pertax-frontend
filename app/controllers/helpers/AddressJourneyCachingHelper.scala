@@ -22,7 +22,7 @@ import models.addresslookup.AddressRecord
 import models.dto._
 import models.{AddressJourneyData, PertaxContext}
 import play.api.mvc.Result
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.Future
@@ -57,7 +57,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
   def cacheAddressLookupServiceDown()(implicit  hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache("addressLookupServiceDown", true)
 
-  def clearCache()(implicit hc: HeaderCarrier): Unit =
+  def clearCache()(implicit hc: HeaderCarrier): Future[HttpResponse] =
     sessionCache.remove()
 
   //This is needed beacuse there is no AddrType available to call gettingCachedJourneyData
