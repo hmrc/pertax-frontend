@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, hasCorrespondenceAddressLock: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
 
 @import tags._
 
@@ -45,7 +45,7 @@
     <li>
       <a class="ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@Messages("label.change_your_main_address")</a>
     </li>
-    @if(!hasCorrespondenceAddress) {
+    @if(!hasCorrespondenceAddress && !hasCorrespondenceAddressLock) {
     <li>
       <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@Messages("label.change_where_we_send_your_letters")</a>
     </li>
