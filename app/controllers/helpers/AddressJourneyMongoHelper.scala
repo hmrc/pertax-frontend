@@ -16,64 +16,104 @@
 
 package controllers.helpers
 
-import java.util.Date
+import java.time.zone.ZoneRules
+import java.time.{OffsetDateTime, ZoneId}
+import java.util.TimeZone
+import javax.inject.{Inject, Singleton}
 
-import javax.inject.Inject
 import models.AddressJourneyTTLModel
-import models.AddressJourneyTTLModel._
-import org.joda.time.{DateTime, LocalDate}
-import play.api.Logger
-import play.api.libs.json.{JsObject, Json}
-import play.modules.reactivemongo.{MongoDbConnection, ReactiveMongoComponent}
+import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.indexes.IndexType.Ascending
 import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.{BSONDateTime, BSONDocument, BSONObjectID}
-import reactivemongo.json.JSONSerializationPack.Writer
-import uk.gov.hmrc.mongo.ReactiveRepository
-import play.modules.reactivemongo.JSONFileToSave._
+import reactivemongo.bson.{BSONDateTime, BSONDocument}
+import reactivemongo.core.errors.DatabaseException
+import reactivemongo.play.json.BSONDocumentWrites
+import reactivemongo.play.json.collection.JSONCollection
+import uk.gov.hmrc.domain.Nino
 
 import scala.concurrent.{ExecutionContext, Future}
-import reactivemongo.api.indexes.{Index, IndexType}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+@Singleton
+class AddressJourneyMongoHelper @Inject()(mongo: ReactiveMongoApi,
+                                          implicit val ec: ExecutionContext) {
 
+  private val collectionName: String = "addressUpdatedFlag"
 
-class AddressJourneyMongoHelper @Inject() (mongo: ReactiveMongoComponent)(implicit ec: ExecutionContext) extends ReactiveRepository[AddressJourneyTTLModel, BSONObjectID](
-  "addressUpdatedFlag",
-  mongo.mongoConnector.db,
-  AddressJourneyTTLModel.format
-) with MongoDbConnection {
+  private def collection: Future[JSONCollection] =
+    mongo.database.map(_.collection[JSONCollection](collectionName))
 
-  val ttlSeconds: Long = 30
+  import AddressJourneyMongoHelper._
 
-  def insertIndex(flag: Boolean)(implicit ec: ExecutionContext) = {
-    this.collection.insert(
-      AddressJourneyTTLModel(flag, BSONDateTime(new Date("March 7, 2019 14:24:00").getTime))
+  def insert(nino: Nino): Future[Boolean] =
+    insertCore(nino, getNextUKMidnight).map(_.ok) recover {
+      case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
+    }
+
+  def get(nino: Nino): Future[Option[AddressJourneyTTLModel]] =
+    getCore(
+      BSONDocument(BSONDocument("_id" -> nino.nino), BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
     )
+
+  private[helpers] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
+    this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
   }
 
-  import reactivemongo.api.indexes.{Index, IndexType}
+  private[helpers] def insertCore(nino: Nino, date: OffsetDateTime): Future[WriteResult] =
+    this.collection.flatMap(_.insert(ordered = false).one(AddressJourneyTTLModel(nino, toBSONDateTime(date))))
 
-  override def indexes: Seq[Index] = Seq(
-    Index(Seq(("expireAt", IndexType.Ascending)), name = Some("expireTime"), unique = true, sparse = true)
+  def drop(implicit ec: ExecutionContext): Future[Boolean] =
+    for {
+      result <- this.collection.flatMap(_.drop(failIfNotFound = false))
+      _ <- setIndex()
+    } yield result
+
+  private[helpers] lazy val ttlIndex = Index(
+    Seq((EXPIRE_AT, IndexType.Ascending)),
+    name = Some("ttlIndex"),
+    unique = false,
+    background = false,
+    dropDups = false,
+    sparse = false,
+    options = BSONDocument("expireAfterSeconds" -> 0)
   )
 
-//  def insertIndex(flag: Boolean): Future[WriteResult] = {
-//    collection.insert(AddressJourneyTTLModel(flag, new Date("March 7, 2019 13:52:00")))
-//  }
-//
-//  private lazy val ttlIndex = Index(
-//    Seq(("key", IndexType(Ascending.value))),
-//    name = Some("expireTime"),
-//    options = BSONDocument("expireAt" -> 1, "expireAfterSeconds" -> 0)
-//  )
-//
-//  private def setIndex(): Unit = {
-//    collection.indexesManager.drop(ttlIndex.name.get) onComplete {
-//      _ => collection.indexesManager.ensure(ttlIndex)
-//    }
-//  }
-//
-//  setIndex()
+  private[helpers] def removeIndex(): Future[Int] = for {
+    list <- collection.flatMap(_.indexesManager.list())
+    count <- ttlIndex.name match {
+      case Some(name) if list.exists(_.name contains name) =>
+        collection.flatMap(_.indexesManager.drop(name))
+      case _ =>
+        Future.successful(0)
+    }
+  } yield count
+
+  private[helpers] def setIndex(): Future[Boolean] = for {
+    _ <- removeIndex()
+    result <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
+  } yield result
+
+  private[helpers] def isTtlSet: Future[Boolean] =
+    for {
+      list <- this.collection.flatMap(_.indexesManager.list())
+    } yield list.exists(_.name == ttlIndex.name)
+
+  val started: Future[Unit] = setIndex().map(_ => ())
+
+}
+
+object AddressJourneyMongoHelper {
+  val EXPIRE_AT = "expireAt"
+  val UK_TIME_ZONE: ZoneId = TimeZone.getTimeZone("Europe/London").toZoneId
+  val UK_ZONE_Rules: ZoneRules =  UK_TIME_ZONE.getRules
+
+  def toBSONDateTime(dateTime: OffsetDateTime): BSONDateTime =
+    BSONDateTime(dateTime.toInstant.toEpochMilli)
+
+  def getNextUKMidnight: OffsetDateTime = getNextUKMidnight(OffsetDateTime.now())
+
+  private[helpers] def getNextUKMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
+    val nextDay = offsetDateTime.plusDays(1)
+    val midnightNextDay = nextDay.toLocalDate.atStartOfDay.atZone(UK_TIME_ZONE)
+    midnightNextDay.toOffsetDateTime
+  }
 }

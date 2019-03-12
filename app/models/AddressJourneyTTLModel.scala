@@ -16,22 +16,39 @@
 
 package models
 
-import java.util.Date
-
-import org.joda.time.{DateTime, LocalDate}
-import play.api.libs.json.{Format, Json, OFormat}
+import play.api.libs.json._
 import reactivemongo.bson.BSONDateTime
-import reactivemongo.json.BSONFormats.BSONDateTimeFormat
+import reactivemongo.play.json._
+import uk.gov.hmrc.domain.Nino
 
 
-
-case class AddressJourneyTTLModel(
-                           flag: Boolean,
-                           expireAt: BSONDateTime
-                         )
+case class AddressJourneyTTLModel(nino: Nino, expireAt: BSONDateTime)
 
 object AddressJourneyTTLModel {
 
-  implicit val format: OFormat[AddressJourneyTTLModel] = Json.format[AddressJourneyTTLModel]
+  val NINO = "_id"
+  val EXPIRE_AT = "expireAt"
+
+  val writer = new OWrites[AddressJourneyTTLModel] {
+    def writes(model: AddressJourneyTTLModel): JsObject = Json.obj(
+      NINO -> model.nino,
+      EXPIRE_AT -> model.expireAt
+    )
+  }
+
+  val reader = new Reads[AddressJourneyTTLModel] {
+    override def reads(json: JsValue): JsResult[AddressJourneyTTLModel] =
+      for {
+        nino <- (json \ NINO).validate[Nino]
+        expireAt <- (json \ EXPIRE_AT).validate[BSONDateTime]
+      } yield AddressJourneyTTLModel(nino, expireAt)
+
+    def read(model: AddressJourneyTTLModel): JsObject = Json.obj(
+      NINO -> model.nino,
+      EXPIRE_AT -> model.expireAt
+    )
+  }
+
+  implicit val format: OFormat[AddressJourneyTTLModel] = OFormat(reader, writer)
 
 }

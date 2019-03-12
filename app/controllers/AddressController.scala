@@ -22,7 +22,7 @@ import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuth
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
-import controllers.helpers.{AddressJourneyCachingHelper, AddressJourneyMongoHelper, CountryHelper, PersonalDetailsCardGenerator}
+import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import models._
@@ -61,8 +61,7 @@ class AddressController @Inject() (
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
-  val countryHelper: CountryHelper,
-  val addressJourneyMongoHelper: AddressJourneyMongoHelper
+  val countryHelper: CountryHelper
 ) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
 
   def dateDtoForm = DateDto.form(configDecorator.currentLocalDate)
@@ -157,7 +156,6 @@ class AddressController @Inject() (
   def residencyChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personDetails =>
       auditConnector.sendEvent(buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails))
-      addressJourneyMongoHelper.insertIndex(true)
       gettingCachedTaxCreditsChoiceDto {
         case Some(TaxCreditsChoiceDto(false)) =>
           Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
