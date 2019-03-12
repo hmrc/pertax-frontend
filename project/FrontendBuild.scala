@@ -23,12 +23,11 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "local-template-renderer" % "2.3.0",
     "uk.gov.hmrc" %% "play-ui" % "7.33.0-play-25",
     "uk.gov.hmrc" %% "tax-year" % "0.4.0",
-    "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0"
-
+    "org.reactivemongo" %% "play2-reactivemongo" % "0.16.2-play25"
   )
 
   trait TestDependencies {
-    lazy val scope: String = "test"
+    lazy val scope: String = "test,it"
     lazy val test : Seq[ModuleID] = ???
   }
 
