@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package repositories
 
 import java.time.{LocalDateTime, OffsetDateTime, ZoneOffset}
 import java.util.TimeZone
@@ -30,12 +30,12 @@ import scala.concurrent.ExecutionContext
 import scala.util.Random
 
 
-class AddressJourneyMongoHelperISpec extends UnitSpec
+class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
   with GuiceOneAppPerSuite
   with PatienceConfiguration
   with BeforeAndAfterEach {
 
-  def mongo: AddressJourneyMongoHelper = app.injector.instanceOf[AddressJourneyMongoHelper]
+  def mongo: CorrespondenceAddressLockRepository = app.injector.instanceOf[CorrespondenceAddressLockRepository]
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
@@ -58,7 +58,7 @@ class AddressJourneyMongoHelperISpec extends UnitSpec
   }
 
   "AddressJourneyMongoHelper.getNextUKMidnight" when {
-    import AddressJourneyMongoHelper._
+    import CorrespondenceAddressLockRepository._
     "the public function is called without a parameter" should {
       "return midnight of today" in {
         val now = OffsetDateTime.now()
@@ -174,7 +174,7 @@ class AddressJourneyMongoHelperISpec extends UnitSpec
   "insert" when {
     "there isn't an existing record" should {
       "return true" in {
-        import AddressJourneyMongoHelper._
+        import CorrespondenceAddressLockRepository._
         val midnight = toBSONDateTime(getNextUKMidnight)
         val result = await(mongo.insert(testNino))
         result shouldBe true

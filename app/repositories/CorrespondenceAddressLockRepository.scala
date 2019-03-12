@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package repositories
 
 import java.time.zone.ZoneRules
 import java.time.{OffsetDateTime, ZoneId}
@@ -34,15 +34,15 @@ import uk.gov.hmrc.domain.Nino
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AddressJourneyMongoHelper @Inject()(mongo: ReactiveMongoApi,
-                                          implicit val ec: ExecutionContext) {
+class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
+                                                    implicit val ec: ExecutionContext) {
 
-  private val collectionName: String = "addressUpdatedFlag"
+  private val collectionName: String = "correspondenceAddressLock"
 
   private def collection: Future[JSONCollection] =
     mongo.database.map(_.collection[JSONCollection](collectionName))
 
-  import AddressJourneyMongoHelper._
+  import CorrespondenceAddressLockRepository._
 
   def insert(nino: Nino): Future[Boolean] =
     insertCore(nino, getNextUKMidnight).map(_.ok) recover {
@@ -54,20 +54,20 @@ class AddressJourneyMongoHelper @Inject()(mongo: ReactiveMongoApi,
       BSONDocument(BSONDocument("_id" -> nino.nino), BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
     )
 
-  private[helpers] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
+  private[repositories] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
     this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
   }
 
-  private[helpers] def insertCore(nino: Nino, date: OffsetDateTime): Future[WriteResult] =
+  private[repositories] def insertCore(nino: Nino, date: OffsetDateTime): Future[WriteResult] =
     this.collection.flatMap(_.insert(ordered = false).one(AddressJourneyTTLModel(nino, toBSONDateTime(date))))
 
-  def drop(implicit ec: ExecutionContext): Future[Boolean] =
+  private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
     for {
       result <- this.collection.flatMap(_.drop(failIfNotFound = false))
       _ <- setIndex()
     } yield result
 
-  private[helpers] lazy val ttlIndex = Index(
+  private[repositories] lazy val ttlIndex = Index(
     Seq((EXPIRE_AT, IndexType.Ascending)),
     name = Some("ttlIndex"),
     unique = false,
@@ -77,7 +77,7 @@ class AddressJourneyMongoHelper @Inject()(mongo: ReactiveMongoApi,
     options = BSONDocument("expireAfterSeconds" -> 0)
   )
 
-  private[helpers] def removeIndex(): Future[Int] = for {
+  private[repositories] def removeIndex(): Future[Int] = for {
     list <- collection.flatMap(_.indexesManager.list())
     count <- ttlIndex.name match {
       case Some(name) if list.exists(_.name contains name) =>
@@ -87,12 +87,12 @@ class AddressJourneyMongoHelper @Inject()(mongo: ReactiveMongoApi,
     }
   } yield count
 
-  private[helpers] def setIndex(): Future[Boolean] = for {
+  private[repositories] def setIndex(): Future[Boolean] = for {
     _ <- removeIndex()
     result <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
   } yield result
 
-  private[helpers] def isTtlSet: Future[Boolean] =
+  private[repositories] def isTtlSet: Future[Boolean] =
     for {
       list <- this.collection.flatMap(_.indexesManager.list())
     } yield list.exists(_.name == ttlIndex.name)
@@ -101,17 +101,17 @@ class AddressJourneyMongoHelper @Inject()(mongo: ReactiveMongoApi,
 
 }
 
-object AddressJourneyMongoHelper {
+object CorrespondenceAddressLockRepository {
   val EXPIRE_AT = "expireAt"
   val UK_TIME_ZONE: ZoneId = TimeZone.getTimeZone("Europe/London").toZoneId
-  val UK_ZONE_Rules: ZoneRules =  UK_TIME_ZONE.getRules
+  val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
 
   def toBSONDateTime(dateTime: OffsetDateTime): BSONDateTime =
     BSONDateTime(dateTime.toInstant.toEpochMilli)
 
   def getNextUKMidnight: OffsetDateTime = getNextUKMidnight(OffsetDateTime.now())
 
-  private[helpers] def getNextUKMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
+  private[repositories] def getNextUKMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val nextDay = offsetDateTime.plusDays(1)
     val midnightNextDay = nextDay.toLocalDate.atStartOfDay.atZone(UK_TIME_ZONE)
     midnightNextDay.toOffsetDateTime
