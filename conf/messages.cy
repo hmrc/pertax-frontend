@@ -679,7 +679,7 @@ label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
 
-label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth
+label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn dreth {0} i {1}
 label.you_paid_the_right_amount_of_tax_last_year=Gwnaethoch dalu’r swm cywir o dreth y llynedd
 label.your_tax_has_not_yet_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
 
