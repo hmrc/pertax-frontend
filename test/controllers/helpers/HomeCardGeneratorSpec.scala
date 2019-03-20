@@ -18,11 +18,12 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import models._
+import org.joda.time.LocalDate
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
-import util.{BaseSpec, Fixtures, DateTimeTools}
+import util.{BaseSpec, DateTimeTools, Fixtures}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import views.html.cards.home._
@@ -142,14 +143,14 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     "return correct markup when called with TaxCalculationOverpaidPaymentPaidState" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationOverpaidPaymentPaidState(100, "01 Jan 2016")
+      val taxCalcState = TaxCalculationOverpaidPaymentPaidState(100, Some(new LocalDate("2016-01-01")))
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationOverpaidPaymentChequeSentState" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationOverpaidPaymentChequeSentState(100, "01 Jan 2016")
+      val taxCalcState = TaxCalculationOverpaidPaymentChequeSentState(100, Some(new LocalDate("2016-01-01")))
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
@@ -163,21 +164,21 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), None)
+      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), None)
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlineApproachingStatus))
+      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlineApproachingStatus))
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlinePassedStatus))
+      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlinePassedStatus))
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
@@ -191,21 +192,21 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), None)
+      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), None)
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlineApproachingStatus))
+      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlineApproachingStatus))
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
 
     "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some("31 January 2016"), Some(SaDeadlinePassedStatus))
+      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlinePassedStatus))
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
@@ -219,7 +220,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     "return correct markup when called with TaxCalculationUnderpaidPaidAllState with a due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, Some("01/01/2016"))
+      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, Some(new LocalDate("2016-01-01")))
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }

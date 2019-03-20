@@ -32,12 +32,12 @@ sealed trait TaxCalculationUnderpaidState extends TaxCalculationState
 
 case class TaxCalculationOverpaidRefundState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationOverpaidState
 case class TaxCalculationOverpaidPaymentProcessingState(amount: BigDecimal) extends TaxCalculationOverpaidState
-case class TaxCalculationOverpaidPaymentPaidState(amount: BigDecimal, datePaid: String) extends TaxCalculationOverpaidState
-case class TaxCalculationOverpaidPaymentChequeSentState(amount: BigDecimal, datePaid: String) extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentPaidState(amount: BigDecimal, datePaid: Option[LocalDate]) extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentChequeSentState(amount: BigDecimal, datePaid: Option[LocalDate]) extends TaxCalculationOverpaidState
 
-case class TaxCalculationUnderpaidPaymentDueState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[String], saDeadLineStatus: Option[SaDeadlineStatus]) extends TaxCalculationUnderpaidState with SaDeadlineStatus
-case class TaxCalculationUnderpaidPartPaidState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[String], saDeadlineStatus: Option[SaDeadlineStatus]) extends TaxCalculationUnderpaidState with SaDeadlineStatus
-case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[String]) extends TaxCalculationUnderpaidState
+case class TaxCalculationUnderpaidPaymentDueState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate], saDeadLineStatus: Option[SaDeadlineStatus]) extends TaxCalculationUnderpaidState with SaDeadlineStatus
+case class TaxCalculationUnderpaidPartPaidState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate], saDeadlineStatus: Option[SaDeadlineStatus]) extends TaxCalculationUnderpaidState with SaDeadlineStatus
+case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate]) extends TaxCalculationUnderpaidState
 case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationUnderpaidState
 case class TaxCalculationDisabledState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
 
@@ -45,9 +45,9 @@ case object TaxCalculationUnkownState extends TaxCalculationState
 
 @Singleton
 class TaxCalculationStateFactory @Inject() (
-   val configDecorator: ConfigDecorator,
-   val localTaxYearResolver: LocalTaxYearResolver
-  ) {
+                                             val configDecorator: ConfigDecorator,
+                                             val localTaxYearResolver: LocalTaxYearResolver
+                                           ) {
 
   def buildFromTaxCalculation(taxCalculation: Option[TaxCalculation], includeOverPaidPayments: Boolean = true): TaxCalculationState = {
 
@@ -56,13 +56,13 @@ class TaxCalculationStateFactory @Inject() (
         TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, None, None)
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, Some(dueDate))), _) =>
-        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
+        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(new LocalDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _, _, None)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), Some(dueDate))), _) =>
-        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
+        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(new LocalDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), _)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
@@ -71,7 +71,7 @@ class TaxCalculationStateFactory @Inject() (
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, None)
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))), _) =>
-        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(asHumanDateFromUnixDate(dueDate)))
+        TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _, _, _)), _) =>
         TaxCalculationUnderpaidPaymentsDownState(taxYear, taxYear + 1)
@@ -83,13 +83,13 @@ class TaxCalculationStateFactory @Inject() (
         TaxCalculationOverpaidPaymentProcessingState(amount)
 
       case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), Some(datePaid), _, _)), true) =>
-        TaxCalculationOverpaidPaymentPaidState(amount, asHumanDateFromUnixDate(datePaid))
+        TaxCalculationOverpaidPaymentPaidState(amount, Some(new LocalDate(datePaid)))
 
       case (Some(TaxCalculation("Overpaid", amount, _, Some("PAYMENT_PAID"), _, _, _)), true) =>
-        TaxCalculationOverpaidPaymentPaidState(amount, "")
+        TaxCalculationOverpaidPaymentPaidState(amount, None)
 
       case (Some(TaxCalculation("Overpaid", amount, _, Some("CHEQUE_SENT"), Some(datePaid), _, _)), true) =>
-        TaxCalculationOverpaidPaymentChequeSentState(amount, asHumanDateFromUnixDate(datePaid))
+        TaxCalculationOverpaidPaymentChequeSentState(amount, Some(new LocalDate(datePaid)))
 
       case _ => TaxCalculationUnkownState
     }
