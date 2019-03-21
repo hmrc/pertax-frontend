@@ -130,7 +130,7 @@ class PertaxValidatorsSpec extends BaseSpec {
     }
 
     "return true when no illegal characters are used" in {
-      validateAddressLineCharacters(Some("""&’(),-./123ABCabc """)) shouldBe true
+      validateAddressLineCharacters(Some("""&’(),-./123ABCabc sôéàëŵŷáîïâêûü""")) shouldBe true
     }
   }
 }
