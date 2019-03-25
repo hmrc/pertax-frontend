@@ -24,7 +24,7 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto._
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -37,9 +37,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.CorrespondenceAddressLockRepository
 import services.partials.MessageFrontendService
-import services.{AddressLookupResponse, _}
+import services._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HttpResponse, InternalServerException}
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent

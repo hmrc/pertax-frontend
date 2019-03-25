@@ -29,7 +29,7 @@ import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Suite}
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -284,7 +284,7 @@ class FakeCookieCryptoFilter @Inject()(override val mat: Materializer) extends C
     next(rh)
 }
 
-trait BaseSpec extends UnitSpec with OneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach { this: Suite =>
+trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach { this: Suite =>
 
   implicit val hc = HeaderCarrier()
 
