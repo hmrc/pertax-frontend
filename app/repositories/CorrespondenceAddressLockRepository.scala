@@ -17,10 +17,10 @@
 package repositories
 
 import java.time.zone.ZoneRules
-import java.time.{OffsetDateTime, ZoneId}
+import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import models.AddressJourneyTTLModel
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
@@ -45,7 +45,7 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
   import CorrespondenceAddressLockRepository._
 
   def insert(nino: Nino): Future[Boolean] =
-    insertCore(nino, getNextUKMidnight).map(_.ok) recover {
+    insertCore(nino, getNextMidnight).map(_.ok) recover {
       case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
     }
 
@@ -105,15 +105,40 @@ object CorrespondenceAddressLockRepository {
   val EXPIRE_AT = "expireAt"
   val UK_TIME_ZONE: ZoneId = TimeZone.getTimeZone("Europe/London").toZoneId
   val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
+  val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
+  val BST_OFFSET: ZoneOffset = ZoneOffset.ofHours(1)
 
   def toBSONDateTime(dateTime: OffsetDateTime): BSONDateTime =
     BSONDateTime(dateTime.toInstant.toEpochMilli)
 
-  def getNextUKMidnight: OffsetDateTime = getNextUKMidnight(OffsetDateTime.now())
+  def getNextMidnight: OffsetDateTime = getNextMidnight(OffsetDateTime.now())
 
-  private[repositories] def getNextUKMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
-    val nextDay = offsetDateTime.plusDays(1)
-    val midnightNextDay = nextDay.toLocalDate.atStartOfDay.atZone(UK_TIME_ZONE)
-    midnightNextDay.toOffsetDateTime
+  private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
+    val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
+    utcNextDay.toLocalDate.atStartOfDay.atZone(UK_TIME_ZONE).toOffsetDateTime
   }
+
+  // SE-125, we are unable to determine what time zone the NPS services would use during British Summer Time.
+  // So the lock needs to be safe for both scenarios during BST.
+  // A safe guard is put in place so that if the user comes in between 11 UTC+0 and midnight UTC+0 we would lock them till
+  // midnight UTC+0 of the next day in case NPS resets at midnight UTC+1 instead of midnight UTC+0.
+  private[repositories] def getNextMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
+    val ukDateTime = offsetDateTime.atZoneSameInstant(UK_TIME_ZONE)
+    val utcMidnightInUkDateTime = nextUTCMidnightInUKDateTime(offsetDateTime)
+    ukDateTime.getOffset match {
+      case BST_OFFSET if ukDateTime.getHour == 0 =>
+        utcMidnightInUkDateTime.getOffset match {
+          case GMT_OFFSET => utcMidnightInUkDateTime
+          case _ => utcMidnightInUkDateTime.plusDays(1).withOffsetSameInstant(BST_OFFSET)
+        }
+      case BST_OFFSET =>
+        utcMidnightInUkDateTime.getOffset match {
+          case GMT_OFFSET => utcMidnightInUkDateTime
+          case _ => utcMidnightInUkDateTime.plusHours(1).withOffsetSameInstant(BST_OFFSET)
+        }
+      case _ =>
+        utcMidnightInUkDateTime
+    }
+  }
+
 }

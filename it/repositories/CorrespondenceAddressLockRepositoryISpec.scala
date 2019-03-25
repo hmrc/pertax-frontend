@@ -16,8 +16,7 @@
 
 package repositories
 
-import java.time.{LocalDateTime, OffsetDateTime, ZoneOffset}
-import java.util.TimeZone
+import java.time.OffsetDateTime
 
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
@@ -28,7 +27,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext
 import scala.util.Random
-
 
 class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
   with GuiceOneAppPerSuite
@@ -57,72 +55,6 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
     next(testNino)
   }
 
-  "AddressJourneyMongoHelper.getNextUKMidnight" when {
-    import CorrespondenceAddressLockRepository._
-    "the public function is called without a parameter" should {
-      "return midnight of today" in {
-        val now = OffsetDateTime.now()
-        val tomorrow = now.plusDays(1)
-        val london: TimeZone = TimeZone.getTimeZone("Europe/London")
-        val instantInUK = tomorrow.toInstant.atZone(london.toZoneId)
-
-        val expected = instantInUK.toLocalDate.atStartOfDay().atZone(london.toZoneId).toOffsetDateTime
-
-        getNextUKMidnight shouldBe expected
-      }
-    }
-    "the private function is called with a parameter" should {
-      "return the next UK midnight of that day" when {
-        "the time is 1 nanosecond before midnight" in {
-          val testDate = LocalDateTime.of(2018, 12, 31, 23, 59, 59, 999)
-          val offset = UK_TIME_ZONE.getRules.getOffset(testDate)
-          val justBeforeNewYearInUK = testDate.atOffset(offset)
-
-          val uKNewYear = getNextUKMidnight(justBeforeNewYearInUK)
-
-          uKNewYear.toLocalDateTime shouldBe LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0)
-          uKNewYear.getOffset shouldBe offset
-        }
-        "the time is exactly midnight" in {
-          val testDate = LocalDateTime.of(2018, 12, 31, 0, 0, 0, 0)
-          val offset = UK_TIME_ZONE.getRules.getOffset(testDate)
-          val newYearsEve = testDate.atOffset(offset)
-
-          val uKNewYear = getNextUKMidnight(newYearsEve)
-
-          uKNewYear.toLocalDateTime shouldBe LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0)
-          uKNewYear.getOffset shouldBe offset
-        }
-        "the time is exactly 1 am and daylight saving (DST) starts at 1 am the next day" in {
-          val testDate = LocalDateTime.of(2019, 3, 30, 1, 0, 0, 0)
-          val offset = UK_TIME_ZONE.getRules.getOffset(testDate)
-          val aDayBeforeDst = testDate.atOffset(offset)
-
-          offset shouldBe ZoneOffset.ofHours(0)
-          LocalDateTime.of(2019, 3, 31, 1, 0, 0, 0).atZone(UK_TIME_ZONE).getOffset shouldBe ZoneOffset.ofHours(1)
-
-          val anHourBeforeDst = getNextUKMidnight(aDayBeforeDst)
-
-          anHourBeforeDst.toLocalDateTime shouldBe LocalDateTime.of(2019, 3, 31, 0, 0, 0, 0)
-          anHourBeforeDst.getOffset shouldBe offset
-        }
-        "the time is exactly 2 am and daylight saving (DST) ends at 2 am the next day" in {
-          val testDate = LocalDateTime.of(2018, 10, 27, 2, 0, 0, 0)
-          val offset = UK_TIME_ZONE.getRules.getOffset(testDate)
-          val aDayBeforeWinterTime = testDate.atOffset(offset)
-
-          offset shouldBe ZoneOffset.ofHours(1)
-          LocalDateTime.of(2018, 10, 28, 2, 0, 0, 0).atZone(UK_TIME_ZONE).getOffset shouldBe ZoneOffset.ofHours(0)
-
-          val twoHoursBeforeDstEnds = getNextUKMidnight(aDayBeforeWinterTime)
-
-          twoHoursBeforeDstEnds.toLocalDateTime shouldBe LocalDateTime.of(2018, 10, 28, 0, 0, 0, 0)
-          twoHoursBeforeDstEnds.getOffset shouldBe offset
-        }
-      }
-    }
-  }
-
   "setIndex" when {
     "ensure the index is set" in {
       await(mongo.removeIndex())
@@ -137,15 +69,16 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
     "there isn't an existing record" should {
       "return None" in {
         val fGet = mongo.get(testNino)
+
         await(fGet) shouldBe None
       }
     }
     "there isn't an existing record that matches the requested nino" should {
       "return None" in {
-        val currentTime = System.currentTimeMillis()
         await(mongo.insertCore(differentNino, OffsetDateTime.now()))
 
         val fGet = mongo.get(testNino)
+
         await(fGet) shouldBe None
       }
     }
@@ -153,10 +86,10 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
       "return the record" in {
         val currentTime = System.currentTimeMillis()
         val timeOffSet = 10L
+
         await(mongo.insertCore(testNino, OffsetDateTime.now().plusSeconds(timeOffSet)))
 
         val fGet = mongo.get(testNino)
-
         val inserted = await(mongo.getCore(BSONDocument()))
         currentTime should be < inserted.get.expireAt.value
         await(fGet) shouldBe inserted
@@ -165,7 +98,9 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
     "there is an existing record but has expired" should {
       "return None" in {
         await(mongo.insertCore(testNino, OffsetDateTime.now()))
+
         val fGet = mongo.get(testNino)
+
         await(fGet) shouldBe None
       }
     }
@@ -175,11 +110,12 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
     "there isn't an existing record" should {
       "return true" in {
         import CorrespondenceAddressLockRepository._
-        val midnight = toBSONDateTime(getNextUKMidnight)
+        val midnight = toBSONDateTime(getNextMidnight)
         val result = await(mongo.insert(testNino))
         result shouldBe true
 
         val inserted = await(mongo.get(testNino))
+
         inserted shouldBe defined
         inserted.get.nino shouldBe testNino
         inserted.get.expireAt shouldBe midnight
@@ -188,7 +124,9 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
     "there is an existing record" should {
       "return false" in {
         await(mongo.insert(testNino))
+
         val result = await(mongo.insert(testNino))
+
         result shouldBe false
       }
     }
