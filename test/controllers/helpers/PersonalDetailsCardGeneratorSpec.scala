@@ -53,6 +53,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     def userHasCorrespondenceAddress: Boolean
     def mainHomeStartDate: Option[String]
     def show2016Message: Boolean
+    def hasCorrespondenceAddressLock: Boolean
 
     def buildPersonDetails = PersonDetails("115", Person(
       Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
@@ -80,7 +81,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Country("NORTHERN IRELAND")
     )
 
-    lazy val cardBody = controller.getMainAddressCard()
+    lazy val cardBody: Option[_root_.play.twirl.api.HtmlFormat.Appendable] =
+      controller.getMainAddressCard(hasCorrespondenceAddressLock)
   }
 
   "Calling getMainAddressCard" should {
@@ -91,6 +93,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = None
       override lazy val show2016Message = false
+      override lazy val hasCorrespondenceAddressLock = false
 
       cardBody shouldBe None
 
@@ -102,9 +105,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
+      override lazy val hasCorrespondenceAddressLock = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, hasCorrespondenceAddressLock = false, excludedCountries))
 
+      cardBody.map(_.body).get should not include "Change where we send your letters"
     }
 
     "return the correct markup when there are person details and the user does not have a correspondence address" in new MainAddressSetup {
@@ -113,20 +118,37 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
+      override lazy val hasCorrespondenceAddressLock = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, hasCorrespondenceAddressLock, excludedCountries))
 
+      cardBody.map(_.body).get should include("Change where we send your letters")
     }
 
-      "return the correct markup when tax credits is enabled" in new MainAddressSetup {
+    "return the correct markup when there are person details and the user does not have a correspondence address and there is a correspondence address lock" in new MainAddressSetup {
+      override lazy val taxCreditsEnabled = true
+      override lazy val userHasPersonDetails = true
+      override lazy val userHasCorrespondenceAddress = false
+      override lazy val mainHomeStartDate = Some("15 March 2015")
+      override lazy val show2016Message = false
+      override lazy val hasCorrespondenceAddressLock = true
+
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, hasCorrespondenceAddressLock, excludedCountries))
+
+      cardBody.map(_.body).get should not include "Change where we send your letters"
+    }
+
+    "return the correct markup when tax credits is enabled" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
+      override lazy val hasCorrespondenceAddressLock = false
 
-        cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, hasCorrespondenceAddressLock, excludedCountries))
 
+      cardBody.map(_.body).get should not include "Change where we send your letters"
     }
 
     "return the correct markup when tax credits is disabled" in new MainAddressSetup {
@@ -135,9 +157,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val show2016Message = false
+      override lazy val hasCorrespondenceAddressLock = false
 
-      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, excludedCountries))
+      cardBody shouldBe Some(mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, hasCorrespondenceAddressLock, excludedCountries))
 
+      cardBody.map(_.body).get should not include "Change where we send your letters"
     }
   }
 

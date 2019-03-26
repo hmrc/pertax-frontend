@@ -29,9 +29,9 @@ class PersonalDetailsCardGenerator @Inject() (
   val countryHelper: CountryHelper
 ) {
 
-  def getPersonalDetailsCards()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Seq[Html] = List(
+  def getPersonalDetailsCards(hasCorrespondenceAddressLock: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Seq[Html] = List(
     getChangeNameCard(),
-    getMainAddressCard(),
+    getMainAddressCard(hasCorrespondenceAddressLock),
     getPostalAddressCard(),
     getNationalInsuranceCard()
   ).flatten
@@ -60,12 +60,16 @@ class PersonalDetailsCardGenerator @Inject() (
     getPersonDetails.flatMap(_.correspondenceAddress).isDefined
   }
 
-  def getMainAddressCard()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] = {
+  def getMainAddressCard(hasCorrespondenceAddressLock: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] = {
     getPersonDetails match {
-      case Some(personDetails) => {
+      case Some(personDetails) =>
         val (show2016Message, startDate) = show2016AddressMessage(personDetails.address)
-        Some(views.html.cards.personaldetails.mainAddress(personDetails = personDetails, taxCreditsEnabled = configDecorator.taxCreditsEnabled, hasCorrespondenceAddress = hasCorrespondenceAddress, countryHelper.excludedCountries))
-      }
+        Some(views.html.cards.personaldetails.mainAddress(
+          personDetails = personDetails,
+          taxCreditsEnabled = configDecorator.taxCreditsEnabled,
+          hasCorrespondenceAddress = hasCorrespondenceAddress,
+          hasCorrespondenceAddressLock = hasCorrespondenceAddressLock,
+          countryHelper.excludedCountries))
       case _ => None
     }
   }

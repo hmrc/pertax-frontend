@@ -25,6 +25,7 @@ import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import javax.inject.Inject
+
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
@@ -34,9 +35,11 @@ import play.api.data.FormError
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
+import repositories.CorrespondenceAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -61,7 +64,8 @@ class AddressController @Inject() (
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
-  val countryHelper: CountryHelper
+  val countryHelper: CountryHelper,
+  val correspondenceAddressLockRepository: CorrespondenceAddressLockRepository
 ) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
 
   def dateDtoForm = DateDto.form(configDecorator.currentLocalDate)
@@ -110,18 +114,21 @@ class AddressController @Inject() (
 
   def personalDetails: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
-
-      val personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards
-
       import models.dto.AddressPageVisitedDto
-
-      val personDetails: Option[PersonDetails] = pertaxContext.user.flatMap(_.personDetails)
-
-      personDetails.map(p => auditConnector.sendEvent(buildAddressChangeEvent("personalDetailsPageLinkClicked", p)))
-
-      cacheAddressPageVisited(AddressPageVisitedDto(true)) map { _ =>
-        Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
-      }
+      def optNino = pertaxContext.user.flatMap(_.personDetails.flatMap(_.person.nino))
+      for {
+        hasCorrespondenceAddressLock <- optNino match {
+          case Some(nino) => correspondenceAddressLockRepository.get(nino) map (_.isDefined)
+          case _ => Future.successful(false)
+        }
+        personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(hasCorrespondenceAddressLock)
+        personDetails: Option[PersonDetails] = pertaxContext.user.flatMap(_.personDetails)
+        _ <- personDetails match {
+          case Some(p) => auditConnector.sendEvent(buildAddressChangeEvent("personalDetailsPageLinkClicked", p))
+          case _ => Future.successful(Unit)
+        }
+        _ <- cacheAddressPageVisited(AddressPageVisitedDto(true))
+      } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
   }
 
   def taxCreditsChoice = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
@@ -517,33 +524,47 @@ class AddressController @Inject() (
       }
   }
 
+  private def submitConfirmClosePostalAddress(payeAccount: PayeAccount, personDetails: PersonDetails)(implicit pertaxContext: PertaxContext): Future[Result] = {
+    def internalServerError = InternalServerError(views.html.error("global.error.InternalServerError500.title",
+      Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), showContactHmrc = false))
+
+    val address = getAddress(personDetails.correspondenceAddress)
+    val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
+
+    for {
+      response <- citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, closingAddress)
+      action <- response match {
+        case UpdateAddressBadRequestResponse =>
+          Future.successful(BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
+            Some("global.error.BadRequest.message"), showContactHmrc = false)))
+        case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
+          Future.successful(internalServerError)
+        case UpdateAddressSuccessResponse =>
+          for {
+            _ <- auditConnector.sendEvent(buildEvent("closedAddressSubmitted", "closure_of_correspondence", auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
+            _ <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
+            inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino)
+          } yield
+            if (inserted)
+              Ok(views.html.personaldetails.updateAddressConfirmation(PostalAddrType, closedPostalAddress = true, Some(getAddress(personDetails.address).fullAddress)))
+            else
+              internalServerError
+      }
+    } yield action
+  }
+
   def submitConfirmClosePostalAddress: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount))  {
     implicit pertaxContext =>
-      val typ = PostalAddrType
       addressJourneyEnforcer { payeAccount => personDetails =>
-
-        val address = getAddress(personDetails.correspondenceAddress)
-        val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
-
-        citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, closingAddress) map {
-
-          case UpdateAddressBadRequestResponse =>
-            BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
-              Some("global.error.BadRequest.message"), false))
-
-          case UpdateAddressUnexpectedResponse(response) =>
-            InternalServerError(views.html.error("global.error.InternalServerError500.title",
-              Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
-
-          case UpdateAddressErrorResponse(cause) =>
-            InternalServerError(views.html.error("global.error.InternalServerError500.title",
-              Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
-
-          case UpdateAddressSuccessResponse =>
-            auditConnector.sendEvent(buildEvent("closedAddressSubmitted", "closure_of_correspondence", auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
-            clearCache() //This clears ENTIRE session cache, no way to target individual keys
-            Ok(views.html.personaldetails.updateAddressConfirmation(typ, true, Some(getAddress(personDetails.address).fullAddress)))
-        }
+          for {
+            optLock <- correspondenceAddressLockRepository.get(payeAccount.nino)
+            result <- optLock match {
+              case Some(_) =>
+                Future.successful(Redirect(routes.AddressController.personalDetails()))
+              case None =>
+                submitConfirmClosePostalAddress(payeAccount,personDetails)
+            }
+          } yield result
       }
     }
 
