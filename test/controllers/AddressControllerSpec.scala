@@ -24,7 +24,7 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto._
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -35,8 +35,9 @@ import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.CorrespondenceAddressLockRepository
 import services.partials.MessageFrontendService
-import services.{AddressLookupResponse, _}
+import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -61,11 +62,12 @@ class AddressControllerSpec extends BaseSpec {
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+    .overrides(bind[CorrespondenceAddressLockRepository].toInstance(MockitoSugar.mock[CorrespondenceAddressLockRepository]))
     .build()
 
 
   override def beforeEach: Unit = {
-    reset(injected[LocalSessionCache], injected[CitizenDetailsService], injected[PertaxAuditConnector])
+    reset(injected[LocalSessionCache], injected[CitizenDetailsService], injected[PertaxAuditConnector], injected[CorrespondenceAddressLockRepository])
   }
 
   def buildAddressRequest(method: String, uri: String = "/test") = buildFakeRequestWithAuth(method, uri)
@@ -85,6 +87,10 @@ class AddressControllerSpec extends BaseSpec {
 
     def pruneDataEvent(dataEvent: DataEvent): DataEvent =
       dataEvent.copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
+
+    def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
+
+    def getCorrespondenceAddressLock: Option[AddressJourneyTTLModel] = None
 
     lazy val controller = {
       val c = injected[AddressController]
@@ -110,8 +116,17 @@ class AddressControllerSpec extends BaseSpec {
       when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
         Future.successful(sessionCacheResponse)
       }
+      when(injected[LocalSessionCache].remove()(any(),any())) thenReturn {
+        Future.successful(MockitoSugar.mock[HttpResponse])
+      }
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
+      }
+      when(injected[CorrespondenceAddressLockRepository].insert(any())) thenReturn {
+        Future.successful(isInsertCorrespondenceAddressLockSuccessful)
+      }
+      when(injected[CorrespondenceAddressLockRepository].get(any())) thenReturn {
+        Future.successful(getCorrespondenceAddressLock)
       }
       when(c.configDecorator.tcsChangeAddressUrl) thenReturn "/tax-credits-service/personal/change-address"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
@@ -143,6 +158,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       verify(controller.sessionCache, times(1)).cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
+      verify(controller.correspondenceAddressLockRepository, times(1)).get(meq(nino))
     }
 
     "send an audit event when user arrives on personal details page" in new LocalSetup {
@@ -1504,7 +1520,7 @@ class AddressControllerSpec extends BaseSpec {
           "submittedPostcode" -> Some("AA1 1AA"),
           "submittedCountry" -> None,
           "addressType" -> Some("correspondence")
-        ).map(t => t._2.map((t._1, _))).flatten.toMap,
+        ).collect { case (k, Some(v)) => k -> v },
         dataEvent.generatedAt
       )
 
@@ -1521,7 +1537,20 @@ class AddressControllerSpec extends BaseSpec {
 
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(controller.correspondenceAddressLockRepository,times(1)).insert(meq(nino))
+    }
 
+    "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
+      override def getCorrespondenceAddressLock: Option[AddressJourneyTTLModel] = Some(MockitoSugar.mock[AddressJourneyTTLModel])
+
+      val r = controller.submitConfirmClosePostalAddress(buildAddressRequest("POST"))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some(routes.AddressController.personalDetails().url)
+
+      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
+      verify(controller.citizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
     }
 
     "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
@@ -1531,6 +1560,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe BAD_REQUEST
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
     }
 
     "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
@@ -1540,6 +1570,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(Fixtures.fakeNino), meq("115"), meq(fakeAddress))(any())
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
     }
 
     "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
@@ -1549,6 +1580,23 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
+    }
+
+    "return 500 if insert address lock fails" in new LocalSetup {
+      override def isInsertCorrespondenceAddressLockSuccessful: Boolean = false
+
+      val r = controller.submitConfirmClosePostalAddress(buildAddressRequest("POST"))
+
+      status(r) shouldBe INTERNAL_SERVER_ERROR
+
+      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      val dataEvent = arg.getValue
+
+      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+      verify(controller.correspondenceAddressLockRepository,times(1)).insert(meq(nino))
     }
   }
 
