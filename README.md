@@ -3,12 +3,14 @@ pertax-frontend
 
 Personal Tax Account front end project. 
 
+
+
 Integrating the PTA header into your project
 --------------------------------------------
 
 Example Partial URL: 
 
-  /personal-account/integration/main-content-header?name=John%20Smith&lastLogin=1444229760085&item_text=Home&item_url=%2F&item_text=Profile&item_url=%2Fprofile&showBetaBanner=true
+  //personal-account/integration/main-content-header?name=John%20Smith&lastLogin=1444229760085&item_text=Home&item_url=%2F&item_text=Profile&item_url=%2Fprofile&showBetaBanner=true
 
 Partial URL parameters:
 
