@@ -317,7 +317,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(nino), meq(current.currentYear - 1))(any())
     }
 
-    "return a 200 status when accessing index page with a nino that does not map to any personal deails in citizen-details" in new LocalSetup {
+    "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
 
       override lazy val personDetailsResponse = PersonDetailsNotFoundResponse
       override val allowLowConfidenceSA = false

@@ -47,28 +47,32 @@ class TaxCalculationService @Inject() (environment: Environment, configuration: 
   lazy val taxCalcUrl = baseUrl("taxcalc")
 
   /**
-   * Gets a tax calc summary
-   */
+    * Gets a tax calc summary
+    */
   def getTaxCalculation(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxCalculationResponse] = {
     withMetricsTimer("get-taxcalc-summary") { t =>
-
       simpleHttp.get[TaxCalculationResponse](s"$taxCalcUrl/taxcalc/$nino/taxSummary/$year") (
         onComplete = {
+
           case r if r.status >= 200 && r.status < 300 =>
+            Logger.debug(r.body)
             t.completeTimerAndIncrementSuccessCounter()
             TaxCalculationSuccessResponse(r.json.as[TaxCalculation])
 
           case r if r.status == NOT_FOUND =>
+            Logger.debug(r.body)
             t.completeTimerAndIncrementSuccessCounter()
             TaxCalculationNotFoundResponse
 
           case r =>
+            Logger.debug(r.body)
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting tax calculation from tax-calculation-service")
+            Logger.debug(s"Unexpected ${r.status} response getting tax calculation from tax-calculation-service")
             TaxCalculationUnexpectedResponse(r)
         },
         onError = {
           case e =>
+            Logger.debug(e.toString)
             t.completeTimerAndIncrementFailedCounter()
             Logger.warn("Error getting tax calculation from tax-calculation-service", e)
             TaxCalculationErrorResponse(e)

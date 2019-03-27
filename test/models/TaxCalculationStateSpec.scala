@@ -52,13 +52,13 @@ class TaxCalculationStateSpec extends BaseSpec {
     "return a TaxCalculationPaymentPaidState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of PAYMENT_PAID" in new TaxCalculationStateSimpleSpecSetup {
       val taxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("PAYMENT_PAID"), Some("2016-05-19"), None, None)
       val result = factory.buildFromTaxCalculation(Some(taxCalculation))
-      result shouldBe TaxCalculationOverpaidPaymentPaidState(1000.0, "19 May 2016")
+      result shouldBe TaxCalculationOverpaidPaymentPaidState(1000.0, Some(new LocalDate("2016-05-19")))
     }
 
     "return a TaxCalculationPaymentChequeSentState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of CHEQUE_SENT" in new TaxCalculationStateSimpleSpecSetup {
       val taxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("CHEQUE_SENT"), Some("2016-05-19"), None, None)
       val result = factory.buildFromTaxCalculation(Some(taxCalculation))
-      result shouldBe TaxCalculationOverpaidPaymentChequeSentState(1000.0, "19 May 2016")
+      result shouldBe TaxCalculationOverpaidPaymentChequeSentState(1000.0, Some(new LocalDate("2016-05-19")))
     }
 
     "return a TaxCalculation not found when called without a TaxCalculation" in new TaxCalculationStateSimpleSpecSetup {
@@ -114,7 +114,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("31 January 2018"), None)
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), None)
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
@@ -125,7 +125,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
@@ -136,7 +136,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of None and due date when\n" +
@@ -147,7 +147,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("31 January 2018"), None)
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), None)
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
@@ -158,7 +158,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
@@ -169,7 +169,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of None and due date when\n" +
@@ -180,7 +180,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("30 November 2017"), None)
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), None)
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
@@ -191,7 +191,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
@@ -202,7 +202,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of None and due date when\n" +
@@ -213,7 +213,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("30 November 2017"), None)
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), None)
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
@@ -224,7 +224,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
@@ -235,7 +235,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
@@ -246,7 +246,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
@@ -257,7 +257,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
@@ -268,7 +268,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
@@ -279,7 +279,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
@@ -290,7 +290,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
@@ -301,7 +301,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
@@ -312,7 +312,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
@@ -323,7 +323,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("31 January 2018"), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
@@ -334,7 +334,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
@@ -345,7 +345,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some("30 November 2017"), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaidAllState with due date when-\n" +
@@ -356,7 +356,7 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_ALL"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaidAllState(2017, 2018, Some("31 January 2018"))
+      result shouldBe TaxCalculationUnderpaidPaidAllState(2017, 2018, Some(new LocalDate("2018-01-31")))
     }
   }
 }
