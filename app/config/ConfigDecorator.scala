@@ -171,6 +171,7 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val platformFrontendHost = configuration.getString("platform.frontend.host").getOrElse("")
 
   lazy val taxcalcEnabled = configuration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
+  lazy val taxCalcShowCyMinusTwo = configuration.getString("feature.show-taxcalc-cy-2.enabled").getOrElse("true").toBoolean
   lazy val taxComponentsEnabled = configuration.getString("feature.tax-components.enabled").getOrElse("true").toBoolean
   lazy val saReminderBannerEnabled = configuration.getString("feature.sa-banner.enabled").getOrElse("true").toBoolean
   lazy val nispEnabled = configuration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
