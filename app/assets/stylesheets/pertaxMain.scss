@@ -134,3 +134,8 @@ input[type="text"].autocomplete__input {
 .address-line {
   display: block;
 }
+
+#account-menu__main-2:focus {
+    border-bottom: 4px solid #ffbf47;
+    outline: 3px solid #ffbf47;
+}
