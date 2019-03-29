@@ -147,10 +147,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.configDecorator.companyAuthHost) thenReturn ""
       when(c.configDecorator.pertaxFrontendHost) thenReturn ""
       when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
-      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/feedback-survey?origin=PERTAX")) thenReturn "/gg/sign-out?continue=/feedback-survey?origin=PERTAX"
+      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
       when(c.configDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
       when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback-survey?origin=PERTAX"
+      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
       when(c.configDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
       when(c.configDecorator.gg_web_context) thenReturn "gg-sign-in"
       when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
@@ -488,7 +488,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val r = controller.signout(None, Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/feedback-survey?origin=PERTAX")
+      redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/feedback/PERTAX")
     }
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
@@ -510,7 +510,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       val r = controller.signout(None, Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/ida/signout")
-      session(r).get("postLogoutPage") shouldBe Some("/feedback-survey?origin=PERTAX")
+      session(r).get("postLogoutPage") shouldBe Some("/feedback/PERTAX")
     }
 
     "return 'Bad Request' when supplied no continue URL and no origin" in new LocalSetup {
