@@ -420,8 +420,13 @@ class AddressController @Inject() (
               },
               addressDto => {
                 cacheSubmittedAddressDto(typ, addressDto) flatMap { _ =>
-                  cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
-                  Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
+                  typ match {
+                    case PostalAddrType =>
+                      cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
+                      Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
+                    case _ =>
+                      Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
+                  }
                 }
               }
             )
