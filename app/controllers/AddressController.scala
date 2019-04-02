@@ -597,7 +597,7 @@ class AddressController @Inject() (
           } else {
             ensuringSubmissionRequirments(typ, journeyData) {
               journeyData.submittedAddressDto.fold(Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
-                Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, doYouLiveInTheUK, isUkAddress, journeyData.submittedStartDateDto, false)))
+                Future.successful(Ok(views.html.personaldetails.reviewChanges(typ, addressDto, doYouLiveInTheUK, isUkAddress, journeyData.submittedStartDateDto, true)))
               }
             }
           }

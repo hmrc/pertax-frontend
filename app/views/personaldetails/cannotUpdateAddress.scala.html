@@ -17,8 +17,7 @@
 @(typ: AddrType, proposedStartDate: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(title = Messages("label.your_address_cannot_be_updated"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AddressController.enterStartDate(typ).url)
+  pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
     @back_link()
   <div class="grid-row">
