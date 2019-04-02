@@ -1110,13 +1110,22 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
-    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a non postal journey and input default startDate into cache" in new LocalSetup {
+    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in new LocalSetup {
+      val r = controller.processUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*))
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/changes")
+      verify(controller.sessionCache, times(1)).cache(meq("postalSubmittedAddressDto"), meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
+      verify(controller.sessionCache, times(1)).cache(meq("postalSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in new LocalSetup {
       val r = controller.processUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("POST").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*))
 
       status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/changes")
+      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
       verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedAddressDto"), meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
-      verify(controller.sessionCache, times(1)).cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
