@@ -37,6 +37,6 @@ class LocalFilters @Inject() (
   csrfExceptionsFilter: CSRFExceptionsFilter,
   csrfFilter: CSRFFilter,
   cacheControlFilter: CacheControlFilter
-) extends DefaultHttpFilters(metricsFilter, headersFilter, testFilter,
+) extends DefaultHttpFilters(securityHeadersFilter, metricsFilter, headersFilter, testFilter,
     deviceIdFilter, loggingFilter, frontendAuditFilter, sessionTimeoutFilter,
     csrfExceptionsFilter, csrfFilter, cacheControlFilter)
