@@ -40,7 +40,7 @@ package object bindable {
 
     def bind(key: String, params: Map[String, Seq[String]]) =
       parentBinder.bind(key, params).map {
-        case Right(continueUrl) if continueUrl.isRelativeUrl => Right(continueUrl)
+        case Right(continueUrl) if continueUrl.isRelativeOrDev(RunMode(Play.current.mode, Play.current.configuration).env) => Right(continueUrl)
         case Right(continueUrl) => Left(errorFor(continueUrl.url))
         case Left(message) => Left(message)
       }
