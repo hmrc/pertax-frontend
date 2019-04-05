@@ -118,7 +118,11 @@ class AddressController @Inject() (
       def optNino = pertaxContext.user.flatMap(_.personDetails.flatMap(_.person.nino))
       for {
         hasCorrespondenceAddressLock <- optNino match {
-          case Some(nino) => correspondenceAddressLockRepository.get(nino) map (_.isDefined)
+          case Some(nino) => correspondenceAddressLockRepository.get(nino) map {
+            lock =>
+              Logger.warn(s"correspondence lock some expire at : ${lock.map(_.expireAt)}")
+              lock.isDefined
+          }
           case _ => Future.successful(false)
         }
         personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(hasCorrespondenceAddressLock)
