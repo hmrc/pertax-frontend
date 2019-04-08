@@ -39,7 +39,7 @@ import repositories.CorrespondenceAddressLockRepository
 import services.partials.MessageFrontendService
 import services._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -125,7 +125,7 @@ class AddressControllerSpec extends BaseSpec {
       when(injected[CorrespondenceAddressLockRepository].insert(any())) thenReturn {
         Future.successful(isInsertCorrespondenceAddressLockSuccessful)
       }
-      when(injected[CorrespondenceAddressLockRepository].get(any())) thenReturn {
+      when(injected[CorrespondenceAddressLockRepository].get(any())(any(), any())) thenReturn {
         Future.successful(getCorrespondenceAddressLock)
       }
       when(c.configDecorator.tcsChangeAddressUrl) thenReturn "/tax-credits-service/personal/change-address"
@@ -158,7 +158,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       verify(controller.sessionCache, times(1)).cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
-      verify(controller.correspondenceAddressLockRepository, times(1)).get(meq(nino))
+      verify(controller.correspondenceAddressLockRepository, times(1)).get(meq(nino))(any(), any())
     }
 
     "send an audit event when user arrives on personal details page" in new LocalSetup {

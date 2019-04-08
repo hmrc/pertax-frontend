@@ -20,8 +20,10 @@ import java.time.zone.ZoneRules
 import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
+import controllers.helpers.AddressJourneyAuditingHelper.dataToAudit
 import javax.inject.{Inject, Singleton}
-import models.AddressJourneyTTLModel
+import models.{AddressJourneyTTLModel, PertaxContext}
+import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
@@ -30,12 +32,16 @@ import reactivemongo.core.errors.DatabaseException
 import reactivemongo.play.json.BSONDocumentWrites
 import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import util.AuditServiceTools.buildEvent
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
-                                                    implicit val ec: ExecutionContext) {
+                                                    implicit val ec: ExecutionContext,
+                                                   auditConnector: AuditConnector) {
 
   private val collectionName: String = "correspondenceAddressLock"
 
@@ -49,10 +55,12 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
       case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
     }
 
-  def get(nino: Nino): Future[Option[AddressJourneyTTLModel]] =
+  def get(nino: Nino)(implicit hc: HeaderCarrier, context: PertaxContext): Future[Option[AddressJourneyTTLModel]] = {
+    auditConnector.sendEvent(buildEvent("ttl-debug", "TTL_Debug", Map("mongo-query" -> Some(getCore(BSONDocument(BSONDocument("_id" -> nino.nino))).toString))))
     getCore(
-      BSONDocument(BSONDocument("_id" -> nino.nino), BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
+      BSONDocument(BSONDocument("_id" -> nino.nino))
     )
+  }
 
   private[repositories] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
     this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
