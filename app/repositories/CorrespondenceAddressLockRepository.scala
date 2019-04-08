@@ -20,6 +20,7 @@ import java.time.zone.ZoneRules
 import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
+import connectors.PertaxAuditConnector
 import controllers.helpers.AddressJourneyAuditingHelper.dataToAudit
 import javax.inject.{Inject, Singleton}
 import models.{AddressJourneyTTLModel, PertaxContext}
@@ -41,7 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
                                                     implicit val ec: ExecutionContext,
-                                                   auditConnector: AuditConnector) {
+                                                   auditConnector: PertaxAuditConnector) {
 
   private val collectionName: String = "correspondenceAddressLock"
 
