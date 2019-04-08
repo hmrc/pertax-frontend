@@ -21,10 +21,8 @@ import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
 import connectors.PertaxAuditConnector
-import controllers.helpers.AddressJourneyAuditingHelper.dataToAudit
 import javax.inject.{Inject, Singleton}
 import models.{AddressJourneyTTLModel, PertaxContext}
-import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
@@ -34,7 +32,6 @@ import reactivemongo.play.json.BSONDocumentWrites
 import reactivemongo.play.json.collection.JSONCollection
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.AuditServiceTools.buildEvent
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,6 +60,7 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
     ) yield {
       auditConnector.sendEvent(event)
     }
+    
     getCore(
       BSONDocument(BSONDocument("_id" -> nino.nino))
     )
