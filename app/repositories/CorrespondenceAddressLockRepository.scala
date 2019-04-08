@@ -54,19 +54,18 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
     }
 
   def get(nino: Nino)(implicit hc: HeaderCarrier, context: PertaxContext): Future[Option[AddressJourneyTTLModel]] = {
-    val result = getCore(BSONDocument(BSONDocument("_id" -> nino.nino))) map {x => buildEvent("ttl-debug", "TTL_Debug", Map("mongo-query" -> Some(x.toString)))}
-    for (
-      event <- result
-    ) yield {
-      auditConnector.sendEvent(event)
-    }
-    
-    getCore(
-      BSONDocument(BSONDocument("_id" -> nino.nino))
-    )
+
+    for {
+      result <- getCore(BSONDocument("_id" -> nino.nino))
+      event = buildEvent("ttl-debug", "TTL_Debug", Map(
+        "mongo-query" -> Some(nino.nino),
+        "mongo-result" -> result.map(_.toString)
+      ))
+      _ <- auditConnector.sendEvent(event)
+    }yield result
   }
 
-  private[repositories] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
+   def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
     this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
   }
 

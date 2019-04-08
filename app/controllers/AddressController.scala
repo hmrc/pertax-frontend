@@ -34,11 +34,11 @@ import play.api.data.FormError
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
+import reactivemongo.bson.BSONDocument
 import repositories.CorrespondenceAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -46,7 +46,6 @@ import util.AuditServiceTools._
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 
 class AddressController @Inject() (
@@ -553,6 +552,14 @@ class AddressController @Inject() (
             _ <- auditConnector.sendEvent(buildEvent("closedAddressSubmitted", "closure_of_correspondence", auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
             _ <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
             inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino)
+
+
+            result <- correspondenceAddressLockRepository.getCore(BSONDocument("_id" -> payeAccount.nino.nino))
+            event = buildEvent("ttl-debug-AddressController", "TTL_Debug AddressController", Map(
+            "mongo-query" -> Some(payeAccount.nino.nino), "mongo-result" -> result.map(_.toString)))
+            _ <- auditConnector.sendEvent(event)
+
+
           } yield
             if (inserted)
               Ok(views.html.personaldetails.updateAddressConfirmation(PostalAddrType, closedPostalAddress = true, Some(getAddress(personDetails.address).fullAddress)))

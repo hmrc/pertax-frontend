@@ -18,14 +18,17 @@ package repositories
 
 import java.time.OffsetDateTime
 
+import config.ConfigDecorator
 import models.PertaxContext
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.test.FakeRequest
 import reactivemongo.bson.BSONDocument
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import util.LocalPartialRetriever
 
 import scala.concurrent.ExecutionContext
 import scala.util.Random
@@ -38,8 +41,10 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
   def mongo: CorrespondenceAddressLockRepository = app.injector.instanceOf[CorrespondenceAddressLockRepository]
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  implicit lazy val hc: HeaderCarrier = app.injector.instanceOf[HeaderCarrier]
-  implicit lazy val context: PertaxContext = app.injector.instanceOf[PertaxContext]
+  implicit lazy val context: PertaxContext = PertaxContext(FakeRequest(),
+    app.injector.instanceOf[LocalPartialRetriever],
+    app.injector.instanceOf[ConfigDecorator], user = None)
+  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -51,16 +56,15 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
   private val testNino: Nino = generator.nextNino
   private val differentNino: Nino = {
     @scala.annotation.tailrec
-    def next(nino: Nino): Nino = generator.nextNino match {
-      case `testNino` => next(nino)
-      case _ => nino
+    def next(): Nino = generator.nextNino match {
+      case `testNino` => next()
+      case newNino => newNino
     }
-
-    next(testNino)
+    next()
   }
 
   "setIndex" when {
-    "ensure the index is set" ignore {
+    "ensure the index is set" in {
       await(mongo.removeIndex())
       await(mongo.isTtlSet) shouldBe false
 
@@ -71,23 +75,32 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
 
   "get" when {
     "there isn't an existing record" should {
-      "return None" ignore {
+      "return None" in {
         val fGet = mongo.get(testNino)
 
         await(fGet) shouldBe None
       }
     }
     "there isn't an existing record that matches the requested nino" should {
-      "return None" ignore {
-        await(mongo.insertCore(differentNino, OffsetDateTime.now()))
+      "return None" in {
+        val timeOffSet = 10L
+        await(mongo.insertCore(differentNino, OffsetDateTime.now().plusSeconds(timeOffSet)))
 
         val fGet = mongo.get(testNino)
+
+        println(testNino)
+        println(differentNino)
+        println
+        println
+        println
+        println
+        println
 
         await(fGet) shouldBe None
       }
     }
     "there is an existing record and it has not yet expired" should {
-      "return the record" ignore {
+      "return the record" in {
         val currentTime = System.currentTimeMillis()
         val timeOffSet = 10L
 
@@ -112,7 +125,7 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
 
   "insert" when {
     "there isn't an existing record" should {
-      "return true" ignore {
+      "return true" in {
         import CorrespondenceAddressLockRepository._
         val midnight = toBSONDateTime(getNextMidnight)
         val result = await(mongo.insert(testNino))
@@ -126,7 +139,7 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
       }
     }
     "there is an existing record" should {
-      "return false" ignore {
+      "return false" in {
         await(mongo.insert(testNino))
 
         val result = await(mongo.insert(testNino))
