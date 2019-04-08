@@ -25,7 +25,6 @@ import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import javax.inject.Inject
-
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
@@ -47,6 +46,7 @@ import util.AuditServiceTools._
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 
 class AddressController @Inject() (

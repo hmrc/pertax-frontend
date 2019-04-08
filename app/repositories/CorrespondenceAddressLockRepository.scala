@@ -20,6 +20,7 @@ import java.time.zone.ZoneRules
 import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
+import connectors.PertaxAuditConnector
 import controllers.helpers.AddressJourneyAuditingHelper.dataToAudit
 import javax.inject.{Inject, Singleton}
 import models.{AddressJourneyTTLModel, PertaxContext}
@@ -41,7 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
                                                     implicit val ec: ExecutionContext,
-                                                   auditConnector: AuditConnector) {
+                                                   auditConnector: PertaxAuditConnector) {
 
   private val collectionName: String = "correspondenceAddressLock"
 
@@ -56,7 +57,12 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
     }
 
   def get(nino: Nino)(implicit hc: HeaderCarrier, context: PertaxContext): Future[Option[AddressJourneyTTLModel]] = {
-    auditConnector.sendEvent(buildEvent("ttl-debug", "TTL_Debug", Map("mongo-query" -> Some(getCore(BSONDocument(BSONDocument("_id" -> nino.nino))).toString))))
+    val result = getCore(BSONDocument(BSONDocument("_id" -> nino.nino))) map {x => buildEvent("ttl-debug", "TTL_Debug", Map("mongo-query" -> Some(x.toString)))}
+    for (
+      event <- result
+    ) yield {
+      auditConnector.sendEvent(event)
+    }
     getCore(
       BSONDocument(BSONDocument("_id" -> nino.nino))
     )
