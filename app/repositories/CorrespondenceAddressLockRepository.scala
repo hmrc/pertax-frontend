@@ -29,7 +29,6 @@ import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import reactivemongo.core.errors.DatabaseException
 import reactivemongo.play.json.BSONDocumentWrites
 import reactivemongo.play.json.collection.JSONCollection
-import uk.gov.hmrc.domain.Nino
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,21 +43,21 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
 
   import CorrespondenceAddressLockRepository._
 
-  def insert(nino: Nino): Future[Boolean] =
+  def insert(nino: String): Future[Boolean] =
     insertCore(nino, getNextMidnight).map(_.ok) recover {
       case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
     }
 
-  def get(nino: Nino): Future[Option[AddressJourneyTTLModel]] =
+  def get(nino: String): Future[Option[AddressJourneyTTLModel]] =
     getCore(
-      BSONDocument(BSONDocument("_id" -> nino.nino), BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
+      BSONDocument(BSONDocument("_id" -> nino), BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
     )
 
   private[repositories] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
     this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
   }
 
-  private[repositories] def insertCore(nino: Nino, date: OffsetDateTime): Future[WriteResult] =
+  private[repositories] def insertCore(nino: String, date: OffsetDateTime): Future[WriteResult] =
     this.collection.flatMap(_.insert(ordered = false).one(AddressJourneyTTLModel(nino, toBSONDateTime(date))))
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =

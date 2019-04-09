@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import models.{Address, PertaxContext, PertaxUser}
 import play.twirl.api.{Html, HtmlFormat}
 import org.joda.time.LocalDate
+import play.api.Logger
 import uk.gov.hmrc.play.language.LanguageUtils.Dates.formatDate
 
 @Singleton
@@ -57,7 +58,8 @@ class PersonalDetailsCardGenerator @Inject() (
   }
 
   def hasCorrespondenceAddress()(implicit pertaxContext: PertaxContext): Boolean = {
-    getPersonDetails.flatMap(_.correspondenceAddress).isDefined
+    val cAdd = getPersonDetails.flatMap(_.correspondenceAddress)
+    cAdd.isDefined
   }
 
   def getMainAddressCard(hasCorrespondenceAddressLock: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] = {
