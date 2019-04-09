@@ -158,7 +158,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       verify(controller.sessionCache, times(1)).cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
-      verify(controller.correspondenceAddressLockRepository, times(1)).get(meq(nino))(any(), any())
+      verify(controller.correspondenceAddressLockRepository, times(1)).get(meq(nino.withoutSuffix))(any(), any())
     }
 
     "send an audit event when user arrives on personal details page" in new LocalSetup {
@@ -1549,7 +1549,7 @@ class AddressControllerSpec extends BaseSpec {
 //
 //      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository,times(1)).insert(meq(nino))
+      verify(controller.correspondenceAddressLockRepository,times(1)).insert(meq(nino.withoutSuffix))
     }
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
@@ -1562,7 +1562,7 @@ class AddressControllerSpec extends BaseSpec {
 
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.citizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino.withoutSuffix))
     }
 
     "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
@@ -1572,7 +1572,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe BAD_REQUEST
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino.withoutSuffix))
     }
 
     "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
@@ -1582,7 +1582,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(Fixtures.fakeNino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino.withoutSuffix))
     }
 
     "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
@@ -1592,7 +1592,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino))
+      verify(controller.correspondenceAddressLockRepository,times(0)).insert(meq(nino.withoutSuffix))
     }
 
     "return 500 if insert address lock fails" in new LocalSetup {
@@ -1611,7 +1611,7 @@ class AddressControllerSpec extends BaseSpec {
 //
 //      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository,times(1)).insert(meq(nino))
+      verify(controller.correspondenceAddressLockRepository,times(1)).insert(meq(nino.withoutSuffix))
     }
   }
 

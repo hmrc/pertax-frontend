@@ -49,20 +49,19 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
 
   import CorrespondenceAddressLockRepository._
 
-  def insert(nino: Nino): Future[Boolean] = {
-    Logger.warn("insert nino length is: " + nino.nino.length)
+  def insert(nino: String): Future[Boolean] = {
+    Logger.warn("insert nino length is: " + nino.length)
     insertCore(nino, getNextMidnight).map(_.ok) recover {
       case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
     }
   }
 
-  def get(nino: Nino)(implicit hc: HeaderCarrier, context: PertaxContext): Future[Option[AddressJourneyTTLModel]] = {
-    Logger.warn("get nino length is: " + nino.nino.length)
-
+  def get(nino: String)(implicit hc: HeaderCarrier, context: PertaxContext): Future[Option[AddressJourneyTTLModel]] = {
+    Logger.warn("get nino length is: " + nino.length)
     for {
-      result <- getCore(BSONDocument("_id" -> nino.nino))
+      result <- getCore(BSONDocument("_id" -> nino))
       event = buildEvent("ttl-debug", "TTL_Debug", Map(
-        "mongo-query" -> Some(nino.nino),
+        "mongo-query" -> Some(nino),
         "mongo-result" -> result.map(_.toString)
       ))
       _ <- auditConnector.sendEvent(event)
@@ -73,7 +72,7 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
     this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
   }
 
-  private[repositories] def insertCore(nino: Nino, date: OffsetDateTime): Future[WriteResult] =
+  private[repositories] def insertCore(nino: String, date: OffsetDateTime): Future[WriteResult] =
     this.collection.flatMap(_.insert(ordered = false).one(AddressJourneyTTLModel(nino, toBSONDateTime(date))))
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =

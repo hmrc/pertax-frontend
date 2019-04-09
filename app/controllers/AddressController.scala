@@ -39,6 +39,7 @@ import repositories.CorrespondenceAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -117,7 +118,7 @@ class AddressController @Inject() (
       def optNino = pertaxContext.user.flatMap(_.personDetails.flatMap(_.person.nino))
       for {
         hasCorrespondenceAddressLock <- optNino match {
-          case Some(nino) => correspondenceAddressLockRepository.get(nino) map {
+          case Some(nino) => correspondenceAddressLockRepository.get(nino.withoutSuffix) map {
             lock =>
               Logger.warn(s"correspondence lock some expire at : ${lock.map(_.expireAt)}")
               lock.isDefined
@@ -538,7 +539,6 @@ class AddressController @Inject() (
 
     val address = getAddress(personDetails.correspondenceAddress)
     val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
-
     for {
       response <- citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, closingAddress)
       action <- response match {
@@ -551,12 +551,12 @@ class AddressController @Inject() (
           for {
             _ <- auditConnector.sendEvent(buildEvent("closedAddressSubmitted", "closure_of_correspondence", auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
             _ <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
-            inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino)
+            inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino.withoutSuffix)
 
 
-            result <- correspondenceAddressLockRepository.getCore(BSONDocument("_id" -> payeAccount.nino.nino))
+            result <- correspondenceAddressLockRepository.getCore(BSONDocument("_id" -> payeAccount.nino.withoutSuffix))
             event = buildEvent("ttl-debug-AddressController", "TTL_Debug AddressController", Map(
-            "mongo-query" -> Some(payeAccount.nino.nino), "mongo-result" -> result.map(_.toString)))
+            "mongo-query" -> Some(payeAccount.nino.withoutSuffix), "mongo-result" -> result.map(_.toString)))
             _ <- auditConnector.sendEvent(event)
 
 
@@ -573,7 +573,7 @@ class AddressController @Inject() (
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
           for {
-            optLock <- correspondenceAddressLockRepository.get(payeAccount.nino)
+            optLock <- correspondenceAddressLockRepository.get(payeAccount.nino.withoutSuffix)
             result <- optLock match {
               case Some(_) =>
                 Future.successful(Redirect(routes.AddressController.personalDetails()))
