@@ -23,6 +23,7 @@ import java.util.TimeZone
 import connectors.PertaxAuditConnector
 import javax.inject.{Inject, Singleton}
 import models.{AddressJourneyTTLModel, PertaxContext}
+import play.api.Logger
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
@@ -48,15 +49,28 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
 
   import CorrespondenceAddressLockRepository._
 
-  def insert(nino: Nino): Future[Boolean] =
-    insertCore(nino, getNextMidnight).map(_.ok) recover {
+  def removeSuffix(nino: Nino) = {
+    val userNino = nino.nino
+
+    Logger.warn("Nino length before removing suffix is: " + userNino.length)
+    if (userNino.length > 8) {
+      Logger.warn("Nino length after removing suffix is: " + userNino.dropRight(1))
+      Nino(userNino.dropRight(1))
+    } else {
+      Nino(userNino)
+    }
+  }
+
+  def insert(nino: Nino): Future[Boolean] = {
+    insertCore(removeSuffix(nino), getNextMidnight).map(_.ok) recover {
       case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
     }
+  }
 
   def get(nino: Nino)(implicit hc: HeaderCarrier, context: PertaxContext): Future[Option[AddressJourneyTTLModel]] = {
 
     for {
-      result <- getCore(BSONDocument("_id" -> nino.nino))
+      result <- getCore(BSONDocument("_id" -> removeSuffix(nino).nino))
       event = buildEvent("ttl-debug", "TTL_Debug", Map(
         "mongo-query" -> Some(nino.nino),
         "mongo-result" -> result.map(_.toString)
