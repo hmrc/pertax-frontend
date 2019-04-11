@@ -22,7 +22,7 @@ import reactivemongo.play.json._
 import uk.gov.hmrc.domain.Nino
 
 
-case class AddressJourneyTTLModel(nino: Nino, expireAt: BSONDateTime)
+case class AddressJourneyTTLModel(nino: String, expireAt: BSONDateTime)
 
 object AddressJourneyTTLModel {
 
@@ -39,7 +39,7 @@ object AddressJourneyTTLModel {
   val reader = new Reads[AddressJourneyTTLModel] {
     override def reads(json: JsValue): JsResult[AddressJourneyTTLModel] =
       for {
-        nino <- (json \ NINO).validate[Nino]
+        nino <- (json \ NINO).validate[String]
         expireAt <- (json \ EXPIRE_AT).validate[BSONDateTime]
       } yield AddressJourneyTTLModel(nino, expireAt)
 

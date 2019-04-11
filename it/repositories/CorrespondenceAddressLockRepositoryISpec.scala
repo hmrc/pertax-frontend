@@ -47,12 +47,11 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
   private val testNino: Nino = generator.nextNino
   private val differentNino: Nino = {
     @scala.annotation.tailrec
-    def next(nino: Nino): Nino = generator.nextNino match {
-      case `testNino` => next(nino)
-      case _ => nino
+    def next(): Nino = generator.nextNino match {
+      case `testNino` => next()
+      case newNino => newNino
     }
-
-    next(testNino)
+    next()
   }
 
   "setIndex" when {
@@ -68,16 +67,17 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
   "get" when {
     "there isn't an existing record" should {
       "return None" in {
-        val fGet = mongo.get(testNino)
+        val fGet = mongo.get(testNino.withoutSuffix)
 
         await(fGet) shouldBe None
       }
     }
     "there isn't an existing record that matches the requested nino" should {
       "return None" in {
-        await(mongo.insertCore(differentNino, OffsetDateTime.now()))
+        val timeOffSet = 10L
+        await(mongo.insertCore(differentNino.withoutSuffix, OffsetDateTime.now().plusSeconds(timeOffSet)))
 
-        val fGet = mongo.get(testNino)
+        val fGet = mongo.get(testNino.withoutSuffix)
 
         await(fGet) shouldBe None
       }
@@ -87,9 +87,9 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
         val currentTime = System.currentTimeMillis()
         val timeOffSet = 10L
 
-        await(mongo.insertCore(testNino, OffsetDateTime.now().plusSeconds(timeOffSet)))
+        await(mongo.insertCore(testNino.withoutSuffix, OffsetDateTime.now().plusSeconds(timeOffSet)))
 
-        val fGet = mongo.get(testNino)
+        val fGet = mongo.get(testNino.withoutSuffix)
         val inserted = await(mongo.getCore(BSONDocument()))
         currentTime should be < inserted.get.expireAt.value
         await(fGet) shouldBe inserted
@@ -97,9 +97,9 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
     }
     "there is an existing record but has expired" should {
       "return None" in {
-        await(mongo.insertCore(testNino, OffsetDateTime.now()))
+        await(mongo.insertCore(testNino.withoutSuffix, OffsetDateTime.now()))
 
-        val fGet = mongo.get(testNino)
+        val fGet = mongo.get(testNino.withoutSuffix)
 
         await(fGet) shouldBe None
       }
@@ -111,21 +111,21 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
       "return true" in {
         import CorrespondenceAddressLockRepository._
         val midnight = toBSONDateTime(getNextMidnight)
-        val result = await(mongo.insert(testNino))
+        val result = await(mongo.insert(testNino.withoutSuffix))
         result shouldBe true
 
-        val inserted = await(mongo.get(testNino))
+        val inserted = await(mongo.get(testNino.withoutSuffix))
 
         inserted shouldBe defined
-        inserted.get.nino shouldBe testNino
+        inserted.get.nino shouldBe testNino.withoutSuffix
         inserted.get.expireAt shouldBe midnight
       }
     }
     "there is an existing record" should {
       "return false" in {
-        await(mongo.insert(testNino))
+        await(mongo.insert(testNino.withoutSuffix))
 
-        val result = await(mongo.insert(testNino))
+        val result = await(mongo.insert(testNino.withoutSuffix))
 
         result shouldBe false
       }

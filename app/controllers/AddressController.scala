@@ -25,7 +25,6 @@ import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import error.LocalErrorHandler
 import javax.inject.Inject
-
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
@@ -35,11 +34,12 @@ import play.api.data.FormError
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
+import reactivemongo.bson.BSONDocument
 import repositories.CorrespondenceAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
@@ -118,7 +118,7 @@ class AddressController @Inject() (
       def optNino = pertaxContext.user.flatMap(_.personDetails.flatMap(_.person.nino))
       for {
         hasCorrespondenceAddressLock <- optNino match {
-          case Some(nino) => correspondenceAddressLockRepository.get(nino) map (_.isDefined)
+          case Some(nino) => correspondenceAddressLockRepository.get(nino.withoutSuffix) map (_.isDefined)
           case _ => Future.successful(false)
         }
         personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(hasCorrespondenceAddressLock)
@@ -548,7 +548,7 @@ class AddressController @Inject() (
           for {
             _ <- auditConnector.sendEvent(buildEvent("closedAddressSubmitted", "closure_of_correspondence", auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
             _ <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
-            inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino)
+            inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino.withoutSuffix)
           } yield
             if (inserted)
               Ok(views.html.personaldetails.updateAddressConfirmation(PostalAddrType, closedPostalAddress = true, Some(getAddress(personDetails.address).fullAddress)))
@@ -562,7 +562,7 @@ class AddressController @Inject() (
     implicit pertaxContext =>
       addressJourneyEnforcer { payeAccount => personDetails =>
           for {
-            optLock <- correspondenceAddressLockRepository.get(payeAccount.nino)
+            optLock <- correspondenceAddressLockRepository.get(payeAccount.nino.withoutSuffix)
             result <- optLock match {
               case Some(_) =>
                 Future.successful(Redirect(routes.AddressController.personalDetails()))
