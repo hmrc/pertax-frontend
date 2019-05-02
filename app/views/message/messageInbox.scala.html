@@ -17,5 +17,6 @@
 @(messageListPartial: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(title = Messages("label.list_of_messages"),Some(Messages("label.your_personal_tax_account"))) {
+  @back_link()
   @messageListPartial
 }
