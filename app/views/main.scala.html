@@ -98,6 +98,16 @@
       };
     </script>
   }
+
+  <script>
+    window.GOVUK.timeoutDialog({
+          timeout: @pertaxContext.configDecorator.sessionTimeoutInSeconds,
+          countdown: @pertaxContext.configDecorator.sessionCountdownInSeconds,
+          keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
+          signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
+      });
+  </script>
+
 }
 
 @printable = @{
