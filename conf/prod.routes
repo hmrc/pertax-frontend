@@ -46,7 +46,7 @@ POST   /personal-account/your-address/:typ/do-you-live-in-the-uk             @co
 GET    /personal-account/your-address/:typ/cannot-use-the-service            @controllers.AddressController.cannotUseThisService(typ: AddrType)
 GET    /personal-account/your-address/:typ/find-address                      @controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
 POST   /personal-account/your-address/:typ/find-address                      @controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
-POST   /personal-account/your-address/:typ/select-address                    @controllers.AddressController.processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String])
+POST   /personal-account/your-address/:typ/select-address                    @controllers.AddressController.processAddressSelectorForm(typ: AddrType, filter: Option[String])
 GET    /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.showUpdateAddressForm(typ: AddrType)
 POST   /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.processUpdateAddressForm(typ: AddrType)
 GET    /personal-account/your-address/:typ/enter-international-address       @controllers.AddressController.showUpdateInternationalAddressForm(typ: AddrType)

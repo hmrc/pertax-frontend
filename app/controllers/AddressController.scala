@@ -294,8 +294,11 @@ class AddressController @Inject() (
     }
   }
 
-  def processAddressSelectorForm(typ: AddrType, postcode: String, filter: Option[String]): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def processAddressSelectorForm(typ: AddrType, filter: Option[String]): Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
+
+      val postcode = pertaxContext.request.body.asFormUrlEncoded.flatMap(_.get("postcode").flatMap(_.headOption)).getOrElse("")
+
       addressJourneyEnforcer { payeAccount => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form.bindFromRequest.fold(
@@ -315,9 +318,9 @@ class AddressController @Inject() (
                         cacheSubmittedAddressDto(typ, addressDto) map { _ =>
                           val postCodeHasChanged = !postcode.replace(" ", "").equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
                           (typ, postCodeHasChanged) match {
-                            case (PostalAddrType, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (PostalAddrType, true)  => Redirect(routes.AddressController.enterStartDate(typ))
                             case (PostalAddrType, false) => Redirect(routes.AddressController.showUpdateAddressForm(typ))
-                            case (_, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (_, true)  => Redirect(routes.AddressController.enterStartDate(typ))
                             case (_, false) => {
                               cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
                               Redirect(routes.AddressController.reviewChanges(typ))
