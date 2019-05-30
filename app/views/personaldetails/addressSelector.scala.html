@@ -44,8 +44,10 @@
 
   <div class="grid-row select-address-list-block">
     <div class="column-two-thirds">
-      @helpers.form(action = controllers.routes.AddressController.processAddressSelectorForm(typ, postcode, filter), args = 'class -> "select-address-form", 'id -> "select-address-form") {
-        <fieldset>
+      @helpers.form(action = controllers.routes.AddressController.processAddressSelectorForm(typ, filter), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+          <input type="hidden" name="postcode" value="@postcode" />
+
+          <fieldset>
           <legend class="visuallyhidden">@typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address"))</legend>
             @for((ad,index) <- recordSet.addresses.zipWithIndex){
               <label class="block-label" for="radio-@index">
