@@ -26,7 +26,8 @@
   includeGridWrapper: Boolean = false,
   backlinkUrl: Option[String] = None,
   additionalGaCalls: Option[Html] = None,
-  printableDocument: Boolean = false
+  printableDocument: Boolean = false,
+  displayTimeoutDialog: Boolean = true
 )(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import uk.gov.hmrc.play.views.html.layouts
@@ -99,14 +100,16 @@
     </script>
   }
 
-  <script>
-    window.GOVUK.timeoutDialog({
-          timeout: @pertaxContext.configDecorator.sessionTimeoutInSeconds,
-          countdown: @pertaxContext.configDecorator.sessionCountdownInSeconds,
-          keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
-          signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
-      });
-  </script>
+  @if(displayTimeoutDialog) {
+    <script>
+            window.GOVUK.timeoutDialog({
+              timeout: @pertaxContext.configDecorator.sessionTimeoutInSeconds,
+              countdown: @pertaxContext.configDecorator.sessionCountdownInSeconds,
+              keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
+              signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
+            });
+    </script>
+  }
 
 }
 
