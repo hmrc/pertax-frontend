@@ -15,16 +15,16 @@
  */
 
 package controllers
-import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc.Action
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 
-class SessionManagementController extends FrontendController{
+class SessionManagementController extends FrontendController {
 
   def keepAlive = Action {
-    Ok("OK")
+    Ok("")
   }
 
   def timeOut = Action {
-    Ok("OK")
+    Redirect(routes.PublicController.sessionTimeout()).withNewSession
   }
 }
