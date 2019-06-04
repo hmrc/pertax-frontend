@@ -124,7 +124,7 @@ class AddressController @Inject() (
         personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(hasCorrespondenceAddressLock)
         personDetails: Option[PersonDetails] = pertaxContext.user.flatMap(_.personDetails)
         _ <- personDetails match {
-          case Some(p) => auditConnector.sendEvent(buildAddressChangeEvent("personalDetailsPageLinkClicked", p))
+          case Some(p) => auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", p))
           case _ => Future.successful(Unit)
         }
         _ <- cacheAddressPageVisited(AddressPageVisitedDto(true))
@@ -162,7 +162,6 @@ class AddressController @Inject() (
 
   def residencyChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
     addressJourneyEnforcer { payeAccount => personDetails =>
-      auditConnector.sendEvent(buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails))
       gettingCachedTaxCreditsChoiceDto {
         case Some(TaxCreditsChoiceDto(false)) =>
           Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
@@ -240,11 +239,12 @@ class AddressController @Inject() (
           cacheSubmittedInternationalAddressChoiceDto(InternationalAddressChoiceDto.apply(true))
           typ match {
             case PostalAddrType =>
-              auditConnector.sendEvent(buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails))
+              auditConnector.sendEvent(buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = false))
               enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
               }
             case _ =>
+              auditConnector.sendEvent(buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false))
               enforceResidencyChoiceSubmitted(journeyData) { x =>
                 Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
               }
@@ -399,11 +399,13 @@ class AddressController @Inject() (
         addressJourneyEnforcer { payeAccount => personDetails =>
           typ match {
             case PostalAddrType =>
+              auditConnector.sendEvent(buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = true))
               enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(Ok(views.html.personaldetails.updateInternationalAddress(journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(AddressDto.internationalForm.fill), typ, countryHelper.countries)))
               }
 
             case _ =>
+              auditConnector.sendEvent(buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true))
               enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
                 Future.successful(Ok(views.html.personaldetails.updateInternationalAddress(AddressDto.internationalForm, typ, countryHelper.countries)))
               }
