@@ -306,18 +306,6 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
-    "verify that an audit event has been sent when a user chooses to change their main address" in new LocalSetup {
-      lazy val sessionCacheResponse = Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))))
-
-      val r = controller.residencyChoice(buildFakeRequestWithAuth("GET"))
-
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-
-      status(r) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-    }
-
   }
 
 
@@ -472,6 +460,19 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+    }
+
+    "verify an audit event has been sent for a user clicking the change address link" in new LocalSetup {
+
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)), "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+
+      val r = controller.showPostcodeLookupForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+
+      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
 
     "verify an audit event has been sent for a user clicking the change postal address link" in new LocalSetup {
@@ -1019,6 +1020,30 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
       doc.getElementsByClass("heading-xlarge").toString().contains("Enter your address") shouldBe true
+    }
+
+    "verify an audit event has been sent when user chooses to add/amend main address" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+
+      val r = controller.showUpdateInternationalAddressForm(SoleAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+
+      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+    }
+
+    "verify an audit event has been sent when user chooses to add postal address" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+      val r = controller.showUpdateInternationalAddressForm(PostalAddrType)(buildAddressRequest("GET"))
+
+      status(r) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+
+      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
   }
 
