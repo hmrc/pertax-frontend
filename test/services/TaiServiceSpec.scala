@@ -16,6 +16,7 @@
 
 package services
 
+import akka.pattern.CircuitBreaker
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models.TaxComponents
@@ -31,6 +32,10 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.http._
 import util.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.HttpResponse
+import config.TaiCircuitBreakerProvider
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class TaiServiceSpec extends BaseSpec {
 
@@ -66,7 +71,9 @@ class TaiServiceSpec extends BaseSpec {
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      lazy val taiService: TaiService = new TaiService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      lazy val taiService: TaiService = new TaiService(
+        injected[Environment], injected[Configuration], injected[CircuitBreaker], fakeSimpleHttp, MockitoSugar.mock[Metrics]
+      ) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
@@ -76,10 +83,28 @@ class TaiServiceSpec extends BaseSpec {
     }
   }
 
+
   "Calling TaiService.taxSummary" should {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-tax-components"
+    }
+
+    "circuitBreaker must call tai" in new LocalSetup {
+      override lazy val simulateTaiServiceIsDown = false
+      val seeOtherResponse = HttpResponse(SEE_OTHER)
+      override lazy val httpResponse = seeOtherResponse
+
+      when(service.taxComponents(Fixtures.fakeNino, 2014)).thenReturn(Future.successful(TaxComponentsUnexpectedResponse(httpResponse)))
+
+/*      val r = service.taxComponents(Fixtures.fakeNino, 2014)
+
+      await(r) shouldBe TaxComponentsErrorResponse(anException)
+      Thread.sleep(6000)
+
+      val q = service.taxComponents(Fixtures.fakeNino, 2014)
+
+      await(q) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))*/
     }
 
     "return a TaxComponentsSuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {

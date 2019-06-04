@@ -16,8 +16,9 @@
 
 package modules
 
+import akka.pattern.CircuitBreaker
 import com.google.inject.AbstractModule
-import config.{ApplicationCryptoProvider, LocalTemplateRenderer, SessionCookieCryptoFilterProvider}
+import config.{ApplicationCryptoProvider, LocalTemplateRenderer, SessionCookieCryptoFilterProvider, TaiCircuitBreakerProvider}
 import filters._
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters._
@@ -33,5 +34,6 @@ class LocalGuiceModule extends AbstractModule {
     bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
     bind(classOf[ApplicationCrypto]).toProvider(classOf[ApplicationCryptoProvider])
     bind(classOf[CookieCryptoFilter]).toProvider(classOf[SessionCookieCryptoFilterProvider])
+    bind(classOf[CircuitBreaker]).toProvider(classOf[TaiCircuitBreakerProvider])
   }
 }
