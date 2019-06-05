@@ -192,8 +192,8 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val assetsVersion = configuration.getString(s"assets.version").getOrElse("")
   lazy val mongoUrl = configuration.getString("mongodb.uri").getOrElse("")
 
-  lazy val sessionTimeoutInSeconds = 1800
-  lazy val sessionCountdownInSeconds = 120
+  lazy val sessionTimeoutInSeconds = configuration.getInt("session.timeout").getOrElse(1800)
+  lazy val sessionCountdownInSeconds = configuration.getInt("session.countdown").getOrElse(120)
 
   def getFeedbackSurveyUrl(origin: Origin): String = {
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
