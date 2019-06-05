@@ -40,7 +40,7 @@ class SessionManagementControllerSpec extends BaseSpec {
 
     "return 303" in new LocalSetup {
 
-      val result = controller.timeOut()(FakeRequest("GET", "")).withSession()
+      val result = controller.timeOut()(FakeRequest("GET", ""))
 
       status(result) shouldBe SEE_OTHER
 
@@ -48,7 +48,7 @@ class SessionManagementControllerSpec extends BaseSpec {
 
     "redirect to the session timeout page" in new LocalSetup {
 
-      val result = controller.timeOut()(FakeRequest("GET", "")).withSession()
+      val result = controller.timeOut()(FakeRequest("GET", "")).withSession("test" -> "session")
 
       redirectLocation(result).getOrElse("Unable to complete") shouldBe routes.PublicController.sessionTimeout().url
     }
