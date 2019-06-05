@@ -55,7 +55,7 @@ class SessionManagementControllerSpec extends BaseSpec {
 
     "clear the session upon redirect" in new LocalSetup {
 
-      val result = controller.timeOut()(FakeRequest("GET", "")).withSession("test" -> "session")
+      val result = controller.timeOut()(FakeRequest("GET", "").withSession("test" -> "session"))
 
       session(result) shouldBe empty
     }
