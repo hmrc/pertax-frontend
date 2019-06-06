@@ -89,12 +89,8 @@ class TaiService @Inject()(
               TaxComponentsErrorResponse(e)
           }
         ).collect {
-        case response@(TaxComponentsSuccessResponse(_) | TaxComponentsUnavailableResponse) =>
-        {
-          println("\n\n\n\n\n\n\n\n\n\n response " + response.toString)
-          response
+           case response@(TaxComponentsSuccessResponse(_) | TaxComponentsUnavailableResponse) => response
         }
-      }
       }
     }
   circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsCircuitOpenResponse))
