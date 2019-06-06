@@ -22,9 +22,10 @@ import com.kenshoo.play.metrics.Metrics
 import metrics.MetricsOperator
 import metrics.MetricsOperator.Metric
 import models.TaxComponents
-import org.mockito.Matchers
+import org.mockito.{Matchers, Mockito}
 import org.mockito.Matchers._
 import org.mockito.Mockito.{when, _}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito._
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status._
@@ -38,7 +39,8 @@ import util.{BaseSpec, Fixtures}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class TaiServiceSpec extends BaseSpec with OneAppPerSuite  {
+class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEach {
+
 
   override lazy val app: Application = {
     new GuiceApplicationBuilder()
@@ -110,7 +112,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite  {
       override lazy val simulateTaiServiceIsDown = false
       val seeOtherResponse = HttpResponse(SEE_OTHER)
       val mockSimpleHttp=MockitoSugar.mock[SimpleHttp]
-      override lazy val httpResponse = seeOtherResponse
+      override lazy val httpResponse = ???
       when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(TaxComponentsUnexpectedResponse(seeOtherResponse)),
           Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))))
@@ -129,6 +131,30 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite  {
       await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
 
  }
+
+    "circuitBreaker must call tai when call errors" in new LocalSetup {
+      override lazy val simulateTaiServiceIsDown = false
+      val seeOtherResponse = HttpResponse(SEE_OTHER)
+      val mockSimpleHttp=MockitoSugar.mock[SimpleHttp]
+      override lazy val httpResponse = ???
+      when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(TaxComponentsErrorResponse(new Exception)),
+          Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))))
+
+      val s=service(mockSimpleHttp)
+
+      val result1 = s.taxComponents(Fixtures.fakeNino, 2014)
+      await(result1) shouldBe TaxComponentsCircuitOpenResponse
+
+      val result2 = s.taxComponents(Fixtures.fakeNino, 2014)
+      await(result2) shouldBe TaxComponentsCircuitOpenResponse
+
+      Thread.sleep(2000)
+
+      val result3 = s.taxComponents(Fixtures.fakeNino, 2014)
+      await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+
+    }
 
     "return a TaxComponentsSuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {
 

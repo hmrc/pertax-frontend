@@ -77,7 +77,6 @@ class TaiService @Inject()(
             }
 
             case r =>
-              println("\n\n\n\n unexpected")
               t.completeTimerAndIncrementFailedCounter()
               Logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
               TaxComponentsUnexpectedResponse(r)
