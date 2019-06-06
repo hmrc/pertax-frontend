@@ -18,6 +18,7 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
+import metrics.MetricsOperator
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -28,7 +29,6 @@ import play.api.libs.json.Json
 import services.http.FakeSimpleHttp
 import util.BaseSpec
 import uk.gov.hmrc.http.HttpResponse
-
 
 class IdentityVerificationFrontendServiceSpec extends BaseSpec {
 

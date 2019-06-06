@@ -43,6 +43,7 @@ case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponent
 
 case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 
+case object TaxComponentsCircuitOpenResponse extends TaxComponentsResponse
 
 @Singleton
 class TaiService @Inject()(
@@ -63,19 +64,20 @@ class TaiService @Inject()(
   def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] = {
     def call = {
       withMetricsTimer("get-tax-components") { t =>
-
-        simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
+      simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
           onComplete = {
             case r if r.status >= 200 && r.status < 300 =>
               t.completeTimerAndIncrementSuccessCounter()
               TaxComponentsSuccessResponse(TaxComponents.fromJsonTaxComponents(r.json))
 
-            case r if r.status == NOT_FOUND | r.status == BAD_REQUEST =>
+            case r if r.status == NOT_FOUND | r.status == BAD_REQUEST => {
               t.completeTimerAndIncrementSuccessCounter()
               Logger.warn("Unable to find tax components from the tai-service")
               TaxComponentsUnavailableResponse
+            }
 
             case r =>
+              println("\n\n\n\n unexpected")
               t.completeTimerAndIncrementFailedCounter()
               Logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
               TaxComponentsUnexpectedResponse(r)
@@ -86,9 +88,15 @@ class TaiService @Inject()(
               Logger.error("Error getting tax components from the tai-service", e)
               TaxComponentsErrorResponse(e)
           }
-        ).filter(response => (response != TaxComponentsErrorResponse && response != TaxComponentsUnexpectedResponse))
+        ).collect {
+        case response@(TaxComponentsSuccessResponse(_) | TaxComponentsUnavailableResponse) =>
+        {
+          println("\n\n\n\n\n\n\n\n\n\n response " + response.toString)
+          response
+        }
+      }
       }
     }
-   circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsUnavailableResponse))
+ call // circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsCircuitOpenResponse))
   }
 }

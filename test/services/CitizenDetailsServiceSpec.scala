@@ -18,6 +18,7 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
+import metrics.MetricsOperator
 import models._
 import org.joda.time.LocalDate
 import org.mockito.Matchers._

@@ -19,23 +19,21 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import metrics.MetricsOperator
 import models.{PertaxUser, UserDetails}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
+import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.http._
-import util.{BaseSpec, Tools}
-import util.Fixtures._
 import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
+import util.Fixtures._
+import util.{BaseSpec, Tools}
 
 class PreferencesFrontendServiceSpec extends BaseSpec {
 

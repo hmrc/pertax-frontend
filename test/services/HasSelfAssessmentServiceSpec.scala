@@ -19,6 +19,7 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import metrics.MetricsOperator
 import models._
 import org.mockito.Matchers._
 import org.mockito.Mockito._

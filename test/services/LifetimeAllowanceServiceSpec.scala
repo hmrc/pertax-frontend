@@ -18,6 +18,7 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
+import metrics.MetricsOperator
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -29,7 +30,6 @@ import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.Nino
 import util.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.HttpResponse
-
 
 class LifetimeAllowanceServiceSpec extends BaseSpec {
 
