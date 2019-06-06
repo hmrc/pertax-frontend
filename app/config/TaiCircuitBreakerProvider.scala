@@ -30,7 +30,7 @@ class TaiCircuitBreakerProvider @Inject()(config: Configuration)
 
   private val maxFailures = config.getInt("microservice.services.tai.circuit-breaker.max-failures").get
   private val callTimeout = FiniteDuration(config.getInt("microservice.services.tai.circuit-breaker.call-timeout").get, "seconds")
-  private val resetTimeout = FiniteDuration(config.getInt("microservice.services.tai.circuit-breaker.reset-timeout").get, "minutes")
+  private val resetTimeout = FiniteDuration(config.getInt("microservice.services.tai.circuit-breaker.reset-timeout").get, "seconds")
 
   override def get(): CircuitBreaker =
     new CircuitBreaker(

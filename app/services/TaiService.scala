@@ -97,6 +97,6 @@ class TaiService @Inject()(
       }
       }
     }
- call // circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsCircuitOpenResponse))
+  circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsCircuitOpenResponse))
   }
 }
