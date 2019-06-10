@@ -218,7 +218,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val r = service().taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxComponentsUnexpectedResponse(seeOtherResponse)
+      await(r) shouldBe TaxComponentsCircuitOpenResponse
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -257,7 +257,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val r = service().taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxComponentsErrorResponse(anException)
+      await(r) shouldBe TaxComponentsCircuitOpenResponse
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()

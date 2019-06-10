@@ -64,7 +64,7 @@ class TaiService @Inject()(
   def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] = {
     def call = {
       withMetricsTimer("get-tax-components") { t =>
-      simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
+        simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
           onComplete = {
             case r if r.status >= 200 && r.status < 300 =>
               t.completeTimerAndIncrementSuccessCounter()
@@ -87,11 +87,14 @@ class TaiService @Inject()(
               Logger.error("Error getting tax components from the tai-service", e)
               TaxComponentsErrorResponse(e)
           }
-        ).collect {
-           case response@(TaxComponentsSuccessResponse(_) | TaxComponentsUnavailableResponse) => response
+        ).map { r =>
+          Logger.warn(s"Returned response from TAI $r")
+          r
+        }.collect {
+          case response@(TaxComponentsSuccessResponse(_) | TaxComponentsUnavailableResponse) => response
         }
       }
     }
-  circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsCircuitOpenResponse))
+    circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsCircuitOpenResponse))
   }
 }
