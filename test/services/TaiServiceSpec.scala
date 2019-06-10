@@ -45,7 +45,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
   override lazy val app: Application = {
     new GuiceApplicationBuilder()
       .configure(
-        "microservice.services.tai.circuit-breaker.max-failures"  -> 1,
+        "microservice.services.tai.circuit-breaker.max-failures" -> 1,
         "microservice.services.tai.circuit-breaker.reset-timeout" -> 1
       )
       .build()
@@ -111,23 +111,26 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
     "circuitBreaker must call tai" in new LocalSetup {
       override lazy val simulateTaiServiceIsDown = false
       val seeOtherResponse = HttpResponse(SEE_OTHER)
-      val mockSimpleHttp=MockitoSugar.mock[SimpleHttp]
+      val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
       override lazy val httpResponse = ???
+
       when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(TaxComponentsUnexpectedResponse(seeOtherResponse)),
-          Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))))
+        .thenReturn(
+          Future.successful(TaxComponentsUnexpectedResponse(seeOtherResponse)),
+            Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))))
+        )
 
-      val s=service(mockSimpleHttp)
+      val taiService=service(mockSimpleHttp)
 
-      val result1 = s.taxComponents(Fixtures.fakeNino, 2014)
+      val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result1) shouldBe TaxComponentsCircuitOpenResponse
-
-      val result2 = s.taxComponents(Fixtures.fakeNino, 2014)
+      Thread.sleep(500)
+      val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result2) shouldBe TaxComponentsCircuitOpenResponse
 
       Thread.sleep(2000)
 
-      val result3 = s.taxComponents(Fixtures.fakeNino, 2014)
+      val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
 
  }
@@ -137,23 +140,61 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val seeOtherResponse = HttpResponse(SEE_OTHER)
       val mockSimpleHttp=MockitoSugar.mock[SimpleHttp]
       override lazy val httpResponse = ???
+
       when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(TaxComponentsErrorResponse(new Exception)),
-          Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))))
+        .thenReturn(
+          Future.successful(TaxComponentsErrorResponse(new Exception)),
+            Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))))
+        )
 
-      val s=service(mockSimpleHttp)
+      val taiService = service(mockSimpleHttp)
 
-      val result1 = s.taxComponents(Fixtures.fakeNino, 2014)
+      val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result1) shouldBe TaxComponentsCircuitOpenResponse
 
-      val result2 = s.taxComponents(Fixtures.fakeNino, 2014)
+      Thread.sleep(500)
+
+      val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result2) shouldBe TaxComponentsCircuitOpenResponse
 
       Thread.sleep(2000)
 
-      val result3 = s.taxComponents(Fixtures.fakeNino, 2014)
+      val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+    }
 
+    "circuitBreaker must call tai when call sucess, fail then success" in new LocalSetup {
+
+      override lazy val simulateTaiServiceIsDown = false
+      val seeOtherResponse = HttpResponse(SEE_OTHER)
+      val mockSimpleHttp=MockitoSugar.mock[SimpleHttp]
+      override lazy val httpResponse = ???
+
+      when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(
+          Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))))
+        .thenReturn(
+            Future.successful(TaxComponentsErrorResponse(new Exception)),
+              Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "x"))))
+      )
+
+      val taiService = service(mockSimpleHttp)
+
+      val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
+      await(result1) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+
+      Thread.sleep(500)
+      val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
+      await(result2) shouldBe TaxComponentsCircuitOpenResponse
+
+      Thread.sleep(500)
+      val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
+      await(result3) shouldBe TaxComponentsCircuitOpenResponse
+
+      Thread.sleep(2000)
+
+      val result4 = taiService.taxComponents(Fixtures.fakeNino,2014)
+      await(result4) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "x")))
     }
 
     "return a TaxComponentsSuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {
