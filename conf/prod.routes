@@ -74,6 +74,9 @@ GET    /personal-account/integration/main-content-header                     @co
 GET    /personal-account/messages                                            @controllers.MessageController.messageList
 GET    /personal-account/messages/:url                                       @controllers.MessageController.messageDetail(url: String)
 
+GET    /personal-account/keep-alive                                          @controllers.SessionManagementController.keepAlive
+GET    /personal-account/timeout                                             @controllers.SessionManagementController.timeOut
+
 
 GET    /personal-account/preferences                                         @controllers.PaperlessPreferencesController.managePreferences
 
