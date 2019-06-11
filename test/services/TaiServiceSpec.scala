@@ -46,7 +46,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tai.circuit-breaker.max-failures" -> 1,
-        "microservice.services.tai.circuit-breaker.reset-timeout" -> 1
+        "microservice.services.tai.circuit-breaker.reset-timeout" -> "1 second"
       )
       .build()
   }
@@ -123,10 +123,10 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val taiService=service(mockSimpleHttp)
 
       val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result1) shouldBe TaxComponentsCircuitOpenResponse
+      await(result1) shouldBe TaiNotAvailable
       Thread.sleep(500)
       val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result2) shouldBe TaxComponentsCircuitOpenResponse
+      await(result2) shouldBe TaiNotAvailable
 
       Thread.sleep(2000)
 
@@ -150,12 +150,12 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val taiService = service(mockSimpleHttp)
 
       val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result1) shouldBe TaxComponentsCircuitOpenResponse
+      await(result1) shouldBe TaiNotAvailable
 
       Thread.sleep(500)
 
       val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result2) shouldBe TaxComponentsCircuitOpenResponse
+      await(result2) shouldBe TaiNotAvailable
 
       Thread.sleep(2000)
 
@@ -185,11 +185,11 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       Thread.sleep(500)
       val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result2) shouldBe TaxComponentsCircuitOpenResponse
+      await(result2) shouldBe TaiNotAvailable
 
       Thread.sleep(500)
       val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result3) shouldBe TaxComponentsCircuitOpenResponse
+      await(result3) shouldBe TaiNotAvailable
 
       Thread.sleep(2000)
 
@@ -218,7 +218,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val r = service().taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxComponentsCircuitOpenResponse
+      await(r) shouldBe TaiNotAvailable
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -257,7 +257,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val r = service().taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxComponentsCircuitOpenResponse
+      await(r) shouldBe TaiNotAvailable
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()

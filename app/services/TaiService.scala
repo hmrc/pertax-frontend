@@ -43,7 +43,7 @@ case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponent
 
 case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 
-case object TaxComponentsCircuitOpenResponse extends TaxComponentsResponse
+case object TaiNotAvailable extends TaxComponentsResponse
 
 @Singleton
 class TaiService @Inject()(
@@ -95,6 +95,6 @@ class TaiService @Inject()(
         }
       }
     }
-    circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaxComponentsCircuitOpenResponse))
+    circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaiNotAvailable))
   }
 }

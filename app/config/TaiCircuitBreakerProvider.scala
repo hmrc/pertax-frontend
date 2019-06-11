@@ -24,13 +24,18 @@ import play.api.Configuration
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
+import scala.concurrent.duration._
+
 @Singleton
 class TaiCircuitBreakerProvider @Inject()(config: Configuration)
                                          (implicit ec: ExecutionContext, sys: ActorSystem) extends Provider[CircuitBreaker] {
 
-  private val maxFailures = config.getInt("microservice.services.tai.circuit-breaker.max-failures").get
-  private val callTimeout = FiniteDuration(config.getInt("microservice.services.tai.circuit-breaker.call-timeout").get, "seconds")
-  private val resetTimeout = FiniteDuration(config.getInt("microservice.services.tai.circuit-breaker.reset-timeout").get, "seconds")
+  private val maxFailures = config.getInt("microservice.services.tai.circuit-breaker.max-failures")
+    .getOrElse(throw new IllegalStateException("tai.circuit-breaker.max-failures config value not set"))
+  private val callTimeout = config.getMilliseconds("microservice.services.tai.circuit-breaker.call-timeout")
+    .getOrElse(throw new IllegalStateException("tai.circuit-breaker.call-timeout config value not set")).milliseconds
+  private val resetTimeout = config.getMilliseconds("microservice.services.tai.circuit-breaker.reset-timeout")
+    .getOrElse(throw new IllegalStateException("tai.circuit-breaker.reset-timeout config value not set")).milliseconds
 
   override def get(): CircuitBreaker =
     new CircuitBreaker(
