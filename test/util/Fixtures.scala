@@ -19,6 +19,7 @@ package util
 import java.util.UUID
 
 import akka.stream.Materializer
+import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
@@ -31,6 +32,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -302,6 +304,8 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
     .configure(encryptionConfig)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder.build()
+
+  lazy val config = app.injector.instanceOf[ConfigDecorator]
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
