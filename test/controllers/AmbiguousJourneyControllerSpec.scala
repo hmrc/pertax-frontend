@@ -383,7 +383,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       status(r) shouldBe 200
     }
 
-    "result should have tax year 2019" in new LocalSetupJourney {
+    "return a result with tax year 2019 when supplied with value of 'need-to-enrol'" in new LocalSetupJourney {
 
       when(mockTaxYearRetriever.currentYear).thenReturn(2019)
       val page = "need-to-enrol"
@@ -394,7 +394,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2019"))
     }
 
-    "result should have tax year 2025" in new LocalSetupJourney {
+    "return a result with tax year 2025 when supplied with value of 'need-to-enrol'" in new LocalSetupJourney {
 
       when(mockTaxYearRetriever.currentYear).thenReturn(2025)
       val page = "need-to-enrol"
@@ -411,6 +411,28 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe 200
+    }
+
+    "return a result with tax year 2019 when supplied with value of 'need-to-enrol-again'" in new LocalSetupJourney {
+
+      when(mockTaxYearRetriever.currentYear).thenReturn(2019)
+      val page = "need-to-enrol-again"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      val doc = asDocument(contentAsString(result))
+      assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2019"))
+    }
+
+    "return a result with tax year 2025 when supplied with value of 'need-to-enrol-again'" in new LocalSetupJourney {
+
+      when(mockTaxYearRetriever.currentYear).thenReturn(2025)
+      val page = "need-to-enrol-again"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      val doc = asDocument(contentAsString(result))
+      assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2025"))
     }
 
     "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
