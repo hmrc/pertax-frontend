@@ -387,10 +387,10 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
 
       when(mockTaxYearRetriever.currentYear).thenReturn(2019)
       val page = "need-to-enrol"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      val doc = asDocument(contentAsString(r))
+      val doc = asDocument(contentAsString(result))
       assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2019"))
     }
 
@@ -398,10 +398,10 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
 
       when(mockTaxYearRetriever.currentYear).thenReturn(2025)
       val page = "need-to-enrol"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      val doc = asDocument(contentAsString(r))
+      val doc = asDocument(contentAsString(result))
       assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2025"))
     }
 
