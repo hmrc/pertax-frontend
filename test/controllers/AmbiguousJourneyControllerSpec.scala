@@ -19,6 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models._
+import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -33,11 +34,22 @@ import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{BaseSpec, Fixtures, LocalPartialRetriever, TaxYearRetriever}
+import views.html.ViewSpec
+import views.html.ambiguousjourney.youNeedToEnrol
 
 import scala.concurrent.Future
 
-class AmbiguousJourneyControllerSpec extends BaseSpec {
+class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
+
+  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+
+  lazy val fakeRequest = FakeRequest("", "")
+
+  lazy val messages: Messages = messagesApi.preferred(fakeRequest)
+
+  val mockTaxYearRetriever = MockitoSugar.mock[TaxYearRetriever]
+
   override implicit lazy val app: Application = localGuiceApplicationBuilder
       .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
       .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
@@ -49,6 +61,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
       .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
       .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
+      .overrides(bind[TaxYearRetriever].toInstance(mockTaxYearRetriever))
     .build()
 
     override def beforeEach: Unit = {
@@ -370,12 +383,56 @@ class AmbiguousJourneyControllerSpec extends BaseSpec {
       status(r) shouldBe 200
     }
 
+    "return a result with tax year 2019 when supplied with value of 'need-to-enrol'" in new LocalSetupJourney {
+
+      when(mockTaxYearRetriever.currentYear).thenReturn(2019)
+      val page = "need-to-enrol"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      val doc = asDocument(contentAsString(result))
+      assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2019"))
+    }
+
+    "return a result with tax year 2025 when supplied with value of 'need-to-enrol'" in new LocalSetupJourney {
+
+      when(mockTaxYearRetriever.currentYear).thenReturn(2025)
+      val page = "need-to-enrol"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      val doc = asDocument(contentAsString(result))
+      assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2025"))
+    }
+
     "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
       val page = "need-to-enrol-again"
       val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe 200
+    }
+
+    "return a result with tax year 2019 when supplied with value of 'need-to-enrol-again'" in new LocalSetupJourney {
+
+      when(mockTaxYearRetriever.currentYear).thenReturn(2019)
+      val page = "need-to-enrol-again"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      val doc = asDocument(contentAsString(result))
+      assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2019"))
+    }
+
+    "return a result with tax year 2025 when supplied with value of 'need-to-enrol-again'" in new LocalSetupJourney {
+
+      when(mockTaxYearRetriever.currentYear).thenReturn(2025)
+      val page = "need-to-enrol-again"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
+      override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      val doc = asDocument(contentAsString(result))
+      assertContainsText(doc, messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2025"))
     }
 
     "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
