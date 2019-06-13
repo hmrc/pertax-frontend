@@ -18,8 +18,10 @@ package modules
 
 import akka.pattern.CircuitBreaker
 import com.google.inject.AbstractModule
+import com.google.inject.name.Names
 import config.{ApplicationCryptoProvider, LocalTemplateRenderer, SessionCookieCryptoFilterProvider, TaiCircuitBreakerProvider}
 import filters._
+import services.{DefaultTaiService, TaiService}
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters._
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -35,5 +37,6 @@ class LocalGuiceModule extends AbstractModule {
     bind(classOf[ApplicationCrypto]).toProvider(classOf[ApplicationCryptoProvider])
     bind(classOf[CookieCryptoFilter]).toProvider(classOf[SessionCookieCryptoFilterProvider])
     bind(classOf[CircuitBreaker]).toProvider(classOf[TaiCircuitBreakerProvider])
+    bind(classOf[TaiService]).annotatedWith(Names.named("default")).to(classOf[DefaultTaiService])
   }
 }

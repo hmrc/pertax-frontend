@@ -44,7 +44,7 @@ class ApplicationController @Inject() (
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val preferencesFrontendService: PreferencesFrontendService,
-  val taiService: TaiService,
+  val taiService: CircuitBreakerTaiService,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
   val taxCalculationService: TaxCalculationService,
   val selfAssessmentService: SelfAssessmentService,

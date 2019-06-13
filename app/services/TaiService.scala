@@ -17,6 +17,7 @@
 package services
 
 import akka.pattern.CircuitBreaker
+import com.google.inject.name.Named
 import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
@@ -45,16 +46,19 @@ case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsRes
 
 case object TaiNotAvailable extends TaxComponentsResponse
 
-@Singleton
-class TaiService @Inject()(
-                            environment: Environment,
-                            configuration: Configuration,
-                            circuitBreaker: CircuitBreaker,
-                            val simpleHttp: SimpleHttp,
-                            val metrics: Metrics
-                          )(implicit ec: ExecutionContext) extends ServicesConfig with HasMetrics {
 
-  val mode: Mode = environment.mode
+trait TaiService {
+  def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse]
+}
+
+class DefaultTaiService @Inject() (
+                             environment: Environment,
+                             configuration: Configuration,
+                             val simpleHttp: SimpleHttp,
+                             val metrics: Metrics
+                           ) extends ServicesConfig with HasMetrics with TaiService {
+
+  val mode:Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val taiUrl = baseUrl("tai")
 
@@ -62,38 +66,44 @@ class TaiService @Inject()(
     * Gets a list of tax components
     */
   def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] = {
-    def call = {
-      withMetricsTimer("get-tax-components") { t =>
-        simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
-          onComplete = {
-            case r if r.status >= 200 && r.status < 300 =>
-              t.completeTimerAndIncrementSuccessCounter()
-              TaxComponentsSuccessResponse(TaxComponents.fromJsonTaxComponents(r.json))
+    withMetricsTimer("get-tax-components") { t =>
 
-            case r if r.status == NOT_FOUND | r.status == BAD_REQUEST => {
-              t.completeTimerAndIncrementSuccessCounter()
-              Logger.warn("Unable to find tax components from the tai-service")
-              TaxComponentsUnavailableResponse
-            }
+      simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
+        onComplete = {
+          case r if r.status >= 200 && r.status < 300 =>
+            t.completeTimerAndIncrementSuccessCounter()
+            TaxComponentsSuccessResponse(TaxComponents.fromJsonTaxComponents(r.json))
 
-            case r =>
-              t.completeTimerAndIncrementFailedCounter()
-              Logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
-              TaxComponentsUnexpectedResponse(r)
-          },
-          onError = {
-            case e =>
-              t.completeTimerAndIncrementFailedCounter()
-              Logger.error("Error getting tax components from the tai-service", e)
-              TaxComponentsErrorResponse(e)
-          }
-        ).map { r =>
-          Logger.warn(s"Returned response from TAI $r")
-          r
-        }.collect {
-          case response@(TaxComponentsSuccessResponse(_) | TaxComponentsUnavailableResponse) => response
+          case r if r.status == NOT_FOUND | r.status == BAD_REQUEST =>
+            t.completeTimerAndIncrementSuccessCounter()
+            Logger.warn("Unable to find tax components from the tai-service")
+            TaxComponentsUnavailableResponse
+
+          case r =>
+            t.completeTimerAndIncrementFailedCounter()
+            Logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
+            TaxComponentsUnexpectedResponse(r)
+        },
+        onError = {
+          case e =>
+            t.completeTimerAndIncrementFailedCounter()
+            Logger.error("Error getting tax components from the tai-service", e)
+            TaxComponentsErrorResponse(e)
         }
-      }
+      )
+    }
+  }
+}
+
+class CircuitBreakerTaiService @Inject()(@Named("default") underlying: TaiService,
+                                         circuitBreaker: CircuitBreaker)(implicit val ec: ExecutionContext) extends TaiService {
+
+  def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] = {
+    val call = underlying.taxComponents(nino, year).map { r =>
+      Logger.warn(s"Returned response from TAI $r")
+      r
+    }.collect {
+      case response@(TaxComponentsSuccessResponse(_) | TaxComponentsUnavailableResponse) => response
     }
     circuitBreaker.withCircuitBreaker(call).fallbackTo(Future.successful(TaiNotAvailable))
   }
