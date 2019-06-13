@@ -51,11 +51,9 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  val mockCircuitBreakerService = MockitoSugar.mock[CircuitBreakerTaiService]
-
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[TaiService].toInstance(mockCircuitBreakerService))
+    .overrides(bind[CircuitBreakerTaiService].toInstance(MockitoSugar.mock[CircuitBreakerTaiService]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))
     .overrides(bind[PreferencesFrontendService].toInstance(MockitoSugar.mock[PreferencesFrontendService]))
@@ -73,7 +71,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override def beforeEach: Unit = {
     reset(injected[PertaxAuditConnector], injected[PertaxAuthConnector], injected[TaxCalculationService], injected[CitizenDetailsService],
-      injected[TaiService], injected[MessageFrontendService],
+      injected[CircuitBreakerTaiService], injected[MessageFrontendService],
       injected[UserDetailsService])
   }
 
