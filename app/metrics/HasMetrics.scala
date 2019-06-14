@@ -26,8 +26,8 @@ trait HasMetrics {
   
   val metricsOperator = new MetricsOperator {
 
-    def startTimer(metric: Metric):Timer.Context= registry.timer(s"$metric-timer").time()
-    def stopTimer(context: Timer.Context):Long = context.stop()
+    def startTimer(metric: Metric): Timer.Context = registry.timer(s"$metric-timer").time()
+    def stopTimer(context: Timer.Context): Long = context.stop()
     def incrementSuccessCounter(metric: Metric): Unit = registry.counter(s"$metric-success-counter").inc()
     def incrementFailedCounter(metric: Metric): Unit = registry.counter(s"$metric-failed-counter").inc()
 
@@ -60,7 +60,7 @@ trait HasMetrics {
 
 trait MetricsOperator {
 
-  def startTimer(metric: Metric):Timer.Context
+  def startTimer(metric: Metric): Timer.Context
   def stopTimer(context: Timer.Context): Long
   def incrementSuccessCounter(metric: Metric): Unit
   def incrementFailedCounter(metric: Metric): Unit
