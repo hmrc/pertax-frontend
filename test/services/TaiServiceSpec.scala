@@ -26,6 +26,7 @@ import org.mockito.{Matchers, Mockito}
 import org.mockito.Matchers._
 import org.mockito.Mockito.{when, _}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito._
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.http.Status._
@@ -39,14 +40,14 @@ import util.{BaseSpec, Fixtures}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEach {
+class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEach with ScalaFutures {
 
 
   override lazy val app: Application = {
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tai.circuit-breaker.max-failures" -> 1,
-        "microservice.services.tai.circuit-breaker.reset-timeout" -> "30 milliseconds"
+        "microservice.services.tai.circuit-breaker.reset-timeout" -> "20 milliseconds"
       )
       .build()
   }
@@ -131,16 +132,14 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val taiService = circuitBreakerService(mockSimpleHttp)
 
-      val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result1) shouldBe TaiNotAvailable
-      Thread.sleep(10)
-      val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result2) shouldBe TaiNotAvailable
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
+
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
 
       Thread.sleep(40)
 
-      val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe
+        TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
 
     }
 
@@ -157,18 +156,14 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val taiService = circuitBreakerService(mockSimpleHttp)
 
-      val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result1) shouldBe TaiNotAvailable
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
 
-      Thread.sleep(10)
-
-      val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result2) shouldBe TaiNotAvailable
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
 
       Thread.sleep(40)
 
-      val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe
+        TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
     }
 
     "circuitBreaker must call tai when call sucess, fail then success" in new LocalSetup {
@@ -187,21 +182,17 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val taiService = circuitBreakerService(mockSimpleHttp)
 
-      val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result1) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe
+        TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
 
-      Thread.sleep(15)
-      val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result2) shouldBe TaiNotAvailable
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
 
-      Thread.sleep(10)
-      val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result3) shouldBe TaiNotAvailable
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
 
       Thread.sleep(40)
 
-      val result4 = taiService.taxComponents(Fixtures.fakeNino, 2014)
-      await(result4) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices2", "PersonalPensionPayments2")))
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe
+        TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices2", "PersonalPensionPayments2")))
     }
 
     "return a TaxComponentsSuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {
