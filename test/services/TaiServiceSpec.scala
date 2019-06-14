@@ -93,22 +93,19 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
     def service(simpleHttp: SimpleHttp = fakeSimpleHttp): DefaultTaiService = {
 
-      val m = metrics
+      val mockMetrics = metrics
 
 
       new DefaultTaiService(
         injected[Environment], injected[Configuration], simpleHttp, MockitoSugar.mock[Metrics]
       ) {
-        override val metricsOperator: MetricsOperator = m
+        override val metricsOperator: MetricsOperator = mockMetrics
       }
     }
 
     def circuitBreakerService(simpleHttp: SimpleHttp = fakeSimpleHttp): CircuitBreakerTaiService = {
 
-      val m = metrics
-
-
-      new CircuitBreakerTaiService(
+       new CircuitBreakerTaiService(
         service(simpleHttp), injected[CircuitBreaker]) {
       }
     }
