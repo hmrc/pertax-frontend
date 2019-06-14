@@ -124,7 +124,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
       override lazy val httpResponse = HttpResponse(SEE_OTHER)
 
-      when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockSimpleHttp.get[TaxComponentsResponse](any())(any(), any())(any()))
         .thenReturn(
           Future.successful(TaxComponentsUnexpectedResponse(httpResponse)),
           Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))))
@@ -148,7 +148,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
       override lazy val httpResponse = HttpResponse(SEE_OTHER)
 
-      when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockSimpleHttp.get[TaxComponentsResponse](any())(any(), any())(any()))
         .thenReturn(
           Future.successful(TaxComponentsErrorResponse(new Exception)),
           Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))))
@@ -172,7 +172,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
       override lazy val httpResponse = HttpResponse(SEE_OTHER)
 
-      when(mockSimpleHttp.get[TaxComponentsResponse](Matchers.any())(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockSimpleHttp.get[TaxComponentsResponse](any())(any(), any())(any()))
         .thenReturn(
           Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))))
         .thenReturn(
