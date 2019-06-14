@@ -46,7 +46,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.tai.circuit-breaker.max-failures" -> 1,
-        "microservice.services.tai.circuit-breaker.reset-timeout" -> "1 second"
+        "microservice.services.tai.circuit-breaker.reset-timeout" -> "30 milliseconds"
       )
       .build()
   }
@@ -133,11 +133,11 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result1) shouldBe TaiNotAvailable
-      Thread.sleep(500)
+      Thread.sleep(10)
       val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result2) shouldBe TaiNotAvailable
 
-      Thread.sleep(2000)
+      Thread.sleep(40)
 
       val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
@@ -160,12 +160,12 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result1) shouldBe TaiNotAvailable
 
-      Thread.sleep(500)
+      Thread.sleep(10)
 
       val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result2) shouldBe TaiNotAvailable
 
-      Thread.sleep(2000)
+      Thread.sleep(40)
 
       val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result3) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
@@ -190,15 +190,15 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val result1 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result1) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
 
-      Thread.sleep(500)
+      Thread.sleep(15)
       val result2 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result2) shouldBe TaiNotAvailable
 
-      Thread.sleep(500)
+      Thread.sleep(10)
       val result3 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result3) shouldBe TaiNotAvailable
 
-      Thread.sleep(2000)
+      Thread.sleep(40)
 
       val result4 = taiService.taxComponents(Fixtures.fakeNino, 2014)
       await(result4) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices2", "PersonalPensionPayments2")))
