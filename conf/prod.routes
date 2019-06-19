@@ -33,8 +33,8 @@ GET    /personal-account/self-assessment/used-utr-to-register                @co
 POST   /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.processUsedUtrToRegisterChoice
 GET    /personal-account/self-assessment/result/:page                        @controllers.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages(page: String)
 
-GET    /personal-account/lang/enGb                                           @controllers.LanguageController.enGb(redirectUrl: ContinueUrl)
-GET    /personal-account/lang/cyGb                                           @controllers.LanguageController.cyGb(redirectUrl: ContinueUrl)
+GET    /personal-account/lang/enGb                                           @controllers.LanguageController.enGb()
+GET    /personal-account/lang/cyGb                                           @controllers.LanguageController.cyGb()
 
 GET    /personal-account/personal-details                                    @controllers.AddressController.personalDetails
 GET    /personal-account/your-address/tax-credits-choice                     @controllers.AddressController.taxCreditsChoice
