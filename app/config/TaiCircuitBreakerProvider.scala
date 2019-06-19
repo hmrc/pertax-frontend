@@ -19,7 +19,7 @@ package config
 import akka.actor.ActorSystem
 import akka.pattern.CircuitBreaker
 import com.google.inject.{Inject, Provider, Singleton}
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -43,5 +43,8 @@ class TaiCircuitBreakerProvider @Inject()(config: Configuration)
       maxFailures = maxFailures,
       callTimeout = callTimeout,
       resetTimeout = resetTimeout
-    )
+    ).onOpen(circuitBreakerOpenLogger())
+
+  def circuitBreakerOpenLogger()=
+    Logger.warn("Circuit breaker open")
 }
