@@ -16,32 +16,25 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
-import play.api.i18n.{Lang, MessagesApi}
+import javax.inject.Inject
+import play.api.Environment
+import play.api.Play.current
+import play.api.i18n.Lang
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.play.binders.ContinueUrl
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
-
 class LanguageController @Inject() (
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val delegationConnector: FrontEndDelegationConnector,
-  val messagesApi: MessagesApi,
   val configDecorator: ConfigDecorator,
-  val localErrorHandler: LocalErrorHandler
-) extends PertaxBaseController {
-
-  def enGb(redirectUrl: ContinueUrl): Action[AnyContent] = changeLang(redirectUrl=redirectUrl, language="en")
-  def cyGb(redirectUrl: ContinueUrl): Action[AnyContent] = changeLang(redirectUrl=redirectUrl, language="cy")
-
-  def changeLang(redirectUrl: ContinueUrl, language: String): Action[AnyContent] = PublicAction { implicit pertaxContext =>
-      Future.successful(Redirect(redirectUrl.url).withLang(Lang(language)))
-  }
+  implicit val enviroment: Environment
+) extends uk.gov.hmrc.play.language.LanguageController{
+  def enGb(): Action[AnyContent] = switchToLanguage(language="english")
+  def cyGb(): Action[AnyContent] = switchToLanguage(language="cymraeg")
+  def fallbackURL: String =  configDecorator.pertaxFrontendService
+  def languageMap: Map[String, Lang] = Map(
+    "english" -> Lang("en"),
+    "cymraeg" -> Lang("cy"))
 }

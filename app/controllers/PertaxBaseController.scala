@@ -49,3 +49,6 @@ abstract class PertaxBaseController extends Controller with Utf8MimeTypes with P
     block(pertaxContext.withWelshWarning(messages.lang.code == "cy"))
   }
 }
+
+
+trait PertaxBaseControllerTrait extends PertaxBaseController
