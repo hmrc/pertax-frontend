@@ -8,8 +8,7 @@ object FrontendBuild extends Build with MicroService {
 private object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
-
-
+  
   private val govukTemplateVersion =  "5.2.0"
 
   val compile = Seq(
