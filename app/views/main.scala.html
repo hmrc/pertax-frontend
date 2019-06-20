@@ -135,8 +135,8 @@
 
     Some(AccountMenuStyleComponent(
       langUrls = Some((
-        controllers.routes.LanguageController.enGb(ContinueUrl(pertaxContext.uri)).url,
-        controllers.routes.LanguageController.cyGb(ContinueUrl(pertaxContext.uri)).url
+        controllers.routes.LanguageController.enGb().url,
+        controllers.routes.LanguageController.cyGb().url
       )),
       signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(ContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None).url),
       activeTab = pertaxContext.activeTab,
