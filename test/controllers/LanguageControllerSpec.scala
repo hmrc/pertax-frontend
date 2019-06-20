@@ -29,7 +29,7 @@ class LanguageControllerSpec extends BaseSpec {
 
   "Calling LanguageController.enGb" should {
     "change the language to English and return 303" in new LocalSetup {
-      val r = c.enGb(ContinueUrl("/test"))(FakeRequest("GET", ""))
+      val r = c.enGb()(FakeRequest("GET", ""))
       cookies(r).get("PLAY_LANG").get.value shouldBe "en"
       status(r) shouldBe SEE_OTHER
     }
@@ -37,7 +37,7 @@ class LanguageControllerSpec extends BaseSpec {
 
   "Calling LanguageController.cyGb" should {
     "change the language to Welsh and return 303" in new LocalSetup {
-      val r = c.cyGb(ContinueUrl("/test"))(FakeRequest("GET", ""))
+      val r = c.cyGb()(FakeRequest("GET", ""))
       cookies(r).get("PLAY_LANG").get.value shouldBe "cy"
       status(r) shouldBe SEE_OTHER
     }
