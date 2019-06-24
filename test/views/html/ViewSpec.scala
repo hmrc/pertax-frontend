@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,17 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+package views.html
 
-@main(Messages("label.sign_in"), displayTimeoutDialog = false) {
-  <h1 class="heading-large">@Messages("label.youve_been_signed_out")</h1>
-  <p>@Messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
-  <p>@Messages("label.please_sign_in_again")</p><br>
-  <a class="button" href="@controllers.routes.ApplicationController.index" role="button">@Messages("label.sign_in")</a>
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+
+trait ViewSpec {
+
+  def assertContainsText(doc:Document, text: String) = assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
+
+  def asDocument(page: String): Document = Jsoup.parse(page)
+
 }

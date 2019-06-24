@@ -28,8 +28,8 @@ import play.api.mvc.{Action, AnyContent, Result}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, LocalSessionCache, SelfAssessmentService, UserDetailsService}
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.time.{CurrentTaxYear}
-import util.{DateTimeTools, LocalPartialRetriever}
+import uk.gov.hmrc.time.CurrentTaxYear
+import util.{DateTimeTools, LocalPartialRetriever, TaxYearRetriever}
 
 import scala.concurrent.Future
 
@@ -45,9 +45,9 @@ class AmbiguousJourneyController @Inject() (
   val sessionCache: LocalSessionCache,
   val authConnector: PertaxAuthConnector,
   val messageFrontendService: MessageFrontendService,
-  val selfAssessmentService: SelfAssessmentService
-
-) extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
+  val selfAssessmentService: SelfAssessmentService,
+  val taxYearRetriever: TaxYearRetriever
+  ) extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
 
   def enforceAmbiguousUser(block: SaUtr => Future[Result])(implicit context: PertaxContext): Future[Result] = {
     selfAssessmentService.getSelfAssessmentUserType(context.authContext) flatMap {
@@ -207,16 +207,16 @@ class AmbiguousJourneyController @Inject() (
 
     enforceAmbiguousUser { saUtr =>
 
-      val currentTaxYear = current.currentYear
+      val currentTaxYear = taxYearRetriever.currentYear
       val deadlineYear = currentTaxYear + 1
       val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost
 
       Future.successful {
         page match {
           case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr,
-            continueUrl, deadlineYear.toString, (currentTaxYear+1).toString, showSendTaxReturnByPost))
+            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
           case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr,
-            continueUrl, deadlineYear.toString, (currentTaxYear+1).toString, showSendTaxReturnByPost))
+            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
           case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
           case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
           case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
