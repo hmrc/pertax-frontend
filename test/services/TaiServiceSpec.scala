@@ -119,7 +119,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       val metricId: Metric = "get-tax-components"
     }
 
-    "circuitBreaker must call tai" in new LocalSetup {
+    "circuitBreaker must open when it gets an Unexpected Response then close and allow next call" in new LocalSetup {
       override lazy val simulateTaiServiceIsDown = false
       val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
       override lazy val httpResponse = HttpResponse(SEE_OTHER)
@@ -164,8 +164,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
     }
 
-
-    "circuitBreaker must call tai when call errors" in new LocalSetup {
+    "circuitBreaker must open when it gets an Error Response then close and allow next call" in new LocalSetup {
       override lazy val simulateTaiServiceIsDown = false
       val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
       override lazy val httpResponse = HttpResponse(SEE_OTHER)
@@ -190,7 +189,7 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
       verify(mockSimpleHttp,times(2)).get[TaxComponentsResponse](any())(any(),any())(any())
     }
 
-    "circuitBreaker must call tai when call sucess, fail then success" in new LocalSetup {
+    "circuitBreaker must call tai when call success, fail then success" in new LocalSetup {
 
       override lazy val simulateTaiServiceIsDown = false
       val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
