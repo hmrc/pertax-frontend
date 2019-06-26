@@ -99,7 +99,7 @@ class CircuitBreakerTaiService @Inject()(@Named("default") underlying: TaiServic
                                          circuitBreaker: CircuitBreaker)(implicit val ec: ExecutionContext) extends TaiService {
 
   def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] = {
-    val call = underlying.taxComponents(nino, year).map { r =>
+    def call = underlying.taxComponents(nino, year).map { r =>
       Logger.warn(s"Returned response from TAI $r")
       r
     }.collect {

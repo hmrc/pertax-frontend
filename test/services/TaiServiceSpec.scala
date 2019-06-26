@@ -143,6 +143,28 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
     }
 
+    "circuitBreaker when opened must stop next call hitting hod" in new LocalSetup {
+      override lazy val simulateTaiServiceIsDown = false
+      val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
+      override lazy val httpResponse = HttpResponse(SEE_OTHER)
+
+      when(mockSimpleHttp.get[TaxComponentsResponse](any())(any(), any())(any()))
+        .thenReturn(
+          Future.successful(TaxComponentsErrorResponse(new Exception)),
+          Future.successful(TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))))
+        )
+
+      val taiService = circuitBreakerService(mockSimpleHttp)
+
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
+
+      taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe TaiNotAvailable
+
+      verify(mockSimpleHttp,times(1)).get[TaxComponentsResponse](any())(any(),any())(any())
+
+    }
+
+
     "circuitBreaker must call tai when call errors" in new LocalSetup {
       override lazy val simulateTaiServiceIsDown = false
       val mockSimpleHttp = MockitoSugar.mock[SimpleHttp]
@@ -164,6 +186,8 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe
         TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+
+      verify(mockSimpleHttp,times(2)).get[TaxComponentsResponse](any())(any(),any())(any())
     }
 
     "circuitBreaker must call tai when call sucess, fail then success" in new LocalSetup {
@@ -193,6 +217,8 @@ class TaiServiceSpec extends BaseSpec with OneAppPerSuite with BeforeAndAfterEac
 
       taiService.taxComponents(Fixtures.fakeNino, 2014).futureValue shouldBe
         TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices2", "PersonalPensionPayments2")))
+
+      verify(mockSimpleHttp,times(3)).get[TaxComponentsResponse](any())(any(),any())(any())
     }
 
     "return a TaxComponentsSuccessResponse containing a TaxSummaryDetails object when called with an existing nino and year" in new LocalSetup {
