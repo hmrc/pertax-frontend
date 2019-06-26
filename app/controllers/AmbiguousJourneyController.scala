@@ -113,22 +113,23 @@ class AmbiguousJourneyController @Inject() (
   def processFiledReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       AmbiguousUserFlowDto.form.bindFromRequest.fold(
-      formWithErrors => {
-        Future.successful(BadRequest(views.html.ambiguousjourney.filedReturnByPostChoice(formWithErrors)))
-      },
-      ambiguousFiledOnlineChoiceDto => {
-        ambiguousFiledOnlineChoiceDto.value match {
-          case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
-          case false => {
-            if (configDecorator.saAmbigSkipUTRLetterEnabled)
-              Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
-            else
-              Future.successful(Redirect(routes.AmbiguousJourneyController.receivedUtrLetterChoice()))
+        formWithErrors => {
+          Future.successful(BadRequest(views.html.ambiguousjourney.filedReturnByPostChoice(formWithErrors)))
+        },
+        ambiguousFiledOnlineChoiceDto => {
+          ambiguousFiledOnlineChoiceDto.value match {
+            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
+            case false => {
+              if (configDecorator.saAmbigSkipUTRLetterEnabled)
+                Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+              else
+                Future.successful(Redirect(routes.AmbiguousJourneyController.receivedUtrLetterChoice()))
+            }
           }
         }
-      }
-    )
-  }
+      )
+    }
+
     def usedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
       enforceAmbiguousUser {_ =>
         Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
