@@ -32,7 +32,7 @@ class usedUtrToEnrolChoiceSpec extends BaseSpec {
     "check page contents" in {
       val pertaxUser = Fixtures.buildFakePertaxUser(isGovernmentGateway = true, isHighGG = true)
       val form  =  AmbiguousUserFlowDto.form
-      val document = Jsoup.parse(views.html.ambiguousjourney.usedUtrToRegisterChoice(form)(PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      val document = Jsoup.parse(views.html.ambiguousjourney.usedUtrToEnrolChoice(form)(PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
       document.getElementsByTag("h1").text shouldBe Messages("label.have_you_used_your_utr_to_enrol")
       document.getElementsContainingOwnText(Messages("label.your_utr_is_a_ten_digit_number_we_sent_by_post")).hasText shouldBe true
     }

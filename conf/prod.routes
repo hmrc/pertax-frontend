@@ -29,8 +29,8 @@ GET    /personal-account/self-assessment/received-utr-letter                 @co
 POST   /personal-account/self-assessment/received-utr-letter                 @controllers.AmbiguousJourneyController.processReceivedUtrLetterChoice
 GET    /personal-account/self-assessment/have-you-enrolled                   @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
 POST   /personal-account/self-assessment/have-you-enrolled                   @controllers.AmbiguousJourneyController.processUsedUtrToEnrolChoice
-GET    /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.usedUtrToRegisterChoice
-POST   /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.processUsedUtrToRegisterChoice
+GET    /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
+POST   /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.processUsedUtrToEnrolChoice
 GET    /personal-account/self-assessment/result/:page                        @controllers.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages(page: String)
 
 GET    /personal-account/lang/enGb                                           @controllers.LanguageController.enGb()
