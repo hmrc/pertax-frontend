@@ -112,7 +112,7 @@ class AmbiguousJourneyController @Inject() (
 
   def processFiledReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
-    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+      AmbiguousUserFlowDto.form.bindFromRequest.fold(
       formWithErrors => {
         Future.successful(BadRequest(views.html.ambiguousjourney.filedReturnByPostChoice(formWithErrors)))
       },
@@ -131,7 +131,7 @@ class AmbiguousJourneyController @Inject() (
   }
     def usedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
       enforceAmbiguousUser {_ =>
-        Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, controllers.routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
+        Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
       }
     }
 
@@ -140,7 +140,7 @@ class AmbiguousJourneyController @Inject() (
     implicit pertaxContext =>
       AmbiguousUserFlowDto.form.bindFromRequest.fold(
         formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors, controllers.routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
+          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
         },
         ambiguousFiledOnlineChoiceDto => {
           ambiguousFiledOnlineChoiceDto.value match {
@@ -221,7 +221,7 @@ class AmbiguousJourneyController @Inject() (
           case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
           case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
           case "wrong-account" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
-          case "pin-expired-register" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice))
+          case "pin-expired-register" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
           case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
         }
       }
