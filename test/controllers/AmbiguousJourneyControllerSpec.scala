@@ -293,10 +293,10 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
     }
   }
 
-  "Calling AmbiguousJourneyController.processusedUtrToEnrolChoice" should {
+  "Calling AmbiguousJourneyController.processUsedUtrToEnrolChoice" should {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processusedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
+      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -304,7 +304,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
     }
 
     "redirect to 'The deadline is' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processusedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
+      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -312,7 +312,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
-      val r = controller.processusedUtrToEnrolChoice(buildFakeRequestWithAuth("POST"))
+      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
