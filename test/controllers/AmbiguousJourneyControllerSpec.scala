@@ -293,10 +293,10 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
     }
   }
 
-  "Calling AmbiguousJourneyController.processUsedUtrToEnrolChoice" should {
+  "Calling AmbiguousJourneyController.processUsedUtrToRegisterChoice" should {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in new LocalSetupJourney {
-      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
+      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -304,7 +304,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
     }
 
     "redirect to 'The deadline is' page when supplied with value No (false)" in new LocalSetupJourney {
-      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
+      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST").withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe SEE_OTHER
@@ -312,7 +312,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
     }
 
     "return a bad request when supplied no value" in new LocalSetupJourney {
-      val r = controller.processUsedUtrToEnrolChoice(buildFakeRequestWithAuth("POST"))
+      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("POST"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe BAD_REQUEST
@@ -320,9 +320,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
 
   }
 
-  "Calling AmbiguousJourneyController.usedUtrToEnrolChoice" should {
-    "return 200 when AmbiguousJourneyController.usedUtrToEnrolChoice is called" in new LocalSetupJourney {
-      val r = controller.usedUtrToEnrolChoice(buildFakeRequestWithAuth("GET"))
+  "Calling AmbiguousJourneyController.processUsedUtrToRegisterChoice" should {
+    "return 200 when AmbiguousJourneyController.processUsedUtrToRegisterChoice is called" in new LocalSetupJourney {
+      val r = controller.processUsedUtrToRegisterChoice(buildFakeRequestWithAuth("GET"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       status(r) shouldBe OK

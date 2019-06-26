@@ -118,7 +118,7 @@ class AmbiguousJourneyController @Inject() (
       },
       ambiguousFiledOnlineChoiceDto => {
         ambiguousFiledOnlineChoiceDto.value match {
-          case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+          case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
           case false => {
             if (configDecorator.saAmbigSkipUTRLetterEnabled)
               Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
@@ -221,7 +221,7 @@ class AmbiguousJourneyController @Inject() (
           case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
           case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
           case "wrong-account" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
-          case "pin-expired-register" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+          case "pin-expired-register" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice))
           case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
         }
       }
