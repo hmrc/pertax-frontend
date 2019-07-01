@@ -90,9 +90,15 @@
             <li>@messages("label.your_identity")</li>
             <li>@messages("label.your_right_to_work_in_the_uk")</li>
           </ul>
+          <h3>@messages("label.child.trust.fund")</h3>
+          <p>@messages("label.child.trust.fund.details")</p>
           @if(messages.lang.equals(Lang("en"))) {
             <h3>@messages("label.welsh_language")</h3>
-            <p class="welsh-info-text">@messages("label.to_continue_to_receive_a_welsh_language_service_")</p>
+            <p class="list-paragraph welsh-info-text">@messages("label.to_continue_to_receive_a_welsh_language_service_")</p>
+            <ul class="list list-bullet">
+              <li>@messages("label.email.for.welsh.language")</li>
+              <li>@messages("label.phone.number.for.welsh.language")</li>
+            </ul>
           }
         </div>
         <div class="column-one-third">
