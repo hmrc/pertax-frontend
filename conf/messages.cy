@@ -268,7 +268,7 @@ label.the_deadline_to_do_your_tax_return_online_is_=Y dyddiad cau ar gyfer cyflw
 label.did_you_get_your_utr_letter=Ydy’r llythyr sy’n cadarnhau’ch UTR wedi eich cyrraedd?
 label.your_utr_is_a_ten_digit_number_=Rhif 10 digid yw’ch Cyfeirnod Unigryw y Trethdalwr (UTR) sydd ei angen arnoch i gofrestru ar gyfer Hunanasesiad ar-lein.
 label.have_you_used_your_utr_to_enrol_for_self_assessment_online=Ydych chi wedi defnyddio’ch UTR i cofrestru ar gyfer Hunanasesiad Ar-lein?
-label.your_utr_is_a_ten_digit_number_we_sent_by_post=Os ydych, cewch god cychwyn drwy’r post i greu’ch cyfrif Hunanasesiad <span class="no-wrap">ar-lein</span>.
+label.your_utr_is_a_ten_digit_number_we_sent_by_post=Gelwir hyn hefyd yn ymrestru ar gyfer Hunanasesiad ar-lein. Os ydych chi wedi ymrestru, cewch god cychwyn drwy’r post.
 label.you_need_to_register_for_self_assessment_online=Mae’n rhaid i chi gofrestru ar gyfer Hunanasesiad Ar-lein
 label.you_need_to_sign_up_to_send_your_tax_returns_online=Mae’n rhaid i chi gofrestru er mwyn anfon eich Ffurflenni Treth ar-lein
 label.you_need_to_get_a_new_activation_code=Mae angen cod cychwyn newydd arnoch
@@ -280,7 +280,7 @@ label.use_your_unique_taxpayer_reference_utr_to_=Defnyddiwch eich Cyfeirnod Unig
 label.you_can_send_your_tax_return_by_post_=Gallwch <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">anfon eich Ffurflen Dreth drwy’r post</a> cyn 31 Hydref {1}.
 label.your_utr_letter_may_still_be_in_the_post=Mae’n bosibl bod y llythyr sy’n cadarnhau’ch UTR yn y post o hyd
 label.we_sent_your_utr_to_you_by_post_=Rydym wedi anfon eich UTR atoch drwy’r post. Gall gymryd hyd at 14 diwrnod gwaith i gyrraedd.
-label.have_you_used_your_utr_to_enrol=A ydych wedi’ch ymrestru i anfon eich Ffurflenni Treth ar-lein?
+label.have_you_used_your_utr_to_enrol=Ydych chi wedi ymrestru i gyflwyno’ch Ffurflenni Treth ar-lein?
 label.after_you_registered_we_sent_you_an_activation_code_by_post=Ar ôl i chi gofrestru, gwnaethom anfon god cychwyn atoch. Mae’ch cod cychwyn wedi dod i ben.
 label.to_get_a_new_code_you_must_use_your_utr_=I gael cod newydd, mae’n rhaid i chi ddefnyddio’ch Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">gofrestru eto ar gyfer Hunanasesiad ar-lein</a>.
 label.you_must_use_your-new_code_within_=Mae’n rhaid i chi ddefnyddio’ch cod newydd cyn pen 28 diwrnod.

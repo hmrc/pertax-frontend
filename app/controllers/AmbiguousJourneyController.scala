@@ -128,19 +128,20 @@ class AmbiguousJourneyController @Inject() (
           }
         }
       )
-  }
-
-  def usedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceAmbiguousUser {_ =>
-      Future.successful(Ok(views.html.ambiguousjourney.usedUtrToRegisterChoice(AmbiguousUserFlowDto.form)))
     }
-  }
+
+    def usedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+      enforceAmbiguousUser {_ =>
+        Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
+      }
+    }
+
 
   def processUsedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
     implicit pertaxContext =>
       AmbiguousUserFlowDto.form.bindFromRequest.fold(
         formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToRegisterChoice(formWithErrors)))
+          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
         },
         ambiguousFiledOnlineChoiceDto => {
           ambiguousFiledOnlineChoiceDto.value match {
