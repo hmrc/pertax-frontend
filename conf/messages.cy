@@ -532,7 +532,7 @@ label.select_yes_if_you_have_enrolled_to_send_your_tax_returns_online=Dewiswch �
 #
 head.error.enter_valid_characters=Gwirio enw neu rif eich tŷ
 head.error.address_not_selected=Dewiswch gyfeiriad
-head.error.enrolled.to.send.tax.required=Dewiswch ‘Iawn’ os ydych wedi’ch dadgofrestru o Hunanasesiad ar-lein
+head.error.enrolled.to.send.tax.required=Dewiswch ‘Iawn’ os ydych wedi cofrestru i anfon eich Ffurflen Dreth ar-lein
 head.error.you_must_select_an_answer=Mae angen i chi ddewis ateb
 head.error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.required=Mae angen rhoi gwybodaeth ar y llinell hon
