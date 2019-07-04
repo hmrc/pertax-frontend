@@ -612,9 +612,9 @@ text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}
 #
 # Frontend-bootstrap  overrides
 #
-global.error.InternalServerError500.title=Mae problem wedi codi
-global.error.InternalServerError500.heading=Mae problem wedi codi
-global.error.InternalServerError500.message=Mae"n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>
+global.error.InternalServerError500.title = Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
+global.error.InternalServerError500.heading = Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
+global.error.InternalServerError500.message = Rhowch gynnig arall arni yn nes ymlaen.
 global.error.BadRequest.title=Mae problem wedi codi
 global.error.BadRequest.heading=Mae problem wedi codi
 global.error.BadRequest.message=Mae’n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>

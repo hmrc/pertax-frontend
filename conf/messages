@@ -619,9 +619,9 @@ text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}
 #
 # Frontend-bootstrap  overrides
 #
-global.error.InternalServerError500.title=There is a problem
-global.error.InternalServerError500.heading=There is a problem
-global.error.InternalServerError500.message=Sorry, we are experiencing technical difficulties. <p>Please try again later.</p>
+global.error.InternalServerError500.title=Sorry, there is a problem with the service
+global.error.InternalServerError500.heading=Sorry, there is a problem with the service
+global.error.InternalServerError500.message=Please try again later.
 global.error.BadRequest.title=There is a problem
 global.error.BadRequest.heading=There is a problem
 global.error.BadRequest.message=Sorry, we are experiencing technical difficulties. <p>Please try again later.</p>
