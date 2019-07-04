@@ -54,7 +54,7 @@ class PaperlessPreferencesController @Inject() (
         case Some("IDA") => Future.successful(BadRequest(views.html.error(
           "global.error.BadRequest.title",
           Some("global.error.BadRequest.heading"),
-          Some("global.error.BadRequest.message"), showContactHmrc = false)))
+          Some("global.error.BadRequest.message"))))
         case _ => showingWarningIfWelsh {
           implicit pertaxContext =>
             for {
