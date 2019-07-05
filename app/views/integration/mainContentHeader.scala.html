@@ -14,6 +14,9 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.play.language.LanguageUtils
+@import util.LanguageHelper
+
 @(name: Option[String],
 lastLogin: Option[org.joda.time.DateTime],
 breadcrumb: Breadcrumb,
@@ -21,8 +24,6 @@ showBetaBanner: Boolean,
 deskProToken: Option[String],
 langReturnUrl: Option[String],
 configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messages)
-
-@import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 
 <div class="service-info">
   @if(showBetaBanner) {
@@ -46,9 +47,9 @@ configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messag
     <div class="last-login mobile-hidden">
       <p class="service-info-p">
         @name.map { name =>
-          @Messages("global.label._last_signed_in", name, formatEasyReadingTimestamp(Some(lastLogin), ""))
+          @Messages("global.label._last_signed_in", name, LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
         }.getOrElse {
-          @Messages("global.label.you_last_signed_in", formatEasyReadingTimestamp(Some(lastLogin), ""))
+          @Messages("global.label.you_last_signed_in", LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
         }
       </p>
     </div>

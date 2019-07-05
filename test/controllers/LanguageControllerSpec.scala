@@ -24,7 +24,7 @@ import util.BaseSpec
 class LanguageControllerSpec extends BaseSpec {
 
   trait LocalSetup {
-    val c = app.injector.instanceOf[LanguageController]
+    val c = app.injector.instanceOf[LanguageSwitchController]
   }
 
   "Calling LanguageController.enGb" should {
