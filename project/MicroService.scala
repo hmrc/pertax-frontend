@@ -60,8 +60,8 @@ trait MicroService {
       wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.NonUnitStatements, Wart.Nothing, Wart.Product, Wart.Serializable, Wart.Any),
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
       wartremoverExcluded ++= wartRemovedExcludedClasses,
-      TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "uk.gov.hmrc.play.binders._", "controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.http.HeaderCarrier"),
-      routesImport ++= Seq("uk.gov.hmrc.play.binders._", "controllers.bindable._") 
+      TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "uk.gov.hmrc.play.binders._", "uk.gov.hmrc.play.frontend.binders._", "controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.http.HeaderCarrier"),
+      routesImport ++= Seq("uk.gov.hmrc.play.frontend.binders._", "uk.gov.hmrc.play.binders._", "controllers.bindable._")
         
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
