@@ -17,7 +17,6 @@
 package controllers.auth
 
 import javax.inject._
-
 import config.ConfigDecorator
 import controllers.routes
 import play.api.mvc.Results._
@@ -27,6 +26,7 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.play.frontend.binders.RedirectUrl
 
 import scala.concurrent._
 
@@ -39,7 +39,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
   val (cds, sas) = (citizenDetailsService, selfAssessmentService)
 
-  def build(successUrl: Option[ContinueUrl] = None, origin: Origin) = {
+  def build(successUrl: Option[RedirectUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.origin)
 
     new LocalConfidenceLevelPredicate {
@@ -48,7 +48,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
       override lazy val upliftUrl = configDecorator.identityVerificationUpliftUrl
       override lazy val origin = o
       override lazy val onwardUrl = configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(successUrl)
-      override lazy val allowLowConfidenceSAEnabled = configDecorator.allowLowConfidenceSAEnabled
+      override lazy val allowLowConfidenceSAEnabled = configDecorator.allowLowConfidenceSAEnabled 
       override lazy val citizenDetailsService = cds
       override lazy val selfAssessmentService = sas
     }
@@ -58,7 +58,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
 trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with ConfidenceLevelChecker {
 
-  def successUrl: Option[ContinueUrl]
+  def successUrl: Option[RedirectUrl]
   def upliftUrl: String
   def origin: String
   def onwardUrl: String
