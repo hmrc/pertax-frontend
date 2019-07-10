@@ -39,9 +39,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
+import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.frontend.binders.RedirectUrl
+import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
@@ -176,7 +176,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val r = controller.uplift(Some(RedirectUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
+      val r = controller.uplift(Some(SafeRedirectUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe 303
       redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
@@ -192,7 +192,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
 
-      redirectLocation(r) shouldBe Some("xdfcgh")
+      redirectLocation(r) shouldBe None
       status(r) shouldBe BAD_REQUEST
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
@@ -376,10 +376,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
       override val allowLowConfidenceSA = false
-
-      val r = controller.showUpliftJourneyOutcome(Some(RedirectUrl("/relative/url")))(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val r = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe OK
-
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
@@ -395,10 +393,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("LockedOut")
       override val allowLowConfidenceSA = false
-
       val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe UNAUTHORIZED
-
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
@@ -466,7 +462,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some(RedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/personal-account")
     }
@@ -476,7 +472,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val r = controller.signout(Some(RedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/ida/signout")
       session(r).get("postLogoutPage") shouldBe Some("/personal-account")

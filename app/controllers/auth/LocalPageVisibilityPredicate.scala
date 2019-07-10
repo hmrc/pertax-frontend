@@ -16,17 +16,17 @@
 
 package controllers.auth
 
-import javax.inject._
 import config.ConfigDecorator
 import controllers.routes
+import javax.inject._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Request}
 import services._
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
+import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.frontend.binders.RedirectUrl
+import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
 import scala.concurrent._
 
@@ -39,7 +39,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
   val (cds, sas) = (citizenDetailsService, selfAssessmentService)
 
-  def build(successUrl: Option[RedirectUrl] = None, origin: Origin) = {
+  def build(successUrl: Option[SafeRedirectUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.origin)
 
     new LocalConfidenceLevelPredicate {
@@ -55,10 +55,9 @@ class LocalPageVisibilityPredicateFactory @Inject() (
   }
 }
 
-
 trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with ConfidenceLevelChecker {
 
-  def successUrl: Option[RedirectUrl]
+  def successUrl: Option[SafeRedirectUrl]
   def upliftUrl: String
   def origin: String
   def onwardUrl: String
@@ -74,9 +73,10 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
     if ( userHasHighConfidenceLevel(authContext) )
       Future.successful(PageIsVisible)
     else {
-      allowLowConfidenceSAEnabled match {
-        case true => Future.successful(new PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
-        case false => Future.successful(new PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
+      if(allowLowConfidenceSAEnabled) {
+        Future.successful(PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
+      } else {
+        Future.successful(PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
       }
     }
   }

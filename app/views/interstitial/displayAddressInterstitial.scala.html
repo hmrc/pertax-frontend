@@ -26,7 +26,7 @@
   <div class="grid-row">
     <div class="column-two-thirds">
       <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(RedirectUrl(continueUrl)))" class="button" role="button">@Messages("global.label.continue_button")</a>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(continueUrl)))" class="button" role="button">@Messages("global.label.continue_button")</a>
     </div>
   </div>
 
