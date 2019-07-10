@@ -16,14 +16,15 @@
 
 package controllers
 
-import play.api.Play
 import play.api.mvc.{PathBindable, QueryStringBindable}
-import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.config.RunMode
+import play.api.{Environment, Play}
+import uk.gov.hmrc.play.frontend.binders.RedirectUrl._
+import uk.gov.hmrc.play.frontend.binders.RedirectUrlPolicy.Id
+import uk.gov.hmrc.play.frontend.binders._
 
 package object bindable {
 
-  implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]) = new PathBindable[AddrType] {
+  implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]): PathBindable[AddrType] = new PathBindable[AddrType] {
 
     def bind(key: String, value: String): Either[String, AddrType] =
       AddrType(value).map(Right(_)).getOrElse(Left("Invalid address type in path"))
@@ -32,20 +33,19 @@ package object bindable {
   }
 
 
-  implicit val continueUrlBinder = new QueryStringBindable[ContinueUrl] {
+  implicit val continueUrlBinder: QueryStringBindable[SafeRedirectUrl] = new QueryStringBindable[SafeRedirectUrl] {
 
-    val parentBinder: QueryStringBindable[ContinueUrl] = ContinueUrl.queryBinder
+    val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
 
-    def errorFor(invalidUrl: String) = s"'$invalidUrl' is not a valid continue URL"
+    val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = Play.current.mode))
 
-    def bind(key: String, params: Map[String, Seq[String]]) =
+    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SafeRedirectUrl]] =
       parentBinder.bind(key, params).map {
-        case Right(continueUrl) if continueUrl.isRelativeOrDev(RunMode(Play.current.mode, Play.current.configuration).env) => Right(continueUrl)
-        case Right(continueUrl) => Left(errorFor(continueUrl.url))
-        case Left(message) => Left(message)
+        case Right(redirectUrl) => redirectUrl.getEither(policy)
+        case Left(error) => Left(error)
       }
 
-    def unbind(key: String, value: ContinueUrl) = parentBinder.unbind(key, value)
+    def unbind(key: String, value: SafeRedirectUrl): String = parentBinder.unbind(key, RedirectUrl(value.url))
 
   }
 }

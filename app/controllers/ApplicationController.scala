@@ -31,9 +31,8 @@ import services._
 import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
-import uk.gov.hmrc.play.frontend.binders.RedirectUrl._
-import uk.gov.hmrc.play.frontend.binders.{OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.binders.Origin
+import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.ActiveTabHome
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
@@ -148,32 +147,17 @@ class ApplicationController @Inject() (
       }
   }
 
-//  def uplift(redirectUrl: Option[ContinueUrl]): Action[AnyContent] = {
-//    val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
-//
-//    AuthorisedFor(pertaxRegime, pageVisibility = pvp).async {
-//      implicit authContext =>
-//        implicit request =>
-//          Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
-//    }
-//  }
-
-  def uplift(redirectUrl: Option[RedirectUrl]): Action[AnyContent] = {
+ def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
     val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
-
-    val redirection = redirectUrl.map(_.getEither(OnlyRelative)) match {
-      case Some(Right(safeUrl)) => safeUrl.url
-      case _ => routes.ApplicationController.index().url
-    }
-
     AuthorisedFor(pertaxRegime, pageVisibility = pvp).async {
       implicit authContext =>
         implicit request =>
-          Future.successful(Redirect("Never"))
+          Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
     }
   }
 
-  def showUpliftJourneyOutcome(redirectUrl: Option[RedirectUrl]): Action[AnyContent] = AuthorisedAction() {
+
+  def showUpliftJourneyOutcome(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
       import IdentityVerificationSuccessResponse._
@@ -210,10 +194,7 @@ class ApplicationController @Inject() (
                 Logger.warn(s"Unable to confirm user identity: $LockedOut")
                 Unauthorized(views.html.iv.failure.lockedOut(allowContinue))
               case IdentityVerificationSuccessResponse(Success) =>
-                val redirection = redirectUrl.map(_.getEither(OnlyRelative)) match {
-                  case Some(Right(safeUrl)) => safeUrl.url
-                  case _ => routes.ApplicationController.index().url
-                }
+                val redirection = redirectUrl.fold(routes.ApplicationController.index().url)(_.url)
                 Ok(views.html.iv.success.success(redirection))
               case IdentityVerificationSuccessResponse(Timeout) =>
                 Logger.warn(s"Unable to confirm user identity: $Timeout")
@@ -232,14 +213,10 @@ class ApplicationController @Inject() (
       }
   }
 
-  def signout(redirectUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
+  def signout(redirectUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
     implicit pertaxContext =>
       Future.successful {
-        val redirection : Option[String] = redirectUrl.map(_.getEither(OnlyRelative)) match {
-          case Some(Right(safeUrl)) => Some(safeUrl.url)
-          case _ => origin.map(configDecorator.getFeedbackSurveyUrl)
-        }
-
+        val redirection: Option[String] = redirectUrl.map(_.url).orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         redirection.fold(BadRequest("Missing origin")) {
           url: String =>
           pertaxContext.user match {
@@ -266,13 +243,10 @@ class ApplicationController @Inject() (
       }
   }
 
-  def ivExemptLandingPage(redirectUrl: Option[RedirectUrl]): Action[AnyContent] = AuthorisedAction() {
+  def ivExemptLandingPage(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
-      val redirection = redirectUrl.map(_.getEither(OnlyRelative)) match {
-        case Some(Right(safeUrl)) => safeUrl.url
-        case _ => controllers.routes.ApplicationController.index().url
-      }
+      val redirection = redirectUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url)
 
       val c = configDecorator.lostCredentialsChooseAccountUrl(redirection, "userId")
 

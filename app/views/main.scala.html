@@ -48,7 +48,7 @@
       }
     }
     seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
-    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(RedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
+    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
   }
   seq
 }
@@ -138,7 +138,7 @@
         controllers.routes.LanguageSwitchController.enGb().url,
         controllers.routes.LanguageSwitchController.cyGb().url
       )),
-      signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None).url),
+      signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None).url),
       activeTab = pertaxContext.activeTab,
       hideAccountMenu = pertaxContext.user.isEmpty
     )),
