@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(title: String, heading: Option[String] = None, body: Option[String] = None, showContactHmrc: Boolean = true)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(title: String, heading: Option[String] = None, body: Option[String] = None)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(title = Messages(title),
   pageName = Some(Messages("label.your_personal_tax_account")),
@@ -26,27 +26,9 @@
       <header class="page-header">
         <h1>@Messages(heading.getOrElse(title))</h1>
       </header>
-
       @body.map { body =>
         <p>@Html(Messages(body))</p>
       }
-
-      @if(showContactHmrc) {
-        <br />
-
-        <div class="page-heading">
-          <h2 class="heading-medium no-margin-bottom">@Messages("label.contact_hmrc")</h2>
-        </div>
-        <p>@Messages("label.you_do_not_need_to_contact_hmrc_unless_")</p>
-        <p>@Messages("label.telephone_0300_200_3300")</p>
-        <p>@Messages("label.textphone_0300_200_3319")</p>
-        <p>@Messages("label.outside_uk_441355359022")</p>
-        <p>@Messages("label.phone_lines_are_open_8am_to_8pm_monday_to_friday_and_8am_to_4pm_on_saturday_")</p>
-        <p>@Messages("label.closed_bank_holidays")</p>
-        <p>@Messages("label.phone_lines_are_less_busy_before_10am_monday-to_friday")</p>
-        <p><a href="https://www.gov.uk/call-charges" target="_blank" rel="noopener noreferrer">@Messages("label.find_out_about_call_charges") @Messages("label.opens_in_a_new_window")</a></p>
-      }
-
     </div>
   </div>
 

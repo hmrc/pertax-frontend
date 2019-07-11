@@ -332,7 +332,7 @@ class AddressController @Inject() (
                     Logger.warn("Address selector was unable to find address using the id returned by a previous request")
                     Future.successful(InternalServerError(views.html.error("global.error.InternalServerError500.title",
                       Some("global.error.InternalServerError500.title"),
-                      Some("global.error.InternalServerError500.message"), false)))
+                      Some("global.error.InternalServerError500.message"))))
                   }
               }
             }
@@ -536,7 +536,7 @@ class AddressController @Inject() (
 
   private def submitConfirmClosePostalAddress(payeAccount: PayeAccount, personDetails: PersonDetails)(implicit pertaxContext: PertaxContext): Future[Result] = {
     def internalServerError = InternalServerError(views.html.error("global.error.InternalServerError500.title",
-      Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), showContactHmrc = false))
+      Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message")))
 
     val address = getAddress(personDetails.correspondenceAddress)
     val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
@@ -546,7 +546,7 @@ class AddressController @Inject() (
       action <- response match {
         case UpdateAddressBadRequestResponse =>
           Future.successful(BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
-            Some("global.error.BadRequest.message"), showContactHmrc = false)))
+            Some("global.error.BadRequest.message"))))
         case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
           Future.successful(internalServerError)
         case UpdateAddressSuccessResponse =>
@@ -646,15 +646,15 @@ class AddressController @Inject() (
 
                 case UpdateAddressBadRequestResponse =>
                   BadRequest(views.html.error("global.error.BadRequest.title", Some("global.error.BadRequest.title"),
-                    Some("global.error.BadRequest.message"), false))
+                    Some("global.error.BadRequest.message")))
 
                 case UpdateAddressUnexpectedResponse(response) =>
                   InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message")))
 
                 case UpdateAddressErrorResponse(cause) =>
                   InternalServerError(views.html.error("global.error.InternalServerError500.title",
-                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message"), false))
+                    Some("global.error.InternalServerError500.title"), Some("global.error.InternalServerError500.message")))
 
                 case UpdateAddressSuccessResponse =>
                   handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)

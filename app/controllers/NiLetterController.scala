@@ -78,7 +78,7 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
       } else {
         Future.successful(InternalServerError(views.html.error("global.error.InternalServerError500.title",
           Some("global.error.InternalServerError500.title"),
-          Some("global.error.InternalServerError500.message"), false)))
+          Some("global.error.InternalServerError500.message"))))
       }
   }
 }

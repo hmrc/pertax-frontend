@@ -67,7 +67,6 @@ class ApplicationController @Inject() (
 
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
     implicit pertaxContext =>
-
       def getTaxCalculationState(nino: Nino, year: Int, includeOverPaidPayments: Boolean): Future[Option[TaxCalculationState]] = {
         if (configDecorator.taxcalcEnabled) {
           taxCalculationService.getTaxCalculation(nino, year) map {
