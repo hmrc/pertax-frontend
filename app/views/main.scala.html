@@ -53,12 +53,6 @@
   seq
 }
 
-@afterHeader = {
-  @if(pertaxContext.configDecorator.enableRefresh) {
-    <meta http-equiv="refresh" content="@pertaxContext.configDecorator.refreshInterval; url=@controllers.routes.PublicController.sessionTimeout()">
-  }
-}
-
 @actingAttorneyBanner = {
   @{
     for {

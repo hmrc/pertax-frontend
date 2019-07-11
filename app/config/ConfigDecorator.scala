@@ -125,8 +125,6 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val generalQueriesUrl = "https://www.gov.uk/contact-hmrc"
   lazy val mainContentHeaderPartialUrl = s"$pertaxFrontendService/personal-account/integration/main-content-header"
-  lazy val refreshInterval = 900 + 10 //FIXME this should be sourced from the AuthenticationProvider
-  lazy val enableRefresh = configuration.getBoolean("enableRefresh").getOrElse(true)
 
   lazy val nationalInsuranceFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/national-insurance/catalogue"
   lazy val childBenefitCreditFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/benefits-and-credits/catalogue"
