@@ -248,8 +248,6 @@ class ApplicationController @Inject() (
 
       val redirection = redirectUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url)
 
-      val c = configDecorator.lostCredentialsChooseAccountUrl(redirection, "userId")
-
       val retryUrl = controllers.routes.ApplicationController.uplift(redirectUrl).url
 
       selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
