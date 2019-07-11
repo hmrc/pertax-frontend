@@ -23,22 +23,22 @@ import util.BaseSpec
 class LanguageControllerSpec extends BaseSpec {
 
   trait LocalSetup {
-    val c = app.injector.instanceOf[LanguageSwitchController]
+    val langSwitchController = app.injector.instanceOf[LanguageSwitchController]
   }
 
   "Calling LanguageController.enGb" should {
     "change the language to English and return 303" in new LocalSetup {
-      val r = c.enGb()(FakeRequest("GET", ""))
-      cookies(r).get("PLAY_LANG").get.value shouldBe "en"
-      status(r) shouldBe SEE_OTHER
+      val request = langSwitchController.enGb()(FakeRequest("GET", ""))
+      cookies(request).get("PLAY_LANG").get.value shouldBe "en"
+      status(request) shouldBe SEE_OTHER
     }
   }
 
   "Calling LanguageController.cyGb" should {
     "change the language to Welsh and return 303" in new LocalSetup {
-      val r = c.cyGb()(FakeRequest("GET", ""))
-      cookies(r).get("PLAY_LANG").get.value shouldBe "cy"
-      status(r) shouldBe SEE_OTHER
+      val request = langSwitchController.cyGb()(FakeRequest("GET", ""))
+      cookies(request).get("PLAY_LANG").get.value shouldBe "cy"
+      status(request) shouldBe SEE_OTHER
     }
   }
 }
