@@ -33,7 +33,7 @@
       <h1 class="heading-large">@Messages("label.you_cannot_access_your_self_assessment_")</h1>
       <h2>@Messages("label.if_you_send_your_tax_return_online")</h2>
       <p>@Html(Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_",
-        controllers.routes.ApplicationController.signout(Some(ContinueUrl(pertaxContext.configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.index().url)), None),
+        controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.index().url)), None),
         pertaxContext.configDecorator.notShownSaRecoverYourUserId))</p>
         <h2>@Messages("label.if_you_have_never_sent_your_tax_return_online")</h2>
         <p>@Html(Messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_",
