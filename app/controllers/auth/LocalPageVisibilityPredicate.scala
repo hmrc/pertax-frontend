@@ -70,15 +70,14 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
 
   def apply(authContext: AuthContext, request: Request[AnyContent]): Future[PageVisibilityResult] = {
     implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    if ( userHasHighConfidenceLevel(authContext) )
+    if ( userHasHighConfidenceLevel(authContext) ) {
       Future.successful(PageIsVisible)
-    else {
-      if(allowLowConfidenceSAEnabled) {
+    }else if(allowLowConfidenceSAEnabled) {
         Future.successful(PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
-      } else {
+    }else {
         Future.successful(PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
-      }
     }
+
   }
 
   private def buildIVUpliftUrl(confidenceLevel: ConfidenceLevel) =
