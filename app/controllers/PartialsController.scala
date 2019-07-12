@@ -17,15 +17,14 @@
 package controllers
 
 import javax.inject.Inject
+
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
 import models.Breadcrumb
 import org.joda.time.DateTime
-import play.api.Configuration
-import play.api.i18n.{Langs, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.play.language.LanguageUtils
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -39,8 +38,7 @@ class PartialsController @Inject() (
   val configDecorator: ConfigDecorator,
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController {
-
-
+  
   def mainContentHeader(name: Option[String], lastLogin: Option[Long], itemText: List[String], itemUrl: List[String],
                         showBetaBanner: Option[Boolean], deskProToken: Option[String], langReturnUrl: Option[String],
                         lang: Option[String], showLastItem: Boolean): Action[AnyContent] = Action.async {

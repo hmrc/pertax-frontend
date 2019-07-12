@@ -30,7 +30,6 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.play.frontend.auth.PageIsVisible
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.frontend.binders.{RedirectUrl, SafeRedirectUrl}
 import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
@@ -72,7 +71,7 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
           cd
         }
       )
-      fac.build(Some(SafeRedirectUrl("/personal-account/success-page")), Origin("PERTAX"))
+      fac.build(Some(ContinueUrl("/personal-account/success-page")), Origin("PERTAX"))
     }
 
     def nonVisibleRedirectLocation: Option[String] = {

@@ -25,9 +25,9 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services._
 import services.partials.MessageFrontendService
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{PayeAccount, SaAccount}
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.ActiveTab
 
 import scala.concurrent.Future
@@ -39,6 +39,8 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with C
   def messageFrontendService: MessageFrontendService
   def userDetailsService: UserDetailsService
   def pertaxRegime: PertaxRegime
+
+
 
   def VerifiedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true, activeTab: Option[ActiveTab] = None)(block: PertaxContext => Future[Result]): Action[AnyContent] = {
     AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async {
@@ -75,6 +77,10 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with C
 
   def withActiveTab(activeTab: Option[ActiveTab])(block: PertaxContext => Future[Result])(implicit pertaxContext: PertaxContext) =
     block(pertaxContext.withActiveTab(activeTab))
+
+
+
+
 
   def createPertaxContextAndExecute(fetchPersonDetails: Boolean)(block: PertaxContext => Future[Result])(implicit authContext: AuthContext, request: Request[AnyContent]): Future[Result] = {
 
@@ -126,7 +132,7 @@ trait AuthorisedActions extends PublicActions with ConfidenceLevelChecker with C
     pertaxContext.user.filter(user => user.isHighGovernmentGatewayOrVerify || (configDecorator.allowSaPreview && user.isSa)).map {
       user => block
     } getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(pertaxContext.request.uri)))))
+      Future.successful(Redirect(controllers.routes.ApplicationController.uplift(redirectUrl = Some(ContinueUrl(pertaxContext.request.uri)))))
     }
   }
 

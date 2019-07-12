@@ -18,11 +18,12 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
-import models.{SelfAssessmentUserType, TaxComponents, _}
+import models._
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
+import models.SelfAssessmentUserType
+import models.TaxComponents
 import util.DateTimeTools.previousAndCurrentTaxYear
-
 
 @Singleton
 class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
