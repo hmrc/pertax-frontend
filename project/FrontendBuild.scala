@@ -18,7 +18,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-partials" % "6.5.0", // includes code for retrieving partials, e.g. the Help with this page form
     "uk.gov.hmrc" %% "url-builder" % "3.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "8.1.0",
-    "uk.gov.hmrc" %% "play-language" % "4.0.0",
+    "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "local-template-renderer" % "2.3.0",
     "uk.gov.hmrc" %% "play-ui" % "7.33.0-play-25",
     "uk.gov.hmrc" %% "tax-year" % "0.4.0",

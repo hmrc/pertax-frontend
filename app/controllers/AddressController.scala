@@ -34,14 +34,17 @@ import play.api.data.FormError
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
+import reactivemongo.bson.BSONDocument
 import repositories.CorrespondenceAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
+import uk.gov.hmrc.play.language.LanguageUtils.Dates._
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.AuditServiceTools._
-import util.{LanguageHelper, LocalPartialRetriever}
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -475,7 +478,7 @@ class AddressController @Inject() (
                 personDetails.address match {
                   case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
                     if(!currentStartDate.isBefore(proposedStartDate))
-                      BadRequest(views.html.personaldetails.cannotUpdateAddress(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
+                      BadRequest(views.html.personaldetails.cannotUpdateAddress(typ, formatDate(proposedStartDate)))
                     else Redirect(routes.AddressController.reviewChanges(typ))
                   case _ => Redirect(routes.AddressController.reviewChanges(typ))
                 }

@@ -60,8 +60,9 @@ trait MicroService {
       wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.NonUnitStatements, Wart.Nothing, Wart.Product, Wart.Serializable, Wart.Any),
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
       wartremoverExcluded ++= wartRemovedExcludedClasses,
-      TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "uk.gov.hmrc.play.binders._", "uk.gov.hmrc.play.frontend.binders._", "controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.http.HeaderCarrier"),
-      routesImport ++= Seq("uk.gov.hmrc.play.frontend.binders._", "uk.gov.hmrc.play.binders._", "controllers.bindable._")
+      TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "uk.gov.hmrc.play.binders._", "controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.http.HeaderCarrier"),
+      routesImport ++= Seq("uk.gov.hmrc.play.binders._", "controllers.bindable._") 
+        
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
@@ -73,9 +74,7 @@ trait MicroService {
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
-    .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"),
-      resolvers += Resolver.jcenterRepo,
-      resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/")
+    .settings(resolvers += Resolver.jcenterRepo)
     .settings(majorVersion := 1)
 }
 
