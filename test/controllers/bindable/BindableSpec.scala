@@ -16,7 +16,7 @@
 
 package controllers.bindable
 
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.binders.ContinueUrl
 import util.BaseSpec
 
 class BindableSpec extends BaseSpec {
@@ -29,7 +29,7 @@ class BindableSpec extends BaseSpec {
 
     "return the key and the ContinueUrl" in {
 
-      controllers.bindable.continueUrlBinder.unbind("continue", SafeRedirectUrl("/relative/url")) shouldBe "continue=%2Frelative%2Furl"
+      controllers.bindable.continueUrlBinder.unbind("continue", ContinueUrl("/relative/url")) shouldBe "continue=%2Frelative%2Furl"
     }
   }
 
@@ -38,7 +38,7 @@ class BindableSpec extends BaseSpec {
     "return an url when called with a relative url" in {
 
       val url = "/relative/url"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Right(SafeRedirectUrl(url)))
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Right(ContinueUrl(url)))
     }
 
     "return error when not url" in {
@@ -56,7 +56,7 @@ class BindableSpec extends BaseSpec {
     "return error for none relative urls" in {
 
       val url = "http://nonrelativeurl.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"Provided URL [$url] doesn't comply with redirect policy"))
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"'$url' is not a valid continue URL"))
     }
   }
 }
