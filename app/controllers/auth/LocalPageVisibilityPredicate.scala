@@ -16,17 +16,17 @@
 
 package controllers.auth
 
-import javax.inject._
-
 import config.ConfigDecorator
 import controllers.routes
+import javax.inject._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Request}
 import services._
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
+import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
 import scala.concurrent._
 
@@ -39,7 +39,7 @@ class LocalPageVisibilityPredicateFactory @Inject() (
 
   val (cds, sas) = (citizenDetailsService, selfAssessmentService)
 
-  def build(successUrl: Option[ContinueUrl] = None, origin: Origin) = {
+  def build(successUrl: Option[SafeRedirectUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.origin)
 
     new LocalConfidenceLevelPredicate {
@@ -48,17 +48,16 @@ class LocalPageVisibilityPredicateFactory @Inject() (
       override lazy val upliftUrl = configDecorator.identityVerificationUpliftUrl
       override lazy val origin = o
       override lazy val onwardUrl = configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(successUrl)
-      override lazy val allowLowConfidenceSAEnabled = configDecorator.allowLowConfidenceSAEnabled
+      override lazy val allowLowConfidenceSAEnabled = configDecorator.allowLowConfidenceSAEnabled 
       override lazy val citizenDetailsService = cds
       override lazy val selfAssessmentService = sas
     }
   }
 }
 
-
 trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with ConfidenceLevelChecker {
 
-  def successUrl: Option[ContinueUrl]
+  def successUrl: Option[SafeRedirectUrl]
   def upliftUrl: String
   def origin: String
   def onwardUrl: String
@@ -71,14 +70,14 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
 
   def apply(authContext: AuthContext, request: Request[AnyContent]): Future[PageVisibilityResult] = {
     implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    if ( userHasHighConfidenceLevel(authContext) )
+    if ( userHasHighConfidenceLevel(authContext) ) {
       Future.successful(PageIsVisible)
-    else {
-      allowLowConfidenceSAEnabled match {
-        case true => Future.successful(new PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
-        case false => Future.successful(new PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
-      }
+    }else if(allowLowConfidenceSAEnabled) {
+        Future.successful(PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
+    }else {
+        Future.successful(PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
     }
+
   }
 
   private def buildIVUpliftUrl(confidenceLevel: ConfidenceLevel) =

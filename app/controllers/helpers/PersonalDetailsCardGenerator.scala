@@ -21,14 +21,14 @@ import config.ConfigDecorator
 import models.{Address, PertaxContext, PertaxUser}
 import play.twirl.api.{Html, HtmlFormat}
 import org.joda.time.LocalDate
-import play.api.Logger
-import uk.gov.hmrc.play.language.LanguageUtils.Dates.formatDate
+import util.LanguageHelper
 
 @Singleton
 class PersonalDetailsCardGenerator @Inject() (
   val configDecorator: ConfigDecorator,
   val countryHelper: CountryHelper
 ) {
+
 
   def getPersonalDetailsCards(hasCorrespondenceAddressLock: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Seq[Html] = List(
     getChangeNameCard(),
@@ -43,7 +43,7 @@ class PersonalDetailsCardGenerator @Inject() (
 
     address match {
       case Some(Address(_, _, _, _, _, _, _, Some(startDate), _, _)) if compare(startDate, 2016, 4, 6)(_.equals(_)) => (true, None)
-      case Some(Address(_, _, _, _, _, _, _,  Some(startDate), _, _)) if compare(startDate, 2016, 4, 6)(!_.equals(_)) => (false, Some(formatDate(startDate)))
+      case Some(Address(_, _, _, _, _, _, _,  Some(startDate), _, _)) if compare(startDate, 2016, 4, 6)(!_.equals(_)) => (false, Some(LanguageHelper.langUtils.Dates.formatDate(startDate)))
       case _ => (false, None)
     }
   }
