@@ -192,8 +192,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val redirection = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
 
-      redirectLocation(redirection) shouldBe None
       status(redirection) shouldBe BAD_REQUEST
+      redirectLocation(redirection) shouldBe None
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
       verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())    }
