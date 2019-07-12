@@ -5,20 +5,20 @@ GET    /personal-account/signed-out                                          @co
 GET    /personal-account/tax-credits-summary                                 @controllers.PublicController.redirectToTaxCreditsService()
 GET    /personal-account/your-address                                        @controllers.PublicController.redirectToPersonalDetails
 
-GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
+GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[ContinueUrl])
 GET    /personal-account                                                     @controllers.ApplicationController.index
 
 
-GET    /personal-account/full                                                @controllers.ApplicationController.uplift(continueUrl: Option[SafeRedirectUrl])
-GET    /personal-account/identity-check-complete                             @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
-GET    /personal-account/identity-check-failed                               @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
+GET    /personal-account/full                                                @controllers.ApplicationController.uplift(redirectUrl: Option[ContinueUrl])
+GET    /personal-account/identity-check-complete                             @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[ContinueUrl])
+GET    /personal-account/identity-check-failed                               @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[ContinueUrl])
 
-GET    /personal-account/signout                                             @controllers.ApplicationController.signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin])
+GET    /personal-account/signout                                             @controllers.ApplicationController.signout(continueUrl: Option[ContinueUrl], origin: Option[Origin])
 
 GET    /personal-account/dismiss-ur-banner                                   @controllers.UserResearchDismissalController.dismissUrBanner
 
 GET    /personal-account/self-assessment                                     @controllers.ApplicationController.handleSelfAssessment
-GET    /personal-account/sa-continue                                         @controllers.ApplicationController.ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl])
+GET    /personal-account/sa-continue                                         @controllers.ApplicationController.ivExemptLandingPage(continueUrl: Option[ContinueUrl])
 GET    /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
 POST   /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice
 GET    /personal-account/self-assessment/sa-filed-post                       @controllers.AmbiguousJourneyController.filedReturnByPostChoice
@@ -33,8 +33,8 @@ GET    /personal-account/self-assessment/used-utr-to-register                @co
 POST   /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.processUsedUtrToRegisterChoice
 GET    /personal-account/self-assessment/result/:page                        @controllers.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages(page: String)
 
-GET    /personal-account/lang/enGb                                           @controllers.LanguageSwitchController.enGb()
-GET    /personal-account/lang/cyGb                                           @controllers.LanguageSwitchController.cyGb()
+GET    /personal-account/lang/enGb                                           @controllers.LanguageController.enGb()
+GET    /personal-account/lang/cyGb                                           @controllers.LanguageController.cyGb()
 
 GET    /personal-account/personal-details                                    @controllers.AddressController.personalDetails
 GET    /personal-account/your-address/tax-credits-choice                     @controllers.AddressController.taxCreditsChoice
