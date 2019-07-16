@@ -253,6 +253,7 @@ class AddressDtoSpec extends BaseSpec {
 
       AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
+          fail("Form should give an error")
         },
         success => {
           success shouldBe AddressDto("Line 1", "Line 2", None, Option("Line 4"), None, Some("AA1 1AA"), None, None)
