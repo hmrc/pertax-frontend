@@ -253,11 +253,10 @@ class AddressDtoSpec extends BaseSpec {
 
       AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors.length shouldBe 1
-          formWithErrors.errors.head.message shouldBe "error.line3_required"
+          fail("Form should give an error")
         },
         success => {
-          fail("Form should give an error")
+          success shouldBe AddressDto("Line 1", "Line 2", None, Some("Line 4"), None, Some("AA1 1AA"), None, None)
         }
       )
     }
@@ -318,11 +317,10 @@ class AddressDtoSpec extends BaseSpec {
 
       AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors.length shouldBe 1
-          formWithErrors.errors.head.message shouldBe "error.line4_required"
+          fail("Form should give an error")
         },
         success => {
-          fail("Form should give an error")
+          success shouldBe AddressDto("Line 1", "Line 2", Some("Line 3"), None, Some("Line 5"), Some("AA1 1AA"), None, None)
         }
       )
     }
@@ -340,12 +338,10 @@ class AddressDtoSpec extends BaseSpec {
 
       AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors.length shouldBe 2
-          formWithErrors.errors(0).message shouldBe "error.line3_required"
-          formWithErrors.errors(1).message shouldBe "error.line4_required"
+          fail("Form should give an error")
         },
         success => {
-          fail("Form should give an error")
+          success shouldBe AddressDto("Line 1", "Line 2", None, None, Some("Line 5"), Some("AA1 1AA"), None, None)
         }
       )
     }
@@ -407,9 +403,8 @@ class AddressDtoSpec extends BaseSpec {
 
       AddressDto.ukForm.bind(formData).fold(
         formWithErrors => {
-          formWithErrors.errors.length shouldBe 2
-          formWithErrors.errors(1).message shouldBe "error.line5_invalid_characters"
-          formWithErrors.errors(0).message shouldBe "error.line4_required"
+          formWithErrors.errors.length shouldBe 1
+          formWithErrors.errors(0).message shouldBe "error.line5_invalid_characters"
         },
         success => {
           fail("Form should give an error")
