@@ -99,11 +99,6 @@
         Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
         overpaidUrl
       )
-    case _:TaxCalculationDisabledState =>
-      (
-        Messages("label.your_income_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
     case _ => ("", "")
   }
 }
@@ -163,9 +158,6 @@
 
     case TaxCalculationUnderpaidPaidAllState(startOfTaxYear, endOfTaxYear, _) =>
       (Messages("label.you_have_no_payments_to_make_to_hmrc"), List())
-
-    case TaxCalculationDisabledState(startOfTaxYear, endOfTaxYear) =>
-      (Messages("label.check_to_see_if_you_paid_the_right_amount_of_tax_from_"), List())
 
     case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
       (Messages("label.hmrc_owes_you_a_refund", "%,.2f".format(amount)), List(
