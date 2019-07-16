@@ -256,7 +256,7 @@ class AddressDtoSpec extends BaseSpec {
           fail("Form should give an error")
         },
         success => {
-          success shouldBe AddressDto("Line 1", "Line 2", None, Option("Line 4"), None, Some("AA1 1AA"), None, None)
+          success shouldBe AddressDto("Line 1", "Line 2", None, Some("Line 4"), None, Some("AA1 1AA"), None, None)
         }
       )
     }
@@ -320,7 +320,7 @@ class AddressDtoSpec extends BaseSpec {
           fail("Form should give an error")
         },
         success => {
-          success shouldBe AddressDto("Line 1", "Line 2", Option("Line 3"), None, Option("Line 5"), Some("AA1 1AA"), None, None)
+          success shouldBe AddressDto("Line 1", "Line 2", Some("Line 3"), None, Some("Line 5"), Some("AA1 1AA"), None, None)
         }
       )
     }
@@ -341,7 +341,7 @@ class AddressDtoSpec extends BaseSpec {
           fail("Form should give an error")
         },
         success => {
-          success shouldBe AddressDto("Line 1", "Line 2", None, None, Option("Line 5"), Some("AA1 1AA"), None, None)
+          success shouldBe AddressDto("Line 1", "Line 2", None, None, Some("Line 5"), Some("AA1 1AA"), None, None)
         }
       )
     }
