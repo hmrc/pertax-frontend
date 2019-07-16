@@ -25,10 +25,11 @@ import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.Json
-import services.http.FakeSimpleHttp
+import services.http.{FakeSimpleHttp, WsAllMethods}
 import uk.gov.hmrc.domain.Nino
 import util.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.HttpResponse
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class TaxCalculationServiceSpec extends BaseSpec {
 
@@ -50,7 +51,7 @@ class TaxCalculationServiceSpec extends BaseSpec {
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val taxCalculationService: TaxCalculationService = new TaxCalculationService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      val taxCalculationService: TaxCalculationService = new TaxCalculationService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics], injected[WsAllMethods]) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer

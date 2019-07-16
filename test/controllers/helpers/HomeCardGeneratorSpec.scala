@@ -224,12 +224,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
     }
-
-    "return correct markup when called with TaxCalculationDisabledState" in new LocalSetup {
-      val taxCalcState = TaxCalculationDisabledState(2015, 2016)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
   }
 
 

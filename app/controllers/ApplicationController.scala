@@ -74,7 +74,7 @@ class ApplicationController @Inject() (
             case _ => None
           }
         } else {
-          Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
+          Future.successful(None)
         }
       }
 
