@@ -49,10 +49,10 @@ object AddressDto extends CountryHelper {
         .verifying("error.line2_required", _.size > 0)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line3" -> optional(text)
+      "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line4" -> optional(text)
+      "line4" -> optionalTextIfFieldsHaveContent("line5")
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
       "line5" -> optional(text)
