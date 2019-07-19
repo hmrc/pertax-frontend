@@ -17,6 +17,7 @@
 package controllers
 
 import _root_.connectors.{PertaxAuditConnector, PertaxAuthConnector}
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.PublicActions
 import controllers.helpers.ControllerLikeHelpers
@@ -28,15 +29,19 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-
+class PertaxDependencies @Inject ()(
+  val auditConnector: PertaxAuditConnector,
+  val authConnector: PertaxAuthConnector,
+  val partialRetriever: LocalPartialRetriever,
+  val configDecorator: ConfigDecorator)
 
 abstract class PertaxBaseController extends Controller with Utf8MimeTypes with PublicActions with I18nSupport with ControllerLikeHelpers {
+  val pertaxDependencies: PertaxDependencies
 
-  def auditConnector: PertaxAuditConnector
-  def authConnector: PertaxAuthConnector
-
-  def partialRetriever: LocalPartialRetriever
-  def configDecorator: ConfigDecorator
+  def auditConnector: PertaxAuditConnector = pertaxDependencies.auditConnector
+  def authConnector: PertaxAuthConnector = pertaxDependencies.authConnector
+  def partialRetriever: LocalPartialRetriever = pertaxDependencies.partialRetriever
+  def configDecorator: ConfigDecorator = pertaxDependencies.configDecorator
 
   implicit class SessionKeyRemover(result: Future[Result]) {
     def removeSessionKey(key: String)(implicit request: Request[_]) = result.map {_.withSession(request.session - key)}

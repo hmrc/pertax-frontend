@@ -49,11 +49,8 @@ class ApplicationController @Inject() (
   val userDetailsService: UserDetailsService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
+  val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler)
   extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
