@@ -155,7 +155,7 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val marriageAllowanceSalaryAmount = "£11,500"
 
   // Links back to pertax
-  lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.ApplicationController.index().url
+  lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
 
   // Links to sign out
   lazy val citizenAuthFrontendSignOut = citizenAuthHost + "/ida/signout"
