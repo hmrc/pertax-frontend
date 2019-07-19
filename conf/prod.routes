@@ -6,7 +6,7 @@ GET    /personal-account/tax-credits-summary                                 @co
 GET    /personal-account/your-address                                        @controllers.PublicController.redirectToPersonalDetails
 
 GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[ContinueUrl])
-GET    /personal-account                                                     @controllers.ApplicationController.index
+GET    /personal-account                                                     @controllers.HomeController.index
 
 
 GET    /personal-account/full                                                @controllers.ApplicationController.uplift(redirectUrl: Option[ContinueUrl])

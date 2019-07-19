@@ -33,7 +33,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{BaseSpec, Fixtures, LocalPartialRetriever, MockPertaxDependencies}
 
 import scala.concurrent.Future
 
@@ -62,10 +62,7 @@ class InterstitialControllerSpec extends BaseSpec {
       MockitoSugar.mock[FrontEndDelegationConnector],
       MockitoSugar.mock[PreferencesFrontendService],
       MockitoSugar.mock[MessageFrontendService],
-      MockitoSugar.mock[PertaxAuditConnector],
-      MockitoSugar.mock[PertaxAuthConnector],
-      MockitoSugar.mock[LocalPartialRetriever],
-      MockitoSugar.mock[ConfigDecorator],
+      MockPertaxDependencies,
       injected[PertaxRegime],
       injected[LocalErrorHandler]
     ) {

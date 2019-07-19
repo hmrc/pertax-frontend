@@ -31,11 +31,8 @@ import scala.concurrent.Future
 
 class PartialsController @Inject() (
   val messagesApi: MessagesApi,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
+  val pertaxDependencies: PertaxDependencies,
   val delegationConnector: FrontEndDelegationConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController {
   
