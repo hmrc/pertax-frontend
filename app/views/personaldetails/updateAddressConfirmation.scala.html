@@ -40,7 +40,7 @@
 
                 <p>@Html(addr.get.mkString(", <br>"))</p>
 
-                <p><a href="@controllers.routes.ApplicationController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
+                <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
                 <p>{Messages("label.if_youve_moved_to_or_from_scotland_")}</p>
                 }, postal = Html(""))
 
-                <p><a href="@controllers.routes.ApplicationController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
+                <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
             </div>
         </div>
 

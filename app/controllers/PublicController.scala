@@ -41,7 +41,7 @@ class PublicController @Inject() (
   def verifyEntryPoint = PublicAction {
     implicit pertaxContext =>
       Future.successful {
-        Redirect(routes.ApplicationController.index).withNewSession.addingToSession(
+        Redirect(routes.HomeController.index).withNewSession.addingToSession(
           SessionKeys.authProvider -> AuthenticationProviderIds.VerifyProviderId
         )
       }
@@ -50,7 +50,7 @@ class PublicController @Inject() (
   def governmentGatewayEntryPoint = PublicAction {
     implicit pertaxContext =>
       Future.successful {
-        Redirect(routes.ApplicationController.index).withNewSession.addingToSession(
+        Redirect(routes.HomeController.index).withNewSession.addingToSession(
           SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId
         )
       }

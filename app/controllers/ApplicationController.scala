@@ -43,10 +43,7 @@ import scala.concurrent.Future
 class ApplicationController @Inject() (
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
-  val preferencesFrontendService: PreferencesFrontendService,
-  val taiService: TaiService,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  val taxCalculationService: TaxCalculationService,
   val selfAssessmentService: SelfAssessmentService,
   val cspPartialService: CspPartialService,
   val userDetailsService: UserDetailsService,
@@ -58,92 +55,8 @@ class ApplicationController @Inject() (
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler,
-  val homeCardGenerator: HomeCardGenerator,
-  val homePageCachingHelper: HomePageCachingHelper,
-  val taxCalculationStateFactory: TaxCalculationStateFactory
-
-  ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
-
-  def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
-    implicit pertaxContext =>
-      def getTaxCalculationState(nino: Nino, year: Int, includeOverPaidPayments: Boolean): Future[Option[TaxCalculationState]] = {
-        if (configDecorator.taxcalcEnabled) {
-          taxCalculationService.getTaxCalculation(nino, year) map {
-            case TaxCalculationSuccessResponse(taxCalc) => Some(taxCalculationStateFactory.buildFromTaxCalculation(Some(taxCalc), includeOverPaidPayments))
-            case _ => None
-          }
-        } else {
-          Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
-        }
-      }
-
-      val year = current.currentYear
-
-      val userAndNino = for( u <- pertaxContext.user; n <- u.nino) yield (u, n)
-
-      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState,Option[TaxCalculationState], Option[TaxCalculationState])]](
-        Future.successful( (TaxComponentsDisabledState, None, None) )) { userAndNino =>
-
-        val (user, nino) = userAndNino
-
-        val taxCalculationStateCyMinusOne = getTaxCalculationState(nino, year - 1, includeOverPaidPayments = true)
-        val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo) {
-          getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
-        }
-        else
-          Future.successful(Some(TaxCalculationUnkownState))
-
-        val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
-          taiService.taxComponents(nino, year) map {
-            case TaxComponentsSuccessResponse(ts) =>
-              TaxComponentsAvailableState(ts)
-            case TaxComponentsUnavailableResponse =>
-              TaxComponentsNotAvailableState
-            case _ =>
-              TaxComponentsUnreachableState
-          }
-        } else {
-          Future.successful(TaxComponentsDisabledState)
-        }
-
-        for {
-          taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
-          taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
-          taxSummaryState <- taxSummaryState
-        } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
-      }
-
-      val saUserType: Future[SelfAssessmentUserType] = selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
-
-      val showUserResearchBanner: Future[Boolean] =
-        configDecorator.urLinkUrl.fold(Future.successful(false))(_ => homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
-
-
-      showUserResearchBanner flatMap { showUserResearchBanner =>
-        enforcePaperlessPreference {
-          for {
-            (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- serviceCallResponses
-            saUserType <- saUserType
-          } yield {
-
-            val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-              pertaxContext.user,
-              taxSummaryState,
-              taxCalculationStateCyMinusOne,
-              taxCalculationStateCyMinusTwo,
-              saUserType,
-              current.currentYear)
-
-            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
-
-            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(pertaxContext.user)
-
-            Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner))
-          }
-        }
-      }
-  }
+  val localErrorHandler: LocalErrorHandler)
+  extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
 
   def uplift(redirectUrl: Option[ContinueUrl]): Action[AnyContent] = {
     val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
@@ -151,7 +64,7 @@ class ApplicationController @Inject() (
     AuthorisedFor(pertaxRegime, pageVisibility = pvp).async {
       implicit authContext =>
         implicit request =>
-          Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
+          Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
     }
   }
 
@@ -192,7 +105,7 @@ class ApplicationController @Inject() (
                 Logger.warn(s"Unable to confirm user identity: $LockedOut")
                 Unauthorized(views.html.iv.failure.lockedOut(allowContinue))
               case IdentityVerificationSuccessResponse(Success) =>
-                Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.ApplicationController.index().url)))
+                Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
               case IdentityVerificationSuccessResponse(Timeout) =>
                 Logger.warn(s"Unable to confirm user identity: $Timeout")
                 InternalServerError(views.html.iv.failure.timeOut(retryUrl))
@@ -232,7 +145,7 @@ class ApplicationController @Inject() (
             Future.successful(Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl))
           case ambigUser: AmbiguousFilerSelfAssessmentUser =>
             Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
-          case _ => Future.successful(Redirect(routes.ApplicationController.index()))
+          case _ => Future.successful(Redirect(routes.HomeController.index()))
         }
       }
   }
@@ -240,7 +153,7 @@ class ApplicationController @Inject() (
   def ivExemptLandingPage(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
-      val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.ApplicationController.index().url), "userId")
+      val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.HomeController.index().url), "userId")
 
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 

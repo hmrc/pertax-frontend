@@ -43,7 +43,7 @@ abstract class PertaxBaseController extends Controller with Utf8MimeTypes with P
   }
 
   val baseBreadcrumb: Breadcrumb =
-    List("label.account_home" -> routes.ApplicationController.index().url)
+    List("label.account_home" -> routes.HomeController.index().url)
 
   def showingWarningIfWelsh[T](block: PertaxContext => T)(implicit pertaxContext: PertaxContext, messages: Messages): T = {
     block(pertaxContext.withWelshWarning(messages.lang.code == "cy"))
