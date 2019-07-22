@@ -44,13 +44,13 @@ package object bindable {
 
     print("%%%%%%%%%%%% runModeEnv = " +  runModeEnv)
 
-    private lazy val isItLocalForTest : Mode = if (isRelativeUrl(SafeRedirectUrl.toString) || runModeEnv.toLowerCase.equals("Dev")) Mode.Dev else Play.current.mode
+    private lazy val isItLocalForTest : Mode = if (isRelativeUrl(SafeRedirectUrl.toString) || runModeEnv.toLowerCase.equals("dev")) Mode.Dev else Play.current.mode
 
     print("%%%%%%%%%%%% isItLocalForTest = " +  isItLocalForTest.toString)
 
     val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
 
-    val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = Play.current.mode))
+    val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = isItLocalForTest))
 
     def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SafeRedirectUrl]] =
       parentBinder.bind(key, params).map {
