@@ -16,16 +16,21 @@
 
 package controllers
 
+import java.io.File
+
+import play.api.Mode.Mode
 import play.api.mvc.{PathBindable, QueryStringBindable}
-import play.api.{Environment, Play}
+import play.api.{Environment, Mode, Play}
 import uk.gov.hmrc.play.frontend.binders.RedirectUrl._
 import uk.gov.hmrc.play.frontend.binders.RedirectUrlPolicy.Id
 import uk.gov.hmrc.play.frontend.binders._
+import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.config.RunMode
+
 
 package object bindable {
 
   implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]): PathBindable[AddrType] = new PathBindable[AddrType] {
-
     def bind(key: String, value: String): Either[String, AddrType] =
       AddrType(value).map(Right(_)).getOrElse(Left("Invalid address type in path"))
 
@@ -34,6 +39,14 @@ package object bindable {
 
 
   implicit val continueUrlBinder: QueryStringBindable[SafeRedirectUrl] = new QueryStringBindable[SafeRedirectUrl] {
+
+    val runModeEnv : String = RunMode(Play.current.mode, Play.current.configuration).env
+
+    print("%%%%%%%%%%%% runModeEnv = " +  runModeEnv)
+
+    private lazy val isItLocalForTest : Mode = if (isRelativeUrl(SafeRedirectUrl.toString) || runModeEnv.toLowerCase.equals("Dev")) Mode.Dev else Play.current.mode
+
+    print("%%%%%%%%%%%% isItLocalForTest = " +  isItLocalForTest.toString)
 
     val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
 
