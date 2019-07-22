@@ -17,17 +17,11 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import error.LocalErrorHandler
 import javax.inject.Inject
-import play.api.{Configuration, Environment}
-import play.api.Play.current
+import play.api.Configuration
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.i18n.Messages.Implicits._
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.play.language.LanguageUtils
-import util.LocalPartialRetriever
-import uk.gov.hmrc.play.language.LanguageController
+import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
 class LanguageSwitchController @Inject()(
                                     configurationDec: ConfigDecorator,
