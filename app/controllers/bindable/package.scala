@@ -16,16 +16,15 @@
 
 package controllers
 
-import java.io.File
-
 import play.api.Mode.Mode
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import play.api.{Environment, Mode, Play}
+import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.binders.RedirectUrl._
 import uk.gov.hmrc.play.frontend.binders.RedirectUrlPolicy.Id
 import uk.gov.hmrc.play.frontend.binders._
-import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.config.RunMode
+import config.ConfigDecorator
 
 
 package object bindable {
@@ -37,20 +36,17 @@ package object bindable {
     def unbind(key: String, addrType: AddrType): String = addrType.toString
   }
 
+//    Looking at your code, what you could do is to create a config flag that your QueryStringBindable[SafeRedirectUrl]uses to determine its policy.
+//  Set the flag to be more permissive by adding it to the “extra_params” array in Service Manager.
+
 
   implicit val continueUrlBinder: QueryStringBindable[SafeRedirectUrl] = new QueryStringBindable[SafeRedirectUrl] {
 
-    val runModeEnv : String = RunMode(Play.current.mode, Play.current.configuration).env
-
-    print("%%%%%%%%%%%% runModeEnv = " +  runModeEnv)
-
-    private lazy val isItLocalForTest : Mode = if (isRelativeUrl(SafeRedirectUrl.toString) || runModeEnv.toLowerCase.equals("dev")) Mode.Dev else Play.current.mode
-
-    print("%%%%%%%%%%%% isItLocalForTest = " +  isItLocalForTest.toString)
+    val c : config.ConfigDecorator = play.api.inject.asInstanceOf[config.ConfigDecorator]
 
     val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
 
-    val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = isItLocalForTest))
+    val policy: RedirectUrlPolicy[Id] = c.policy
 
     def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SafeRedirectUrl]] =
       parentBinder.bind(key, params).map {
