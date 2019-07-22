@@ -21,15 +21,11 @@ import java.net.{URL, URLEncoder}
 import controllers.routes
 import javax.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
-import play.api.{Configuration, Environment, Play}
 import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.binders.RedirectUrlPolicy.Id
-import uk.gov.hmrc.play.frontend.binders._
-import uk.gov.hmrc.play.frontend.binders.RedirectUrl._
-import uk.gov.hmrc.play.frontend.binders.{OnlyRelative, PermitAllOnDev, RedirectUrlPolicy}
 
 @Singleton
 class ConfigDecorator @Inject() (environment: Environment, configuration: Configuration, langs: Langs) extends ServicesConfig {
@@ -206,7 +202,5 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String = {
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
   }
-
-  val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = Play.current.mode))
 
 }
