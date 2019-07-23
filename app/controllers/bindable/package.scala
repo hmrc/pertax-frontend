@@ -16,17 +16,11 @@
 
 package controllers
 
-import play.api.Mode.Mode
 import play.api.mvc.{PathBindable, QueryStringBindable}
-import play.api.{Configuration, Environment, Mode, Play}
-import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.config.RunMode
+import play.api.{Environment, Play}
 import uk.gov.hmrc.play.frontend.binders.RedirectUrl._
 import uk.gov.hmrc.play.frontend.binders.RedirectUrlPolicy.Id
 import uk.gov.hmrc.play.frontend.binders._
-import config.ConfigDecorator
-import javax.inject.Inject
-import play.api.i18n.Langs
 
 
 package object bindable {
@@ -41,8 +35,6 @@ package object bindable {
   implicit val continueUrlBinder: QueryStringBindable[SafeRedirectUrl] = new QueryStringBindable[SafeRedirectUrl] {
 
     val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
-
-    //TODO --> create this as a config flag and add create an "extra_params” array in Service Manager for pertax-frontend and add this config flag to array
 
     val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = Play.current.mode))
 
