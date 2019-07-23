@@ -41,5 +41,4 @@ class LanguageSwitchController @Inject()(
     "cymraeg" -> Lang("cy")
   )
 
-  val langUtils = languageUtils
 }
