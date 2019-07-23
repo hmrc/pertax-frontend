@@ -202,5 +202,4 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String = {
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
   }
-
 }
