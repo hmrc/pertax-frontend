@@ -38,10 +38,7 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
   val userDetailsService: UserDetailsService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
+  val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val pdfGeneratorConnector: PdfGeneratorConnector) extends PertaxBaseController with AuthorisedActions {
@@ -78,7 +75,7 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
       } else {
         Future.successful(InternalServerError(views.html.error("global.error.InternalServerError500.title",
           Some("global.error.InternalServerError500.title"),
-          Some("global.error.InternalServerError500.message"), false)))
+          Some("global.error.InternalServerError500.message"))))
       }
   }
 }

@@ -17,14 +17,13 @@
 package controllers.auth
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.{PaperlessPreferencesController, PertaxBaseController}
+import connectors.FrontEndDelegationConnector
+import controllers.{PaperlessPreferencesController, PertaxBaseController, PertaxDependencies}
 import models._
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
@@ -35,7 +34,7 @@ import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.renderer.{ActiveTab, ActiveTabHome}
 import util.Fixtures._
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, Fixtures, MockPertaxDependencies}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -65,11 +64,8 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val localActions = new PertaxBaseController with AuthorisedActions {
         override val citizenDetailsService = MockitoSugar.mock[CitizenDetailsService]
         override val userDetailsService: UserDetailsService = MockitoSugar.mock[UserDetailsService]
-        override val auditConnector = MockitoSugar.mock[PertaxAuditConnector]
-        override val authConnector = MockitoSugar.mock[PertaxAuthConnector]
+        override val pertaxDependencies: PertaxDependencies = MockPertaxDependencies
         override val messagesApi = injected[MessagesApi]
-        override val partialRetriever = mockLocalPartialRetreiver
-        override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = injected[PertaxRegime]
         override lazy val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]
         override val messageFrontendService = MockitoSugar.mock[MessageFrontendService]
@@ -270,14 +266,11 @@ class AuthorisedActionsSpec extends BaseSpec {
         None, highGg)))
 
       lazy val localActions = new PertaxBaseController with AuthorisedActions {
-        override val auditConnector = MockitoSugar.mock[PertaxAuditConnector]
-        override val authConnector = MockitoSugar.mock[PertaxAuthConnector]
+        override val pertaxDependencies: PertaxDependencies = MockPertaxDependencies
         override val citizenDetailsService = MockitoSugar.mock[CitizenDetailsService]
         override val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]
         override val userDetailsService = MockitoSugar.mock[UserDetailsService]
-        override val partialRetriever = mockLocalPartialRetreiver
         override val messagesApi = injected[MessagesApi]
-        override val configDecorator = MockitoSugar.mock[ConfigDecorator]
         override val pertaxRegime = MockitoSugar.mock[PertaxRegime]
         override val messageFrontendService = MockitoSugar.mock[MessageFrontendService]
 

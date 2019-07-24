@@ -38,10 +38,7 @@ class MessageController @Inject() (
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
   val delegationConnector: FrontEndDelegationConnector,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
+  val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {

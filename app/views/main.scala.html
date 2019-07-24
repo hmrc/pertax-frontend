@@ -33,9 +33,9 @@
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
+@import util.LanguageHelper
 @import uk.gov.hmrc.renderer._
 @import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
-@import util.LanguageHelper
 
 
 @links = @{
@@ -51,12 +51,6 @@
     seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
   }
   seq
-}
-
-@afterHeader = {
-  @if(pertaxContext.configDecorator.enableRefresh) {
-    <meta http-equiv="refresh" content="@pertaxContext.configDecorator.refreshInterval; url=@controllers.routes.PublicController.sessionTimeout()">
-  }
 }
 
 @actingAttorneyBanner = {

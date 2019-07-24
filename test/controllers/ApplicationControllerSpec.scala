@@ -35,11 +35,10 @@ import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.binders.Origin
+import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -54,15 +53,12 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[TaiService].toInstance(MockitoSugar.mock[TaiService]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))
-    .overrides(bind[PreferencesFrontendService].toInstance(MockitoSugar.mock[PreferencesFrontendService]))
     .overrides(bind[IdentityVerificationFrontendService].toInstance(MockitoSugar.mock[IdentityVerificationFrontendService]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[TaxCalculationService].toInstance(MockitoSugar.mock[TaxCalculationService]))
     .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
@@ -71,8 +67,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     .build()
 
   override def beforeEach: Unit = {
-    reset(injected[PertaxAuditConnector], injected[PertaxAuthConnector], injected[TaxCalculationService], injected[CitizenDetailsService],
-      injected[TaiService], injected[MessageFrontendService],
+    reset(injected[PertaxAuditConnector],
+      injected[PertaxAuthConnector],
+      injected[CitizenDetailsService],
+      injected[MessageFrontendService],
       injected[UserDetailsService])
   }
 
@@ -84,12 +82,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
     lazy val year = current.currentYear
-    lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
-    lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
     lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-    lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
 
@@ -102,12 +97,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.authConnector.currentAuthority(any(), any())) thenReturn {
         Future.successful(Some(authority))
       }
-      when(c.taiService.taxComponents(meq(nino), any[Int])(any[HeaderCarrier])) thenReturn {
-        Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
-      }
-      when(c.taxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
-        Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
-      }
+
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
       }
@@ -117,12 +107,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.cspPartialService.webchatClickToChatScriptPartial(any())(any())) thenReturn {
         Future.successful(HtmlPartial.Success(None, Html("<script></script>")))
       }
-      when(c.preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
-        Future.successful(getPaperlessPreferenceResponse)
-      }
-      when(c.taxCalculationService.getTaxCalculation(meq(nino), meq(year - 1))(any())) thenReturn {
-        Future.successful(getTaxCalculationResponse)
-      }
+
       when(c.identityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
         Future.successful(getIVJourneyStatusResponse)
       }
@@ -176,12 +161,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.uplift(Some(SafeRedirectUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe 303
-      redirectLocation(redirection) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
+      val r = controller.uplift(Some(SafeRedirectUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe 303
+      redirectLocation(r) shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())
     }
 
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
@@ -190,154 +174,12 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override val allowLowConfidenceSA = false
 
 
-      val redirection = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
 
-      status(redirection) shouldBe BAD_REQUEST
-      redirectLocation(redirection) shouldBe None
+      status(r) shouldBe BAD_REQUEST
+      redirectLocation(r) shouldBe None
 
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
-      verify(controller.preferencesFrontendService, times(0)).getPaperlessPreference(any())(any())    }
-  }
-
-  "Calling ApplicationController.index" should {
-
-    "return a 303 status when accessing index page and authorisation is not fulfilled" in new LocalSetup {
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index()(FakeRequest("GET", "/personal-account")) //No auth in this fake request
-
-      status(redirection) shouldBe 303
-      redirectLocation(redirection) shouldBe Some("/gg-sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account&accountType=individual&origin=PERTAX")
-    }
-
-    "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
-
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val authority = buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index()(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-    }
-
-    "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
-
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val authority = buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index()(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-    }
-
-    "return a 200 status when accessing index page with good nino and a non sa User with no Lta protections" in new LocalSetup {
-
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val getLtaServiceResponse = Future.successful(false)
-      override lazy val authority = buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index()(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-    }
-
-    "return a 423 status when accessing index page with a nino that is hidden in citizen-details with an SA user" in new LocalSetup {
-
-      override lazy val personDetailsResponse = PersonDetailsHiddenResponse
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe LOCKED
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
-    }
-
-    "return a 200 status without calling citizen-detials or tai, when accessing index page without paye account" in new LocalSetup {
-
-      override lazy val withPaye = false
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(meq(nino))(any())
-      verify(controller.taiService, times(0)).taxComponents(any(), meq(current.currentYear))(any())
-    }
-
-    "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
-
-      override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-    }
-
-
-    "redirect when Preferences Frontend returns ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
-
-      override lazy val getPaperlessPreferenceResponse = ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("http://www.example.com")
-    }
-
-    "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
-
-      override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(nino), meq(current.currentYear - 1))(any())
-    }
-
-    "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
-
-      override lazy val personDetailsResponse = PersonDetailsNotFoundResponse
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-    }
-
-    "return a 200 status when accessing index page with a nino that produces an error when calling citizen-details" in new LocalSetup {
-
-      override lazy val personDetailsResponse = PersonDetailsErrorResponse(null)
-      override val allowLowConfidenceSA = false
-
-      val redirection = controller.index(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
   }
 
@@ -350,9 +192,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.handleSelfAssessment()(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin")
+      val r = controller.handleSelfAssessment()(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin")
 
     }
 
@@ -363,8 +205,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.handleSelfAssessment()(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe OK
+      val r = controller.handleSelfAssessment()(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -376,25 +218,29 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
       override val allowLowConfidenceSA = false
-      val redirection = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(redirection) shouldBe OK
+
+      val r = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(r) shouldBe OK
+
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "redirect to the IV exempt landing page when the 'sa allow low confidence' feature is on" in new LocalSetup {
 
       override val allowLowConfidenceSA = true
-      val redirection = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("/personal-account/sa-continue")
+      val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/personal-account/sa-continue")
     }
 
     "return 401 when IV journey outcome was LockedOut" in new LocalSetup {
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("LockedOut")
       override val allowLowConfidenceSA = false
-      val redirection = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(redirection) shouldBe UNAUTHORIZED
+
+      val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(r) shouldBe UNAUTHORIZED
+
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
@@ -403,9 +249,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("InsufficientEvidence")
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("/personal-account/sa-continue")
+      val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/personal-account/sa-continue")
     }
 
     "return 401 when IV journey outcome was UserAborted" in new LocalSetup {
@@ -413,8 +259,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("UserAborted")
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(redirection) shouldBe UNAUTHORIZED
+      val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(r) shouldBe UNAUTHORIZED
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -424,8 +270,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("TechnicalIssues")
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(redirection) shouldBe INTERNAL_SERVER_ERROR
+      val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(r) shouldBe INTERNAL_SERVER_ERROR
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -435,8 +281,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Timeout")
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(redirection) shouldBe INTERNAL_SERVER_ERROR
+      val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      status(r) shouldBe INTERNAL_SERVER_ERROR
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -446,9 +292,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
       override val allowLowConfidenceSA = false
 
-      val redirection = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX")).get
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX")).get
 
-      status(redirection) shouldBe BAD_REQUEST
+      status(r) shouldBe BAD_REQUEST
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -462,9 +308,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("/gg/sign-out?continue=/personal-account")
+      val r = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/personal-account")
     }
 
     "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
@@ -472,10 +318,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("/ida/signout")
-      session(redirection).get("postLogoutPage") shouldBe Some("/personal-account")
+      val r = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/ida/signout")
+      session(r).get("postLogoutPage") shouldBe Some("/personal-account")
     }
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with no continue URL but an origin" in new LocalSetup {
@@ -483,9 +329,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.signout(None, Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("/gg/sign-out?continue=/feedback/PERTAX")
+      val r = controller.signout(None, Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/gg/sign-out?continue=/feedback/PERTAX")
     }
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
@@ -493,8 +339,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.signout(None, None)(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe BAD_REQUEST
+      val r = controller.signout(None, None)(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe BAD_REQUEST
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -504,10 +350,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.signout(None, Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe SEE_OTHER
-      redirectLocation(redirection) shouldBe Some("/ida/signout")
-      session(redirection).get("postLogoutPage") shouldBe Some("/feedback/PERTAX")
+      val r = controller.signout(None, Some(Origin("PERTAX")))(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/ida/signout")
+      session(r).get("postLogoutPage") shouldBe Some("/feedback/PERTAX")
     }
 
     "return 'Bad Request' when supplied no continue URL and no origin" in new LocalSetup {
@@ -515,8 +361,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.signout(None, None)(buildFakeRequestWithAuth("GET"))
-      status(redirection) shouldBe BAD_REQUEST
+      val r = controller.signout(None, None)(buildFakeRequestWithAuth("GET"))
+      status(r) shouldBe BAD_REQUEST
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -526,8 +372,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val authProviderType: String = UserDetails.VerifyAuthProvider
       override val allowLowConfidenceSA = false
 
-      val redirection = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
-      status(redirection) shouldBe BAD_REQUEST
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
+      status(r) shouldBe BAD_REQUEST
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
@@ -541,10 +387,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
+      val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
 
-      val doc = Jsoup.parse(contentAsString(redirection))
-      status(redirection) shouldBe OK
+      val doc = Jsoup.parse(contentAsString(r))
+      status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
@@ -557,9 +403,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
-      val doc = Jsoup.parse(contentAsString(redirection))
-      status(redirection) shouldBe OK
+      val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
+      val doc = Jsoup.parse(contentAsString(r))
+      status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
@@ -573,9 +419,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
-      val doc = Jsoup.parse(contentAsString(redirection))
-      status(redirection) shouldBe OK
+      val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
+      val doc = Jsoup.parse(contentAsString(r))
+      status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
@@ -589,9 +435,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val redirection = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
-      val doc = Jsoup.parse(contentAsString(redirection))
-      status(redirection) shouldBe OK
+      val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
+      val doc = Jsoup.parse(contentAsString(r))
+      status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
@@ -605,9 +451,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
       override val allowLowConfidenceSA = false
 
-      val redirection = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/sa-continue?continueUrl=http://example.com")).get
+      val r = routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/sa-continue?continueUrl=http://example.com")).get
 
-      status(redirection) shouldBe BAD_REQUEST
+      status(r) shouldBe BAD_REQUEST
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }

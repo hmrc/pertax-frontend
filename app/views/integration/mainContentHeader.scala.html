@@ -14,9 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.language.LanguageUtils
-@import util.LanguageHelper
-
 @(name: Option[String],
 lastLogin: Option[org.joda.time.DateTime],
 breadcrumb: Breadcrumb,
@@ -24,6 +21,8 @@ showBetaBanner: Boolean,
 deskProToken: Option[String],
 langReturnUrl: Option[String],
 configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messages)
+
+@import util.LanguageHelper
 
 <div class="service-info">
   @if(showBetaBanner) {

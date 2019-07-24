@@ -21,7 +21,3 @@ import uk.gov.hmrc.play.language.LanguageUtils
 object LanguageHelper {
   val langUtils = play.api.Play.current.injector.instanceOf[LanguageUtils]
 }
-
-
-
-

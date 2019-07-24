@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import models.{Address, PertaxContext, PertaxUser}
 import play.twirl.api.{Html, HtmlFormat}
 import org.joda.time.LocalDate
+import play.api.Logger
 import util.LanguageHelper
 
 @Singleton
@@ -28,7 +29,6 @@ class PersonalDetailsCardGenerator @Inject() (
   val configDecorator: ConfigDecorator,
   val countryHelper: CountryHelper
 ) {
-
 
   def getPersonalDetailsCards(hasCorrespondenceAddressLock: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages): Seq[Html] = List(
     getChangeNameCard(),

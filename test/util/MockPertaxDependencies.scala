@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+package util
 
-@main(Messages("label.sign_in"), displayTimeoutDialog = false) {
-  <h1 class="heading-large">@Messages("label.youve_been_signed_out")</h1>
-  <p>@Messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
-  <p>@Messages("label.please_sign_in_again")</p><br>
-  <a class="button" href="@controllers.routes.HomeController.index" role="button">@Messages("label.sign_in")</a>
-}
+import config.ConfigDecorator
+import connectors.{PertaxAuditConnector, PertaxAuthConnector}
+import controllers.PertaxDependencies
+import org.scalatest.mockito.MockitoSugar
+
+object MockPertaxDependencies
+  extends PertaxDependencies(
+    MockitoSugar.mock[PertaxAuditConnector],
+    MockitoSugar.mock[PertaxAuthConnector],
+    MockitoSugar.mock[LocalPartialRetriever],
+    MockitoSugar.mock[ConfigDecorator])
