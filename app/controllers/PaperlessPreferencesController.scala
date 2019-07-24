@@ -40,10 +40,7 @@ class PaperlessPreferencesController @Inject() (
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
+  val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {
@@ -54,7 +51,7 @@ class PaperlessPreferencesController @Inject() (
         case Some("IDA") => Future.successful(BadRequest(views.html.error(
           "global.error.BadRequest.title",
           Some("global.error.BadRequest.heading"),
-          Some("global.error.BadRequest.message"), showContactHmrc = false)))
+          Some("global.error.BadRequest.message"))))
         case _ => showingWarningIfWelsh {
           implicit pertaxContext =>
             for {

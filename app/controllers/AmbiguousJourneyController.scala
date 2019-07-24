@@ -37,13 +37,10 @@ class AmbiguousJourneyController @Inject() (
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val pertaxRegime: PertaxRegime,
-  val auditConnector: PertaxAuditConnector,
-  val partialRetriever: LocalPartialRetriever,
   val userDetailsService: UserDetailsService,
-  val configDecorator: ConfigDecorator,
+  val pertaxDependencies: PertaxDependencies,
   val delegationConnector: FrontEndDelegationConnector,
   val sessionCache: LocalSessionCache,
-  val authConnector: PertaxAuthConnector,
   val messageFrontendService: MessageFrontendService,
   val selfAssessmentService: SelfAssessmentService,
   val taxYearRetriever: TaxYearRetriever
@@ -52,7 +49,7 @@ class AmbiguousJourneyController @Inject() (
   def enforceAmbiguousUser(block: SaUtr => Future[Result])(implicit context: PertaxContext): Future[Result] = {
     selfAssessmentService.getSelfAssessmentUserType(context.authContext) flatMap {
       case ambigUser: AmbiguousFilerSelfAssessmentUser => block(ambigUser.saUtr)
-      case _ => Future.successful(Redirect(routes.ApplicationController.index()))
+      case _ => Future.successful(Redirect(routes.HomeController.index()))
     }
   }
 
@@ -204,7 +201,7 @@ class AmbiguousJourneyController @Inject() (
 
   def handleAmbiguousJourneyLandingPages(page: String): Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
 
-    val continueUrl = controllers.routes.ApplicationController.index().url
+    val continueUrl = controllers.routes.HomeController.index().url
 
     enforceAmbiguousUser { saUtr =>
 

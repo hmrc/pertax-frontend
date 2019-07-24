@@ -31,17 +31,14 @@ import scala.concurrent.Future
 
 class PublicController @Inject() (
   val messagesApi: MessagesApi,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val delegationConnector: FrontEndDelegationConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator
+  val pertaxDependencies: PertaxDependencies,
+  val delegationConnector: FrontEndDelegationConnector
 ) extends PertaxBaseController {
   
   def verifyEntryPoint = PublicAction {
     implicit pertaxContext =>
       Future.successful {
-        Redirect(routes.ApplicationController.index).withNewSession.addingToSession(
+        Redirect(routes.HomeController.index).withNewSession.addingToSession(
           SessionKeys.authProvider -> AuthenticationProviderIds.VerifyProviderId
         )
       }
@@ -50,7 +47,7 @@ class PublicController @Inject() (
   def governmentGatewayEntryPoint = PublicAction {
     implicit pertaxContext =>
       Future.successful {
-        Redirect(routes.ApplicationController.index).withNewSession.addingToSession(
+        Redirect(routes.HomeController.index).withNewSession.addingToSession(
           SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId
         )
       }

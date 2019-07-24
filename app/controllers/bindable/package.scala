@@ -16,16 +16,17 @@
 
 package controllers
 
+
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import play.api.{Environment, Mode, Play}
 import uk.gov.hmrc.play.frontend.binders.RedirectUrl._
 import uk.gov.hmrc.play.frontend.binders.RedirectUrlPolicy.Id
 import uk.gov.hmrc.play.frontend.binders._
 
-
 package object bindable {
 
-  implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]): PathBindable[AddrType] = new PathBindable[AddrType] {
+  implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]) = new PathBindable[AddrType] {
+
     def bind(key: String, value: String): Either[String, AddrType] =
       AddrType(value).map(Right(_)).getOrElse(Left("Invalid address type in path"))
 

@@ -50,7 +50,7 @@ class PertaxAuthenticationProvider @Inject()(val configDecorator: ConfigDecorato
   override def redirectToLogin(implicit request: Request[_]) = ggRedirect
 
   def postSignInRedirectUrl(implicit request: Request[_]) = {
-    configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path))).url
+    configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.uplift( Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path) ) ).url
   }
 
   private def idaRedirect(implicit request: Request[_]): Future[Result] = {

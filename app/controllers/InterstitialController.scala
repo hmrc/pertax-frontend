@@ -44,10 +44,7 @@ class InterstitialController @Inject() (
   val delegationConnector: FrontEndDelegationConnector,
   val preferencesFrontendService: PreferencesFrontendService,
   val messageFrontendService: MessageFrontendService,
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
+  val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
