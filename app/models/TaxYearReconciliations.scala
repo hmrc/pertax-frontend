@@ -16,79 +16,126 @@
 
 package models
 
+import org.joda.time.LocalDate
 import play.api.libs.json._
 
-import scala.math.BigDecimal
-
-case class TaxYearReconciliations(nino: String, taxYears: List[TaxYearReconciliation])
+case class TaxYearReconciliations(taxYear: Int, reconciliation: Reconciliation)
 
 object TaxYearReconciliations {
 
   implicit val httpReads: Reads[TaxYearReconciliations] = Json.reads[TaxYearReconciliations]
 }
 
-case class TaxYearReconciliation(year: Int, reconciliation: List[Reconciliation])
-
-object TaxYearReconciliation {
-
-  implicit val httpReads: Reads[TaxYearReconciliation] = Json.reads[TaxYearReconciliation]
-}
-
-case class Reconciliation(
-                         reconciliationStatus: Option[ReconciliationStatus],
-                         cumulativeAmount: Double,
-                         p800Status: Option[P800Status]
-                         )
+sealed trait Reconciliation
 
 object Reconciliation {
 
-  implicit val httpReads: Reads[Reconciliation] = Json.reads[Reconciliation]
-}
+  implicit val reads: Reads[Reconciliation] = new Reads[Reconciliation] {
+    override def reads(json: JsValue): JsResult[Reconciliation] = json \ "_type" match {
 
-sealed trait ReconciliationStatus
-
-object ReconciliationStatus {
-
-  case object Balanced extends ReconciliationStatus
-  case object OpTolerance extends ReconciliationStatus
-  case object UpTolerance extends ReconciliationStatus
-  case object Overpaid extends ReconciliationStatus
-  case object Underpaid extends ReconciliationStatus
-  case object BalancedSA extends ReconciliationStatus
-  case object BalancedNoEmp extends ReconciliationStatus
-  case object NoRec extends ReconciliationStatus
-
-  implicit val reconciliationStatusReads: Reads[ReconciliationStatus] = new Reads[ReconciliationStatus] {
-    override def reads(json: JsValue): JsResult[ReconciliationStatus] = json match {
-
-      case JsNumber(x) if x == 1 => JsSuccess(Balanced)
-      case JsNumber(x) if x == 2 => JsSuccess(OpTolerance)
-      case JsNumber(x) if x == 3 => JsSuccess(UpTolerance)
-      case JsNumber(x) if x == 4 => JsSuccess(Overpaid)
-      case JsNumber(x) if x == 5 => JsSuccess(Underpaid)
-      case JsNumber(x) if x == 7 => JsSuccess(BalancedSA)
-      case JsNumber(x) if x == 8 => JsSuccess(BalancedNoEmp)
-      case _ => JsSuccess(NoRec)
+      case JsDefined(JsString("balanced"))               => JsSuccess(Balanced)
+      case JsDefined(JsString("underpaid_tolerance"))    => JsSuccess(UnderpaidTolerance)
+      case JsDefined(JsString("overpaid_tolerance"))     => JsSuccess(OverpaidTolerance)
+      case JsDefined(JsString("underpaid"))              => json.validate[Underpaid]
+      case JsDefined(JsString("overpaid"))               => json.validate[Overpaid]
+      case JsDefined(JsString("balanced_sa"))            => JsSuccess(BalancedSa)
+      case JsDefined(JsString("balanced_no_employment")) => JsSuccess(BalancedNoEmployment)
+      case JsDefined(JsString("not_reconciled"))         => JsSuccess(NotReconciled)
+      case _                                             => JsError("Could not parse Reconciliation")
     }
   }
+
+  def underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus): Underpaid = Underpaid(amount, dueDate, status)
+
+  def overpaid(amount: Option[Double], status: OverpaidStatus): Overpaid = Overpaid(amount, status)
+
+  def notReconciled: Reconciliation = NotReconciled
 }
 
-sealed trait P800Status
+case class Underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus) extends Reconciliation
 
-object P800Status {
+object Underpaid {
 
-  case object Issued extends P800Status
-  case object Cancelled extends P800Status
-  case object CancelledByUser extends P800Status
+  implicit val reads: Reads[Underpaid] = Json.reads[Underpaid]
+}
 
-  implicit val p800StatusReads: Reads[P800Status] = new Reads[P800Status] {
-    override def reads(json: JsValue): JsResult[P800Status] = json match {
+case class Overpaid(amount: Option[Double], status: OverpaidStatus) extends Reconciliation
 
-      case JsNumber(x) if x == 2 => JsSuccess(Issued)
-      case JsNumber(x) if x == 3 => JsSuccess(Cancelled)
-      case JsNumber(x) if x == 4 => JsSuccess(CancelledByUser)
-      case _ => JsError("Unable to parse P800 status")
+object Overpaid {
+
+  implicit val reads: Reads[Overpaid] = Json.reads[Overpaid]
+}
+
+case object Balanced extends Reconciliation
+
+case object OverpaidTolerance extends Reconciliation
+
+case object UnderpaidTolerance extends Reconciliation
+
+case object BalancedSa extends Reconciliation
+
+case object BalancedNoEmployment extends Reconciliation
+
+case object NotReconciled extends Reconciliation
+
+sealed trait UnderpaidStatus
+
+object UnderpaidStatus {
+
+  implicit val reads: Reads[UnderpaidStatus] = new Reads[UnderpaidStatus] {
+    override def reads(json: JsValue): JsResult[UnderpaidStatus] = json match {
+
+      case JsString("payment_due")   => JsSuccess(PaymentDue)
+      case JsString("part_paid")     => JsSuccess(PartPaid)
+      case JsString("paid_all")      => JsSuccess(PaidAll)
+      case JsString("payments_down") => JsSuccess(PaymentsDown)
+      case JsString("unknown")       => JsSuccess(Unknown)
+      case _                         => JsError("Could not parse Underpaid status")
     }
   }
+
+  case object PaymentDue extends UnderpaidStatus
+
+  case object PartPaid extends UnderpaidStatus
+
+  case object PaidAll extends UnderpaidStatus
+
+  case object PaymentsDown extends UnderpaidStatus
+
+  case object Unknown extends UnderpaidStatus
+
 }
 
+sealed trait OverpaidStatus
+
+object OverpaidStatus {
+
+  implicit val reads: Reads[OverpaidStatus] = new Reads[OverpaidStatus] {
+    override def reads(json: JsValue): JsResult[OverpaidStatus] = json match {
+
+      case JsString("refund")             => JsSuccess(Refund)
+      case JsString("payment_processing") => JsSuccess(PaymentProcessing)
+      case JsString("payment_paid")       => JsSuccess(PaymentPaid)
+      case JsString("cheque_sent")        => JsSuccess(ChequeSent)
+      case JsString("sa_user")            => JsSuccess(SaUser)
+      case JsString("unable_to_claim")    => JsSuccess(UnableToClaim)
+      case JsString("unknown")            => JsSuccess(Unknown)
+      case _                              => JsError("Could not parse Overpaid status")
+    }
+  }
+
+  case object Refund extends OverpaidStatus
+
+  case object PaymentProcessing extends OverpaidStatus
+
+  case object PaymentPaid extends OverpaidStatus
+
+  case object ChequeSent extends OverpaidStatus
+
+  case object SaUser extends OverpaidStatus
+
+  case object UnableToClaim extends OverpaidStatus
+
+  case object Unknown extends OverpaidStatus
+
+}
