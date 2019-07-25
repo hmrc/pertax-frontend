@@ -33,7 +33,7 @@
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
-@import uk.gov.hmrc.play.language.LanguageUtils.Dates._
+@import util.LanguageHelper
 @import uk.gov.hmrc.renderer._
 @import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
 
@@ -48,7 +48,7 @@
       }
     }
     seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
-    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(ContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
+    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
   }
   seq
 }
@@ -122,17 +122,17 @@
 
 @{
 
-  val prev = formatEasyReadingTimestamp((for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t), "")
+  val prev = LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp((for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t), "")
   val name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n)
 
   val arguments = TemplateArgumentsBuilder(
 
     Some(AccountMenuStyleComponent(
       langUrls = Some((
-        controllers.routes.LanguageController.enGb().url,
-        controllers.routes.LanguageController.cyGb().url
+        controllers.routes.LanguageSwitchController.enGb().url,
+        controllers.routes.LanguageSwitchController.cyGb().url
       )),
-      signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(ContinueUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None).url),
+      signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None).url),
       activeTab = pertaxContext.activeTab,
       hideAccountMenu = pertaxContext.user.isEmpty
     )),

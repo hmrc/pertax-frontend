@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 @import scala.util.Try
-@import uk.gov.hmrc.play.language.LanguageUtils.Dates._
+@import util.LanguageHelper
 
 
 @main(title = Messages("label.check_your_details"),
@@ -83,7 +83,7 @@
                 <dt class="cya-question">
                   @typ.ifIs(primary = Messages("label.when_this_became_your_main_home"), sole = Messages("label.when_you_started_living_here"), postal = "")
                 </dt>
-                <dd class="cya-answer">@formatDate(startDateDto.startDate)</dd>
+                <dd class="cya-answer">@LanguageHelper.langUtils.Dates.formatDate(startDateDto.startDate)</dd>
                 <dd class="cya-change"><a href="@controllers.routes.AddressController.enterStartDate(typ)">@Messages("label.change")</a></dd>
               }
             </div>

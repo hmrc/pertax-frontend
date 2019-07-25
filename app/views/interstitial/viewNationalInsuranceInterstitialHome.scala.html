@@ -52,7 +52,7 @@
 
     @ifLowGovernmentGatewayUser {
       <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(ContinueUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
     }
   </div>
 }
