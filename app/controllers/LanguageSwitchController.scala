@@ -17,24 +17,25 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import error.LocalErrorHandler
 import javax.inject.Inject
-import play.api.Environment
-import play.api.Play.current
-import play.api.i18n.Lang
-import play.api.i18n.Messages.Implicits._
+import play.api.Configuration
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import util.LocalPartialRetriever
+import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
-class LanguageController @Inject() (
-  val configDecorator: ConfigDecorator,
-  implicit val enviroment: Environment
-) extends uk.gov.hmrc.play.language.LanguageController{
+class LanguageSwitchController @Inject()(
+                                          configDecorator: ConfigDecorator,
+                                    configuration: Configuration,
+                                    languageUtils: LanguageUtils,
+                                    val messagesApi: MessagesApi
+                                  ) extends LanguageController(configuration, languageUtils){
+
   def enGb(): Action[AnyContent] = switchToLanguage(language="english")
   def cyGb(): Action[AnyContent] = switchToLanguage(language="cymraeg")
   def fallbackURL: String =  configDecorator.pertaxFrontendService
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
-    "cymraeg" -> Lang("cy"))
+    "cymraeg" -> Lang("cy")
+  )
+
 }

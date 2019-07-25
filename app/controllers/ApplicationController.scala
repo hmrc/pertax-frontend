@@ -16,26 +16,22 @@
 
 package controllers
 
-import javax.inject.Inject
-import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
-import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import error.LocalErrorHandler
+import javax.inject.Inject
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc._
-import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
-import uk.gov.hmrc.renderer.ActiveTabHome
+import uk.gov.hmrc.play.binders.Origin
+import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
-import util.{DateTimeTools, LocalPartialRetriever}
+import util.DateTimeTools
 
 import scala.concurrent.Future
 
@@ -55,7 +51,7 @@ class ApplicationController @Inject() (
   val localErrorHandler: LocalErrorHandler)
   extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
 
-  def uplift(redirectUrl: Option[ContinueUrl]): Action[AnyContent] = {
+  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
     val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
 
     AuthorisedFor(pertaxRegime, pageVisibility = pvp).async {
@@ -65,7 +61,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  def showUpliftJourneyOutcome(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
+  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
       import IdentityVerificationSuccessResponse._
@@ -120,7 +116,7 @@ class ApplicationController @Inject() (
       }
   }
 
-  def signout(continueUrl: Option[ContinueUrl], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
+  def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] = AuthorisedAction(fetchPersonDetails = false) {
     implicit pertaxContext =>
       Future.successful {
         continueUrl.map(_.url).orElse(origin.map(configDecorator.getFeedbackSurveyUrl)).fold(BadRequest("Missing origin")) { url: String =>
@@ -147,7 +143,7 @@ class ApplicationController @Inject() (
       }
   }
 
-  def ivExemptLandingPage(continueUrl: Option[ContinueUrl]): Action[AnyContent] = AuthorisedAction() {
+  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
     implicit pertaxContext =>
 
       val c = configDecorator.lostCredentialsChooseAccountUrl(continueUrl.map(_.url).getOrElse(controllers.routes.HomeController.index().url), "userId")

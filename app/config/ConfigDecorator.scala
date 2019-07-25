@@ -21,9 +21,9 @@ import java.net.{URL, URLEncoder}
 import controllers.routes
 import javax.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.config.ServicesConfig
 
