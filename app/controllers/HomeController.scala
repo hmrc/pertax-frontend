@@ -16,22 +16,19 @@
 
 package controllers
 
-import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
+import connectors.FrontEndDelegationConnector
+import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
-import error.LocalErrorHandler
 import javax.inject.Inject
-import models.{SelfAssessmentUserType, TaxCalculationDisabledState, TaxCalculationState, TaxCalculationStateFactory, TaxCalculationUnkownState, TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState}
+import models._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import play.twirl.api.Html
 import services.partials.{CspPartialService, MessageFrontendService}
-import services.{CitizenDetailsService, IdentityVerificationFrontendService, PreferencesFrontendService, SelfAssessmentService, TaiService, TaxCalculationService, TaxCalculationSuccessResponse, TaxComponentsSuccessResponse, TaxComponentsUnavailableResponse, UserDetailsService}
+import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.ActiveTabHome
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -64,7 +61,7 @@ class HomeController @Inject()(
             case _ => None
           }
         } else {
-          Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
+          Future.successful(None)
         }
       }
 
