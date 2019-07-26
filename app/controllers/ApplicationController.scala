@@ -51,7 +51,6 @@ class ApplicationController @Inject() (
   val localErrorHandler: LocalErrorHandler)
   extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
 
-
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
     val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
 
