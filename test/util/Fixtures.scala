@@ -54,12 +54,13 @@ import scala.util.Random
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK","United Kingdom")
+  val subDivision = "GB-ENG"
 
-  def fakeStreetPafAddressRecord = AddressRecord("GB101", PafAddress(Seq("1 Fake Street","Fake Town","Fake City"),Some("Fake Region"), None, "AA1 1AA",exampleCountryUK), "en")
+  def fakeStreetPafAddressRecord = AddressRecord("GB101", PafAddress(Seq("1 Fake Street","Fake Town","Fake City"),Some("Fake Region"), None, "AA1 1AA", exampleCountryUK, subDivision), "en")
 
-  val oneOtherPlacePafAddress = PafAddress(Seq("2 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK)
-  val twoOtherPlacePafAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK)
-  val otherPlacePafDifferentPostcodeAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 2AA",exampleCountryUK)
+  val oneOtherPlacePafAddress = PafAddress(Seq("2 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK, subDivision)
+  val twoOtherPlacePafAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK, subDivision)
+  val otherPlacePafDifferentPostcodeAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 2AA",exampleCountryUK, subDivision)
 
   val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514",oneOtherPlacePafAddress,"en")
   val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515",twoOtherPlacePafAddress,"en")

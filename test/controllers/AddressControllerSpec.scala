@@ -1899,8 +1899,8 @@ class AddressControllerSpec extends BaseSpec {
 
       val validAddressRecordSet = RecordSet(
         List(
-          AddressRecord("GB990091234514", PafAddress(List("1 Fake Street", "Fake Town"), Some("Fake City"), None, "AA1 1AA", Country("UK", "United Kingdom")), "en"),
-          AddressRecord("GB990091234515", PafAddress(List("2 Fake Street", "Fake Town"), Some("Fake City"), None, "AA1 1AA", Country("UK", "United Kingdom")), "en")
+          AddressRecord("GB990091234514", PafAddress(List("1 Fake Street", "Fake Town"), Some("Fake City"), None, "AA1 1AA", Country("UK", "United Kingdom"), "GB-ENG"), "en"),
+          AddressRecord("GB990091234515", PafAddress(List("2 Fake Street", "Fake Town"), Some("Fake City"), None, "AA1 1AA", Country("UK", "United Kingdom"), "GB-ENG"), "en")
         )
       )
 
