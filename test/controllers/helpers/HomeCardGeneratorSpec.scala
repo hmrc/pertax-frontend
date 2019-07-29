@@ -18,6 +18,8 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import models._
+import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
+import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import org.joda.time.LocalDate
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -35,7 +37,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     override def messagesApi: MessagesApi = injected[MessagesApi]
 
-    val c = new HomeCardGenerator(configDecorator = injected[ConfigDecorator])
+    val c = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
   }
 
 
@@ -112,117 +114,125 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       implicit lazy val pertaxContext = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
 
-      def taxCalcState: TaxCalculationState
+      implicit lazy val configDecorator = injected[ConfigDecorator]
 
-      lazy val cardBody = c.getTaxCalculationCard(Some(taxCalcState), 2015, 2016)
+      def taxYearRec: TaxYearReconciliations
+
+      lazy val cardBody = c.getTaxCalculationCard(Some(taxYearRec), 2015, 2016)
     }
 
-    "return nothing when called with TaxCalculationUnderpaidPaymentsDownState" in new LocalSetup {
-      val taxCalcState = TaxCalculationUnderpaidPaymentsDownState(2015, 2016)
+    "return nothing when called with Underpaid PaymentsDown reconciliation status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(None, None, PaymentsDown))
 
       cardBody shouldBe None
     }
 
-    "return nothing when called with TaxCalculationUnkownState" in new LocalSetup {
-      val taxCalcState = TaxCalculationUnkownState
+    "return nothing when called with Overpaid Unknown reconciliation status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015, Overpaid(None, OverpaidUnknown))
 
       cardBody shouldBe None
     }
 
-    "return correct markup when called with TaxCalculationOverpaidRefundState" in new LocalSetup {
-      val taxCalcState = TaxCalculationOverpaidRefundState(100, 2015, 2016)
+    "return nothing when called with Underpaid Unknown reconciliation status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(None, None, UnderpaidUnknown))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe None
     }
 
-    "return correct markup when called with TaxCalculationOverpaidPaymentProcessingState" in new LocalSetup {
-      val taxCalcState = TaxCalculationOverpaidPaymentProcessingState(100)
+    "return correct markup when called with Overpaid Refund reconciliation status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015,Overpaid(Some(100.00), Refund))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationOverpaidPaymentPaidState" in new LocalSetup {
+    "return correct markup when called with Overpaid Payment Processing reconciliation status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015,Overpaid(Some(100.00), PaymentProcessing))
 
-      val taxCalcState = TaxCalculationOverpaidPaymentPaidState(100, Some(new LocalDate("2016-01-01")))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationOverpaidPaymentChequeSentState" in new LocalSetup {
+    "return correct markup when called with Overpaid Payment Paid reconciliation status" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationOverpaidPaymentChequeSentState(100, Some(new LocalDate("2016-01-01")))
+      val taxYearRec = TaxYearReconciliations(2015, Overpaid(Some(100.00), PaymentPaid))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus or due date" in new LocalSetup {
+    "return correct markup when called with Overpaid Cheque Sent reconciliation status " in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, None, None)
+      val taxYearRec = TaxYearReconciliations(2015,Overpaid(Some(100.00), ChequeSent))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus and due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Payment Due reconciliation status with no deadline or due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), None)
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), None, PaymentDue))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Payment Due reconciliation status with no deadline and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlineApproachingStatus))
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(31)), PaymentDue))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Payment Due reconciliation status with deadline approaching and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlinePassedStatus))
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(29)), PaymentDue))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus or due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Payment Due reconciliation status with deadline passed and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, None, None)
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), Some(LocalDate.now.minusDays(1)), PaymentDue))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus and due date" in new LocalSetup {
+    "return correct markup when with Underpaid part paid payment reconciliation status with no deadline or due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), None)
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), None, PartPaid))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Part Paid reconciliation status with no deadline and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlineApproachingStatus))
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(31)), PartPaid))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Part Paid reconciliation status with deadline approaching and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), Some(SaDeadlinePassedStatus))
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(29)), PartPaid))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaidAllState with no due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Part Paid reconciliation status with deadline passed and due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, None)
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), Some(LocalDate.now.minusDays(1)), PartPaid))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return correct markup when called with TaxCalculationUnderpaidPaidAllState with a due date" in new LocalSetup {
+    "return correct markup when called with Underpaid Paid All reconciliation status with no due date" in new LocalSetup {
 
-      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, Some(new LocalDate("2016-01-01")))
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), None, PaidAll))
 
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
+    }
+
+    "return correct markup when called with Underpaid Paid All reconciliation status with a due date" in new LocalSetup {
+
+      val taxYearRec = TaxYearReconciliations(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(31)), PaidAll))
+
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
   }
 

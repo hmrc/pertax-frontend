@@ -49,17 +49,13 @@ class HomeController @Inject()(
                                 val homeCardGenerator: HomeCardGenerator,
                                 val homePageCachingHelper: HomePageCachingHelper,
                                 val taxCalculationStateFactory: TaxCalculationStateFactory
-
                               ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
     implicit pertaxContext =>
 
-      def getTaxCalculationState(nino: Nino, year: Int, includeOverPaidPayments: Boolean): Future[Option[TaxCalculationState]] = {
+      def getTaxCalculationState(nino: Nino, year: Int, includeOverPaidPayments: Boolean): Future[Option[TaxYearReconciliations]] = {
         if (configDecorator.taxcalcEnabled) {
-          taxCalculationService.getTaxCalculation(nino, year) map {
-            case TaxCalculationSuccessResponse(taxCalc) => Some(taxCalculationStateFactory.buildFromTaxCalculation(Some(taxCalc), includeOverPaidPayments))
-            case _ => None
-          }
+          taxCalculationService.getTaxYearReconciliations(nino, year, year) map(_.headOption)
         } else {
           Future.successful(None)
         }
@@ -69,7 +65,7 @@ class HomeController @Inject()(
 
       val userAndNino = for (u <- pertaxContext.user; n <- u.nino) yield (u, n)
 
-      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState, Option[TaxCalculationState], Option[TaxCalculationState])]](
+      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState, Option[TaxYearReconciliations], Option[TaxYearReconciliations])]](
         Future.successful((TaxComponentsDisabledState, None, None))) { userAndNino =>
 
         val (user, nino) = userAndNino
@@ -79,7 +75,7 @@ class HomeController @Inject()(
           getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
         }
         else
-          Future.successful(Some(TaxCalculationUnkownState))
+          Future.successful(None)
 
         val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
           taiService.taxComponents(nino, year) map {

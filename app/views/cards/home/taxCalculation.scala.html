@@ -15,14 +15,19 @@
  *@
 
 @import uk.gov.hmrc.play.language.LanguageUtils
+@import models.SaDeadlineStatusCalculator._
+@import models.OverpaidStatus._
+@import models.UnderpaidStatus._
 @import tags._
 @import util.LanguageHelper
 
-@(taxCalculationState: TaxCalculationState,
+@import config.ConfigDecorator
+@(taxYearReconciliations: TaxYearReconciliations,
 previousTaxYear: Int,
 currentTaxYear: Int)(
 implicit messages: play.api.i18n.Messages,
-pertaxContext: PertaxContext)
+pertaxContext: PertaxContext,
+configDecorator: ConfigDecorator)
 
 
 @underpaidUrlReasons = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons"}
@@ -34,70 +39,36 @@ pertaxContext: PertaxContext)
 @makePaymentUrl = @{"https://www.gov.uk/simple-assessment"}
 
 @heading = @{
-  taxCalculationState match {
-    case _:TaxCalculationUnderpaidPaidAllState =>
+  taxYearReconciliations.reconciliation match {
+
+    case Underpaid(_, _, PaidAll) =>
       (
-        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString(), currentTaxYear.toString()),
+        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, currentTaxYear.toString),
         underpaidUrl
       )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, None, _) =>
+    case status @ Underpaid(_, Some(_), PaymentDue) if status.hasDeadlinePassed =>
       (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
+        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
         underpaidUrl
       )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), None) =>
+    case Underpaid(_, _, PaymentDue) =>
       (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
+        Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
         underpaidUrl
       )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), Some(SaDeadlineApproachingStatus)) =>
+    case status @ Underpaid(_, Some(dueDate), PartPaid) if status.hasDeadlinePassed =>
       (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
+        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
         underpaidUrl
       )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), Some(SaDeadlinePassedStatus)) =>
+    case Underpaid(_, _, PartPaid) =>
       (
-        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString(), currentTaxYear.toString()),
+        Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
         underpaidUrl
       )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, None, _) =>
+    case Overpaid(_, _) =>
       (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-        )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), None) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlineApproachingStatus)) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlinePassedStatus)) =>
-      (
-        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case TaxCalculationOverpaidPaymentProcessingState(amount) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
+        Messages("label.you_paid_too_much_tax", previousTaxYear.toString, currentTaxYear.toString),
         overpaidUrl
       )
     case _ => ("", "")
@@ -105,78 +76,74 @@ pertaxContext: PertaxContext)
 }
 
 @contentAndLinks = @{
-  taxCalculationState match {
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
-      (Messages("label.you_owe_hmrc", "%,.2f".format(amount)), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
+  taxYearReconciliations.reconciliation match {
 
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
+    case status @ Underpaid(Some(amount), Some(dueDate), PaymentDue) if status.isDeadlineApproaching =>
       (Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
         (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
         (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
-      saDeadlineStatus match {
-        case SaDeadlineApproachingStatus =>
-          (Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-          ))
-        case SaDeadlinePassedStatus =>
-          (Messages("label.you_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
-          ))
-      }
+    case status @ Underpaid(Some(amount), Some(dueDate), PaymentDue) if status.hasDeadlinePassed =>
+      (Messages("label.you_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
+        (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
+      ))
 
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
+    case Underpaid(Some(amount), Some(dueDate), PaymentDue) =>
+      (Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
+        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
+      ))
+
+    case Underpaid(Some(amount), _, PaymentDue) =>
       (Messages("label.you_owe_hmrc", "%,.2f".format(amount)), List(
         (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
         (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
+    case status @ Underpaid(Some(amount), Some(dueDate), PartPaid) if status.isDeadlineApproaching =>
       (Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
         (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
         (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
       ))
 
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
-      saDeadlineStatus match {
-        case SaDeadlineApproachingStatus =>
-          (Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-          ))
-        case SaDeadlinePassedStatus => {
-          (Messages("label.you_still_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
-          ))
-        }
-      }
+    case status @ Underpaid(Some(amount), Some(dueDate), PartPaid) if status.hasDeadlinePassed =>
+      (Messages("label.you_still_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
+        (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
+      ))
 
-    case TaxCalculationUnderpaidPaidAllState(startOfTaxYear, endOfTaxYear, _) =>
+    case Underpaid(Some(amount), Some(dueDate), PartPaid) =>
+      (Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
+        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
+      ))
+
+    case Underpaid(Some(amount), _, PartPaid) =>
+      (Messages("label.you_owe_hmrc", "%,.2f".format(amount)), List(
+        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
+        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
+      ))
+
+    case Underpaid(_, _, PaidAll) =>
       (Messages("label.you_have_no_payments_to_make_to_hmrc"), List())
 
-    case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
+    case Overpaid(Some(amount), Refund) =>
       (Messages("label.hmrc_owes_you_a_refund", "%,.2f".format(amount)), List(
       (Messages("label.claim_your_tax_refund"), s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/status", "Claim your tax refund"),
       (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))
 
-    case TaxCalculationOverpaidPaymentProcessingState(amount) =>
+    case Overpaid(Some(amount), PaymentProcessing) =>
       (Messages("label.hmrc_is_processing_your_refund", "%,.2f".format(amount)), List(
       (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))
 
-    case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) =>
+    case Overpaid(Some(amount), PaymentPaid) =>
       (Messages("label.hmrc_has_paid_your_refund", "%,.2f".format(amount)), List(
       (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))
 
-    case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) =>
+    case Overpaid(Some(amount), ChequeSent) =>
       (Messages("label.hmrc_sent_you_a_cheque_for", "%,.2f".format(amount)), List(
       (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
     ))

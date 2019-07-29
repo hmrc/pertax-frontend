@@ -16,8 +16,10 @@
 
 package models
 
+import config.ConfigDecorator
 import org.joda.time.LocalDate
 import play.api.libs.json._
+import models.SaDeadlineStatusCalculator._
 
 case class TaxYearReconciliations(taxYear: Int, reconciliation: Reconciliation)
 
@@ -52,7 +54,16 @@ object Reconciliation {
   def notReconciled: Reconciliation = NotReconciled
 }
 
-case class Underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus) extends Reconciliation
+case class Underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus) extends Reconciliation {
+
+  def isDeadlineApproaching(implicit cd: ConfigDecorator): Boolean = dueDate.exists { x =>
+    getSaDeadlineStatus(x).contains(SaDeadlineApproachingStatus)
+  }
+
+  def hasDeadlinePassed(implicit cd: ConfigDecorator): Boolean = dueDate.exists { x =>
+    getSaDeadlineStatus(x).contains(SaDeadlinePassedStatus)
+  }
+}
 
 object Underpaid {
 
