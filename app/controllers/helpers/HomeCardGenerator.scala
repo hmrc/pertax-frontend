@@ -18,20 +18,20 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
-import models._
+import models.UnderpaidStatus.{PaymentsDown, Unknown => UnderpaidUnknown}
+import models.OverpaidStatus.{Unknown => OverpaidUnknown}
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
-import models.SelfAssessmentUserType
-import models.TaxComponents
+import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliations, Underpaid}
 import util.DateTimeTools.previousAndCurrentTaxYear
 
 @Singleton
-class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
+class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(pertaxUser: Option[PertaxUser],
                      taxComponentsState: TaxComponentsState,
-                     taxCalculationStateCyMinusOne: Option[TaxCalculationState],
-                     taxCalculationStateCyMinusTwo: Option[TaxCalculationState],
+                     taxCalculationStateCyMinusOne: Option[TaxYearReconciliations],
+                     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliations],
                      saActionNeeded: SelfAssessmentUserType,
                      currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxComponentsState),
@@ -62,15 +62,18 @@ class HomeCardGenerator @Inject() (val configDecorator: ConfigDecorator) {
     }
   }
 
-  def getTaxCalculationCard(taxCalculationState: Option[TaxCalculationState],
+  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliations],
                             previousTaxYear: Int,
                             currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
 
-    taxCalculationState match {
-      case Some(TaxCalculationUnderpaidPaymentsDownState(_,_)) => None
-      case Some(TaxCalculationUnkownState) => None
-      case Some(taxCalculationState) => Some(views.html.cards.home.taxCalculation(taxCalculationState, previousTaxYear, currentTaxYear))
-      case _ => None
+    taxYearReconciliations.map(_.reconciliation) match {
+      case Some(Underpaid(_, _, PaymentsDown)) => None
+      case Some(Underpaid(_, _, UnderpaidUnknown)) => None
+      case Some(Overpaid(_, OverpaidUnknown)) => None
+      case _ =>
+        taxYearReconciliations.map {
+          views.html.cards.home.taxCalculation(_, previousTaxYear, currentTaxYear)
+        }
     }
   }
 

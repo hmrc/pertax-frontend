@@ -105,6 +105,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.taxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
       }
+      when(c.taxCalculationService.getTaxYearReconciliations(any[Nino], any[Int], any[Int])(any[HeaderCarrier])) thenReturn {
+        Future.successful(buildTaxYearReconciliations)
+      }
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
       }
@@ -188,7 +191,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled)
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -204,7 +208,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -221,7 +225,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -281,7 +285,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxCalculation(meq(nino), meq(current.currentYear - 1))(any())
+      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
