@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import models.SaDeadlineStatusCalculator._
-@import models.OverpaidStatus._
+@import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 @import models.UnderpaidStatus._
 @import tags._
 @import util.LanguageHelper
@@ -29,143 +29,23 @@ implicit messages: play.api.i18n.Messages,
 pertaxContext: PertaxContext,
 configDecorator: ConfigDecorator)
 
-
-@underpaidUrlReasons = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons"}
-@overpaidUrlReasons  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons"}
-
-@underpaidUrl = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little"}
-@overpaidUrl  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much"}
-
-@makePaymentUrl = @{"https://www.gov.uk/simple-assessment"}
-
-@heading = @{
-  taxYearReconciliations.reconciliation match {
-
-    case Underpaid(_, _, PaidAll) =>
-      (
-        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, currentTaxYear.toString),
-        underpaidUrl
-      )
-    case status @ Underpaid(_, Some(_), PaymentDue) if status.hasDeadlinePassed =>
-      (
-        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
-        underpaidUrl
-      )
-    case Underpaid(_, _, PaymentDue) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
-        underpaidUrl
-      )
-    case status @ Underpaid(_, Some(dueDate), PartPaid) if status.hasDeadlinePassed =>
-      (
-        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
-        underpaidUrl
-      )
-    case Underpaid(_, _, PartPaid) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
-        underpaidUrl
-      )
-    case Overpaid(_, _) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString, currentTaxYear.toString),
-        overpaidUrl
-      )
-    case _ => ("", "")
-  }
-}
-
-@contentAndLinks = @{
-  taxYearReconciliations.reconciliation match {
-
-    case status @ Underpaid(Some(amount), Some(dueDate), PaymentDue) if status.isDeadlineApproaching =>
-      (Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case status @ Underpaid(Some(amount), Some(dueDate), PaymentDue) if status.hasDeadlinePassed =>
-      (Messages("label.you_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
-      ))
-
-    case Underpaid(Some(amount), Some(dueDate), PaymentDue) =>
-      (Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case Underpaid(Some(amount), _, PaymentDue) =>
-      (Messages("label.you_owe_hmrc", "%,.2f".format(amount)), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case status @ Underpaid(Some(amount), Some(dueDate), PartPaid) if status.isDeadlineApproaching =>
-      (Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case status @ Underpaid(Some(amount), Some(dueDate), PartPaid) if status.hasDeadlinePassed =>
-      (Messages("label.you_still_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
-      ))
-
-    case Underpaid(Some(amount), Some(dueDate), PartPaid) =>
-      (Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case Underpaid(Some(amount), _, PartPaid) =>
-      (Messages("label.you_owe_hmrc", "%,.2f".format(amount)), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case Underpaid(_, _, PaidAll) =>
-      (Messages("label.you_have_no_payments_to_make_to_hmrc"), List())
-
-    case Overpaid(Some(amount), Refund) =>
-      (Messages("label.hmrc_owes_you_a_refund", "%,.2f".format(amount)), List(
-      (Messages("label.claim_your_tax_refund"), s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/status", "Claim your tax refund"),
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case Overpaid(Some(amount), PaymentProcessing) =>
-      (Messages("label.hmrc_is_processing_your_refund", "%,.2f".format(amount)), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case Overpaid(Some(amount), PaymentPaid) =>
-      (Messages("label.hmrc_has_paid_your_refund", "%,.2f".format(amount)), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case Overpaid(Some(amount), ChequeSent) =>
-      (Messages("label.hmrc_sent_you_a_cheque_for", "%,.2f".format(amount)), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case _ => ("", List())
-  }
-}
-
-@card(
-  id = Some(s"taxcalc-$previousTaxYear-$currentTaxYear-card"),
-  url = Some(heading._2),
-  gaAction = Some("Income"),
-  gaLabel = Some(heading._1),
-  heading = heading._1,
-  headingTag = "h3",
-  bodyContent = Some(Html("<p>" + contentAndLinks._1 + "</p>"))
-) {
-  @if(!contentAndLinks._2.isEmpty){
-    <ul>
-    @contentAndLinks._2.map { case (label, url, trackingLabel) =>
+@TaxCalculationViewModel(taxYearReconciliations, previousTaxYear, currentTaxYear).map { viewModel =>
+  @card(
+    id = Some(s"taxcalc-$previousTaxYear-$currentTaxYear-card"),
+    url = Some(viewModel.heading.url),
+    gaAction = Some("Income"),
+    gaLabel = Some(viewModel.heading.label),
+    heading = viewModel.heading.label,
+    headingTag = "h3",
+    bodyContent = Some(Html(viewModel.content.map(content => s"<p>$content</p>").mkString))
+  ) {
+    @if(!viewModel.links.isEmpty) {
+      <ul>
+      @viewModel.links.map { case Link(label, url, trackingLabel) =>
       <li><a class="ga-track-anchor-click" href="@url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">@label</a></li>
+      }
+      </ul>
     }
-    </ul>
   }
 }
+

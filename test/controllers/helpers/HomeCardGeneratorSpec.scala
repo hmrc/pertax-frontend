@@ -37,7 +37,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     override def messagesApi: MessagesApi = injected[MessagesApi]
 
-    val c = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
+    val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
   }
 
 
@@ -54,7 +54,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       else
         None
 
-      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
+      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
     }
 
     "return nothing when called with no Pertax user" in new LocalSetup {
@@ -107,7 +107,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
     }
   }
 
-
   "Calling getTaxCalculationCard" should {
 
     trait LocalSetup extends SpecSetup {
@@ -118,7 +117,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       def taxYearRec: TaxYearReconciliations
 
-      lazy val cardBody = c.getTaxCalculationCard(Some(taxYearRec), 2015, 2016)
+      lazy val cardBody = serviceUnderTest.getTaxCalculationCard(Some(taxYearRec), 2015, 2016)
     }
 
     "return nothing when called with Underpaid PaymentsDown reconciliation status" in new LocalSetup {
@@ -127,16 +126,22 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe None
     }
 
-    "return nothing when called with Overpaid Unknown reconciliation status" in new LocalSetup {
-      val taxYearRec = TaxYearReconciliations(2015, Overpaid(None, OverpaidUnknown))
+    "return correct markup when called with Balanced status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015, Balanced)
 
-      cardBody shouldBe None
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
-    "return nothing when called with Underpaid Unknown reconciliation status" in new LocalSetup {
-      val taxYearRec = TaxYearReconciliations(2015, Underpaid(None, None, UnderpaidUnknown))
+    "return correct markup when called with Balanced No Employment status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015, BalancedNoEmployment)
 
-      cardBody shouldBe None
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
+    }
+
+    "return correct markup when called with Not Reconciled status" in new LocalSetup {
+      val taxYearRec = TaxYearReconciliations(2015, NotReconciled)
+
+      cardBody shouldBe Some(taxCalculation(taxYearRec, 2015, 2016))
     }
 
     "return correct markup when called with Overpaid Refund reconciliation status" in new LocalSetup {
@@ -256,7 +261,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
 
-      lazy val cardBody = c.getSelfAssessmentCard(saUserType, nextDeadlineTaxYear)
+      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, nextDeadlineTaxYear)
     }
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
@@ -301,7 +306,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getNationalInsuranceCard()
+      lazy val cardBody = serviceUnderTest.getNationalInsuranceCard()
     }
 
     "always return the same markup" in new LocalSetup {
@@ -316,7 +321,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     trait LocalSetup extends SpecSetup {
 
       def showTaxCreditsPaymentLink: Boolean
-      lazy val cardBody = c.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = serviceUnderTest.getTaxCreditsCard(showTaxCreditsPaymentLink)
     }
 
     "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in new LocalSetup {
@@ -335,7 +340,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getChildBenefitCard()
+      lazy val cardBody = serviceUnderTest.getChildBenefitCard()
     }
 
     "always return the same markup" in new LocalSetup {
@@ -353,7 +358,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       def taxComponents: Seq[String]
 
       lazy val tc = if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
-      lazy val cardBody = c.getMarriageAllowanceCard(tc)
+      lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
     }
 
 
@@ -393,7 +398,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getStatePensionCard()
+      lazy val cardBody = serviceUnderTest.getStatePensionCard()
     }
 
     "always return the same markup" in new LocalSetup {

@@ -68,8 +68,6 @@ class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
 
     taxYearReconciliations.map(_.reconciliation) match {
       case Some(Underpaid(_, _, PaymentsDown)) => None
-      case Some(Underpaid(_, _, UnderpaidUnknown)) => None
-      case Some(Overpaid(_, OverpaidUnknown)) => None
       case _ =>
         taxYearReconciliations.map {
           views.html.cards.home.taxCalculation(_, previousTaxYear, currentTaxYear)
