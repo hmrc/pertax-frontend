@@ -20,8 +20,8 @@ import models._
 import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
 import views.html.cards.home.taxCalculation
-import models.UnderpaidStatus._
-import models.OverpaidStatus._
+import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
+import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import util.LanguageHelper
 
 class TaxCalculationViewSpec extends ViewSpec {
@@ -40,11 +40,42 @@ class TaxCalculationViewSpec extends ViewSpec {
 
   val makePaymentUrl: String = "https://www.gov.uk/simple-assessment"
 
+  val rightAmountUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/right-amount"
+  val notEmployedUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/not-employed"
+  val notCalculatedUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/not-yet-calculated"
+
   val taxcalcUrl = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/status"
 
   "taxCalculation" should {
 
+    "not render any content" when {
+
+      "status is BalancedSA" in {
+        view(BalancedSa).text().trim shouldBe ""
+      }
+
+      "status is Underpaid Unknown" in {
+        view(Underpaid(None, None, UnderpaidUnknown)).text().trim shouldBe ""
+      }
+
+      "status is Overpaid Unknown" in {
+        view(Overpaid(None, OverpaidUnknown)).text().trim shouldBe ""
+      }
+    }
+
     "give the correct heading" when {
+
+      "status is Balanced" in {
+        assertContainsLink(view(Balanced), messages("label.tax_year_heading", "2017", "2018"), rightAmountUrl)
+      }
+
+      "status is Balanced No Employment" in {
+        assertContainsLink(view(BalancedNoEmployment), messages("label.tax_year_heading", "2017", "2018"), notEmployedUrl)
+      }
+
+      "status is Not Reconciled" in {
+        assertContainsLink(view(NotReconciled), messages("label.tax_year_heading", "2017", "2018"), notCalculatedUrl)
+      }
 
       "status is Underpaid PaidAll" in {
 
@@ -111,6 +142,21 @@ class TaxCalculationViewSpec extends ViewSpec {
     }
 
     "display the correct content" when {
+
+      "status is Balanced" in {
+        assertContainsText(view(Balanced), messages("label.you_paid_the_right_amount_of_tax"))
+        assertContainsText(view(Balanced), messages("label.nothing_more_to_pay"))
+      }
+
+      "status is Balanced No Employment" in {
+        assertContainsText(view(BalancedNoEmployment), messages("label.you_paid_the_right_amount_of_tax"))
+        assertContainsText(view(BalancedNoEmployment), messages("label.no_record_of_employment"))
+      }
+
+      "status is Not Reconciled" in {
+        assertContainsText(view(NotReconciled), messages("label.your_tax_has_not_been_calculated"))
+        assertContainsText(view(NotReconciled), messages("label.no_need_to_contact_hmrc"))
+      }
 
       "status is UnderpaidPaymentDue" in {
 
