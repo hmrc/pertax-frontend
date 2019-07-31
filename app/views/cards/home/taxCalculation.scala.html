@@ -22,16 +22,14 @@
 @import util.LanguageHelper
 
 @import config.ConfigDecorator
-@(taxYearReconciliations: TaxYearReconciliations,
-previousTaxYear: Int,
-currentTaxYear: Int)(
+@(taxYearReconciliations: TaxYearReconciliations)(
 implicit messages: play.api.i18n.Messages,
 pertaxContext: PertaxContext,
 configDecorator: ConfigDecorator)
 
-@TaxCalculationViewModel(taxYearReconciliations, previousTaxYear, currentTaxYear).map { viewModel =>
+@TaxCalculationViewModel(taxYearReconciliations).map { viewModel =>
   @card(
-    id = Some(s"taxcalc-$previousTaxYear-$currentTaxYear-card"),
+    id = Some(s"taxcalc-${taxYearReconciliations.taxYear}-${taxYearReconciliations.taxYear + 1}-card"),
     url = Some(viewModel.heading.url),
     gaAction = Some("Income"),
     gaLabel = Some(viewModel.heading.label),

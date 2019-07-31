@@ -35,8 +35,8 @@ class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
                      saActionNeeded: SelfAssessmentUserType,
                      currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxComponentsState),
-    getTaxCalculationCard(taxCalculationStateCyMinusOne, currentTaxYear-1, currentTaxYear),
-    getTaxCalculationCard(taxCalculationStateCyMinusTwo, currentTaxYear-2, currentTaxYear-1),
+    getTaxCalculationCard(taxCalculationStateCyMinusOne),
+    getTaxCalculationCard(taxCalculationStateCyMinusTwo),
     getSelfAssessmentCard(saActionNeeded, currentTaxYear+1),
     getNationalInsuranceCard()
   ).flatten
@@ -62,15 +62,13 @@ class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
     }
   }
 
-  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliations],
-                            previousTaxYear: Int,
-                            currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
+  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliations])(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
 
     taxYearReconciliations.map(_.reconciliation) match {
       case Some(Underpaid(_, _, PaymentsDown)) => None
       case _ =>
         taxYearReconciliations.map {
-          views.html.cards.home.taxCalculation(_, previousTaxYear, currentTaxYear)
+          views.html.cards.home.taxCalculation(_)
         }
     }
   }

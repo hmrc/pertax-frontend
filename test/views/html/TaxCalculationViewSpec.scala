@@ -27,7 +27,7 @@ import util.LanguageHelper
 class TaxCalculationViewSpec extends ViewSpec {
 
   def view(reconciliation: Reconciliation): Document = asDocument(
-    taxCalculation(TaxYearReconciliations(2017, reconciliation), 2017, 2018)(messages, pertaxContext, config).toString
+    taxCalculation(TaxYearReconciliations(2017, reconciliation))(messages, pertaxContext, config).toString
   )
 
   def formatDate(date: LocalDate) = LanguageHelper.langUtils.Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
