@@ -18,8 +18,6 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
-import models.UnderpaidStatus.{PaymentsDown, Unknown => UnderpaidUnknown}
-import models.OverpaidStatus.{Unknown => OverpaidUnknown}
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
 import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxCalculationViewModel, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliations, Underpaid}
