@@ -23,21 +23,29 @@ import models.UnderpaidStatus._
 import util.LanguageHelper
 
 case class TaxCalculationViewModel(
-                                  heading: Heading,
-                                  content: List[String],
-                                  links: List[Link]
+                                    heading: Heading,
+                                    content: List[String],
+                                    links: List[Link]
                                   )
 
 object TaxCalculationViewModel {
+
   def apply(reconciliationModel: TaxYearReconciliations)(implicit configDecorator: ConfigDecorator, messages: Messages): Option[TaxCalculationViewModel] = {
 
     val previousTaxYear = reconciliationModel.taxYear
     val currentTaxYear = reconciliationModel.taxYear + 1
 
-    def overpaidHeading = Heading(
-      Messages("label.you_paid_too_much_tax", previousTaxYear.toString, currentTaxYear.toString),
-      configDecorator.overpaidUrl(previousTaxYear)
-    )
+    def overpaid(contentKey: String, amount: Double, links: Link*)=
+      TaxCalculationViewModel(
+        Heading(
+          Messages("label.you_paid_too_much_tax", previousTaxYear.toString, currentTaxYear.toString),
+          configDecorator.overpaidUrl(previousTaxYear)
+        ),
+        List(Messages(contentKey, "%,.2f".format(amount))),
+        links.toList :+
+          Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
+
+      )
 
     reconciliationModel.reconciliation match {
 
@@ -154,8 +162,7 @@ object TaxCalculationViewModel {
             configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(
-            Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")),
-            configDecorator.underpaidUrl(previousTaxYear)
+            Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy"))
           ),
           List(
             Link(Messages("label.make_a_payment"), configDecorator.makePaymentUrl, "Make a payment"),
@@ -181,41 +188,20 @@ object TaxCalculationViewModel {
       case Overpaid(_, OverpaidUnknown) => None
 
       case Overpaid(Some(amount), Refund) =>
-        Some(TaxCalculationViewModel(
-          overpaidHeading,
-          List(Messages("label.hmrc_owes_you_a_refund", "%,.2f".format(amount))),
-          List(
-            Link(Messages("label.claim_your_tax_refund"), s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/status", "Claim your tax refund"),
-            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
-          )
+        Some(overpaid(
+          "label.hmrc_owes_you_a_refund",
+          amount,
+          Link(Messages("label.claim_your_tax_refund"), s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/status", "Claim your tax refund")
         ))
 
       case Overpaid(Some(amount), PaymentProcessing) =>
-        Some(TaxCalculationViewModel(
-          overpaidHeading,
-          List(Messages("label.hmrc_is_processing_your_refund", "%,.2f".format(amount))),
-          List(
-            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
-          )
-        ))
+        Some(overpaid("label.hmrc_is_processing_your_refund", amount))
 
       case Overpaid(Some(amount), PaymentPaid) =>
-        Some(TaxCalculationViewModel(
-          overpaidHeading,
-          List(Messages("label.hmrc_has_paid_your_refund", "%,.2f".format(amount))),
-          List(
-            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
-          )
-        ))
+        Some(overpaid("label.hmrc_has_paid_your_refund", amount))
 
       case Overpaid(Some(amount), ChequeSent) =>
-        Some(TaxCalculationViewModel(
-          overpaidHeading,
-          List(Messages("label.hmrc_sent_you_a_cheque_for", "%,.2f".format(amount))),
-          List(
-            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
-          )
-        ))
+        Some(overpaid("label.hmrc_sent_you_a_cheque_for", amount))
 
       case _ => None
     }
