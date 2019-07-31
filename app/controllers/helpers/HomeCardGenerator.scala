@@ -22,7 +22,7 @@ import models.UnderpaidStatus.{PaymentsDown, Unknown => UnderpaidUnknown}
 import models.OverpaidStatus.{Unknown => OverpaidUnknown}
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
-import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliations, Underpaid}
+import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxCalculationViewModel, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliations, Underpaid}
 import util.DateTimeTools.previousAndCurrentTaxYear
 
 @Singleton
@@ -62,16 +62,8 @@ class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
     }
   }
 
-  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliations])(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
-
-    taxYearReconciliations.map(_.reconciliation) match {
-      case Some(Underpaid(_, _, PaymentsDown)) => None
-      case _ =>
-        taxYearReconciliations.map {
-          views.html.cards.home.taxCalculation(_)
-        }
-    }
-  }
+  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliations])(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] =
+    taxYearReconciliations.flatMap(TaxCalculationViewModel.fromTaxYearReconciliations).map(views.html.cards.home.taxCalculation(_))
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType,
                             nextDeadlineTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {

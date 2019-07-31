@@ -23,6 +23,7 @@ import models.UnderpaidStatus._
 import util.LanguageHelper
 
 case class TaxCalculationViewModel(
+                                    taxYears: TaxYears,
                                     heading: Heading,
                                     content: List[String],
                                     links: List[Link]
@@ -30,13 +31,15 @@ case class TaxCalculationViewModel(
 
 object TaxCalculationViewModel {
 
-  def apply(reconciliationModel: TaxYearReconciliations)(implicit configDecorator: ConfigDecorator, messages: Messages): Option[TaxCalculationViewModel] = {
+  def fromTaxYearReconciliations(reconciliationModel: TaxYearReconciliations)(implicit configDecorator: ConfigDecorator, messages: Messages): Option[TaxCalculationViewModel] = {
 
     val previousTaxYear = reconciliationModel.taxYear
     val currentTaxYear = reconciliationModel.taxYear + 1
+    val taxYears = TaxYears(previousTaxYear, currentTaxYear)
 
     def overpaid(contentKey: String, amount: Double, links: Link*)=
       TaxCalculationViewModel(
+        taxYears,
         Heading(
           Messages("label.you_paid_too_much_tax", previousTaxYear.toString, currentTaxYear.toString),
           configDecorator.overpaidUrl(previousTaxYear)
@@ -51,6 +54,7 @@ object TaxCalculationViewModel {
 
       case Balanced =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.rightAmountUrl(previousTaxYear)
@@ -64,6 +68,7 @@ object TaxCalculationViewModel {
 
       case BalancedNoEmployment =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.notEmployedUrl(previousTaxYear)
@@ -77,6 +82,7 @@ object TaxCalculationViewModel {
 
       case NotReconciled =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.notCalculatedUrl(previousTaxYear)
@@ -90,6 +96,7 @@ object TaxCalculationViewModel {
 
       case Underpaid(_, _, PaidAll) =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.underpaidUrl(previousTaxYear)
@@ -100,6 +107,7 @@ object TaxCalculationViewModel {
 
       case status @ Underpaid(Some(amount), Some(dueDate), PaymentDue) if status.hasDeadlinePassed =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.underpaidUrl(previousTaxYear)
@@ -114,6 +122,7 @@ object TaxCalculationViewModel {
 
       case Underpaid(Some(amount), Some(dueDate), PaymentDue) =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.underpaidUrl(previousTaxYear)
@@ -129,6 +138,7 @@ object TaxCalculationViewModel {
 
       case status @ Underpaid(Some(amount), Some(dueDate), PartPaid) if status.isDeadlineApproaching =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")
             ),
@@ -143,6 +153,7 @@ object TaxCalculationViewModel {
 
       case status @ Underpaid(Some(amount), Some(dueDate), PartPaid) if status.hasDeadlinePassed =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.underpaidUrl(previousTaxYear)
@@ -157,6 +168,7 @@ object TaxCalculationViewModel {
 
       case Underpaid(Some(amount), Some(dueDate), PartPaid) =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.underpaidUrl(previousTaxYear)
@@ -172,6 +184,7 @@ object TaxCalculationViewModel {
 
       case Underpaid(Some(amount), _, PartPaid | PaymentDue) =>
         Some(TaxCalculationViewModel(
+          taxYears,
           Heading(
             Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
             configDecorator.underpaidUrl(previousTaxYear)
@@ -211,3 +224,5 @@ object TaxCalculationViewModel {
 case class Heading(label: String, url: String)
 
 case class Link(message: String, url: String, gaLabel: String)
+
+case class TaxYears(previousTaxYear: Int, currentTaxYear: Int)
