@@ -15,28 +15,26 @@
  *@
 
 @import uk.gov.hmrc.play.language.LanguageUtils
-@import models.SaDeadlineStatusCalculator._
 @import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 @import models.UnderpaidStatus._
 @import tags._
 @import util.LanguageHelper
 
 @import config.ConfigDecorator
-@(taxYearReconciliations: TaxYearReconciliations)(
+@(viewModel: TaxCalculationViewModel)(
 implicit messages: play.api.i18n.Messages,
 pertaxContext: PertaxContext,
 configDecorator: ConfigDecorator)
 
-@TaxCalculationViewModel(taxYearReconciliations).map { viewModel =>
-  @card(
-    id = Some(s"taxcalc-${taxYearReconciliations.taxYear}-${taxYearReconciliations.taxYear + 1}-card"),
+@card(
+    id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),
     url = Some(viewModel.heading.url),
     gaAction = Some("Income"),
     gaLabel = Some(viewModel.heading.label),
     heading = viewModel.heading.label,
     headingTag = "h3",
     bodyContent = Some(Html(viewModel.content.map(content => s"<p>$content</p>").mkString))
-  ) {
+) {
     @if(!viewModel.links.isEmpty) {
       <ul>
       @viewModel.links.map { case Link(label, url, trackingLabel) =>
@@ -44,6 +42,5 @@ configDecorator: ConfigDecorator)
       }
       </ul>
     }
-  }
 }
 
