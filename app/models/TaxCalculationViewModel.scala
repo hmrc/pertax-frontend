@@ -29,23 +29,14 @@ case class TaxCalculationViewModel(
                                   )
 
 object TaxCalculationViewModel {
-  def apply(reconciliationModel: TaxYearReconciliations, previousTaxYear: Int, currentTaxYear: Int)(implicit configDecorator: ConfigDecorator, messages: Messages): Option[TaxCalculationViewModel] = {
+  def apply(reconciliationModel: TaxYearReconciliations)(implicit configDecorator: ConfigDecorator, messages: Messages): Option[TaxCalculationViewModel] = {
 
-    val underpaidUrlReasons = s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons"
-    val overpaidUrlReasons = s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons"
-
-    val underpaidUrl = s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little"
-    val overpaidUrl = s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much"
-
-    val rightAmountUrl = s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/right-amount"
-    val notEmployedUrl = s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/not-employed"
-    val notCalculatedUrl = s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/not-yet-calculated"
-
-    val makePaymentUrl = "https://www.gov.uk/simple-assessment"
+    val previousTaxYear = reconciliationModel.taxYear
+    val currentTaxYear = reconciliationModel.taxYear + 1
 
     def overpaidHeading = Heading(
       Messages("label.you_paid_too_much_tax", previousTaxYear.toString, currentTaxYear.toString),
-      overpaidUrl
+      configDecorator.overpaidUrl(previousTaxYear)
     )
 
     reconciliationModel.reconciliation match {
@@ -54,7 +45,7 @@ object TaxCalculationViewModel {
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
-            rightAmountUrl
+            configDecorator.rightAmountUrl(previousTaxYear)
           ),
           List(
             Messages("label.you_paid_the_right_amount_of_tax"),
@@ -63,12 +54,11 @@ object TaxCalculationViewModel {
           Nil
         ))
 
-
       case BalancedNoEmployment =>
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
-            notEmployedUrl
+            configDecorator.notEmployedUrl(previousTaxYear)
           ),
           List(
             Messages("label.you_paid_the_right_amount_of_tax"),
@@ -81,7 +71,7 @@ object TaxCalculationViewModel {
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
-            notCalculatedUrl
+            configDecorator.notCalculatedUrl(previousTaxYear)
           ),
           List(
             Messages("label.your_tax_has_not_been_calculated"),
@@ -94,38 +84,23 @@ object TaxCalculationViewModel {
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
+            configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(Messages("label.you_have_no_payments_to_make_to_hmrc")),
           Nil
-        ))
-
-      case status @ Underpaid(Some(amount), Some(dueDate), PaymentDue) if status.isDeadlineApproaching =>
-        Some(TaxCalculationViewModel(
-          Heading(
-            Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
-          ),
-          List(
-            Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy"))
-          ),
-          List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            Link(Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-          )
         ))
 
       case status @ Underpaid(Some(amount), Some(dueDate), PaymentDue) if status.hasDeadlinePassed =>
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
+            configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(
             Messages("label.you_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")
             )),
           List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
+            Link(Messages("label.make_a_payment"), configDecorator.makePaymentUrl, "You missed the deadline to pay your tax")
           )
         ))
 
@@ -133,29 +108,14 @@ object TaxCalculationViewModel {
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
+            configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(
             Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy"))
           ),
           List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            Link(Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-          )
-        ))
-
-      case Underpaid(Some(amount), _, PaymentDue) =>
-        Some(TaxCalculationViewModel(
-          Heading(
-            Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
-          ),
-          List(
-            Messages("label.you_owe_hmrc", "%,.2f".format(amount))
-          ),
-          List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            Link(Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
+            Link(Messages("label.make_a_payment"), configDecorator.makePaymentUrl, "Make a payment"),
+            Link(Messages("label.find_out_why_you_paid_too_little"), configDecorator.underpaidUrlReasons(previousTaxYear), "Find out why you paid too little")
           )
         ))
 
@@ -165,11 +125,11 @@ object TaxCalculationViewModel {
             Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")
             ),
             ""
-          ), 
+          ),
           Nil,
           List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            Link(Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
+            Link(Messages("label.make_a_payment"), configDecorator.makePaymentUrl, "Make a payment"),
+            Link(Messages("label.find_out_why_you_paid_too_little"), configDecorator.underpaidUrlReasons(previousTaxYear), "Find out why you paid too little")
           )
         ))
 
@@ -177,13 +137,13 @@ object TaxCalculationViewModel {
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
+            configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(
             Messages("label.you_still_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy"))
           ),
           List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
+            Link(Messages("label.make_a_payment"), configDecorator.makePaymentUrl, "You missed the deadline to pay your tax")
           )
         ))
 
@@ -191,33 +151,32 @@ object TaxCalculationViewModel {
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
+            configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(
             Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")),
-            underpaidUrl
+            configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            Link(Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
+            Link(Messages("label.make_a_payment"), configDecorator.makePaymentUrl, "Make a payment"),
+            Link(Messages("label.find_out_why_you_paid_too_little"), configDecorator.underpaidUrlReasons(previousTaxYear), "Find out why you paid too little")
           )
         ))
 
-      case Underpaid(Some(amount), _, PartPaid) =>
+      case Underpaid(Some(amount), _, PartPaid | PaymentDue) =>
         Some(TaxCalculationViewModel(
           Heading(
             Messages("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
-            underpaidUrl
+            configDecorator.underpaidUrl(previousTaxYear)
           ),
           List(
             Messages("label.you_owe_hmrc", "%,.2f".format(amount))
           ),
           List(
-            Link(Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            Link(Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
+            Link(Messages("label.make_a_payment"), configDecorator.makePaymentUrl, "Make a payment"),
+            Link(Messages("label.find_out_why_you_paid_too_little"), configDecorator.underpaidUrlReasons(previousTaxYear), "Find out why you paid too little")
           )
         ))
-
 
       case Overpaid(_, OverpaidUnknown) => None
 
@@ -227,7 +186,7 @@ object TaxCalculationViewModel {
           List(Messages("label.hmrc_owes_you_a_refund", "%,.2f".format(amount))),
           List(
             Link(Messages("label.claim_your_tax_refund"), s"${configDecorator.taxCalcFrontendHost}/tax-you-paid/status", "Claim your tax refund"),
-            Link(Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
+            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
           )
         ))
 
@@ -236,7 +195,7 @@ object TaxCalculationViewModel {
           overpaidHeading,
           List(Messages("label.hmrc_is_processing_your_refund", "%,.2f".format(amount))),
           List(
-            Link(Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
+            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
           )
         ))
 
@@ -245,7 +204,7 @@ object TaxCalculationViewModel {
           overpaidHeading,
           List(Messages("label.hmrc_has_paid_your_refund", "%,.2f".format(amount))),
           List(
-            Link(Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
+            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
           )
         ))
 
@@ -254,7 +213,7 @@ object TaxCalculationViewModel {
           overpaidHeading,
           List(Messages("label.hmrc_sent_you_a_cheque_for", "%,.2f".format(amount))),
           List(
-            Link(Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
+            Link(Messages("label.find_out_why_you_paid_too_much"), configDecorator.overpaidUrlReasons(previousTaxYear), "Find out why you paid too much")
           )
         ))
 
