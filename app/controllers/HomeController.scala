@@ -53,7 +53,7 @@ class HomeController @Inject()(
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) {
     implicit pertaxContext =>
 
-      def getTaxCalculationState(nino: Nino, year: Int, includeOverPaidPayments: Boolean): Future[Option[TaxYearReconciliations]] = {
+      def getTaxCalculationState(nino: Nino, year: Int, includeOverPaidPayments: Boolean): Future[Option[TaxYearReconciliation]] = {
         if (configDecorator.taxcalcEnabled) {
           taxCalculationService.getTaxYearReconciliations(nino, year, year) map(_.headOption)
         } else {
@@ -65,7 +65,7 @@ class HomeController @Inject()(
 
       val userAndNino = for (u <- pertaxContext.user; n <- u.nino) yield (u, n)
 
-      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState, Option[TaxYearReconciliations], Option[TaxYearReconciliations])]](
+      val serviceCallResponses = userAndNino.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
         Future.successful((TaxComponentsDisabledState, None, None))) { userAndNino =>
 
         val (user, nino) = userAndNino

@@ -149,19 +149,3 @@ object PertaxUser {
   def ifNameAvailable[T](block: => T)(implicit pertaxContext: PertaxContext)                     = ifUserPredicate(_.name.isDefined)(u => block)
   def unlessNameAvailable[T](block: => T)(implicit pertaxContext: PertaxContext)                 = ifUserPredicate(_.name.isEmpty)(u => block)
 }
-
-trait TaxcalcUrls {
-  self: ConfigDecorator =>
-
-  def underpaidUrlReasons(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little/reasons"
-  def overpaidUrlReasons(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much/reasons"
-
-  def underpaidUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little"
-  def overpaidUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much"
-
-  def rightAmountUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/right-amount"
-  def notEmployedUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-employed"
-  def notCalculatedUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-yet-calculated"
-
-  val makePaymentUrl = "https://www.gov.uk/simple-assessment"
-}

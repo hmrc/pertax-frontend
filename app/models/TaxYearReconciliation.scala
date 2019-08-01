@@ -21,11 +21,11 @@ import org.joda.time.LocalDate
 import play.api.libs.json._
 import models.SaDeadlineStatusCalculator._
 
-case class TaxYearReconciliations(taxYear: Int, reconciliation: Reconciliation)
+case class TaxYearReconciliation(taxYear: Int, reconciliation: Reconciliation)
 
-object TaxYearReconciliations {
+object TaxYearReconciliation {
 
-  implicit val httpReads: Reads[TaxYearReconciliations] = Json.reads[TaxYearReconciliations]
+  implicit val httpReads: Reads[TaxYearReconciliation] = Json.reads[TaxYearReconciliation]
 }
 
 sealed trait Reconciliation

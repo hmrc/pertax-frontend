@@ -20,7 +20,6 @@ import java.net.{URL, URLEncoder}
 
 import controllers.routes
 import javax.inject.{Inject, Singleton}
-import models.TaxcalcUrls
 import org.joda.time.LocalDate
 import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
@@ -201,4 +200,23 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String = {
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
   }
+}
+
+
+trait TaxcalcUrls {
+  self: ConfigDecorator =>
+
+  def underpaidUrlReasons(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little/reasons"
+  def overpaidUrlReasons(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much/reasons"
+
+  def underpaidUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little"
+  def overpaidUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much"
+
+  def rightAmountUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/right-amount"
+  def notEmployedUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-employed"
+  def notCalculatedUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-yet-calculated"
+
+  lazy val taxPaidUrl = s"${self.taxCalcFrontendHost}/tax-you-paid/status"
+
+  val makePaymentUrl = "https://www.gov.uk/simple-assessment"
 }

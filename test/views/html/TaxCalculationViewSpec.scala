@@ -22,15 +22,15 @@ import org.jsoup.nodes.Document
 import views.html.cards.home.taxCalculation
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
-import org.scalatest.OptionValues
 import util.{BetterOptionValues, LanguageHelper}
+import viewmodels.TaxCalculationViewModel
 
 class TaxCalculationViewSpec extends ViewSpec {
 
   import BetterOptionValues._
 
   def view(reconciliation: Reconciliation): Option[Document] =
-    TaxCalculationViewModel.fromTaxYearReconciliations(TaxYearReconciliations(2017, reconciliation))(config, messages).map { taxRec =>
+    TaxCalculationViewModel.fromTaxYearReconciliation(TaxYearReconciliation(2017, reconciliation))(config).map { taxRec =>
       asDocument(taxCalculation(taxRec)(messages, pertaxContext, config).toString)
     }
 
