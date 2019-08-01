@@ -16,31 +16,34 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.PertaxAuthenticationProvider
+import javax.inject.{Inject, Singleton}
 import metrics._
-import play.api.{Configuration, Environment, Logger}
-import services.http.SimpleHttp
 import models.addresslookup.RecordSet
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment, Logger}
+import services.http.SimpleHttp
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
+import util._
 
 import scala.concurrent.Future
-import util._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 sealed trait AddressLookupResponse
-case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse
-case class AddressLookupUnexpectedResponse(r: HttpResponse) extends AddressLookupResponse
-case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
-
+final case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse
+final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends AddressLookupResponse
+final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
 
 @Singleton
-class AddressLookupService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics, val pertaxAuthenticationProvider: PertaxAuthenticationProvider, val tools: Tools) extends ServicesConfig with HasMetrics {
+class AddressLookupService @Inject()(environment: Environment,
+                                     configuration: Configuration,
+                                     val simpleHttp: SimpleHttp,
+                                     val metrics: Metrics,
+                                     val pertaxAuthenticationProvider: PertaxAuthenticationProvider,
+                                     val tools: Tools) extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val addressLookupUrl = baseUrl("address-lookup")
 
