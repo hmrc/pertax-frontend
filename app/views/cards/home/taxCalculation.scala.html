@@ -15,12 +15,13 @@
  *@
 
 @import uk.gov.hmrc.play.language.LanguageUtils
-@import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
-@import models.UnderpaidStatus._
 @import tags._
 @import util.LanguageHelper
+@import views.util.ViewUtils._
 
 @import config.ConfigDecorator
+@import viewmodels.Link
+@import viewmodels.TaxCalculationViewModel
 @(viewModel: TaxCalculationViewModel)(
 implicit messages: play.api.i18n.Messages,
 pertaxContext: PertaxContext,
@@ -28,17 +29,21 @@ configDecorator: ConfigDecorator)
 
 @card(
     id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),
-    url = Some(viewModel.heading.url),
+    url = Some(fromUrl(viewModel.heading.url)),
     gaAction = Some("Income"),
-    gaLabel = Some(viewModel.heading.label),
-    heading = viewModel.heading.label,
+    gaLabel = Some(fromMessage(viewModel.heading.label)),
+    heading = fromMessage(viewModel.heading.label),
     headingTag = "h3",
-    bodyContent = Some(Html(viewModel.content.map(content => s"<p>$content</p>").mkString))
+    bodyContent = Some(Html(viewModel.content.map(content => s"<p>${fromMessage(content)}</p>").mkString))
 ) {
-    @if(!viewModel.links.isEmpty) {
+    @if(viewModel.links.nonEmpty) {
       <ul>
       @viewModel.links.map { case Link(label, url, trackingLabel) =>
-      <li><a class="ga-track-anchor-click" href="@url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">@label</a></li>
+      <li>
+          <a class="ga-track-anchor-click" href="@fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
+            @fromMessage(label)
+        </a>
+      </li>
       }
       </ul>
     }

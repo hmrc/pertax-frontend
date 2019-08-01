@@ -22,7 +22,7 @@ import org.joda.time.LocalDate
 import play.api.libs.json.{JsError, JsString, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 
-class TaxYearReconciliationsSpec extends UnitSpec {
+class TaxYearReconciliationSpec extends UnitSpec {
 
   "TaxYearReconciliations" should {
 

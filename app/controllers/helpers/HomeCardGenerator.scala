@@ -20,16 +20,17 @@ import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
-import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxCalculationViewModel, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliations, Underpaid}
+import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliation, Underpaid}
 import util.DateTimeTools.previousAndCurrentTaxYear
+import viewmodels.TaxCalculationViewModel
 
 @Singleton
 class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(pertaxUser: Option[PertaxUser],
                      taxComponentsState: TaxComponentsState,
-                     taxCalculationStateCyMinusOne: Option[TaxYearReconciliations],
-                     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliations],
+                     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
+                     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
                      saActionNeeded: SelfAssessmentUserType,
                      currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
     getPayAsYouEarnCard(pertaxUser, taxComponentsState),
@@ -60,8 +61,8 @@ class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
     }
   }
 
-  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliations])(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] =
-    taxYearReconciliations.flatMap(TaxCalculationViewModel.fromTaxYearReconciliations).map(views.html.cards.home.taxCalculation(_))
+  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliation])(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] =
+    taxYearReconciliations.flatMap(TaxCalculationViewModel.fromTaxYearReconciliation).map(views.html.cards.home.taxCalculation(_))
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType,
                             nextDeadlineTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
