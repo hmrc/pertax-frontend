@@ -57,11 +57,11 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
     }
   }
 
-  def toMessageKey(addressChanged: AddressChanged): String = {
+  def toMessageKey(addressChanged: AddressChanged): Option[String] = {
     addressChanged match {
-      case MovedFromScotland => "label.moved_from_scotland"
-      case MovedToScotland => "label.moved_to_scotland"
-      case AnyOtherMove => ""
+      case MovedFromScotland => Some("label.moved_from_scotland")
+      case MovedToScotland => Some("label.moved_to_scotland")
+      case AnyOtherMove => None
     }
   }
 
