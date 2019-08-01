@@ -664,13 +664,7 @@ class AddressController @Inject()(
                     handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
                     clearCache()
 
-                    val subheading = addressChanged match {
-                      case MovedFromScotland => "label.moved_from_scotland"
-                      case MovedToScotland => "label.moved_to_scotland"
-                      case AnyOtherMove => ""
-                    }
-
-                    Ok(views.html.personaldetails.updateAddressConfirmation(typ, false, None, subheading))
+                    Ok(views.html.personaldetails.updateAddressConfirmation(typ, false, None, addressMovedService.toMessageKey(addressChanged)))
                   }
 
                   updateAddress(journeyData, addressType, payeAccount, personDetails, address, successResponseBlock)

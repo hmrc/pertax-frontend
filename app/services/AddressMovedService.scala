@@ -23,11 +23,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 sealed trait AddressChanged
-
 object MovedToScotland extends AddressChanged
-
 object MovedFromScotland extends AddressChanged
-
 object AnyOtherMove extends AddressChanged
 
 class AddressMovedService @Inject()(addressLookupService: AddressLookupService) {
@@ -57,6 +54,14 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
         case _ =>
           AnyOtherMove
       }
+    }
+  }
+
+  def toMessageKey(addressChanged: AddressChanged): String = {
+    addressChanged match {
+      case MovedFromScotland => "label.moved_from_scotland"
+      case MovedToScotland => "label.moved_to_scotland"
+      case AnyOtherMove => ""
     }
   }
 
