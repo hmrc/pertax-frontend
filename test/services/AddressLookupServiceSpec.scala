@@ -33,11 +33,15 @@ import util.Fixtures._
 import util.{BaseSpec, Fixtures, Tools}
 import uk.gov.hmrc.http.HttpResponse
 
+import scala.io.Source
+
 class AddressLookupServiceSpec extends BaseSpec {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
     def simulateAddressLookupServiceIsDown: Boolean
+
+    val oneAndTwoOtherPlacePafRecordSetJson = Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
 
     val expectedRecordSet = oneAndTwoOtherPlacePafRecordSet
     val expectedRecordSetJson = Json.parse(oneAndTwoOtherPlacePafRecordSetJson)
