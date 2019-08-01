@@ -56,27 +56,24 @@ trait PafFixtures {
   val exampleCountryUK = Country("UK","United Kingdom")
   val subDivision = "GB-ENG"
 
-  def fakeStreetPafAddressRecord = AddressRecord("GB101", PafAddress(Seq("1 Fake Street","Fake Town","Fake City"),Some("Fake Region"), None, "AA1 1AA", exampleCountryUK, subDivision), "en")
+  val fakeStreetPafAddressRecord = AddressRecord("GB101", PafAddress(Seq("1 Fake Street","Fake Town","Fake City"),Some("Fake Region"), None, "AA1 1AA", exampleCountryUK, subDivision), "en")
 
   val oneOtherPlacePafAddress = PafAddress(Seq("2 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK, subDivision)
-  val twoOtherPlacePafAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK, subDivision)
+  val twoOtherPlacePafAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK, "GB-SCT")
   val otherPlacePafDifferentPostcodeAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 2AA",exampleCountryUK, subDivision)
 
   val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514",oneOtherPlacePafAddress,"en")
   val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515",twoOtherPlacePafAddress,"en")
   val otherPlacePafDifferentPostcodeAddressRecord = AddressRecord("GB990091234516",otherPlacePafDifferentPostcodeAddress,"en")
 
-  def oneAndTwoOtherPlacePafRecordSet = RecordSet(List(
+  val oneAndTwoOtherPlacePafRecordSet = RecordSet(List(
     oneOtherPlacePafAddressRecord,
     twoOtherPlacePafAddressRecord
   ))
 
-  def newPostcodePlacePafRecordSet = RecordSet(List(
+  val newPostcodePlacePafRecordSet = RecordSet(List(
     otherPlacePafDifferentPostcodeAddressRecord
   ))
-
-
-  def oneAndTwoOtherPlacePafRecordSetJson = Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
 }
 
 trait TaiFixtures {
