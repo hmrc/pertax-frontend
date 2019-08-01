@@ -37,10 +37,6 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
       fromResponse <- addressLookupService.lookup(fromAddressId)
       toResponse <- addressLookupService.lookup(toAddressId)
     } yield {
-      println("-" * 100)
-      println(fromResponse)
-      println("*" * 100)
-      println(toResponse)
       (fromResponse, toResponse) match {
         case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
           val fromSub = fromRecordSet.addresses.headOption.map(_.address.subdivision)
