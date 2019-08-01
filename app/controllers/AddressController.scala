@@ -567,7 +567,7 @@ class AddressController @Inject()(
             addressChanged <- addressMovedService.moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
           } yield
             if (inserted) {
-                Ok(views.html.personaldetails.updateAddressConfirmation(PostalAddrType, true, Some(getAddress(personDetails.address).fullAddress), ""))
+                Ok(views.html.personaldetails.updateAddressConfirmation(PostalAddrType, true, Some(getAddress(personDetails.address).fullAddress), None))
             }
             else {
               internalServerError
