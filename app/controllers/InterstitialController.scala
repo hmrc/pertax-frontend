@@ -34,8 +34,7 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-
-class InterstitialController @Inject() (
+class InterstitialController @Inject()(
   val messagesApi: MessagesApi,
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
@@ -51,59 +50,63 @@ class InterstitialController @Inject() (
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::
-    baseBreadcrumb
+      baseBreadcrumb
 
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  def displayNationalInsurance: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      showingWarningIfWelsh { implicit pertaxContext =>
-        formPartialService.getNationalInsurancePartial.map { p =>
-          Ok(views.html.interstitial.viewNationalInsuranceInterstitialHome(formPartial = p successfulContentOrElse Html(""), redirectUrl = currentUrl))
-        }
+  def displayNationalInsurance: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    showingWarningIfWelsh { implicit pertaxContext =>
+      formPartialService.getNationalInsurancePartial.map { p =>
+        Ok(
+          views.html.interstitial.viewNationalInsuranceInterstitialHome(
+            formPartial = p successfulContentOrElse Html(""),
+            redirectUrl = currentUrl))
       }
+    }
   }
 
-  def displayChildBenefits: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      Future.successful(Ok(views.html.interstitial.viewChildBenefitsSummaryInterstitial(
-        redirectUrl = currentUrl,
-        taxCreditsEnabled = configDecorator.taxCreditsEnabled))
-      )
+  def displayChildBenefits: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    Future.successful(
+      Ok(
+        views.html.interstitial.viewChildBenefitsSummaryInterstitial(
+          redirectUrl = currentUrl,
+          taxCreditsEnabled = configDecorator.taxCreditsEnabled)))
   }
 
-  def displaySelfAssessment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      showingWarningIfWelsh { implicit pertaxContext =>
-        val formPartial = formPartialService.getSelfAssessmentPartial recoverWith {
-          case e => Future.successful(HtmlPartial.Failure(None, ""))
-        }
-        val saPartial = saPartialService.getSaAccountSummary recoverWith {
-          case e => Future.successful(HtmlPartial.Failure(None, ""))
-        }
+  def displaySelfAssessment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    showingWarningIfWelsh { implicit pertaxContext =>
+      val formPartial = formPartialService.getSelfAssessmentPartial recoverWith {
+        case e => Future.successful(HtmlPartial.Failure(None, ""))
+      }
+      val saPartial = saPartialService.getSaAccountSummary recoverWith {
+        case e => Future.successful(HtmlPartial.Failure(None, ""))
+      }
 
-        enforceGovernmentGatewayUser {
-          enforceSaUser {
-            for {
-              formPartial <- formPartial
-              saPartial <- saPartial
-            } yield {
-              Ok(views.html.selfAssessmentSummary(
+      enforceGovernmentGatewayUser {
+        enforceSaUser {
+          for {
+            formPartial <- formPartial
+            saPartial   <- saPartial
+          } yield {
+            Ok(
+              views.html.selfAssessmentSummary(
                 formPartial successfulContentOrElse Html(""),
                 saPartial successfulContentOrElse Html("")
               ))
-            }
           }
         }
       }
+    }
   }
 
   def displaySa302Interrupt(year: Int): Action[AnyContent] = VerifiedAction(saBreadcrumb) {
     import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
     implicit pertaxContext =>
       enforceSaAccount { saAccount =>
-        Future.successful(Ok(views.html.selfassessment.sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saAccount.utr)))
+        Future.successful(
+          Ok(views.html.selfassessment
+            .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saAccount.utr)))
       }
   }
 }

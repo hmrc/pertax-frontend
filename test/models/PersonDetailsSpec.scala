@@ -19,7 +19,6 @@ package models
 import play.api.libs.json.Json
 import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 
-
 class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 
   trait LocalSetup {
@@ -27,8 +26,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 
     def lastName: Option[String]
 
-    lazy val pd = Person(firstName, None,
-      lastName, None, None, None, None, None, None)
+    lazy val pd = Person(firstName, None, lastName, None, None, None, None, None, None)
   }
 
   "Calling PersonDetails.shortName" should {
@@ -69,62 +67,60 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
   "Converting json to a PersonDetails Object" should {
 
     "convert correctly when json is in the new citizen-details api format (string date)" in {
-      Json.parse(
-        s"""
-           |{
-           |  "etag" : "115",
-           |  "person" : {
-           |    "firstName" : "Firstname",
-           |    "middleName" : "Middlename",
-           |    "lastName" : "Lastname",
-           |    "initials" : "FML",
-           |    "title" : "Dr",
-           |    "honours" : "Phd.",
-           |    "sex" : "M",
-           |    "dateOfBirth" : "1945-03-18",
-           |    "nino" : "${Fixtures.fakeNino}"
-           |  },
-           |  "address" : {
-           |    "line1" : "1 Fake Street",
-           |    "line2" : "Fake Town",
-           |    "line3" : "Fake City",
-           |    "line4" : "Fake Region",
-           |    "postcode" : "AA1 1AA",
-           |    "startDate" : "2015-03-15",
-           |    "type" : "Residential"
-           |  }
-           |}
-           |
+      Json.parse(s"""
+                    |{
+                    |  "etag" : "115",
+                    |  "person" : {
+                    |    "firstName" : "Firstname",
+                    |    "middleName" : "Middlename",
+                    |    "lastName" : "Lastname",
+                    |    "initials" : "FML",
+                    |    "title" : "Dr",
+                    |    "honours" : "Phd.",
+                    |    "sex" : "M",
+                    |    "dateOfBirth" : "1945-03-18",
+                    |    "nino" : "${Fixtures.fakeNino}"
+                    |  },
+                    |  "address" : {
+                    |    "line1" : "1 Fake Street",
+                    |    "line2" : "Fake Town",
+                    |    "line3" : "Fake City",
+                    |    "line4" : "Fake Region",
+                    |    "postcode" : "AA1 1AA",
+                    |    "startDate" : "2015-03-15",
+                    |    "type" : "Residential"
+                    |  }
+                    |}
+                    |
         """.stripMargin).as[PersonDetails] shouldBe buildPersonDetails
     }
 
     "convert correctly when json is in the old citizen-details api format (numeric date)" in {
-      Json.parse(
-        s"""
-           |{
-           |  "etag" : "115",
-           |  "person" : {
-           |    "firstName" : "Firstname",
-           |    "middleName" : "Middlename",
-           |    "lastName" : "Lastname",
-           |    "initials" : "FML",
-           |    "title" : "Dr",
-           |    "honours" : "Phd.",
-           |    "sex" : "M",
-           |    "dateOfBirth" : -782355600000,
-           |    "nino" : "${Fixtures.fakeNino}"
-           |  },
-           |  "address" : {
-           |    "line1" : "1 Fake Street",
-           |    "line2" : "Fake Town",
-           |    "line3" : "Fake City",
-           |    "line4" : "Fake Region",
-           |    "postcode" : "AA1 1AA",
-           |    "startDate" : 1426377600000,
-           |    "type" : "Residential"
-           |  }
-           |}
-           |
+      Json.parse(s"""
+                    |{
+                    |  "etag" : "115",
+                    |  "person" : {
+                    |    "firstName" : "Firstname",
+                    |    "middleName" : "Middlename",
+                    |    "lastName" : "Lastname",
+                    |    "initials" : "FML",
+                    |    "title" : "Dr",
+                    |    "honours" : "Phd.",
+                    |    "sex" : "M",
+                    |    "dateOfBirth" : -782355600000,
+                    |    "nino" : "${Fixtures.fakeNino}"
+                    |  },
+                    |  "address" : {
+                    |    "line1" : "1 Fake Street",
+                    |    "line2" : "Fake Town",
+                    |    "line3" : "Fake City",
+                    |    "line4" : "Fake Region",
+                    |    "postcode" : "AA1 1AA",
+                    |    "startDate" : 1426377600000,
+                    |    "type" : "Residential"
+                    |  }
+                    |}
+                    |
         """.stripMargin).as[PersonDetails] shouldBe buildPersonDetails
     }
   }
@@ -135,32 +131,31 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
 
       val json = Json.toJson(buildPersonDetails)
 
-      json shouldBe Json.parse(
-        s"""
-          |{
-          |  "etag" : "115",
-          |  "person" : {
-          |    "firstName" : "Firstname",
-          |    "middleName" : "Middlename",
-          |    "lastName" : "Lastname",
-          |    "initials" : "FML",
-          |    "title" : "Dr",
-          |    "honours" : "Phd.",
-          |    "sex" : "M",
-          |    "dateOfBirth" : "1945-03-18",
-          |    "nino" : "${Fixtures.fakeNino}"
-          |  },
-          |  "address" : {
-          |    "line1" : "1 Fake Street",
-          |    "line2" : "Fake Town",
-          |    "line3" : "Fake City",
-          |    "line4" : "Fake Region",
-          |    "postcode" : "AA1 1AA",
-          |    "startDate" : "2015-03-15",
-          |    "type" : "Residential"
-          |  }
-          |}
-          |
+      json shouldBe Json.parse(s"""
+                                  |{
+                                  |  "etag" : "115",
+                                  |  "person" : {
+                                  |    "firstName" : "Firstname",
+                                  |    "middleName" : "Middlename",
+                                  |    "lastName" : "Lastname",
+                                  |    "initials" : "FML",
+                                  |    "title" : "Dr",
+                                  |    "honours" : "Phd.",
+                                  |    "sex" : "M",
+                                  |    "dateOfBirth" : "1945-03-18",
+                                  |    "nino" : "${Fixtures.fakeNino}"
+                                  |  },
+                                  |  "address" : {
+                                  |    "line1" : "1 Fake Street",
+                                  |    "line2" : "Fake Town",
+                                  |    "line3" : "Fake City",
+                                  |    "line4" : "Fake Region",
+                                  |    "postcode" : "AA1 1AA",
+                                  |    "startDate" : "2015-03-15",
+                                  |    "type" : "Residential"
+                                  |  }
+                                  |}
+                                  |
         """.stripMargin)
     }
 

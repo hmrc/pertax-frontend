@@ -37,41 +37,41 @@ import scala.concurrent.Future
 
 class FormPartialServiceSpec extends BaseSpec {
 
-
   trait LocalSetup {
 
     val timer = MockitoSugar.mock[Timer.Context]
-    val formPartialService: FormPartialService = new FormPartialService(injected[Environment], injected[Configuration], MockitoSugar.mock[WsAllMethods], MockitoSugar.mock[Metrics], MockitoSugar.mock[ConfigDecorator], injected[ApplicationCrypto]) {
+    val formPartialService: FormPartialService = new FormPartialService(
+      injected[Environment],
+      injected[Configuration],
+      MockitoSugar.mock[WsAllMethods],
+      MockitoSugar.mock[Metrics],
+      MockitoSugar.mock[ConfigDecorator],
+      injected[ApplicationCrypto]
+    ) {
       override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
     }
   }
 
-
   "Calling FormPartialServiceSpec" should {
 
-   "return form list for National insurance" in new LocalSetup {
+    "return form list for National insurance" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any())(any(),any(), any())) thenReturn
+      when(formPartialService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p =>
-        p shouldBe "<title/>"
-      )
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(),any(), any())
+      formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
+      verify(formPartialService.http, times(1)).GET[Html](any())(any(), any(), any())
     }
 
     "return form list for Self-assessment" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any())(any(),any(), any())) thenReturn
+      when(formPartialService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p =>
-        p shouldBe "<title/>"
-      )
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(),any(), any())
+      formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
+      verify(formPartialService.http, times(1)).GET[Html](any())(any(), any(), any())
     }
-
 
   }
 

@@ -24,9 +24,7 @@ class PertaxValidatorsSpec extends BaseSpec {
 
   "Binding data to a simple address structure" should {
 
-
     trait LocalSetup
-
 
     "return 0 errors if line1 and line2 has content when using textIfFieldsHaveContent('line2') for line1's mapping" in new LocalSetup {
 
@@ -41,19 +39,19 @@ class PertaxValidatorsSpec extends BaseSpec {
         mapping(
           "line1" -> optionalTextIfFieldsHaveContent("line2"),
           "line2" -> optional(text)
-
         )(SimpleAddress.apply)(SimpleAddress.unapply)
       )
 
       val f = simpleAddressForm.bind(formData)
-      f.copy(errors = f.errors.distinct).fold(
-        formWithErrors => {
-          fail("Form should give an error")
-        },
-        success => {
-          success shouldBe SimpleAddress(Some("Line 1"), Some("Line 2"))
-        }
-      )
+      f.copy(errors = f.errors.distinct)
+        .fold(
+          formWithErrors => {
+            fail("Form should give an error")
+          },
+          success => {
+            success shouldBe SimpleAddress(Some("Line 1"), Some("Line 2"))
+          }
+        )
     }
 
     "return 1 error for line1 if line2 has content when using textIfFieldsHaveContent('line2') for line1's mapping" in new LocalSetup {
@@ -69,21 +67,21 @@ class PertaxValidatorsSpec extends BaseSpec {
         mapping(
           "line1" -> optionalTextIfFieldsHaveContent("line2"),
           "line2" -> optional(text)
-
         )(SimpleAddress.apply)(SimpleAddress.unapply)
       )
 
       val f = simpleAddressForm.bind(formData)
-      f.copy(errors = f.errors.distinct).fold(
-        formWithErrors => {
-          formWithErrors.errors.length shouldBe 1
-          formWithErrors.errors(0).key shouldBe "line1"
-          formWithErrors.errors(0).message shouldBe "error.line1_required"
-        },
-        success => {
-          fail("Form should give an error")
-        }
-      )
+      f.copy(errors = f.errors.distinct)
+        .fold(
+          formWithErrors => {
+            formWithErrors.errors.length shouldBe 1
+            formWithErrors.errors(0).key shouldBe "line1"
+            formWithErrors.errors(0).message shouldBe "error.line1_required"
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
     }
 
     "return 2 errors for line1 + line2 if line1 and line2 contain no content when using textIfFieldsHaveContent('line2', 'line3') for line1's mapping and textIfFieldsHaveContent('line3') for line2's mapping" in new LocalSetup {
@@ -101,23 +99,23 @@ class PertaxValidatorsSpec extends BaseSpec {
           "line1" -> optionalTextIfFieldsHaveContent("line2", "line3"),
           "line2" -> optionalTextIfFieldsHaveContent("line3"),
           "line3" -> optional(text)
-
         )(SimpleAddress.apply)(SimpleAddress.unapply)
       )
 
       val f = simpleAddressForm.bind(formData)
-      f.copy(errors = f.errors.distinct).fold(
-        formWithErrors => {
-          formWithErrors.errors.length shouldBe 2
-          formWithErrors.errors(0).key shouldBe "line1"
-          formWithErrors.errors(0).message shouldBe "error.line1_required"
-          formWithErrors.errors(1).key shouldBe "line2"
-          formWithErrors.errors(1).message shouldBe "error.line2_required"
-        },
-        success => {
-          fail("Form should give an error")
-        }
-      )
+      f.copy(errors = f.errors.distinct)
+        .fold(
+          formWithErrors => {
+            formWithErrors.errors.length shouldBe 2
+            formWithErrors.errors(0).key shouldBe "line1"
+            formWithErrors.errors(0).message shouldBe "error.line1_required"
+            formWithErrors.errors(1).key shouldBe "line2"
+            formWithErrors.errors(1).message shouldBe "error.line2_required"
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
     }
   }
 

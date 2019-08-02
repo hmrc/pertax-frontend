@@ -36,13 +36,13 @@ import play.api.libs.json.{JsValue, Json}
 
 /** Represents a country as per ISO3166. */
 case class Country(
-                    // ISO3166-1 or ISO3166-2 code, e.g. "GB" or "GB-ENG" (note that "GB" is the official
-                    // code for UK although "UK" is a reserved synonym and may be used instead)
-                    // See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-                    // and https://en.wikipedia.org/wiki/ISO_3166-2:GB
-                    code: String,
-                    // The printable name for the country, e.g. "United Kingdom"
-                    name: String)
+  // ISO3166-1 or ISO3166-2 code, e.g. "GB" or "GB-ENG" (note that "GB" is the official
+  // code for UK although "UK" is a reserved synonym and may be used instead)
+  // See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+  // and https://en.wikipedia.org/wiki/ISO_3166-2:GB
+  code: String,
+  // The printable name for the country, e.g. "United Kingdom"
+  name: String)
 
 object Country {
   implicit val formats = Json.format[Country]
@@ -55,11 +55,12 @@ object Country {
   * For UK addresses, 'town' will always be present.
   * For non-UK addresses, 'town' may be absent and there may be an extra line instead.
   */
-case class Address(lines: Seq[String],
-                   town: Option[String],
-                   otherLine: Option[String],
-                   postcode: String,
-                   country: Country) {
+case class Address(
+  lines: Seq[String],
+  town: Option[String],
+  otherLine: Option[String],
+  postcode: String,
+  country: Country) {
 
   def isValid = lines.nonEmpty && lines.size <= (if (town.isEmpty) 4 else 3)
 
@@ -97,11 +98,11 @@ object Address {
   * Represents one address record. Arrays of these are returned from the address-lookup microservice.
   */
 case class AddressRecord(
-                          id: String,
-                          address: Address,
-                          // ISO639-1 code, e.g. 'en' for English
-                          // see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-                          language: String) {
+  id: String,
+  address: Address,
+  // ISO639-1 code, e.g. 'en' for English
+  // see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+  language: String) {
 
   def isValid = address.isValid && language.length == 2
 }

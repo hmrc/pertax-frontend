@@ -23,3 +23,5 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.19")
 addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
 
 addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.12")
+
+addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.16")

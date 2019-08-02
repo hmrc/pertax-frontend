@@ -49,24 +49,29 @@ class PertaxAuthenticationProvider @Inject()(val configDecorator: ConfigDecorato
 
   override def redirectToLogin(implicit request: Request[_]) = ggRedirect
 
-  def postSignInRedirectUrl(implicit request: Request[_]) = {
-    configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController.uplift( Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path) ) ).url
-  }
+  def postSignInRedirectUrl(implicit request: Request[_]) =
+    configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
+      .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
+      .url
 
   private def idaRedirect(implicit request: Request[_]): Future[Result] = {
     lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
-    Future.successful(Redirect(idaSignIn).withSession(
-      SessionKeys.loginOrigin -> defaultOrigin,
-      SessionKeys.redirect -> postSignInRedirectUrl
-    ))
+    Future.successful(
+      Redirect(idaSignIn).withSession(
+        SessionKeys.loginOrigin -> defaultOrigin,
+        SessionKeys.redirect    -> postSignInRedirectUrl
+      ))
   }
 
   private def ggRedirect(implicit request: Request[_]): Future[Result] = {
     lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
-    Future.successful(Redirect(ggSignIn, Map(
-      "continue" -> Seq(postSignInRedirectUrl),
-      "accountType" -> Seq("individual"),
-      "origin" -> Seq(defaultOrigin)
-    )))
+    Future.successful(
+      Redirect(
+        ggSignIn,
+        Map(
+          "continue"    -> Seq(postSignInRedirectUrl),
+          "accountType" -> Seq("individual"),
+          "origin"      -> Seq(defaultOrigin)
+        )))
   }
 }

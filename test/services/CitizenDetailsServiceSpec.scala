@@ -67,7 +67,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       Some("Correspondence")
     )
 
-    val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
+    val jsonAddress = Json.obj("etag"               -> "115", "address" -> Json.toJson(address))
     val jsonCorrespondenceAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(correspondenceAddress))
     val nino: Nino = Fixtures.fakeNino
     val anException = new RuntimeException("Any")
@@ -75,12 +75,16 @@ class CitizenDetailsServiceSpec extends BaseSpec {
     lazy val (service, met, timer) = {
 
       val fakeSimpleHttp = {
-        if(simulateCitizenDetailsServiceIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulateCitizenDetailsServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val citizenDetailsService: CitizenDetailsService = new CitizenDetailsService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      val citizenDetailsService: CitizenDetailsService = new CitizenDetailsService(
+        injected[Environment],
+        injected[Configuration],
+        fakeSimpleHttp,
+        MockitoSugar.mock[Metrics]) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }
@@ -88,7 +92,6 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       (citizenDetailsService, citizenDetailsService.metricsOperator, timer)
     }
   }
-
 
   "Calling CitizenDetailsService.personDetails" should {
 
@@ -139,7 +142,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
       override lazy val simulateCitizenDetailsServiceIsDown = false
       val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse  //For example
+      override lazy val httpResponse = seeOtherResponse //For example
 
       val r = service.personDetails(nino)
 
@@ -211,7 +214,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
       override lazy val simulateCitizenDetailsServiceIsDown = false
       val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse  //For example
+      override lazy val httpResponse = seeOtherResponse //For example
 
       val r = service.updateAddress(nino, "115", address)
 

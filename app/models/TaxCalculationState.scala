@@ -30,39 +30,67 @@ sealed trait TaxCalculationState
 sealed trait TaxCalculationOverpaidState extends TaxCalculationState
 sealed trait TaxCalculationUnderpaidState extends TaxCalculationState
 
-case class TaxCalculationOverpaidRefundState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidRefundState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int)
+    extends TaxCalculationOverpaidState
 case class TaxCalculationOverpaidPaymentProcessingState(amount: BigDecimal) extends TaxCalculationOverpaidState
-case class TaxCalculationOverpaidPaymentPaidState(amount: BigDecimal, datePaid: Option[LocalDate]) extends TaxCalculationOverpaidState
-case class TaxCalculationOverpaidPaymentChequeSentState(amount: BigDecimal, datePaid: Option[LocalDate]) extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentPaidState(amount: BigDecimal, datePaid: Option[LocalDate])
+    extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentChequeSentState(amount: BigDecimal, datePaid: Option[LocalDate])
+    extends TaxCalculationOverpaidState
 
-case class TaxCalculationUnderpaidPaymentDueState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate], saDeadLineStatus: Option[SaDeadlineStatus]) extends TaxCalculationUnderpaidState with SaDeadlineStatus
-case class TaxCalculationUnderpaidPartPaidState(amount: BigDecimal, startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate], saDeadlineStatus: Option[SaDeadlineStatus]) extends TaxCalculationUnderpaidState with SaDeadlineStatus
-case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate]) extends TaxCalculationUnderpaidState
-case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationUnderpaidState
+case class TaxCalculationUnderpaidPaymentDueState(
+  amount: BigDecimal,
+  startOfTaxYear: Int,
+  endOfTaxYear: Int,
+  dueDate: Option[LocalDate],
+  saDeadLineStatus: Option[SaDeadlineStatus])
+    extends TaxCalculationUnderpaidState with SaDeadlineStatus
+case class TaxCalculationUnderpaidPartPaidState(
+  amount: BigDecimal,
+  startOfTaxYear: Int,
+  endOfTaxYear: Int,
+  dueDate: Option[LocalDate],
+  saDeadlineStatus: Option[SaDeadlineStatus])
+    extends TaxCalculationUnderpaidState with SaDeadlineStatus
+case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate])
+    extends TaxCalculationUnderpaidState
+case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int)
+    extends TaxCalculationUnderpaidState
 case class TaxCalculationDisabledState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
 
 case object TaxCalculationUnkownState extends TaxCalculationState
 
 @Singleton
-class TaxCalculationStateFactory @Inject() (
-                                             val configDecorator: ConfigDecorator,
-                                             val localTaxYearResolver: LocalTaxYearResolver
-                                           ) {
+class TaxCalculationStateFactory @Inject()(
+  val configDecorator: ConfigDecorator,
+  val localTaxYearResolver: LocalTaxYearResolver
+) {
 
-  def buildFromTaxCalculation(taxCalculation: Option[TaxCalculation], includeOverPaidPayments: Boolean = true): TaxCalculationState = {
-
+  def buildFromTaxCalculation(
+    taxCalculation: Option[TaxCalculation],
+    includeOverPaidPayments: Boolean = true): TaxCalculationState =
     (taxCalculation, includeOverPaidPayments) match {
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, None)), _) =>
         TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, None, None)
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, Some(dueDate))), _) =>
-        TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, Some(new LocalDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
+        TaxCalculationUnderpaidPaymentDueState(
+          amount,
+          taxYear,
+          taxYear + 1,
+          Some(new LocalDate(dueDate)),
+          getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _, _, None)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), Some(dueDate))), _) =>
-        TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, Some(new LocalDate(dueDate)), getSaDeadlineStatus(new LocalDate(dueDate)))
+        TaxCalculationUnderpaidPartPaidState(
+          amount,
+          taxYear,
+          taxYear + 1,
+          Some(new LocalDate(dueDate)),
+          getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), _)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
@@ -93,21 +121,21 @@ class TaxCalculationStateFactory @Inject() (
 
       case _ => TaxCalculationUnkownState
     }
-  }
 
   def getSaDeadlineStatus(dueDate: LocalDate): Option[SaDeadlineStatus] = {
 
-    val now                               = new LocalDate(configDecorator.currentLocalDate)
-    val dueDateEquals31stJanuary          = dueDate.getMonthOfYear==1 && dueDate.getDayOfMonth==31
-    val dueDatePassed                     = now.isAfter(dueDate)
-    val datePassed14thDec                 = now.isAfter(new LocalDate(taxYearFor(configDecorator.currentLocalDate).currentYear  + "-12-14"))
-    val dateWithin30DaysOfDueDate         = now.isAfter(dueDate.minusDays(31))
+    val now = new LocalDate(configDecorator.currentLocalDate)
+    val dueDateEquals31stJanuary = dueDate.getMonthOfYear == 1 && dueDate.getDayOfMonth == 31
+    val dueDatePassed = now.isAfter(dueDate)
+    val datePassed14thDec =
+      now.isAfter(new LocalDate(taxYearFor(configDecorator.currentLocalDate).currentYear + "-12-14"))
+    val dateWithin30DaysOfDueDate = now.isAfter(dueDate.minusDays(31))
 
     (dueDateEquals31stJanuary, dueDatePassed, datePassed14thDec, dateWithin30DaysOfDueDate) match {
-      case (true, false, true, _)         => Some(SaDeadlineApproachingStatus)
-      case (_, false, _, true)            => Some(SaDeadlineApproachingStatus)
-      case (_, true, _, _)                => Some(SaDeadlinePassedStatus)
-      case _                              => None
+      case (true, false, true, _) => Some(SaDeadlineApproachingStatus)
+      case (_, false, _, true)    => Some(SaDeadlineApproachingStatus)
+      case (_, true, _, _)        => Some(SaDeadlinePassedStatus)
+      case _                      => None
     }
   }
 }

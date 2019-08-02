@@ -50,25 +50,25 @@ class PertaxAuthenticationProviderSpec extends BaseSpec {
 
       lazy val partialFunction = {
         val c = injected[PertaxAuthenticationProvider]
-        when(c.configDecorator.companyAuthHost) thenReturn  ""
-        when(c.configDecorator.citizenAuthHost) thenReturn  ""
-        when(c.configDecorator.ida_web_context) thenReturn  "ida"
-        when(c.configDecorator.gg_web_context) thenReturn  "gg-sign-in"
+        when(c.configDecorator.companyAuthHost) thenReturn ""
+        when(c.configDecorator.citizenAuthHost) thenReturn ""
+        when(c.configDecorator.ida_web_context) thenReturn "ida"
+        when(c.configDecorator.gg_web_context) thenReturn "gg-sign-in"
         when(c.configDecorator.pertaxFrontendHost) thenReturn "/something"
-        when(c.postSignInRedirectUrl(request)) thenReturn  "/personal-account"
+        when(c.postSignInRedirectUrl(request)) thenReturn "/personal-account"
 
         c.handleNotAuthenticated(request)
       }
     }
 
-    "redirect to gg login page if user the authentication provider session variable is set to Government Gateway"  in new LocalSetup {
+    "redirect to gg login page if user the authentication provider session variable is set to Government Gateway" in new LocalSetup {
       override lazy val authProvider = AuthenticationProviderIds.GovernmentGatewayId
       val r: Result = await(partialFunction(userCredentials)).right.get
       r.header.status shouldBe SEE_OTHER
       r.header.headers("Location") shouldBe "/gg-sign-in?continue=%2Fpersonal-account%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account%252F&accountType=individual&origin=PERTAX"
     }
 
-    "redirect to ida login page if user the authentication provider session variable is set to Verify"  in new LocalSetup {
+    "redirect to ida login page if user the authentication provider session variable is set to Verify" in new LocalSetup {
       override lazy val authProvider = AuthenticationProviderIds.VerifyProviderId
       val r: Result = await(partialFunction(userCredentials)).right.get
       r.header.status shouldBe SEE_OTHER
@@ -77,7 +77,7 @@ class PertaxAuthenticationProviderSpec extends BaseSpec {
       r.header.headers("Location") shouldBe "/ida/login"
     }
 
-    "redirect to gg login page if user the authentication provider session variable is invalid"  in new LocalSetup {
+    "redirect to gg login page if user the authentication provider session variable is invalid" in new LocalSetup {
       override lazy val authProvider = "Invalid Provider"
       val r: Result = await(partialFunction(userCredentials)).right.get
       r.header.status shouldBe SEE_OTHER

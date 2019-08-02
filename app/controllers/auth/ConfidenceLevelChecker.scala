@@ -20,5 +20,6 @@ import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength}
 
 trait ConfidenceLevelChecker {
-  def userHasHighConfidenceLevel(implicit authContext: AuthContext) = authContext.user.confidenceLevel >= ConfidenceLevel.L200
+  def userHasHighConfidenceLevel(implicit authContext: AuthContext) =
+    authContext.user.confidenceLevel >= ConfidenceLevel.L200
 }
