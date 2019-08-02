@@ -21,7 +21,6 @@ import play.api.Configuration
 import uk.gov.hmrc.crypto.ApplicationCrypto
 
 class ApplicationCryptoProvider @Inject()(configuration: Configuration) extends Provider[ApplicationCrypto] {
-  override def get(): ApplicationCrypto = {
+  override def get(): ApplicationCrypto =
     new ApplicationCrypto(configuration.underlying)
-  }
 }

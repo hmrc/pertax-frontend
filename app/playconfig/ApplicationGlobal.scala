@@ -25,10 +25,8 @@ import uk.gov.hmrc.play.frontend.bootstrap.Routing.RemovingOfTrailingSlashes
 import uk.gov.hmrc.play.graphite.GraphiteConfig
 import uk.gov.hmrc.play.frontend.config.ErrorAuditingSettings
 
-
-object ApplicationGlobal extends GlobalSettings with GraphiteConfig
-    with RemovingOfTrailingSlashes with ErrorAuditingSettings with RunMode {
-
+object ApplicationGlobal
+    extends GlobalSettings with GraphiteConfig with RemovingOfTrailingSlashes with ErrorAuditingSettings with RunMode {
 
   override protected def mode: Mode = Play.current.mode
   override protected def runModeConfiguration: Configuration = Play.current.configuration
@@ -36,7 +34,8 @@ object ApplicationGlobal extends GlobalSettings with GraphiteConfig
   private lazy val configuration = StaticGlobalDependencies.deps.configuration
   override lazy val auditConnector = StaticGlobalDependencies.deps.pertaxAuditConnector
 
-  lazy val enableSecurityHeaderFilter: Boolean = configuration.getBoolean("security.headers.filter.enabled").getOrElse(true)
+  lazy val enableSecurityHeaderFilter: Boolean =
+    configuration.getBoolean("security.headers.filter.enabled").getOrElse(true)
   lazy val loggerDateFormat: Option[String] = configuration.getString("logger.json.dateformat")
 
   override def onStart(app: Application) {
@@ -46,7 +45,8 @@ object ApplicationGlobal extends GlobalSettings with GraphiteConfig
     super.onStart(app)
   }
 
-  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig("microservice.metrics")
+  override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] =
+    app.configuration.getConfig("microservice.metrics")
   override def appName: String = configuration.getString("appName").getOrElse("APP NAME NOT SET")
 
 }

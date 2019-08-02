@@ -33,7 +33,7 @@ import util.{DateTimeTools, LocalPartialRetriever, TaxYearRetriever}
 
 import scala.concurrent.Future
 
-class AmbiguousJourneyController @Inject() (
+class AmbiguousJourneyController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val pertaxRegime: PertaxRegime,
@@ -44,109 +44,118 @@ class AmbiguousJourneyController @Inject() (
   val messageFrontendService: MessageFrontendService,
   val selfAssessmentService: SelfAssessmentService,
   val taxYearRetriever: TaxYearRetriever
-  ) extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
+) extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
 
-  def enforceAmbiguousUser(block: SaUtr => Future[Result])(implicit context: PertaxContext): Future[Result] = {
+  def enforceAmbiguousUser(block: SaUtr => Future[Result])(implicit context: PertaxContext): Future[Result] =
     selfAssessmentService.getSelfAssessmentUserType(context.authContext) flatMap {
       case ambigUser: AmbiguousFilerSelfAssessmentUser => block(ambigUser.saUtr)
-      case _ => Future.successful(Redirect(routes.HomeController.index()))
+      case _                                           => Future.successful(Redirect(routes.HomeController.index()))
     }
-  }
 
   def filedReturnOnlineChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceAmbiguousUser {_ =>
+    enforceAmbiguousUser { _ =>
       Future.successful(Ok(views.html.ambiguousjourney.filedReturnOnlineChoice(AmbiguousUserFlowDto.form)))
     }
   }
 
-  def processFileReturnOnlineChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      AmbiguousUserFlowDto.form.bindFromRequest.fold(
-        formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.filedReturnOnlineChoice(formWithErrors)))
-        },
-        ambiguousFiledOnlineChoiceDto => {
-          ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.deEnrolledFromSaChoice))
-            case false => {
-              if (configDecorator.saAmbigSimplifiedJourneyEnabled)
-                Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice))
-              else {
-                Future.successful(Redirect(routes.AmbiguousJourneyController.filedReturnByPostChoice))
-              }
+  def processFileReturnOnlineChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+      formWithErrors => {
+        Future.successful(BadRequest(views.html.ambiguousjourney.filedReturnOnlineChoice(formWithErrors)))
+      },
+      ambiguousFiledOnlineChoiceDto => {
+        ambiguousFiledOnlineChoiceDto.value match {
+          case true => Future.successful(Redirect(routes.AmbiguousJourneyController.deEnrolledFromSaChoice))
+          case false => {
+            if (configDecorator.saAmbigSimplifiedJourneyEnabled)
+              Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice))
+            else {
+              Future.successful(Redirect(routes.AmbiguousJourneyController.filedReturnByPostChoice))
             }
           }
         }
-      )
+      }
+    )
   }
 
   def deEnrolledFromSaChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceAmbiguousUser {_ =>
+    enforceAmbiguousUser { _ =>
       Future.successful(Ok(views.html.ambiguousjourney.deEnrolledFromSaChoice(AmbiguousUserFlowDto.form)))
     }
   }
 
-  def processDeEnroledFromSaChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      AmbiguousUserFlowDto.form.bindFromRequest.fold(
-        formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.deEnrolledFromSaChoice(formWithErrors)))
-        },
-        ambiguousFiledOnlineChoiceDto => {
-          ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("need-to-enrol-again")))
-            case false => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("need-to-use-created-creds")))
-          }
+  def processDeEnroledFromSaChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+      formWithErrors => {
+        Future.successful(BadRequest(views.html.ambiguousjourney.deEnrolledFromSaChoice(formWithErrors)))
+      },
+      ambiguousFiledOnlineChoiceDto => {
+        ambiguousFiledOnlineChoiceDto.value match {
+          case true =>
+            Future.successful(
+              Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("need-to-enrol-again")))
+          case false =>
+            Future.successful(
+              Redirect(
+                routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("need-to-use-created-creds")))
         }
-      )
+      }
+    )
   }
 
   def filedReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceAmbiguousUser {_ =>
+    enforceAmbiguousUser { _ =>
       Future.successful(Ok(views.html.ambiguousjourney.filedReturnByPostChoice(AmbiguousUserFlowDto.form)))
     }
   }
 
-  def processFiledReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      AmbiguousUserFlowDto.form.bindFromRequest.fold(
-        formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.filedReturnByPostChoice(formWithErrors)))
-        },
-        ambiguousFiledOnlineChoiceDto => {
-          ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
-            case false => {
-              if (configDecorator.saAmbigSkipUTRLetterEnabled)
-                Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
-              else
-                Future.successful(Redirect(routes.AmbiguousJourneyController.receivedUtrLetterChoice()))
-            }
+  def processFiledReturnByPostChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+      formWithErrors => {
+        Future.successful(BadRequest(views.html.ambiguousjourney.filedReturnByPostChoice(formWithErrors)))
+      },
+      ambiguousFiledOnlineChoiceDto => {
+        ambiguousFiledOnlineChoiceDto.value match {
+          case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
+          case false => {
+            if (configDecorator.saAmbigSkipUTRLetterEnabled)
+              Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+            else
+              Future.successful(Redirect(routes.AmbiguousJourneyController.receivedUtrLetterChoice()))
           }
         }
-      )
-    }
-
-    def usedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-      enforceAmbiguousUser {_ =>
-        Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
       }
+    )
+  }
+
+  def usedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    enforceAmbiguousUser { _ =>
+      Future.successful(
+        Ok(
+          views.html.ambiguousjourney.usedUtrToEnrolChoice(
+            AmbiguousUserFlowDto.form,
+            routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
     }
+  }
 
-
-  def processUsedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      AmbiguousUserFlowDto.form.bindFromRequest.fold(
-        formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
-        },
-        ambiguousFiledOnlineChoiceDto => {
-          ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("pin-expired-register")))
-            case false => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("deadline")))
-          }
+  def processUsedUtrToRegisterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+      formWithErrors => {
+        Future.successful(
+          BadRequest(views.html.ambiguousjourney
+            .usedUtrToEnrolChoice(formWithErrors, routes.AmbiguousJourneyController.filedReturnByPostChoice().url)))
+      },
+      ambiguousFiledOnlineChoiceDto => {
+        ambiguousFiledOnlineChoiceDto.value match {
+          case true =>
+            Future.successful(
+              Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("pin-expired-register")))
+          case false =>
+            Future.successful(
+              Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("deadline")))
         }
-      )
+      }
+    )
   }
 
   def receivedUtrLetterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
@@ -155,74 +164,97 @@ class AmbiguousJourneyController @Inject() (
     }
   }
 
-  def processReceivedUtrLetterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      AmbiguousUserFlowDto.form.bindFromRequest.fold(
-        formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.receivedUtrLetterChoice(formWithErrors)))
-        },
-        ambiguousFiledOnlineChoiceDto => {
-          ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
-            case false => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("letter-in-post")))
-          }
+  def processReceivedUtrLetterChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+      formWithErrors => {
+        Future.successful(BadRequest(views.html.ambiguousjourney.receivedUtrLetterChoice(formWithErrors)))
+      },
+      ambiguousFiledOnlineChoiceDto => {
+        ambiguousFiledOnlineChoiceDto.value match {
+          case true => Future.successful(Redirect(routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+          case false =>
+            Future.successful(
+              Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("letter-in-post")))
         }
-      )
+      }
+    )
   }
 
-  def usedUtrToEnrolBackLink(): String = {
+  def usedUtrToEnrolBackLink(): String =
     (configDecorator.saAmbigSimplifiedJourneyEnabled, configDecorator.saAmbigSkipUTRLetterEnabled) match {
       case (true, _)      => controllers.routes.AmbiguousJourneyController.filedReturnOnlineChoice().url
       case (false, true)  => controllers.routes.AmbiguousJourneyController.processFiledReturnByPostChoice().url
       case (false, false) => controllers.routes.AmbiguousJourneyController.receivedUtrLetterChoice().url
     }
-  }
 
   def usedUtrToEnrolChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     enforceAmbiguousUser { _ =>
-      Future.successful(Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, usedUtrToEnrolBackLink)))
+      Future.successful(
+        Ok(views.html.ambiguousjourney.usedUtrToEnrolChoice(AmbiguousUserFlowDto.form, usedUtrToEnrolBackLink)))
     }
   }
 
-  def processUsedUtrToEnrolChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      AmbiguousUserFlowDto.form.bindFromRequest.fold(
-        formWithErrors => {
-          Future.successful(BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors, usedUtrToEnrolBackLink)))
-        },
-        ambiguousFiledOnlineChoiceDto => {
-          ambiguousFiledOnlineChoiceDto.value match {
-            case true => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("wrong-account")))
-            case false => Future.successful(Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("need-to-enrol")))
-          }
-        }
-      )
-  }
-
-  def handleAmbiguousJourneyLandingPages(page: String): Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-
-    val continueUrl = controllers.routes.HomeController.index().url
-
-    enforceAmbiguousUser { saUtr =>
-
-      val currentTaxYear = taxYearRetriever.currentYear
-      val deadlineYear = currentTaxYear + 1
-      val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost
-
-      Future.successful {
-        page match {
-          case "need-to-enrol" => Ok(views.html.ambiguousjourney.youNeedToEnrol(saUtr,
-            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
-          case "need-to-enrol-again" => Ok(views.html.ambiguousjourney.youNeedToEnrolAgain(saUtr,
-            continueUrl, deadlineYear.toString, currentTaxYear.toString, showSendTaxReturnByPost))
-          case "need-to-use-created-creds" => Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
-          case "deadline" => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
-          case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
-          case "wrong-account" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
-          case "pin-expired-register" => Ok(views.html.ambiguousjourney.wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
-          case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
+  def processUsedUtrToEnrolChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+      formWithErrors => {
+        Future.successful(
+          BadRequest(views.html.ambiguousjourney.usedUtrToEnrolChoice(formWithErrors, usedUtrToEnrolBackLink)))
+      },
+      ambiguousFiledOnlineChoiceDto => {
+        ambiguousFiledOnlineChoiceDto.value match {
+          case true =>
+            Future.successful(
+              Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("wrong-account")))
+          case false =>
+            Future.successful(
+              Redirect(routes.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages("need-to-enrol")))
         }
       }
-    }
+    )
+  }
+
+  def handleAmbiguousJourneyLandingPages(page: String): Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
+    implicit pertaxContext =>
+      val continueUrl = controllers.routes.HomeController.index().url
+
+      enforceAmbiguousUser { saUtr =>
+        val currentTaxYear = taxYearRetriever.currentYear
+        val deadlineYear = currentTaxYear + 1
+        val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost
+
+        Future.successful {
+          page match {
+            case "need-to-enrol" =>
+              Ok(
+                views.html.ambiguousjourney.youNeedToEnrol(
+                  saUtr,
+                  continueUrl,
+                  deadlineYear.toString,
+                  currentTaxYear.toString,
+                  showSendTaxReturnByPost))
+            case "need-to-enrol-again" =>
+              Ok(
+                views.html.ambiguousjourney.youNeedToEnrolAgain(
+                  saUtr,
+                  continueUrl,
+                  deadlineYear.toString,
+                  currentTaxYear.toString,
+                  showSendTaxReturnByPost))
+            case "need-to-use-created-creds" =>
+              Ok(views.html.ambiguousjourney.youNeedToUseCreatedCreds(saUtr, continueUrl))
+            case "deadline"       => Ok(views.html.ambiguousjourney.deadlineIs(saUtr, continueUrl))
+            case "letter-in-post" => Ok(views.html.ambiguousjourney.letterMayBeInPost(saUtr, continueUrl))
+            case "wrong-account" =>
+              Ok(
+                views.html.ambiguousjourney
+                  .wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToEnrolChoice()))
+            case "pin-expired-register" =>
+              Ok(
+                views.html.ambiguousjourney
+                  .wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
+            case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
+          }
+        }
+      }
   }
 }

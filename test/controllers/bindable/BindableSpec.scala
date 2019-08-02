@@ -22,15 +22,14 @@ import util.BaseSpec
 
 class BindableSpec extends BaseSpec {
 
-  trait LocalSetup {
-
-  }
+  trait LocalSetup {}
 
   "Calling continueUrlBinder.unbind" should {
 
     "return the key and the ContinueUrl" in {
 
-      controllers.bindable.continueUrlBinder.unbind("continue", SafeRedirectUrl("/relative/url")) shouldBe "continue=%2Frelative%2Furl"
+      controllers.bindable.continueUrlBinder
+        .unbind("continue", SafeRedirectUrl("/relative/url")) shouldBe "continue=%2Frelative%2Furl"
     }
   }
 
@@ -39,25 +38,29 @@ class BindableSpec extends BaseSpec {
     "return an url when called with a relative url" in {
 
       val url = "/relative/url"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Right(SafeRedirectUrl(url)))
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+        Right(SafeRedirectUrl(url)))
     }
 
     "return error when not url" in {
 
       val url = "gtuygyg"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"'$url' is not a valid continue URL"))
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+        Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for urls with /\\" in {
 
       val url = "/\\www.example.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"'$url' is not a valid continue URL"))
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+        Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for none relative urls" in {
 
       val url = "http://nonrelativeurl.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(Left(s"Provided URL [$url] doesn't comply with redirect policy"))
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+        Left(s"Provided URL [$url] doesn't comply with redirect policy"))
     }
   }
 }

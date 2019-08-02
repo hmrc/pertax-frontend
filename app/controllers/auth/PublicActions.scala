@@ -26,21 +26,20 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-
 trait PublicActions extends DelegationAwareActions {
 
   def partialRetriever: LocalPartialRetriever
   def configDecorator: ConfigDecorator
 
-  def PublicAction(block: PertaxContext => Future[Result]): Action[AnyContent] = {
+  def PublicAction(block: PertaxContext => Future[Result]): Action[AnyContent] =
     UnauthorisedAction.async { implicit request =>
       trimmingFormUrlEncodedData { implicit request =>
         block(PertaxContext(request, partialRetriever, configDecorator))
       }
     }
-  }
 
-  def trimmingFormUrlEncodedData(block: Request[AnyContent] => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
+  def trimmingFormUrlEncodedData(block: Request[AnyContent] => Future[Result])(
+    implicit request: Request[AnyContent]): Future[Result] =
     block {
       request.map {
         case AnyContentAsFormUrlEncoded(data) =>
@@ -50,5 +49,4 @@ trait PublicActions extends DelegationAwareActions {
         case b => b
       }
     }
-  }
 }

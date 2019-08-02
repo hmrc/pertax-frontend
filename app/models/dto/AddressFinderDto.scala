@@ -29,10 +29,13 @@ object AddressFinderDto {
   val form = Form(
     mapping(
       "postcode" -> text
-        .verifying("error.enter_a_valid_uk_postcode", e  => e match {
-          case PostcodeRegex(_*) => true
-          case _ => false
-        }),
+        .verifying(
+          "error.enter_a_valid_uk_postcode",
+          e =>
+            e match {
+              case PostcodeRegex(_*) => true
+              case _                 => false
+          }),
       "filter" -> optional(nonEmptyText)
         .verifying("error.enter_valid_characters", e => validateAddressLineCharacters(e))
     )(AddressFinderDto.apply)(AddressFinderDto.unapply)

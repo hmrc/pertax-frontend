@@ -44,32 +44,46 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
     def getMatchingDetailsResponse: MatchingDetailsResponse
     def simulateErrorCallingSelfAssessmentService: Boolean
 
-    def authEnrolmentJson(state: String, utr: String) = {
-      Json.arr(Json.obj(
-        "key" -> "IR-SA",
-        "identifiers" -> Json.arr(Json.obj("key" -> "UTR", "value" -> utr)),
-        "state" -> state
-      ))
-    }
+    def authEnrolmentJson(state: String, utr: String) =
+      Json.arr(
+        Json.obj(
+          "key"         -> "IR-SA",
+          "identifiers" -> Json.arr(Json.obj("key" -> "UTR", "value" -> utr)),
+          "state"       -> state
+        ))
 
-    lazy val context = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(PertaxUser(buildFakeAuthContext(withSa = saUser),
-      UserDetails(UserDetails.GovernmentGatewayAuthProvider),
-      None, true)))
+    lazy val context = PertaxContext(
+      FakeRequest(),
+      mockLocalPartialRetreiver,
+      injected[ConfigDecorator],
+      Some(
+        PertaxUser(
+          buildFakeAuthContext(withSa = saUser),
+          UserDetails(UserDetails.GovernmentGatewayAuthProvider),
+          None,
+          true))
+    )
 
     val anException = new RuntimeException("Any")
 
     lazy val service = {
 
       val fakeSimpleHttp = {
-        if(simulateErrorCallingSelfAssessmentService) new FakeSimpleHttp(Right(anException))
+        if (simulateErrorCallingSelfAssessmentService) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(getAuthEnrolmentHttpResponse))
       }
 
       val citizenDetailsService = MockitoSugar.mock[CitizenDetailsService]
-      when(citizenDetailsService.getMatchingDetails(any())(any())) thenReturn Future.successful(getMatchingDetailsResponse)
+      when(citizenDetailsService.getMatchingDetails(any())(any())) thenReturn Future.successful(
+        getMatchingDetailsResponse)
 
       val timer = MockitoSugar.mock[Timer.Context]
-      new SelfAssessmentService(injected[Environment], injected[Configuration], fakeSimpleHttp, citizenDetailsService, MockitoSugar.mock[Metrics]) {
+      new SelfAssessmentService(
+        injected[Environment],
+        injected[Configuration],
+        fakeSimpleHttp,
+        citizenDetailsService,
+        MockitoSugar.mock[Metrics]) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }
@@ -83,9 +97,11 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
 
     "Return FileReturnSelfAssessmentActionNeeded when called with a SA user" in new LocalSetup {
       override lazy val saUser = true
-      override lazy val getMatchingDetailsResponse = MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(("1111111111")))))
+      override lazy val getMatchingDetailsResponse =
+        MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(("1111111111")))))
       override lazy val simulateErrorCallingSelfAssessmentService = false
-      override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("Activated", "1111111111")))
+      override lazy val getAuthEnrolmentHttpResponse =
+        HttpResponse(OK, Some(authEnrolmentJson("Activated", "1111111111")))
 
       await(saActionNeeded) shouldBe ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       verify(service.citizenDetailsService, times(0)).getMatchingDetails(any())(any())
@@ -93,9 +109,11 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
 
     "Return ActivateSelfAssessmentActionNeeded when the user does not have an active SA enrolment but does have a NotYetActivated enrolment" in new LocalSetup {
       override lazy val saUser = false
-      override lazy val getMatchingDetailsResponse = MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))
+      override lazy val getMatchingDetailsResponse =
+        MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))
       override lazy val simulateErrorCallingSelfAssessmentService = false
-      override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("NotYetActivated", "1111111111")))
+      override lazy val getAuthEnrolmentHttpResponse =
+        HttpResponse(OK, Some(authEnrolmentJson("NotYetActivated", "1111111111")))
 
       await(saActionNeeded) shouldBe NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       verify(service.citizenDetailsService, times(0)).getMatchingDetails(any())(any())
@@ -103,9 +121,11 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
 
     "Return WrongAccountSelfAssessmentActionNeeded when the user does not have an active SA nor an NotYetActivated enrolment but does have a matching record with a saUtr" in new LocalSetup {
       override lazy val saUser = false
-      override lazy val getMatchingDetailsResponse = MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))
+      override lazy val getMatchingDetailsResponse =
+        MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))
       override lazy val simulateErrorCallingSelfAssessmentService = false
-      override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("AnythingButNotYetActivated", "1111111111")))  //Simulate no sa enrolment
+      override lazy val getAuthEnrolmentHttpResponse =
+        HttpResponse(OK, Some(authEnrolmentJson("AnythingButNotYetActivated", "1111111111"))) //Simulate no sa enrolment
 
       await(saActionNeeded) shouldBe AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
       verify(service.citizenDetailsService, times(1)).getMatchingDetails(any())(any())
@@ -115,7 +135,8 @@ class HasSelfAssessmentServiceSpec extends BaseSpec {
       override lazy val saUser = false
       override lazy val getMatchingDetailsResponse = MatchingDetailsSuccessResponse(MatchingDetails(None))
       override lazy val simulateErrorCallingSelfAssessmentService = false
-      override lazy val getAuthEnrolmentHttpResponse = HttpResponse(OK, Some(authEnrolmentJson("AnythingButNotYetActivated", "1111111111")))  //Simulate no sa enrolment
+      override lazy val getAuthEnrolmentHttpResponse =
+        HttpResponse(OK, Some(authEnrolmentJson("AnythingButNotYetActivated", "1111111111"))) //Simulate no sa enrolment
 
       await(saActionNeeded) shouldBe NonFilerSelfAssessmentUser
       verify(service.citizenDetailsService, times(1)).getMatchingDetails(any())(any())

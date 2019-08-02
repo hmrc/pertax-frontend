@@ -22,8 +22,9 @@ import controllers.PertaxDependencies
 import org.scalatest.mockito.MockitoSugar
 
 object MockPertaxDependencies
-  extends PertaxDependencies(
-    MockitoSugar.mock[PertaxAuditConnector],
-    MockitoSugar.mock[PertaxAuthConnector],
-    MockitoSugar.mock[LocalPartialRetriever],
-    MockitoSugar.mock[ConfigDecorator])
+    extends PertaxDependencies(
+      MockitoSugar.mock[PertaxAuditConnector],
+      MockitoSugar.mock[PertaxAuthConnector],
+      MockitoSugar.mock[LocalPartialRetriever],
+      MockitoSugar.mock[ConfigDecorator]
+    )

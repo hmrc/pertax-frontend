@@ -31,18 +31,26 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
 
 import scala.concurrent.Future
-
-
 @Singleton
-class SaPartialService @Inject()(environment: Environment, configuration: Configuration, override val http: WsAllMethods, override val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator, applicationCrypto: ApplicationCrypto, val tools: Tools) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig with I18nSupport {
+class SaPartialService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  override val http: WsAllMethods,
+  override val messagesApi: MessagesApi,
+  val metrics: Metrics,
+  val configDecorator: ConfigDecorator,
+  applicationCrypto: ApplicationCrypto,
+  val tools: Tools)
+    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig with I18nSupport {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   private val returnUrl = configDecorator.pertaxFrontendHomeUrl
-  private val returnLinkText = Messages("label.back_to_account_home")  //TODO remove ref to Messages as this is the service layer
+  private val returnLinkText = Messages("label.back_to_account_home") //TODO remove ref to Messages as this is the service layer
 
-  def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${tools.urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}")
-  }
+  def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] =
+    loadPartial(
+      configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${tools
+        .urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}")
 
 }

@@ -30,19 +30,22 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
 import scala.concurrent.Future
-
-
 @Singleton
-class FormPartialService @Inject() (environment: Environment, configuration: Configuration, override val http: WsAllMethods, val metrics: Metrics, val configDecorator: ConfigDecorator, applicationCrypto: ApplicationCrypto) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
+class FormPartialService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  override val http: WsAllMethods,
+  val metrics: Metrics,
+  val configDecorator: ConfigDecorator,
+  applicationCrypto: ApplicationCrypto)
+    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] = {
+  def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
-  }
 
-  def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
+  def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
-  }
 
 }

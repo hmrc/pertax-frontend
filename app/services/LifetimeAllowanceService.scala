@@ -29,19 +29,22 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-
-
 @Singleton
-class LifetimeAllowanceService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class LifetimeAllowanceService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics)
+    extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val lifetimeAllowanceUrl = baseUrl("pensions-lifetime-allowance")
 
-  def getCount(nino: Nino)(implicit hc: HeaderCarrier, rds: HttpReads[LtaProtections]): Future[Option[Int]] = {
+  def getCount(nino: Nino)(implicit hc: HeaderCarrier, rds: HttpReads[LtaProtections]): Future[Option[Int]] =
     withMetricsTimer("has-lta-response") { t =>
-
-      simpleHttp.get[Option[Int]](lifetimeAllowanceUrl + s"/protect-your-lifetime-allowance/individuals/$nino/protections/count")(
+      simpleHttp.get[Option[Int]](
+        lifetimeAllowanceUrl + s"/protect-your-lifetime-allowance/individuals/$nino/protections/count")(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()
@@ -49,7 +52,8 @@ class LifetimeAllowanceService @Inject() (environment: Environment, configuratio
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting lifetime allowance protections count from LTA service")
+            Logger.warn(
+              s"Unexpected ${r.status} response getting lifetime allowance protections count from LTA service")
             None
         },
         onError = {
@@ -60,10 +64,10 @@ class LifetimeAllowanceService @Inject() (environment: Environment, configuratio
         }
       )
     }
-  }
 
-  def hasLtaProtection(nino: Nino)(implicit hc: HeaderCarrier, rds: HttpReads[LtaProtections]): Future[Boolean] = getCount(nino) map {
-    case (Some(0) | None) => false
-    case _ => true
-  }
+  def hasLtaProtection(nino: Nino)(implicit hc: HeaderCarrier, rds: HttpReads[LtaProtections]): Future[Boolean] =
+    getCount(nino) map {
+      case (Some(0) | None) => false
+      case _                => true
+    }
 }

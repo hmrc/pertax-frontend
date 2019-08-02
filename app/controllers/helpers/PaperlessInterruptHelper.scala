@@ -29,14 +29,15 @@ trait PaperlessInterruptHelper {
 
   def preferencesFrontendService: PreferencesFrontendService
 
-  def enforcePaperlessPreference(block: => Future[Result])(implicit pertaxContext: PertaxContext, hc: HeaderCarrier): Future[Result] = {
+  def enforcePaperlessPreference(
+    block: => Future[Result])(implicit pertaxContext: PertaxContext, hc: HeaderCarrier): Future[Result] = {
     val preferencesResponse = pertaxContext.user.map { user =>
       preferencesFrontendService.getPaperlessPreference(user)
     } getOrElse Future.successful(ActivatePaperlessActivatedResponse)
 
     preferencesResponse flatMap {
       case ActivatePaperlessRequiresUserActionResponse(redirectUrl) => Future.successful(Redirect(redirectUrl))
-      case _ => block
+      case _                                                        => block
     }
   }
 }

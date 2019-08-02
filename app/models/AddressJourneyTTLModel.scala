@@ -21,7 +21,6 @@ import reactivemongo.bson.BSONDateTime
 import reactivemongo.play.json._
 import uk.gov.hmrc.domain.Nino
 
-
 case class AddressJourneyTTLModel(nino: String, expireAt: BSONDateTime)
 
 object AddressJourneyTTLModel {
@@ -31,7 +30,7 @@ object AddressJourneyTTLModel {
 
   val writer = new OWrites[AddressJourneyTTLModel] {
     def writes(model: AddressJourneyTTLModel): JsObject = Json.obj(
-      NINO -> model.nino,
+      NINO      -> model.nino,
       EXPIRE_AT -> model.expireAt
     )
   }
@@ -39,12 +38,12 @@ object AddressJourneyTTLModel {
   val reader = new Reads[AddressJourneyTTLModel] {
     override def reads(json: JsValue): JsResult[AddressJourneyTTLModel] =
       for {
-        nino <- (json \ NINO).validate[String]
+        nino     <- (json \ NINO).validate[String]
         expireAt <- (json \ EXPIRE_AT).validate[BSONDateTime]
       } yield AddressJourneyTTLModel(nino, expireAt)
 
     def read(model: AddressJourneyTTLModel): JsObject = Json.obj(
-      NINO -> model.nino,
+      NINO      -> model.nino,
       EXPIRE_AT -> model.expireAt
     )
   }

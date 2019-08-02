@@ -21,7 +21,7 @@ object AddrType {
     case "sole"    => Some(SoleAddrType)
     case "primary" => Some(PrimaryAddrType)
     case "postal"  => Some(PostalAddrType)
-    case _ => None
+    case _         => None
   }
 }
 sealed trait AddrType {

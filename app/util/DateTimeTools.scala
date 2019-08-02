@@ -23,7 +23,6 @@ import uk.gov.hmrc.time.CurrentTaxYear
 
 import scala.util.{Failure, Success, Try}
 
-
 object DateTimeTools extends CurrentTaxYear {
 
   //Timezone causing problem on dev server
@@ -37,13 +36,13 @@ object DateTimeTools extends CurrentTaxYear {
 
   def previousAndCurrentTaxYearFromGivenYear(year: Int) = {
     def y = year
-    (y-1).toString.takeRight(2) + (y).toString.takeRight(2)
+    (y - 1).toString.takeRight(2) + (y).toString.takeRight(2)
   }
 
   def showSendTaxReturnByPost = {
 
     val start = new DateTime(s"${DateTime.now().getYear}-11-01T00:00:00Z")
-    val end = new DateTime(s"${DateTime.now().getYear+1}-01-31T23:59:59Z")
+    val end = new DateTime(s"${DateTime.now().getYear + 1}-01-31T23:59:59Z")
     !DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
   }
 
@@ -51,7 +50,7 @@ object DateTimeTools extends CurrentTaxYear {
 
   def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime) //FIXME - remove and use LocalDate instead
 
-  def asHumanDateFromUnixDate(unixDate: String): String = {
+  def asHumanDateFromUnixDate(unixDate: String): String =
     Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
       case Success(v) => v
       case Failure(e) => {
@@ -59,7 +58,6 @@ object DateTimeTools extends CurrentTaxYear {
         unixDate
       }
     }
-  }
 
   override def now: () => DateTime = DateTime.now
 }

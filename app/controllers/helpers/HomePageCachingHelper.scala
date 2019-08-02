@@ -25,17 +25,16 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class HomePageCachingHelper @Inject() (
+class HomePageCachingHelper @Inject()(
   val sessionCache: LocalSessionCache
 ) {
 
-  def hasUserDismissedUrInvitation[T](implicit hc: HeaderCarrier): Future[Boolean] = {
+  def hasUserDismissedUrInvitation[T](implicit hc: HeaderCarrier): Future[Boolean] =
     sessionCache.fetch() map {
       case Some(cacheMap) => cacheMap.getEntry[Boolean]("urBannerDismissed").getOrElse(false)
-      case None => false
+      case None           => false
     }
-  }
 
-  def storeUserUrDismissal()(implicit  hc: HeaderCarrier): Future[CacheMap] =
+  def storeUserUrDismissal()(implicit hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache("urBannerDismissed", true)
 }
