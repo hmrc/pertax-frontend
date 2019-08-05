@@ -19,32 +19,29 @@ package models
 import play.api.libs.json.Json
 import util.{BaseSpec, Fixtures}
 
-
 class TaxComponentsSpec extends BaseSpec {
 
   "Calling TaxComponents.fromJsonTaxComponents" should {
-    
+
     "produce a valid TaxComponents object when supplied good json" in {
 
       val taxComponentsJson = Json.parse("""{
-                                |   "data" : [ {
-                                |      "componentType" : "EmployerProvidedServices",
-                                |      "employmentId" : 12,
-                                |      "amount" : 12321,
-                                |      "description" : "Some Description",
-                                |      "iabdCategory" : "Benefit"
-                                |   }, {
-                                |      "componentType" : "PersonalPensionPayments",
-                                |      "employmentId" : 31,
-                                |      "amount" : 12345,
-                                |      "description" : "Some Description Some",
-                                |      "iabdCategory" : "Allowance"
-                                |   } ],
-                                |   "links" : [ ]
-                                |}""".stripMargin)
+                                           |   "data" : [ {
+                                           |      "componentType" : "EmployerProvidedServices",
+                                           |      "employmentId" : 12,
+                                           |      "amount" : 12321,
+                                           |      "description" : "Some Description",
+                                           |      "iabdCategory" : "Benefit"
+                                           |   }, {
+                                           |      "componentType" : "PersonalPensionPayments",
+                                           |      "employmentId" : 31,
+                                           |      "amount" : 12345,
+                                           |      "description" : "Some Description Some",
+                                           |      "iabdCategory" : "Allowance"
+                                           |   } ],
+                                           |   "links" : [ ]
+                                           |}""".stripMargin)
 
-
-      
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       tc shouldBe TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
     }
@@ -119,7 +116,6 @@ class TaxComponentsSpec extends BaseSpec {
                                            |   "links" : [ ]
                                            |}""".stripMargin)
 
-
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
       isCompanyBenefit shouldBe false
@@ -144,7 +140,6 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  "links" : [ ]
                                            |}""".stripMargin)
 
-
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
       isCompanyBenefit shouldBe true
@@ -168,7 +163,6 @@ class TaxComponentsSpec extends BaseSpec {
                                            |  } ],
                                            |  "links" : [ ]
                                            |}""".stripMargin)
-
 
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient

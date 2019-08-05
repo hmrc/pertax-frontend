@@ -49,7 +49,7 @@ class AddressLookupServiceSpec extends BaseSpec {
     lazy val (service, met, timer, client) = {
 
       val fakeSimpleHttp = {
-        if(simulateAddressLookupServiceIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulateAddressLookupServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
@@ -57,7 +57,13 @@ class AddressLookupServiceSpec extends BaseSpec {
 
       val fakeTools = new Tools(injected[ApplicationCrypto])
 
-      val addressLookupService: AddressLookupService = new AddressLookupService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics], MockitoSugar.mock[PertaxAuthenticationProvider], fakeTools) {
+      val addressLookupService: AddressLookupService = new AddressLookupService(
+        injected[Environment],
+        injected[Configuration],
+        fakeSimpleHttp,
+        MockitoSugar.mock[Metrics],
+        MockitoSugar.mock[PertaxAuthenticationProvider],
+        fakeTools) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
         when(pertaxAuthenticationProvider.defaultOrigin) thenReturn "PERTAX"
@@ -80,7 +86,7 @@ class AddressLookupServiceSpec extends BaseSpec {
 
     "contain valid X-Hmrc-Origin in extra headers when lookup service is called" in new LocalSetup {
       await(r)
-      headerCarrier.extraHeaders.contains(("X-Hmrc-Origin","PERTAX")) shouldBe true
+      headerCarrier.extraHeaders.contains(("X-Hmrc-Origin", "PERTAX")) shouldBe true
     }
 
     "return a List of addresses matching the given postcode, if any matching record exists" in new LocalSetup {
@@ -91,7 +97,7 @@ class AddressLookupServiceSpec extends BaseSpec {
     }
 
     "return a List of addresses matching the given postcode and house name/number, if any matching record exists" in new LocalSetup {
-      override lazy val r = service.lookup("ZZ11ZZ",Some("2"))
+      override lazy val r = service.lookup("ZZ11ZZ", Some("2"))
 
       await(r) shouldBe AddressLookupSuccessResponse(expectedRecordSet)
       verify(met, times(1)).startTimer(metricId)

@@ -33,16 +33,12 @@ import scala.concurrent.Future
 
 class HomePageCachingHelperSpec extends BaseSpec {
 
-
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
     .build()
 
-
-
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     reset(injected[LocalSessionCache])
-  }
 
   "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" should {
     trait LocalSetup {
@@ -100,7 +96,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
         val c = injected[HomePageCachingHelper]
 
-        when(injected[LocalSessionCache].cache(any(), any())(any(),any(), any())) thenReturn {
+        when(injected[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
           Future.successful(CacheMap(("id"), Map.empty))
         }
         c

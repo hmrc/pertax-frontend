@@ -38,7 +38,6 @@ import util.{BaseSpec, Fixtures, MockTemplateRenderer}
 
 import scala.concurrent.Future
 
-
 class NiLetterControllerSpec extends BaseSpec {
 
   val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(injected[ApplicationCrypto])
@@ -56,17 +55,15 @@ class NiLetterControllerSpec extends BaseSpec {
     .configure(encryptionConfig)
     .build()
 
-
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     reset(injected[CitizenDetailsService])
-  }
 
   trait LocalSetup {
 
     def isHighGG: Boolean
     def isVerify: Boolean
 
-    lazy val controller =  {
+    lazy val controller = {
 
       val c = injected[NiLetterController]
 
@@ -75,13 +72,18 @@ class NiLetterControllerSpec extends BaseSpec {
       }
 
       when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = true, confidenceLevel = if (isHighGG) ConfidenceLevel.L200 else ConfidenceLevel.L50)))
+        Future.successful(
+          Some(
+            buildFakeAuthority(
+              withPaye = true,
+              withSa = true,
+              confidenceLevel = if (isHighGG) ConfidenceLevel.L200 else ConfidenceLevel.L50)))
       }
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }
 
-      val authProviderType = if(isVerify) UserDetails.VerifyAuthProvider else UserDetails.GovernmentGatewayAuthProvider
+      val authProviderType = if (isVerify) UserDetails.VerifyAuthProvider else UserDetails.GovernmentGatewayAuthProvider
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
       }
@@ -113,10 +115,16 @@ class NiLetterControllerSpec extends BaseSpec {
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
       val doc = Jsoup.parse(contentAsString(r))
       doc.getElementById("page-title").text() shouldBe "Your National Insurance letter"
-      doc.getElementById("keep-ni-number-safe").text() shouldBe "Keep this number in a safe place. Do not destroy this letter."
-      doc.getElementById("available-information-text-relay").text() should include("Information is available in large print, audio tape and Braille formats.")
-      doc.getElementById("available-information-text-relay").text() should include("Text Relay service prefix number - 18001")
-      doc.getElementById("your-ni-number-unique").text() shouldBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, do not share it with anyone who does not need it."
+      doc
+        .getElementById("keep-ni-number-safe")
+        .text() shouldBe "Keep this number in a safe place. Do not destroy this letter."
+      doc.getElementById("available-information-text-relay").text() should include(
+        "Information is available in large print, audio tape and Braille formats.")
+      doc.getElementById("available-information-text-relay").text() should include(
+        "Text Relay service prefix number - 18001")
+      doc
+        .getElementById("your-ni-number-unique")
+        .text() shouldBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, do not share it with anyone who does not need it."
     }
   }
 }

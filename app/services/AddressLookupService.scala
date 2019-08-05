@@ -35,18 +35,23 @@ sealed trait AddressLookupResponse
 case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse
 case class AddressLookupUnexpectedResponse(r: HttpResponse) extends AddressLookupResponse
 case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
-
-
 @Singleton
-class AddressLookupService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics, val pertaxAuthenticationProvider: PertaxAuthenticationProvider, val tools: Tools) extends ServicesConfig with HasMetrics {
+class AddressLookupService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics,
+  val pertaxAuthenticationProvider: PertaxAuthenticationProvider,
+  val tools: Tools)
+    extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val addressLookupUrl = baseUrl("address-lookup")
 
-  def lookup(postcode: String, filter: Option[String] = None)(implicit hc: HeaderCarrier): Future[AddressLookupResponse] = {
+  def lookup(postcode: String, filter: Option[String] = None)(
+    implicit hc: HeaderCarrier): Future[AddressLookupResponse] =
     withMetricsTimer("address-lookup") { t =>
-
       val hn = tools.urlEncode(filter.getOrElse(""))
       val pc = postcode.replaceAll(" ", "")
       val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> pertaxAuthenticationProvider.defaultOrigin)
@@ -70,5 +75,4 @@ class AddressLookupService @Inject() (environment: Environment, configuration: C
         }
       )(newHc)
     }
-  }
 }

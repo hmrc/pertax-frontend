@@ -29,7 +29,6 @@ import services.http.FakeSimpleHttp
 import util.BaseSpec
 import uk.gov.hmrc.http.HttpResponse
 
-
 class IdentityVerificationFrontendServiceSpec extends BaseSpec {
 
   trait SpecSetup {
@@ -41,21 +40,25 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
 
     lazy val (service, metrics, timer) = {
       val fakeSimpleHttp = {
-        if(simulateIdentityVerificationFrontendIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulateIdentityVerificationFrontendIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val identityVerificationFrontendService: IdentityVerificationFrontendService = new IdentityVerificationFrontendService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      val identityVerificationFrontendService: IdentityVerificationFrontendService =
+        new IdentityVerificationFrontendService(
+          injected[Environment],
+          injected[Configuration],
+          fakeSimpleHttp,
+          MockitoSugar.mock[Metrics]) {
 
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
-        when(metricsOperator.startTimer(any())) thenReturn timer
-      }
+          override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+          when(metricsOperator.startTimer(any())) thenReturn timer
+        }
 
       (identityVerificationFrontendService, identityVerificationFrontendService.metricsOperator, timer)
     }
   }
-
 
   "Calling IdentityVerificationFrontend.getIVJourneyStatus" should {
 

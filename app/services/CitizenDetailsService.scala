@@ -50,21 +50,23 @@ case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) exte
 case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
 case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
 case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
-
-
 @Singleton
-class CitizenDetailsService @Inject() (environment: Environment, configuration: Configuration,val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class CitizenDetailsService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics)
+    extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val citizenDetailsUrl = baseUrl("citizen-details")
 
   /**
     * Gets the person details
     */
-  def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] = {
+  def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
     withMetricsTimer("get-person-details") { t =>
-
       simpleHttp.get[PersonDetailsResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details")(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
@@ -72,7 +74,7 @@ class CitizenDetailsService @Inject() (environment: Environment, configuration: 
             PersonDetailsSuccessResponse(r.json.as[PersonDetails])
 
           case r if r.status == LOCKED =>
-            t.completeTimerAndIncrementFailedCounter()  //TODO - check this
+            t.completeTimerAndIncrementFailedCounter() //TODO - check this
             Logger.warn("Personal details record in citizen-details was hidden")
             PersonDetailsHiddenResponse
 
@@ -94,12 +96,14 @@ class CitizenDetailsService @Inject() (environment: Environment, configuration: 
         }
       )
     }
-  }
 
-  def updateAddress(nino: Nino, etag: String, address: Address)(implicit headerCarrier: HeaderCarrier): Future[UpdateAddressResponse] = {
+  def updateAddress(nino: Nino, etag: String, address: Address)(
+    implicit headerCarrier: HeaderCarrier): Future[UpdateAddressResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
     withMetricsTimer("update-address") { t =>
-      simpleHttp.post[JsObject, UpdateAddressResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address", body)(
+      simpleHttp.post[JsObject, UpdateAddressResponse](
+        s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
+        body)(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()
@@ -125,8 +129,7 @@ class CitizenDetailsService @Inject() (environment: Environment, configuration: 
     }
   }
 
-  def getMatchingDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[MatchingDetailsResponse] = {
-
+  def getMatchingDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[MatchingDetailsResponse] =
     withMetricsTimer("get-matching-details") { t =>
       simpleHttp.get[MatchingDetailsResponse](s"$citizenDetailsUrl/citizen-details/nino/$nino")(
         onComplete = {
@@ -150,5 +153,4 @@ class CitizenDetailsService @Inject() (environment: Environment, configuration: 
         }
       )
     }
-  }
 }

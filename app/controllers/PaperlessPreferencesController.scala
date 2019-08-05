@@ -30,9 +30,7 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-
-
-class PaperlessPreferencesController @Inject() (
+class PaperlessPreferencesController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
@@ -48,14 +46,19 @@ class PaperlessPreferencesController @Inject() (
   def managePreferences: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       pertaxContext.authProvider match {
-        case Some("IDA") => Future.successful(BadRequest(views.html.error(
-          "global.error.BadRequest.title",
-          Some("global.error.BadRequest.heading"),
-          Some("global.error.BadRequest.message"))))
-        case _ => showingWarningIfWelsh {
-          implicit pertaxContext =>
+        case Some("IDA") =>
+          Future.successful(
+            BadRequest(
+              views.html.error(
+                "global.error.BadRequest.title",
+                Some("global.error.BadRequest.heading"),
+                Some("global.error.BadRequest.message"))))
+        case _ =>
+          showingWarningIfWelsh { implicit pertaxContext =>
             for {
-              managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
+              managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(
+                                     configDecorator.pertaxFrontendHomeUrl,
+                                     Messages("label.back_to_account_home"))
             } yield {
               Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
             }

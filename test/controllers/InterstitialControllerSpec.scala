@@ -67,7 +67,7 @@ class InterstitialControllerSpec extends BaseSpec {
       injected[LocalErrorHandler]
     ) {
       private def formPartialServiceResponse = Future.successful {
-        if(simulateFormPartialServiceFailure) HtmlPartial.Failure()
+        if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
         else HtmlPartial.Success(Some("Success"), Html("any"))
       }
       when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
@@ -75,7 +75,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       when(saPartialService.getSaAccountSummary(any())) thenReturn {
         Future.successful {
-          if(simulateSaPartialServiceFailure) HtmlPartial.Failure()
+          if (simulateSaPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
         }
       }
@@ -115,7 +115,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-
       val r = c.displayNationalInsurance(request)
       status(r) shouldBe OK
 
@@ -138,7 +137,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-
       val r = c.displayChildBenefits(request)
       status(r) shouldBe OK
 
@@ -159,7 +157,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-
       val r = c.displaySelfAssessment(request)
       status(r) shouldBe OK
 
@@ -178,7 +175,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-
       val r = c.displaySelfAssessment(request)
       status(r) shouldBe UNAUTHORIZED
 
@@ -196,7 +192,6 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateFormPartialServiceFailure = true
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
-
 
       val r = c.displaySelfAssessment(request)
       status(r) shouldBe UNAUTHORIZED
