@@ -47,6 +47,7 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val pertaxFrontendService = baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
+  lazy val authLoginApiService = baseUrl("auth-login-api")
 
   private def decorateUrlForLocalDev(key: String): Option[String] = configuration.getString(s"external-url.$key").filter(x => env=="Dev")
 
@@ -66,6 +67,7 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val tcsFrontendHost                              = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
   lazy val nispFrontendHost                             = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost                          = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
+  lazy val taxCalcHost                                  = decorateUrlForLocalDev("taxcalc.host").getOrElse("")
   lazy val dfsFrontendHost                              = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
   lazy val plaBackEndHost                               = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
   lazy val saFrontendHost                               = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
@@ -205,6 +207,8 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
 
 trait TaxcalcUrls {
   self: ConfigDecorator =>
+
+  def reconciliationsUrl(nino: String, startYear: Int, endYear: Int) = s"${self.taxCalcHost}/$nino/$startYear/$endYear/reconciliations"
 
   def underpaidUrlReasons(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little/reasons"
   def overpaidUrlReasons(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much/reasons"
