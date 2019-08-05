@@ -30,7 +30,7 @@ class TaxCalculationStateSpec extends BaseSpec {
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
     .build()
-  
+
   "Calling buildFromTaxCalcSummary without a P302 business reason" should {
 
     trait TaxCalculationStateSimpleSpecSetup {
@@ -50,7 +50,8 @@ class TaxCalculationStateSpec extends BaseSpec {
     }
 
     "return a TaxCalculationPaymentPaidState when called with a TaxCalculation with a P800 status of Overpaid and paymentStatus of PAYMENT_PAID" in new TaxCalculationStateSimpleSpecSetup {
-      val taxCalculation = TaxCalculation("Overpaid", 1000.0, 2015, Some("PAYMENT_PAID"), Some("2016-05-19"), None, None)
+      val taxCalculation =
+        TaxCalculation("Overpaid", 1000.0, 2015, Some("PAYMENT_PAID"), Some("2016-05-19"), None, None)
       val result = factory.buildFromTaxCalculation(Some(taxCalculation))
       result shouldBe TaxCalculationOverpaidPaymentPaidState(1000.0, Some(new LocalDate("2016-05-19")))
     }
@@ -103,45 +104,61 @@ class TaxCalculationStateSpec extends BaseSpec {
         injected[TaxCalculationStateFactory]
       }
 
-      lazy val taxCalculation = TaxCalculation("Underpaid", 1000.0, 2017, Some(paymentStatus), None, Some("P302"), Some(dueDate))
+      lazy val taxCalculation =
+        TaxCalculation("Underpaid", 1000.0, 2017, Some(paymentStatus), None, Some("P302"), Some(dueDate))
       lazy val result = factory.buildFromTaxCalculation(Some(taxCalculation))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of None and due date when\n" +
-    "    today's date is 14/12 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 14/12 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
       override lazy val currentDate = "2017-12-14"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), None)
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        None)
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
-    "    today's date is 15/12 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 15/12 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-12-15"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
-    "    today's date is 16/12 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 31/01/2018\n"in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 16/12 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-12-16"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of None and due date when\n" +
-    "    today's date is 14/12 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 14/12 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-12-14"
       override lazy val paymentStatus = "PAID_PART"
@@ -151,63 +168,88 @@ class TaxCalculationStateSpec extends BaseSpec {
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when\n" +
-    "    today's date is 15/12 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is to 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 15/12 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is to 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-12-15"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
-    "    today's date is 16/12 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is to 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 16/12 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is to 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-12-16"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of None and due date when\n" +
-    "    today's date is 30/10/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 30/11/2017 (today's date is NOT within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 30/10/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 30/11/2017 (today's date is NOT within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-10-30"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), None)
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        None)
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
-    "    today's date is 31/10/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 31/10/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-10-31"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
-    "    today's date is 01/11/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 01/11/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-11-01"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of None and due date when\n" +
-    "    today's date is 30/10/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 30/11/2017 (today's date is NOT within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 30/10/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 30/11/2017 (today's date is NOT within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-10-30"
       override lazy val paymentStatus = "PAID_PART"
@@ -217,25 +259,35 @@ class TaxCalculationStateSpec extends BaseSpec {
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
-    "    today's date is 31/10/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 31/10/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-10-31"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date when-\n" +
-    "    today's date is 01/11/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 01/11/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 30/11/2017 (today's date IS within due date minus 30 days)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-11-01"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
@@ -246,7 +298,12 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
@@ -257,40 +314,60 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
-    "    today's date is 01/02/2018 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 01/02/2018 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2018-02-01"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
-    "    today's date is 02/02/2018 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 02/02/2018 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2018-02-02"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
-    "    today's date is 31/01/2018 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 31/01/2018 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2018-01-31"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproachingStatus and due date when-\n" +
@@ -301,56 +378,81 @@ class TaxCalculationStateSpec extends BaseSpec {
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlineApproachingStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlineApproachingStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
-    "    today's date is 01/02/2018 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 01/02/2018 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2018-02-01"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
-    "    today's date is 02/02/2018 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 02/02/2018 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 31/01/2018\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2018-02-02"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2018-01-31"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2018-01-31")), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2018-01-31")),
+        Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
-    "    today's date is 01/12/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
-    "    due date is 30/12/2017 (due date passed by one day)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 01/12/2017 in the current tax year for P800 status of 'PAYMENT_DUE'\n" +
+      "    due date is 30/12/2017 (due date passed by one day)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-12-01"
       override lazy val paymentStatus = "PAYMENT_DUE"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPaymentDueState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPaymentDueState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassedStatus and due date when-\n" +
-    "    today's date is 01/12/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
-    "    due date is 30/12/2017 (due date passed by one day)\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 01/12/2017 in the current tax year for P800 status of 'PAID_PART'\n" +
+      "    due date is 30/12/2017 (due date passed by one day)\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2017-12-01"
       override lazy val paymentStatus = "PAID_PART"
       override lazy val dueDate = "2017-11-30"
 
-      result shouldBe TaxCalculationUnderpaidPartPaidState(1000.0, 2017, 2018, Some(new LocalDate("2017-11-30")), Some(SaDeadlinePassedStatus))
+      result shouldBe TaxCalculationUnderpaidPartPaidState(
+        1000.0,
+        2017,
+        2018,
+        Some(new LocalDate("2017-11-30")),
+        Some(SaDeadlinePassedStatus))
     }
 
     "return a TaxCalculationUnderpaidPaidAllState with due date when-\n" +
-    "    today's date is 01/12/2017 in the current tax year for P800 status of 'PAID_ALL'\n" +
-    "    due date is 30/12/2017\n" in new TaxCalculationStateCurrentDateSpecSetup {
+      "    today's date is 01/12/2017 in the current tax year for P800 status of 'PAID_ALL'\n" +
+      "    due date is 30/12/2017\n" in new TaxCalculationStateCurrentDateSpecSetup {
 
       override lazy val currentDate = "2018-01-31"
       override lazy val paymentStatus = "PAID_ALL"

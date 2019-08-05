@@ -25,5 +25,5 @@ case class UserDetails(authProviderType: String) {
 object UserDetails {
   implicit val formats = Json.format[UserDetails]
   val GovernmentGatewayAuthProvider = "GovernmentGateway"
-  val VerifyAuthProvider            = "Verify"
+  val VerifyAuthProvider = "Verify"
 }

@@ -24,8 +24,6 @@ import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, MicroserviceFilterSupport}
-
-
 @Singleton
 class LocalFrontendAuditFilter @Inject()(
   environment: Environment,
@@ -33,9 +31,9 @@ class LocalFrontendAuditFilter @Inject()(
   val auditConnector: PertaxAuditConnector
 ) extends FrontendAuditFilter with MicroserviceFilterSupport with RunMode with AppName with ControllerConfig {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  val appNameConfiguration:Configuration = configuration
+  val appNameConfiguration: Configuration = configuration
 
   lazy val controllerConfigs = configuration.underlying.as[Config]("controllers")
 

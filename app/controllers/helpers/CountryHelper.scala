@@ -282,7 +282,8 @@ class CountryHelper {
     Country("Republic Of Montenegro"),
     Country("Republic Of Serbia"),
     Country("Antarctica"),
-    Country("Republic Of Kosovo"))
+    Country("Republic Of Kosovo")
+  )
 
   val excludedCountries = List(
     Country("GREAT BRITAIN"),

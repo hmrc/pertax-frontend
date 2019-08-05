@@ -34,10 +34,9 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.{BaseSpec, LocalPartialRetriever}
 
-class PublicControllerSpec extends BaseSpec  {
+class PublicControllerSpec extends BaseSpec {
 
   val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(injected[ApplicationCrypto])
-
 
   override lazy val app = new GuiceApplicationBuilder()
     .overrides(bind[MetricsFilter].to[DisabledMetricsFilter].eagerly)

@@ -22,11 +22,10 @@ import com.typesafe.config.Config
 import play.api.{Configuration, Play}
 import uk.gov.hmrc.play.config.ControllerConfig
 import net.ceedubs.ficus.Ficus._
-import uk.gov.hmrc.play.frontend.filters.{ FrontendLoggingFilter, MicroserviceFilterSupport }
-
-
+import uk.gov.hmrc.play.frontend.filters.{FrontendLoggingFilter, MicroserviceFilterSupport}
 @Singleton
-class LocalLoggingFilter @Inject() (val config: Configuration) extends FrontendLoggingFilter with MicroserviceFilterSupport with ControllerConfig {
+class LocalLoggingFilter @Inject()(val config: Configuration)
+    extends FrontendLoggingFilter with MicroserviceFilterSupport with ControllerConfig {
 
   lazy val controllerConfigs = config.underlying.as[Config]("controllers")
   override def controllerNeedsLogging(controllerName: String) = paramsForController(controllerName).needsLogging

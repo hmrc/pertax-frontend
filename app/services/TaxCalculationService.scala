@@ -31,27 +31,29 @@ import uk.gov.hmrc.play.http._
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-
 sealed trait TaxCalculationResponse
 case class TaxCalculationSuccessResponse(taxCalculation: TaxCalculation) extends TaxCalculationResponse
 case object TaxCalculationNotFoundResponse extends TaxCalculationResponse
 case class TaxCalculationUnexpectedResponse(r: HttpResponse) extends TaxCalculationResponse
 case class TaxCalculationErrorResponse(cause: Exception) extends TaxCalculationResponse
-
-
 @Singleton
-class TaxCalculationService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class TaxCalculationService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics)
+    extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val taxCalcUrl = baseUrl("taxcalc")
 
   /**
     * Gets a tax calc summary
     */
-  def getTaxCalculation(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxCalculationResponse] = {
+  def getTaxCalculation(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxCalculationResponse] =
     withMetricsTimer("get-taxcalc-summary") { t =>
-      simpleHttp.get[TaxCalculationResponse](s"$taxCalcUrl/taxcalc/$nino/taxSummary/$year") (
+      simpleHttp.get[TaxCalculationResponse](s"$taxCalcUrl/taxcalc/$nino/taxSummary/$year")(
         onComplete = {
 
           case r if r.status >= 200 && r.status < 300 =>
@@ -79,5 +81,4 @@ class TaxCalculationService @Inject() (environment: Environment, configuration: 
         }
       )
     }
-  }
 }

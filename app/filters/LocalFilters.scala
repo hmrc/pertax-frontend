@@ -22,10 +22,9 @@ import com.kenshoo.play.metrics.MetricsFilter
 import play.api.http.DefaultHttpFilters
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter
-import uk.gov.hmrc.play.frontend.filters.{ CSRFExceptionsFilter, CacheControlFilter, CookieCryptoFilter, DeviceIdFilter, HeadersFilter, SessionTimeoutFilter }
+import uk.gov.hmrc.play.frontend.filters.{CSRFExceptionsFilter, CacheControlFilter, CookieCryptoFilter, DeviceIdFilter, HeadersFilter, SessionTimeoutFilter}
 
-
-class LocalFilters @Inject() (
+class LocalFilters @Inject()(
   securityHeadersFilter: SecurityHeadersFilter,
   metricsFilter: MetricsFilter,
   headersFilter: HeadersFilter,
@@ -37,6 +36,16 @@ class LocalFilters @Inject() (
   csrfExceptionsFilter: CSRFExceptionsFilter,
   csrfFilter: CSRFFilter,
   cacheControlFilter: CacheControlFilter
-) extends DefaultHttpFilters(securityHeadersFilter, metricsFilter, headersFilter, testFilter,
-    deviceIdFilter, loggingFilter, frontendAuditFilter, sessionTimeoutFilter,
-    csrfExceptionsFilter, csrfFilter, cacheControlFilter)
+) extends DefaultHttpFilters(
+      securityHeadersFilter,
+      metricsFilter,
+      headersFilter,
+      testFilter,
+      deviceIdFilter,
+      loggingFilter,
+      frontendAuditFilter,
+      sessionTimeoutFilter,
+      csrfExceptionsFilter,
+      csrfFilter,
+      cacheControlFilter
+    )

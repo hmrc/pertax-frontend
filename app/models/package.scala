@@ -15,5 +15,5 @@
  */
 
 package object models {
-  type Breadcrumb = List[(String,String)]
+  type Breadcrumb = List[(String, String)]
 }

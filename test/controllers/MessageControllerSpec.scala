@@ -37,7 +37,7 @@ import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class MessageControllerSpec extends BaseSpec  {
+class MessageControllerSpec extends BaseSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
@@ -49,11 +49,8 @@ class MessageControllerSpec extends BaseSpec  {
     .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
     .build()
 
-
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     reset(injected[MessageFrontendService], injected[CitizenDetailsService])
-  }
-
 
   trait LocalSetup {
 
@@ -72,7 +69,6 @@ class MessageControllerSpec extends BaseSpec  {
         Future.successful(None)
       }
 
-
       c
     }
   }
@@ -84,11 +80,12 @@ class MessageControllerSpec extends BaseSpec  {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
       when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
+        Future.successful(
+          Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
+        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
@@ -108,11 +105,12 @@ class MessageControllerSpec extends BaseSpec  {
       }
 
       when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
+        Future.successful(
+          Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
+        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
@@ -128,7 +126,8 @@ class MessageControllerSpec extends BaseSpec  {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
       when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
+        Future.successful(
+          Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
@@ -188,11 +187,12 @@ class MessageControllerSpec extends BaseSpec  {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
       when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
+        Future.successful(
+          Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
+        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
@@ -212,11 +212,12 @@ class MessageControllerSpec extends BaseSpec  {
       }
 
       when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
+        Future.successful(
+          Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"),Html("<title/>")))
+        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
@@ -232,7 +233,8 @@ class MessageControllerSpec extends BaseSpec  {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
 
       when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
+        Future.successful(
+          Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))

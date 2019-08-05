@@ -42,28 +42,26 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
     .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
     .build()
 
-
-  override def beforeEach: Unit = {
-  }
+  override def beforeEach: Unit = {}
 
   trait Setup {
 
     def confidenceLevel: ConfidenceLevel
-    def getSelfAssessmentAction:  SelfAssessmentUserType
+    def getSelfAssessmentAction: SelfAssessmentUserType
     def allowLowConfidenceSA: Boolean
 
-    lazy val ac = Fixtures.buildFakeAuthContext(withPaye = false, withSa = getSelfAssessmentAction == ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")))
+    lazy val ac = Fixtures.buildFakeAuthContext(
+      withPaye = false,
+      withSa = getSelfAssessmentAction == ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")))
     lazy val authContext = ac.copy(user = ac.user.copy(confidenceLevel = confidenceLevel))
 
     lazy val predicate = {
       val fac = new LocalPageVisibilityPredicateFactory(
-        MockitoSugar.mock[CitizenDetailsService],
-        {
+        MockitoSugar.mock[CitizenDetailsService], {
           val sas = MockitoSugar.mock[SelfAssessmentService]
-          when (sas.getSelfAssessmentUserType(any())(any())) thenReturn Future.successful(getSelfAssessmentAction)
+          when(sas.getSelfAssessmentUserType(any())(any())) thenReturn Future.successful(getSelfAssessmentAction)
           sas
-        },
-        {
+        }, {
           val cd = MockitoSugar.mock[ConfigDecorator]
           when(cd.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
           when(cd.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
@@ -100,9 +98,10 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
-        "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
-        "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
+      nonVisibleRedirectLocation shouldBe Some(
+        "/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
+          "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
+          "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
 
     "return a blocked result redirecting to IV if the user has a CL of 50" in new Setup {
@@ -111,9 +110,10 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
       override val allowLowConfidenceSA = false
 
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
-        "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
-        "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
+      nonVisibleRedirectLocation shouldBe Some(
+        "/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
+          "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
+          "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
   }
 
@@ -127,16 +127,18 @@ class LocalPageVisibilityPredicateSpec extends BaseSpec {
 
       override val allowLowConfidenceSA = true
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      nonVisibleRedirectLocation shouldBe Some("/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
+      nonVisibleRedirectLocation shouldBe Some(
+        "/personal-account/sa-continue?continueUrl=%2Fpersonal-account%2Fsuccess-page")
     }
 
     "return a blocked result, redirecting the user to IV if the user has an active SA enrolment and the 'sa allow low confidence' feature is off" in new LowCLSetup {
 
       override val allowLowConfidenceSA = false
       override val getSelfAssessmentAction = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      nonVisibleRedirectLocation shouldBe Some("/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
-        "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
-        "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
+      nonVisibleRedirectLocation shouldBe Some(
+        "/mdtp/uplift?origin=PERTAX&confidenceLevel=200" +
+          "&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page" +
+          "&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account%252Fsuccess-page")
     }
   }
 }

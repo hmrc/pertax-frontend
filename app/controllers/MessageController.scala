@@ -30,9 +30,8 @@ import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.ActiveTabMessages
 import util.LocalPartialRetriever
-  
 
-class MessageController @Inject() (
+class MessageController @Inject()(
   val messagesApi: MessagesApi,
   val messageFrontendService: MessageFrontendService,
   val citizenDetailsService: CitizenDetailsService,
@@ -45,17 +44,18 @@ class MessageController @Inject() (
 
   def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList.url ::
-    baseBreadcrumb
+      baseBreadcrumb
 
-  def messageList = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) {
-    implicit pertaxContext =>
-      enforceGovernmentGatewayUser {
-        enforcePayeOrSaUser {
-          messageFrontendService.getMessageListPartial map { p =>
-            Ok(views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
-          }
+  def messageList = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) { implicit pertaxContext =>
+    enforceGovernmentGatewayUser {
+      enforcePayeOrSaUser {
+        messageFrontendService.getMessageListPartial map { p =>
+          Ok(
+            views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
+              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
         }
       }
+    }
   }
 
   def messageDetail(messageToken: String) = VerifiedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) {
@@ -63,9 +63,15 @@ class MessageController @Inject() (
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {
           messageFrontendService.getMessageDetailPartial(messageToken).map {
-            case HtmlPartial.Success(Some(title), content) => Ok(views.html.message.messageDetail(message = content, title = title))
-            case HtmlPartial.Success(None, content) => Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
-            case HtmlPartial.Failure(_,_) => Ok(views.html.message.messageDetail(message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")), title = Messages("label.message")))
+            case HtmlPartial.Success(Some(title), content) =>
+              Ok(views.html.message.messageDetail(message = content, title = title))
+            case HtmlPartial.Success(None, content) =>
+              Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
+            case HtmlPartial.Failure(_, _) =>
+              Ok(
+                views.html.message.messageDetail(
+                  message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
+                  title = Messages("label.message")))
           }
         }
       }

@@ -26,71 +26,78 @@ class AddressFinderDtoSpec extends BaseSpec {
 
       val formData = Map(
         "postcode" -> "AA1 1AA",
-        "filter" -> "6"
+        "filter"   -> "6"
       )
 
-      AddressFinderDto.form.bind(formData).fold(
-        formWithErrors => {
-        },
-        success => {
-          success shouldBe AddressFinderDto("AA1 1AA", Some("6"))
-        }
-      )
+      AddressFinderDto.form
+        .bind(formData)
+        .fold(
+          formWithErrors => {},
+          success => {
+            success shouldBe AddressFinderDto("AA1 1AA", Some("6"))
+          }
+        )
     }
 
     "return an error when postcode is invalid and filter is valid" in {
 
       val formData = Map(
         "postcode" -> "±±± §§§",
-        "filter" -> "6"
+        "filter"   -> "6"
       )
 
-      AddressFinderDto.form.bind(formData).fold(
-        formWithErrors => {
-          formWithErrors.errors.length shouldBe 1
-          formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
-        },
-        success => {
-          fail("Form should give an error")
-        }
-      )
+      AddressFinderDto.form
+        .bind(formData)
+        .fold(
+          formWithErrors => {
+            formWithErrors.errors.length shouldBe 1
+            formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
     }
 
     "return an error when postcode is valid and filter is invalid" in {
 
       val formData = Map(
         "postcode" -> "AA1 1AA",
-        "filter" -> "§"
+        "filter"   -> "§"
       )
 
-      AddressFinderDto.form.bind(formData).fold(
-        formWithErrors => {
-          formWithErrors.errors.length shouldBe 1
-          formWithErrors.errors.head.message shouldBe "error.enter_valid_characters"
-        },
-        success => {
-          fail("Form should give an error")
-        }
-      )
+      AddressFinderDto.form
+        .bind(formData)
+        .fold(
+          formWithErrors => {
+            formWithErrors.errors.length shouldBe 1
+            formWithErrors.errors.head.message shouldBe "error.enter_valid_characters"
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
     }
 
     "return two errors when postcode is invalid and filter is invalid" in {
 
       val formData = Map(
         "postcode" -> "±±± §§§",
-        "filter" -> "§"
+        "filter"   -> "§"
       )
 
-      AddressFinderDto.form.bind(formData).fold(
-        formWithErrors => {
-          formWithErrors.errors.length shouldBe 2
-          formWithErrors.errors(0).message shouldBe "error.enter_a_valid_uk_postcode"
-          formWithErrors.errors(1).message shouldBe "error.enter_valid_characters"
-        },
-        success => {
-          fail("Form should give an error")
-        }
-      )
+      AddressFinderDto.form
+        .bind(formData)
+        .fold(
+          formWithErrors => {
+            formWithErrors.errors.length shouldBe 2
+            formWithErrors.errors(0).message shouldBe "error.enter_a_valid_uk_postcode"
+            formWithErrors.errors(1).message shouldBe "error.enter_valid_characters"
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
     }
 
     "bind correctly with valid postcode and no filter" in {
@@ -99,14 +106,16 @@ class AddressFinderDtoSpec extends BaseSpec {
         "postcode" -> "AA1 1AA"
       )
 
-      AddressFinderDto.form.bind(formData).fold(
-        formWithErrors => {
-          formWithErrors.errors.length shouldBe 0
-        },
-        success => {
-          success shouldBe AddressFinderDto("AA1 1AA", None)
-        }
-      )
+      AddressFinderDto.form
+        .bind(formData)
+        .fold(
+          formWithErrors => {
+            formWithErrors.errors.length shouldBe 0
+          },
+          success => {
+            success shouldBe AddressFinderDto("AA1 1AA", None)
+          }
+        )
     }
 
     "return an error when no postcode is submitted" in {
@@ -115,15 +124,17 @@ class AddressFinderDtoSpec extends BaseSpec {
         "postcode" -> ""
       )
 
-      AddressFinderDto.form.bind(formData).fold(
-        formWithErrors => {
-          formWithErrors.errors.length shouldBe 1
-          formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
-        },
-        success => {
-          fail("Form should give an error")
-        }
-      )
+      AddressFinderDto.form
+        .bind(formData)
+        .fold(
+          formWithErrors => {
+            formWithErrors.errors.length shouldBe 1
+            formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
+          },
+          success => {
+            fail("Form should give an error")
+          }
+        )
     }
   }
 

@@ -30,7 +30,6 @@ import uk.gov.hmrc.domain.Nino
 import util.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.HttpResponse
 
-
 class LifetimeAllowanceServiceSpec extends BaseSpec {
 
   trait SpecSetup {
@@ -48,7 +47,11 @@ class LifetimeAllowanceServiceSpec extends BaseSpec {
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      val ltaService: LifetimeAllowanceService = new LifetimeAllowanceService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      val ltaService: LifetimeAllowanceService = new LifetimeAllowanceService(
+        injected[Environment],
+        injected[Configuration],
+        fakeSimpleHttp,
+        MockitoSugar.mock[Metrics]) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
@@ -58,7 +61,6 @@ class LifetimeAllowanceServiceSpec extends BaseSpec {
     }
   }
 
-
   "Calling HasLtaService.getCount" should {
 
     "return an Option containing the value 1 when called with a nino which has a LTA Protection" in new SpecSetup {
@@ -67,13 +69,12 @@ class LifetimeAllowanceServiceSpec extends BaseSpec {
 
       lazy val r = service.getCount(Fixtures.fakeNino)
 
-      await(r) should contain (1)
+      await(r) should contain(1)
 
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
     }
-
 
     "return None when the LTA service returns an exception (service is down)" in new SpecSetup {
       override lazy val httpResponse = ???
@@ -89,7 +90,6 @@ class LifetimeAllowanceServiceSpec extends BaseSpec {
     }
 
   }
-
 
   "Calling HasLtaService.hasLtaProtection" should {
 

@@ -23,40 +23,40 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
-
-
 @Singleton
-class SimpleHttp @Inject() (http: WsAllMethods) {
+class SimpleHttp @Inject()(http: WsAllMethods) {
 
   implicit val r = new HttpReads[HttpResponse] {
     override def read(method: String, url: String, response: HttpResponse): HttpResponse = response
   }
 
-  def get[T](url: String)(onComplete: HttpResponse => T, onError: Exception => T)(implicit hc: HeaderCarrier): Future[T] = {
+  def get[T](url: String)(onComplete: HttpResponse => T, onError: Exception => T)(
+    implicit hc: HeaderCarrier): Future[T] =
     http.GET[HttpResponse](url) map { response =>
       onComplete(response)
     } recover {
       case e: Exception =>
         onError(e)
     }
-  }
 
-  def post[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(implicit hc: HeaderCarrier, w: Writes[I]): Future[T] = {
+  def post[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(
+    implicit hc: HeaderCarrier,
+    w: Writes[I]): Future[T] =
     http.POST[I, HttpResponse](url, body) map { response =>
       onComplete(response)
     } recover {
       case e: Exception =>
         onError(e)
     }
-  }
 
-  def put[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(implicit hc: HeaderCarrier, w: Writes[I]): Future[T] = {
+  def put[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(
+    implicit hc: HeaderCarrier,
+    w: Writes[I]): Future[T] =
     http.PUT[I, HttpResponse](url, body) map { response =>
       onComplete(response)
     } recover {
       case e: Exception =>
         onError(e)
     }
-  }
 
 }
