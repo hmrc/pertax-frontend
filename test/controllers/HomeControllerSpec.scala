@@ -53,7 +53,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))
     .overrides(bind[PreferencesFrontendService].toInstance(MockitoSugar.mock[PreferencesFrontendService]))
-    .overrides(bind[IdentityVerificationFrontendService].toInstance(MockitoSugar.mock[IdentityVerificationFrontendService]))
+    .overrides(bind[IdentityVerificationFrontendService].toInstance(
+      MockitoSugar.mock[IdentityVerificationFrontendService]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
@@ -65,11 +66,16 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
     .build()
 
-  override def beforeEach: Unit = {
-    reset(injected[PertaxAuditConnector], injected[PertaxAuthConnector], injected[TaxCalculationService], injected[CitizenDetailsService],
-      injected[TaiService], injected[MessageFrontendService],
-      injected[UserDetailsService])
-  }
+  override def beforeEach: Unit =
+    reset(
+      injected[PertaxAuditConnector],
+      injected[PertaxAuthConnector],
+      injected[TaxCalculationService],
+      injected[CitizenDetailsService],
+      injected[TaiService],
+      injected[MessageFrontendService],
+      injected[UserDetailsService]
+    )
 
   override def now: () => DateTime = DateTime.now
 
@@ -81,11 +87,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
     lazy val year = current.currentYear
-    lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
+    lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(
+      TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
-    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+      SaUtr("1111111111"))
     lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
@@ -176,13 +184,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r = controller.index()(FakeRequest("GET", "/personal-account")) //No auth in this fake request
 
       status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some("/gg-sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account&accountType=individual&origin=PERTAX")
+      redirectLocation(r) shouldBe Some(
+        "/gg-sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account&accountType=individual&origin=PERTAX")
     }
 
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
       override lazy val nino = Fixtures.fakeNino
-      override lazy val authority = buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
+      override lazy val authority =
+        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
       override val allowLowConfidenceSA = false
 
       val r = controller.index()(buildFakeRequestWithAuth("GET"))
@@ -190,16 +200,21 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
+      if (controller.configDecorator.taxComponentsEnabled)
+        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      if (controller.configDecorator.taxcalcEnabled)
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
+          meq(Fixtures.fakeNino),
+          meq(current.currentYear - 1),
+          meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
 
       override lazy val nino = Fixtures.fakeNino
-      override lazy val authority = buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
+      override lazy val authority =
+        buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
       override val allowLowConfidenceSA = false
 
       val r = controller.index()(buildFakeRequestWithAuth("GET"))
@@ -207,8 +222,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
+      if (controller.configDecorator.taxComponentsEnabled)
+        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      if (controller.configDecorator.taxcalcEnabled)
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
+          meq(Fixtures.fakeNino),
+          meq(current.currentYear - 1),
+          meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -216,7 +236,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val nino = Fixtures.fakeNino
       override lazy val getLtaServiceResponse = Future.successful(false)
-      override lazy val authority = buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
+      override lazy val authority =
+        buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
       override val allowLowConfidenceSA = false
 
       val r = controller.index()(buildFakeRequestWithAuth("GET"))
@@ -224,8 +245,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if(controller.configDecorator.taxComponentsEnabled) verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
+      if (controller.configDecorator.taxComponentsEnabled)
+        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
+      if (controller.configDecorator.taxcalcEnabled)
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
+          meq(Fixtures.fakeNino),
+          meq(current.currentYear - 1),
+          meq(current.currentYear - 1))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -265,10 +291,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
-
     "redirect when Preferences Frontend returns ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
 
-      override lazy val getPaperlessPreferenceResponse = ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
+      override lazy val getPaperlessPreferenceResponse =
+        ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
       override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
@@ -285,7 +311,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      if(controller.configDecorator.taxcalcEnabled) verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino), meq(current.currentYear - 1), meq(current.currentYear - 1))(any())
+      if (controller.configDecorator.taxcalcEnabled)
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
+          meq(Fixtures.fakeNino),
+          meq(current.currentYear - 1),
+          meq(current.currentYear - 1))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {

@@ -29,19 +29,19 @@ object ViewUtils {
       case Text(key, args)     => messages(key, args.map(fromMessage): _*)
       case Date(date, default) => LanguageHelper.langUtils.Dates.formatDate(date, default)
       case Literal(value)      => value
-  }
+    }
 
   def fromUrl(url: Url)(implicit configDecorator: ConfigDecorator): String =
     url match {
-      case MakePaymentUrl => configDecorator.makePaymentUrl
-      case TaxPaidUrl => configDecorator.taxPaidUrl
-      case UnderpaidUrl(year) => configDecorator.underpaidUrl(year)
+      case MakePaymentUrl            => configDecorator.makePaymentUrl
+      case TaxPaidUrl                => configDecorator.taxPaidUrl
+      case UnderpaidUrl(year)        => configDecorator.underpaidUrl(year)
       case UnderpaidReasonsUrl(year) => configDecorator.underpaidUrlReasons(year)
-      case OverpaidUrl(year) => configDecorator.overpaidUrl(year)
-      case OverpaidReasonsUrl(year) => configDecorator.overpaidUrlReasons(year)
-      case RightAmountUrl(year) => configDecorator.rightAmountUrl(year)
-      case NotCalculatedUrl(year) => configDecorator.notCalculatedUrl(year)
-      case NotEmployedUrl(year) => configDecorator.notEmployedUrl(year)
-      case Empty => ""
+      case OverpaidUrl(year)         => configDecorator.overpaidUrl(year)
+      case OverpaidReasonsUrl(year)  => configDecorator.overpaidUrlReasons(year)
+      case RightAmountUrl(year)      => configDecorator.rightAmountUrl(year)
+      case NotCalculatedUrl(year)    => configDecorator.notCalculatedUrl(year)
+      case NotEmployedUrl(year)      => configDecorator.notEmployedUrl(year)
+      case Empty                     => ""
     }
 }

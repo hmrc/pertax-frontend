@@ -31,27 +31,28 @@ import uk.gov.hmrc.play.http._
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-
 sealed trait TaxComponentsResponse
 case class TaxComponentsSuccessResponse(taxComponents: TaxComponents) extends TaxComponentsResponse
 case object TaxComponentsUnavailableResponse extends TaxComponentsResponse
 case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponentsResponse
 case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
-
-
 @Singleton
-class TaiService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class TaiService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics)
+    extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val taiUrl = baseUrl("tai")
 
   /**
     * Gets a list of tax components
     */
-  def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] = {
+  def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] =
     withMetricsTimer("get-tax-components") { t =>
-
       simpleHttp.get[TaxComponentsResponse](s"$taiUrl/tai/$nino/tax-account/$year/tax-components")(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
@@ -76,5 +77,4 @@ class TaiService @Inject() (environment: Environment, configuration: Configurati
         }
       )
     }
-  }
 }

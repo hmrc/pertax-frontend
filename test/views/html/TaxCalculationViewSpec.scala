@@ -30,23 +30,30 @@ class TaxCalculationViewSpec extends ViewSpec {
   import BetterOptionValues._
 
   def view(reconciliation: Reconciliation): Option[Document] =
-    TaxCalculationViewModel.fromTaxYearReconciliation(TaxYearReconciliation(2017, reconciliation))(config).map { taxRec =>
-      asDocument(taxCalculation(taxRec)(messages, pertaxContext, config).toString)
+    TaxCalculationViewModel.fromTaxYearReconciliation(TaxYearReconciliation(2017, reconciliation))(config).map {
+      taxRec =>
+        asDocument(taxCalculation(taxRec)(messages, pertaxContext, config).toString)
     }
 
   def formatDate(date: LocalDate) = LanguageHelper.langUtils.Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
 
-  val underpaidUrlReasons: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/paid-too-little/reasons"
-  val overpaidUrlReasons: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/paid-too-much/reasons"
+  val underpaidUrlReasons: String =
+    s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/paid-too-little/reasons"
+  val overpaidUrlReasons: String =
+    s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/paid-too-much/reasons"
 
-  val underpaidUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/paid-too-little"
+  val underpaidUrl: String =
+    s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/paid-too-little"
   val overpaidUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/paid-too-much"
 
   val makePaymentUrl: String = "https://www.gov.uk/simple-assessment"
 
-  val rightAmountUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/right-amount"
-  val notEmployedUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/not-employed"
-  val notCalculatedUrl: String = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/not-yet-calculated"
+  val rightAmountUrl: String =
+    s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/right-amount"
+  val notEmployedUrl: String =
+    s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/not-employed"
+  val notCalculatedUrl: String =
+    s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/2017-2018/not-yet-calculated"
 
   val taxcalcUrl = s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/status"
 
@@ -78,11 +85,17 @@ class TaxCalculationViewSpec extends ViewSpec {
       }
 
       "status is Balanced No Employment" in {
-        assertContainsLink(view(BalancedNoEmployment).getValue, messages("label.tax_year_heading", "2017", "2018"), notEmployedUrl)
+        assertContainsLink(
+          view(BalancedNoEmployment).getValue,
+          messages("label.tax_year_heading", "2017", "2018"),
+          notEmployedUrl)
       }
 
       "status is Not Reconciled" in {
-        assertContainsLink(view(NotReconciled).getValue, messages("label.tax_year_heading", "2017", "2018"), notCalculatedUrl)
+        assertContainsLink(
+          view(NotReconciled).getValue,
+          messages("label.tax_year_heading", "2017", "2018"),
+          notCalculatedUrl)
       }
 
       "status is Underpaid PaidAll" in {
@@ -103,7 +116,9 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(LocalDate.now.minusDays(1)), PaymentDue)
 
-        assertContainsText(view(status).getValue, messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018"))
       }
 
       "status is Underpaid PartPaid" in {
@@ -117,7 +132,9 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(LocalDate.now.minusDays(1)), PartPaid)
 
-        assertContainsText(view(status).getValue, messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018"))
       }
 
       "status is Overpaid Refund" in {
@@ -172,7 +189,10 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         assertContainsText(view(status).getValue, messages("label.you_owe_hmrc", "100.00"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
-        assertContainsLink(view(status).getValue, messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons)
+        assertContainsLink(
+          view(status).getValue,
+          messages("label.find_out_why_you_paid_too_little"),
+          underpaidUrlReasons)
       }
 
       "status is UnderpaidPaymentDue with due date" in {
@@ -181,9 +201,14 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(date), PaymentDue)
 
-        assertContainsText(view(status).getValue, messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
-        assertContainsLink(view(status).getValue, messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons)
+        assertContainsLink(
+          view(status).getValue,
+          messages("label.find_out_why_you_paid_too_little"),
+          underpaidUrlReasons)
       }
 
       "status is Underpaid PaymentDue with due date and sa date approaching" in {
@@ -192,9 +217,14 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(date), PaymentDue)
 
-        assertContainsText(view(status).getValue, messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
-        assertContainsLink(view(status).getValue, messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons)
+        assertContainsLink(
+          view(status).getValue,
+          messages("label.find_out_why_you_paid_too_little"),
+          underpaidUrlReasons)
       }
 
       "status is Underpaid PaymentDue with due date and sa date has passed" in {
@@ -203,7 +233,9 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(date), PaymentDue)
 
-        assertContainsText(view(status).getValue, messages("label.you_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
       }
 
@@ -213,7 +245,10 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         assertContainsText(view(status).getValue, messages("label.you_owe_hmrc", "100.00"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
-        assertContainsLink(view(status).getValue, messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons)
+        assertContainsLink(
+          view(status).getValue,
+          messages("label.find_out_why_you_paid_too_little"),
+          underpaidUrlReasons)
       }
 
       "status is Underpaid PartPaid with due date" in {
@@ -222,9 +257,14 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(date), PartPaid)
 
-        assertContainsText(view(status).getValue, messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
-        assertContainsLink(view(status).getValue, messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons)
+        assertContainsLink(
+          view(status).getValue,
+          messages("label.find_out_why_you_paid_too_little"),
+          underpaidUrlReasons)
       }
 
       "status is Underpaid PartPaid with due date and sa date approaching" in {
@@ -233,9 +273,14 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(date), PartPaid)
 
-        assertContainsText(view(status).getValue, messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
-        assertContainsLink(view(status).getValue, messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons)
+        assertContainsLink(
+          view(status).getValue,
+          messages("label.find_out_why_you_paid_too_little"),
+          underpaidUrlReasons)
       }
 
       "status is Underpaid PartPaid with due date and sa date has passed" in {
@@ -244,7 +289,9 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(date), PartPaid)
 
-        assertContainsText(view(status).getValue, messages("label.you_still_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}"))
+        assertContainsText(
+          view(status).getValue,
+          messages("label.you_still_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}"))
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), makePaymentUrl)
       }
 

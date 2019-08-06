@@ -22,7 +22,6 @@ import util.Fixtures._
 
 class AddressJourneyDataSpec extends BaseSpec {
 
-
   "Calling getAddressToDisplay " should {
 
     "return none when there is no address journey data" in {
@@ -40,7 +39,15 @@ class AddressJourneyDataSpec extends BaseSpec {
 
     "return submitted Address record when there is only a submitted Address in the journey data" in {
 
-      val journeyData = AddressJourneyData(None, None, None, None, Some(AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)), None, None, false)
+      val journeyData = AddressJourneyData(
+        None,
+        None,
+        None,
+        None,
+        Some(AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)),
+        None,
+        None,
+        false)
       val result = journeyData.getAddressToDisplay
       val submittedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result shouldBe Some(submittedAddress)
@@ -48,7 +55,15 @@ class AddressJourneyDataSpec extends BaseSpec {
 
     "return submitted Address record when there is a selected and submitted Address in the journey data" in {
 
-      val journeyData = AddressJourneyData(None, None, None, Some(oneOtherPlacePafAddressRecord), Some(AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)), None, None, false)
+      val journeyData = AddressJourneyData(
+        None,
+        None,
+        None,
+        Some(oneOtherPlacePafAddressRecord),
+        Some(AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)),
+        None,
+        None,
+        false)
       val result = journeyData.getAddressToDisplay
       val submittedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result shouldBe Some(submittedAddress)

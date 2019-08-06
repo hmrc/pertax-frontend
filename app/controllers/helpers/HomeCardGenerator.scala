@@ -25,75 +25,83 @@ import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
 
 @Singleton
-class HomeCardGenerator @Inject() (implicit configDecorator: ConfigDecorator) {
+class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
 
-  def getIncomeCards(pertaxUser: Option[PertaxUser],
-                     taxComponentsState: TaxComponentsState,
-                     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
-                     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
-                     saActionNeeded: SelfAssessmentUserType,
-                     currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
-    getPayAsYouEarnCard(pertaxUser, taxComponentsState),
-    getTaxCalculationCard(taxCalculationStateCyMinusOne),
-    getTaxCalculationCard(taxCalculationStateCyMinusTwo),
-    getSelfAssessmentCard(saActionNeeded, currentTaxYear+1),
-    getNationalInsuranceCard()
-  ).flatten
+  def getIncomeCards(
+    pertaxUser: Option[PertaxUser],
+    taxComponentsState: TaxComponentsState,
+    taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
+    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
+    saActionNeeded: SelfAssessmentUserType,
+    currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] =
+    List(
+      getPayAsYouEarnCard(pertaxUser, taxComponentsState),
+      getTaxCalculationCard(taxCalculationStateCyMinusOne),
+      getTaxCalculationCard(taxCalculationStateCyMinusTwo),
+      getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
+      getNationalInsuranceCard()
+    ).flatten
 
-  def getBenefitCards(taxComponents: Option[TaxComponents])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
-    getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
-    getChildBenefitCard(),
-    getMarriageAllowanceCard(taxComponents)
-  ).flatten
+  def getBenefitCards(
+    taxComponents: Option[TaxComponents])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] =
+    List(
+      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
+      getChildBenefitCard(),
+      getMarriageAllowanceCard(taxComponents)
+    ).flatten
 
-  def getPensionCards(pertaxUser: Option[PertaxUser])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] = List(
-    getStatePensionCard()
-  ).flatten
+  def getPensionCards(
+    pertaxUser: Option[PertaxUser])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] =
+    List(
+      getStatePensionCard()
+    ).flatten
 
-  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(implicit messages: Messages): Option[HtmlFormat.Appendable] = {
+  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(
+    implicit messages: Messages): Option[HtmlFormat.Appendable] =
     pertaxUser match {
       case Some(u) if u.isPaye =>
         taxComponentsState match {
           case TaxComponentsNotAvailableState => None
-          case _ => Some(views.html.cards.home.payAsYouEarn())
+          case _                              => Some(views.html.cards.home.payAsYouEarn())
         }
       case _ => None
     }
-  }
 
-  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliation])(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] =
-    taxYearReconciliations.flatMap(TaxCalculationViewModel.fromTaxYearReconciliation).map(views.html.cards.home.taxCalculation(_))
+  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliation])(
+    implicit pertaxContext: PertaxContext,
+    messages: Messages): Option[HtmlFormat.Appendable] =
+    taxYearReconciliations
+      .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
+      .map(views.html.cards.home.taxCalculation(_))
 
-  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType,
-                            nextDeadlineTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] = {
+  def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(
+    implicit pertaxContext: PertaxContext,
+    messages: Messages): Option[HtmlFormat.Appendable] =
     if (!pertaxContext.user.fold(false)(_.isVerify)) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saActionNeeded =>
-          Some(views.html.cards.home.selfAssessment(saActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
+          Some(
+            views.html.cards.home
+              .selfAssessment(saActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
       }
     } else {
       None
     }
-  }
 
-  def getNationalInsuranceCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
+  def getNationalInsuranceCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(views.html.cards.home.nationalInsurance())
-  }
 
-  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
+  def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(views.html.cards.home.taxCredits(showTaxCreditsPaymentLink))
-  }
 
-  def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
+  def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(views.html.cards.home.childBenefit())
-  }
 
-  def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
+  def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(
+    implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(views.html.cards.home.marriageAllowance(taxComponents))
-  }
 
-  def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] = {
+  def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(views.html.cards.home.statePension())
-  }
 }

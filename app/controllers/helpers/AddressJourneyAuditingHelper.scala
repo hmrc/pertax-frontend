@@ -22,33 +22,28 @@ import models.dto.AddressDto
 
 object AddressJourneyAuditingHelper {
 
-  def addressWasUnmodified(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean = {
+  def addressWasUnmodified(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean =
+    originalAddressDto.map { o =>
+      o.postcode == addressDto.postcode &&
+      o.line1 == addressDto.line1 &&
+      o.line2 == addressDto.line2 &&
+      o.line3 == addressDto.line3 &&
+      o.line4 == addressDto.line4 &&
+      o.line5 == addressDto.line5
+    } getOrElse false
 
-        originalAddressDto.map { o =>
-          o.postcode == addressDto.postcode &&
-            o.line1 == addressDto.line1 &&
-            o.line2 == addressDto.line2 &&
-            o.line3 == addressDto.line3 &&
-            o.line4 == addressDto.line4 &&
-            o.line5 == addressDto.line5
-        } getOrElse false
-  }
+  def addressWasHeavilyModifiedOrManualEntry(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean =
+    originalAddressDto.map { o =>
+      //Count address line changes
+      val lines = List(addressDto.line1, addressDto.line2, addressDto.line3, addressDto.line4)
+      val originalLines = List(o.line1, o.line2, o.line3, o.line4)
+      val changeCount = (lines zip originalLines).filter(e => e._1 != e._2).size
 
-  def addressWasHeavilyModifiedOrManualEntry(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean = {
-
-    originalAddressDto.map {
-        o =>
-          //Count address line changes
-        val lines = List (addressDto.line1, addressDto.line2, addressDto.line3, addressDto.line4)
-        val originalLines = List (o.line1, o.line2, o.line3, o.line4)
-        val changeCount = (lines zip originalLines).filter (e => e._1 != e._2).size
-
-        o.postcode != addressDto.postcode ||
-        (changeCount > 2)
+      o.postcode != addressDto.postcode ||
+      (changeCount > 2)
     } getOrElse true
-  }
 
-  def addressDtoToAuditData(addressDto: AddressDto, prefix: String): Map[String, Option[String]] = {
+  def addressDtoToAuditData(addressDto: AddressDto, prefix: String): Map[String, Option[String]] =
     Map(
       s"${prefix}Line1"    -> Some(addressDto.line1),
       s"${prefix}Line2"    -> Some(addressDto.line2),
@@ -58,36 +53,35 @@ object AddressJourneyAuditingHelper {
       s"${prefix}Postcode" -> addressDto.postcode,
       s"${prefix}Country"  -> addressDto.country,
       s"${prefix}UPRN"     -> addressDto.propertyRefNo
-    ).foldLeft(List[(String,Option[String])]())( (acc, cur) => cur._2.fold(acc)( x => cur :: acc ) ).toMap
-  }
+    ).foldLeft(List[(String, Option[String])]())((acc, cur) => cur._2.fold(acc)(x => cur :: acc)).toMap
 
-
-  def dataToAudit(addressDto: AddressDto, etag: String, addressType: String, originalAddressDto: Option[AddressDto],
-                    propertyRefNo: Option[String]): Map[String, Option[String]] = {
+  def dataToAudit(
+    addressDto: AddressDto,
+    etag: String,
+    addressType: String,
+    originalAddressDto: Option[AddressDto],
+    propertyRefNo: Option[String]): Map[String, Option[String]] =
     originalAddressDto.fold(Map[String, Option[String]]())(original => addressDtoToAuditData(original, "original")) ++
       addressDtoToAuditData(addressDto, "submitted") ++
       Map(
         "submittedUPRN" -> propertyRefNo,
-        "etag" -> Some(etag),
+        "etag"          -> Some(etag),
+        "addressType"   -> Some(addressType)
+      )
+
+  def auditForClosingPostalAddress(address: Address, etag: String, addressType: String): Map[String, Option[String]] =
+    Map(
+      "submittedLine1"    -> address.line1,
+      "submittedLine2"    -> address.line2,
+      "submittedLine3"    -> address.line3,
+      "submittedLine4"    -> address.line4,
+      "submittedLine5"    -> address.line5,
+      "submittedPostcode" -> address.postcode,
+      "submittedCountry"  -> address.country
+    ).foldLeft(List[(String, Option[String])]())((acc, cur) => cur._2.fold(acc)(x => cur :: acc)).toMap ++
+      Map(
+        "etag"        -> Some(etag),
         "addressType" -> Some(addressType)
       )
 
-  }
-
-  def auditForClosingPostalAddress(address: Address, etag: String, addressType: String): Map[String, Option[String]] = {
-      Map(
-        "submittedLine1"    -> address.line1,
-        "submittedLine2"    -> address.line2,
-        "submittedLine3"    -> address.line3,
-        "submittedLine4"    -> address.line4,
-        "submittedLine5"    -> address.line5,
-        "submittedPostcode" -> address.postcode,
-        "submittedCountry"  -> address.country
-      ).foldLeft(List[(String,Option[String])]())( (acc, cur) => cur._2.fold(acc)( x => cur :: acc ) ).toMap ++
-      Map(
-        "etag" -> Some(etag),
-        "addressType" -> Some(addressType)
-      )
-
-  }
 }

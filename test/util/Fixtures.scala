@@ -53,29 +53,46 @@ import scala.reflect.ClassTag
 import scala.util.Random
 
 trait PafFixtures {
-  val exampleCountryUK = Country("UK","United Kingdom")
+  val exampleCountryUK = Country("UK", "United Kingdom")
 
-  def fakeStreetPafAddressRecord = AddressRecord("GB101", PafAddress(Seq("1 Fake Street","Fake Town","Fake City"),Some("Fake Region"), None, "AA1 1AA",exampleCountryUK), "en")
+  def fakeStreetPafAddressRecord =
+    AddressRecord(
+      "GB101",
+      PafAddress(
+        Seq("1 Fake Street", "Fake Town", "Fake City"),
+        Some("Fake Region"),
+        None,
+        "AA1 1AA",
+        exampleCountryUK),
+      "en")
 
-  val oneOtherPlacePafAddress = PafAddress(Seq("2 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK)
-  val twoOtherPlacePafAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 1AA",exampleCountryUK)
-  val otherPlacePafDifferentPostcodeAddress = PafAddress(Seq("3 Other Place","Some District"),Some("Anytown"), None, "AA1 2AA",exampleCountryUK)
+  val oneOtherPlacePafAddress =
+    PafAddress(Seq("2 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", exampleCountryUK)
+  val twoOtherPlacePafAddress =
+    PafAddress(Seq("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", exampleCountryUK)
+  val otherPlacePafDifferentPostcodeAddress =
+    PafAddress(Seq("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", exampleCountryUK)
 
-  val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514",oneOtherPlacePafAddress,"en")
-  val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515",twoOtherPlacePafAddress,"en")
-  val otherPlacePafDifferentPostcodeAddressRecord = AddressRecord("GB990091234516",otherPlacePafDifferentPostcodeAddress,"en")
+  val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
+  val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
+  val otherPlacePafDifferentPostcodeAddressRecord =
+    AddressRecord("GB990091234516", otherPlacePafDifferentPostcodeAddress, "en")
 
-  def oneAndTwoOtherPlacePafRecordSet = RecordSet(List(
-    oneOtherPlacePafAddressRecord,
-    twoOtherPlacePafAddressRecord
-  ))
+  def oneAndTwoOtherPlacePafRecordSet =
+    RecordSet(
+      List(
+        oneOtherPlacePafAddressRecord,
+        twoOtherPlacePafAddressRecord
+      ))
 
-  def newPostcodePlacePafRecordSet = RecordSet(List(
-    otherPlacePafDifferentPostcodeAddressRecord
-  ))
+  def newPostcodePlacePafRecordSet =
+    RecordSet(
+      List(
+        otherPlacePafDifferentPostcodeAddressRecord
+      ))
 
-
-  def oneAndTwoOtherPlacePafRecordSetJson = Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
+  def oneAndTwoOtherPlacePafRecordSetJson =
+    Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
 }
 
 trait TaiFixtures {
@@ -85,20 +102,46 @@ trait TaiFixtures {
 
 trait TaxCalculationFixtures {
   def buildTaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
-  def buildTaxYearReconciliations: List[TaxYearReconciliation] = List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
+  def buildTaxYearReconciliations: List[TaxYearReconciliation] =
+    List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
 }
 
 trait CitizenDetailsFixtures {
-  def buildPersonDetails = PersonDetails("115", Person(
-    Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
-    Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
-  ), Some( buildFakeAddress ), None)
+  def buildPersonDetails =
+    PersonDetails(
+      "115",
+      Person(
+        Some("Firstname"),
+        Some("Middlename"),
+        Some("Lastname"),
+        Some("FML"),
+        Some("Dr"),
+        Some("Phd."),
+        Some("M"),
+        Some(LocalDate.parse("1945-03-18")),
+        Some(Fixtures.fakeNino)
+      ),
+      Some(buildFakeAddress),
+      None
+    )
 
-  def buildPersonDetailsCorrespondenceAddress = PersonDetails("115", Person(
-    Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"),
-    Some("Dr"), Some("Phd."), Some("M"), Some(LocalDate.parse("1945-03-18")), Some(Fixtures.fakeNino)
-  ),  Some( buildFakeAddress), Some( buildFakeCorrespondenceAddress ))
-
+  def buildPersonDetailsCorrespondenceAddress =
+    PersonDetails(
+      "115",
+      Person(
+        Some("Firstname"),
+        Some("Middlename"),
+        Some("Lastname"),
+        Some("FML"),
+        Some("Dr"),
+        Some("Phd."),
+        Some("M"),
+        Some(LocalDate.parse("1945-03-18")),
+        Some(Fixtures.fakeNino)
+      ),
+      Some(buildFakeAddress),
+      Some(buildFakeCorrespondenceAddress)
+    )
 
   def buildFakeAddress = Address(
     Some("1 Fake Street"),
@@ -213,27 +256,32 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
-  def buildFakeRequestWithSessionId(method: String) = FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
+  def buildFakeRequestWithSessionId(method: String) =
+    FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
 
-  def buildFakeRequestWithAuth(method: String, uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
+  def buildFakeRequestWithAuth(
+    method: String,
+    uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
-      SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
+      SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-      SessionKeys.userId -> "/auth/oid/flastname",
-      SessionKeys.token -> "FAKEGGTOKEN",                                        //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-      SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId  //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.userId               -> "/auth/oid/flastname",
+      SessionKeys.token                -> "FAKEGGTOKEN", //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.authProvider         -> AuthenticationProviderIds.GovernmentGatewayId //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
   }
 
-  def buildFakeRequestWithVerify(method: String, uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
+  def buildFakeRequestWithVerify(
+    method: String,
+    uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
-      SessionKeys.sessionId -> s"session-${UUID.randomUUID()}",
+      SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-      SessionKeys.userId -> "/auth/oid/flastname",
-      SessionKeys.token -> "FAKEVERIFYTOKEN",                                        //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-      SessionKeys.authProvider -> AuthenticationProviderIds.VerifyProviderId  //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.userId               -> "/auth/oid/flastname",
+      SessionKeys.token                -> "FAKEVERIFYTOKEN", //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.authProvider         -> AuthenticationProviderIds.VerifyProviderId //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
@@ -241,20 +289,32 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   def buildUnusedAllowance = UnusedAllowance(BigDecimal(4000.00))
 
-  def buildFakeAuthContext(withPaye: Boolean = true, withSa: Boolean = false) = AuthContext(buildFakeAuthority(withPaye, withSa), None)
+  def buildFakeAuthContext(withPaye: Boolean = true, withSa: Boolean = false) =
+    AuthContext(buildFakeAuthority(withPaye, withSa), None)
 
-  def buildFakePertaxUser(withPaye: Boolean = true, withSa: Boolean = false, isGovernmentGateway: Boolean = false, isHighGG: Boolean = false) =
-    new PertaxUser(authContext = buildFakeAuthContext(withPaye, withSa),
-      if(isGovernmentGateway) UserDetails(UserDetails.GovernmentGatewayAuthProvider) else UserDetails(UserDetails.VerifyAuthProvider),
+  def buildFakePertaxUser(
+    withPaye: Boolean = true,
+    withSa: Boolean = false,
+    isGovernmentGateway: Boolean = false,
+    isHighGG: Boolean = false) =
+    new PertaxUser(
+      authContext = buildFakeAuthContext(withPaye, withSa),
+      if (isGovernmentGateway) UserDetails(UserDetails.GovernmentGatewayAuthProvider)
+      else UserDetails(UserDetails.VerifyAuthProvider),
       personDetails = None,
-      isHighGG)
+      isHighGG
+    )
 
-  def buildFakeAuthority(withPaye: Boolean = true, withSa: Boolean = false,
-    confidenceLevel: ConfidenceLevel = ConfidenceLevel.L0, nino: Nino = Fixtures.fakeNino, userDetailsLink: Option[String] = Some("/userDetailsLink")) = Authority(
+  def buildFakeAuthority(
+    withPaye: Boolean = true,
+    withSa: Boolean = false,
+    confidenceLevel: ConfidenceLevel = ConfidenceLevel.L0,
+    nino: Nino = Fixtures.fakeNino,
+    userDetailsLink: Option[String] = Some("/userDetailsLink")) = Authority(
     uri = "/auth/oid/flastname",
     accounts = Accounts(
-      paye = if(withPaye) Some(PayeAccount("/paye/"+nino.nino, nino)) else None,
-      sa = if(withSa) Some(SaAccount("/sa/1111111111", SaUtr("1111111111"))) else None
+      paye = if (withPaye) Some(PayeAccount("/paye/" + nino.nino, nino)) else None,
+      sa = if (withSa) Some(SaAccount("/sa/1111111111", SaUtr("1111111111"))) else None
     ),
     loggedInAt = None,
     previouslyLoggedInAt = Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
@@ -270,14 +330,23 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   def buildFakePersonDetails = PersonDetails("115", buildFakePerson, None, None)
 
-  def buildFakePerson = Person(Some("Firstname"), Some("Middlename"), Some("Lastname"), Some("FML"), Some("Mr"),
-    None, Some("M"), Some(LocalDate.parse("1931-01-17")), Some(Fixtures.fakeNino))
+  def buildFakePerson =
+    Person(
+      Some("Firstname"),
+      Some("Middlename"),
+      Some("Lastname"),
+      Some("FML"),
+      Some("Mr"),
+      None,
+      Some("M"),
+      Some(LocalDate.parse("1931-01-17")),
+      Some(Fixtures.fakeNino)
+    )
 
 }
 
 @Singleton
 class FakeCookieCryptoFilter @Inject()(override val mat: Materializer) extends CookieCryptoFilter {
-
 
   override protected val encrypter: (String) => String = x => x
   override protected val decrypter: (String) => String = x => x
@@ -286,7 +355,8 @@ class FakeCookieCryptoFilter @Inject()(override val mat: Materializer) extends C
     next(rh)
 }
 
-trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach { this: Suite =>
+trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach {
+  this: Suite =>
 
   implicit val hc = HeaderCarrier()
 
@@ -312,7 +382,7 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
 
   val mockLocalPartialRetreiver: LocalPartialRetriever = {
     val pr = MockitoSugar.mock[LocalPartialRetriever]
-    when(pr.getPartialContent(any(),any(),any())(any())) thenReturn Html("")
+    when(pr.getPartialContent(any(), any(), any())(any())) thenReturn Html("")
     pr
   }
 

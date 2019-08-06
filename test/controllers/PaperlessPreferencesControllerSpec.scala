@@ -50,10 +50,8 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .build()
 
-
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     reset(injected[PreferencesFrontendPartialService])
-  }
 
   trait LocalSetup {
 
@@ -65,7 +63,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
     lazy val verifyRequest = buildFakeRequestWithVerify("GET")
     lazy val authority = buildFakeAuthority(withPaye, withSa, confidenceLevel)
 
-    lazy val controller =  {
+    lazy val controller = {
 
       val c = injected[PaperlessPreferencesController]
 
@@ -85,7 +83,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
       c
     }
 
-    lazy val verifyController =  {
+    lazy val verifyController = {
 
       val c = injected[PaperlessPreferencesController]
 

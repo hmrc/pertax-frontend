@@ -32,8 +32,8 @@ import util.LocalPartialRetriever
 import scala.concurrent.Future
 import scala.io.Source
 
-
-class NiLetterController @Inject()(val messagesApi: MessagesApi,
+class NiLetterController @Inject()(
+  val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
   val messageFrontendService: MessageFrontendService,
@@ -41,41 +41,57 @@ class NiLetterController @Inject()(val messagesApi: MessagesApi,
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
-  val pdfGeneratorConnector: PdfGeneratorConnector) extends PertaxBaseController with AuthorisedActions {
+  val pdfGeneratorConnector: PdfGeneratorConnector)
+    extends PertaxBaseController with AuthorisedActions {
 
-  def printNationalInsuranceNumber: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      enforcePersonDetails {
-        payeAccount =>
-          personDetails =>
-            Future.successful(Ok(views.html.print.printNationalInsuranceNumber(personDetails, LocalDate.now.toString("MM/YY"), configDecorator.saveNiLetterAsPdfLinkEnabled)))
-      }
+  def printNationalInsuranceNumber: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    enforcePersonDetails { payeAccount => personDetails =>
+      Future.successful(
+        Ok(
+          views.html.print.printNationalInsuranceNumber(
+            personDetails,
+            LocalDate.now.toString("MM/YY"),
+            configDecorator.saveNiLetterAsPdfLinkEnabled)))
+    }
   }
 
-  def saveNationalInsuranceNumberAsPdf: Action[AnyContent] = VerifiedAction(baseBreadcrumb) {
-    implicit pertaxContext =>
-      if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
-        enforcePersonDetails {
-          payeAccount =>
-            personDetails =>
-              val applicationMinCss = Source.fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL()).mkString
-              val saveNiLetterAsPDFCss = Source.fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL()).mkString
+  def saveNationalInsuranceNumberAsPdf: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
+      enforcePersonDetails { payeAccount => personDetails =>
+        val applicationMinCss =
+          Source.fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL()).mkString
+        val saveNiLetterAsPDFCss = Source
+          .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL())
+          .mkString
 
-              val htmlPayload = views.html.print.niLetterPDfWrapper().toString()
-                .replace("<!-- minifiedCssPlaceholder -->", s"${saveNiLetterAsPDFCss}${applicationMinCss}")
-                .replace("<!-- niLetterPlaceHolder -->", views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
-                .filter(_ >= ' ').trim.replaceAll("  +", "")
+        val htmlPayload = views.html.print
+          .niLetterPDfWrapper()
+          .toString()
+          .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
+          .replace(
+            "<!-- niLetterPlaceHolder -->",
+            views.html.print.niLetter(personDetails, LocalDate.now.toString("MM/YY")).toString)
+          .filter(_ >= ' ')
+          .trim
+          .replaceAll("  +", "")
 
-              pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
-                if (response.status != OK) throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
-                else Ok(response.bodyAsBytes.toArray).as("application/pdf")
-                  .withHeaders("Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter").replaceAll(" ", "-")}.pdf")
-              }
+        pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
+          if (response.status != OK)
+            throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
+          else
+            Ok(response.bodyAsBytes.toArray)
+              .as("application/pdf")
+              .withHeaders("Content-Disposition" -> s"attachment; filename=${Messages(
+                "label.your_national_insurance_letter").replaceAll(" ", "-")}.pdf")
         }
-      } else {
-        Future.successful(InternalServerError(views.html.error("global.error.InternalServerError500.title",
-          Some("global.error.InternalServerError500.title"),
-          Some("global.error.InternalServerError500.message"))))
       }
+    } else {
+      Future.successful(
+        InternalServerError(
+          views.html.error(
+            "global.error.InternalServerError500.title",
+            Some("global.error.InternalServerError500.title"),
+            Some("global.error.InternalServerError500.message"))))
+    }
   }
 }

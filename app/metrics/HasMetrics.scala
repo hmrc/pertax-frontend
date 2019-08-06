@@ -19,9 +19,8 @@ package metrics
 import com.codahale.metrics._
 import com.kenshoo.play.metrics.Metrics
 
-
 trait HasMetrics {
-  
+
   type Metric = String
 
   val metricsOperator = new MetricsOperator
@@ -38,7 +37,6 @@ trait HasMetrics {
       timer.stop()
       metricsOperator.incrementSuccessCounter(metric)
     }
-
 
     def completeTimerAndIncrementFailedCounter(): Unit = {
       timer.stop()
