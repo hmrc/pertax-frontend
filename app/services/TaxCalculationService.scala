@@ -44,7 +44,6 @@ class TaxCalculationService @Inject()(
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   val http: WsAllMethods)(implicit ec: ExecutionContext)
-
     extends ServicesConfig with HasMetrics {
 
   val mode: Mode = environment.mode
