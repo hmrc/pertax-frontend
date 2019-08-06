@@ -29,13 +29,14 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-class PertaxDependencies @Inject ()(
+class PertaxDependencies @Inject()(
   val auditConnector: PertaxAuditConnector,
   val authConnector: PertaxAuthConnector,
   val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator)
 
-abstract class PertaxBaseController extends Controller with Utf8MimeTypes with PublicActions with I18nSupport with ControllerLikeHelpers {
+abstract class PertaxBaseController
+    extends Controller with Utf8MimeTypes with PublicActions with I18nSupport with ControllerLikeHelpers {
   val pertaxDependencies: PertaxDependencies
 
   def auditConnector: PertaxAuditConnector = pertaxDependencies.auditConnector
@@ -44,16 +45,17 @@ abstract class PertaxBaseController extends Controller with Utf8MimeTypes with P
   def configDecorator: ConfigDecorator = pertaxDependencies.configDecorator
 
   implicit class SessionKeyRemover(result: Future[Result]) {
-    def removeSessionKey(key: String)(implicit request: Request[_]) = result.map {_.withSession(request.session - key)}
+    def removeSessionKey(key: String)(implicit request: Request[_]) = result.map {
+      _.withSession(request.session - key)
+    }
   }
 
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.HomeController.index().url)
 
-  def showingWarningIfWelsh[T](block: PertaxContext => T)(implicit pertaxContext: PertaxContext, messages: Messages): T = {
+  def showingWarningIfWelsh[T](
+    block: PertaxContext => T)(implicit pertaxContext: PertaxContext, messages: Messages): T =
     block(pertaxContext.withWelshWarning(messages.lang.code == "cy"))
-  }
 }
-
 
 trait PertaxBaseControllerTrait extends PertaxBaseController

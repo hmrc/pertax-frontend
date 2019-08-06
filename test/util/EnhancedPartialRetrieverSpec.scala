@@ -45,7 +45,9 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
       val epr = new EnhancedPartialRetriever(injected[ApplicationCrypto]) with HasMetrics {
 
         override val http: HttpGet = MockitoSugar.mock[HttpGet]
-        if(simulateCallFailed) when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.failed(new GatewayTimeoutException("Gateway timeout"))
+        if (simulateCallFailed)
+          when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.failed(
+            new GatewayTimeoutException("Gateway timeout"))
         else when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.successful(returnPartial)
 
         override val metrics: Metrics = MockitoSugar.mock[Metrics]

@@ -31,7 +31,6 @@ import org.mockito.Mockito._
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
-
 class HomeCardGeneratorSpec extends BaseSpec {
 
   trait SpecSetup extends I18nSupport {
@@ -41,7 +40,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
     val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
   }
 
-
   "Calling getPayAsYouEarnCard" should {
 
     trait LocalSetup extends SpecSetup {
@@ -50,10 +48,16 @@ class HomeCardGeneratorSpec extends BaseSpec {
       def isPayeUser: Boolean
       def taxComponentsState: TaxComponentsState
 
-      lazy val pertaxUser: Option[PertaxUser] = if(hasPertaxUser)
-        Some(PertaxUser(Fixtures.buildFakeAuthContext(withPaye = isPayeUser), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
-      else
-        None
+      lazy val pertaxUser: Option[PertaxUser] =
+        if (hasPertaxUser)
+          Some(
+            PertaxUser(
+              Fixtures.buildFakeAuthContext(withPaye = isPayeUser),
+              UserDetails(UserDetails.GovernmentGatewayAuthProvider),
+              None,
+              true))
+        else
+          None
 
       lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
     }
@@ -112,7 +116,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      implicit lazy val pertaxContext = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
+      implicit lazy val pertaxContext =
+        PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
 
       implicit lazy val configDecorator = injected[ConfigDecorator]
 
@@ -148,13 +153,13 @@ class HomeCardGeneratorSpec extends BaseSpec {
     }
 
     "return correct markup when called with Overpaid Refund reconciliation status" in new LocalSetup {
-      val taxYearRec = TaxYearReconciliation(2015,Overpaid(Some(100.00), Refund))
+      val taxYearRec = TaxYearReconciliation(2015, Overpaid(Some(100.00), Refund))
 
       cardBody shouldBe taxCalculationViewModel.map(taxCalculation(_))
     }
 
     "return correct markup when called with Overpaid Payment Processing reconciliation status" in new LocalSetup {
-      val taxYearRec = TaxYearReconciliation(2015,Overpaid(Some(100.00), PaymentProcessing))
+      val taxYearRec = TaxYearReconciliation(2015, Overpaid(Some(100.00), PaymentProcessing))
 
       cardBody shouldBe taxCalculationViewModel.map(taxCalculation(_))
     }
@@ -168,7 +173,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     "return correct markup when called with Overpaid Cheque Sent reconciliation status " in new LocalSetup {
 
-      val taxYearRec = TaxYearReconciliation(2015,Overpaid(Some(100.00), ChequeSent))
+      val taxYearRec = TaxYearReconciliation(2015, Overpaid(Some(100.00), ChequeSent))
 
       cardBody shouldBe taxCalculationViewModel.map(taxCalculation(_))
     }
@@ -182,21 +187,24 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     "return correct markup when called with Underpaid Payment Due reconciliation status with no deadline and due date" in new LocalSetup {
 
-      val taxYearRec = TaxYearReconciliation(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(31)), PaymentDue))
+      val taxYearRec =
+        TaxYearReconciliation(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(31)), PaymentDue))
 
       cardBody shouldBe taxCalculationViewModel.map(taxCalculation(_))
     }
 
     "return correct markup when called with Underpaid Payment Due reconciliation status with deadline approaching and due date" in new LocalSetup {
 
-      val taxYearRec = TaxYearReconciliation(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(29)), PaymentDue))
+      val taxYearRec =
+        TaxYearReconciliation(2015, Underpaid(Some(100.00), Some(LocalDate.now.plusDays(29)), PaymentDue))
 
       cardBody shouldBe taxCalculationViewModel.map(taxCalculation(_))
     }
 
     "return correct markup when called with Underpaid Payment Due reconciliation status with deadline passed and due date" in new LocalSetup {
 
-      val taxYearRec = TaxYearReconciliation(2015, Underpaid(Some(100.00), Some(LocalDate.now.minusDays(1)), PaymentDue))
+      val taxYearRec =
+        TaxYearReconciliation(2015, Underpaid(Some(100.00), Some(LocalDate.now.minusDays(1)), PaymentDue))
 
       cardBody shouldBe taxCalculationViewModel.map(taxCalculation(_))
     }
@@ -244,7 +252,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
     }
   }
 
-
   "Calling getSelfAssessmentCard" should {
 
     trait LocalSetup extends SpecSetup {
@@ -256,13 +263,15 @@ class HomeCardGeneratorSpec extends BaseSpec {
         cd
       }
 
-      implicit lazy val pertaxContext = PertaxContext(FakeRequest(), mockLocalPartialRetreiver, configDecorator, pertaxUser)
+      implicit lazy val pertaxContext =
+        PertaxContext(FakeRequest(), mockLocalPartialRetreiver, configDecorator, pertaxUser)
 
       def saUserType: SelfAssessmentUserType
       val taxYear = "1718"
       val nextDeadlineTaxYear = 2019
 
-      lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.GovernmentGatewayAuthProvider),None, true))
+      lazy val pertaxUser = Some(
+        PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
 
       lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, nextDeadlineTaxYear)
     }
@@ -281,7 +290,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
-
     "return correct markup when called with AmbiguousFilerSelfAssessmentUser" in new LocalSetup {
 
       val saUserType = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
@@ -298,12 +306,12 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     "return nothing for a verify user" in new LocalSetup {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      override lazy val pertaxUser = Some(PertaxUser(Fixtures.buildFakeAuthContext(),UserDetails(UserDetails.VerifyAuthProvider),None, true))
+      override lazy val pertaxUser =
+        Some(PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.VerifyAuthProvider), None, true))
 
       cardBody shouldBe None
     }
   }
-
 
   "Calling getNationalInsuranceCard" should {
 
@@ -317,7 +325,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe Some(nationalInsurance())
     }
   }
-
 
   "Calling getTaxCreditsCard" should {
 
@@ -338,7 +345,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
     }
   }
 
-
   "Calling getChildBenefitCard" should {
 
     trait LocalSetup extends SpecSetup {
@@ -352,7 +358,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
     }
   }
 
-
   "Calling getMarriageAllowanceCard" should {
 
     trait LocalSetup extends SpecSetup {
@@ -360,10 +365,10 @@ class HomeCardGeneratorSpec extends BaseSpec {
       def hasTaxComponents: Boolean
       def taxComponents: Seq[String]
 
-      lazy val tc = if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+      lazy val tc =
+        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
       lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
     }
-
 
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in new LocalSetup {
       override val hasTaxComponents: Boolean = true
@@ -395,7 +400,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
       cardBody shouldBe Some(marriageAllowance(tc))
     }
   }
-
 
   "Calling getStatePensionCard" should {
 

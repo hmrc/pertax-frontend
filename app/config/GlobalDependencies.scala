@@ -22,7 +22,6 @@ import connectors.PertaxAuditConnector
 import play.api.{Configuration, Play}
 import uk.gov.hmrc.renderer.TemplateRenderer
 
-
 /**
   * This class exists to keep all references to static dependencies in one place, before we can remove it all together
   */

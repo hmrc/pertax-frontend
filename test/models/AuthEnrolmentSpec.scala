@@ -20,28 +20,25 @@ import play.api.libs.json.{JsError, Json}
 import uk.gov.hmrc.domain.SaUtr
 import util.BaseSpec
 
-
-
 class AuthEnrolmentSpec extends BaseSpec {
 
   "Reading an authenrolment from some json data" should {
 
     "parse correctly" in {
 
-      def jsVal = Json.parse(
-        """
-         |[
-         |  {
-         |    "key": "IR-SA",
-         |    "identifiers": [
-         |      {
-         |        "key": "UTR",
-         |        "value": "1111111111"
-         |      }
-         |    ],
-         |    "state": "Activated"
-         |  }
-         |]
+      def jsVal = Json.parse("""
+                               |[
+                               |  {
+                               |    "key": "IR-SA",
+                               |    "identifiers": [
+                               |      {
+                               |        "key": "UTR",
+                               |        "value": "1111111111"
+                               |      }
+                               |    ],
+                               |    "state": "Activated"
+                               |  }
+                               |]
        """.stripMargin)
 
       lazy val authEnrolment = Json.fromJson[AuthEnrolment](jsVal).get
@@ -61,14 +58,14 @@ class AuthEnrolmentSpec extends BaseSpec {
 
       lazy val jsVal = Json.arr(
         Json.obj(
-          "key" -> (if(irSaEnrolmentPresent) "IR-SA" else "IR-CT"),
+          "key"         -> (if (irSaEnrolmentPresent) "IR-SA" else "IR-CT"),
           "identifiers" -> Json.arr(Json.obj("key" -> "UTR", "value" -> "1111111111")),
-          "state" -> saEnrolmentState
+          "state"       -> saEnrolmentState
         ),
         Json.obj(
-          "key" -> "IR-VAT",
+          "key"         -> "IR-VAT",
           "identifiers" -> Json.arr(Json.obj("key" -> "UTR", "value" -> "1111111111")),
-          "state" -> "Activated"
+          "state"       -> "Activated"
         )
       )
 

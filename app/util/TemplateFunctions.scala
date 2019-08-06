@@ -18,7 +18,6 @@ package util
 
 import uk.gov.hmrc.play.views.formatting.Strings
 
-
 object TemplateFunctions {
   def upperCaseToTitleCase(s: String) = if (!s.exists(_.isLower)) Strings.capitalise(s) else s
   def formatCurrency(i: BigDecimal) = "%,.2f".format(i)

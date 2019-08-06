@@ -28,10 +28,8 @@ import play.api.mvc._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import util.LocalPartialRetriever
-
-
 @Singleton
-class LocalErrorHandler @Inject() (
+class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
   val userDetailsService: UserDetailsService,
   val citizenDetailsService: CitizenDetailsService,
@@ -44,19 +42,16 @@ class LocalErrorHandler @Inject() (
   val materializer: Materializer
 ) extends HttpErrorHandler with AuthorisedActions with I18nSupport {
 
-  def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
-
-    if(statusCode==BAD_REQUEST || statusCode==NOT_FOUND) {
+  def onClientError(request: RequestHeader, statusCode: Int, message: String) =
+    if (statusCode == BAD_REQUEST || statusCode == NOT_FOUND) {
       AuthorisedAction() { implicit pertaxContext =>
         renderError(statusCode)
       }.apply(request).run()(materializer)
-    }
-    else {
+    } else {
       PublicAction { implicit pertaxContext =>
         renderError(statusCode)
       }.apply(request).run()(materializer)
     }
-  }
 
   def onServerError(request: RequestHeader, exception: Throwable) =
     onClientError(request, INTERNAL_SERVER_ERROR, "")

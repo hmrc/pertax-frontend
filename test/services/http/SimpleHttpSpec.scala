@@ -26,7 +26,7 @@ import play.api.libs.json.Writes
 import util.BaseSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ BadGatewayException, HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 
 class SimpleHttpSpec extends BaseSpec {
 
@@ -89,7 +89,7 @@ class SimpleHttpSpec extends BaseSpec {
 
       override lazy val http = {
         val h = MockitoSugar.mock[WsAllMethods]
-        when(h.POST[String,HttpResponse](any(),any(),any())(any(),any(),any(),any())) thenReturn httpResponse
+        when(h.POST[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
         h
       }
 
@@ -117,7 +117,7 @@ class SimpleHttpSpec extends BaseSpec {
 
       override lazy val http = {
         val h = MockitoSugar.mock[WsAllMethods]
-        when(h.PUT[String,HttpResponse](any(),any())(any(),any(),any(),any())) thenReturn httpResponse
+        when(h.PUT[String, HttpResponse](any(), any())(any(), any(), any(), any())) thenReturn httpResponse
         h
       }
 
@@ -141,37 +141,42 @@ class SimpleHttpSpec extends BaseSpec {
 }
 
 //Mock client for use in other tests
-class FakeSimpleHttp(response: Either[HttpResponse,Exception]) extends SimpleHttp(MockitoSugar.mock[WsAllMethods]) {
+class FakeSimpleHttp(response: Either[HttpResponse, Exception]) extends SimpleHttp(MockitoSugar.mock[WsAllMethods]) {
 
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
   def getLastHeaderCarrier = headerCarrierQueue.take
 
-  override def get[T](url: String)(onComplete: HttpResponse => T, onError: Exception => T)(implicit hc: HeaderCarrier): Future[T] = {
+  override def get[T](url: String)(onComplete: HttpResponse => T, onError: Exception => T)(
+    implicit hc: HeaderCarrier): Future[T] = {
     headerCarrierQueue.put(hc)
     Future.successful {
       response match {
         case Left(response) => onComplete(response)
-        case Right(ex) => onError(ex)
+        case Right(ex)      => onError(ex)
       }
     }
   }
 
-  override def post[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(implicit hc: HeaderCarrier, w: Writes[I]): Future[T] = {
+  override def post[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(
+    implicit hc: HeaderCarrier,
+    w: Writes[I]): Future[T] = {
     headerCarrierQueue.put(hc)
     Future.successful {
       response match {
         case Left(response) => onComplete(response)
-        case Right(ex) => onError(ex)
+        case Right(ex)      => onError(ex)
       }
     }
   }
 
-  override def put[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(implicit hc: HeaderCarrier, w: Writes[I]): Future[T] = {
+  override def put[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(
+    implicit hc: HeaderCarrier,
+    w: Writes[I]): Future[T] = {
     headerCarrierQueue.put(hc)
     Future.successful {
       response match {
         case Left(response) => onComplete(response)
-        case Right(ex) => onError(ex)
+        case Right(ex)      => onError(ex)
       }
     }
   }

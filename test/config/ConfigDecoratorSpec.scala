@@ -24,10 +24,7 @@ import play.api.Mode.Mode
 import play.api.i18n.Langs
 import util.BaseSpec
 
-
 class ConfigDecoratorSpec extends BaseSpec {
-
-
 
   "Converting urls to sso" should {
 
@@ -80,7 +77,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = None
 
-      a [MalformedURLException] should be thrownBy {
+      a[MalformedURLException] should be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }
@@ -89,7 +86,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("/")
 
-      a [MalformedURLException] should be thrownBy {
+      a[MalformedURLException] should be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }
@@ -98,7 +95,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("//portal.service")
 
-      a [MalformedURLException] should be thrownBy {
+      a[MalformedURLException] should be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }

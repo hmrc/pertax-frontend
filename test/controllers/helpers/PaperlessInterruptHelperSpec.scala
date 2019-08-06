@@ -30,7 +30,6 @@ import util.Fixtures._
 
 import scala.concurrent.Future
 
-
 class PaperlessInterruptHelperSpec extends BaseSpec {
 
   "Calling PaperlessInterruptHelper.enforcePaperlessPreference" should {
@@ -39,13 +38,19 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
 
       def activatePaperlessResponse: ActivatePaperlessResponse
 
-      val context = PertaxContext(FakeRequest("GET", "/personal-account"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(PertaxUser(buildFakeAuthContext(),
-        UserDetails(UserDetails.VerifyAuthProvider), None, false)))
+      val context = PertaxContext(
+        FakeRequest("GET", "/personal-account"),
+        mockLocalPartialRetreiver,
+        injected[ConfigDecorator],
+        Some(PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.VerifyAuthProvider), None, false))
+      )
 
       lazy val paperlessInterruptHelper = new PaperlessInterruptHelper {
-        override val preferencesFrontendService: PreferencesFrontendService = MockitoSugar.mock[PreferencesFrontendService]
+        override val preferencesFrontendService: PreferencesFrontendService =
+          MockitoSugar.mock[PreferencesFrontendService]
         when(preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
-          Future.successful(activatePaperlessResponse) }
+          Future.successful(activatePaperlessResponse)
+        }
       }
     }
 

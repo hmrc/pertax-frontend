@@ -32,38 +32,36 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
 import scala.concurrent.Future
-
-
 @Singleton
-class MessageFrontendService @Inject()(environment: Environment, configuration: Configuration, override val http: WsAllMethods, val metrics: Metrics, val applicationCrypto: ApplicationCrypto) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
+class MessageFrontendService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  override val http: WsAllMethods,
+  val metrics: Metrics,
+  val applicationCrypto: ApplicationCrypto)
+    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
 
   lazy val messageFrontendUrl: String = baseUrl("message-frontend")
 
-  def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
+  def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(messageFrontendUrl + "/messages")
-  }
 
-  def getMessageDetailPartial(messageToken: String)(implicit request: RequestHeader): Future[HtmlPartial] = {
+  def getMessageDetailPartial(messageToken: String)(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(messageFrontendUrl + "/messages/" + messageToken)
-  }
 
-  def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] = {
-    loadPartial(messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController.messageList())
-  }
-
-
+  def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] =
+    loadPartial(
+      messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController
+        .messageList())
 
   def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] =
     loadJson(messageFrontendUrl + "/messages/count?read=No").map(_.map(_.count))
 
-
-  private def loadJson(url: String)(implicit hc: HeaderCarrier): Future[Option[MessageCount]] = {
-
+  private def loadJson(url: String)(implicit hc: HeaderCarrier): Future[Option[MessageCount]] =
     withMetricsTimer("load-json") { t =>
-
       http.GET[Option[MessageCount]](url) recover {
         case e =>
           t.completeTimerAndIncrementFailedCounter()
@@ -72,7 +70,4 @@ class MessageFrontendService @Inject()(environment: Environment, configuration: 
       }
 
     }
-  }
 }
-
-

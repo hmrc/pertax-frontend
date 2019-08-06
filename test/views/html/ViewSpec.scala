@@ -32,11 +32,13 @@ trait ViewSpec extends BaseSpec {
 
   val pertaxContext = PertaxContext(FakeRequest("", ""), mockLocalPartialRetreiver, injected[ConfigDecorator])
 
-  def assertContainsText(doc:Document, text: String): Assertion =
+  def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
 
   def assertContainsLink(doc: Document, text: String, href: String): Assertion =
-    assert(doc.getElementsContainingText(text).attr("href").contains(href), s"\n\nLink $href was not rendered on the page\n")
+    assert(
+      doc.getElementsContainingText(text).attr("href").contains(href),
+      s"\n\nLink $href was not rendered on the page\n")
 
   def asDocument(page: String): Document = Jsoup.parse(page)
 

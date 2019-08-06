@@ -29,19 +29,26 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
 import scala.concurrent.Future
-
-
 @Singleton
-class CspPartialService @Inject() (environment: Environment, configuration: Configuration, val http: WsAllMethods, val metrics: Metrics, applicationCrypto: ApplicationCrypto) extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
+class CspPartialService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val http: WsAllMethods,
+  val metrics: Metrics,
+  applicationCrypto: ApplicationCrypto)
+    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val serviceUrl = baseUrl("csp-partials")
 
   def webchatClickToChatScriptPartial(sourceService: String)(implicit request: Request[_]): Future[HtmlPartial] = {
 
-    val entryPoint = getConfString(s"csp-partials.$sourceService.entryPoint", throw new RuntimeException("Missing entryPoint csp config"))
-    val template = getConfString(s"csp-partials.$sourceService.template", throw new RuntimeException("Missing template csp config"))
+    val entryPoint = getConfString(
+      s"csp-partials.$sourceService.entryPoint",
+      throw new RuntimeException("Missing entryPoint csp config"))
+    val template =
+      getConfString(s"csp-partials.$sourceService.template", throw new RuntimeException("Missing template csp config"))
 
     loadPartial(serviceUrl + s"/csp-partials/webchat-click-to-chat/$entryPoint/$template")
   }

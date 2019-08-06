@@ -30,8 +30,7 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-
-class UserResearchDismissalController @Inject() (
+class UserResearchDismissalController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
@@ -41,8 +40,7 @@ class UserResearchDismissalController @Inject() (
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper
-  ) extends PertaxBaseController with AuthorisedActions {
-
+) extends PertaxBaseController with AuthorisedActions {
 
   def dismissUrBanner = VerifiedAction(Nil) { implicit request =>
     homePageCachingHelper.storeUserUrDismissal()

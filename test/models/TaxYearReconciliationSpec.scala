@@ -54,7 +54,8 @@ class TaxYearReconciliationSpec extends UnitSpec {
 
     "deserialise an underpaid type" in {
 
-      val rec = Json.parse("""{"_type": "underpaid", "amount": 100, "dueDate": "2019-10-10", "status": "payment_due"}""")
+      val rec =
+        Json.parse("""{"_type": "underpaid", "amount": 100, "dueDate": "2019-10-10", "status": "payment_due"}""")
 
       rec.as[Reconciliation] shouldBe Underpaid(Some(100), Some(new LocalDate(2019, 10, 10)), PaymentDue)
     }

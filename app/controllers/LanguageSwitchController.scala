@@ -24,15 +24,15 @@ import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
 class LanguageSwitchController @Inject()(
-                                          configDecorator: ConfigDecorator,
-                                    configuration: Configuration,
-                                    languageUtils: LanguageUtils,
-                                    val messagesApi: MessagesApi
-                                  ) extends LanguageController(configuration, languageUtils){
+  configDecorator: ConfigDecorator,
+  configuration: Configuration,
+  languageUtils: LanguageUtils,
+  val messagesApi: MessagesApi
+) extends LanguageController(configuration, languageUtils) {
 
-  def enGb(): Action[AnyContent] = switchToLanguage(language="english")
-  def cyGb(): Action[AnyContent] = switchToLanguage(language="cymraeg")
-  def fallbackURL: String =  configDecorator.pertaxFrontendService
+  def enGb(): Action[AnyContent] = switchToLanguage(language = "english")
+  def cyGb(): Action[AnyContent] = switchToLanguage(language = "cymraeg")
+  def fallbackURL: String = configDecorator.pertaxFrontendService
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
     "cymraeg" -> Lang("cy")

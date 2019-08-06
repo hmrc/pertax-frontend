@@ -22,14 +22,15 @@ import org.scalatest.exceptions.{StackDepthException, TestFailedException}
 object BetterOptionValues {
   implicit class OptionOps[T](val opt: Option[T]) extends AnyVal {
 
-    def getValue(implicit pos: source.Position): T = {
+    def getValue(implicit pos: source.Position): T =
       try {
         opt.get
-      }
-      catch {
+      } catch {
         case cause: NoSuchElementException =>
-          throw new TestFailedException((_: StackDepthException) => Some("The Option on which value was invoked was not defined."), Some(cause), pos)
+          throw new TestFailedException(
+            (_: StackDepthException) => Some("The Option on which value was invoked was not defined."),
+            Some(cause),
+            pos)
       }
-    }
   }
 }

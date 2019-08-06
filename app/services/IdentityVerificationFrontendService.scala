@@ -28,7 +28,6 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-
 trait IdentityVerificationResponse
 case class IdentityVerificationSuccessResponse(result: String) extends IdentityVerificationResponse
 case object IdentityVerificationNotFoundResponse extends IdentityVerificationResponse
@@ -46,23 +45,26 @@ object IdentityVerificationSuccessResponse {
   val TechnicalIssue = "TechnicalIssue"
   val PrecondFailed = "PreconditionFailed"
 }
-
-
 @Singleton
-class IdentityVerificationFrontendService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class IdentityVerificationFrontendService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics)
+    extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val identityVerificationFrontendUrl = baseUrl("identity-verification-frontend")
 
-  def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] = {
+  def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
     withMetricsTimer("get-iv-journey-status") { t =>
-
-      simpleHttp.get[IdentityVerificationResponse](s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId") (
+      simpleHttp.get[IdentityVerificationResponse](
+        s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId")(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()
-            val result = List((r.json \ "journeyResult").asOpt[String], (r.json \ "result").asOpt[String]).flatten.head  //FIXME - dont use head
+            val result = List((r.json \ "journeyResult").asOpt[String], (r.json \ "result").asOpt[String]).flatten.head //FIXME - dont use head
             IdentityVerificationSuccessResponse(result)
 
           case r if r.status == NOT_FOUND =>
@@ -72,7 +74,8 @@ class IdentityVerificationFrontendService @Inject() (environment: Environment, c
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting IV journey status from identity-verification-frontend-service")
+            Logger.warn(
+              s"Unexpected ${r.status} response getting IV journey status from identity-verification-frontend-service")
             IdentityVerificationUnexpectedResponse(r)
         },
         onError = {
@@ -84,5 +87,4 @@ class IdentityVerificationFrontendService @Inject() (environment: Environment, c
       )
 
     }
-  }
 }

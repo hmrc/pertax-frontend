@@ -70,22 +70,19 @@ class AuthorisedActionsSpec extends BaseSpec {
         override lazy val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]
         override val messageFrontendService = MockitoSugar.mock[MessageFrontendService]
 
-
         when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
           Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
         }
-
 
         when(messageFrontendService.getUnreadMessageCount(any())) thenReturn {
           Future.successful(messageCountResponse)
         }
 
-        if(similateUserDetailsFailure) {
+        if (similateUserDetailsFailure) {
           when(userDetailsService.getUserDetails(any())(any())) thenReturn {
             Future.successful(None)
           }
-        }
-        else {
+        } else {
           when(userDetailsService.getUserDetails(any())(any())) thenReturn {
             Future.successful(Some(UserDetails(authProviderType)))
           }
@@ -95,8 +92,6 @@ class AuthorisedActionsSpec extends BaseSpec {
         when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
         when(configDecorator.analyticsToken) thenReturn Some("N/A")
       }
-
-
 
       //Extract the context and map the future requst to it
       lazy val t = {
@@ -112,7 +107,6 @@ class AuthorisedActionsSpec extends BaseSpec {
       lazy val pertaxContext: Option[PertaxContext] = await(t.map(_._1))
       lazy val result: Future[Result] = await(t.map(_._2))
     }
-
 
     "set number of unread messages to 0 when unreadable json response returned by the message partial service" in new LocalSetup {
       lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
@@ -261,9 +255,19 @@ class AuthorisedActionsSpec extends BaseSpec {
       def saUser: Boolean
       def allowSaPreview: Boolean
 
-      lazy val context = PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(PertaxUser(buildFakeAuthContext(withSa = saUser),
-        if(ggUser) UserDetails(UserDetails.GovernmentGatewayAuthProvider) else UserDetails(UserDetails.VerifyAuthProvider),
-        None, highGg)))
+      lazy val context = PertaxContext(
+        FakeRequest("GET", "/test"),
+        mockLocalPartialRetreiver,
+        injected[ConfigDecorator],
+        Some(
+          PertaxUser(
+            buildFakeAuthContext(withSa = saUser),
+            if (ggUser) UserDetails(UserDetails.GovernmentGatewayAuthProvider)
+            else UserDetails(UserDetails.VerifyAuthProvider),
+            None,
+            highGg
+          ))
+      )
 
       lazy val localActions = new PertaxBaseController with AuthorisedActions {
         override val pertaxDependencies: PertaxDependencies = MockPertaxDependencies
@@ -332,9 +336,11 @@ class AuthorisedActionsSpec extends BaseSpec {
 
       def activeTab: Option[ActiveTab]
 
-      val basePertaxContext: PertaxContext = PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, MockitoSugar.mock[ConfigDecorator])
+      val basePertaxContext: PertaxContext =
+        PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, MockitoSugar.mock[ConfigDecorator])
 
-      val authorisedActions: AuthorisedActions = injected[PaperlessPreferencesController] //Could use any controller that implements AuthorisedActions
+      val authorisedActions
+        : AuthorisedActions = injected[PaperlessPreferencesController] //Could use any controller that implements AuthorisedActions
 
       //Extract the context
       val pc: Future[Option[PertaxContext]] = {
