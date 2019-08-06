@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.config.ServicesConfig
 @Singleton
 class ConfigDecorator @Inject()(environment: Environment, configuration: Configuration, langs: Langs)
     extends ServicesConfig with TaxcalcUrls {
+
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
 
@@ -235,6 +236,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
+
 }
 
 trait TaxcalcUrls {
@@ -259,4 +261,5 @@ trait TaxcalcUrls {
   lazy val taxPaidUrl = s"${self.taxCalcFrontendHost}/tax-you-paid/status"
 
   val makePaymentUrl = "https://www.gov.uk/simple-assessment"
+  
 }
