@@ -112,7 +112,6 @@ class HomeController @Inject()(
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- serviceCallResponses
           saUserType                                                                      <- saUserType
         } yield {
-
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
             pertaxContext.user,
             taxSummaryState,
