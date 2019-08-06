@@ -124,7 +124,6 @@ class TaxCalculationStateFactory @Inject()(
 
 object SaDeadlineStatusCalculator {
 
-
   def getSaDeadlineStatus(dueDate: LocalDate)(implicit configDecorator: ConfigDecorator): Option[SaDeadlineStatus] = {
 
     val now = new LocalDate(configDecorator.currentLocalDate)

@@ -261,5 +261,5 @@ trait TaxcalcUrls {
   lazy val taxPaidUrl = s"${self.taxCalcFrontendHost}/tax-you-paid/status"
 
   val makePaymentUrl = "https://www.gov.uk/simple-assessment"
-  
+
 }

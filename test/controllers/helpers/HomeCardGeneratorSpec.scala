@@ -367,7 +367,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
-      
+
       lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
     }
 
