@@ -668,8 +668,7 @@ class AddressController @Inject()(
                              auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
                      _        <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
                      inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino.withoutSuffix)
-                     addressChanged <- addressMovedService
-                                        .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
+                     _        <- addressMovedService.moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
                    } yield
                      if (inserted) {
                        Ok(
@@ -814,46 +813,14 @@ class AddressController @Inject()(
                     .updateAddressConfirmation(typ, false, None, addressMovedService.toMessageKey(addressChanged)))
                 }
 
-                updateAddress(journeyData, addressType, payeAccount, personDetails, address, successResponseBlock)
+                citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+                  _.updateAddressResponse(successResponseBlock)
+                }
               }
             }
           }
         }
       }
-    }
-
-  private def updateAddress(
-    journeyData: AddressJourneyData,
-    addressType: String,
-    payeAccount: PayeAccount,
-    personDetails: PersonDetails,
-    address: Address,
-    successResponseBlock: () => Result)(implicit pertaxContext: PertaxContext): Future[Result] =
-    citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
-
-      case UpdateAddressBadRequestResponse =>
-        BadRequest(
-          views.html.error(
-            "global.error.BadRequest.title",
-            Some("global.error.BadRequest.title"),
-            Some("global.error.BadRequest.message")))
-
-      case UpdateAddressUnexpectedResponse(response) =>
-        InternalServerError(
-          views.html.error(
-            "global.error.InternalServerError500.title",
-            Some("global.error.InternalServerError500.title"),
-            Some("global.error.InternalServerError500.message")))
-
-      case UpdateAddressErrorResponse(cause) =>
-        InternalServerError(
-          views.html.error(
-            "global.error.InternalServerError500.title",
-            Some("global.error.InternalServerError500.title"),
-            Some("global.error.InternalServerError500.message")))
-
-      case UpdateAddressSuccessResponse =>
-        successResponseBlock()
     }
 
   def showAddressAlreadyUpdated(typ: AddrType): Action[AnyContent] =
