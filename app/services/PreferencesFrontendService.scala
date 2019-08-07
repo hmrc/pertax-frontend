@@ -40,27 +40,35 @@ sealed trait ActivatePaperlessResponse
 case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
 case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
 case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse
-
-
 @Singleton
-class PreferencesFrontendService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val messagesApi: MessagesApi, val metrics: Metrics, val configDecorator: ConfigDecorator, val applicationCrypto: ApplicationCrypto, val tools: Tools) extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
+class PreferencesFrontendService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val messagesApi: MessagesApi,
+  val metrics: Metrics,
+  val configDecorator: ConfigDecorator,
+  val applicationCrypto: ApplicationCrypto,
+  val tools: Tools)
+    extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
   val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
   override def crypto = sessionCookieCryptoFilter.encrypt
 
-  def getPaperlessPreference(pertaxUser: PertaxUser)(implicit request: Request[AnyContent]): Future[ActivatePaperlessResponse] = {
+  def getPaperlessPreference(pertaxUser: PertaxUser)(
+    implicit request: Request[AnyContent]): Future[ActivatePaperlessResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
-    def activatePaperless : Future[ActivatePaperlessResponse] = {
-
+    def activatePaperless: Future[ActivatePaperlessResponse] =
       withMetricsTimer("get-activate-paperless") { t =>
-
-        val url = s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools.encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
+        val url =
+          s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+            .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
         simpleHttp.put[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true))(
           onComplete = {
@@ -71,12 +79,14 @@ class PreferencesFrontendService @Inject() (environment: Environment, configurat
             case r if r.status == PRECONDITION_FAILED =>
               t.completeTimerAndIncrementSuccessCounter()
               val redirectUrl = (r.json \ "redirectUserTo")
-              Logger.warn("Precondition failed when getting paperless preference record from preferences-frontend-service")
+              Logger.warn(
+                "Precondition failed when getting paperless preference record from preferences-frontend-service")
               ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
 
             case r =>
               t.completeTimerAndIncrementFailedCounter()
-              Logger.warn(s"Unexpected ${r.status} response getting paperless preference record from preferences-frontend-service")
+              Logger.warn(
+                s"Unexpected ${r.status} response getting paperless preference record from preferences-frontend-service")
               ActivatePaperlessNotAllowedResponse
           },
           onError = {
@@ -87,9 +97,8 @@ class PreferencesFrontendService @Inject() (environment: Environment, configurat
           }
         )
       }
-    }
 
-    if(pertaxUser.isGovernmentGateway) {
+    if (pertaxUser.isGovernmentGateway) {
       activatePaperless
     } else {
       Future.successful(ActivatePaperlessNotAllowedResponse)

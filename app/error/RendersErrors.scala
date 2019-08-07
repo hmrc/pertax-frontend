@@ -29,14 +29,16 @@ trait RendersErrors extends Results {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"
-      case NOT_FOUND => "pageNotFound404"
-      case _ => "InternalServerError500"
+      case NOT_FOUND   => "pageNotFound404"
+      case _           => "InternalServerError500"
     }
 
-    Future.successful(Status(statusCode)(views.html.error(
-      s"global.error.$errorKey.title",
-      Some(s"global.error.$errorKey.heading"),
-      Some(s"global.error.$errorKey.message"))))
+    Future.successful(
+      Status(statusCode)(
+        views.html.error(
+          s"global.error.$errorKey.title",
+          Some(s"global.error.$errorKey.heading"),
+          Some(s"global.error.$errorKey.message"))))
 
   }
 

@@ -28,12 +28,10 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
-class UserDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics) extends HasMetrics {
+class UserDetailsService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics) extends HasMetrics {
 
-  def getUserDetails(userDetailsUri: String)(implicit hc: HeaderCarrier): Future[Option[UserDetails]] = {
-
+  def getUserDetails(userDetailsUri: String)(implicit hc: HeaderCarrier): Future[Option[UserDetails]] =
     withMetricsTimer("get-user-details") { t =>
-
       simpleHttp.get[Option[UserDetails]](userDetailsUri)(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
@@ -53,5 +51,4 @@ class UserDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Met
         }
       )
     }
-  }
 }

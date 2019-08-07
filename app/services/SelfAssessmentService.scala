@@ -32,25 +32,28 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent._
 import uk.gov.hmrc.http.HeaderCarrier
-
-
-
 @Singleton
-class SelfAssessmentService @Inject() (environment: Environment, configuration: Configuration, val simpleHttp: SimpleHttp, val citizenDetailsService: CitizenDetailsService, val metrics: Metrics) extends ServicesConfig with HasMetrics {
+class SelfAssessmentService @Inject()(
+  environment: Environment,
+  configuration: Configuration,
+  val simpleHttp: SimpleHttp,
+  val citizenDetailsService: CitizenDetailsService,
+  val metrics: Metrics)
+    extends ServicesConfig with HasMetrics {
 
-  val mode:Mode = environment.mode
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val authUrl = new URL(baseUrl("auth"))
 
-  def getSelfAssessmentUserType(authContext: Option[AuthContext])(implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] = {
+  def getSelfAssessmentUserType(authContext: Option[AuthContext])(
+    implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] = {
 
     import AuthEnrolment._
 
     val context = new AuthContextDecorator(authContext)
 
-    def getSaUtrIfUserHasNotYetActivatedSaEnrolment(implicit hc: HeaderCarrier): Future[Option[SaUtr]] = {
+    def getSaUtrIfUserHasNotYetActivatedSaEnrolment(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
       context.enrolmentUri.map { u =>
-
         withMetricsTimer("get-auth-enrolments") { t =>
           simpleHttp.get[Option[SaUtr]](new URL(authUrl, u).toString)(
             onComplete = {
@@ -58,7 +61,7 @@ class SelfAssessmentService @Inject() (environment: Environment, configuration: 
                 t.completeTimerAndIncrementSuccessCounter()
                 r.json.asOpt[AuthEnrolment] match {
                   case Some(AuthEnrolment(NotYetActivated, saUtr)) => Some(saUtr)
-                  case _ => None
+                  case _                                           => None
                 }
 
               case r =>
@@ -75,24 +78,22 @@ class SelfAssessmentService @Inject() (environment: Environment, configuration: 
           )
         }
       } getOrElse Future.successful(None)
-    }
 
-    def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] = {
+    def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
       citizenDetailsService.getMatchingDetails(nino) map {
         case MatchingDetailsSuccessResponse(matchingDetails) => matchingDetails.saUtr
-        case _ => None
+        case _                                               => None
       }
-    }
 
     context.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
-
       context.saUtr.fold({
         getSaUtrIfUserHasNotYetActivatedSaEnrolment flatMap {
-          case Some(saUtr) => Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)) //NotYetActivated online filer
+          case Some(saUtr) =>
+            Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)) //NotYetActivated online filer
           case None => {
             getSaUtrFromCitizenDetailsService(nino) map {
               case Some(saUtr) => AmbiguousFilerSelfAssessmentUser(saUtr) //Ambiguous SA filer
-              case None =>        NonFilerSelfAssessmentUser //Non SA Filer
+              case None        => NonFilerSelfAssessmentUser //Non SA Filer
             }
           }
         }

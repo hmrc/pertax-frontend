@@ -35,8 +35,17 @@ object AddressDto extends CountryHelper {
 
   def fromAddressRecord(addressRecord: AddressRecord) = {
     val address = addressRecord.address
-    val List(line1, line2, line3, line4, line5) = (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
-    AddressDto(line1.getOrElse(""), line2.getOrElse(""), line3, line4, line5, Some(address.postcode), Some(address.country.toString), Some(addressRecord.id))
+    val List(line1, line2, line3, line4, line5) =
+      (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
+    AddressDto(
+      line1.getOrElse(""),
+      line2.getOrElse(""),
+      line3,
+      line4,
+      line5,
+      Some(address.postcode),
+      Some(address.country.toString),
+      Some(addressRecord.id))
   }
 
   val ukForm = Form(
@@ -59,11 +68,14 @@ object AddressDto extends CountryHelper {
         .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
       "postcode" -> optional(text)
-        .verifying("error.enter_a_valid_uk_postcode", e => e match {
-          case Some(PostcodeRegex(_*)) => true
-          case _ => false
-        }),
-      "country" -> optional(text),
+        .verifying(
+          "error.enter_a_valid_uk_postcode",
+          e =>
+            e match {
+              case Some(PostcodeRegex(_*)) => true
+              case _                       => false
+          }),
+      "country"       -> optional(text),
       "propertyRefNo" -> optional(nonEmptyText)
     )(AddressDto.apply)(AddressDto.unapply)
   )
@@ -105,11 +117,34 @@ case class AddressDto(
   country: Option[String],
   propertyRefNo: Option[String]
 ) {
-  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) = Address(Some(line1), Some(line2), line3, line4, line5, postcode.map(_.toUpperCase), country, Some(startDate), Some(endDate), Some(`type`))
+  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) =
+    Address(
+      Some(line1),
+      Some(line2),
+      line3,
+      line4,
+      line5,
+      postcode.map(_.toUpperCase),
+      country,
+      Some(startDate),
+      Some(endDate),
+      Some(`type`))
   def toAddress(`type`: String, startDate: LocalDate) = postcode match {
-    case Some(postcode) => Address(Some(line1), Some(line2), line3, line4, line5, Some(postcode.toUpperCase), None, Some(startDate), None, Some(`type`))
-    case None => Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
+    case Some(postcode) =>
+      Address(
+        Some(line1),
+        Some(line2),
+        line3,
+        line4,
+        line5,
+        Some(postcode.toUpperCase),
+        None,
+        Some(startDate),
+        None,
+        Some(`type`))
+    case None =>
+      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
   }
-  def toList = Seq( Some(line1), Some(line2), line3, line4, line5, postcode ).flatten
-  def toListWithCountry = Seq( Some(line1), Some(line2), line3, line4, line5, country ).flatten
+  def toList = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
+  def toListWithCountry = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
 }

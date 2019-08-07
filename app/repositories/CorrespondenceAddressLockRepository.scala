@@ -33,8 +33,7 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
-                                                    implicit val ec: ExecutionContext) {
+class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
 
   private val collectionName: String = "correspondenceAddressLock"
 
@@ -50,12 +49,13 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
 
   def get(nino: String): Future[Option[AddressJourneyTTLModel]] =
     getCore(
-      BSONDocument(BSONDocument("_id" -> nino), BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
+      BSONDocument(
+        BSONDocument("_id"     -> nino),
+        BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
     )
 
-  private[repositories] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] = {
+  private[repositories] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] =
     this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
-  }
 
   private[repositories] def insertCore(nino: String, date: OffsetDateTime): Future[WriteResult] =
     this.collection.flatMap(_.insert(ordered = false).one(AddressJourneyTTLModel(nino, toBSONDateTime(date))))
@@ -63,7 +63,7 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
     for {
       result <- this.collection.flatMap(_.drop(failIfNotFound = false))
-      _ <- setIndex()
+      _      <- setIndex()
     } yield result
 
   private[repositories] lazy val ttlIndex = Index(
@@ -76,20 +76,22 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi,
     options = BSONDocument("expireAfterSeconds" -> 0)
   )
 
-  private[repositories] def removeIndex(): Future[Int] = for {
-    list <- collection.flatMap(_.indexesManager.list())
-    count <- ttlIndex.name match {
-      case Some(name) if list.exists(_.name contains name) =>
-        collection.flatMap(_.indexesManager.drop(name))
-      case _ =>
-        Future.successful(0)
-    }
-  } yield count
+  private[repositories] def removeIndex(): Future[Int] =
+    for {
+      list <- collection.flatMap(_.indexesManager.list())
+      count <- ttlIndex.name match {
+                case Some(name) if list.exists(_.name contains name) =>
+                  collection.flatMap(_.indexesManager.drop(name))
+                case _ =>
+                  Future.successful(0)
+              }
+    } yield count
 
-  private[repositories] def setIndex(): Future[Boolean] = for {
-    _ <- removeIndex()
-    result <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
-  } yield result
+  private[repositories] def setIndex(): Future[Boolean] =
+    for {
+      _      <- removeIndex()
+      result <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
+    } yield result
 
   private[repositories] def isTtlSet: Future[Boolean] =
     for {
@@ -128,12 +130,12 @@ object CorrespondenceAddressLockRepository {
       case BST_OFFSET if ukDateTime.getHour == 0 =>
         utcMidnightInUkDateTime.getOffset match {
           case GMT_OFFSET => utcMidnightInUkDateTime
-          case _ => utcMidnightInUkDateTime.plusDays(1).withOffsetSameInstant(BST_OFFSET)
+          case _          => utcMidnightInUkDateTime.plusDays(1).withOffsetSameInstant(BST_OFFSET)
         }
       case BST_OFFSET =>
         utcMidnightInUkDateTime.getOffset match {
           case GMT_OFFSET => utcMidnightInUkDateTime
-          case _ => utcMidnightInUkDateTime.plusHours(1).withOffsetSameInstant(BST_OFFSET)
+          case _          => utcMidnightInUkDateTime.plusHours(1).withOffsetSameInstant(BST_OFFSET)
         }
       case _ =>
         utcMidnightInUkDateTime

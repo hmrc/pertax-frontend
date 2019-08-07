@@ -19,7 +19,6 @@ package models
 import models.dto._
 import models.addresslookup.AddressRecord
 
-
 case class AddressJourneyData(
   addressPageVisitedDto: Option[AddressPageVisitedDto],
   residencyChoiceDto: Option[ResidencyChoiceDto],
@@ -30,14 +29,14 @@ case class AddressJourneyData(
   submittedStartDateDto: Option[DateDto],
   addressLookupServiceDown: Boolean
 ) {
-  def getAddressToDisplay: Option[AddressDto] = {
+  def getAddressToDisplay: Option[AddressDto] =
     submittedAddressDto match {
       case Some(s) => Some(s)
-      case None =>  selectedAddressRecord match {
-        case Some(y) => Some(AddressDto.fromAddressRecord(y))
-        case None => None
-      }
+      case None =>
+        selectedAddressRecord match {
+          case Some(y) => Some(AddressDto.fromAddressRecord(y))
+          case None    => None
+        }
     }
-  }
 
 }

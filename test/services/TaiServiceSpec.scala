@@ -60,17 +60,18 @@ class TaiServiceSpec extends BaseSpec {
     lazy val (service, metrics, timer) = {
 
       val fakeSimpleHttp = {
-        if(simulateTaiServiceIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulateTaiServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      lazy val taiService: TaiService = new TaiService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      lazy val taiService: TaiService =
+        new TaiService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
 
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
-        when(metricsOperator.startTimer(any())) thenReturn timer
-      }
+          override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+          when(metricsOperator.startTimer(any())) thenReturn timer
+        }
 
       (taiService, taiService.metricsOperator, timer)
     }
@@ -89,7 +90,8 @@ class TaiServiceSpec extends BaseSpec {
 
       val r = service.taxComponents(Fixtures.fakeNino, 2014)
 
-      await(r) shouldBe TaxComponentsSuccessResponse(TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+      await(r) shouldBe TaxComponentsSuccessResponse(
+        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -99,7 +101,7 @@ class TaiServiceSpec extends BaseSpec {
 
       override lazy val simulateTaiServiceIsDown = false
       val seeOtherResponse = HttpResponse(SEE_OTHER)
-      override lazy val httpResponse = seeOtherResponse  //For example
+      override lazy val httpResponse = seeOtherResponse //For example
 
       val r = service.taxComponents(Fixtures.fakeNino, 2014)
 

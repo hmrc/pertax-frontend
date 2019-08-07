@@ -16,11 +16,10 @@
 
 package models
 
-
 sealed trait TaxComponentsState {
   def getTaxComponents: Option[TaxComponents] = this match {
     case TaxComponentsAvailableState(tc) => Some(tc)
-    case _ => None
+    case _                               => None
   }
 }
 case object TaxComponentsDisabledState extends TaxComponentsState

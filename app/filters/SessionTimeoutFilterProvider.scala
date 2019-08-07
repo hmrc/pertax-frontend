@@ -16,7 +16,7 @@
 
 package filters
 
-import javax.inject.{Provider, Inject, Singleton}
+import javax.inject.{Inject, Provider, Singleton}
 
 import org.joda.time.Duration
 import play.api.mvc.Request
@@ -24,11 +24,9 @@ import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
-import uk.gov.hmrc.play.frontend.filters.{ FrontendAuditFilter, FrontendLoggingFilter, SessionTimeoutFilter }
-
-
+import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, FrontendLoggingFilter, SessionTimeoutFilter}
 @Singleton
-class SessionTimeoutFilterProvider @Inject() (configuration: Configuration) extends Provider[SessionTimeoutFilter] {
+class SessionTimeoutFilterProvider @Inject()(configuration: Configuration) extends Provider[SessionTimeoutFilter] {
 
   override def get(): SessionTimeoutFilter = {
 
@@ -37,7 +35,8 @@ class SessionTimeoutFilterProvider @Inject() (configuration: Configuration) exte
       override def loggingFilter: FrontendLoggingFilter = ???
       override def frontendAuditFilter: FrontendAuditFilter = ???
       override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = ???
-      override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html = ???
+      override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(
+        implicit request: Request[_]): Html = ???
       override def auditConnector: AuditConnector = ???
     }
     global.sessionTimeoutFilter

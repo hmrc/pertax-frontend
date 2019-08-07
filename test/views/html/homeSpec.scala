@@ -63,18 +63,24 @@ class homeSpec extends BaseSpec {
           ids = None,
           legacyOid = ""
         ),
-      nameFromSession = principalName),
-      if (isGovernmentGateway) UserDetails(UserDetails.GovernmentGatewayAuthProvider) else UserDetails(UserDetails.VerifyAuthProvider),
+        nameFromSession = principalName
+      ),
+      if (isGovernmentGateway) UserDetails(UserDetails.GovernmentGatewayAuthProvider)
+      else UserDetails(UserDetails.VerifyAuthProvider),
       personDetails = if (userHasPersonDetails) Some(Fixtures.buildPersonDetails) else None,
-      true)
+      true
+    )
 
-    lazy val document: Document = Jsoup.parse(views.html.home(
-      Nil, Nil, Nil, true)
-    (PertaxContext(FakeRequest("GET", "/test"),
-      mockLocalPartialRetreiver,
-      injected[ConfigDecorator],
-      Some(testPertaxUser)),
-      messages).toString)
+    lazy val document: Document = Jsoup.parse(
+      views.html
+        .home(Nil, Nil, Nil, true)(
+          PertaxContext(
+            FakeRequest("GET", "/test"),
+            mockLocalPartialRetreiver,
+            injected[ConfigDecorator],
+            Some(testPertaxUser)),
+          messages)
+        .toString)
   }
 
   "Rendering home.scala.html" should {

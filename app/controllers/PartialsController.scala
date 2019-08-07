@@ -29,23 +29,37 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-class PartialsController @Inject() (
+class PartialsController @Inject()(
   val messagesApi: MessagesApi,
   val pertaxDependencies: PertaxDependencies,
   val delegationConnector: FrontEndDelegationConnector,
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController {
-  
-  def mainContentHeader(name: Option[String], lastLogin: Option[Long], itemText: List[String], itemUrl: List[String],
-                        showBetaBanner: Option[Boolean], deskProToken: Option[String], langReturnUrl: Option[String],
-                        lang: Option[String], showLastItem: Boolean): Action[AnyContent] = Action.async {
-    implicit request =>
-      Future.successful {
 
-        val breadcrumb: Breadcrumb = (itemText zip itemUrl).dropRight(if(showLastItem) 0 else 1)
+  def mainContentHeader(
+    name: Option[String],
+    lastLogin: Option[Long],
+    itemText: List[String],
+    itemUrl: List[String],
+    showBetaBanner: Option[Boolean],
+    deskProToken: Option[String],
+    langReturnUrl: Option[String],
+    lang: Option[String],
+    showLastItem: Boolean): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful {
 
-        Ok(views.html.integration.mainContentHeader(name, lastLogin.map(new DateTime(_)), breadcrumb, showBetaBanner.getOrElse(false),
-          deskProToken, langReturnUrl.filter(x => configDecorator.welshLangEnabled), configDecorator))
-      }
+      val breadcrumb: Breadcrumb = (itemText zip itemUrl).dropRight(if (showLastItem) 0 else 1)
+
+      Ok(
+        views.html.integration.mainContentHeader(
+          name,
+          lastLogin.map(new DateTime(_)),
+          breadcrumb,
+          showBetaBanner.getOrElse(false),
+          deskProToken,
+          langReturnUrl.filter(x => configDecorator.welshLangEnabled),
+          configDecorator
+        ))
+    }
   }
 }
