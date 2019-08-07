@@ -31,6 +31,7 @@ import util._
 import scala.concurrent.Future
 
 sealed trait AddressLookupResponse
+
 final case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse
 final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends AddressLookupResponse
 final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
