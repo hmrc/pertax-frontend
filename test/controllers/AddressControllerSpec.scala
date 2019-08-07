@@ -2085,62 +2085,6 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
-
-    "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
-      override lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-            "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-          )
-        ))
-      override lazy val updateAddressResponse = UpdateAddressBadRequestResponse
-
-      val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
-
-      status(r) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-    }
-
-    "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
-      override lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-            "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-          )
-        ))
-      override lazy val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(SEE_OTHER))
-
-      val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
-
-      status(r) shouldBe INTERNAL_SERVER_ERROR
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-      verify(controller.citizenDetailsService, times(1))
-        .updateAddress(meq(Fixtures.fakeNino), meq("115"), meq(buildFakeAddress))(any())
-    }
-
-    "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
-      override lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-            "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-          )
-        ))
-      override lazy val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("Any exception"))
-
-      val r = controller.submitChanges(PrimaryAddrType)(buildAddressRequest("POST"))
-
-      status(r) shouldBe INTERNAL_SERVER_ERROR
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-      verify(controller.citizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-    }
-
   }
 
   "Calling AddressController.showAddressAlreadyUpdated" should {
