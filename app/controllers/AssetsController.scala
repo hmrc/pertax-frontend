@@ -20,4 +20,4 @@ import javax.inject.Inject
 
 import error.LocalErrorHandler
 
-class AssetsController @Inject() (localErrorHandler: LocalErrorHandler) extends AssetsBuilder(localErrorHandler)
+class AssetsController @Inject()(localErrorHandler: LocalErrorHandler) extends AssetsBuilder(localErrorHandler)

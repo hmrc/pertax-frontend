@@ -31,7 +31,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpGet}
 /*
  * This is a PartialRetriever with a HeaderCarrierForPartialsConverter to forward request headers on
  */
-abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: ApplicationCrypto) extends HeaderCarrierForPartialsConverter with HasMetrics {
+abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: ApplicationCrypto)
+    extends HeaderCarrierForPartialsConverter with HasMetrics {
 
   def http: HttpGet
 
@@ -39,10 +40,8 @@ abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: Application
 
   override def crypto = sessionCookieCryptoFilter.encrypt
 
-  def loadPartial(url: String)(implicit hc: HeaderCarrier): Future[HtmlPartial] = {
-
+  def loadPartial(url: String)(implicit hc: HeaderCarrier): Future[HtmlPartial] =
     withMetricsTimer("load-partial") { t =>
-
       http.GET[HtmlPartial](url) map {
         case p: HtmlPartial.Success =>
           t.completeTimerAndIncrementSuccessCounter()
@@ -63,5 +62,4 @@ abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: Application
       }
 
     }
-  }
 }

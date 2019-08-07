@@ -28,14 +28,22 @@ object AuthEnrolment {
   val NotYetActivated = "NotYetActivated"
 
   implicit val reads: Reads[AuthEnrolment] = Reads[AuthEnrolment] { js =>
-
     val authEnrolment = for {
-      irSaEnrolment <- js.as[JsArray].value.filter(e => (e \ "key").as[JsString] == JsString("IR-SA")).headOption.map(_.as[JsObject])
+      irSaEnrolment <- js
+                        .as[JsArray]
+                        .value
+                        .filter(e => (e \ "key").as[JsString] == JsString("IR-SA"))
+                        .headOption
+                        .map(_.as[JsObject])
       saEnrolmentState = irSaEnrolment.value("state").as[JsString].value
       identifiers <- (irSaEnrolment \ "identifiers").asOpt[JsArray]
-      utr <- identifiers.value.filter(e => (e \ "key").as[JsString] == JsString("UTR")).headOption.map(ident => (ident \ "value").as[JsString].value)
+      utr <- identifiers.value
+              .filter(e => (e \ "key").as[JsString] == JsString("UTR"))
+              .headOption
+              .map(ident => (ident \ "value").as[JsString].value)
     } yield AuthEnrolment(saEnrolmentState, SaUtr(utr))
 
-    authEnrolment.fold[JsResult[AuthEnrolment]](JsError("Couldn't extract an IR-SA enrolment record from AuthEnrolment JSON"))(JsSuccess(_))
+    authEnrolment.fold[JsResult[AuthEnrolment]](
+      JsError("Couldn't extract an IR-SA enrolment record from AuthEnrolment JSON"))(JsSuccess(_))
   }
 }

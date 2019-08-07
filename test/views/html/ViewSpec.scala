@@ -21,7 +21,8 @@ import org.jsoup.nodes.Document
 
 trait ViewSpec {
 
-  def assertContainsText(doc:Document, text: String) = assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
+  def assertContainsText(doc: Document, text: String) =
+    assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
 
   def asDocument(page: String): Document = Jsoup.parse(page)
 

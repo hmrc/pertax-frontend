@@ -11,6 +11,7 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 import wartremover._
+import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
 
 trait MicroService {
 
@@ -51,16 +52,15 @@ trait MicroService {
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
-      ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
       libraryDependencies ++= appDependencies,
       routesGenerator := StaticRoutesGenerator,
-      retrieveManaged := true,
       PlayKeys.playDefaultPort := 9232,
       wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.NonUnitStatements, Wart.Nothing, Wart.Product, Wart.Serializable, Wart.Any),
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
       wartremoverExcluded ++= wartRemovedExcludedClasses,
       TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "uk.gov.hmrc.play.binders._", "uk.gov.hmrc.play.frontend.binders._","controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.http.HeaderCarrier"),
-      routesImport ++= Seq("uk.gov.hmrc.play.frontend.binders._", "controllers.bindable._", "uk.gov.hmrc.play.binders._")
+      routesImport ++= Seq("uk.gov.hmrc.play.frontend.binders._", "controllers.bindable._", "uk.gov.hmrc.play.binders._"),
+      scalafmtOnCompile := true
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)

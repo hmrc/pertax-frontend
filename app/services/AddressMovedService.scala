@@ -29,50 +29,46 @@ object AnyOtherMove extends AddressChanged
 
 class AddressMovedService @Inject()(addressLookupService: AddressLookupService) {
 
-  def moved(fromAddressId: String, toAddressId: String)(implicit hc: HeaderCarrier): Future[AddressChanged] = {
+  def moved(fromAddressId: String, toAddressId: String)(implicit hc: HeaderCarrier): Future[AddressChanged] =
     for {
       fromResponse <- addressLookupService.lookup(fromAddressId)
-      toResponse <- addressLookupService.lookup(toAddressId)
+      toResponse   <- addressLookupService.lookup(toAddressId)
     } yield {
       (fromResponse, toResponse) match {
         case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
           val fromSub = fromRecordSet.addresses.headOption.map(_.address.subdivision)
           val toSub = toRecordSet.addresses.headOption.map(_.address.subdivision)
 
-          val addressChanged = fromSub.flatMap(fromSubdivision =>
-            toSub.map(toSubdivision =>
-              if (hasMovedFromScotland(fromSubdivision, toSubdivision))
-                MovedFromScotland
-              else if (hasMovedToScotland(fromSubdivision, toSubdivision))
-                MovedToScotland
-              else
-                AnyOtherMove
-            )
-          )
+          val addressChanged = fromSub.flatMap(
+            fromSubdivision =>
+              toSub.map(
+                toSubdivision =>
+                  if (hasMovedFromScotland(fromSubdivision, toSubdivision))
+                    MovedFromScotland
+                  else if (hasMovedToScotland(fromSubdivision, toSubdivision))
+                    MovedToScotland
+                  else
+                  AnyOtherMove))
 
           addressChanged.getOrElse(AnyOtherMove)
         case _ =>
           AnyOtherMove
       }
     }
-  }
 
-  def toMessageKey(addressChanged: AddressChanged): Option[String] = {
+  def toMessageKey(addressChanged: AddressChanged): Option[String] =
     addressChanged match {
       case MovedFromScotland => Some("label.moved_from_scotland")
-      case MovedToScotland => Some("label.moved_to_scotland")
-      case AnyOtherMove => None
+      case MovedToScotland   => Some("label.moved_to_scotland")
+      case AnyOtherMove      => None
     }
-  }
 
   private val scottishSubdivision = "GB-SCT"
 
-  private def hasMovedFromScotland(fromSubdivision: String, toSubdivision: String): Boolean = {
+  private def hasMovedFromScotland(fromSubdivision: String, toSubdivision: String): Boolean =
     fromSubdivision == scottishSubdivision && toSubdivision != scottishSubdivision
-  }
 
-  private def hasMovedToScotland(fromSubdivision: String, toSubdivision: String): Boolean = {
+  private def hasMovedToScotland(fromSubdivision: String, toSubdivision: String): Boolean =
     fromSubdivision != scottishSubdivision && toSubdivision == scottishSubdivision
-  }
 
 }

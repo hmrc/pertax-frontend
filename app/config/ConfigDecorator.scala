@@ -28,14 +28,15 @@ import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
-class ConfigDecorator @Inject() (environment: Environment, configuration: Configuration, langs: Langs) extends ServicesConfig {
-  val mode:Mode = environment.mode
+class ConfigDecorator @Inject()(environment: Environment, configuration: Configuration, langs: Langs)
+    extends ServicesConfig {
+  val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
 
   // Define the web contexts to access the IV-FE and AUTH frontend applications.
   lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")
-  lazy val ida_web_context  = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
-  lazy val gg_web_context   = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
+  lazy val ida_web_context = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
+  lazy val gg_web_context = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
 
   val defaultOrigin = Origin("PERTAX")
 
@@ -48,50 +49,62 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
 
-  private def decorateUrlForLocalDev(key: String): Option[String] = configuration.getString(s"external-url.$key").filter(x => env=="Dev")
+  private def decorateUrlForLocalDev(key: String): Option[String] =
+    configuration.getString(s"external-url.$key").filter(x => env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
-  lazy val contactHost                                  = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
-  lazy val citizenAuthHost                              = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
-  lazy val companyAuthHost                              = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
-  lazy val companyAuthFrontendHost                      = decorateUrlForLocalDev(s"company-auth-frontend.host").getOrElse("")
-  lazy val taiHost                                      = decorateUrlForLocalDev(s"tai-frontend.host").getOrElse("")
-  lazy val fandfHost                                    = decorateUrlForLocalDev(s"fandf-frontend.host").getOrElse("")
-  lazy val tamcHost                                     = decorateUrlForLocalDev(s"tamc-frontend.host").getOrElse("")
-  lazy val formTrackingHost                             = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
-  lazy val businessTaxAccountHost                       = decorateUrlForLocalDev(s"business-tax-account.host").getOrElse("")
-  lazy val identityVerificationHost                     = decorateUrlForLocalDev(s"identity-verification.host").getOrElse("")
-  lazy val pertaxFrontendHost                           = decorateUrlForLocalDev(s"pertax-frontend.host").getOrElse("")
-  lazy val feedbackSurveyFrontendHost                   = decorateUrlForLocalDev(s"feedback-survey-frontend.host").getOrElse("")
-  lazy val tcsFrontendHost                              = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
-  lazy val nispFrontendHost                             = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
-  lazy val taxCalcFrontendHost                          = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
-  lazy val dfsFrontendHost                              = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
-  lazy val plaBackEndHost                               = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
-  lazy val saFrontendHost                               = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
-  lazy val governmentGatewayLostCredentialsFrontendHost = decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
-  lazy val governmentGatewayRegistrationFrontendHost    = decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
-  lazy val enrolmentManagementFrontendHost              = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val payFrontendHost                              = decorateUrlForLocalDev(s"pay-frontend.host").getOrElse("")
-
+  lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
+  lazy val citizenAuthHost = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
+  lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
+  lazy val companyAuthFrontendHost = decorateUrlForLocalDev(s"company-auth-frontend.host").getOrElse("")
+  lazy val taiHost = decorateUrlForLocalDev(s"tai-frontend.host").getOrElse("")
+  lazy val fandfHost = decorateUrlForLocalDev(s"fandf-frontend.host").getOrElse("")
+  lazy val tamcHost = decorateUrlForLocalDev(s"tamc-frontend.host").getOrElse("")
+  lazy val formTrackingHost = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
+  lazy val businessTaxAccountHost = decorateUrlForLocalDev(s"business-tax-account.host").getOrElse("")
+  lazy val identityVerificationHost = decorateUrlForLocalDev(s"identity-verification.host").getOrElse("")
+  lazy val pertaxFrontendHost = decorateUrlForLocalDev(s"pertax-frontend.host").getOrElse("")
+  lazy val feedbackSurveyFrontendHost = decorateUrlForLocalDev(s"feedback-survey-frontend.host").getOrElse("")
+  lazy val tcsFrontendHost = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
+  lazy val nispFrontendHost = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
+  lazy val taxCalcFrontendHost = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
+  lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
+  lazy val plaBackEndHost = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
+  lazy val saFrontendHost = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
+  lazy val governmentGatewayLostCredentialsFrontendHost =
+    decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
+  lazy val governmentGatewayRegistrationFrontendHost =
+    decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
+  lazy val enrolmentManagementFrontendHost = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
+  lazy val payFrontendHost = decorateUrlForLocalDev(s"pay-frontend.host").getOrElse("")
 
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
-  lazy val frontendTemplatePath: String = configuration.getString("microservice.services.frontend-template-provider.path").getOrElse("/template/mustache")
-  lazy val frontendPath: String = configuration.getString("microservice.services.frontend-template-provider.protocol").getOrElse("")
+  lazy val frontendTemplatePath: String =
+    configuration.getString("microservice.services.frontend-template-provider.path").getOrElse("/template/mustache")
+  lazy val frontendPath: String = configuration
+    .getString("microservice.services.frontend-template-provider.protocol")
+    .getOrElse("")
     .concat("://" + configuration.getString("microservice.services.frontend-template-provider.host").getOrElse(""))
     .concat(":" + configuration.getString("microservice.services.frontend-template-provider.port").getOrElse(""))
-  def ssoifyUrl(url: URL) = s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
+  def ssoifyUrl(url: URL) =
+    s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
-  def sa302Url(saUtr: String, taxYear: String) = s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
+  def sa302Url(saUtr: String, taxYear: String) =
+    s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
-  def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) = s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if(lang.code equals("en"))"eng" else "cym")
-  lazy val ssoToActivateSaEnrolmentPinUrl = s"${enrolmentManagementFrontendHost}/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
+  def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) =
+    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (lang.code equals ("en")) "eng"
+                                                                                else "cym")
+  lazy val ssoToActivateSaEnrolmentPinUrl =
+    s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
   lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
   lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))
-  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) = ssoifyUrl(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
+  def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) =
+    ssoifyUrl(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
 
-  def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) = s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
+  def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
+    s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
   lazy val analyticsToken = configuration.getString(s"google-analytics.token")
   lazy val analyticsHost = Some(configuration.getString(s"google-analytics.host").getOrElse("service.gov.uk"))
   lazy val ssoUrl = configuration.getString(s"portal.ssoUrl")
@@ -102,21 +115,25 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val formTrackingServiceUrl = s"$formTrackingHost/track"
   lazy val messageInboxLinkUrl = s"$messageFrontendService/messages/inbox-link"
   lazy val fandfUrl = s"$fandfHost/trusted-helpers"
-  def lostCredentialsChooseAccountUrl(continueUrl: String, forgottenOption: String) = {
-    s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}&forgottenOption=$forgottenOption"
-  }
-  lazy val notShownSaRecoverYourUserId = s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
+  def lostCredentialsChooseAccountUrl(continueUrl: String, forgottenOption: String) =
+    s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account?continue=${enc(
+      continueUrl)}&origin=${enc(defaultOrigin.toString)}&forgottenOption=$forgottenOption"
+  lazy val notShownSaRecoverYourUserId =
+    s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
   lazy val tamcTransferAllowanceUrl = s"$tamcHost/marriage-allowance-application/history"
   lazy val incomeTaxFormsUrl = "https://www.gov.uk/government/collections/hmrc-forms"
   lazy val selfAssessmentFormsAndHelpsheetsUrl = "https://www.gov.uk/self-assessment-forms-and-helpsheets"
-  lazy val onlineServicesHelpdeskUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
+  lazy val onlineServicesHelpdeskUrl =
+    "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
   lazy val contactHrmcUrl = "https://www.gov.uk/contact-hmrc"
-  lazy val selfAssessmentEnrolUrl = s"${enrolmentManagementFrontendHost}/enrolment-management-frontend/IR-SA/request-access-tax-scheme?continue=/personal-account"
-  lazy val selfAssessmentContactUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-  def registerForSelfAssessmentUrl(continueUrl: String) = {
-    s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(continueUrl)}&origin=${enc(defaultOrigin.toString)}"
-  }
-  lazy val selfAssessmentMakePaymentUrl = s"${payFrontendHost}/pay/self-assessment/choose-a-way-to-pay?mode=pta"
+  lazy val selfAssessmentEnrolUrl =
+    s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/request-access-tax-scheme?continue=/personal-account"
+  lazy val selfAssessmentContactUrl =
+    "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+  def registerForSelfAssessmentUrl(continueUrl: String) =
+    s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(
+      continueUrl)}&origin=${enc(defaultOrigin.toString)}"
+  lazy val selfAssessmentMakePaymentUrl = s"$payFrontendHost/pay/self-assessment/choose-a-way-to-pay?mode=pta"
   lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
   lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
   lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
@@ -127,7 +144,8 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val mainContentHeaderPartialUrl = s"$pertaxFrontendService/personal-account/integration/main-content-header"
 
   lazy val nationalInsuranceFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/national-insurance/catalogue"
-  lazy val childBenefitCreditFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/benefits-and-credits/catalogue"
+  lazy val childBenefitCreditFormPartialLinkUrl =
+    s"$formFrontendService/forms/personal-tax/benefits-and-credits/catalogue"
   lazy val selfAssessmentFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/self-assessment/catalogue"
   lazy val pensionFormPartialLinkUrl = s"$formFrontendService/forms/personal-tax/pensions/catalogue"
   lazy val businessTaxAccountUrl = s"$businessTaxAccountHost/business-account"
@@ -139,12 +157,18 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl = s"$dfsFrontendHost/forms/form/notification-of-a-change-in-personal-details/new"
 
-  lazy val childBenefitsStaysInEducation = s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
-  lazy val childBenefitsLaterLeavesEducation = s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-leaving-non-advanced-education-or-approved-training/guide"
-  lazy val childBenefitsHasAnyChangeInCircumstances = s"$dfsFrontendHost/forms/form/child-benefit-child-change-of-circumstances/guide"
-  lazy val childBenefitsApplyForExtension = s"$dfsFrontendHost/forms/form/Application-for-extension-of-Child-Benefit/guide"
-  lazy val childBenefitsReportChange = s"$dfsFrontendHost/forms/form/Child-Benefit-Claimant-Change-of-Circumstances/guide"
-  lazy val childBenefitsAuthoriseTaxAdvisor = s"$dfsFrontendHost/forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/new"
+  lazy val childBenefitsStaysInEducation =
+    s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
+  lazy val childBenefitsLaterLeavesEducation =
+    s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-leaving-non-advanced-education-or-approved-training/guide"
+  lazy val childBenefitsHasAnyChangeInCircumstances =
+    s"$dfsFrontendHost/forms/form/child-benefit-child-change-of-circumstances/guide"
+  lazy val childBenefitsApplyForExtension =
+    s"$dfsFrontendHost/forms/form/Application-for-extension-of-Child-Benefit/guide"
+  lazy val childBenefitsReportChange =
+    s"$dfsFrontendHost/forms/form/Child-Benefit-Claimant-Change-of-Circumstances/guide"
+  lazy val childBenefitsAuthoriseTaxAdvisor =
+    s"$dfsFrontendHost/forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/new"
   lazy val childBenefitsStopOrRestart = s"$dfsFrontendHost/forms/form/high-income-child-benefit-tax-charge/guide"
   lazy val childBenefitsCheckIfYouCanClaim = "https://www.gov.uk/child-benefit/overview"
 
@@ -162,30 +186,41 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
 
   lazy val welshLangEnabled = langs.availables.exists(l => l.code == "cy")
   lazy val taxCreditsEnabled = configuration.getString("feature.tax-credits.enabled").getOrElse("true").toBoolean
-  lazy val activateSALinkEnabled = configuration.getString("feature.activate-sa-link.enabled").getOrElse("true").toBoolean
-  lazy val allowLowConfidenceSAEnabled = configuration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
+  lazy val activateSALinkEnabled =
+    configuration.getString("feature.activate-sa-link.enabled").getOrElse("true").toBoolean
+  lazy val allowLowConfidenceSAEnabled =
+    configuration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
   lazy val ltaEnabled = configuration.getString("feature.lta.enabled").getOrElse("true").toBoolean
   lazy val urLinkUrl = configuration.getString("feature.ur-link.url")
   lazy val platformFrontendHost = configuration.getString("platform.frontend.host").getOrElse("")
 
   lazy val taxcalcEnabled = configuration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
-  lazy val taxCalcShowCyMinusTwo = configuration.getString("feature.show-taxcalc-cy-2.enabled").getOrElse("true").toBoolean
+  lazy val taxCalcShowCyMinusTwo =
+    configuration.getString("feature.show-taxcalc-cy-2.enabled").getOrElse("true").toBoolean
   lazy val taxComponentsEnabled = configuration.getString("feature.tax-components.enabled").getOrElse("true").toBoolean
   lazy val saReminderBannerEnabled = configuration.getString("feature.sa-banner.enabled").getOrElse("true").toBoolean
   lazy val nispEnabled = configuration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
   lazy val allowSaPreview = configuration.getString("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
-  lazy val taxCreditsPaymentLinkEnabled = configuration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
-  lazy val saveNiLetterAsPdfLinkEnabled = configuration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
-  lazy val saAmbigSkipUTRLetterEnabled = configuration.getString("feature.sa-skip-utr-letter.enabled").getOrElse("true").toBoolean
-  lazy val saAmbigSimplifiedJourneyEnabled = configuration.getString("feature.sa-simplified-journey.enabled").getOrElse("true").toBoolean
-  lazy val updateInternationalAddressInPta = configuration.getString("feature.update-international-address-form.enabled").getOrElse("false").toBoolean
-  lazy val closePostalAddressEnabled = configuration.getString("feature.close-postal-address.enabled").getOrElse("false").toBoolean
+  lazy val taxCreditsPaymentLinkEnabled =
+    configuration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
+  lazy val saveNiLetterAsPdfLinkEnabled =
+    configuration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
+  lazy val saAmbigSkipUTRLetterEnabled =
+    configuration.getString("feature.sa-skip-utr-letter.enabled").getOrElse("true").toBoolean
+  lazy val saAmbigSimplifiedJourneyEnabled =
+    configuration.getString("feature.sa-simplified-journey.enabled").getOrElse("true").toBoolean
+  lazy val updateInternationalAddressInPta =
+    configuration.getString("feature.update-international-address-form.enabled").getOrElse("false").toBoolean
+  lazy val closePostalAddressEnabled =
+    configuration.getString("feature.close-postal-address.enabled").getOrElse("false").toBoolean
 
   lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
-  lazy val assetsPrefix = configuration.getString(s"assets.url").getOrElse("") + configuration.getString(s"assets.version").getOrElse("") + '/'
+  lazy val assetsPrefix = configuration.getString(s"assets.url").getOrElse("") + configuration
+    .getString(s"assets.version")
+    .getOrElse("") + '/'
   lazy val assetsUrl = configuration.getString(s"assets.url").getOrElse("")
   lazy val assetsVersion = configuration.getString(s"assets.version").getOrElse("")
   lazy val mongoUrl = configuration.getString("mongodb.uri").getOrElse("")
@@ -193,11 +228,9 @@ class ConfigDecorator @Inject() (environment: Environment, configuration: Config
   lazy val sessionTimeoutInSeconds = configuration.getInt("session.timeout").getOrElse(1800)
   lazy val sessionCountdownInSeconds = configuration.getInt("session.countdown").getOrElse(120)
 
-  def getFeedbackSurveyUrl(origin: Origin): String = {
+  def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
-  }
 
-  def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String = {
+  def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
-  }
 }

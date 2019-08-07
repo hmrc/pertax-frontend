@@ -24,9 +24,10 @@ case class TaxComponents(taxComponents: Seq[String]) {
 
   def isMarriageAllowanceTransferor: Boolean = taxComponents.contains("MarriageAllowanceTransferred")
 
-  def notMarriageAllowanceCustomer: Boolean = ! (isMarriageAllowanceRecipient || isMarriageAllowanceTransferor)
+  def notMarriageAllowanceCustomer: Boolean = !(isMarriageAllowanceRecipient || isMarriageAllowanceTransferor)
 
-  def isCompanyBenefitRecipient: Boolean = taxComponents.exists(componentType => componentType == "CarBenefit" || componentType == "MedicalInsurance")
+  def isCompanyBenefitRecipient: Boolean =
+    taxComponents.exists(componentType => componentType == "CarBenefit" || componentType == "MedicalInsurance")
 }
 
 object TaxComponents {

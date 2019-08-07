@@ -50,12 +50,21 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
     lazy val (service, met, timer) = {
 
       val fakeSimpleHttp = {
-        if(simulatePreferencesFrontendServiceIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulatePreferencesFrontendServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val preferencesFrontendService: PreferencesFrontendService = new PreferencesFrontendService(injected[Environment], injected[Configuration], fakeSimpleHttp, injected[MessagesApi], MockitoSugar.mock[Metrics], injected[ConfigDecorator], injected[ApplicationCrypto], injected[Tools]) {
+      val preferencesFrontendService: PreferencesFrontendService = new PreferencesFrontendService(
+        injected[Environment],
+        injected[Configuration],
+        fakeSimpleHttp,
+        injected[MessagesApi],
+        MockitoSugar.mock[Metrics],
+        injected[ConfigDecorator],
+        injected[ApplicationCrypto],
+        injected[Tools]
+      ) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }
@@ -68,12 +77,13 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-activate-paperless"
-      lazy val r = service.getPaperlessPreference(PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
+      lazy val r = service.getPaperlessPreference(
+        PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
       lazy val httpResponse = HttpResponse(OK, Some(Json.obj()))
       lazy val simulatePreferencesFrontendServiceIsDown = false
     }
 
-    "return ActivatePaperlessActivatedResponse if it is successful, and user is Government GateWay"  in new LocalSetup {
+    "return ActivatePaperlessActivatedResponse if it is successful, and user is Government GateWay" in new LocalSetup {
       await(r) shouldBe ActivatePaperlessActivatedResponse
 
       verify(met, times(1)).startTimer(metricId)
@@ -82,7 +92,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
     }
 
     "return ActivatePaperlessNotAllowedResponse if user is not Government Gateway" in new LocalSetup {
-      override lazy val r = service.getPaperlessPreference(PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.VerifyAuthProvider), None, true))
+      override lazy val r = service.getPaperlessPreference(
+        PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.VerifyAuthProvider), None, true))
 
       await(r) shouldBe ActivatePaperlessNotAllowedResponse
 
@@ -112,7 +123,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec {
     }
 
     "return ActivatePaperlessRequiresUserActionResponse if Precondition failed with 412 response" in new LocalSetup {
-      override lazy val httpResponse = HttpResponse(PRECONDITION_FAILED, Some(Json.obj("redirectUserTo" -> "http://www.testurl.com")))
+      override lazy val httpResponse =
+        HttpResponse(PRECONDITION_FAILED, Some(Json.obj("redirectUserTo" -> "http://www.testurl.com")))
 
       await(r) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
 

@@ -38,13 +38,11 @@ class MessageFrontendServiceSpec extends BaseSpec {
     .overrides(bind[WsAllMethods].toInstance(MockitoSugar.mock[WsAllMethods]))
     .build()
 
-
-  override def beforeEach: Unit = {
+  override def beforeEach: Unit =
     reset(injected[WsAllMethods])
-  }
 
   trait LocalSetup {
-  
+
     val messageFrontendService = injected[MessageFrontendService]
   }
 
@@ -80,13 +78,13 @@ class MessageFrontendServiceSpec extends BaseSpec {
 
     "return message inbox link partial" in new LocalSetup {
 
-      when(messageFrontendService.http.GET[HtmlPartial](any())(any(),any(),any())) thenReturn
+      when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
 
       await(messageFrontendService.getMessageInboxLinkPartial(buildFakeRequestWithAuth("GET"))) shouldBe
         HtmlPartial.Success(None, Html("link to messages"))
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(),any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
 
   }
@@ -95,32 +93,32 @@ class MessageFrontendServiceSpec extends BaseSpec {
 
     "return None unread messages when http client does not return a usable response" in new LocalSetup {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(),any(),any())) thenReturn
+      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](None)
 
       await(messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))) shouldBe None
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(),any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
 
     "return Some(0) unread messages when http client returns 0 unrread messages" in new LocalSetup {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(),any(),any())) thenReturn
+      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(0)))
 
       await(messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))) shouldBe Some(0)
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(),any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
 
     "return Some(10) unread messages when http client returns 10 unrread messages" in new LocalSetup {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(),any(),any())) thenReturn
+      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(10)))
 
       await(messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))) shouldBe Some(10)
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(),any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
   }
 

@@ -31,11 +31,22 @@ class deEnrolledFromSaChoiceSpec extends BaseSpec {
   "deEnrolledFromSaChoice view" should {
     "check page contents" in {
       val pertaxUser = Fixtures.buildFakePertaxUser(isGovernmentGateway = true, isHighGG = true)
-      val form  =  AmbiguousUserFlowDto.form
-      val formWithErrors  =  AmbiguousUserFlowDto.form.withError("ambiguousUserFormChoice", Messages("error.enrolled.to.send.tax.required"))
-      val document = Jsoup.parse(views.html.ambiguousjourney.deEnrolledFromSaChoice(formWithErrors)(PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, injected[ConfigDecorator], Some(pertaxUser)), messages).toString)
+      val form = AmbiguousUserFlowDto.form
+      val formWithErrors =
+        AmbiguousUserFlowDto.form.withError("ambiguousUserFormChoice", Messages("error.enrolled.to.send.tax.required"))
+      val document = Jsoup.parse(
+        views.html.ambiguousjourney
+          .deEnrolledFromSaChoice(formWithErrors)(
+            PertaxContext(
+              FakeRequest("GET", "/test"),
+              mockLocalPartialRetreiver,
+              injected[ConfigDecorator],
+              Some(pertaxUser)),
+            messages)
+          .toString)
       document.getElementsByTag("h1").text shouldBe Messages("label.did_you_deregister_from_sa_online")
-      document.getElementsByClass("error-summary-list").text shouldBe Messages("head.error.enrolled.to.send.tax.required")
+      document.getElementsByClass("error-summary-list").text shouldBe Messages(
+        "head.error.enrolled.to.send.tax.required")
     }
   }
 

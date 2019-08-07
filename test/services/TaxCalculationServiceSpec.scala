@@ -45,12 +45,16 @@ class TaxCalculationServiceSpec extends BaseSpec {
 
     lazy val (service, metrics, timer) = {
       val fakeSimpleHttp = {
-        if(simulateTaxCalculationServiceIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulateTaxCalculationServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val taxCalculationService: TaxCalculationService = new TaxCalculationService(injected[Environment], injected[Configuration], fakeSimpleHttp, MockitoSugar.mock[Metrics]) {
+      val taxCalculationService: TaxCalculationService = new TaxCalculationService(
+        injected[Environment],
+        injected[Configuration],
+        fakeSimpleHttp,
+        MockitoSugar.mock[Metrics]) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
@@ -59,7 +63,6 @@ class TaxCalculationServiceSpec extends BaseSpec {
       (taxCalculationService, taxCalculationService.metricsOperator, timer)
     }
   }
-
 
   "Calling TaxCalculationService.getTaxCalculation" should {
 
