@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
@@ -799,6 +800,7 @@ class AddressController @Inject()(
               Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
               val address =
                 addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
+
               val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
               addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap { addressChanged =>

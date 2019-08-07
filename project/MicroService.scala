@@ -1,3 +1,4 @@
+import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
 import com.typesafe.sbt.digest.Import.digest
 import com.typesafe.sbt.web.Import.pipelineStages
 import play.sbt.PlayImport.PlayKeys
@@ -11,7 +12,6 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 import wartremover._
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
 
 trait MicroService {
 
@@ -71,7 +71,9 @@ trait MicroService {
       unmanagedSourceDirectories in IntegrationTest <<= (baseDirectory in IntegrationTest)(base => Seq(base / "it")),
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
-      parallelExecution in IntegrationTest := false)
+      parallelExecution in IntegrationTest := false,
+      scalafmtOnCompile := true
+    )
     .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"),
               resolvers += Resolver.jcenterRepo,
               resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/")
