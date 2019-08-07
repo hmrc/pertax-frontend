@@ -17,16 +17,12 @@
 package services
 
 import com.kenshoo.play.metrics.Metrics
-import error.GenericErrors
 import javax.inject.{Inject, Singleton}
 import metrics._
 import models._
 import play.api.Mode.Mode
 import play.api.http.Status._
-import play.api.i18n.Messages
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Result
-import play.api.mvc.Results._
 import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
@@ -41,21 +37,6 @@ case object PersonDetailsNotFoundResponse extends PersonDetailsResponse
 case object PersonDetailsHiddenResponse extends PersonDetailsResponse
 case class PersonDetailsUnexpectedResponse(r: HttpResponse) extends PersonDetailsResponse
 case class PersonDetailsErrorResponse(cause: Exception) extends PersonDetailsResponse
-
-sealed trait UpdateAddressResponse {
-  def updateAddressResponse(
-    successResponseBlock: () => Result)(implicit pertaxContext: PertaxContext, messages: Messages): Result =
-    this match {
-      case UpdateAddressBadRequestResponse    => GenericErrors.badRequest
-      case UpdateAddressUnexpectedResponse(_) => GenericErrors.internalServerError
-      case UpdateAddressErrorResponse(_)      => GenericErrors.internalServerError
-      case UpdateAddressSuccessResponse       => successResponseBlock()
-    }
-}
-case object UpdateAddressSuccessResponse extends UpdateAddressResponse
-case object UpdateAddressBadRequestResponse extends UpdateAddressResponse
-case class UpdateAddressUnexpectedResponse(r: HttpResponse) extends UpdateAddressResponse
-case class UpdateAddressErrorResponse(cause: Exception) extends UpdateAddressResponse
 
 sealed trait MatchingDetailsResponse
 case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse

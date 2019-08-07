@@ -814,7 +814,7 @@ class AddressController @Inject()(
                 }
 
                 citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
-                  _.updateAddressResponse(successResponseBlock)
+                  _.response(successResponseBlock)
                 }
               }
             }
