@@ -19,8 +19,7 @@ package services
 import javax.inject.Inject
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait AddressChanged
 object MovedToScotland extends AddressChanged
@@ -29,7 +28,9 @@ object AnyOtherMove extends AddressChanged
 
 class AddressMovedService @Inject()(addressLookupService: AddressLookupService) {
 
-  def moved(fromAddressId: String, toAddressId: String)(implicit hc: HeaderCarrier): Future[AddressChanged] =
+  def moved(fromAddressId: String, toAddressId: String)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[AddressChanged] =
     for {
       fromResponse <- addressLookupService.lookup(fromAddressId)
       toResponse   <- addressLookupService.lookup(toAddressId)

@@ -23,10 +23,11 @@ import uk.gov.hmrc.http.HttpResponse
 import util.BaseSpec
 import play.api.http.Status._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
 
+  implicit val executionContext = injected[ExecutionContext]
   val addressLookupService = mock[AddressLookupService]
   val fromPostcode = "AA1 1AA"
   val toPostcode = "AA1 2AA"
