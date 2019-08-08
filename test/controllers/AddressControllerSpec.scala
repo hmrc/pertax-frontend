@@ -2149,7 +2149,7 @@ class AddressControllerSpec extends BaseSpec {
               None,
               "AA1 1AA",
               Country("UK", "United Kingdom"),
-              "GB-ENG"),
+              Some("GB-ENG")),
             "en"),
           AddressRecord(
             "GB990091234515",
@@ -2159,7 +2159,7 @@ class AddressControllerSpec extends BaseSpec {
               None,
               "AA1 1AA",
               Country("UK", "United Kingdom"),
-              "GB-ENG"),
+              Some("GB-ENG")),
             "en")
         )
       )

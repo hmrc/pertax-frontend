@@ -65,10 +65,10 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
 
   private val scottishSubdivision = "GB-SCT"
 
-  private def hasMovedFromScotland(fromSubdivision: String, toSubdivision: String): Boolean =
-    fromSubdivision == scottishSubdivision && toSubdivision != scottishSubdivision
+  private def hasMovedFromScotland(fromSubdivision: Option[String], toSubdivision: Option[String]): Boolean =
+    fromSubdivision.contains(scottishSubdivision) && !toSubdivision.contains(scottishSubdivision)
 
-  private def hasMovedToScotland(fromSubdivision: String, toSubdivision: String): Boolean =
-    fromSubdivision != scottishSubdivision && toSubdivision == scottishSubdivision
+  private def hasMovedToScotland(fromSubdivision: Option[String], toSubdivision: Option[String]): Boolean =
+    !fromSubdivision.contains(scottishSubdivision) && toSubdivision.contains(scottishSubdivision)
 
 }
