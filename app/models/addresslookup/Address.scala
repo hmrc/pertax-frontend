@@ -61,7 +61,7 @@ case class Address(
   otherLine: Option[String],
   postcode: String,
   country: Country,
-  subdivision: String) {
+  subdivision: Option[String]) {
 
   def isValid = lines.nonEmpty && lines.size <= (if (town.isEmpty) 4 else 3)
 

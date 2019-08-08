@@ -31,11 +31,18 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
   val fromPostcode = "AA1 1AA"
   val toPostcode = "AA1 2AA"
 
-  val englandRecordSet = RecordSet(Seq(
-    AddressRecord("some id", Address(Seq.empty, None, None, fromPostcode, Country("eng", "England"), "GB-ENG"), "en")))
+  val englandRecordSet = RecordSet(
+    Seq(
+      AddressRecord(
+        "some id",
+        Address(Seq.empty, None, None, fromPostcode, Country("eng", "England"), Some("GB-ENG")),
+        "en")))
   val scotlandRecordSet = RecordSet(
     Seq(
-      AddressRecord("some id", Address(Seq.empty, None, None, fromPostcode, Country("blah", "blah"), "GB-SCT"), "en")))
+      AddressRecord(
+        "some id",
+        Address(Seq.empty, None, None, fromPostcode, Country("blah", "blah"), Some("GB-SCT")),
+        "en")))
 
   val service = new AddressMovedService(addressLookupService)
 
