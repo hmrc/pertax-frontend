@@ -50,7 +50,7 @@
 
                     <p>@Messages("label.all_your_letters_will_be_sent_to_this_addr")</p>
 
-                    <p>@Html(addr.get.mkString(", <br>"))</p>
+                    <p>@Html(addr.map(x => x.mkString(", <br>")).getOrElse("")))</p>
 
                     <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
                 </div>
