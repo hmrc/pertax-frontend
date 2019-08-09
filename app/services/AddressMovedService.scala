@@ -37,21 +37,16 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
     } yield {
       (fromResponse, toResponse) match {
         case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
-          val fromSub = fromRecordSet.addresses.headOption.map(_.address.subdivision)
-          val toSub = toRecordSet.addresses.headOption.map(_.address.subdivision)
+          val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+          val toSubdivision = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
 
-          val addressChanged = fromSub.flatMap(
-            fromSubdivision =>
-              toSub.map(
-                toSubdivision =>
-                  if (hasMovedFromScotland(fromSubdivision, toSubdivision))
-                    MovedFromScotland
-                  else if (hasMovedToScotland(fromSubdivision, toSubdivision))
-                    MovedToScotland
-                  else
-                  AnyOtherMove))
+          if (hasMovedFromScotland(fromSubdivision, toSubdivision))
+            MovedFromScotland
+          else if (hasMovedToScotland(fromSubdivision, toSubdivision))
+            MovedToScotland
+          else
+            AnyOtherMove
 
-          addressChanged.getOrElse(AnyOtherMove)
         case _ =>
           AnyOtherMove
       }
