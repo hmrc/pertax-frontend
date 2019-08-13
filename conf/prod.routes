@@ -19,6 +19,8 @@ GET    /personal-account/dismiss-ur-banner                                   @co
 
 GET    /personal-account/self-assessment                                     @controllers.ApplicationController.handleSelfAssessment
 GET    /personal-account/sa-continue                                         @controllers.ApplicationController.ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl])
+GET    /personal-account/self-assessment/make-payment                        @controllers.ApplicationController.makePayment
+
 GET    /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
 POST   /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice
 GET    /personal-account/self-assessment/sa-filed-post                       @controllers.AmbiguousJourneyController.filedReturnByPostChoice

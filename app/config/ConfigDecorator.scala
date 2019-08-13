@@ -48,6 +48,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val pertaxFrontendService = baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
+  private lazy val payApiUrl = baseUrl("pay-api")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
     configuration.getString(s"external-url.$key").filter(x => env == "Dev")
@@ -76,7 +77,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val governmentGatewayRegistrationFrontendHost =
     decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
   lazy val enrolmentManagementFrontendHost = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val payFrontendHost = decorateUrlForLocalDev(s"pay-frontend.host").getOrElse("")
 
   lazy val portalBaseUrl = configuration.getString("external-url.portal.host").getOrElse("")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
@@ -109,6 +109,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val analyticsHost = Some(configuration.getString(s"google-analytics.host").getOrElse("service.gov.uk"))
   lazy val ssoUrl = configuration.getString(s"portal.ssoUrl")
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
+  lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
   lazy val citizenSwitchOffUrl = s"$citizenAuthHost/attorney/switch-off-act"
   lazy val taxEstimateServiceUrl = s"$taiHost/check-income-tax/paye"
@@ -133,7 +134,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   def registerForSelfAssessmentUrl(continueUrl: String) =
     s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(
       continueUrl)}&origin=${enc(defaultOrigin.toString)}"
-  lazy val selfAssessmentMakePaymentUrl = s"$payFrontendHost/pay/self-assessment/choose-a-way-to-pay?mode=pta"
   lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
   lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
   lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
