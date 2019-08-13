@@ -22,15 +22,19 @@ import models.PaymentRequest
 import play.api.http.Status._
 import play.api.libs.json.{Json, Reads}
 import services.http.WsAllMethods
-import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CreatePaymentResponse(journeyId: String, nextUrl: String)
+final case class CreatePayment(journeyId: String, nextUrl: String)
 
-object CreatePaymentResponse {
-  implicit val format = Json.format[CreatePaymentResponse]
+object CreatePayment {
+  implicit val format = Json.format[CreatePayment]
 }
+
+sealed trait CreatePaymentResponse
+final case class CreatePaymentSuccess(createPaymentResponse: CreatePayment) extends CreatePaymentResponse
+object CreatePaymentFailed extends CreatePaymentResponse
 
 class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecorator) {
 
@@ -38,15 +42,13 @@ class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecor
     request: PaymentRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CreatePaymentResponse] = {
     val postUrl = configDecorator.makeAPaymentUrl
 
-    val httpResponse = http.POST[PaymentRequest, HttpResponse](postUrl, request) flatMap { response =>
+    http.POST[PaymentRequest, HttpResponse](postUrl, request) flatMap { response =>
       response.status match {
-        case CREATED => Future.successful(response)
-        case _       => Future.failed(new HttpException(response.body, response.status))
+        case CREATED =>
+          val createPayment = responseTo[CreatePayment](response)
+          Future.successful(new CreatePaymentSuccess(createPayment))
+        case _ => Future.successful(CreatePaymentFailed)
       }
-    }
-
-    httpResponse.map { response =>
-      responseTo[CreatePaymentResponse](response)
     }
   }
 

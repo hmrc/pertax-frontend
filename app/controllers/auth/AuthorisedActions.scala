@@ -87,12 +87,11 @@ trait AuthorisedActions
       authContext.userDetailsUri map { uri =>
         userDetailsService.getUserDetails(uri) flatMap {
           case Some(userDetails) => block(userDetails)
-          case None =>
-            renderError(INTERNAL_SERVER_ERROR)
+          case None              => futureError(INTERNAL_SERVER_ERROR)
         }
       } getOrElse {
         Logger.error("There was no user-details URI for current user")
-        renderError(INTERNAL_SERVER_ERROR)
+        futureError(INTERNAL_SERVER_ERROR)
       }
     }
 
@@ -159,7 +158,7 @@ trait AuthorisedActions
         }
       } getOrElse {
         Logger.warn("User had no PersonDetails in context when one was required")
-        renderError(UNAUTHORIZED)
+        futureError(UNAUTHORIZED)
       }
     }
 
@@ -171,7 +170,7 @@ trait AuthorisedActions
       }
     } getOrElse {
       Logger.warn("User had no paye account when one was required")
-      renderError(UNAUTHORIZED)
+      futureError(UNAUTHORIZED)
     }
 
   def enforceSaAccount(block: SaAccount => Future[Result])(implicit pertaxContext: PertaxContext): Future[Result] =
@@ -181,30 +180,30 @@ trait AuthorisedActions
       }
     } getOrElse {
       Logger.warn("User had no sa account when one was required")
-      renderError(UNAUTHORIZED)
+      futureError(UNAUTHORIZED)
     }
 
   def enforceGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifGovernmentGatewayUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifGovernmentGatewayUser(block) getOrElse futureError(UNAUTHORIZED)
 
   def enforceHighGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifHighGovernmentGatewayUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifHighGovernmentGatewayUser(block) getOrElse futureError(UNAUTHORIZED)
 
   def enforceLowGovernmentGatewayUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifLowGovernmentGatewayUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifLowGovernmentGatewayUser(block) getOrElse futureError(UNAUTHORIZED)
 
   def enforceVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifVerifyUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifVerifyUser(block) getOrElse futureError(UNAUTHORIZED)
 
   def enforceHighGovernmentGatewayUserOrVerifyUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifHighGovernmentGatewayOrVerifyUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifHighGovernmentGatewayOrVerifyUser(block) getOrElse futureError(UNAUTHORIZED)
 
   def enforcePayeUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifPayeUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifPayeUser(block) getOrElse futureError(UNAUTHORIZED)
 
   def enforceSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifSaUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifSaUser(block) getOrElse futureError(UNAUTHORIZED)
 
   def enforcePayeOrSaUser(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
-    PertaxUser.ifPayeOrSaUser(block) getOrElse renderError(UNAUTHORIZED)
+    PertaxUser.ifPayeOrSaUser(block) getOrElse futureError(UNAUTHORIZED)
 }

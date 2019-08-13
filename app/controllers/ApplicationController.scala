@@ -16,9 +16,9 @@
 
 package controllers
 
-import connectors.{CreatePaymentResponse, FrontEndDelegationConnector, PayApiConnector}
+import connectors.{CreatePaymentFailed, CreatePayment, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
-import error.LocalErrorHandler
+import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import models._
 import play.api.Logger
@@ -51,7 +51,7 @@ class ApplicationController @Inject()(
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val payApiConnector: PayApiConnector)
-    extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
+    extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
     val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
@@ -149,12 +149,13 @@ class ApplicationController @Inject()(
     enforceSaAccount { saAccount =>
       val paymentRequest = PaymentRequest(configDecorator, saAccount.utr.toString())
       for {
-        createPaymentResponse <- payApiConnector.createPayment(paymentRequest)
+        response <- payApiConnector.createPayment(paymentRequest)
       } yield {
-        Redirect(createPaymentResponse.nextUrl)
+        response match {
+          case CreatePaymentSuccess(createPaymentResponse) => Redirect(createPaymentResponse.nextUrl)
+          case CreatePaymentFailed                         => error(BAD_REQUEST)
+        }
       }
-    }.recover {
-      case NonFatal(_) => Redirect(controllers.routes.HomeController.index())
     }
   }
 

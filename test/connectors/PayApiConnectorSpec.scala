@@ -24,7 +24,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import services.http.WsAllMethods
-import uk.gov.hmrc.http.{HttpException, HttpResponse}
+import uk.gov.hmrc.http.HttpResponse
 import util.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -54,7 +54,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar {
         .thenReturn(Future.successful(HttpResponse(CREATED, Some(json))))
 
       val result = Await.result(connector.createPayment(paymentRequest), 5.seconds)
-      result shouldBe CreatePaymentResponse("exampleJourneyId", "testNextUrl")
+      result shouldBe CreatePaymentSuccess(CreatePayment("exampleJourneyId", "testNextUrl"))
     }
 
     "Returns a Http Exception when the statys code is not CREATED" in {
@@ -66,8 +66,8 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar {
           any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
-      val result = the[HttpException] thrownBy Await.result(connector.createPayment(paymentRequest), 5.seconds)
-      result.responseCode shouldBe BAD_REQUEST
+      val result = Await.result(connector.createPayment(paymentRequest), 5.seconds)
+      result shouldBe CreatePaymentFailed
     }
   }
 }
