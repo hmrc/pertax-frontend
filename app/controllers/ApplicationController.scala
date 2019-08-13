@@ -16,17 +16,18 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import connectors.{CreatePaymentResponse, FrontEndDelegationConnector, PayApiConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Reads
 import play.api.mvc._
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -34,6 +35,7 @@ import util.AuditServiceTools._
 import util.DateTimeTools
 
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 class ApplicationController @Inject()(
   val messagesApi: MessagesApi,
@@ -47,7 +49,8 @@ class ApplicationController @Inject()(
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler)
+  val localErrorHandler: LocalErrorHandler,
+  val payApiConnector: PayApiConnector)
     extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
@@ -139,6 +142,19 @@ class ApplicationController @Inject()(
           Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
         case _ => Future.successful(Redirect(routes.HomeController.index()))
       }
+    }
+  }
+
+  def makePayment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+    enforceSaAccount { saAccount =>
+      val paymentRequest = PaymentRequest(configDecorator, saAccount.utr.toString())
+      for {
+        createPaymentResponse <- payApiConnector.createPayment(paymentRequest)
+      } yield {
+        Redirect(createPaymentResponse.nextUrl)
+      }
+    }.recover {
+      case NonFatal(_) => Redirect(controllers.routes.HomeController.index())
     }
   }
 
