@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{CreatePaymentResponse, FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{CreatePaymentFailed, CreatePayment, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -467,26 +467,25 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
 
       val expectedNextUrl = "someNextUrl"
-      val createPaymentResponse = CreatePaymentResponse("someJourneyId", expectedNextUrl)
+      val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
 
       when(controller.payApiConnector.createPayment(any())(any(), any()))
-        .thenReturn(Future.successful(createPaymentResponse))
+        .thenReturn(Future.successful(CreatePaymentSuccess(createPaymentResponse)))
 
       val r = controller.makePayment()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("someNextUrl")
     }
 
-    "redirect back to the home page if the response is bad" in new LocalSetup {
+    "redirect to a BAD_REQUEST page if createPayment failed" in new LocalSetup {
       override lazy val authority =
         buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
 
       when(controller.payApiConnector.createPayment(any())(any(), any()))
-        .thenReturn(Future.failed(new HttpException("something bad happened", BAD_REQUEST)))
+        .thenReturn(Future.successful(CreatePaymentFailed))
 
       val r = controller.makePayment()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some(controllers.routes.HomeController.index())
+      status(r) shouldBe BAD_REQUEST
     }
   }
 
