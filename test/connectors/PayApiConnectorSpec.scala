@@ -57,7 +57,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar {
       result shouldBe CreatePaymentSuccess(CreatePayment("exampleJourneyId", "testNextUrl"))
     }
 
-    "Returns a Http Exception when the statys code is not CREATED" in {
+    "Returns a CreatePaymentFailed when the status code is not CREATED" in {
       when(
         http.POST[PaymentRequest, HttpResponse](Matchers.eq(postUrl), Matchers.eq(paymentRequest), any())(
           any(),
