@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.{CreatePaymentFailed, CreatePayment, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector}
+import connectors.{CreatePayment, CreatePaymentFailed, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject

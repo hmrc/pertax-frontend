@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{CreatePaymentFailed, CreatePayment, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{CreatePayment, CreatePaymentFailed, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
