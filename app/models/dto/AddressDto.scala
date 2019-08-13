@@ -124,7 +124,7 @@ case class AddressDto(
       line3,
       line4,
       line5,
-      postcode.map(_.toUpperCase),
+      postcode.map(formatMandatoryPostCode(_)),
       country,
       Some(startDate),
       Some(endDate),
@@ -137,7 +137,7 @@ case class AddressDto(
         line3,
         line4,
         line5,
-        Some(postcode.toUpperCase),
+        Some(formatMandatoryPostCode(postcode)),
         None,
         Some(startDate),
         None,
@@ -147,4 +147,9 @@ case class AddressDto(
   }
   def toList = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
   def toListWithCountry = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
+  def formatMandatoryPostCode(postCode: String) = {
+    val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
+    val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
+    postCodeSplit._1 + " " + postCodeSplit._2
+  }
 }
