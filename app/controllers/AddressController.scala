@@ -800,7 +800,7 @@ class AddressController @Inject()(
               Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
               val address =
                 addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
-
+                addressDto.copy(postcode=addressDto.postcode.map(addressDto.formatMandatoryPostCode(_)))
               citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
 
                 case UpdateAddressBadRequestResponse =>

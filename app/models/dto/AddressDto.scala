@@ -145,18 +145,6 @@ case class AddressDto(
     case None =>
       Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
   }
-  
-  def apply(
-    line1: String,
-    line2: String,
-    line3: Option[String],
-    line4: Option[String],
-    line5: Option[String],
-    postcode: Option[String],
-    country: Option[String],
-    propertyRefNo: Option[String]
-  ): AddressDto =
-    new AddressDto(line1, line2, line3, line4, line5, postcode.map(formatMandatoryPostCode(_)), country, propertyRefNo)
 
   def toList = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
   def toListWithCountry = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
