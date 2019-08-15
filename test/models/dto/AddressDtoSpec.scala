@@ -957,4 +957,61 @@ class AddressDtoSpec extends BaseSpec {
     }
   }
 
+  "Calling AddressDto.toAddress" should {
+
+    "return formatted postcode when it contains 7 characters" in {
+      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA9A9AA"), Some("UK"), None)
+      val addressTye = "sole"
+      val startDate = new LocalDate(2019, 1, 1)
+
+      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+        Some("Line 1"),
+        Some("Line 2"),
+        Some("Line 3"),
+        None,
+        None,
+        Some("AA9A 9AA"),
+        None,
+        Some(startDate),
+        None,
+        Some(addressTye))
+    }
+
+    "return formatted postcode when it contains 6 characters" in {
+      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A9A9AA"), Some("UK"), None)
+      val addressTye = "sole"
+      val startDate = new LocalDate(2019, 1, 1)
+
+      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+        Some("Line 1"),
+        Some("Line 2"),
+        Some("Line 3"),
+        None,
+        None,
+        Some("A9A 9AA"),
+        None,
+        Some(startDate),
+        None,
+        Some(addressTye))
+    }
+
+    "return formatted postcode when it contains 5 characters" in {
+      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A99AA"), Some("UK"), None)
+      val addressTye = "sole"
+      val startDate = new LocalDate(2019, 1, 1)
+
+      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+        Some("Line 1"),
+        Some("Line 2"),
+        Some("Line 3"),
+        None,
+        None,
+        Some("A9 9AA"),
+        None,
+        Some(startDate),
+        None,
+        Some(addressTye))
+    }
+  }
+
 }

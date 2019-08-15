@@ -800,7 +800,7 @@ class AddressController @Inject()(
               Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
               val address =
                 addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
-
+              val addressDtowithFormattedPostCode=addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode(_)))
               citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
 
                 case UpdateAddressBadRequestResponse =>
@@ -825,7 +825,7 @@ class AddressController @Inject()(
                       Some("global.error.InternalServerError500.message")))
 
                 case UpdateAddressSuccessResponse =>
-                  handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
+                  handleAddressChangeAuditing(originalAddressDto, addressDtowithFormattedPostCode, personDetails, addressType)
                   clearCache() //This clears ENTIRE session cache, no way to target individual keys
                   Ok(views.html.personaldetails.updateAddressConfirmation(typ, false, None))
               }
