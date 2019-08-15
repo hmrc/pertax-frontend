@@ -16,21 +16,20 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import metrics._
 import models._
-import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
+import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
+import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
-import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 sealed trait PersonDetailsResponse
 case class PersonDetailsSuccessResponse(personDetails: PersonDetails) extends PersonDetailsResponse
@@ -38,12 +37,6 @@ case object PersonDetailsNotFoundResponse extends PersonDetailsResponse
 case object PersonDetailsHiddenResponse extends PersonDetailsResponse
 case class PersonDetailsUnexpectedResponse(r: HttpResponse) extends PersonDetailsResponse
 case class PersonDetailsErrorResponse(cause: Exception) extends PersonDetailsResponse
-
-sealed trait UpdateAddressResponse
-case object UpdateAddressSuccessResponse extends UpdateAddressResponse
-case object UpdateAddressBadRequestResponse extends UpdateAddressResponse
-case class UpdateAddressUnexpectedResponse(r: HttpResponse) extends UpdateAddressResponse
-case class UpdateAddressErrorResponse(cause: Exception) extends UpdateAddressResponse
 
 sealed trait MatchingDetailsResponse
 case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse

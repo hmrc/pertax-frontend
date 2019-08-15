@@ -11,7 +11,8 @@
       "country": {
         "code": "UK",
         "name": "United Kingdom"
-      }
+      },
+      "subdivision": "GB-ENG"
     },
     "language": "en"
   },
@@ -27,7 +28,8 @@
       "country": {
         "code": "UK",
         "name": "United Kingdom"
-      }
+      },
+      "subdivision": "GB-SCT"
     },
     "language": "en"
   }
