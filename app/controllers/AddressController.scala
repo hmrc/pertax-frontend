@@ -806,7 +806,14 @@ class AddressController @Inject()(
                 def successResponseBlock(): Result = {
                   val originalAddressDto: Option[AddressDto] =
                     journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
-                  handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
+
+                  val addressDtowithFormattedPostCode =
+                    addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode(_)))
+                  handleAddressChangeAuditing(
+                    originalAddressDto,
+                    addressDtowithFormattedPostCode,
+                    personDetails,
+                    addressType)
                   clearCache()
 
                   Ok(views.html.personaldetails
