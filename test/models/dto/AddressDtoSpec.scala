@@ -70,7 +70,7 @@ class AddressDtoSpec extends BaseSpec {
     "allow valid characters to be submitted" in {
 
       val formData = Map(
-        "line1"    -> " A-Za-z0-9&’'(),-./",
+        "line1"    -> "A-Za-z0-9&',-./",
         "line2"    -> "Line 2",
         "line3"    -> "",
         "line4"    -> "",
@@ -85,7 +85,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length shouldBe 0
           },
           success => {
-            success shouldBe AddressDto(" A-Za-z0-9&’'(),-./", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
+            success shouldBe AddressDto("A-Za-z0-9&',-./", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
           }
         )
     }
@@ -519,7 +519,7 @@ class AddressDtoSpec extends BaseSpec {
     "allow valid characters to be submitted" in {
 
       val formData = Map(
-        "line1"   -> " A-Za-z0-9&’'(),-./",
+        "line1"   -> "A-Za-z0-9&',-./",
         "line2"   -> "Line 2",
         "line3"   -> "",
         "line4"   -> "",
@@ -534,15 +534,7 @@ class AddressDtoSpec extends BaseSpec {
             formWithErrors.errors.length shouldBe 0
           },
           success => {
-            success shouldBe AddressDto(
-              " A-Za-z0-9&’'(),-./",
-              "Line 2",
-              None,
-              None,
-              None,
-              None,
-              Some("Gibraltar"),
-              None)
+            success shouldBe AddressDto("A-Za-z0-9&',-./", "Line 2", None, None, None, None, Some("Gibraltar"), None)
           }
         )
     }
