@@ -127,8 +127,13 @@ class PertaxValidatorsSpec extends BaseSpec {
       }
     }
 
-    "return true when no illegal characters are used" in {
-      validateAddressLineCharacters(Some("""&’(),-./123ABCabc sôéàëŵŷáîïâêûü""")) shouldBe true
+    "return false when illegal characters are used" in {
+      validateAddressLineCharacters(Some("""45b Mühlendamm NE32 5RS""")) shouldBe false
     }
+
+    "return true when no illegal characters are used" in {
+      validateAddressLineCharacters(Some("""48/- Williams Park, Tyne & Wear NE32-5RS""")) shouldBe true
+    }
+
   }
 }
