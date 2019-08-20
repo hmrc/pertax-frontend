@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.{CreatePayment, CreatePaymentFailed, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector}
+import connectors.{CreatePayment, FrontEndDelegationConnector, PayApiConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
@@ -49,8 +49,7 @@ class ApplicationController @Inject()(
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler,
-  val payApiConnector: PayApiConnector)
+  val localErrorHandler: LocalErrorHandler)
     extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
@@ -141,20 +140,6 @@ class ApplicationController @Inject()(
         case ambigUser: AmbiguousFilerSelfAssessmentUser =>
           Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
         case _ => Future.successful(Redirect(routes.HomeController.index()))
-      }
-    }
-  }
-
-  def makePayment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceSaAccount { saAccount =>
-      val paymentRequest = PaymentRequest(configDecorator, saAccount.utr.toString())
-      for {
-        response <- payApiConnector.createPayment(paymentRequest)
-      } yield {
-        response match {
-          case CreatePaymentSuccess(createPaymentResponse) => Redirect(createPaymentResponse.nextUrl)
-          case CreatePaymentFailed                         => error(BAD_REQUEST)
-        }
       }
     }
   }
