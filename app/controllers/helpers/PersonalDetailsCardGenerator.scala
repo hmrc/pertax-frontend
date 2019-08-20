@@ -40,21 +40,6 @@ class PersonalDetailsCardGenerator @Inject()(
       getNationalInsuranceCard()
     ).flatten
 
-  def show2016AddressMessage(address: Option[Address])(
-    implicit messages: play.api.i18n.Messages): (Boolean, Option[String]) = {
-
-    def compare(a: LocalDate, y: Int, m: Int, d: Int)(f: (LocalDate, LocalDate) => Boolean) =
-      f(a, new LocalDate(y, m, d))
-
-    address match {
-      case Some(Address(_, _, _, _, _, _, _, Some(startDate), _, _)) if compare(startDate, 2016, 4, 6)(_.equals(_)) =>
-        (true, None)
-      case Some(Address(_, _, _, _, _, _, _, Some(startDate), _, _)) if compare(startDate, 2016, 4, 6)(!_.equals(_)) =>
-        (false, Some(LanguageHelper.langUtils.Dates.formatDate(startDate)))
-      case _ => (false, None)
-    }
-  }
-
   private def getPersonDetails()(implicit pertaxContext: PertaxContext) =
     for {
       u  <- pertaxContext.user
@@ -73,7 +58,6 @@ class PersonalDetailsCardGenerator @Inject()(
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
-        val (show2016Message, startDate) = show2016AddressMessage(personDetails.address)
         Some(
           views.html.cards.personaldetails.mainAddress(
             personDetails = personDetails,

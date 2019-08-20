@@ -33,17 +33,14 @@ import play.api.data.FormError
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
-import reactivemongo.bson.BSONDocument
 import repositories.CorrespondenceAddressLockRepository
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
-import util.LanguageHelper
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.AuditServiceTools._
-import util.LocalPartialRetriever
+import util.LanguageHelper
 
 import scala.concurrent.Future
 
@@ -52,6 +49,7 @@ class AddressController @Inject()(
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
   val addressLookupService: AddressLookupService,
+  val addressMovedService: AddressMovedService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val sessionCache: LocalSessionCache,
@@ -112,6 +110,7 @@ class AddressController @Inject()(
     implicit pertaxContext =>
       import models.dto.AddressPageVisitedDto
       def optNino = pertaxContext.user.flatMap(_.personDetails.flatMap(_.person.nino))
+
       for {
         hasCorrespondenceAddressLock <- optNino match {
                                          case Some(nino) =>
@@ -669,15 +668,18 @@ class AddressController @Inject()(
                              auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
                      _        <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
                      inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino.withoutSuffix)
+                     _        <- addressMovedService.moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
                    } yield
-                     if (inserted)
+                     if (inserted) {
                        Ok(
                          views.html.personaldetails.updateAddressConfirmation(
                            PostalAddrType,
-                           closedPostalAddress = true,
-                           Some(getAddress(personDetails.address).fullAddress)))
-                     else
+                           true,
+                           Some(getAddress(personDetails.address).fullAddress),
+                           None))
+                     } else {
                        internalServerError
+                     }
                }
     } yield action
   }
@@ -793,41 +795,34 @@ class AddressController @Inject()(
         gettingCachedJourneyData(typ) { journeyData =>
           ensuringSubmissionRequirments(typ, journeyData) {
 
-            val originalAddressDto: Option[AddressDto] =
-              journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
-
             journeyData.submittedAddressDto.fold(
               Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
               val address =
                 addressDto.toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
 
-              citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+              val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
-                case UpdateAddressBadRequestResponse =>
-                  BadRequest(
-                    views.html.error(
-                      "global.error.BadRequest.title",
-                      Some("global.error.BadRequest.title"),
-                      Some("global.error.BadRequest.message")))
+              addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap { addressChanged =>
+                def successResponseBlock(): Result = {
+                  val originalAddressDto: Option[AddressDto] =
+                    journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
-                case UpdateAddressUnexpectedResponse(response) =>
-                  InternalServerError(
-                    views.html.error(
-                      "global.error.InternalServerError500.title",
-                      Some("global.error.InternalServerError500.title"),
-                      Some("global.error.InternalServerError500.message")))
+                  val addressDtowithFormattedPostCode =
+                    addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode(_)))
+                  handleAddressChangeAuditing(
+                    originalAddressDto,
+                    addressDtowithFormattedPostCode,
+                    personDetails,
+                    addressType)
+                  clearCache()
 
-                case UpdateAddressErrorResponse(cause) =>
-                  InternalServerError(
-                    views.html.error(
-                      "global.error.InternalServerError500.title",
-                      Some("global.error.InternalServerError500.title"),
-                      Some("global.error.InternalServerError500.message")))
+                  Ok(views.html.personaldetails
+                    .updateAddressConfirmation(typ, false, None, addressMovedService.toMessageKey(addressChanged)))
+                }
 
-                case UpdateAddressSuccessResponse =>
-                  handleAddressChangeAuditing(originalAddressDto, addressDto, personDetails, addressType)
-                  clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                  Ok(views.html.personaldetails.updateAddressConfirmation(typ, false, None))
+                citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+                  _.response(successResponseBlock)
+                }
               }
             }
           }

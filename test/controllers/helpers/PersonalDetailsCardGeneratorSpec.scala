@@ -53,7 +53,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     def userHasPersonDetails: Boolean
     def userHasCorrespondenceAddress: Boolean
     def mainHomeStartDate: Option[String]
-    def show2016Message: Boolean
     def hasCorrespondenceAddressLock: Boolean
 
     def buildPersonDetails =
@@ -107,7 +106,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = false
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = None
-      override lazy val show2016Message = false
       override lazy val hasCorrespondenceAddressLock = false
 
       cardBody shouldBe None
@@ -119,7 +117,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
-      override lazy val show2016Message = false
       override lazy val hasCorrespondenceAddressLock = false
 
       cardBody shouldBe Some(
@@ -138,7 +135,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = Some("15 March 2015")
-      override lazy val show2016Message = false
       override lazy val hasCorrespondenceAddressLock = false
 
       cardBody shouldBe Some(
@@ -157,7 +153,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = Some("15 March 2015")
-      override lazy val show2016Message = false
       override lazy val hasCorrespondenceAddressLock = true
 
       cardBody shouldBe Some(
@@ -176,7 +171,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
-      override lazy val show2016Message = false
       override lazy val hasCorrespondenceAddressLock = false
 
       cardBody shouldBe Some(
@@ -195,7 +189,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
-      override lazy val show2016Message = false
       override lazy val hasCorrespondenceAddressLock = false
 
       cardBody shouldBe Some(
