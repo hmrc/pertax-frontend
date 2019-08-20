@@ -273,6 +273,7 @@ class TaxCalculationViewSpec extends ViewSpec {
 
         val status = Underpaid(Some(100.00), Some(date), PartPaid)
 
+        assertContainsText(view(status).getValue, messages("label.you_paid_too_little_tax", "2017", "2018"))
         assertContainsText(
           view(status).getValue,
           messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
