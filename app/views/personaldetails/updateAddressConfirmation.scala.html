@@ -14,57 +14,64 @@
  * limitations under the License.
  *@
 
-@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
+    @import uk.gov.hmrc.play.views.html._
+    @import uk.gov.hmrc.play.views.html.helpers._
 
-@additionalGaCalls = {
-  @typ.ifIsPostal {
-    ga('set', 'page', '/personal-account/your-address/@typ/thank-you');
-  }
-}
-
-@main(Messages("label.your_address_has_been_changed"), Some(Messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
-
-    @if(closedPostalAddress) {
-
-        <div class="grid-row">
-            <div class="column-two-thirds">
-                <br />
-                <div class="govuk-box-highlight">
-                    <h1 class="heading-xlarge">@Messages("label.your_postal_address_has_been_changed_")</h1>
-                </div>
-
-                <p>@Messages("label.all_your_letters_will_be_sent_to_this_addr")</p>
-
-                <p>@Html(addr.get.mkString(", <br>"))</p>
-
-                <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
-            </div>
-        </div>
-
-    } else {
-        <div class="grid-row">
-            <div class="column-two-thirds">
-                <br />
-                <div class="govuk-box-highlight">
-                    <h1 class="heading-xlarge">@Messages("label.your_address_has_been_changed")</h1>
-                </div>
-
-                @typ.ifIs(primary = {
-                <br/>
-                <h2 class="heading-large">{Messages("label.what_happens_next")}</h2>
-                <p>{Messages("label.if_youve_moved_to_or_from_scotland_")}</p>
-                }, sole = {
-                <br/>
-                <h2 class="heading-large">{Messages("label.what_happens_next")}</h2>
-                <p>{Messages("label.if_youve_moved_to_or_from_scotland_")}</p>
-                }, postal = Html(""))
-
-                <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
-            </div>
-        </div>
-
+    @additionalGaCalls = {
+    @typ.ifIsPostal {
+        ga('set', 'page', '/personal-account/your-address/@typ/thank-you');
     }
-}
+    }
+
+    @content = {
+        @subheading.map(p1 =>
+            <br/>
+            <h2 class="heading-large">
+                {Messages("label.what_happens_next")}
+            </h2>
+            <p>
+                {Messages(p1)}
+            </p>
+        )
+    }
+
+    @main(Messages("label.your_address_has_been_changed"), Some(Messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
+
+        @if(closedPostalAddress) {
+
+            <div class="grid-row">
+                <div class="column-two-thirds">
+                    <br />
+                    <div class="govuk-box-highlight">
+                        <h1 class="heading-xlarge">@Messages("label.your_postal_address_has_been_changed_")</h1>
+                    </div>
+
+                    <p>@Messages("label.all_your_letters_will_be_sent_to_this_addr")</p>
+
+                    <p>@Html(addr.map(x => x.mkString(", <br>")).getOrElse("")))</p>
+
+                    <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
+                </div>
+            </div>
+
+        } else {
+            <div class="grid-row">
+                <div class="column-two-thirds">
+                    <br />
+                    <div class="govuk-box-highlight">
+                        <h1 class="heading-xlarge">@Messages("label.your_address_has_been_changed")</h1>
+                    </div>
+
+                    @typ.ifIs(
+                        primary = { content },
+                        sole = { content },
+                        postal = Html(""))
+
+                    <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
+                </div>
+            </div>
+
+        }
+    }

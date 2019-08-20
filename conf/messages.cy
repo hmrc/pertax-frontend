@@ -483,7 +483,6 @@ label.change_start_date=Newid dyddiad dechrau
 label.change_address=Newid cyfeiriad
 label.when_you_started_living_here=Pan wnaethoch ddechrau byw fan hyn
 label.what_happens_next=Yr hyn sy’n digwydd nesaf
-label.if_youve_moved_to_or_from_scotland_=Os ydych wedi symud i’r, neu o’r, Alban, rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad o God TWE drwy’r bost.
 label.tell_us_if_your_main_home_changes_in_the_future=Rhowch wybod i ni os yw’ch prif gartref yn newid yn y dyfodol.
 label.confirm_and_save=Cadarnhau a chadw
 label.we_want_to_make_this_website_easier_to_use=Rydym am wneud y wefan hon yn haws i’w defnyddio
@@ -523,6 +522,9 @@ label.get_involved_in_making_government_services_better_=Byddwch yn rhan o wneud
 label.please_take_part_in_our_short_survey=Cymerwch ran yn ein harolwg byr (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.select_yes_if_you_have_enrolled_to_send_your_tax_returns_online=Dewiswch ‘Iawn’ os ydych wedi’ch ymrestru i anfon eich Ffurflenni Treth ar-lein
+label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
+label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
+
 
 #
 # Error messages

@@ -1,5 +1,7 @@
+import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
 import com.typesafe.sbt.digest.Import.digest
 import com.typesafe.sbt.web.Import.pipelineStages
+import play.sbt.PlayImport.PlayKeys
 import play.sbt.routes.RoutesKeys._
 import play.twirl.sbt.Import.TwirlKeys
 import sbt.Keys._
@@ -8,18 +10,14 @@ import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
-import wartremover._
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
-import uk.gov.hmrc.SbtAutoBuildPlugin
-import uk.gov.hmrc.versioning.SbtGitVersioning
-import uk.gov.hmrc.SbtArtifactory
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
+import wartremover._
 
 trait MicroService {
 
   import uk.gov.hmrc._
   import DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
-  import TestPhases.{TemplateItTest, TemplateTest, oneForkedJvmPerTest} 
+  import TestPhases.{TemplateItTest, TemplateTest, oneForkedJvmPerTest}
 
   val appName: String
 
@@ -56,11 +54,13 @@ trait MicroService {
     .settings(
       libraryDependencies ++= appDependencies,
       routesGenerator := StaticRoutesGenerator,
+      PlayKeys.playDefaultPort := 9232,
       wartremoverWarnings in (Compile, compile) ++= Warts.allBut(Wart.DefaultArguments, Wart.NoNeedForMonad, Wart.NonUnitStatements, Wart.Nothing, Wart.Product, Wart.Serializable, Wart.Any),
       wartremoverErrors in (Compile, compile) ++= Seq.empty,
       wartremoverExcluded ++= wartRemovedExcludedClasses,
       TwirlKeys.templateImports ++= Seq("models._", "models.dto._", "uk.gov.hmrc.play.binders._", "uk.gov.hmrc.play.frontend.binders._","controllers.bindable._", "uk.gov.hmrc.domain._", "util.TemplateFunctions._", "uk.gov.hmrc.http.HeaderCarrier"),
-      routesImport ++= Seq("uk.gov.hmrc.play.frontend.binders._", "controllers.bindable._", "uk.gov.hmrc.play.binders._")
+      routesImport ++= Seq("uk.gov.hmrc.play.frontend.binders._", "controllers.bindable._", "uk.gov.hmrc.play.binders._"),
+      scalafmtOnCompile := true
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
