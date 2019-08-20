@@ -90,7 +90,8 @@ label.do_you_live_in_the_uk=A ydych yn byw yn y DU?
 label.the_uk_is_england_=Y DU yw Cymru, Lloegr, Yr Alban a Gogledd Iwerddon.
 label.this_is_because_you_do_not_live_in_the_uk=Mae hyn am nad ydych yn byw yn y DU.
 label.if_you_do_live_in_the_uk_=Os ydych yn byw yn y DU, gallwch <a href="{0}">newid eich cyfeiriad</a>
-label.if_you_do_not_live_in_the_uk_=Os nad ydych y byw yn y DU, <a href="{0}" target="_blank" rel="noopener noreferrer">llenwch y ffurflen ‘Notification of a change in personal details’ i ddiweddaru’ch cyfeiriad (yn agor ffenestr newydd – Saesneg yn unig)</a>.
+label.if_you_do_not_live_in_the_uk_text_before_link=Os nad ydych y byw yn y DU,
+label.if_you_do_not_live_in_the_uk_link_text=llenwch y ffurflen ‘Notification of a change in personal details’ i ddiweddaru’ch cyfeiriad
 label.get_letters_sent_to_a_different_address=Gofyn bod llythyrau’n cael eu hanfon i gyfeiriad gwahanol
 label.all_your_letters_will_be_sent_to_this_address=Bydd eich llythyrau’n cael eu hanfon i’r cyfeiriad hwn.
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=Dim ond unwaith y diwrnod y gallwch newid y cyfeiriad hwn. Rhowch gynnig arall arni yfory.
@@ -160,7 +161,7 @@ label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
 label.phone_lines_are_open_8am_to_8pm_monday_to_friday_and_8am_to_4pm_on_saturday=Yr oriau agor yw 08:00 tan 17:00, dydd Llun i ddydd Gwener.
 label.closed_sundays_and_bank_holidays=Ar gau ar ddydd Sadwrn, dydd Sul a gwyliau’r banc.
 label.find_out_about_call_charges=Gwybodaeth am gost galwadau
-label.opens_in_a_new_window=(yn agor ffenestr newydd)
+label.opens_in_a_new_window=(yn agor ffenestr neu dab newydd)
 label.help_with_tax_for_friends_and_family=Helpu ffrindiau a theulu gyda’u treth
 label.give_friends_or_family_permission_to_access_your_account=Rhoi caniatad i’ch ffrindiau neu deulu gyrchu’ch cyfrif, neu dewch yn gynorthwywr y gall rhywun arall ymddiried ynddo er mwyn ei helpu gyda’i dreth.
 label.view_your_trusted_helper_contacts=Gweld eich cynorthwywyr y gallwch ymddiried ynddynt
