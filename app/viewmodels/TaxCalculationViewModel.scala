@@ -98,13 +98,15 @@ object TaxCalculationViewModel {
       TaxCalculationViewModel(
         taxYears,
         Heading(
+          text("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
+          UnderpaidUrl(previousTaxYear)
+        ),
+        List(
           text(
             "label.you_still_owe_hmrc_you_must_pay_by_",
             Literal("%,.2f".format(amount)),
-            viewmodels.Date(Some(dueDate))),
-          Empty
+            viewmodels.Date(Some(dueDate)))
         ),
-        Nil,
         List(
           Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment"),
           Link(
