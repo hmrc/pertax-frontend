@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{CreatePayment, CreatePaymentFailed, CreatePaymentSuccess, FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -35,7 +35,6 @@ import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.HttpException
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -457,35 +456,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) shouldBe BAD_REQUEST
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-    }
-  }
-
-  "makePayment" should {
-    "redirect to the response's nextUrl" in new LocalSetup {
-
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
-      val expectedNextUrl = "someNextUrl"
-      val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
-
-      when(controller.payApiConnector.createPayment(any())(any(), any()))
-        .thenReturn(Future.successful(CreatePaymentSuccess(createPaymentResponse)))
-
-      val r = controller.makePayment()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("someNextUrl")
-    }
-
-    "redirect to a BAD_REQUEST page if createPayment failed" in new LocalSetup {
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
-      when(controller.payApiConnector.createPayment(any())(any(), any()))
-        .thenReturn(Future.successful(CreatePaymentFailed))
-
-      val r = controller.makePayment()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe BAD_REQUEST
     }
   }
 

@@ -18,11 +18,12 @@ package connectors
 
 import models.PaymentRequest
 import org.mockito.Matchers
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResultException, Json}
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.HttpResponse
 import util.BaseSpec
@@ -31,7 +32,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-class PayApiConnectorSpec extends BaseSpec with MockitoSugar {
+class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   val http = mock[WsAllMethods]
   val connector = new PayApiConnector(http, config)
@@ -46,28 +47,32 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar {
       )
 
       when(
-        http.POST[PaymentRequest, HttpResponse](Matchers.eq(postUrl), Matchers.eq(paymentRequest), any())(
-          any(),
-          any(),
-          any(),
-          any()))
+        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(CREATED, Some(json))))
 
-      val result = Await.result(connector.createPayment(paymentRequest), 5.seconds)
-      result shouldBe CreatePaymentSuccess(CreatePayment("exampleJourneyId", "testNextUrl"))
+      connector.createPayment(paymentRequest).futureValue shouldBe Some(
+        CreatePayment("exampleJourneyId", "testNextUrl"))
     }
 
-    "Returns a CreatePaymentFailed when the status code is not CREATED" in {
+    "Returns a None when the status code is not CREATED" in {
       when(
-        http.POST[PaymentRequest, HttpResponse](Matchers.eq(postUrl), Matchers.eq(paymentRequest), any())(
-          any(),
-          any(),
-          any(),
-          any()))
+        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
-      val result = Await.result(connector.createPayment(paymentRequest), 5.seconds)
-      result shouldBe CreatePaymentFailed
+      connector.createPayment(paymentRequest).futureValue shouldBe None
+    }
+
+    "Throws a JsResultException when given bad json" in {
+      val badJson = Json.obj("abc" -> "invalidData")
+
+      when(
+        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(CREATED, Some(badJson))))
+
+      val f = connector.createPayment(paymentRequest)
+      whenReady(f.failed) { e =>
+        e shouldBe a[JsResultException]
+      }
     }
   }
 }
