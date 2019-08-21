@@ -2,7 +2,7 @@ package services
 
 import config.ConfigDecorator
 import models.OverpaidStatus.Refund
-import models.UnderpaidStatus.PartPaid
+import models.UnderpaidStatus.{PartPaid, PaymentDue}
 import models.{Balanced, BalancedNoEmployment, BalancedSa, NotReconciled, Overpaid, TaxYearReconciliation, Underpaid}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
@@ -85,7 +85,7 @@ class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite {
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("LE064015A"), 2017, 2019)(hcWithBearer("LE064015A"))
 
-        await(result) should contain(TaxYearReconciliation(2017, Underpaid(Some(1000.0), None, PartPaid)))
+        await(result) should contain(TaxYearReconciliation(2017, Underpaid(Some(1000.0), None, PaymentDue)))
       }
 
       "data is successfully retrieved for Overpaid status" in {
