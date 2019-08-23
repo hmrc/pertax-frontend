@@ -92,7 +92,7 @@ class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite {
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("AA000003A"), 2017, 2019)(hcWithBearer("AA000003A"))
 
-        await(result) should contain(TaxYearReconciliation(2018, Overpaid(Some(307.5), Refund)))
+        await(result) should contain(TaxYearReconciliation(2018, Overpaid(Some(84.23), Refund)))
       }
 
       "data is successfully retrieved for Not Reconciled status" in {
