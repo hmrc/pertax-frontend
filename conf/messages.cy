@@ -282,11 +282,15 @@ label.you_need_to_register_for_self_assessment_online=Mae’n rhaid i chi gofres
 label.you_need_to_sign_up_to_send_your_tax_returns_online=Mae’n rhaid i chi gofrestru er mwyn anfon eich Ffurflenni Treth ar-lein
 label.you_need_to_get_a_new_activation_code=Mae angen cod cychwyn newydd arnoch
 label.you_need_to_get_a_new_activation_code_by_enrolling=Mae angen cod cychwyn newydd arnoch. Ewch ati i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment">ymrestru ar gyfer Hunanasesiad</a> eto.
-label.you_need_to_sign_in_with_the_government_gateway_user_id=Mae angen i chi fewngofnodi gan ddefnyddio’r Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth a’r cyfrinair a ddefnyddiwyd wrth ymrestru ar gyfer Hunanasesiad Ar-lein. <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">Allgofnodwch, ac yna mewngofnodwch gan ddefnyddio’r manylion cywir.</a>
+label.you_need_to_sign_in_with_the_government_gateway_user_id_text_before_link=Mae angen i chi fewngofnodi gan ddefnyddio’r Dynodydd Defnyddiwr (ID) ar gyfer Porth y Llywodraeth a’r cyfrinair a ddefnyddiwyd wrth ymrestru ar gyfer Hunanasesiad Ar-lein.
+label.you_need_to_sign_in_with_the_government_gateway_user_id_link_text=Allgofnodwch, ac yna mewngofnodwch gan ddefnyddio’r manylion cywir.
 label.problems_signing_in=Problemau wrth fewngofnodi
 label.you_will_need_your_utr_to_get_a_new_activation_code=Bydd angen eich UTR arnoch i gael cod cyrchu newydd. Bydd y cod yn eich cyrraedd drwy’r post.
-label.use_your_unique_taxpayer_reference_utr_to_=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i<br /><a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">ymrestru ar gyfer Hunanasesiad ar-lein.</a>
-label.you_can_send_your_tax_return_by_post_=Gallwch <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">anfon eich Ffurflen Dreth drwy’r post</a> cyn 31 Hydref {1}.
+label.use_your_unique_taxpayer_reference_utr_to_text_before_link=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i
+label.use_your_unique_taxpayer_reference_utr_to_link_text=ymrestru ar gyfer Hunanasesiad ar-lein
+label.you_can_send_your_tax_return_by_post_text_before_link=Gallwch
+label.you_can_send_your_tax_return_by_post_link_text=anfon eich Ffurflen Dreth drwy’r post
+label.you_can_send_your_tax_return_by_post_text_after_link=cyn 31 Hydref {0}
 label.your_utr_letter_may_still_be_in_the_post=Mae’n bosibl bod y llythyr sy’n cadarnhau’ch UTR yn y post o hyd
 label.we_sent_your_utr_to_you_by_post_=Rydym wedi anfon eich UTR atoch drwy’r post. Gall gymryd hyd at 14 diwrnod gwaith i gyrraedd.
 label.have_you_used_your_utr_to_enrol=Ydych chi wedi ymrestru i gyflwyno’ch Ffurflenni Treth ar-lein?
@@ -294,7 +298,8 @@ label.after_you_registered_we_sent_you_an_activation_code_by_post=Ar ôl i chi g
 label.to_get_a_new_code_you_must_use_your_utr_=I gael cod newydd, mae’n rhaid i chi ddefnyddio’ch Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">gofrestru eto ar gyfer Hunanasesiad ar-lein</a>.
 label.you_must_use_your-new_code_within_=Mae’n rhaid i chi ddefnyddio’ch cod newydd cyn pen 28 diwrnod.
 label.registration_can_take_up_to_ten_days_when_you_register_=Gall gymryd hyd at 10 diwrnod i gofrestru. Wrth gofrestru, gofynnir i chi greu cyfrif newydd ar Borth y Llywodraeth.
-label.use_your_utr_to_register_for_self_assessment_online=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register for Self Assessment online">gofrestru ar gyfer Hunanasesiad ar-lein</a>.
+label.use_your_utr_to_register_for_self_assessment_online_text_before_link=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i
+label.use_your_utr_to_register_for_self_assessment_online_link_text=gofrestru ar gyfer Hunanasesiad ar-lein
 label.how_to_access_your_self_assessment=Sut i gyrchu’ch Hunanasesiad
 
 label.income_tax=Treth incwm
@@ -447,9 +452,10 @@ label.you_can_still_complete_your_sa_but_you_will_not_be_able_to_access_other_ar
 label.you_can_try_again_in_24-hours=Gallwch roi cynnig arall arni ar ôl 24 awr.
 label.continue_to_your_personal_tax_account=Mynd yn eich blaen i’ch cyfrif treth personol
 label.to_continue_you_can=I fynd yn eich blaen, gallwch wneud y canlynol:
-label.see_your_current_address=gweld eich <a href="{0}">cyfeiriad presennol</a>
-label.go_to_your_personal_tax_account_home=mynd i <a href="{0}">hafan eich cyfrif treth personol</a>
-
+label.see_your_current_address_text_before_link=gweld eich
+label.see_your_current_address_link_text=cyfeiriad presennol
+label.go_to_your_personal_tax_account_home_text_before_link=mynd i
+label.go_to_your_personal_tax_account_home_link_text=hafan eich cyfrif treth personol
 label.based_on_your_answers_we_cannot_confirm_your_identity=Ar sail eich atebion, ni allwn gadarnhau pwy ydych
 label.continue_to_complete_sa_your_details_are_secure=Gallwch fynd yn eich blaen i lenwi’ch Hunanasesiad. Mae’ch manylion yn dal i fod yn ddiogel.
 label.you_can_continue_to_your_personal_tax_account_=Gallwch fynd yn eich blaen i’ch cyfrif treth personol, ond ni fyddwch yn gallu cyrchu pob rhan o’r gwasanaeth. Mae’ch manylion yn dal i fod yn ddiogel.
@@ -516,11 +522,16 @@ label.view_your_taxable_income_and_see_any_company_benefits=Bwrw golwg ar eich i
 label.continue_to_your_sa302=Mynd yn eich blaen i’ch SA302
 label.we_are_processing_your-details=Rydym yn prosesu’ch manylion
 label.this_may_take_up_to_30_seconds=Gall hyn gymryd hyd at 30 eiliad.
-label.if_you_are_not_redirected_in_=Os na chewch eich ailgyfeirio cyn pen 30 eiliad, <a href="{0}">cliciwch yma</a>
+label.if_you_are_not_redirected_in_text_before_link=Os na chewch eich ailgyfeirio cyn pen 30 eiliad,
+label.if_you_are_not_redirected_in_link_text=cliciwch yma
 label.webchat_service=Gwasanaeth sgwrs dros y we
 label.chat_online_with_one_of_our_advisers=Sgwrsiwch ar-lein gydag un o’n ymgynghorwyr
 label.you_cant_access_your_self_assessment_=Ni allwch gyrchu’ch gwybodaeth Hunanasesiad o’r cyfrif hwn
-label.you_must_sign_out_then_sign_in_with_the_user_id_=Mae’n rhaid i chi <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="{0}">allgofnodi</a>, wedyn mewngofnodi gyda’r Dynodydd Defnyddiwr (ID) a chyfrinair a ddefnyddioch i gychwyn eich gwasanaeth Hunanasesiad ar-lein.<br /><br /><a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="{1}">Adfer eich ID</a> os ydych wedi’i golli.
+label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link=Mae’n rhaid i chi
+label.you_must_sign_out_then_sign_in_with_the_user_id_link_text=allgofnodi
+label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link=wedyn mewngofnodi gyda’r Dynodydd Defnyddiwr (ID) a chyfrinair a ddefnyddioch i gychwyn eich gwasanaeth Hunanasesiad ar-lein.
+label.you_must_sign_out_then_sign_in_with_the_user_id_recover_link_text=Adfer eich ID
+label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link=os ydych wedi’i golli.
 label.if_you_have_never_sent_your_tax_return_online=Os nad ydych wedi anfon eich Ffurflen Dreth ar-lein erioed o’r blaen
 label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_before_link=Rydych eisoes wedi cofrestru gyda CThEM, ac mae’n rhaid i chi nawr
 label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_link_text=ymrestru ar gyfer y gwasanaeth Hunanasesiad ar-lein
@@ -622,15 +633,19 @@ text.opens_in_new_window=yn agor ffenestr newydd
 text.give_someone_you_know_permission_to_access_your_tax_details=rhoi caniatad i rywun yr ydych yn ei adnabod gyrchu’ch manylion treth
 text.request_permission_to_help_someone_you_know_with_their_tax=gofyn am ganiatad i helpu rhywun yr ydych yn ei adnabod gyda’i dreth
 text.get_in_touch=cysylltu â ni
-text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">rhoi gwybod am newid</a> i’ch amgylchiadau
-text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">awdurdodi ymgynghorydd treth neu gyfrifydd</a> i weithredu ar eich rhan ar gyfer materion sy’n ymwneud â Thâl Incwm Uchel Budd-dal Plant
-text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
-text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">ailddechrau neu roi’r gorau i’ch taliadau Budd-dal Plant</a> os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
+text.report_a_change_to_your_circumstances_link_text=rhoi gwybod am newid
+text.report_a_change_to_your_circumstances_text_after_link=i’ch amgylchiadau
+text.authorise_a_tax_advisor_or_accountant_link_text=awdurdodi ymgynghorydd treth neu gyfrifydd
+text.authorise_a_tax_advisor_or_accountant_text_after_link=i weithredu ar eich rhan ar gyfer materion sy’n ymwneud â Thâl Incwm Uchel Budd-dal Plant
+
+text.stop_or_restart_your_child_benefit_payments_link_text=ailddechrau neu roi’r gorau i’ch taliadau Budd-dal Plant
+text.stop_or_restart_your_child_benefit_payments_text_after_link=os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
 text.if_you_do_not_claim_child_benefit_text_before_link=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU.
 text.if_you_do_not_claim_child_benefit_link_text=Gwiriwch a allwch hawlio Budd-dal Plant
 text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
 text.leaves_education_or_training=yn gadael hyfforddiant neu addysg
-text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">ag unrhyw newidiadau eraill yn ei amgylchiadau megis gadael yr aelwyd</a>
+text.has_any_other_change_in_their_circumstances_link_text=ag unrhyw newidiadau eraill yn ei amgylchiadau
+text.has_any_other_change_in_their_circumstances_text_after_link=megis gadael yr aelwyd
 
 #
 # Frontend-bootstrap  overrides

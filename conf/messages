@@ -48,7 +48,8 @@ label.continue_to_your_sa302=Continue to your SA302
 label.annual_taxable_income=Annual taxable income
 label.we_are_processing_your-details=We are processing your details
 label.this_may_take_up_to_30_seconds=This may take up to 30 seconds.
-label.if_you_are_not_redirected_in_=If you are not redirected within 30 seconds <a href="{0}">click here</a>
+label.if_you_are_not_redirected_in_text_before_link=If you are not redirected within 30 seconds
+label.if_you_are_not_redirected_in_link_text=click here
 label.your_personal_tax_account=Personal tax account
 label.your_personal_tax_account_gov_uk=Personal tax account - GOV.UK
 label.estimate_for=Estimate for {0} to {1}
@@ -280,7 +281,11 @@ label.you_cannot_currently_see_your_self_assessment_=You cannot currently see yo
 label.you_cannot_access_this_service_because_hmrc_doesnt_know_enough_=You cannot access this service because HM Revenue and Customs (HMRC) does not know enough about you to be able to confirm your identity.<br /><br />If you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HMRC (opens in a new window or tab)</a> to get help.
 label.you_cannot_access_your_self_assessment_=You cannot access your Self Assessment information from this account
 label.it_could_be_that_you_used_different_government_gateway_sign_in_details_=It could be that you used different Government Gateway sign in details when you activated your online Self Assessment. If you did, you will need to <a href="{0}">sign out</a> and then sign back in using these other details.
-label.you_must_sign_out_then_sign_in_with_the_user_id_=You must <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="{0}">sign out</a>, then sign in with the user ID and password you used to activate your Self Assessment online.<br /><br /><a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="{1}">Recover your user ID</a> if you have lost it.
+label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link=You must
+label.you_must_sign_out_then_sign_in_with_the_user_id_link_text=sign out
+label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link=then sign in with the user ID and password you used to activate your Self Assessment online.
+label.you_must_sign_out_then_sign_in_with_the_user_id_recover_link_text=Recover your user ID
+label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link=if you have lost it.
 label.if_you_have_never_sent_your_tax_return_online=If you have never sent your tax return online
 label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_before_link=You have already registered with HMRC and must now
 label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_link_text=enrol for Self Assessment online
@@ -341,11 +346,15 @@ label.you_need_to_register_for_self_assessment_online=You need to register for S
 label.you_need_to_sign_up_to_send_your_tax_returns_online=You need to sign up to send your tax returns online
 label.you_need_to_get_a_new_activation_code=You need to get a new activation code
 label.you_need_to_get_a_new_activation_code_by_enrolling=You need to get a new activation code by <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment">enrolling for Self Assessment</a> again.
-label.you_need_to_sign_in_with_the_government_gateway_user_id=You need to sign in with the Government Gateway user ID and password you used when you enrolled for Self Assessment online. <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">Sign out, then sign in with the right details</a>.
+label.you_need_to_sign_in_with_the_government_gateway_user_id_text_before_link=You need to sign in with the Government Gateway user ID and password you used when you enrolled for Self Assessment online.
+label.you_need_to_sign_in_with_the_government_gateway_user_id_link_text=Sign out, then sign in with the right details
 label.problems_signing_in=Problems signing in
 label.you_will_need_your_utr_to_get_a_new_activation_code=You will need your UTR to get a new activation code which will be sent to you by post.
-label.use_your_unique_taxpayer_reference_utr_to_=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">enrol for Self Assessment online</a>.
-label.you_can_send_your_tax_return_by_post_=You can <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">send your tax return by post</a> before 31 October {1}.
+label.use_your_unique_taxpayer_reference_utr_to_text_before_link=Use your Unique Taxpayer Reference (UTR) to
+label.use_your_unique_taxpayer_reference_utr_to_link_text=enrol for Self Assessment online
+label.you_can_send_your_tax_return_by_post_text_before_link=You can
+label.you_can_send_your_tax_return_by_post_link_text=send your tax return by post
+label.you_can_send_your_tax_return_by_post_text_after_link=before 31 October {0}
 label.your_utr_letter_may_still_be_in_the_post=Your UTR letter may still be in the post
 label.we_sent_your_utr_to_you_by_post_=We sent your UTR to you by post. It can take up to 14 working days to arrive.
 label.have_you_used_your_utr_to_enrol=Have you signed up to send your tax returns online?
@@ -353,7 +362,8 @@ label.after_you_registered_we_sent_you_an_activation_code_by_post=After you regi
 label.to_get_a_new_code_you_must_use_your_utr_=To get a new code you must use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">register again for Self Assessment online</a>.
 label.you_must_use_your-new_code_within_=You must use your new code within 28 days.
 label.registration_can_take_up_to_ten_days_when_you_register_=Registration can take up to 10 days. When you register you will be asked to create a new Government Gateway account.
-label.use_your_utr_to_register_for_self_assessment_online=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register for Self Assessment online">register for Self Assessment online</a>.
+label.use_your_utr_to_register_for_self_assessment_online_text_before_link=Use your Unique Taxpayer Reference (UTR) to
+label.use_your_utr_to_register_for_self_assessment_online_link_text=register for Self Assessment online
 label.how_to_access_your_self_assessment=How to access your Self Assessment
 label.income_tax=Income tax
 label.benefits_and_tax_credits=Benefits and tax credits
@@ -474,8 +484,10 @@ label.you_can_still_complete_your_sa_but_you_will_not_be_able_to_access_other_ar
 label.you_can_try_again_in_24-hours=You can try again in 24 hours.
 label.continue_to_your_personal_tax_account=​Continue to your personal tax account
 label.to_continue_you_can=To continue you can:
-label.see_your_current_address=see your <a href="{0}">current address</a>
-label.go_to_your_personal_tax_account_home=go to your <a href="{0}">personal tax account home</a>
+label.see_your_current_address_text_before_link=see your
+label.see_your_current_address_link_text=current address
+label.go_to_your_personal_tax_account_home_text_before_link=go to your
+label.go_to_your_personal_tax_account_home_link_text=personal tax account home
 label.based_on_your_answers_we_cannot_confirm_your_identity=Based on your answers, we cannot confirm your identity
 label.continue_to_complete_sa_your_details_are_secure=You can continue to complete your Self Assessment. Your details are still secure.
 label.you_can_continue_to_your_personal_tax_account_=You can continue to your personal tax account but you will not be able to access all parts of the service. Your details are still secure.
@@ -630,14 +642,18 @@ text.opens_in_new_window=opens in a new window
 text.give_someone_you_know_permission_to_access_your_tax_details=give someone you know permission to access your tax details
 text.request_permission_to_help_someone_you_know_with_their_tax=request permission to help someone you know with their tax
 text.get_in_touch=get in touch
-text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">report a change</a> to your circumstances
-text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">authorise a tax adviser or accountant</a> to act on your behalf for High Income Child Benefit Charge issues
-text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
+text.report_a_change_to_your_circumstances_link_text=report a change
+text.report_a_change_to_your_circumstances_text_after_link=to your circumstances
+text.authorise_a_tax_advisor_or_accountant_link_text=authorise a tax adviser or accountant
+text.authorise_a_tax_advisor_or_accountant_text_after_link=to act on your behalf for High Income Child Benefit Charge issues
+text.stop_or_restart_your_child_benefit_payments_link_text=stop or restart your Child Benefit payments
+text.stop_or_restart_your_child_benefit_payments_text_after_link=if you or your partner are affected by the High Income Child Benefit Charge
 text.if_you_do_not_claim_child_benefit_text_before_link=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK.
 text.if_you_do_not_claim_child_benefit_link_text=Check if you can claim Child Benefit
 text.stays_in_education_or_training=stays in education or training
 text.leaves_education_or_training=leaves education or training
-text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">has any other change in their circumstances</a> such as they leave the household
+text.has_any_other_change_in_their_circumstances_link_text=has any other change in their circumstances
+text.has_any_other_change_in_their_circumstances_text_after_link=such as they leave the household
 
 #
 # Frontend-bootstrap  overrides
