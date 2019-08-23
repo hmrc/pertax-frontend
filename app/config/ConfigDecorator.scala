@@ -162,7 +162,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val personalAccountYourAddress = "/personal-account/your-address"
   lazy val personalAccount = "/personal-account"
 
-
   lazy val childBenefitsStaysInEducation =
     s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
   lazy val childBenefitsLaterLeavesEducation =
