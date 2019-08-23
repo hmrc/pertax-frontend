@@ -156,8 +156,12 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val tcsServiceRouterUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl = s"$dfsFrontendHost/forms/form/notification-of-a-change-in-personal-details/new"
-  lazy val changePersonalDetailsUrl = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/change-your-personal-details"
+  lazy val changePersonalDetailsUrl =
+    "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/change-your-personal-details"
   lazy val scottishRateIncomeTaxUrl = "https://www.gov.uk/scottish-rate-income-tax/how-it-works"
+  lazy val personalAccountYourAddress = "/personal-account/your-address"
+  lazy val personalAccount = "/personal-account"
+
 
   lazy val childBenefitsStaysInEducation =
     s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
