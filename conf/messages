@@ -552,6 +552,7 @@ error.line1_required=This line is required
 error.line2_required=This line is required
 error.line3_required=This line is required
 error.line4_required=This line is required
+error.line5_required=This line is required
 head.error.line1_contains_more_than_35_characters=Check the first line of your address
 head.error.line2_contains_more_than_35_characters=Check the second line of your address
 head.error.line3_contains_more_than_35_characters=Check the third line of your address
