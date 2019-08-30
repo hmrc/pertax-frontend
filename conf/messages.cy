@@ -161,7 +161,6 @@ label.if_you_entered_proposedStartDate_by_mistake_=Os nodwyd {1} gennych drwy ga
 label.if_you_entered_the_correct_date_contact_HMRC_=Os nodwyd y dyddiad cywir gennych, <a href="{0}" target="_blank" rel="noopener noreferrer"> cysylltwch â CThEM (yn agor ffenestr newydd)</a> i ddiweddaru’ch cyfeiriad.
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
-label.nid_yw_rhai_or_tudalennau=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu i’r Gymraeg eto.
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.explore_gov_uk=Chwilio drwy GOV.UK
 label.name=Enw
@@ -187,8 +186,6 @@ label.check_your_self_assessment_details=Gwirio’ch manylion Hunanasesiad.
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
 label.you_cannot_currently_see_your_self_assessment_=Ni allwch weld eich manylion Hunanasesiad ar-lein ar hyn o bryd.<br /><br /><a href="{0}" target="_blank" rel="noopener noreferrer">Anfon eich Ffurflen Dreth drwy’r post (yn agor ffenestr newydd)</a>.
-label.you_cannot_access_this_service_because_hmrc_doesnt_know_enough_=Ni allwch gyrchu’r gwasanaeth hwn oherwydd nid yw Cyllid a Thollau EM (CThEM) yn gwybod digon amdanoch i allu cadarnhau pwy ydych.<br /><br />Os oes gennych ymholiad, dylech "_blank">gysylltu â CThEM (yn agor ffenestr newydd)</a> i gael help.
-label.you_cant_access_your_self_assessment=Ni allwch gyrchu’ch Hunanasesiad.
 label.it_could_be_that_you_used_different_government_gateway_sign_in_details_=Mae’n bosibl eich bod wedi defnyddio manylion mewngofnodi gwahanol ar gyfer Porth y Llywodraeth pan wnaethoch gychwyn eich Hunanasesiad ar-lein. Os yw hyn yn wir, bydd angen i chi <a href="{0}">allgofnodi</a> ac yna mewngofnodi drwy ddefnyddio’r manylion eraill hyn.
 label.sign_in_with_the_user_id_you_used_or_created_=Mewngofnodwch gyda’r Dynodydd Defnyddiwr a ddefnyddiwyd neu a grëwyd gennych pan wnaethoch ymuno â Hunanasesiad.<br /><br />Gallwch <a href="{0}" target="_blank" rel="noopener noreferrer">adfer eich Dynodydd Defnyddiwr (yn agor ffenestr newydd)</a> os ydych wedi’i anghofio.
 label.you_cannot_currently_see_your_self_assessment_online_=Ni allwch weld eich manylion Hunanasesiad ar-lein ar hyn o bryd. Felly, <a href="{0}" target="_blank" rel="noopener noreferrer">anfonwch eich Ffurflen Dreth drwy’r post (yn agor ffenestr newydd)</a>yn ôl yr arfer.
@@ -238,10 +235,12 @@ label.use_your_unique_taxpayer_reference_utr_to_=Defnyddiwch eich Cyfeirnod Unig
 label.you_can_send_your_tax_return_by_post_=Gallwch <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">anfon eich Ffurflen Dreth drwy’r post</a> cyn 31 Hydref {1}.
 label.your_utr_letter_may_still_be_in_the_post=Mae’n bosibl bod y llythyr sy’n cadarnhau’ch UTR yn y post o hyd
 label.we_sent_your_utr_to_you_by_post_=Rydym wedi anfon eich UTR atoch drwy’r post. Gall gymryd hyd at 14 diwrnod gwaith i gyrraedd.
+label.you_cannot_access_your_self_assessment_=You cannot access your Self Assessment information from this account
 label.have_you_used_your_utr_to_enrol=Ydych chi wedi ymrestru i gyflwyno’ch Ffurflenni Treth ar-lein?
 label.after_you_registered_we_sent_you_an_activation_code_by_post=Ar ôl i chi gofrestru, gwnaethom anfon god cychwyn atoch. Mae’ch cod cychwyn wedi dod i ben.
 label.to_get_a_new_code_you_must_use_your_utr_=I gael cod newydd, mae’n rhaid i chi ddefnyddio’ch Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">gofrestru eto ar gyfer Hunanasesiad ar-lein</a>.
 label.you_must_use_your-new_code_within_=Mae’n rhaid i chi ddefnyddio’ch cod newydd cyn pen 28 diwrnod.
+label.you_cannot_view_your_self_assessment_information_here_the_deadline_=You cannot view your Self Assessment information here.<br /><br />The deadline for paper tax returns is midnight on 31 October. After this date, you will have to <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank" rel="noopener noreferrer">do your tax return online (opens in a new window)</a>.
 label.registration_can_take_up_to_ten_days_when_you_register_=Gall gymryd hyd at 10 diwrnod i gofrestru. Wrth gofrestru, gofynnir i chi greu cyfrif newydd ar Borth y Llywodraeth.
 label.use_your_utr_to_register_for_self_assessment_online=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register for Self Assessment online">gofrestru ar gyfer Hunanasesiad ar-lein</a>.
 label.how_to_access_your_self_assessment=Sut i gyrchu’ch Hunanasesiad
@@ -693,9 +692,6 @@ label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
 label.help_with_tax_for_friends_and_family=Helpu ffrindiau a theulu gyda’u treth
 label.give_friends_or_family_permissions_to_access_your_account=Rhoi caniatâd i’ch ffrindiau neu deulu gyrchu’ch cyfrif, neu dewch yn gynorthwywr y gall rhywun arall ymddiried ynddo i’w helpu gyda’i dreth
 label.view_your_trusted_helper_contacts=Bwrw golwg ar eich cynorthwywyr y gallwch ymddiried ynddynt
-
-label.track_your_forms_and_letters=Dilyn eich ffurflenni a llythyrau
-label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by=Cael gwybod sut y mae’ch ffurflen yn dod yn ei blaen ac erbyn pryd y gallwch ddisgwyl ateb.
 
 label.phone_text=Ffôn
 label.national_insurance_number=Rhif Yswiriant Gwladol gennych
