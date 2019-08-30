@@ -175,22 +175,10 @@ label.name=Enw
 label.change_your_name=Newid eich enw
 label.email=E-bost
 label.back=Yn ôl
-label.please_provide_your_name=Rhowch eich enw.
-label.please_provide_your_email=Rhowch eich cyfeiriad e-bost.
-label.trying_to_sign_in_to_pta_from_the_start_page=Rwyf/roeddwn yn ceisio mewngofnodi i’r cyfrif treth personol o’r Dudalen Ddechrau.
-label.could_not_sign_in_through_verify=Nid oeddwn yn gallu mewngofnodi drwy Verify.
-label.sign_in_reporter=Cyfrif Treth Personol
-label.this_will_be_deducted_from_your_pay_or_private_pension_using_your_tax_codes=Bydd hwn yn cael ei ddidynnu o’ch cyflog neu bensiwn preifat drwy ddefnyddio eich cod(au) treth.
-label.money_and_tax=Arian a threth
-label.tax_and_national_insurance=Treth ac Yswiriant Gwladol
-label.pension_and_retirement=Pensiwn ac ymddeol
-label.see_your_existing_protection_details=Bwrw golwg ar fanylion eich diogelwch presennol
-label.child_benefit_and_tax_credits=Budd-dal Plant a chredydau treth
+
+
 label.self_assessment=Hunanasesiad
-label.activate_your_self_assessment_using_the_12_=Cychwyn eich Hunanasesiad gan ddefnyddio’r cod cychwyn, sy’n 12 digid, a gawsoch yn y post.
-label.your_self_assessment_details_cannot_be_shown=Ni ellir dangos eich manylion Hunanasesiad.
-label.you_may_have_previously_activated_your_self_assessment_using_different_=Mae’n bosibl eich bod eisoes wedi cychwyn Hunanasesiad drwy ddefnyddio manylion mewngofnodi gwahanol ar gyfer Porth y Llywodraeth.<br /><br />Gallwch weld eich Hunanasesiad os ydych yn <a href="{0}">allgofnodi</a> ac yna’n mewngofnodi drwy ddefnyddio’ch manylion eraill.
-label.check_your_self_assessment_details=Gwirio’ch manylion Hunanasesiad.
+
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
 label.you_cannot_currently_see_your_self_assessment_=Ni allwch weld eich manylion Hunanasesiad ar-lein ar hyn o bryd.<br /><br /><a href="{0}" target="_blank" rel="noopener noreferrer">Anfon eich Ffurflen Dreth drwy’r post (yn agor ffenestr newydd)</a>.
@@ -354,43 +342,7 @@ label.sorry_we_are_currently_experiencing_technical_issues=Mae’n ddrwg gennym.
 label.we_cannot_confirm_your_identity=Ni allwn gadarnhau pwy ydych
 label.were_unable_to_confirm_your_identity=Ni allwn gadarnhau pwy ydych
 label.you_can_still_complete_your_sa=Gallwch lenwi’ch Ffurflen Dreth Hunanasesiad o hyd.
-label.because_we_re_unable_to_confirm_your_identity=Gan nad oeddem yn gallu cadarnhau pwy ydych, ni fyddwch yn gallu cyrchu pob rhan o’ch cyfrif treth personol.
-label.your_details_are_still_secure=Mae’ch manylion yn dal i fod yn ddiogel.
-label.if_you_need_to_access_these_areas_you_can_try_again_in_24_hours=Os oes angen i chi gyrchu’r rhannau hyn, gallwch roi cynnig arall arni ar ôl 24 awr.
-label.there_s_a_technical_problem=Mae problem dechnegol wedi codi
-label.this_online_service_is_experiencing_technical_difficulties=Mae problemau technegol wedi codi gyda’r gwasanaeth ar-lein hwn.
-label.please_try_again_in_5_minutes=Rhowch gynnig arall arni mewn 5 munud.
-label.your_session_has_ended_due_to_inactivity=Mae’ch sesiwn wedi dod i ben o ganlyniad i anweithgarwch
-label.your_session_has_ended=Mae’ch sesiwn wedi dod i ben
-label.your_session_has_ended_because_you_havent_done_anything_for_15_minutes=Mae’ch sesiwn wedi dod i ben gan nad ydych wedi gwneud unrhyw beth am 15 munud.
-label.weve_deleted_all_the_details_youve_entered_to_protect_your_data=Rydym wedi dileu’r holl fanylion a nodwyd gennych er mwyn diogelu’ch data.
-label.you_ll_need_to_start_again=Bydd angen i chi <a href="{0}">ddechrau eto</a>
-label.start_again=Dechrau Eto
-label.identity_verification_complete=Rydym wedi cadarnhau pwy ydych
-label.identity_verification_failed=Rydym wedi methu â chadarnhau pwy ydych
-label.you_need_2_step_verification=Mae angen i chi roi prawf o bwy ydych drwy’r Dull Gwirio 2-Gam
-label.you_need_2_step_verification_to_access_all_parts_of_this_service=Mae angen i chi roi prawf o bwy ydych drwy’r Dull Gwirio 2-Gam er mwyn cyrchu pob rhan o’r gwasanaeth hwn
-label.you_need_2_step_verification_to_use_personal_tax_account=Mae angen i chi roi prawf o bwy ydych drwy’r Dull Gwirio 2-Gam er mwyn defnyddio’ch cyfrif treth personol
-label.you_will_not_be_able_to_access_service_details_secure=Ni fyddwch yn gallu cyrchu pob rhan o’r gwasanaeth. Mae’ch manylion yn dal i fod yn ddiogel.
-label.can_only_access_service_if_have_mobile_phone=Dim ond os oes gennych ffôn symudol, neu’n cael defnyddio un, y gallwch gyrchu’r gwasanaeth hwn.
-label.if_you_have_query_contact_HMRC=Os oes gennych gwestiwn, gallwch <a href="{0}" target="_blank" rel="noopener noreferrer">gysylltu â Chyllid a Thollau EM (yn agor ffenestr neu dab newydd)</a> i gael help.
-label.you_have_not_done_anything_15_minutes_we_deleted_detail_you_entered=Nid ydych wedi gwneud unrhyw beth am 15 munud. Felly, rydym wedi dileu’r manylion a nodwyd gennych er mwyn diogelu’ch data.
-label.unable_to_confirm_your_identity=Nid allwn gadarnhau pwy ydych
-label.identity_verification_partially_complete=Ni allwn gadarnhau pwy ydych gan nad ydych wedi llwyddo yn y ddau gam.
-label.you_can_try_again_or_continue_to_personal_tax_account_=Gallwch <a href="{0}">geisio rhoi prawf o bwy ydych eto</a> neu fynd yn eich blaen i’ch cyfrif treth personol, ond ni fyddwch yn gallu cyrchu pob rhan o’r gwasanaeth. Mae’ch manylion yn dal i fod yn ddiogel.
-label.to_help_protect_data_you_can_access_PTA_once_confirmed_identity=Er mwyn helpu i ddiogelu’ch data, gallwch gyrchu’ch cyfrif treth personol ar ôl i ni gadarnhau pwy ydych.
-label.cannot_confirm_identity_and_have_query_contact_HMRC=Os na allwch roi prawf o bwy ydych, ac mae gennych gwestiwn, gallwch <a href="{0}" target="_blank" rel="noopener noreferrer">gysylltu â Chyllid a Thollau EM (yn agor ffenestr neu dab newydd)</a> i gael help.
-label.you_now_access_all_areas_of_your_personal_tax_account=Erbyn hyn, gallwch gyrchu pob rhan o’ch cyfrif treth personol.
-label.back_to_2step_verification=Yn ôl i’r Dull Gwirio 2-Gam
-label.you_have_paid_too_much_tax=Rydych wedi talu gormod o dreth
-label.HM_Revenue_and_customs_owe_you_a_refund=Mae ar Gyllid a Thollau EM ad-daliad o £{0} i chi am flwyddyn dreth {1} i {2}.
-label.get_your_refund=Cael eich ad-daliad
-label.You_paid_too_much_tax=Gwnaethoch dalu gormod o dreth
-label.HM_Revenue_and_customs_are_processing_your_refund=Mae Cyllid a Thollau EM yn prosesu’ch ad-daliad, sef £{0}.
-label.HM_Revenue_and_customs_paid_you_a_refund=Mae Cyllid a Thollau EM wedi ad-dalu £{0} i chi ar {1}.
-label.HM_Revenue_and_customs_sent_you_a_cheque=Mae Cyllid a Thollau EM wedi anfon siec atoch am £{0} ar {1}.
-label.You_have_paid_too_little_tax=Nid ydych wedi talu digon o dreth.
-label.You_owe_HM_Revenue_and_customs=Mae arnoch £{0} i Gyllid a Thollau EM am flwyddyn dreth {1} i {2}.
+
 label.get_more_details=Cael rhagor o fanylion
 label.you_cannot_access_your_account_right_now=Ni allwch gyrchu’ch cyfrif ar hyn o bryd
 label.we_need_to_speak_to_you_about_an_mci_error_=Mae angen i ni siarad â chi am wall MCI cyn y gallwch fewngofnodi.

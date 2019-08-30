@@ -221,21 +221,7 @@ label.name=Name
 label.change_your_name=Change your name
 label.email=Email
 label.back=Back
-label.please_provide_your_name=Please provide your name.
-label.please_provide_your_email=Please provide your email.
-label.trying_to_sign_in_to_pta_from_the_start_page=Trying to sign in to personal tax account from the Start Page.
-label.could_not_sign_in_through_verify=Could not sign in through Verify.
-label.sign_in_reporter=Personal Tax Account
-label.this_will_be_deducted_from_your_pay_or_private_pension_using_your_tax_codes=This will be deducted from your pay or private pension using your tax code(s).
-label.money_and_tax=Money and tax
-label.tax_and_national_insurance=Tax and National Insurance
-label.pension_and_retirement=Pension and retirement
-label.see_your_existing_protection_details=See your existing protection details.
-label.child_benefit_and_tax_credits=Child Benefit and tax credits
-label.activate_your_self_assessment_using_the_12_=Activate your Self Assessment using the 12-digit activation code you received in the post.
-label.your_self_assessment_details_cannot_be_shown=Your Self Assessment details cannot be shown
-label.you_may_have_previously_activated_your_self_assessment_using_different_=You may have previously activated Self Assessment using different Government Gateway sign in details.<br /><br />You can see your Self Assessment if you <a href="{0}">sign out</a> and then sign in using your other details.
-label.check_your_self_assessment_details=Check your Self Assessment details.
+
 label.if_you_send_your_tax_return_online=If you send your tax return online
 label.if_you_send_your_tax_return_by_post=If you send your tax return by post
 
@@ -398,43 +384,7 @@ label.you_can_continue_to_complete_your_sa=You can continue to complete your Sel
 label.we_cannot_confirm_your_identity=We cannot confirm your identity
 label.were_unable_to_confirm_your_identity=We are unable to confirm your identity
 label.you_can_still_complete_your_sa=You can still complete your Self Assessment.
-label.because_we_re_unable_to_confirm_your_identity=Because we were unable to confirm your identity, you will not be able to access all the areas of your personal tax account.
-label.your_details_are_still_secure=Your details are still secure.
-label.if_you_need_to_access_these_areas_you_can_try_again_in_24_hours=If you need to access these areas, you can try again in 24 hours.
-label.there_s_a_technical_problem=There is a technical problem
-label.this_online_service_is_experiencing_technical_difficulties=This online service is experiencing technical difficulties.
-label.please_try_again_in_5_minutes=Please try again in 5 minutes.
-label.your_session_has_ended_due_to_inactivity=Your session has ended due to inactivity
-label.your_session_has_ended=Your session has ended
-label.your_session_has_ended_because_you_havent_done_anything_for_15_minutes=Your session has ended because you have not done anything for 15 minutes.
-label.weve_deleted_all_the_details_youve_entered_to_protect_your_data=We have deleted all the details you have entered to protect your data.
-label.you_ll_need_to_start_again=You will need to <a href="{0}">start again</a>
-label.start_again=Start Again
-label.identity_verification_complete=Identity Verification Complete
-label.identity_verification_failed=Identity Verification Failed
-label.you_need_2_step_verification=You need 2-step verification
-label.you_need_2_step_verification_to_access_all_parts_of_this_service=You need 2-step verification to access all parts of this service
-label.you_need_2_step_verification_to_use_personal_tax_account=You need 2-step verification to use the personal tax account
-label.you_will_not_be_able_to_access_service_details_secure=You will not be able to access all parts of the service. Your details are still secure.
-label.can_only_access_service_if_have_mobile_phone=You can only access this service if you have a mobile phone or have access to one.
-label.if_you_have_query_contact_HMRC=If you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HM Revenue and Customs (opens in a new window or tab)</a> to get help.
-label.you_have_not_done_anything_15_minutes_we_deleted_detail_you_entered=You have not done anything for 15 minutes so we have deleted the details you entered to protect your data.
-label.unable_to_confirm_your_identity=We are unable to confirm your identity
-label.identity_verification_partially_complete=We cannot verify your identity as you have not passed both steps.
-label.you_can_try_again_or_continue_to_personal_tax_account_=You can <a href="{0}">try to confirm your identity again</a> or continue to your personal tax account but you will not be able to access all parts of the service. Your details are still secure.
-label.to_help_protect_data_you_can_access_PTA_once_confirmed_identity=To help protect your data, you can access your personal tax account once we have confirmed who you are.
-label.cannot_confirm_identity_and_have_query_contact_HMRC=If you cannot confirm your identity and you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HM Revenue and Customs (opens in a new window or tab)</a> to get help.
-label.you_now_access_all_areas_of_your_personal_tax_account=You can now access all areas of your personal tax account.
-label.back_to_2step_verification=Back to 2-step verification
-label.you_have_paid_too_much_tax=You have paid too much tax
-label.HM_Revenue_and_customs_owe_you_a_refund=HM Revenue and Customs owe you a £{0} refund for the {1} to {2} tax year.
-label.get_your_refund=Get your refund
-label.You_paid_too_much_tax=You paid too much tax
-label.HM_Revenue_and_customs_are_processing_your_refund=HM Revenue and Customs are processing your £{0} refund.
-label.HM_Revenue_and_customs_paid_you_a_refund=HM Revenue and Customs paid you a refund of £{0} on {1}.
-label.HM_Revenue_and_customs_sent_you_a_cheque=HM Revenue and Customs sent you a cheque for £{0} on {1}.
-label.You_have_paid_too_little_tax=You have paid too little tax.
-label.You_owe_HM_Revenue_and_customs=You owe HM Revenue and Customs £{0} for the {1} to {2} tax year.
+
 label.you_do_not_owe_anymore_income_tax=You do not owe any more Income Tax
 label.you_have_no_payments_to_make_to_hmrc_=You have no payments to make to HMRC for the tax year 2016 to 2017
 label.you_owe_hmrc_for_the_tax_year=You owe HMRC for the {0} to {1} tax year.
