@@ -119,41 +119,11 @@ label.your_address_has_been_changed=Your address has been changed
 label.enter_your_address_if_it_is_not_shown=Enter your address if it is not shown
 label.enter_your_address_yourself=Enter your address yourself
 label.sign_in=Sign in
-label.you_have_signed_out=You have signed out
 label.youve_been_signed_out=You have been signed out
 label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info=You have not done anything for 15 minutes, so we have signed you out to keep your account secure.
 label.please_sign_in_again=Please sign in again.
-label.return_to_your_personal_details=Return to your personal details
-label.we_cannot_display_these_details_at_this_moment=We cannot display these details at the moment
-label.please_try_again_later=Please try again later
-label.content.access_your_details_in_one_place_in_your_personal_tax_account=You can access your details with HM Revenue and Customs (HMRC) in one place in your personal account.
-label.content.use_your_personal_tax_account_to_see_details_from_your_record=Use your personal tax account to see details from your record with HM Revenue and Customs (HMRC).
-label.using_your_personal_tax_account_youll_be_able_to=Using your personal tax account you will be able to:
-label.you_can_use_your_personal_tax_account_to=You can use your personal tax account to:
-label.check_the_income_tax_youll_pay=check your tax code and an estimate of the Income Tax you will pay
-label.update_your_address_with_hmrc=update your address with HMRC
-label.apply_for_ma_if_youre_eligible=apply for Marriage Allowance if you are eligible
-label.content.this_is_a_new_service_that_will_be_continually_improved=This is a new service that is being continually improved.
-label.before_you_start=Before you start
-label.you_must_verify_your_identity_to_use_this_service_for_the_first_time=You must verify your identity to use this service for the first time. You will need:
-label.valid_uk_passport_or_driving_licence=a valid UK passport or UK photocard driving licence
-label.access_to_your_financial_information=access to your financial information
-label.only_have_to_verify_once=You only have to verify your identity once - after that you can sign in with your username and password.
-label.content.you_must_verify_your_identity_using_government_gateway_credentials=You must verify your identity using Government Gateway credentials.
-label.start_now=Start now
-label.youre_signed_out=You are signed out
-label.youre_now_signed_out_of_your_personal_tax_account=You are now signed out of your personal tax account.
-label.before_you_go_=Before you go, please answer some questions to help us improve your experience.
-label.signed_out=Signed out
-label.message_detail=Message Details
 label.edit=Edit
-label.return_to_trusted_helpers=Return to trusted helpers
-label.you_must_verify_your_identity=You must verify your identity using GOV.UK Verify to use this service for the first time. You will need a valid UK passport or UK photocard driving licence.
-label.if_you_cannot_sign_in=If you cannot sign in to your personal tax account
 label.theres_a_problem=There is a problem
-label.there_was_a_problem=There was a problem
-label.we_cannot_show_your_paye_details_at_the_moment_please_try_again_later=We cannot show your Pay As You Earn details at the moment. Please try again later.
-label.file_your_self_assessment_return=file your self-assessment return
 label.first_line_of_your_address=First line of your address
 label.second_line_of_your_address=Second line of your address
 label.third_line_of_your_address=Third line of your address (optional)
@@ -166,9 +136,6 @@ label.address_line_four=Address line 4 (optional)
 label.address_line_five=Address line 5 (optional)
 label.country=Country
 label.change=Change
-label.contact_hmrc_if_you_cannot_access_your_pta=Contact HM Revenue and Customs (HMRC) if you cannot access your personal tax account. Make sure you have your National Insurance number before you call.
-label.contact_hmrc=Contact HMRC
-label.phone_0300_200_3300=Phone 0300 200 3300
 label.telephone_0300_200_3300=Telephone: 0300 200 3300
 label.textphone_0300_200_3319=Textphone: 0300 200 3319
 label.outside_uk_441355359022=Outside UK: +44 135 535 9022
@@ -181,23 +148,10 @@ label.find_out_about_call_charges=Find out about call charges
 label.you_cannot_access_your_account_right_now=You cannot access your account right now
 label.we_need_to_speak_to_you_about_an_mci_error_=We need to talk to you about an MCI error before you can sign in.
 label.how_to_contact_us=How to contact us
-label.the_tax_codes_and_income_tax_service_is_currently_unavailable=The tax codes and Income Tax service is currently unavailable
-label.the_company_benefits_service_is_currently_unavailable=The company benefits service is currently unavailable
-label.you_cannot_view_or_update_your_address_right_now=You cannot view or update your address right now
 label.opens_in_a_new_window=(opens in a new window)
 label.yes=Yes
 label.no=No
-label.do_not_know=Do not know
-label.other=Other
-label.if_no_or_do_not_know_please_explain=If ‘No’ or ‘Do not know’, please explain
-label.how_satisfied_were_you_with_the_service=How satisfied were you with the service?
-label.what_else_would_you_like_to_see_in_the_service=What else would you like to see in the service?
-label.report_a_problem_signing_in=Report a problem signing in
-label.tell_us_your_name_and_email_address_and_someone_will_get_back_to_you_within_2_working_days=Tell us your name and email address and someone will get back to you within 2 working days.
-label.thanks_weve_received_your_details=Thanks, we have received your details
-label.someone_will_get_back_to_you_within_2_working_days=Someone will get back to you within 2 working days.
-label.return_to_pta_start=Return to personal tax account start page
-label.your_messages=Your messages
+
 label.list_of_messages=List of messages
 label.all_messages=All messages
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Sorry, there has been a technical problem retrieving your messages
@@ -209,26 +163,18 @@ label.you_cannot_use_this_service_to_update_your_address=You cannot use this ser
 label.your_address_cannot_be_updated=Your address cannot be updated
 label.webchat_service=Webchat service
 label.chat_online_with_one_of_our_advisers=Chat online with one of our advisers
-label.explore_gov_uk=Explore GOV.UK
 label.name=Name
 label.change_your_name=Change your name
-label.email=Email
 label.back=Back
 
 
 label.if_you_send_your_tax_return_online=If you send your tax return online
 label.if_you_send_your_tax_return_by_post=If you send your tax return by post
-label.you_cannot_currently_see_your_self_assessment_=You cannot currently see your Self Assessment details online.<br /><br /><a href="{0}" target="_blank" rel="noopener noreferrer">Send your tax return by post (opens in a new window)</a>.
 label.you_cannot_access_your_self_assessment_=You cannot access your Self Assessment information from this account
-label.it_could_be_that_you_used_different_government_gateway_sign_in_details_=It could be that you used different Government Gateway sign in details when you activated your online Self Assessment. If you did, you will need to <a href="{0}">sign out</a> and then sign back in using these other details.
 label.you_must_sign_out_then_sign_in_with_the_user_id_=You must <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="{0}">sign out</a>, then sign in with the user ID and password you used to activate your Self Assessment online.<br /><br /><a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="{1}">Recover your user ID</a> if you have lost it.
 label.if_you_have_never_sent_your_tax_return_online=If you have never sent your tax return online
 label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_=You have already registered with HMRC and must now <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Enrol for SA" href="{0}" target="_blank" rel="noopener noreferrer">enrol for Self Assessment online (opens in a new window)</a> to submit a return or access your account details.<br /><br />After you enrol, you will receive an activation code in the post within 7 days. Use this within 28 days to activate your account. If your activation expires, you can <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="{1}" target=_blank">request a new activation code (opens in a new window)</a>.
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_=You cannot view your Self Assessment information here.<br /><br />The deadline for paper tax returns is midnight on 31 October. After this date, you will have to <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank" rel="noopener noreferrer">do your tax return online (opens in a new window)</a>.
-label.sign_in_with_the_user_id_you_used_or_created_=sign in with the user ID you used, or created, when you signed up for Self Assessment.<br /><br />You can <a href="{0}" target="_blank" rel="noopener noreferrer">recover your user ID (opens in a new window)</a> if you have forgotten it.
-label.you_cannot_currently_see_your_self_assessment_online_=You cannot currently see your Self Assessment online, so <a href="{0}" target="_blank" rel="noopener noreferrer">send your tax return by post (opens in a new window)</a> as usual.
-label.you_need_to_sign_in_with_the_user_id_you_used_or_created_=Sign in with the user ID you used, or created, when you signed up for Self Assessment (you can <a href="{0}">recover your user ID</a> if you have lost it).
-label.sign_in_with_another_user_id=Sign in with another user ID
 label.activate_your_self_assessment_registration=Activate your Self Assessment registration
 label.activate_your_self_assessment=Activate your Self Assessment
 label.get_your_sa302_calculation=Get your SA302 calculation
@@ -246,19 +192,13 @@ label.we_need_to_ask_you_some_questions_=We need to ask you some questions befor
 label.have_you_ever_filed_your_tax_return_online=Have you ever done your tax return online?
 label.did_you_deregister_from_sa_online=Did you deregister from Self Assessment online?
 label.you_need_to_sign_up_to_send_your_tax_returns_online_again=You need to sign up to send your tax returns online again
-label.use_your_utr_to_register_again_=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">register again for Self Assessment online</a>.
 label.registration_can_take_up_to_ten_days_=Registration can take up to 10 days. After registration you must activate your account with the code we send you by post.
 label.you_will_get_an_activation_code_in_the_post_=You will get an activation code in the post within 10 days of enrolling. Activate your account with the same Government Gateway user ID and password you used to enrol.
 label.sign_in_with_different_account_details=Sign in with different account details
-label.you_may_be_using_the_wrong_government_gateway_account_=You may be using the wrong Government Gateway account. Sign out, then sign back in with the right details.
-label.you_need_to_use_the_government_gateway_user_id_=You need to use the Government Gateway user ID and password you created when you first registered for Self Assessment online.
-label.get_help_signing_in=Get help signing in
-label.get_help_if_you_have=Get help if you have:
 label.forgotten_your_self_assessment_user_id=forgotten your Self Assessment user ID
 label.forgotten_your_self_assessment_password=forgotten your Self Assessment password
 label.forgotten_your_self_assessment_user_id_and_password=forgotten your Self Assessment user ID and password
 label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_=You may need to use your Unique Taxpayer Reference (UTR) to recover your sign in details.
-label.sign_out_of_this_account=Sign out of this account
 label.have_you_ever_done_your_tax_return_by_post=Have you ever done your tax return by post?
 label.you_need_to_register_to_do__your_tax_return_online=You need to register to do your tax return online
 label.do_your_tax_return_before_the_deadline=Do your tax return before the deadline
@@ -266,65 +206,34 @@ label.the_deadline_to_do_your_tax_return_by_post_was_=The deadline to do your ta
 label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is midnight on 31 January {0}.
 label.did_you_get_your_utr_letter=Did you get your UTR letter?
 label.your_utr_is_a_ten_digit_number_=Your Unique Taxpayer Reference (UTR) is a 10 digit number you need to register for Self Assessment online.
-label.have_you_used_your_utr_to_enrol_for_self_assessment_online=Have you used your UTR to sign up for Self Assessment online?
 label.your_utr_is_a_ten_digit_number_we_sent_by_post=This is also known as enrolling for <span class="no-wrap">Self Assessment</span> online. If you have enrolled you will be sent an activation code in the post.
 label.you_need_to_register_for_self_assessment_online=You need to register for Self Assessment online
 label.you_need_to_sign_up_to_send_your_tax_returns_online=You need to sign up to send your tax returns online
 label.you_need_to_get_a_new_activation_code=You need to get a new activation code
-label.you_need_to_get_a_new_activation_code_by_enrolling=You need to get a new activation code by <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment enrol" data-ga-event-label="enrolling for Self Assessment">enrolling for Self Assessment</a> again.
 label.you_need_to_sign_in_with_the_government_gateway_user_id=You need to sign in with the Government Gateway user ID and password you used when you enrolled for Self Assessment online. <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">Sign out, then sign in with the right details</a>.
 label.problems_signing_in=Problems signing in
-label.you_will_need_your_utr_to_get_a_new_activation_code=You will need your UTR to get a new activation code which will be sent to you by post.
 label.use_your_unique_taxpayer_reference_utr_to_=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">enrol for Self Assessment online</a>.
 label.you_can_send_your_tax_return_by_post_=You can <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">send your tax return by post</a> before 31 October {1}.
 label.your_utr_letter_may_still_be_in_the_post=Your UTR letter may still be in the post
 label.we_sent_your_utr_to_you_by_post_=We sent your UTR to you by post. It can take up to 14 working days to arrive.
 label.have_you_used_your_utr_to_enrol=Have you signed up to send your tax returns online?
-label.after_you_registered_we_sent_you_an_activation_code_by_post=After you registered we sent you an activation code by post. Your activation code has expired.
-label.to_get_a_new_code_you_must_use_your_utr_=To get a new code you must use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">register again for Self Assessment online</a>.
-label.you_must_use_your-new_code_within_=You must use your new code within 28 days.
-label.registration_can_take_up_to_ten_days_when_you_register_=Registration can take up to 10 days. When you register you will be asked to create a new Government Gateway account.
 label.use_your_utr_to_register_for_self_assessment_online=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register for Self Assessment online">register for Self Assessment online</a>.
 label.how_to_access_your_self_assessment=How to access your Self Assessment
-label.income_tax=Income tax
-label.benefits_and_tax_credits=Benefits and tax credits
 label.do_you_get_tax_credits=Do you get tax credits?
-label.pension=Pension
-label.state_pension_forecast=State Pension forecast
-label.complete_your_tax_return_or_make_a_payment=Complete your tax return or make a payment.
-label.check_your_tax_code_and_paye_income=Check your tax code and Pay As You Earn income.
-label.check_your_tax_codes_and_an_estimate_of_the_income_tax_youll_pay=Check your tax codes and an estimate of the Income Tax you will pay.
-label.check_your_tax_credits_record=Check your tax credits record.
-label.check_your_child_benefits_record=Tell us about changes that may affect your Child Benefit.
+
 label.view_your_national_insurance_record=View your National Insurance record
-label.your_benefits_and_tcr_and_what_you_may_be_entitled_to_get=Your benefits and tax credits record and what you may be entitled to get.
-label.your_state_pension_pension_credit_and_pension_record=Your State Pension, Pension Credit and pension record.
-label.check_when_you_can_claim_your_state_pension_and_how_much_you_can_get=Check when you can claim your State Pension and how much you can get.
 label.there_is_a_problem_logging_you_in=There is a problem logging you in
-label.we_need_to_speak_to_you_before_you_can_log_in_=We need to speak to you before you can log in to your account.
-label.how_to_fix_this=How to fix this
-label.say_i_cannot_log_in=Say ‘I cannot log in’
-label.say_yes_when_asked_if_you_have_problems_logging_in=Say ‘Yes’ when asked if you are having problems logging in
-label.you_will_hear_a_recorded_message_=You will hear a recorded message advising you to call another number - do not hang up and redial. Stay on the line and an adviser will help you.
-label.tell_the_advisor_this_is_an_mci_issue=Tell the adviser this is an ‘MCI issue’
-label.other_ways_to_contact_us=Other ways to contact us
-label.we_need_to_speak_to_you_before_you_can_access_=We need to speak to you before you can access your personal tax account.
+
 label.self_assessment_summary=Self Assessment summary
-label.tax_year=Tax year: {0} to {1}
-label.self_assessment_forms=Self Assessment forms
 label.back_to_account_home=Back to account home
 label.return_to_your_account_home=Return to your account home
-label.pensions_summary=Pensions summary
-label.pension_forms=Pension forms
 label.national_insurance_summary=National Insurance summary
-label.national_insurance_forms=National Insurance forms
 label.report_changes_that_affect_your_child_benefit=Report changes that affect your Child Benefit
 label.if_your_childs_circumstances_change=If your child’s circumstances change
 label.tell_us_if_your_childs_circumstances_change=Tell us if your child’s circumstances change
 label.tell_us_if_your_circumstances_change=Tell us if your circumstances change
 label.child_benefit_stops_on_31_august_=Child Benefit stops on 31 August on or after your child’s 16th birthday if they leave approved education or training.
 label.tell_us_if_your_child=Tell us if your child:
-label.tax_credits_summary=Your tax credits
 label.apply_for_an_extension=Apply for an extension
 label.you_could_get_child_benefit_for_20_weeks_=You could get Child Benefit for 20 weeks (called an ‘extension’) if your child leaves approved education or training and either:
 label.registers_with_their_local_careers_service_=registers with their local careers service, Connexions (or a similar organisation in Northern Ireland, the EU, Norway, Iceland or Liechtenstein)
@@ -332,52 +241,23 @@ label.signs_up_to_join_the_armed_forces=signs up to join the armed forces
 label.other_changes_to_your_child_benefit_claim=Other changes to your Child Benefit claim
 label.tell_us_if_you_need_to=Tell us if you need to:
 label.if_you_do_not_currently_claim_child_benefit=If you do not currently claim Child Benefit
-label.benefits_and_credits_forms=Benefits and credits forms
-label.benefits_and_credits_your_tax_credits=Your tax credits
-label.renew_your_tax_credits_claim=Renew your tax credit claim
-label.benefits_and_credits_other_benefits=Other benefits
-label.the_personal_tax_account_is_a_new_service_=The personal tax account is a new service – in the future we will show you more details from your record.
-label.paperless_preferences=Paperless preferences
+
 label.any_updates_to_your_contact_details=Any updates to your contact details take up to 2 days to appear on this site.
-label.services_for_businesses=Services for businesses
-label.if_you_are_self_employed_or_pay_business_tax=If you are self employed or pay business taxes like VAT or Corporation Tax you can see these services in <a id="business-tax-account-link" class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="Your account" data-ga-event-label="your business tax account">your business tax account</a>.
 label.you_can_see_this_part_of_your_account_if_you_complete=You can see this part of your account if you complete some additional security steps.
-label.sa_important_deadlines=Important deadlines
-label.self_assessment_deadline_date=31 Jan 2017
-label.self_assessment_deadline_was=The deadline for completing tax returns for 2015 to 2016 was 31 January 2017.
-label.view_your_self_assessment=View your Self Assessment
-label.are_you_a_tcs_customer=Are you a tax credits customer?
+
 label.change_where_we_send_your_letters=Change where we send your letters
 label.do_you_live_in_more_than_one_place=Do you live in more than one place?
-label.identity_verification_confirmation=Identity verification confirmation
 label.confirm_your_identity=Confirm your identity
 label.before_you_continue_we_need_to_check=Before you continue, we need to check who you are.
 label.we_re_going_to_ask_you_some_security_questions=We are going to ask you some security questions so we know it is you signing into your account.
 label.we_ve_confirmed_your_identity=We have confirmed your identity
-label.you_can_continue_to_complete_your_sa=You can continue to complete your Self Assessment.
 label.we_cannot_confirm_your_identity=We cannot confirm your identity
-label.were_unable_to_confirm_your_identity=We are unable to confirm your identity
 label.you_can_still_complete_your_sa=You can still complete your Self Assessment.
 
-
-label.you_do_not_owe_anymore_income_tax=You do not owe any more Income Tax
-label.you_have_no_payments_to_make_to_hmrc_=You have no payments to make to HMRC for the tax year 2016 to 2017
-label.you_owe_hmrc_for_the_tax_year=You owe HMRC for the {0} to {1} tax year.
-label.get_more_details=Get more details
-label.maximum_number_of_attempts_reached=Maximum number of attempts reached
-label.you_have_reached_the_maximum_number_of_attempts_to_confirm_your_identity=You have reached the maximum number of attempts to confirm your identity.
-label.you_can_still_complete_your_sa_but_you_will_not_be_able_to_access_other_areas_of_your_pta=You can still complete your Self Assessment but you will not be able to access other areas of your personal tax account.
-label.you_can_try_again_in_24-hours=You can try again in 24 hours.
-label.continue_to_your_personal_tax_account=​Continue to your personal tax account
 label.to_continue_you_can=To continue you can:
 label.see_your_current_address=see your <a href="{0}">current address</a>
 label.go_to_your_personal_tax_account_home=go to your <a href="{0}">personal tax account home</a>
-label.based_on_your_answers_we_cannot_confirm_your_identity=Based on your answers, we cannot confirm your identity
-label.continue_to_complete_sa_your_details_are_secure=You can continue to complete your Self Assessment. Your details are still secure.
-label.you_can_continue_to_your_personal_tax_account_=You can continue to your personal tax account but you will not be able to access all parts of the service. Your details are still secure.
-label.you_can_continue_but_you_will_not_be_able_to_access_=You can continue but you will not be able to access all parts of your personal tax account. Your details are still secure.
 label.we_can_show_you_more_if_you_complete_2fa=We can show you more details from your HM Revenue and Customs record if you complete 2-step verification. We will remind you to set this up the next time you sign in.
-label.you_can_continue_to_complete_your_sa_confirm_next_login=You can continue to complete your Self Assessment. Your details are still secure. We will ask you to confirm your identity the next time you sign in.
 label.you_have_tried_to_confirm_your_identity_=You have tried to confirm your identity too many times.
 label.try_again_in_24_hours=Try again in 24 hours.
 label.you_can=You can:
@@ -390,11 +270,7 @@ label.you_have_been_signed_out=You have been signed out
 label.you_have_not_done_anything_for_15_minutes_=You have not done anything for 15 minutes, so we have signed you out to keep your account secure.
 label.service_unavailable=Service unavailable
 label.sorry_we_are_currently_experiencing_technical_issues=Sorry, we are currently experiencing technical issues.
-label.youve_tried_to_complete_your_identity_too_many_times=You have tried to confirm your identity too many times
-label.try_again=Try again
-label.find_an_address=Find an address
 label.tell_us_your_main_home=Tell us your main home
-label.update_your_postal_address=Update your postal address
 label.send_your_letters_to_your_main_address=Send letters to your main address
 label.do_you_want_all_your_letters_to_be_sent_=Do you want letters sent to your main address?
 label.your_main_address_is=Your main address is:
@@ -421,27 +297,13 @@ label.this_helps_us_work_out_your_correct_rate_of_income_tax_=This helps us work
 label.whats_my_main_home=What is my main home?
 label.your_main_home_is_usually_where_you_live_=<p>Your main home is usually where you live and spend most of your time. It does not matter whether you own it, rent it or live in it for free.</p><p>Your main home may be the home where you spend less time if that is where:</p><ul class="list-bullet"><li>most of your possessions are</li><li>your family lives, for example, if you are married, in a civil partnership or a long-term relationship</li><li>you are registered for things like your bank account, GP or car insurance</li><li>you are a member of clubs or societies</li></ul><p>From 6 April 2016, you will pay the Scottish rate of Income Tax if you live in Scotland. If you move to or from Scotland in a tax year, or live in more than one home, your situation may be different. <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="What is my main home?" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window)" href="{0}" target="_blank" rel="noopener noreferrer">Check if you will pay the Scottish rate of Income Tax (opens in a new window)</a>.</p>
 label.check_your_details=Check your details
-label.change_start_date=Change start date
 label.change_address=Change address
 label.when_you_started_living_here=When you started living here
 label.what_happens_next=What happens next
-label.tell_us_if_your_main_home_changes_in_the_future=Tell us if your main home changes in the future.
 label.confirm_and_save=Confirm and save
-label.we_want_to_make_this_website_easier_to_use=We want to make this website easier to use
-label.help_us_with_our_research_opens_in_new_window=Help us with our research (opens in new window)
-label.services_you_might_need=Services you might need
-label.check_if_you_re_eligible_for_ma=Check if you can get Marriage Allowance
-label.see_how_company_car_and_medical_benefit_=See how company car and medical benefit could affect your taxable income.
-label.view_your_company_benefits=View your company benefits
-label.if_you_receive_child_benefit_=If you receive Child Benefit, and your child was aged 16 on or before 31 August, you need to tell us if your child is staying in education or training.
-label.tell_us_if_your_child_is_staying_in_education_or_training=Tell us if your child is staying in education or training
-label.because_you_earn_less_than=If you are married or in a civil partnership and you earn less than {0}, you may benefit from applying for Marriage Allowance.
-label.view_your_taxable_income_and_see_any_company_benefits=View your taxable income and see any company benefits that may affect the amount, for example a company car or medical benefit.
 label.help_improve_gov_uk=Help improve GOV.UK
-label.get_involved_in_making_government_services_better_=Get involved in making government services better (this link opens in a new window or tab)
 label.please_take_part_in_our_short_survey=Please take part in our short survey (opens in new window or tab)
 label.no_thanks=No thanks
-label.select_yes_if_you_have_enrolled_to_send_your_tax_returns_online=Select yes if you have enrolled to send your tax returns online
 label.moved_from_scotland=You have moved from Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
 label.moved_to_scotland=You have moved to Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
 
@@ -514,10 +376,6 @@ error.country_required=Enter country
 #
 # Messages in lower case
 #
-text.opens_in_new_window=opens in a new window
-text.give_someone_you_know_permission_to_access_your_tax_details=give someone you know permission to access your tax details
-text.request_permission_to_help_someone_you_know_with_their_tax=request permission to help someone you know with their tax
-text.get_in_touch=get in touch
 text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">report a change</a> to your circumstances
 text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">authorise a tax adviser or accountant</a> to act on your behalf for High Income Child Benefit Charge issues
 text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
@@ -544,19 +402,11 @@ label.account_home=Account home
 # Income
 title.income=Income
 label.pay_as_you_earn_paye=Pay As You Earn (PAYE)
-label.understand_your_tax_code=Understand your tax code
 label.your_income_from_employers_and_private_pensions_=Check or update the employment, pension or other income information used to work out your PAYE Income Tax and tax codes.
-label.make_sure_you_are_paying_the_right_amount_of_tax=Make sure you are paying the right amount of tax
-label.view_your_income_tax_estimate=View your Income Tax estimate
-label.check_how_much_tax_you_paid_last_year=Check how much tax you paid last year
+
 label.claim_your_tax_refund=Claim your tax refund
-label.view_your_tax_refund=View your tax refund
 label.find_out_why_you_paid_too_much=Find out why you paid too much
 label.find_out_why_you_paid_too_little=Find out why you paid too little
-label.view_the_tax_you_paid=View the tax you paid
-label.get_more_information_about_when_your_p800_will_arrive=Get more information about when your P800 will arrive
-label.get_more_information_about_the_tax_you_paid=Get more information about the tax you paid
-
 
 
 label.you_paid_too_much_tax=You paid too much tax in the {0} to {1} tax year
@@ -576,18 +426,13 @@ label.you_still_owe_hmrc_you_should_have_paid_=You still owe HMRC £{0}. You sho
 label.you_still_owe_hmrc_you_must_pay_by_=You still owe HMRC £{0}. You must pay by {1}.
 label.you_owe_hmrc_you_must_pay_by_=You owe HMRC £{0}. You must pay by {1}.
 label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
-label.you_do_not_owe_hmrc_anything=You do not owe HMRC anything.
 
 
 
-label.please_wait_for_your_tax_calculation_letter_p800=Please wait for your tax calculation letter (P800).
 label.self_assessment=Self Assessment
-label.use_your_activation_code_to_access_this_service_=Use your activation code to access this service. The code is on the letter we sent to you when you enrolled.
-label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_=You cannot use this service. You may not be enrolled for Self Assessment, or you may have enrolled using a different account.
 label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
-label.understand_self_assessment=Understand Self Assessment
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
 label.national_insurance=National Insurance
@@ -596,19 +441,13 @@ label.your_national_insurance_number_is_your_unique_identifier=Your National Ins
 label.view_your_national_insurance_letter=View your National Insurance letter
 label.view_gaps_in_your_record=View gaps in your record
 label.check_your_state_pension=Check your State Pension
-label.you_paid_the_right_amount_of_tax_last_year=You paid the right amount of tax last year
-label.your_tax_has_not_yet_been_calculated=Your tax has not yet been calculated
 
 #
 # Benefits
 #
 title.benefits=Benefits
-label.company_benefits=Company benefits
-label.benefits_you_receive_from_your_employer_in_addition_to_your_normal_salary=Benefits you receive from your employer in addition to your normal salary.
 label.tax_credits=Tax credits
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=View your next payments and the people on your claim, and make changes to your claim.
-label.change_your_circumstances=Change your circumstances
-label.find_out_if_you_qualify_for_tax_credits=Find out if you qualify for tax credits
 label.view_your_tax_credits_payments=View your tax credits payments
 title.marriage_allowance=Marriage Allowance
 label.transfer_part_of_your_personal_allowance_to_your_partner_=Transfer part of your Personal Allowance to your partner so they pay less tax.
@@ -619,7 +458,6 @@ label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=You
 label.child_benefit=Child Benefit
 label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children=A tax-free payment to help parents with the cost of bringing up children.
 label.tell_us_if_your_child_is_staying_in_full_time_education=Tell us if your child is staying in full-time education
-label.find_out_if_you_qualify_for_child_benefit=Find out if you qualify for Child Benefit
 
 #
 # Pensions
@@ -627,7 +465,6 @@ label.find_out_if_you_qualify_for_child_benefit=Find out if you qualify for Chil
 title.pensions=Pensions
 title.state_pension=State Pension
 label.view_your_state_pension_and_national_insurance_contributions=View your State Pension and National Insurance contributions.
-label.check_your_national_insurance_record_for_gaps=Check your National Insurance record for gaps
 label.view_your_state_pension_forecast=View your State Pension forecast
 
 #
@@ -636,11 +473,7 @@ label.view_your_state_pension_forecast=View your State Pension forecast
 label.your_account=Your account
 label.messages=Messages
 label.message=Message
-label.view_your_messages=View your messages
 label.personal_details=Personal details
 label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings
-label.help_with_tax_for_friends_and_family=Help with tax for friends and family
-label.give_friends_or_family_permission_to_access_your_account=Give friends or family permission to access your account, or become someone else’s trusted helper to help them with their tax.
-label.view_your_trusted_helper_contacts=View your trusted helper contacts
 
