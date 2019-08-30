@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.tai.util
+package util
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import play.api.{Application, Environment}
 import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Lang}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Environment}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.matching.Regex
