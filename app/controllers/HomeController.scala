@@ -53,6 +53,7 @@ class HomeController @Inject()(
   val homePageCachingHelper: HomePageCachingHelper,
   val taxCalculationStateFactory: TaxCalculationStateFactory
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
+
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) { implicit pertaxContext =>
     def getTaxCalculationState(
       nino: Nino,
