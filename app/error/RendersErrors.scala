@@ -25,7 +25,10 @@ import scala.concurrent.Future
 
 trait RendersErrors extends Results {
 
-  def renderError(statusCode: Int)(implicit context: PertaxContext, messages: Messages) = {
+  def futureError(statusCode: Int)(implicit context: PertaxContext, messages: Messages): Future[Result] =
+    Future.successful(error(statusCode))
+
+  def error(statusCode: Int)(implicit context: PertaxContext, messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"
@@ -33,12 +36,11 @@ trait RendersErrors extends Results {
       case _           => "InternalServerError500"
     }
 
-    Future.successful(
-      Status(statusCode)(
-        views.html.error(
-          s"global.error.$errorKey.title",
-          Some(s"global.error.$errorKey.heading"),
-          Some(s"global.error.$errorKey.message"))))
+    Status(statusCode)(
+      views.html.error(
+        s"global.error.$errorKey.title",
+        Some(s"global.error.$errorKey.heading"),
+        Some(s"global.error.$errorKey.message")))
 
   }
 

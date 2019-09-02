@@ -16,17 +16,18 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import connectors.{CreatePayment, FrontEndDelegationConnector, PayApiConnector}
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
-import error.LocalErrorHandler
+import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Reads
 import play.api.mvc._
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -34,6 +35,7 @@ import util.AuditServiceTools._
 import util.DateTimeTools
 
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 class ApplicationController @Inject()(
   val messagesApi: MessagesApi,
@@ -48,7 +50,7 @@ class ApplicationController @Inject()(
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler)
-    extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
+    extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
     val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
