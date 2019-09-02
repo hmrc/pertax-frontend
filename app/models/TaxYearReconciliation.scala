@@ -47,10 +47,10 @@ object Reconciliation {
     }
   }
 
-  def underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus): Underpaid =
+  def underpaid(amount: Option[Double], dueDate: Option[LocalDate], status: UnderpaidStatus): Reconciliation =
     Underpaid(amount, dueDate, status)
 
-  def overpaid(amount: Option[Double], status: OverpaidStatus): Overpaid = Overpaid(amount, status)
+  def overpaid(amount: Option[Double], status: OverpaidStatus): Reconciliation = Overpaid(amount, status)
 
   def notReconciled: Reconciliation = NotReconciled
 }
