@@ -45,6 +45,7 @@
 ) {
     @back_link()
 
+
     @errors(residenceStartDateForm)
 
 
@@ -60,12 +61,9 @@
                     <p>@Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
                     <p class="form-hint">@Messages("label.for_example_31_3_2015")</p>
                     @form(controllers.routes.AddressController.processEnterStartDate(typ)) {
-
-
                         @dateFieldsFreeInline(
                             residenceStartDateForm,
                             "startDate"
-
                         )
 
                     <details class="form-group">
