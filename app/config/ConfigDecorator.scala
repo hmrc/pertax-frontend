@@ -50,6 +50,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
   private lazy val payApiUrl = baseUrl("pay-api")
+  lazy val authLoginApiService = baseUrl("auth-login-api")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
     configuration.getString(s"external-url.$key").filter(x => env == "Dev")
