@@ -46,9 +46,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
 
   lazy val fakeRequest = FakeRequest("", "")
 
-  lazy val messages: Messages = messagesApi.preferred(fakeRequest)
+  override val messages: Messages = messagesApi.preferred(fakeRequest)
 
-  val mockTaxYearRetriever = MockitoSugar.mock[TaxYearRetriever]
+  lazy val mockTaxYearRetriever = MockitoSugar.mock[TaxYearRetriever]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
