@@ -242,7 +242,7 @@ label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Sorry, ther
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Sorry, there has been a technical problem retrieving your message
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=The date you entered is earlier than a date previously held on your address record.
 label.if_you_entered_proposedStartDate_by_mistake_=If you entered {1} by mistake you can  <a href="{0}">go back to enter another date</a>.
-label.if_you_entered_the_correct_date_contact_HMRC_=If you entered the correct date, <a href="{0}" target="_blank" rel="noopener noreferrer"> contact HMRC (opens in a new window)</a> to update your address.
+label.if_you_entered_the_correct_date_contact_HMRC_=If you entered the correct date, <a href="{0}" target="_blank" rel="noopener noreferrer"> contact HMRC (opens in a new window or tab)</a> to update your address.
 label.you_cannot_use_this_service_to_update_your_address=You cannot use this service to update your address
 label.your_address_cannot_be_updated=Your address cannot be updated
 label.webchat_service=Webchat service
@@ -609,7 +609,7 @@ text.get_in_touch=get in touch
 text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">report a change</a> to your circumstances
 text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">authorise a tax adviser or accountant</a> to act on your behalf for High Income Child Benefit Charge issues
 text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
-text.if_you_do_not_claim_child_benefit_=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Check if you can claim Child Benefit (opens in new window)</a>
+text.if_you_do_not_claim_child_benefit_=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Check if you can claim Child Benefit (opens in new window or tab)</a>
 text.stays_in_education_or_training=stays in education or training
 text.leaves_education_or_training=leaves education or training
 text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">has any other change in their circumstances</a> such as they leave the household

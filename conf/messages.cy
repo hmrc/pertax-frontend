@@ -198,7 +198,7 @@ label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Mae’n ddr
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich neges
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddiad a nodwyd gennych yn gynharach na dyddiad a gadwyd yn flaenorol ar gofnod eich cyfeiriad.
 label.if_you_entered_proposedStartDate_by_mistake_=Os nodwyd {1} gennych drwy gamgymeriad, gallwch <a href="{0}">fynd yn ôl i roi dyddiad arall</a>.
-label.if_you_entered_the_correct_date_contact_HMRC_=Os nodwyd y dyddiad cywir gennych, <a href="{0}" target="_blank" rel="noopener noreferrer"> cysylltwch â CThEM (yn agor ffenestr newydd)</a> i ddiweddaru’ch cyfeiriad.
+label.if_you_entered_the_correct_date_contact_HMRC_=Os nodwyd y dyddiad cywir gennych, <a href="{0}" target="_blank" rel="noopener noreferrer"> cysylltwch â CThEM (yn agor ffenestr neu dab newydd)</a> i ddiweddaru’ch cyfeiriad.
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
 label.nid_yw_rhai_or_tudalennau=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu i’r Gymraeg eto.
@@ -603,7 +603,7 @@ text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">rhoi 
 text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">awdurdodi ymgynghorydd treth neu gyfrifydd</a> i weithredu ar eich rhan ar gyfer materion sy’n ymwneud â Thâl Incwm Uchel Budd-dal Plant
 text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
 text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">ailddechrau neu roi’r gorau i’ch taliadau Budd-dal Plant</a> os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
-text.if_you_do_not_claim_child_benefit_=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Gwiriwch a allwch hawlio Budd-dal Plant (yn agor ffenestr newydd)</a>
+text.if_you_do_not_claim_child_benefit_=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Gwiriwch a allwch hawlio Budd-dal Plant (yn agor ffenestr neu dab newydd)</a>
 text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
 text.leaves_education_or_training=yn gadael hyfforddiant neu addysg
 text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">ag unrhyw newidiadau eraill yn ei amgylchiadau megis gadael yr aelwyd</a>
