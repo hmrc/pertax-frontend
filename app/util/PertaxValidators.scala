@@ -63,7 +63,7 @@ object PertaxValidators {
         value.fold[Map[String, String]](Map.empty)(v => Map(key -> v))
     })
 
-  private val AddressLineRegex = """^[ A-Za-z0-9&’'(),-./sôéàëŵŷáîïâêûü]+""".r
+  private val AddressLineRegex = """^[A-Za-z0-9 \-,.&'\/]+""".r
   val PostcodeRegex =
     """^(GIR ?0AA|[A-PR-UWYZa-pr-uwyz]([0-9]{1,2}|([A-HK-Ya-jk-y][0-9]([0-9ABEHMNPRV-Yabehmnprv-y])?)|[0-9][A-HJKPS-UWa-hjkps-u])\s?[0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2})$""".r
 

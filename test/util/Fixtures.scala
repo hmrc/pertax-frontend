@@ -104,6 +104,8 @@ trait TaiFixtures {
 
 trait TaxCalculationFixtures {
   def buildTaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
+  def buildTaxYearReconciliations: List[TaxYearReconciliation] =
+    List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
 }
 
 trait CitizenDetailsFixtures {
