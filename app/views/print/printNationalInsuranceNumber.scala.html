@@ -18,28 +18,28 @@
 
 @main(Messages("label.print_your_national_insurance_summary"), Some(Messages("label.national_insurance")), printableDocument = true) {
 
-  <div class="grid-row">
-    <div class="column-half">
-      <a class="link-back" href="@controllers.routes.InterstitialController.displayNationalInsurance()" data-journey-click="link - click:Your National Insurance letter:Back">@Messages("label.back")</a>
+    <div class="grid-row">
+        <div class="column-full">
+            <a class="link-back" href="@controllers.routes.InterstitialController.displayNationalInsurance()" data-journey-click="link - click:Your National Insurance letter:Back">@Messages("label.back")</a>
+
+            <div class="page-header home">
+                <div class="page-info">@Messages("label.personal_details")</div>
+                    <h1 id="page-title" class="heading-xlarge no-margin-top no-margin-bottom">
+                        @Messages("label.your_national_insurance_letter")
+                    </h1>
+            </div>
+
+            <div class="print-this">
+                <img class="print-this__icon" src="@pertaxContext.configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
+                <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@Messages("label.print")">@Messages("label.print")</a>
+            </div>
+            @if(saveNiLetterAsPdfLinkEnabled) {
+            <div class="save-this">
+                <a class="save-this__link" href="/personal-account/national-insurance-summary/save-letter-as-pdf" data-journey-click="save - click:Your National Insurance letter:@Messages("label.save_as_a_PDF")">@Messages("label.save_as_a_PDF")</a>
+            </div>
+            }
+
+            @views.html.print.niLetter(personDetails, dateString)
+        </div>
     </div>
-  </div>
-
-  <div class="page-header home">
-    <div class="page-info">@Messages("label.personal_details")</div>
-    <h1 id="page-title" class="heading-xlarge no-margin-top no-margin-bottom">
-    @Messages("label.your_national_insurance_letter")
-    </h1>
-  </div>
-
-  <div class="print-this">
-    <img class="print-this__icon" src="@pertaxContext.configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
-    <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@Messages("label.print")">@Messages("label.print")</a>
-  </div>
-  @if(saveNiLetterAsPdfLinkEnabled) {
-    <div class="save-this">
-      <a class="save-this__link" href="/personal-account/national-insurance-summary/save-letter-as-pdf" data-journey-click="save - click:Your National Insurance letter:@Messages("label.save_as_a_PDF")">@Messages("label.save_as_a_PDF")</a>
-    </div>
-  }
-  @views.html.print.niLetter(personDetails, dateString)
-
 }
