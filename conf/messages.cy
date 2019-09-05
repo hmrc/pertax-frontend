@@ -695,6 +695,12 @@ label.you_still_owe_hmrc_you_must_pay_by_=Mae’n dal i fod arnoch £{0} i CThEM
 label.you_owe_hmrc_you_must_pay_by_=Mae arnoch £{0} i CThEM. Rhaid i chi dalu erbyn {1}.
 label.you_have_no_payments_to_make_to_hmrc=Nid oes gennych daliadau i’w gwneud i CThEM.
 label.you_do_not_owe_hmrc_anything=Nid oes arnoch ddim byd i CThEM.
+label.you_paid_the_right_amount_of_tax=Gwnaethoch dalu’r swm cywir o dreth
+label.nothing_more_to_pay=Does dim byd mwy i’w dalu am y flwyddyn hon.
+label.no_record_of_employment=Nid oes gan CThEM gofnod eich bod yn gyflogedig yn ystod y flwyddyn dreth hon felly nid oes unrhyw beth mwy i’w dalu.
+label.your_tax_has_not_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
+label.no_need_to_contact_hmrc=Does dim angen i chi gysylltu â CThEM ynglŷn â hyn. Cewch lythyr os ydych wedi talu gormod o dreth neu heb dalu digon.
+label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 
 label.please_wait_for_your_tax_calculation_letter_p800=Arhoswch am eich llythyr cyfrifiad treth (P800).
 label.you_owe_hmrc_for_the_to_tax_year=Mae arnoch arian i CThEM ar gyfer blwyddyn dreth {0} i {1}.

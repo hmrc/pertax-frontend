@@ -18,27 +18,26 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
-import models._
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
-import models.SelfAssessmentUserType
-import models.TaxComponents
+import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliation, Underpaid}
 import util.DateTimeTools.previousAndCurrentTaxYear
+import viewmodels.TaxCalculationViewModel
 
 @Singleton
-class HomeCardGenerator @Inject()(val configDecorator: ConfigDecorator) {
+class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
     pertaxUser: Option[PertaxUser],
     taxComponentsState: TaxComponentsState,
-    taxCalculationStateCyMinusOne: Option[TaxCalculationState],
-    taxCalculationStateCyMinusTwo: Option[TaxCalculationState],
+    taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
+    taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
     saActionNeeded: SelfAssessmentUserType,
     currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] =
     List(
       getPayAsYouEarnCard(pertaxUser, taxComponentsState),
-      getTaxCalculationCard(taxCalculationStateCyMinusOne, currentTaxYear - 1, currentTaxYear),
-      getTaxCalculationCard(taxCalculationStateCyMinusTwo, currentTaxYear - 2, currentTaxYear - 1),
+      getTaxCalculationCard(taxCalculationStateCyMinusOne),
+      getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
       getNationalInsuranceCard()
     ).flatten
@@ -68,17 +67,12 @@ class HomeCardGenerator @Inject()(val configDecorator: ConfigDecorator) {
       case _ => None
     }
 
-  def getTaxCalculationCard(
-    taxCalculationState: Option[TaxCalculationState],
-    previousTaxYear: Int,
-    currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Option[HtmlFormat.Appendable] =
-    taxCalculationState match {
-      case Some(TaxCalculationUnderpaidPaymentsDownState(_, _)) => None
-      case Some(TaxCalculationUnkownState)                      => None
-      case Some(taxCalculationState) =>
-        Some(views.html.cards.home.taxCalculation(taxCalculationState, previousTaxYear, currentTaxYear))
-      case _ => None
-    }
+  def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliation])(
+    implicit pertaxContext: PertaxContext,
+    messages: Messages): Option[HtmlFormat.Appendable] =
+    taxYearReconciliations
+      .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
+      .map(views.html.cards.home.taxCalculation(_))
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(
     implicit pertaxContext: PertaxContext,

@@ -45,11 +45,11 @@ class LocalErrorHandler @Inject()(
   def onClientError(request: RequestHeader, statusCode: Int, message: String) =
     if (statusCode == BAD_REQUEST || statusCode == NOT_FOUND) {
       AuthorisedAction() { implicit pertaxContext =>
-        renderError(statusCode)
+        futureError(statusCode)
       }.apply(request).run()(materializer)
     } else {
       PublicAction { implicit pertaxContext =>
-        renderError(statusCode)
+        futureError(statusCode)
       }.apply(request).run()(materializer)
     }
 
