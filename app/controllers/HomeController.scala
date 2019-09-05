@@ -16,22 +16,19 @@
 
 package controllers
 
-import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
+import connectors.FrontEndDelegationConnector
+import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
-import error.LocalErrorHandler
 import javax.inject.Inject
-import models.{SelfAssessmentUserType, TaxCalculationDisabledState, TaxCalculationState, TaxCalculationStateFactory, TaxCalculationUnkownState, TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState}
+import models._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import play.twirl.api.Html
 import services.partials.{CspPartialService, MessageFrontendService}
-import services.{CitizenDetailsService, IdentityVerificationFrontendService, PreferencesFrontendService, SelfAssessmentService, TaiService, TaxCalculationService, TaxCalculationSuccessResponse, TaxComponentsSuccessResponse, TaxComponentsUnavailableResponse, UserDetailsService}
+import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.ActiveTabHome
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -58,15 +55,11 @@ class HomeController @Inject()(
     def getTaxCalculationState(
       nino: Nino,
       year: Int,
-      includeOverPaidPayments: Boolean): Future[Option[TaxCalculationState]] =
+      includeOverPaidPayments: Boolean): Future[Option[TaxYearReconciliation]] =
       if (configDecorator.taxcalcEnabled) {
-        taxCalculationService.getTaxCalculation(nino, year) map {
-          case TaxCalculationSuccessResponse(taxCalc) =>
-            Some(taxCalculationStateFactory.buildFromTaxCalculation(Some(taxCalc), includeOverPaidPayments))
-          case _ => None
-        }
+        taxCalculationService.getTaxYearReconciliations(nino, year, year) map (_.headOption)
       } else {
-        Future.successful(Some(TaxCalculationDisabledState(year - 1, year)))
+        Future.successful(None)
       }
 
     val year = current.currentYear
@@ -77,7 +70,7 @@ class HomeController @Inject()(
     } yield (u, n)
 
     val serviceCallResponses =
-      userAndNino.fold[Future[(TaxComponentsState, Option[TaxCalculationState], Option[TaxCalculationState])]](
+      userAndNino.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
         Future.successful((TaxComponentsDisabledState, None, None))) { userAndNino =>
         val (user, nino) = userAndNino
 
@@ -85,7 +78,7 @@ class HomeController @Inject()(
         val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo) {
           getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
         } else
-          Future.successful(Some(TaxCalculationUnkownState))
+          Future.successful(None)
 
         val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
           taiService.taxComponents(nino, year) map {
@@ -120,7 +113,6 @@ class HomeController @Inject()(
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- serviceCallResponses
           saUserType                                                                      <- saUserType
         } yield {
-
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
             pertaxContext.user,
             taxSummaryState,

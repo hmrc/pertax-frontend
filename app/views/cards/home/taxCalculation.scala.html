@@ -17,196 +17,35 @@
 @import uk.gov.hmrc.play.language.LanguageUtils
 @import tags._
 @import util.LanguageHelper
+@import views.util.ViewUtils._
 
-@(taxCalculationState: TaxCalculationState,
-previousTaxYear: Int,
-currentTaxYear: Int)(
+@import config.ConfigDecorator
+@import viewmodels.Link
+@import viewmodels.TaxCalculationViewModel
+@(viewModel: TaxCalculationViewModel)(
 implicit messages: play.api.i18n.Messages,
-pertaxContext: PertaxContext)
-
-
-@underpaidUrlReasons = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little/reasons"}
-@overpaidUrlReasons  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much/reasons"}
-
-@underpaidUrl = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-little"}
-@overpaidUrl  = @{s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/$previousTaxYear-$currentTaxYear/paid-too-much"}
-
-@makePaymentUrl = @{"https://www.gov.uk/simple-assessment"}
-
-@heading = @{
-  taxCalculationState match {
-    case _:TaxCalculationUnderpaidPaidAllState =>
-      (
-        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, None, _) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), None) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), Some(SaDeadlineApproachingStatus)) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPaymentDueState(_, _, _, Some(_), Some(SaDeadlinePassedStatus)) =>
-      (
-        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, None, _) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-        )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), None) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlineApproachingStatus)) =>
-      (
-        Messages("label.you_paid_too_little_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationUnderpaidPartPaidState(_, _, _, Some(_), Some(SaDeadlinePassedStatus)) =>
-      (
-        Messages("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        underpaidUrl
-      )
-    case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case TaxCalculationOverpaidPaymentProcessingState(amount) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) =>
-      (
-        Messages("label.you_paid_too_much_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case _:TaxCalculationDisabledState =>
-      (
-        Messages("label.your_income_tax", previousTaxYear.toString(), currentTaxYear.toString()),
-        overpaidUrl
-      )
-    case _ => ("", "")
-  }
-}
-
-@contentAndLinks = @{
-  taxCalculationState match {
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
-      (Messages("label.you_owe_hmrc", "%,.2f".format(amount)), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
-      (Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case TaxCalculationUnderpaidPaymentDueState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
-      saDeadlineStatus match {
-        case SaDeadlineApproachingStatus =>
-          (Messages("label.you_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-          ))
-        case SaDeadlinePassedStatus =>
-          (Messages("label.you_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
-          ))
-      }
-
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, None, None) =>
-      (Messages("label.you_owe_hmrc", "%,.2f".format(amount)), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), None) =>
-      (Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-        (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-        (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-      ))
-
-    case TaxCalculationUnderpaidPartPaidState(amount, startOfTaxYear, endOfTaxYear, Some(dueDate), Some(saDeadlineStatus)) =>
-      saDeadlineStatus match {
-        case SaDeadlineApproachingStatus =>
-          (Messages("label.you_still_owe_hmrc_you_must_pay_by_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "Make a payment"),
-            (Messages("label.find_out_why_you_paid_too_little"), underpaidUrlReasons, "Find out why you paid too little")
-          ))
-        case SaDeadlinePassedStatus => {
-          (Messages("label.you_still_owe_hmrc_you_should_have_paid_", "%,.2f".format(amount), LanguageHelper.langUtils.Dates.formatDate(Some(dueDate), "dd MMMM yyyy")), List(
-            (Messages("label.make_a_payment"), makePaymentUrl, "You missed the deadline to pay your tax")
-          ))
-        }
-      }
-
-    case TaxCalculationUnderpaidPaidAllState(startOfTaxYear, endOfTaxYear, _) =>
-      (Messages("label.you_have_no_payments_to_make_to_hmrc"), List())
-
-    case TaxCalculationDisabledState(startOfTaxYear, endOfTaxYear) =>
-      (Messages("label.check_to_see_if_you_paid_the_right_amount_of_tax_from_"), List())
-
-    case TaxCalculationOverpaidRefundState(amount, startOfTaxYear, endOfTaxYear) =>
-      (Messages("label.hmrc_owes_you_a_refund", "%,.2f".format(amount)), List(
-      (Messages("label.claim_your_tax_refund"), s"${pertaxContext.configDecorator.taxCalcFrontendHost}/tax-you-paid/status", "Claim your tax refund"),
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case TaxCalculationOverpaidPaymentProcessingState(amount) =>
-      (Messages("label.hmrc_is_processing_your_refund", "%,.2f".format(amount)), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case TaxCalculationOverpaidPaymentPaidState(amount, datePaid) =>
-      (Messages("label.hmrc_has_paid_your_refund", "%,.2f".format(amount)), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case TaxCalculationOverpaidPaymentChequeSentState(amount, datePaid) =>
-      (Messages("label.hmrc_sent_you_a_cheque_for", "%,.2f".format(amount)), List(
-      (Messages("label.find_out_why_you_paid_too_much"), overpaidUrlReasons, "Find out why you paid too much")
-    ))
-
-    case _ => ("", List())
-  }
-}
+pertaxContext: PertaxContext,
+configDecorator: ConfigDecorator)
 
 @card(
-  id = Some(s"taxcalc-$previousTaxYear-$currentTaxYear-card"),
-  url = Some(heading._2),
-  gaAction = Some("Income"),
-  gaLabel = Some(heading._1),
-  heading = heading._1,
-  headingTag = "h3",
-  bodyContent = Some(Html("<p>" + contentAndLinks._1 + "</p>"))
+    id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),
+    url = Some(fromUrl(viewModel.heading.url)),
+    gaAction = Some("Income"),
+    gaLabel = Some(fromMessage(viewModel.heading.label)),
+    heading = fromMessage(viewModel.heading.label),
+    headingTag = "h3",
+    bodyContent = Some(Html(viewModel.content.map(content => s"<p>${fromMessage(content)}</p>").mkString))
 ) {
-  @if(!contentAndLinks._2.isEmpty){
-    <ul>
-    @contentAndLinks._2.map { case (label, url, trackingLabel) =>
-      <li><a class="ga-track-anchor-click" href="@url" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">@label</a></li>
+    @if(viewModel.links.nonEmpty) {
+      <ul>
+      @viewModel.links.map { case Link(label, url, trackingLabel) =>
+      <li>
+          <a class="ga-track-anchor-click" href="@fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
+            @fromMessage(label)
+        </a>
+      </li>
+      }
+      </ul>
     }
-    </ul>
-  }
 }
+

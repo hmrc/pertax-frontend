@@ -23,43 +23,41 @@
 @main(title = Messages("label.do_you_live_in_the_uk"),
 pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
-  @back_link()
-<div class="personal-details">
 
-  @errors(internationalAddressChoiceForm)
+    @back_link()
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      <div class="page-heading">
-        <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_live_in_the_uk")</h1>
-      </div>
-      <div>
-        <p>@Messages("label.the_uk_is_england_")</p>
-      </div>
-    </div>
-  </div>
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      @form(action = controllers.routes.AddressController.processInternationalAddressChoice(typ)) {
-      <div class="form-group inline">
-        @input_radio_group(
-        internationalAddressChoiceForm("internationalAddressChoice"),
-        Seq(
-        "true" -> Messages("label.yes"),
-        "false" -> Messages("label.no")
-        ),
-        '_labelClass -> "block-label inputLabelBeforeError",
-        '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.map(_.withMessage({Messages("label.select_an_answer")})),
-        '_legend -> Messages("label.content_needed"),
-        '_legendClass -> "visuallyhidden"
-        )
-      </div>
-      <div class="form-group inline">
-        <button type="submit" class="ga-track-error" data-ga-event-action="Do you live in the UK?" data-radio-button-name="internationalAddressChoice">@Messages("global.label.continue_button")</button>
-      </div>
-      }
-    </div>
-  </div>
-</div>
+
+        @errors(internationalAddressChoiceForm)
+
+        <div class="grid-row">
+            <div class="column-two-thirds">
+                <div class="page-heading">
+                    <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_live_in_the_uk")</h1>
+                </div>
+
+                <p>@Messages("label.the_uk_is_england_")</p>
+
+                @form(action = controllers.routes.AddressController.processInternationalAddressChoice(typ)) {
+                <div class="form-group inline">
+                    @input_radio_group(
+                        internationalAddressChoiceForm("internationalAddressChoice"),
+                        Seq(
+                            "true" -> Messages("label.yes"),
+                            "false" -> Messages("label.no")
+                        ),
+                        '_labelClass -> "block-label inputLabelBeforeError",
+                        '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.map(_.withMessage({Messages("label.select_an_answer")})),
+                        '_legend -> Messages("label.content_needed"),
+                        '_legendClass -> "visuallyhidden"
+                    )
+                </div>
+                <div class="form-group inline">
+                    <button type="submit" class="ga-track-error" data-ga-event-action="Do you live in the UK?" data-radio-button-name="internationalAddressChoice">@Messages("global.label.continue_button")</button>
+                </div>
+                }
+            </div>
+        </div>
+
+
 }
