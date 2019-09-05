@@ -22,12 +22,12 @@
         <div class="column-full">
             <a class="link-back" href="@controllers.routes.InterstitialController.displayNationalInsurance()" data-journey-click="link - click:Your National Insurance letter:Back">@Messages("label.back")</a>
 
-            <div class="page-header home">
-                <div class="page-info">@Messages("label.personal_details")</div>
-                    <h1 id="page-title" class="heading-xlarge no-margin-top no-margin-bottom">
-                        @Messages("label.your_national_insurance_letter")
-                    </h1>
-            </div>
+            <header class="page-heading">
+                <h1 id="page-title" class="heading-xlarge">
+                    @Messages("label.your_national_insurance_letter")
+                </h1>
+                <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.personal_details")</p>
+            </header>
 
             <div class="print-this">
                 <img class="print-this__icon" src="@pertaxContext.configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
