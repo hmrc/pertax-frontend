@@ -45,18 +45,14 @@
           @getYourAddressLabels
         </h1>
       </div>
-    </div>
-  </div>
 
-  <div class="grid-row postal-address-block">
-    <div class="column-two-thirds">
       @helpers.form(action = controllers.routes.AddressController.processUpdateAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
         <div class="form-group">
           @input(
             updateAddressForm("line1"),
             '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label-bold inputLabelBeforeError",
+            '_labelClass -> "form-label inputLabelBeforeError",
             '_label -> Messages("label.first_line_of_your_address"),
             'divClass -> "form-group",
             '_maxlength -> 35
@@ -66,7 +62,7 @@
           @input(
             updateAddressForm("line2"),
             '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label-bold",
+            '_labelClass -> "form-label",
             '_label -> Messages("label.second_line_of_your_address"),
             'divClass -> "form-group",
             '_maxlength -> 35
@@ -76,7 +72,7 @@
           @input(
             updateAddressForm("line3"),
             '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label-bold",
+            '_labelClass -> "form-label",
             '_label -> Messages("label.third_line_of_your_address"),
             'divClass -> "form-group",
             '_maxlength -> 35
@@ -86,7 +82,7 @@
           @input(
             updateAddressForm("line4"),
             '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label-bold",
+            '_labelClass -> "form-label",
             '_label -> Messages("label.fourth_line_of_your_address"),
             'divClass -> "form-group",
             '_maxlength -> 35
@@ -96,7 +92,7 @@
           @input(
             updateAddressForm("line5"),
             '_inputClass -> "form-control form-control-3-4",
-            '_labelClass -> "form-label-bold",
+            '_labelClass -> "form-label",
             '_label -> Messages("label.fifth_line_of_your_address"),
             'divClass -> "form-group",
             '_maxlength -> 35
@@ -106,7 +102,7 @@
           @input(
             updateAddressForm("postcode"),
             '_inputClass -> "form-control form-control-1-4",
-            '_labelClass -> "form-label-bold inputLabelBeforeError",
+            '_labelClass -> "form-label inputLabelBeforeError",
             '_label -> Messages("title.postcode"),
             'divClass -> "form-group",
             '_maxlength -> 8
