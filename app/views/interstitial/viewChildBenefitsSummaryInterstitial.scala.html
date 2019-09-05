@@ -20,8 +20,9 @@
 
 
 @interstitialWrapper(Messages("label.report_changes_that_affect_your_child_benefit"), Messages("label.report_changes_that_affect_your_child_benefit")) {
-  <div class="column-two-thirds child-benefit-partial pta-panel">
+
     @ifHighGovernmentGatewayOrVerifyUser {
+
       <h2 class="heading-medium">@Messages("label.if_your_childs_circumstances_change")</h2>
       <p>@Messages("label.child_benefit_stops_on_31_august_")</p>
       <p>@Messages("label.tell_us_if_your_child")</p>
@@ -38,7 +39,7 @@
         <li>@Messages("label.signs_up_to_join_the_armed_forces")</li>
       </ul>
 
-      <a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsApplyForExtension">@Messages("label.apply_for_an_extension")</a>
+      <p><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsApplyForExtension">@Messages("label.apply_for_an_extension")</a></p>
 
       <h2 class="heading-medium">@Messages("label.other_changes_to_your_child_benefit_claim")</h2>
       <p>@Messages("label.tell_us_if_you_need_to")</p>
@@ -55,5 +56,5 @@
       <p class="lede">@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
       <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
     }
-  </div>
+
 }
