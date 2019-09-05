@@ -53,7 +53,7 @@ scriptElement = Some(scriptElems)) {
 @back_link()
 @errors(updateAddressForm)
 
-<div class="personal-details">
+
     <div class="grid-row">
         <div class="column-two-thirds">
             <div class="page-heading">
@@ -61,18 +61,14 @@ scriptElement = Some(scriptElems)) {
                     @getYourAddressLabels
                 </h1>
             </div>
-        </div>
-    </div>
 
-    <div class="grid-row postal-address-block">
-        <div class="column-two-thirds">
             @helpers.form(action = controllers.routes.AddressController.processUpdateInternationalAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
             <div class="form-group">
                 @input(
                 updateAddressForm("line1"),
                 '_inputClass -> "form-control form-control-3-4",
-                '_labelClass -> "form-label-bold inputLabelBeforeError",
+                '_labelClass -> "form-label inputLabelBeforeError",
                 '_label -> Messages("label.address_line_one"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
@@ -82,7 +78,7 @@ scriptElement = Some(scriptElems)) {
                 @input(
                 updateAddressForm("line2"),
                 '_inputClass -> "form-control form-control-3-4",
-                '_labelClass -> "form-label-bold",
+                '_labelClass -> "form-label",
                 '_label -> Messages("label.address_line_two"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
@@ -92,7 +88,7 @@ scriptElement = Some(scriptElems)) {
                 @input(
                 updateAddressForm("line3"),
                 '_inputClass -> "form-control form-control-3-4",
-                '_labelClass -> "form-label-bold",
+                '_labelClass -> "form-label",
                 '_label -> Messages("label.address_line_three"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
@@ -102,7 +98,7 @@ scriptElement = Some(scriptElems)) {
                 @input(
                 updateAddressForm("line4"),
                 '_inputClass -> "form-control form-control-3-4",
-                '_labelClass -> "form-label-bold",
+                '_labelClass -> "form-label",
                 '_label -> Messages("label.address_line_four"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
@@ -112,7 +108,7 @@ scriptElement = Some(scriptElems)) {
                 @input(
                 updateAddressForm("line5"),
                 '_inputClass -> "form-control form-control-3-4",
-                '_labelClass -> "form-label-bold",
+                '_labelClass -> "form-label",
                 '_label -> Messages("label.address_line_five"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
@@ -124,7 +120,7 @@ scriptElement = Some(scriptElems)) {
                  field = updateAddressForm("country"),
                 elementOptions = ("","") :: countries.map(c => (c.countryName,c.countryName)),
                 displayEmptyValue = true,
-                '_labelClass -> "form-label-bold",
+                '_labelClass -> "form-label",
                 '_label -> Messages("label.country"),
                 '_inputClass -> "form-control",
                 '_errorsAboveInput -> true
@@ -137,5 +133,5 @@ scriptElement = Some(scriptElems)) {
             }(pertaxContext.request, messages)
         </div>
     </div>
-</div>
+
 }

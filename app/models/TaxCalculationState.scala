@@ -56,13 +56,12 @@ case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear
     extends TaxCalculationUnderpaidState
 case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int)
     extends TaxCalculationUnderpaidState
-case class TaxCalculationDisabledState(startOfTaxYear: Int, endOfTaxYear: Int) extends TaxCalculationState
 
 case object TaxCalculationUnkownState extends TaxCalculationState
 
 @Singleton
 class TaxCalculationStateFactory @Inject()(
-  val configDecorator: ConfigDecorator,
+  implicit val configDecorator: ConfigDecorator,
   val localTaxYearResolver: LocalTaxYearResolver
 ) {
 
@@ -79,7 +78,7 @@ class TaxCalculationStateFactory @Inject()(
           taxYear,
           taxYear + 1,
           Some(new LocalDate(dueDate)),
-          getSaDeadlineStatus(new LocalDate(dueDate)))
+          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _, _, None)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
@@ -90,7 +89,7 @@ class TaxCalculationStateFactory @Inject()(
           taxYear,
           taxYear + 1,
           Some(new LocalDate(dueDate)),
-          getSaDeadlineStatus(new LocalDate(dueDate)))
+          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate)))
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), _)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
@@ -121,8 +120,11 @@ class TaxCalculationStateFactory @Inject()(
 
       case _ => TaxCalculationUnkownState
     }
+}
 
-  def getSaDeadlineStatus(dueDate: LocalDate): Option[SaDeadlineStatus] = {
+object SaDeadlineStatusCalculator {
+
+  def getSaDeadlineStatus(dueDate: LocalDate)(implicit configDecorator: ConfigDecorator): Option[SaDeadlineStatus] = {
 
     val now = new LocalDate(configDecorator.currentLocalDate)
     val dueDateEquals31stJanuary = dueDate.getMonthOfYear == 1 && dueDate.getDayOfMonth == 31

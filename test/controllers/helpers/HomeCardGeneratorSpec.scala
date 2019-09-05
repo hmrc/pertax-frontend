@@ -18,6 +18,8 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import models._
+import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
+import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import org.joda.time.LocalDate
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -26,6 +28,7 @@ import uk.gov.hmrc.domain.SaUtr
 import util.{BaseSpec, DateTimeTools, Fixtures}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
 class HomeCardGeneratorSpec extends BaseSpec {
@@ -34,7 +37,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     override def messagesApi: MessagesApi = injected[MessagesApi]
 
-    val c = new HomeCardGenerator(configDecorator = injected[ConfigDecorator])
+    val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
   }
 
   "Calling getPayAsYouEarnCard" should {
@@ -56,7 +59,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
         else
           None
 
-      lazy val cardBody = c.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
+      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
     }
 
     "return nothing when called with no Pertax user" in new LocalSetup {
@@ -109,154 +112,6 @@ class HomeCardGeneratorSpec extends BaseSpec {
     }
   }
 
-  "Calling getTaxCalculationCard" should {
-
-    trait LocalSetup extends SpecSetup {
-
-      implicit lazy val pertaxContext =
-        PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
-
-      def taxCalcState: TaxCalculationState
-
-      lazy val cardBody = c.getTaxCalculationCard(Some(taxCalcState), 2015, 2016)
-    }
-
-    "return nothing when called with TaxCalculationUnderpaidPaymentsDownState" in new LocalSetup {
-      val taxCalcState = TaxCalculationUnderpaidPaymentsDownState(2015, 2016)
-
-      cardBody shouldBe None
-    }
-
-    "return nothing when called with TaxCalculationUnkownState" in new LocalSetup {
-      val taxCalcState = TaxCalculationUnkownState
-
-      cardBody shouldBe None
-    }
-
-    "return correct markup when called with TaxCalculationOverpaidRefundState" in new LocalSetup {
-      val taxCalcState = TaxCalculationOverpaidRefundState(100, 2015, 2016)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationOverpaidPaymentProcessingState" in new LocalSetup {
-      val taxCalcState = TaxCalculationOverpaidPaymentProcessingState(100)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationOverpaidPaymentPaidState" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationOverpaidPaymentPaidState(100, Some(new LocalDate("2016-01-01")))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationOverpaidPaymentChequeSentState" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationOverpaidPaymentChequeSentState(100, Some(new LocalDate("2016-01-01")))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus or due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, None, None)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with no SaDeadlineStatus and due date" in new LocalSetup {
-
-      val taxCalcState =
-        TaxCalculationUnderpaidPaymentDueState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), None)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(
-        100,
-        2015,
-        2016,
-        Some(new LocalDate("2016-01-31")),
-        Some(SaDeadlineApproachingStatus))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPaymentDueState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPaymentDueState(
-        100,
-        2015,
-        2016,
-        Some(new LocalDate("2016-01-31")),
-        Some(SaDeadlinePassedStatus))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus or due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, None, None)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with no SaDeadlineStatus and due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(100, 2015, 2016, Some(new LocalDate("2016-01-31")), None)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlineApproaching and due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(
-        100,
-        2015,
-        2016,
-        Some(new LocalDate("2016-01-31")),
-        Some(SaDeadlineApproachingStatus))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPartPaidState with SaDeadlineStatus of SaDeadlinePassed and due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPartPaidState(
-        100,
-        2015,
-        2016,
-        Some(new LocalDate("2016-01-31")),
-        Some(SaDeadlinePassedStatus))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPaidAllState with no due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, None)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationUnderpaidPaidAllState with a due date" in new LocalSetup {
-
-      val taxCalcState = TaxCalculationUnderpaidPaidAllState(2015, 2016, Some(new LocalDate("2016-01-01")))
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-
-    "return correct markup when called with TaxCalculationDisabledState" in new LocalSetup {
-      val taxCalcState = TaxCalculationDisabledState(2015, 2016)
-
-      cardBody shouldBe Some(taxCalculation(taxCalcState, 2015, 2016))
-    }
-  }
-
   "Calling getSelfAssessmentCard" should {
 
     trait LocalSetup extends SpecSetup {
@@ -278,7 +133,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
       lazy val pertaxUser = Some(
         PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
 
-      lazy val cardBody = c.getSelfAssessmentCard(saUserType, nextDeadlineTaxYear)
+      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, nextDeadlineTaxYear)
     }
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
@@ -322,7 +177,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getNationalInsuranceCard()
+      lazy val cardBody = serviceUnderTest.getNationalInsuranceCard()
     }
 
     "always return the same markup" in new LocalSetup {
@@ -336,7 +191,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
     trait LocalSetup extends SpecSetup {
 
       def showTaxCreditsPaymentLink: Boolean
-      lazy val cardBody = c.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = serviceUnderTest.getTaxCreditsCard(showTaxCreditsPaymentLink)
     }
 
     "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in new LocalSetup {
@@ -354,7 +209,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getChildBenefitCard()
+      lazy val cardBody = serviceUnderTest.getChildBenefitCard()
     }
 
     "always return the same markup" in new LocalSetup {
@@ -372,7 +227,8 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
-      lazy val cardBody = c.getMarriageAllowanceCard(tc)
+
+      lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
     }
 
     "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in new LocalSetup {
@@ -410,7 +266,7 @@ class HomeCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      lazy val cardBody = c.getStatePensionCard()
+      lazy val cardBody = serviceUnderTest.getStatePensionCard()
     }
 
     "always return the same markup" in new LocalSetup {
