@@ -29,7 +29,8 @@ import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
 class ConfigDecorator @Inject()(environment: Environment, configuration: Configuration, langs: Langs)
-    extends ServicesConfig {
+    extends ServicesConfig with TaxcalcUrls {
+
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
 
@@ -49,6 +50,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
   private lazy val payApiUrl = baseUrl("pay-api")
+  lazy val authLoginApiService = baseUrl("auth-login-api")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
     configuration.getString(s"external-url.$key").filter(x => env == "Dev")
@@ -69,6 +71,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val tcsFrontendHost = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
   lazy val nispFrontendHost = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
+  lazy val taxCalcHost = decorateUrlForLocalDev("taxcalc.host").getOrElse("")
   lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
   lazy val plaBackEndHost = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
   lazy val saFrontendHost = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
@@ -233,4 +236,30 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
+
+}
+
+trait TaxcalcUrls {
+  self: ConfigDecorator =>
+
+  def reconciliationsUrl(nino: String, startYear: Int, endYear: Int) =
+    s"${self.taxCalcHost}/$nino/$startYear/$endYear/reconciliations"
+
+  def underpaidUrlReasons(taxYear: Int) =
+    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little/reasons"
+  def overpaidUrlReasons(taxYear: Int) =
+    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much/reasons"
+
+  def underpaidUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little"
+  def overpaidUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-much"
+
+  def rightAmountUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/right-amount"
+  def notEmployedUrl(taxYear: Int) = s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-employed"
+  def notCalculatedUrl(taxYear: Int) =
+    s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/not-yet-calculated"
+
+  lazy val taxPaidUrl = s"${self.taxCalcFrontendHost}/tax-you-paid/status"
+
+  val makePaymentUrl = "https://www.gov.uk/simple-assessment"
+
 }

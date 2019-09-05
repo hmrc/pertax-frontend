@@ -23,7 +23,7 @@
 pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
 @back_link()
-<div class="personal-details">
+
 
     @errors(closePostalAddressChoiceForm)
     <div class="grid-row">
@@ -31,19 +31,10 @@ pageName = Some(Messages("label.your_personal_tax_account"))
             <div class="page-heading">
                 <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_want_all_your_letters_to_be_sent_")</h1>
             </div>
-        </div>
-    </div>
 
-    <div class="grid-row">
-        <div class="column-two-thirds">
-            <p class=" no-margin-bottom">@Messages("label.your_main_address_is")</p>
+            <p>@Messages("label.your_main_address_is")</p>
             <p>@Html(addressDto.mkString(", <br>"))</p>
-        </div>
-    </div>
 
-
-    <div class="grid-row">
-        <div class="column-two-thirds">
             @form(action = controllers.routes.AddressController.processClosePostalAddressChoice) {
             <div class="form-group inline">
                 @input_radio_group(
@@ -62,7 +53,8 @@ pageName = Some(Messages("label.your_personal_tax_account"))
                 <button type="submit" class="ga-track-radio-select ga-track-error" data-ga-event-action="Do you want all your letters sent to your main address?" data-radio-button-name="closePostalAddressChoice">@Messages("global.label.continue_button")</button>
             </div>
             }
+
         </div>
     </div>
-</div>
+
 }
