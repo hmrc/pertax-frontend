@@ -23,9 +23,8 @@
   <div class="grid-row">
     <div class="column-two-thirds">
 
-      <div class="page-header personal-details" role="heading">
-        <div class="page-info">@Messages("label.personal_details")</div>
-        <h1 class="heading-xlarge no-margin-top no-margin-bottom">
+      <header class="page-heading" role="heading">
+        <h1 class="heading-xlarge">
           @ifNameAvailable {
             @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
           }
@@ -33,7 +32,8 @@
             @Messages("label.your_account")
           }
         </h1>
-      </div>
+        <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.personal_details")</p>
+      </header>
 
     </div>
   </div>

@@ -20,13 +20,14 @@
 @import tags._
 
 @interstitialWrapper(Messages("label.national_insurance_summary"), Messages("label.national_insurance")) {
+
   <div class="column-two-thirds">
 
     @ifHighGovernmentGatewayOrVerifyUser {
 
       @ifPayeUserLoanNino { nino =>
-        <div class="panel-indent">
-          <p class="lede">@Messages("label.your_national_insurance_number_is")@formattedNino(nino)</p>
+        <div class="panel-indent panel-border-wide">
+          <p>@Messages("label.your_national_insurance_number_is")@formattedNino(nino)</p>
         </div>
       }
 
