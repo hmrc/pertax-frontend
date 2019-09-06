@@ -33,11 +33,11 @@
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <div class="page-heading">
-        <h1 class="heading-xlarge no-margin-bottom">
+      <header class="page-heading">
+        <h1 class="heading-xlarge">
           @typ.ifIs(primary = Messages("label.tell_us_your_main_home"), sole = Messages("label.find_your_address"), postal = Messages("label.find_your_postal_address"))
         </h1>
-      </div>
+      </header>
 
 
       @helpers.form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
