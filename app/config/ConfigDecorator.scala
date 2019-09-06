@@ -51,7 +51,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   private lazy val payApiUrl = baseUrl("pay-api")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
-    configuration.getString(s"external-url.$key").filter(x => env == "Dev")
+    configuration.getString(s"external-url.$key").filter(_ => env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
@@ -180,6 +180,9 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
+  lazy val payApiBackLinks = configuration
+    .getString("external-url.pertax-frontend.host")
+    .getOrElse("") + routes.HomeController.index().url
 
   // Links to sign out
   lazy val citizenAuthFrontendSignOut = citizenAuthHost + "/ida/signout"
