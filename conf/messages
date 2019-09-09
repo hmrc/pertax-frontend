@@ -128,7 +128,7 @@ label.the_uk_is_england_=The UK is England, Northern Ireland, Scotland and Wales
 label.this_is_because_you_do_not_live_in_the_uk=This is because you do not live in the UK.
 label.if_you_do_live_in_the_uk_=If you do live in the UK, you can <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="change your address" href="{0}">change your address</a>.
 
-label.if_you_do_not_live_in_the_uk_=If you do not live in the UK, <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window)" href="{0}" target="_blank" rel="noopener noreferrer">fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window or tab)</a>.
+label.if_you_do_not_live_in_the_uk_=If you do not live in the UK, <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window or tab)" href="{0}" target="_blank" rel="noopener noreferrer">fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window or tab)</a>.
 
 label.get_letters_sent_to_a_different_address=Get letters sent to a different address
 label.all_your_letters_will_be_sent_to_this_address=All your letters will be sent to this address.
@@ -207,7 +207,7 @@ label.how_to_contact_us=How to contact us
 label.the_tax_codes_and_income_tax_service_is_currently_unavailable=The tax codes and Income Tax service is currently unavailable
 label.the_company_benefits_service_is_currently_unavailable=The company benefits service is currently unavailable
 label.you_cannot_view_or_update_your_address_right_now=You cannot view or update your address right now
-label.opens_in_a_new_window=(opens in a new window)
+label.opens_in_a_new_window=(opens in a new window or tab)
 label.give_friends_and_family_permission_to_=Give friends or family permission to access your account, or become someone else’s trusted helper.
 label.very_easy=Very easy
 label.easy=Easy
@@ -257,10 +257,7 @@ label.please_provide_your_email=Please provide your email.
 label.trying_to_sign_in_to_pta_from_the_start_page=Trying to sign in to personal tax account from the Start Page.
 label.could_not_sign_in_through_verify=Could not sign in through Verify.
 label.sign_in_reporter=Personal Tax Account
-label.your_income_tax=Yoome=What is my main home?
-512
- 
-label.your_main_home_is_usuallur Income Tax
+label.your_income_tax=Your Income Tax
 label.this_will_be_deducted_from_your_pay_or_private_pension_using_your_tax_codes=This will be deducted from your pay or private pension using your tax code(s).
 label.money_and_tax=Money and tax
 label.tax_and_national_insurance=Tax and National Insurance
@@ -273,16 +270,16 @@ label.you_may_have_previously_activated_your_self_assessment_using_different_=Yo
 label.check_your_self_assessment_details=Check your Self Assessment details.
 label.if_you_send_your_tax_return_online=If you send your tax return online
 label.if_you_send_your_tax_return_by_post=If you send your tax return by post
-label.you_cannot_currently_see_your_self_assessment_=You cannot currently see your Self Assessment details online.<br /><br /><a href="{0}" target="_blank" rel="noopener noreferrer">Send your tax return by post (opens in a new window)</a>.
-label.you_cannot_access_this_service_because_hmrc_doesnt_know_enough_=You cannot access this service because HM Revenue and Customs (HMRC) does not know enough about you to be able to confirm your identity.<br /><br />If you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HMRC (opens in a new window)</a> to get help.
+label.you_cannot_currently_see_your_self_assessment_=You cannot currently see your Self Assessment details online.<br /><br /><a href="{0}" target="_blank" rel="noopener noreferrer">Send your tax return by post (opens in a new window or tab)</a>.
+label.you_cannot_access_this_service_because_hmrc_doesnt_know_enough_=You cannot access this service because HM Revenue and Customs (HMRC) does not know enough about you to be able to confirm your identity.<br /><br />If you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HMRC (opens in a new window or tab)</a> to get help.
 label.you_cannot_access_your_self_assessment_=You cannot access your Self Assessment information from this account
 label.it_could_be_that_you_used_different_government_gateway_sign_in_details_=It could be that you used different Government Gateway sign in details when you activated your online Self Assessment. If you did, you will need to <a href="{0}">sign out</a> and then sign back in using these other details.
 label.you_must_sign_out_then_sign_in_with_the_user_id_=You must <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="{0}">sign out</a>, then sign in with the user ID and password you used to activate your Self Assessment online.<br /><br /><a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="{1}">Recover your user ID</a> if you have lost it.
 label.if_you_have_never_sent_your_tax_return_online=If you have never sent your tax return online
-label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_=You have already registered with HMRC and must now <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Enrol for SA" href="{0}" target="_blank" rel="noopener noreferrer">enrol for Self Assessment online (opens in a new window)</a> to submit a return or access your account details.<br /><br />After you enrol, you will receive an activation code in the post within 7 days. Use this within 28 days to activate your account. If your activation expires, you can <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="{1}" target=_blank">request a new activation code (opens in a new window)</a>.
-label.you_cannot_view_your_self_assessment_information_here_the_deadline_=You cannot view your Self Assessment information here.<br /><br />The deadline for paper tax returns is midnight on 31 October. After this date, you will have to <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank" rel="noopener noreferrer">do your tax return online (opens in a new window)</a>.
-label.sign_in_with_the_user_id_you_used_or_created_=sign in with the user ID you used, or created, when you signed up for Self Assessment.<br /><br />You can <a href="{0}" target="_blank" rel="noopener noreferrer">recover your user ID (opens in a new window)</a> if you have forgotten it.
-label.you_cannot_currently_see_your_self_assessment_online_=You cannot currently see your Self Assessment online, so <a href="{0}" target="_blank" rel="noopener noreferrer">send your tax return by post (opens in a new window)</a> as usual.
+label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_=You have already registered with HMRC and must now <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Enrol for SA" href="{0}" target="_blank" rel="noopener noreferrer">enrol for Self Assessment online (opens in a new window or tab)</a> to submit a return or access your account details.<br /><br />After you enrol, you will receive an activation code in the post within 7 days. Use this within 28 days to activate your account. If your activation expires, you can <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="{1}" target=_blank">request a new activation code (opens in a new window or tab)</a>.
+label.you_cannot_view_your_self_assessment_information_here_the_deadline_=You cannot view your Self Assessment information here.<br /><br />The deadline for paper tax returns is midnight on 31 October. After this date, you will have to <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank" rel="noopener noreferrer">do your tax return online (opens in a new window or tab)</a>.
+label.sign_in_with_the_user_id_you_used_or_created_=sign in with the user ID you used, or created, when you signed up for Self Assessment.<br /><br />You can <a href="{0}" target="_blank" rel="noopener noreferrer">recover your user ID (opens in a new window or tab)</a> if you have forgotten it.
+label.you_cannot_currently_see_your_self_assessment_online_=You cannot currently see your Self Assessment online, so <a href="{0}" target="_blank" rel="noopener noreferrer">send your tax return by post (opens in a new window or tab)</a> as usual.
 label.you_need_to_sign_in_with_the_user_id_you_used_or_created_=Sign in with the user ID you used, or created, when you signed up for Self Assessment (you can <a href="{0}">recover your user ID</a> if you have lost it).
 label.sign_in_with_another_user_id=Sign in with another user ID
 label.activate_your_self_assessment_registration=Activate your Self Assessment registration
@@ -294,7 +291,7 @@ label.to_get_your_sa302_calculation=To get your SA302 calculation:
 label.use_the_commercial_software_you_filed_with=use the commercial software you filed with
 label.if_your_accountant_filed_check_with_them=if your accountant filed - check with them
 label.call_us_if_you_filed_your_return_by_post=<a href="{0}" target="_blank" rel="noopener noreferrer">call us (opens in a new window or tab)</a> if you filed your return by post
-label.you_need_to_activate_your_self_assessment_registration_using_your_=You need to activate your Self Assessment registration using your activation code.<br /><br />Your activation code was sent to you by post when you registered to do your Self Assessment online.<br /><br />If it has been more than 10 working days (21 if you are abroad) and you have not received it yet <a class="ga-track-anchor-click" href="{0}" target="_blank" rel="noopener noreferrer" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Call OSH">call the Online Services Helpdesk (opens in a new window)</a>.
+label.you_need_to_activate_your_self_assessment_registration_using_your_=You need to activate your Self Assessment registration using your activation code.<br /><br />Your activation code was sent to you by post when you registered to do your Self Assessment online.<br /><br />If it has been more than 10 working days (21 if you are abroad) and you have not received it yet <a class="ga-track-anchor-click" href="{0}" target="_blank" rel="noopener noreferrer" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Call OSH">call the Online Services Helpdesk (opens in a new window or tab)</a>.
 label.find_out_how_to_access_your_self_assessment=Find out how to access your Self Assessment
 label.you_already_have_a_utr=You already have a Unique Taxpayer Reference (UTR).
 label.your_utr_is_=Your UTR is {0}.
@@ -433,13 +430,13 @@ label.you_need_2_step_verification_to_access_all_parts_of_this_service=You need 
 label.you_need_2_step_verification_to_use_personal_tax_account=You need 2-step verification to use the personal tax account
 label.you_will_not_be_able_to_access_service_details_secure=You will not be able to access all parts of the service. Your details are still secure.
 label.can_only_access_service_if_have_mobile_phone=You can only access this service if you have a mobile phone or have access to one.
-label.if_you_have_query_contact_HMRC=If you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HM Revenue and Customs (opens in a new window)</a> to get help.
+label.if_you_have_query_contact_HMRC=If you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HM Revenue and Customs (opens in a new window or tab)</a> to get help.
 label.you_have_not_done_anything_15_minutes_we_deleted_detail_you_entered=You have not done anything for 15 minutes so we have deleted the details you entered to protect your data.
 label.unable_to_confirm_your_identity=We are unable to confirm your identity
 label.identity_verification_partially_complete=We cannot verify your identity as you have not passed both steps.
 label.you_can_try_again_or_continue_to_personal_tax_account_=You can <a href="{0}">try to confirm your identity again</a> or continue to your personal tax account but you will not be able to access all parts of the service. Your details are still secure.
 label.to_help_protect_data_you_can_access_PTA_once_confirmed_identity=To help protect your data, you can access your personal tax account once we have confirmed who you are.
-label.cannot_confirm_identity_and_have_query_contact_HMRC=If you cannot confirm your identity and you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HM Revenue and Customs (opens in a new window)</a> to get help.
+label.cannot_confirm_identity_and_have_query_contact_HMRC=If you cannot confirm your identity and you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HM Revenue and Customs (opens in a new window or tab)</a> to get help.
 label.you_now_access_all_areas_of_your_personal_tax_account=You can now access all areas of your personal tax account.
 label.back_to_2step_verification=Back to 2-step verification
 label.you_have_paid_too_much_tax=You have paid too much tax
@@ -607,7 +604,7 @@ error.country_required=Enter country
 #
 # Messages in lower case
 #
-text.opens_in_new_window=opens in a new window
+text.opens_in_new_window=opens in a new window or tab
 text.give_someone_you_know_permission_to_access_your_tax_details=give someone you know permission to access your tax details
 text.request_permission_to_help_someone_you_know_with_their_tax=request permission to help someone you know with their tax
 text.get_in_touch=get in touch
