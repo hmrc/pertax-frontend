@@ -20,9 +20,8 @@
 
 @views.html.iv.ivOutcomeWrapper(Messages("label.service_unavailable"), Messages("label.service_unavailable")) {
 
-  <p class="margin-bottom">@Messages("label.sorry_we_are_currently_experiencing_technical_issues")</p>
-
-  <p class="margin-bottom">@Messages("label.you_can")</p>
+  <p>@Messages("label.sorry_we_are_currently_experiencing_technical_issues")</p>
+  <p>@Messages("label.you_can")</p>
 
   <ul class="list list-bullet">
     <li><a href="@retryUrl">@Messages("label.try_confirm_identity_again")</a></li>
