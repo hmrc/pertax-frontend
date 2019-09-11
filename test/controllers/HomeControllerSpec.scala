@@ -33,7 +33,7 @@ import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
@@ -338,6 +338,84 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+    }
+
+  }
+
+  "Calling serviceCallResponses" should {
+
+    "return TaxComponentsDisabled status where there is not a PertaxContext and Nino" in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+      val result = await(controller.serviceCallResponses(None))
+
+      result shouldBe ((TaxComponentsDisabledState, None, None))
+    }
+
+    "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+
+      when(controller.configDecorator.taxComponentsEnabled) thenReturn false
+
+      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+
+      result shouldBe TaxComponentsDisabledState
+
+    }
+
+    "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+      result shouldBe TaxComponentsAvailableState(
+        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+
+    }
+
+    "return TaxComponentsNotAvailableState status when TaxComponentsUnavailableResponse from TaxComponents" in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+
+      when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
+        Future.successful(TaxComponentsUnavailableResponse)
+      }
+      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+
+      result shouldBe TaxComponentsNotAvailableState
+    }
+
+    "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+
+      when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
+        Future.successful(TaxComponentsUnexpectedResponse(HttpResponse(INTERNAL_SERVER_ERROR)))
+      }
+      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+
+      result shouldBe TaxComponentsUnreachableState
+    }
+
+    "return None where TaxCalculation service is not enabled" in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+
+      when(controller.configDecorator.taxcalcEnabled) thenReturn false
+
+      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userAndNino))
+
+      resultCYm1 shouldBe None
+      resultCYm2 shouldBe None
+    }
+
+    "return taxCalculation CY-1 status from list returned from TaxCalculation Service." in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+
+      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userAndNino))
+
+      resultCYM1 shouldBe Some(TaxYearReconciliation(2015, Balanced))
+      resultCYM2 shouldBe None
     }
   }
 }
