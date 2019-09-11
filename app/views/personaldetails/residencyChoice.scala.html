@@ -24,34 +24,33 @@
   pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
     @back_link()
-<div class="personal-details">
-  @errors(residencyChoiceForm)
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      <div class="page-heading">
-        <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_live_in_more_than_one_place")</h1>
-      </div>
-    </div>
-  </div>
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-          @form(action = controllers.routes.AddressController.processResidencyChoice) {
-            <div class="form-group inline">
-              @input_radio_group(
-              residencyChoiceForm("residencyChoice"),
-                Seq("primary" -> Messages("label.yes"), "sole" -> Messages("label.no")),
-                '_labelClass -> "block-label inputLabelBeforeError",
-                '_error -> residencyChoiceForm("residencyChoice").error.map(_.withMessage({Messages("label.select_an_answer")})),
-                '_legend -> Messages("label.do_you_live_in_more_than_one_place"),
-                '_legendClass -> "visuallyhidden"
-              )
+
+        @errors(residencyChoiceForm)
+
+        <div class="grid-row">
+            <div class="column-two-thirds">
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@Messages("label.do_you_live_in_more_than_one_place")</h1>
+                </header>
+
+                @form(action = controllers.routes.AddressController.processResidencyChoice) {
+                <div class="form-group inline">
+                    @input_radio_group(
+                        residencyChoiceForm("residencyChoice"),
+                        Seq("primary" -> Messages("label.yes"), "sole" -> Messages("label.no")),
+                        '_labelClass -> "block-label inputLabelBeforeError",
+                        '_error -> residencyChoiceForm("residencyChoice").error.map(_.withMessage({Messages("label.select_an_answer")})),
+                        '_legend -> Messages("label.do_you_live_in_more_than_one_place"),
+                        '_legendClass -> "visuallyhidden"
+                    )
+                </div>
+                <div class="form-group inline">
+                    <button type="submit" class="ga-track-error" data-ga-event-action="Do you live in more than one place?" data-radio-button-name="residencyChoice">@Messages("global.label.continue_button")</button>
+                </div>
+                }
             </div>
-            <div class="form-group inline">
-              <button type="submit" class="ga-track-error" data-ga-event-action="Do you live in more than one place?" data-radio-button-name="residencyChoice">@Messages("global.label.continue_button")</button>
-            </div>
-          }
-    </div>
-  </div>
-</div>
+        </div>
+
+
 }

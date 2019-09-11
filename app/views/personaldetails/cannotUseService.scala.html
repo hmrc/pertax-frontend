@@ -20,23 +20,23 @@
 pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
     @back_link()
-<div class="grid-row">
-  <div class="column-two-thirds">
-    <h1  class="heading-xlarge no-margin-bottom">@Messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
-  </div>
-</div>
 
-<div class="grid-row margin-top">
-  <div class="column-two-thirds">
-    <p class="lede margin-bottom">@Messages("label.this_is_because_you_do_not_live_in_the_uk")</p>
+    <div class="grid-row">
+        <div class="column-two-thirds">
 
-    <p class="margin-top">@Html(Messages("label.if_you_do_live_in_the_uk_",
-      controllers.routes.AddressController.showPostcodeLookupForm(typ)))
-    </p>
+            <header class="page-heading">
+                <h1 class="heading-xlarge">@Messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
+            </header>
 
-    <p>@Html(Messages("label.if_you_do_not_live_in_the_uk_",
-      pertaxContext.configDecorator.updateAddressShortFormUrl))
-    </p>
-  </div>
-</div>
+            <p class="lede margin-bottom">@Messages("label.this_is_because_you_do_not_live_in_the_uk")</p>
+            <p class="margin-top">@Html(Messages("label.if_you_do_live_in_the_uk_",
+                controllers.routes.AddressController.showPostcodeLookupForm(typ)))
+            </p>
+
+            <p>@Html(Messages("label.if_you_do_not_live_in_the_uk_",
+                pertaxContext.configDecorator.updateAddressShortFormUrl))
+            </p>
+
+        </div>
+    </div>
 }
