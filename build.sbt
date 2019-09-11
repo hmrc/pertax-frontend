@@ -52,9 +52,7 @@ lazy val microservice = Project(appName, file("."))
     defaultSettings(),
     libraryDependencies ++= AppDependencies.all,
     routesGenerator := StaticRoutesGenerator,
-    PlayKeys.playDefaultPort := 9232
-  )
-  .settings(
+    PlayKeys.playDefaultPort := 9232,
     wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
       Wart.DefaultArguments,
       Wart.NoNeedForMonad,
@@ -84,14 +82,12 @@ lazy val microservice = Project(appName, file("."))
     addTestReportOption(IntegrationTest, "int-test-reports"),
     testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
     parallelExecution in IntegrationTest := false,
-    scalafmtOnCompile := true
-  )
-  .settings(
+    scalafmtOnCompile := true,
     resolvers += Resolver.bintrayRepo("hmrc", "releases"),
     resolvers += Resolver.jcenterRepo,
-    resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/"
+    resolvers += "hmrc-releases" at "https://artefacts.tax.service.gov.uk/artifactory/hmrc-releases/",
+    majorVersion := 1
   )
-  .settings(majorVersion := 1)
   .configs(IntegrationTest)
 
 val allPhases = "tt->test;test->test;test->compile;compile->compile"
@@ -100,7 +96,7 @@ val allItPhases = "tit->it;it->it;it->compile;compile->compile"
 lazy val TemplateTest = config("tt") extend Test
 lazy val TemplateItTest = config("tit") extend IntegrationTest
 
-def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
+def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
   tests map { test =>
-    new Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
+    Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
   }
