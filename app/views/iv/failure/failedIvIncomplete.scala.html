@@ -20,8 +20,9 @@
 
 @views.html.iv.ivOutcomeWrapper(Messages("label.we_cannot_confirm_your_identity"), Messages("label.we_cannot_confirm_your_identity")) {
 
-  <p>@Messages("label.you_have_not_given_us_enough_information")</p>
-  <p>@Messages("label.you_can")</p>
+  <p class="margin-bottom">@Messages("label.you_have_not_given_us_enough_information")</p>
+
+  <p class="margin-bottom">@Messages("label.you_can")</p>
 
   <ul class="list list-bullet">
     <li><a href="@retryUrl">@Messages("label.try_confirm_identity_again")</a></li>

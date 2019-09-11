@@ -441,7 +441,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
-      doc.getElementsByClass("heading-xlarge").toString().contains("We cannot confirm your identity") shouldBe true
+      doc.getElementsByClass("heading-large").toString().contains("We cannot confirm your identity") shouldBe true
       verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any()) //TODO - check captured event
 
     }

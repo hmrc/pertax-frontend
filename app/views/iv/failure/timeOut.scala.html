@@ -20,8 +20,9 @@
 
 @views.html.iv.ivOutcomeWrapper(Messages("label.you_have_been_signed_out"), Messages("label.you_have_been_signed_out")) {
 
-  <p>@Messages("label.you_have_not_done_anything_for_15_minutes_")</p>
-  <p>@Messages("label.you_can")</p>
+  <p class="margin-bottom">@Messages("label.you_have_not_done_anything_for_15_minutes_")</p>
+
+  <p class="margin-bottom">@Messages("label.you_can")</p>
 
   <ul class="list list-bullet">
     <li><a href="@retryUrl">@Messages("label.try_confirm_identity_again")</a></li>
