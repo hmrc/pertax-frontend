@@ -44,50 +44,46 @@
   scriptElement = Some(scriptElem)
 ) {
     @back_link()
-  @errors(residenceStartDateForm)
 
-  <div class="personal-details">
-    <div class="grid-row">
-      <div class="column-two-thirds">
-        <div class="page-heading">
-          <h1 class="heading-xlarge no-margin-bottom">@typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = "")</h1>
+
+    @errors(residenceStartDateForm)
+
+
+
+        <div class="grid-row">
+            <div class="column-two-thirds">
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = "")</h1>
+                </header>
+
+                <div class="form-start-date">
+
+                    <p>@Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
+                    <p class="form-hint">@Messages("label.for_example_31_3_2015")</p>
+                    @form(controllers.routes.AddressController.processEnterStartDate(typ)) {
+                        @dateFieldsFreeInline(
+                            residenceStartDateForm,
+                            "startDate"
+                        )
+
+                    <details class="form-group">
+                        <summary class="ga-track-accordion-click" role="button" data-ga-event-action="When did your address change" data-ga-event-label="Why do you need to know this" aria-controls="details-content" tabindex="0" aria-expanded="false">
+                            <span class="summary">@Messages("label.why_do_you_need_to_know_this")</span>
+                        </summary>
+                        <div class="panel panel-border-wide" id="details-content" aria-hidden="true">
+                            <p>
+                                @Html(Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_", "https://www.gov.uk/scottish-rate-income-tax/how-it-works"))
+                            </p>
+                        </div>
+                    </details>
+
+                    <button type="submit" class="button" role="button">@Messages("label.continue")</button>
+                    }
+
+                </div>
+
+            </div>
         </div>
-      </div>
-    </div>
 
-    <div class="grid-row">
-      <div class="column-two-thirds">
-        <div class="grid-row pertax-panel">
-          <div class="column-full">
-            <div class="form-start-date">
-              <p>@Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
-                @form(controllers.routes.AddressController.processEnterStartDate(typ)) {
-
-                  @dateFieldsFreeInline(
-                    residenceStartDateForm,
-                    "startDate",
-                    '_inputHint -> Messages("label.for_example_31_3_2015")
-                  )
-
-                  <details class="margin-top">
-                    <summary class="ga-track-accordion-click" role="button" data-ga-event-action="When did your address change" data-ga-event-label="Why do you need to know this" aria-controls="details-content" tabindex="0" aria-expanded="false">
-                      <span class="summary">@Messages("label.why_do_you_need_to_know_this")</span>
-                    </summary>
-                    <div class="panel panel-border-narrow" id="details-content" aria-hidden="true">
-                      <p>
-                        @Html(Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_", "https://www.gov.uk/scottish-rate-income-tax/how-it-works"))
-                      </p>
-                    </div>
-                  </details>
-
-                  <button type="submit" class="button" role="button">@Messages("label.continue")</button>
-                }
-          </div>
-        </div>
-      </div>
-    </div>
-   </div>
-
-  </div>
 
 }

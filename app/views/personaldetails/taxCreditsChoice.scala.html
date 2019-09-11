@@ -23,19 +23,15 @@
   pageName = Some(Messages("label.your_personal_tax_account"))
 ) {
 @back_link()
-  <div class="personal-details">
+
 
     @errors(taxCreditsChoiceForm)
     <div class="grid-row">
       <div class="column-two-thirds">
-        <div class="page-heading">
-          <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_get_tax_credits")</h1>
-        </div>
-      </div>
-    </div>
+        <header class="page-heading">
+          <h1 class="heading-xlarge">@Messages("label.do_you_get_tax_credits")</h1>
+        </header>
 
-    <div class="grid-row">
-      <div class="column-two-thirds">
         @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">
             @input_radio_group(
@@ -56,5 +52,5 @@
         }
       </div>
     </div>
-  </div>
+
 }

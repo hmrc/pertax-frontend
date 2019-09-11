@@ -25,9 +25,8 @@
 
 @main(Messages("label.account_home"),Some(Messages("label.your_personal_tax_account")), showUserResearchBanner) {
 
-  <div class="page-header home">
-    <div class="page-info">@Messages("label.account_home")</div>
-    <h1 class="heading-xlarge no-margin-top no-margin-bottom">
+  <header class="page-heading">
+    <h1 class="heading-xlarge">
       @ifNameAvailable {
         @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
       }
@@ -35,7 +34,8 @@
         @Messages("label.your_account")
       }
     </h1>
-  </div>
+    <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.account_home")</p>
+  </header>
 
 
   <div class="pertax-home">
