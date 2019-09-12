@@ -91,6 +91,8 @@ case object BalancedNoEmployment extends Reconciliation
 
 case object NotReconciled extends Reconciliation
 
+case object Missing extends Reconciliation
+
 sealed trait UnderpaidStatus
 
 object UnderpaidStatus {

@@ -74,7 +74,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       injected[CitizenDetailsService],
       injected[TaiService],
       injected[MessageFrontendService],
-      injected[UserDetailsService]
+      injected[UserDetailsService],
+      injected[ConfigDecorator]
     )
 
   override def now: () => DateTime = DateTime.now
@@ -86,7 +87,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
-    lazy val year = current.currentYear
+    lazy val year = 2017
     lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(
       TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
@@ -113,7 +114,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.taxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
       }
-      when(c.taxCalculationService.getTaxYearReconciliations(any[Nino], any[Int], any[Int])(any[HeaderCarrier])) thenReturn {
+      when(c.taxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])) thenReturn {
         Future.successful(buildTaxYearReconciliations)
       }
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
@@ -203,10 +204,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       if (controller.configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
-          meq(Fixtures.fakeNino),
-          meq(current.currentYear - 1),
-          meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -225,10 +223,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       if (controller.configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
-          meq(Fixtures.fakeNino),
-          meq(current.currentYear - 1),
-          meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -248,10 +243,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       if (controller.configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
-          meq(Fixtures.fakeNino),
-          meq(current.currentYear - 1),
-          meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -312,10 +304,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(
-          meq(Fixtures.fakeNino),
-          meq(current.currentYear - 1),
-          meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
@@ -346,7 +335,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return TaxComponentsDisabled status where there is not a PertaxContext and Nino" in new LocalSetup {
       override def allowLowConfidenceSA: Boolean = false
-      val result = await(controller.serviceCallResponses(None))
+      val result = await(controller.serviceCallResponses(None, year))
 
       result shouldBe ((TaxComponentsDisabledState, None, None))
     }
@@ -356,8 +345,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       when(controller.configDecorator.taxComponentsEnabled) thenReturn false
 
-      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
-      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+      val userNino = Some(fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result shouldBe TaxComponentsDisabledState
 
@@ -365,8 +354,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
       override def allowLowConfidenceSA: Boolean = false
-      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
-      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+      val userNino = Some(fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
       result shouldBe TaxComponentsAvailableState(
         TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
 
@@ -378,8 +367,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsUnavailableResponse)
       }
-      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
-      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+      val userNino = Some(fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result shouldBe TaxComponentsNotAvailableState
     }
@@ -390,8 +379,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsUnexpectedResponse(HttpResponse(INTERNAL_SERVER_ERROR)))
       }
-      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
-      val (result, _, _) = await(controller.serviceCallResponses(userAndNino))
+      val userNino = Some(fakeNino)
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
       result shouldBe TaxComponentsUnreachableState
     }
@@ -401,21 +390,46 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       when(controller.configDecorator.taxcalcEnabled) thenReturn false
 
-      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
-      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userAndNino))
+      val userNino = Some(fakeNino)
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
 
       resultCYm1 shouldBe None
       resultCYm2 shouldBe None
     }
 
-    "return taxCalculation CY-1 status from list returned from TaxCalculation Service." in new LocalSetup {
+    "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
       override def allowLowConfidenceSA: Boolean = false
 
-      val userAndNino = Some(buildFakePertaxUser(), fakeNino)
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userAndNino))
+      when(controller.taxCalculationService.getTaxYearReconciliations(any())(any())) thenReturn Future.successful(Nil)
 
-      resultCYM1 shouldBe Some(TaxYearReconciliation(2015, Balanced))
+      val userNino = Some(fakeNino)
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+
+      resultCYM1 shouldBe None
       resultCYM2 shouldBe None
+    }
+    "return only taxCalculation CY-1 status when taxCalcShowCyMinusTwo is false" in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+
+      when(controller.configDecorator.taxCalcShowCyMinusTwo) thenReturn false
+
+      val userNino = Some(fakeNino)
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+
+      resultCYM1 shouldBe Some(TaxYearReconciliation(2016, Balanced))
+      resultCYM2 shouldBe None
+    }
+
+    "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
+      override def allowLowConfidenceSA: Boolean = false
+
+      when(controller.configDecorator.taxCalcShowCyMinusTwo) thenReturn true
+
+      val userNino = Some(fakeNino)
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+
+      resultCYM1 shouldBe Some(TaxYearReconciliation(2016, Balanced))
+      resultCYM2 shouldBe Some(TaxYearReconciliation(2015, Balanced))
     }
   }
 }

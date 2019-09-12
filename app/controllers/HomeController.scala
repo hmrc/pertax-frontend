@@ -20,12 +20,13 @@ import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import javax.inject.Inject
-import models._
+import models.{SelfAssessmentUserType, TaxCalculationStateFactory, TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState, TaxYearReconciliation}
+import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import play.twirl.api.Html
+import services.{CitizenDetailsService, IdentityVerificationFrontendService, PreferencesFrontendService, SelfAssessmentService, TaiService, TaxCalculationService, TaxComponentsSuccessResponse, TaxComponentsUnavailableResponse, UserDetailsService}
 import services.partials.{CspPartialService, MessageFrontendService}
-import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.ActiveTabHome
@@ -53,11 +54,6 @@ class HomeController @Inject()(
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
 
   def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) { implicit pertaxContext =>
-    val userAndNino = for {
-      u <- pertaxContext.user
-      n <- u.nino
-    } yield (u, n)
-
     val saUserType: Future[SelfAssessmentUserType] =
       selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
 
@@ -65,7 +61,7 @@ class HomeController @Inject()(
       configDecorator.urLinkUrl.fold(Future.successful(false))(_ =>
         homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
 
-    val responses = serviceCallResponses(userAndNino)
+    val responses = serviceCallResponses(pertaxContext.user.flatMap(_.nino), current.currentYear)
 
     showUserResearchBanner flatMap { showUserResearchBanner =>
       enforcePaperlessPreference {
@@ -91,27 +87,20 @@ class HomeController @Inject()(
     }
   }
 
-  private[controllers] def serviceCallResponses(userAndNino: Option[(PertaxUser, Nino)])(implicit hc: HeaderCarrier)
-    : Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] = {
-    def getTaxCalculationState(
-      nino: Nino,
-      year: Int,
-      includeOverPaidPayments: Boolean): Future[Option[TaxYearReconciliation]] =
-      if (configDecorator.taxcalcEnabled) {
-        taxCalculationService.getTaxYearReconciliations(nino, year, year) map (_.headOption)
+  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int)(implicit hc: HeaderCarrier)
+    : Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
+    ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
+      Future.successful((TaxComponentsDisabledState, None, None))) { nino =>
+      val tyr = if (configDecorator.taxcalcEnabled) {
+        taxCalculationService.getTaxYearReconciliations(nino)
       } else {
-        Future.successful(None)
+        Future.successful(Nil)
       }
 
-    val year = current.currentYear
+      val taxCalculationStateCyMinusOne = tyr.map(_.find(_.taxYear == year - 1))
 
-    userAndNino.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
-      Future.successful((TaxComponentsDisabledState, None, None))) { userAndNino =>
-      val (user, nino) = userAndNino
-
-      val taxCalculationStateCyMinusOne = getTaxCalculationState(nino, year - 1, includeOverPaidPayments = true)
       val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo) {
-        getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
+        tyr.map(_.find(_.taxYear == year - 2))
       } else
         Future.successful(None)
 
@@ -132,7 +121,10 @@ class HomeController @Inject()(
         taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
         taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
         taxSummaryState               <- taxSummaryState
-      } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
+      } yield {
+
+        (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
+      }
     }
-  }
+
 }

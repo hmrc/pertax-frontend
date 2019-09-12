@@ -56,6 +56,10 @@ class TaxCalculationViewModelSpec extends ViewSpec {
       "status is Underpaid PaymentsDown" in {
         view(Underpaid(None, None, PaymentsDown)) shouldBe None
       }
+
+      "status is Missing" in {
+        view(Missing) shouldBe None
+      }
     }
 
     "give the correct heading" when {
