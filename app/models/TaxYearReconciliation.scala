@@ -43,6 +43,7 @@ object Reconciliation {
       case JsDefined(JsString("balanced_sa"))            => JsSuccess(BalancedSa)
       case JsDefined(JsString("balanced_no_employment")) => JsSuccess(BalancedNoEmployment)
       case JsDefined(JsString("not_reconciled"))         => JsSuccess(NotReconciled)
+      case JsDefined(JsString("missing"))                => JsSuccess(Missing)
       case _                                             => JsError("Could not parse Reconciliation")
     }
   }

@@ -3,7 +3,7 @@ package services
 import config.ConfigDecorator
 import models.OverpaidStatus.Refund
 import models.UnderpaidStatus.{PartPaid, PaymentDue}
-import models.{Balanced, BalancedNoEmployment, BalancedSa, NotReconciled, Overpaid, TaxYearReconciliation, Underpaid}
+import models.{Balanced, BalancedNoEmployment, BalancedSa, Missing, NotReconciled, Overpaid, TaxYearReconciliation, Underpaid}
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
@@ -67,8 +67,10 @@ class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite with C
       "data is successfully retrieved for Balanced status" in {
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("JE989013A"))(hcWithBearer("JE989013A"))
-
-        await(result) should contain(TaxYearReconciliation(2017, Balanced))
+        await(result) shouldBe List(
+          TaxYearReconciliation(cyMinusTwo, Balanced),
+          TaxYearReconciliation(cyMinusOne, Balanced)
+        )
       }
 
 
@@ -76,22 +78,31 @@ class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite with C
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("EG106313A"))(hcWithBearer("EG106313A"))
 
-        await(result) should contain(TaxYearReconciliation(2018, BalancedSa))
+        await(result) shouldBe List(
+          TaxYearReconciliation(cyMinusTwo, BalancedNoEmployment),
+          TaxYearReconciliation(cyMinusOne, BalancedSa)
+        )
       }
 
       "data is successfully retrieved for Balanced No Employment status" in {
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("EG106313A"))(hcWithBearer("EG106313A"))
 
-        await(result) should contain(TaxYearReconciliation(2017, BalancedNoEmployment))
+        await(result) shouldBe List(
+          TaxYearReconciliation(cyMinusTwo, BalancedNoEmployment),
+          TaxYearReconciliation(cyMinusOne, BalancedSa)
+        )
       }
 
       "data is successfully retrieved for Underpaid status" in {
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("LE064015A"))(hcWithBearer("LE064015A"))
 
-        await(result) should contain(TaxYearReconciliation(cyMinusOne, Underpaid(Some(1000.0), None, PaymentDue)))
-      }
+        await(result) shouldBe List(
+          TaxYearReconciliation(cyMinusTwo, Underpaid(Some(1500.25), None, PaymentDue)),
+          TaxYearReconciliation(cyMinusOne, Underpaid(Some(1000.0), None, PaymentDue))
+          )
+        }
 
       "data is successfully retrieved for Overpaid status" in {
 
@@ -103,11 +114,11 @@ class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite with C
         )
       }
 
-      "data is successfully retrieved for Not Reconciled status" in {
+      "data is successfully retrieved a Missing status where there is no CY-2" in {
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("EJ174713A"))(hcWithBearer("EJ174713A"))
 
-        await(result) should contain(TaxYearReconciliation(2017, NotReconciled))
+        await(result) should contain(TaxYearReconciliation(cyMinusTwo, Missing))
       }
     }
 
