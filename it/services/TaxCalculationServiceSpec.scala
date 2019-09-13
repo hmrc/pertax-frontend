@@ -114,33 +114,33 @@ class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite with C
         )
       }
 
-      "data is successfully retrieved a Missing status where there is no CY-2" in {
+      "data is successfully retrieved a NotReconciled status where there is no CY-2" in {
 
         val result = serviceUnderTest.getTaxYearReconciliations(Nino("EJ174713A"))(hcWithBearer("EJ174713A"))
 
-        await(result) should contain(TaxYearReconciliation(cyMinusTwo, Missing))
+        await(result) should contain(TaxYearReconciliation(cyMinusTwo, NotReconciled))
       }
     }
 
-    "handle a 401 response from taxcalc as a reconciliation with Not Reconciled status" in {
+    "handle a 401 response by returning an empty list" in {
 
       val result = serviceUnderTest.getTaxYearReconciliations(Nino("AA000003A"))
 
-      await(result) should contain(TaxYearReconciliation(2017, NotReconciled))
+      await(result) shouldBe List()
     }
 
-    "handle a 404 response from taxcalc as a reconciliation with Not Reconciled status" in {
+    "handle a 404 response by returning an empty list" in {
 
       val result = serviceUnderTest.getTaxYearReconciliations(Nino("ZP917642D"))(hcWithBearer("ZP917642D"))
 
-      await(result) should contain(TaxYearReconciliation(2017, NotReconciled))
+      await(result) shouldBe List()
     }
 
-    "handle a 500 response from taxcalc as a reconciliation with Not Reconciled status" in {
+    "handle a 500 response by returning an empty list" in {
 
       val result = serviceUnderTest.getTaxYearReconciliations(Nino("CS700100A"))(hcWithBearer("CS700100A"))
 
-      await(result) should contain(TaxYearReconciliation(2017, NotReconciled))
+      await(result) shouldBe List()
     }
   }
 
