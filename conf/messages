@@ -290,7 +290,8 @@ label.i_didnt_file_through_this_website=I did not file through this website
 label.to_get_your_sa302_calculation=To get your SA302 calculation:
 label.use_the_commercial_software_you_filed_with=use the commercial software you filed with
 label.if_your_accountant_filed_check_with_them=if your accountant filed - check with them
-label.call_us_if_you_filed_your_return_by_post=<a href="{0}" target="_blank" rel="noopener noreferrer">call us (opens in a new window)</a> if you filed your return by post
+label.call_us_opens_in_a_new_window=call us (opens in a new window)
+label.if_you_filed_your_return_by_post=if you filed your return by post
 label.you_need_to_activate_your_self_assessment_registration_using_your_=You need to activate your Self Assessment registration using your activation code.<br /><br />Your activation code was sent to you by post when you registered to do your Self Assessment online.<br /><br />If it has been more than 10 working days (21 if you are abroad) and you have not received it yet <a class="ga-track-anchor-click" href="{0}" target="_blank" rel="noopener noreferrer" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Call OSH">call the Online Services Helpdesk (opens in a new window)</a>.
 label.find_out_how_to_access_your_self_assessment=Find out how to access your Self Assessment
 label.you_already_have_a_utr=You already have a Unique Taxpayer Reference (UTR).
