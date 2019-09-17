@@ -71,6 +71,20 @@ class TaxCalculationViewModelSpec extends ViewSpec {
           config.rightAmountUrl(2017))
       }
 
+      "status is OverpaidTolerance" in {
+        assertContainsLink(
+          view(OverpaidTolerance).getValue,
+          messages("label.tax_year_heading", "2017", "2018"),
+          config.rightAmountUrl(2017))
+      }
+
+      "status is underpaidTolerance" in {
+        assertContainsLink(
+          view(UnderpaidTolerance).getValue,
+          messages("label.tax_year_heading", "2017", "2018"),
+          config.rightAmountUrl(2017))
+      }
+
       "status is Balanced No Employment" in {
         assertContainsLink(
           view(BalancedNoEmployment).getValue,
@@ -158,6 +172,16 @@ class TaxCalculationViewModelSpec extends ViewSpec {
       "status is Balanced" in {
         assertContainsText(view(Balanced).getValue, messages("label.you_paid_the_right_amount_of_tax"))
         assertContainsText(view(Balanced).getValue, messages("label.nothing_more_to_pay"))
+      }
+
+      "status is OverpaidTolerance" in {
+        assertContainsText(view(OverpaidTolerance).getValue, messages("label.you_paid_the_right_amount_of_tax"))
+        assertContainsText(view(OverpaidTolerance).getValue, messages("label.nothing_more_to_pay"))
+      }
+
+      "status is UnderpaidTolerance" in {
+        assertContainsText(view(UnderpaidTolerance).getValue, messages("label.you_paid_the_right_amount_of_tax"))
+        assertContainsText(view(UnderpaidTolerance).getValue, messages("label.nothing_more_to_pay"))
       }
 
       "status is Balanced No Employment" in {
