@@ -43,7 +43,7 @@
       <h2 class="heading-medium">@Messages("label.other_changes_to_your_child_benefit_claim")</h2>
       <p>@Messages("label.tell_us_if_you_need_to")</p>
       <ul class="list list-bullet">
-        <li>@Html(Messages("text.report_a_change_to_your_circumstances", pertaxContext.configDecorator.childBenefitsReportChange))</li>
+          <li><a class="trackLink" href="@{pertaxContext.configDecorator.childBenefitsReportChange}">@Messages("text.report_a_change")</a> @Messages("text.to_your_circumstances")</li>
         <li>@Html(Messages("text.authorise_a_tax_advisor_or_accountant_", pertaxContext.configDecorator.childBenefitsAuthoriseTaxAdvisor))</li>
         <li>@Html(Messages("text.stop_or_restart_your_child_benefit_payments_", pertaxContext.configDecorator.childBenefitsStopOrRestart))</li>
       </ul>
