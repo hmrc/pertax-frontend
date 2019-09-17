@@ -881,7 +881,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Enter the address") shouldBe true
+      doc.getElementsByClass("heading-xlarge").toString().contains("Your postal address") shouldBe true
     }
 
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
@@ -893,7 +893,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Enter your address") shouldBe true
+      doc.getElementsByClass("heading-xlarge").toString().contains("Your address") shouldBe true
     }
 
     "show 'Edit the address (optional)' when user amends correspondence address manually and address has been selected" in new LocalSetup {
@@ -1124,7 +1124,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Enter the address") shouldBe true
+      doc.getElementsByClass("heading-xlarge").toString().contains("Your postal address") shouldBe true
     }
 
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
@@ -1136,7 +1136,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(r))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Enter your address") shouldBe true
+      doc.getElementsByClass("heading-xlarge").toString().contains("Your address") shouldBe true
     }
 
     "verify an audit event has been sent when user chooses to add/amend main address" in new LocalSetup {
