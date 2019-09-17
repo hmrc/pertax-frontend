@@ -3,7 +3,7 @@ package services
 import config.ConfigDecorator
 import models.OverpaidStatus.Refund
 import models.UnderpaidStatus.{PartPaid, PaymentDue}
-import models.{Balanced, BalancedNoEmployment, BalancedSa, Missing, NotReconciled, Overpaid, TaxYearReconciliation, Underpaid}
+import models.{Balanced, BalancedNoEmployment, BalancedSa, Missing, NotReconciled, Overpaid, OverpaidTolerance, TaxYearReconciliation, Underpaid, UnderpaidTolerance}
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
@@ -81,6 +81,26 @@ class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite with C
         await(result) shouldBe List(
           TaxYearReconciliation(cyMinusTwo, BalancedNoEmployment),
           TaxYearReconciliation(cyMinusOne, BalancedSa)
+        )
+      }
+
+      "data is successfully retrieved for Underpaid Tolerance status" in {
+
+        val result = serviceUnderTest.getTaxYearReconciliations(Nino("ER872414A"))(hcWithBearer("ER872414A"))
+
+        await(result) shouldBe List(
+          TaxYearReconciliation(cyMinusTwo, UnderpaidTolerance),
+          TaxYearReconciliation(cyMinusOne, BalancedNoEmployment)
+        )
+      }
+
+      "data is successfully retrieved for Overpaid Tolerance status" in {
+
+        val result = serviceUnderTest.getTaxYearReconciliations(Nino("EJ174713A"))(hcWithBearer("EJ174713A"))
+
+        await(result) shouldBe List(
+          TaxYearReconciliation(cyMinusTwo, NotReconciled),
+          TaxYearReconciliation(cyMinusOne, OverpaidTolerance)
         )
       }
 
