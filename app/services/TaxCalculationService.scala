@@ -19,7 +19,7 @@ package services
 import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
-import models.{NotReconciled, TaxCalculation, TaxYearReconciliation}
+import models.{TaxCalculation, TaxYearReconciliation}
 import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
 import play.api.http.Status._
@@ -45,7 +45,6 @@ class TaxCalculationService @Inject()(
   val metrics: Metrics,
   val http: WsAllMethods)(implicit ec: ExecutionContext)
     extends ServicesConfig with HasMetrics {
-
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val taxCalcUrl = baseUrl("taxcalc")
@@ -83,15 +82,13 @@ class TaxCalculationService @Inject()(
       )
     }
 
-  def getTaxYearReconciliations(nino: Nino, startYear: Int, endYear: Int)(
+  def getTaxYearReconciliations(nino: Nino)(
     implicit headerCarrier: HeaderCarrier): Future[List[TaxYearReconciliation]] =
     http
-      .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/$startYear/$endYear/reconciliations")
+      .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/reconciliations")
       .recover {
         case NonFatal(e) =>
           Logger.debug(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
-          (startYear to endYear).toList map {
-            TaxYearReconciliation(_, NotReconciled)
-          }
+          Nil
       }
 }

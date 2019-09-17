@@ -19,7 +19,7 @@ package viewmodels
 import config.ConfigDecorator
 import models.OverpaidStatus._
 import models.UnderpaidStatus._
-import models.{Balanced, BalancedNoEmployment, NotReconciled, Overpaid, Reconciliation, TaxYearReconciliation, Underpaid}
+import models.{Balanced, BalancedNoEmployment, NotReconciled, Overpaid, OverpaidTolerance, Reconciliation, TaxYearReconciliation, Underpaid, UnderpaidTolerance}
 import viewmodels.Message.text
 
 case class TaxCalculationViewModel(
@@ -216,7 +216,7 @@ object TaxCalculationViewModel {
 
   private val otherViewModels: PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
-    case (Balanced, taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (Balanced | OverpaidTolerance | UnderpaidTolerance, taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
