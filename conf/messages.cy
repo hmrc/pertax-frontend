@@ -512,7 +512,9 @@ label.i_didnt_file_through_this_website=Ni chyflwynais drwy’r wefan hon
 label.to_get_your_sa302_calculation=I gael eich cyfrifiad SA302:
 label.use_the_commercial_software_you_filed_with=defnyddiwch y meddalwedd masnachol a ddefnyddioch i gyflwyno
 label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyflwyno - gofynnwch iddo ef/hi
-label.call_us_if_you_filed_your_return_by_post=<a href="{0}" target="_blank" rel="noopener noreferrer">ffoniwch ni (yn agor ffenestr newydd</a> os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
+label.call_us_opens_in_a_new_window=ffoniwch ni (yn agor ffenestr newydd os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
+#The following key is not needed in welsh
+label.if_you_filed_your_return_by_post=
 label.self_assessment_deadline_was=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar gyfer 2015 i 2016 oedd 31 Ionawr 2017.
 label.you_do_not_owe_anymore_income_tax=Nid oes arnoch ragor o Dreth Incwm
 label.you_have_no_payments_to_make_to_hmrc_=Nid oes gennych daliadau i’w gwneud i CThEM ar gyfer blwyddyn dreth 2016 i 2017
@@ -599,14 +601,21 @@ text.opens_in_new_window=yn agor ffenestr newydd
 text.give_someone_you_know_permission_to_access_your_tax_details=rhoi caniatad i rywun yr ydych yn ei adnabod gyrchu’ch manylion treth
 text.request_permission_to_help_someone_you_know_with_their_tax=gofyn am ganiatad i helpu rhywun yr ydych yn ei adnabod gyda’i dreth
 text.get_in_touch=cysylltu â ni
-text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">rhoi gwybod am newid</a> i’ch amgylchiadau
-text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">awdurdodi ymgynghorydd treth neu gyfrifydd</a> i weithredu ar eich rhan ar gyfer materion sy’n ymwneud â Thâl Incwm Uchel Budd-dal Plant
-text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
-text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">ailddechrau neu roi’r gorau i’ch taliadau Budd-dal Plant</a> os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
+text.report_a_change=rhoi gwybod am newid i’ch amgylchiadau
+# The following key is not needed in welsh
+text.to_your_circumstances=
+text.authorise_a_tax_advisor_or_accountant_=awdurdodi ymgynghorydd treth neu gyfrifydd i weithredu ar eich rhan ar gyfer materion sy’n ymwneud â Thâl Incwm Uchel Budd-dal Plant
+# The following key is not needed in welsh
+text.to_act_on_your_behalf_for_High_Income_Child_Benefit_Charge_issues=
+text.stop_or_restart_your_child_benefit_payments_=ailddechrau neu roi’r gorau i’ch taliadau Budd-dal Plant os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
+# The following key is not needed in welsh
+text.if_you_or_your_partner_are_affected_by_the_High_Income_Child_Benefit_Charge=
 text.if_you_do_not_claim_child_benefit_=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Gwiriwch a allwch hawlio Budd-dal Plant (yn agor ffenestr newydd)</a>
 text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
 text.leaves_education_or_training=yn gadael hyfforddiant neu addysg
-text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">ag unrhyw newidiadau eraill yn ei amgylchiadau megis gadael yr aelwyd</a>
+text.has_any_other_change_in_their_circumstances_=ag unrhyw newidiadau eraill yn ei amgylchiadau megis gadael yr aelwyd
+# The following key is not needed in welsh
+text.such_as_they_leave_the_household=
 
 #
 # Frontend-bootstrap  overrides
