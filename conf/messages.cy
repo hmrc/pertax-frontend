@@ -512,9 +512,8 @@ label.i_didnt_file_through_this_website=Ni chyflwynais drwy’r wefan hon
 label.to_get_your_sa302_calculation=I gael eich cyfrifiad SA302:
 label.use_the_commercial_software_you_filed_with=defnyddiwch y meddalwedd masnachol a ddefnyddioch i gyflwyno
 label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyflwyno - gofynnwch iddo ef/hi
-label.call_us_opens_in_a_new_window=ffoniwch ni (yn agor ffenestr newydd os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
-#The following key is not needed in welsh
-label.if_you_filed_your_return_by_post=
+label.call_us_opens_in_a_new_window=ffoniwch ni (yn agor ffenestr newydd
+label.if_you_filed_your_return_by_post=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
 label.self_assessment_deadline_was=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar gyfer 2015 i 2016 oedd 31 Ionawr 2017.
 label.you_do_not_owe_anymore_income_tax=Nid oes arnoch ragor o Dreth Incwm
 label.you_have_no_payments_to_make_to_hmrc_=Nid oes gennych daliadau i’w gwneud i CThEM ar gyfer blwyddyn dreth 2016 i 2017
