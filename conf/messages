@@ -517,7 +517,7 @@ label.what_happens_next=What happens next
 label.tell_us_if_your_main_home_changes_in_the_future=Tell us if your main home changes in the future.
 label.confirm_and_save=Confirm and save
 label.we_want_to_make_this_website_easier_to_use=We want to make this website easier to use
-label.help_us_with_our_research_opens_in_new_window=Help us with our research (opens in new window)
+label.help_us_with_our_research_opens_in_new_window=Help us with our research (opens in a new window or tab)
 label.services_you_might_need=Services you might need
 label.check_if_you_re_eligible_for_ma=Check if you can get Marriage Allowance
 label.see_how_company_car_and_medical_benefit_=See how company car and medical benefit could affect your taxable income.
@@ -528,7 +528,7 @@ label.because_you_earn_less_than=If you are married or in a civil partnership an
 label.view_your_taxable_income_and_see_any_company_benefits=View your taxable income and see any company benefits that may affect the amount, for example a company car or medical benefit.
 label.help_improve_gov_uk=Help improve GOV.UK
 label.get_involved_in_making_government_services_better_=Get involved in making government services better (this link opens in a new window or tab)
-label.please_take_part_in_our_short_survey=Please take part in our short survey (opens in new window or tab)
+label.please_take_part_in_our_short_survey=Please take part in our short survey (opens in a new window or tab)
 label.no_thanks=No thanks
 label.select_yes_if_you_have_enrolled_to_send_your_tax_returns_online=Select yes if you have enrolled to send your tax returns online
 label.moved_from_scotland=You have moved from Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
@@ -609,7 +609,7 @@ text.get_in_touch=get in touch
 text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">report a change</a> to your circumstances
 text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">authorise a tax adviser or accountant</a> to act on your behalf for High Income Child Benefit Charge issues
 text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
-text.if_you_do_not_claim_child_benefit_=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Check if you can claim Child Benefit (opens in new window or tab)</a>
+text.if_you_do_not_claim_child_benefit_=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Check if you can claim Child Benefit (opens in a new window or tab)</a>
 text.stays_in_education_or_training=stays in education or training
 text.leaves_education_or_training=leaves education or training
 text.has_any_other_change_in_their_circumstances_=<a class="tracklink" href="{0}">has any other change in their circumstances</a> such as they leave the household
