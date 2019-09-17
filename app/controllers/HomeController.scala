@@ -91,16 +91,16 @@ class HomeController @Inject()(
     : Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
     ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
       Future.successful((TaxComponentsDisabledState, None, None))) { nino =>
-      val tyr = if (configDecorator.taxcalcEnabled) {
+      val taxYr = if (configDecorator.taxcalcEnabled) {
         taxCalculationService.getTaxYearReconciliations(nino)
       } else {
         Future.successful(Nil)
       }
 
-      val taxCalculationStateCyMinusOne = tyr.map(_.find(_.taxYear == year - 1))
+      val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
 
       val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo) {
-        tyr.map(_.find(_.taxYear == year - 2))
+        taxYr.map(_.find(_.taxYear == year - 2))
       } else
         Future.successful(None)
 
