@@ -32,7 +32,8 @@ class TaxYearReconciliationSpec extends UnitSpec {
       ("overpaid_tolerance", OverpaidTolerance),
       ("balanced_sa", BalancedSa),
       ("balanced_no_employment", BalancedNoEmployment),
-      ("not_reconciled", NotReconciled)
+      ("not_reconciled", NotReconciled),
+      ("missing", Missing)
     )
 
     testList.foreach {

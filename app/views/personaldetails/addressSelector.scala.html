@@ -34,11 +34,11 @@
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <div class="page-heading">
-        <h1 class="heading-xlarge no-margin-bottom">
+      <header class="page-heading">
+        <h1 class="heading-xlarge">
           @typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address"))
         </h1>
-      </div>
+      </header>
 
       @helpers.form(action = controllers.routes.AddressController.processAddressSelectorForm(typ, filter), args = 'class -> "select-address-form", 'id -> "select-address-form") {
           <input type="hidden" name="postcode" value="@postcode" />

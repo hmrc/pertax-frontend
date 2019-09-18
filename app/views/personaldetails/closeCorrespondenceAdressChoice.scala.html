@@ -28,9 +28,9 @@ pageName = Some(Messages("label.your_personal_tax_account"))
     @errors(closePostalAddressChoiceForm)
     <div class="grid-row">
         <div class="column-two-thirds">
-            <div class="page-heading">
-                <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_want_all_your_letters_to_be_sent_")</h1>
-            </div>
+            <header class="page-heading">
+                <h1 class="heading-xlarge">@Messages("label.do_you_want_all_your_letters_to_be_sent_")</h1>
+            </header>
 
             <p>@Messages("label.your_main_address_is")</p>
             <p>@Html(addressDto.mkString(", <br>"))</p>

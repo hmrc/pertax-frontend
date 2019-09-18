@@ -20,24 +20,20 @@
   pageName = Some(Messages("label.your_personal_tax_account")),
   backlinkUrl = Some(backlinkUrl.url)
 ) {
-  <div class="personal-details">
 
     <div class="grid-row">
       <div class="column-two-thirds">
-        <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.sign_in_with_different_account_details")</h1>
-      </div>
-    </div>
+
+        <header class="page-heading">
+          <h1 class="heading-xlarge no-margin-top">@Messages("label.sign_in_with_different_account_details")</h1>
+          <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.how_to_access_your_self_assessment")</p>
+        </header>
 
 
-    <div class="column-two-thirds">
-
-      <div class="grid-row pertax-panel">
           <p>@Messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_text_before_link") <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.ggLoginUrl" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">@Messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_link_text")</a>.</p>
-        <h3 class="heading-medium">@Messages("label.problems_signing_in")</h3>
-      </div>
 
-      <div class="grid-row pertax-panel">
+
+        <h3 class="heading-medium">@Messages("label.problems_signing_in")</h3>
         <p>@Messages("label.get_help_if_you_have")</p>
         <ul class="list list-bullet">
           <li><a class="ga-track-anchor-click"
@@ -56,16 +52,14 @@
                  data-ga-event-label="forgotten your Self Assessment user ID and password">@Messages("label.forgotten_your_self_assessment_user_id_and_password")</a>
           </li>
         </ul>
-      </div>
 
-      <div class="grid-row pertax-panel">
+
         <div class="panel panel-border-wide">
-          <p>@Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_")
-            @Html(Messages("label.your_utr_is_", utr))</p>
+          <p>@Messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_")</p>
+          <p>@Html(Messages("label.your_utr_is_", utr))</p>
         </div>
-      </div>
 
+      </div>
     </div>
 
-  </div>
 }
