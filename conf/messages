@@ -620,7 +620,8 @@ text.authorise_a_tax_advisor_or_accountant_=authorise a tax adviser or accountan
 text.to_act_on_your_behalf_for_High_Income_Child_Benefit_Charge_issues=to act on your behalf for High Income Child Benefit Charge issues
 text.stop_or_restart_your_child_benefit_payments_=stop or restart your Child Benefit payments
 text.if_you_or_your_partner_are_affected_by_the_High_Income_Child_Benefit_Charge=if you or your partner are affected by the High Income Child Benefit Charge
-text.if_you_do_not_claim_child_benefit_=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Check if you can claim Child Benefit (opens in new window)</a>
+text.if_you_do_not_claim_child_benefit_=If you do not claim Child Benefit you normally qualify for it if you are responsible for a child under 16 (or under 20 if they stay in approved education or training) and you live in the UK.
+text.check_if_you_can_claim_child_benefit=Check if you can claim Child Benefit (opens in new window)
 text.stays_in_education_or_training=stays in education or training
 text.leaves_education_or_training=leaves education or training
 text.has_any_other_change_in_their_circumstances_=has any other change in their circumstances

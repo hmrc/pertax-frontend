@@ -616,7 +616,8 @@ text.to_act_on_your_behalf_for_High_Income_Child_Benefit_Charge_issues=
 text.stop_or_restart_your_child_benefit_payments_=ailddechrau neu roi’r gorau i’ch taliadau Budd-dal Plant os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
 # The following key is not needed in welsh
 text.if_you_or_your_partner_are_affected_by_the_High_Income_Child_Benefit_Charge=
-text.if_you_do_not_claim_child_benefit_=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Gwiriwch a allwch hawlio Budd-dal Plant (yn agor ffenestr newydd)</a>
+text.if_you_do_not_claim_child_benefit_=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU.
+text.check_if_you_can_claim_child_benefit=Gwiriwch a allwch hawlio Budd-dal Plant (yn agor ffenestr newydd)
 text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
 text.leaves_education_or_training=yn gadael hyfforddiant neu addysg
 text.has_any_other_change_in_their_circumstances_=ag unrhyw newidiadau eraill yn ei amgylchiadau megis gadael yr aelwyd

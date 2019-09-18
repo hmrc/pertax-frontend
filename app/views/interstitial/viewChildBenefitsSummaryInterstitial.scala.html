@@ -49,7 +49,7 @@
       </ul>
 
       <h2 class="heading-medium">@Messages("label.if_you_do_not_currently_claim_child_benefit")</h2>
-      <p>@Html(Messages("text.if_you_do_not_claim_child_benefit_", pertaxContext.configDecorator.childBenefitsCheckIfYouCanClaim))</p>
+      <p>@Messages("text.if_you_do_not_claim_child_benefit_") <a class="trackLink" href="@{pertaxContext.configDecorator.childBenefitsCheckIfYouCanClaim}" target="_blank" rel="noopener noreferrer">@Messages("text.check_if_you_can_claim_child_benefit")</a>.</p>
     }
     @ifLowGovernmentGatewayUser {
       <p class="lede">@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
