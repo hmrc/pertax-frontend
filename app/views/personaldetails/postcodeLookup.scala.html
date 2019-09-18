@@ -79,7 +79,17 @@
             </summary>
 
             <div class="panel panel-border-wide" id="details-content" aria-hidden="true">
-              @Html(Messages("label.your_main_home_is_usually_where_you_live_", "https://www.gov.uk/scottish-rate-income-tax/how-it-works"))
+
+              <p>@Messages("label.your_main_home_is_usually_where_you_live_")</p>
+              <p>@Messages("label.your_main_address_may_be")</p>
+              <ul class="list-bullet">
+                  <li>@Messages("label.most_your_possessions_are")</li>
+                  <li>@Messages("label.your_family_lives")</li>
+                  <li>@Messages("label.your_are_registered_for_things")</li>
+                  <li>@Messages("label.you_are_a_member")</li>
+              </ul>
+
+              <p>@Messages("label.you_will_pay_the_scottish_rate") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="What is my main home?" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="https://www.gov.uk/scottish-rate-income-tax/how-it-works" target="_blank" rel="noopener noreferrer"> @Messages("label.check_if_you_will_pay")</a>.</p>
             </div>
           </details>
 
