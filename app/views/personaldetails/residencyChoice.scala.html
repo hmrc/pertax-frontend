@@ -30,9 +30,9 @@
 
         <div class="grid-row">
             <div class="column-two-thirds">
-                <div class="page-heading">
-                    <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_live_in_more_than_one_place")</h1>
-                </div>
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@Messages("label.do_you_live_in_more_than_one_place")</h1>
+                </header>
 
                 @form(action = controllers.routes.AddressController.processResidencyChoice) {
                 <div class="form-group inline">
