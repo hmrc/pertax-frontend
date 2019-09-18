@@ -507,7 +507,7 @@ label.your_new_postal_address=Your new postal address
 label.for_example_31_3_2015=For example, 31 3 2015
 label.this_helps_us_work_out_your_correct_rate_of_income_tax=This helps us work out your correct rate of Income Tax.
 label.why_do_you_need_to_know_this=Why do we need to know this?
-label.this_helps_us_work_out_your_correct_rate_of_income_tax_=This helps us work out your correct rate of Income Tax. From 6 April 2016, you will pay the Scottish rate of Income Tax if you live in Scotland. If you move to or from Scotland in a tax year, or live in more than one home, your situation may be different. <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="Why do you need to know this" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="{0}" target="_blank" rel="noopener noreferrer">Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)</a>.
+label.this_helps_us_work_out_your_correct_rate_of_income_tax_=This helps us work out your correct rate of Income Tax. From 6 April 2016, you will pay the Scottish rate of Income Tax if you live in Scotland. If you move to or from Scotland in a tax year, or live in more than one home, your situation may be different.
 label.whats_my_main_home=What is my main address?
 label.your_main_home_is_usually_where_you_live_=Your main address is usually where you live and spend most of your time. It does not matter whether you own it, rent it or live in it for free.
 label.your_main_address_may_be=Your main address may be the home where you spend less time if that is where:
