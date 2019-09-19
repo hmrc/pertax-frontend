@@ -689,7 +689,7 @@ class AddressControllerSpec extends BaseSpec {
 
     "call the address lookup service and return 400 when supplied no addressId in the form" in new LocalSetup {
       val form = buildAddressRequest("POST").withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(PostalAddrType, None)(form)
+      val r = c1.processAddressSelectorForm(PostalAddrType)(form)
 
       status(r) shouldBe BAD_REQUEST
       verify(c1.sessionCache, times(1)).fetch()(any(), any())
@@ -698,7 +698,7 @@ class AddressControllerSpec extends BaseSpec {
     "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId" in new LocalSetup {
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> " GB990091234514 ", "postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(PostalAddrType, None)(form)
+      val r = c1.processAddressSelectorForm(PostalAddrType)(form)
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/edit-address")
@@ -710,7 +710,7 @@ class AddressControllerSpec extends BaseSpec {
     "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in new LocalSetup {
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(PostalAddrType, None)(form)
+      val r = c1.processAddressSelectorForm(PostalAddrType)(form)
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
       verify(c1.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
@@ -721,7 +721,7 @@ class AddressControllerSpec extends BaseSpec {
       val cacheAddress = AddressDto.fromAddressRecord(otherPlacePafDifferentPostcodeAddressRecord)
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> "GB990091234516", "postcode" -> "AA1 2AA")
-      val r = c2.processAddressSelectorForm(SoleAddrType, None)(form)
+      val r = c2.processAddressSelectorForm(SoleAddrType)(form)
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
@@ -731,7 +731,7 @@ class AddressControllerSpec extends BaseSpec {
       val cacheAddress = AddressDto.fromAddressRecord(twoOtherPlacePafAddressRecord)
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(SoleAddrType, None)(form)
+      val r = c1.processAddressSelectorForm(SoleAddrType)(form)
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/changes")
