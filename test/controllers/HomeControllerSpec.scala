@@ -33,7 +33,7 @@ import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
@@ -74,7 +74,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       injected[CitizenDetailsService],
       injected[TaiService],
       injected[MessageFrontendService],
-      injected[UserDetailsService]
+      injected[UserDetailsService],
+      injected[ConfigDecorator]
     )
 
   override def now: () => DateTime = DateTime.now
@@ -86,7 +87,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
-    lazy val year = current.currentYear
+    lazy val year = 2017
     lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(
       TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
@@ -98,7 +99,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
 
-    def allowLowConfidenceSA: Boolean
+    lazy val allowLowConfidenceSA = false
 
     lazy val controller = {
 
@@ -112,6 +113,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       }
       when(c.taxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
+      }
+      when(c.taxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])) thenReturn {
+        Future.successful(buildTaxYearReconciliations)
       }
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
@@ -176,7 +180,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   "Calling HomeController.index" should {
 
     "return a 303 status when accessing index page and authorisation is not fulfilled" in new LocalSetup {
-      override val allowLowConfidenceSA = false
 
       val r = controller.index()(FakeRequest("GET", "/personal-account")) //No auth in this fake request
 
@@ -190,7 +193,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val nino = Fixtures.fakeNino
       override lazy val authority =
         buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
-      override val allowLowConfidenceSA = false
 
       val r = controller.index()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
@@ -200,8 +202,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       if (controller.configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1))
-          .getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -210,7 +211,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val nino = Fixtures.fakeNino
       override lazy val authority =
         buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
-      override val allowLowConfidenceSA = false
 
       val r = controller.index()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
@@ -220,8 +220,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       if (controller.configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1))
-          .getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
@@ -231,7 +230,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getLtaServiceResponse = Future.successful(false)
       override lazy val authority =
         buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
-      override val allowLowConfidenceSA = false
 
       val r = controller.index()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
@@ -241,15 +239,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       if (controller.configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1))
-          .getTaxCalculation(meq(Fixtures.fakeNino), meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
     "return a 423 status when accessing index page with a nino that is hidden in citizen-details with an SA user" in new LocalSetup {
 
       override lazy val personDetailsResponse = PersonDetailsHiddenResponse
-      override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe LOCKED
@@ -261,7 +257,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     "return a 200 status without calling citizen-detials or tai, when accessing index page without paye account" in new LocalSetup {
 
       override lazy val withPaye = false
-      override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
@@ -274,7 +269,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
 
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
-      override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
@@ -286,7 +280,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       override lazy val getPaperlessPreferenceResponse =
         ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
-      override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
@@ -296,21 +289,18 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
 
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
-      override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1))
-          .getTaxCalculation(meq(nino), meq(current.currentYear - 1))(any())
+        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
 
       override lazy val personDetailsResponse = PersonDetailsNotFoundResponse
-      override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
@@ -321,12 +311,103 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     "return a 200 status when accessing index page with a nino that produces an error when calling citizen-details" in new LocalSetup {
 
       override lazy val personDetailsResponse = PersonDetailsErrorResponse(null)
-      override val allowLowConfidenceSA = false
 
       val r = controller.index(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
+    }
+
+  }
+
+  "Calling serviceCallResponses" should {
+
+    val userNino = Some(fakeNino)
+
+    "return TaxComponentsDisabled status where there is not a Nino" in new LocalSetup {
+
+      val result = await(controller.serviceCallResponses(None, year))
+
+      result shouldBe ((TaxComponentsDisabledState, None, None))
+    }
+
+    "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
+
+      when(controller.configDecorator.taxComponentsEnabled) thenReturn false
+
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+
+      result shouldBe TaxComponentsDisabledState
+
+    }
+
+    "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
+
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+      result shouldBe TaxComponentsAvailableState(
+        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+
+    }
+
+    "return TaxComponentsNotAvailableState status when TaxComponentsUnavailableResponse from TaxComponents" in new LocalSetup {
+
+      when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
+        Future.successful(TaxComponentsUnavailableResponse)
+      }
+
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+
+      result shouldBe TaxComponentsNotAvailableState
+    }
+
+    "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
+
+      when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
+        Future.successful(TaxComponentsUnexpectedResponse(HttpResponse(INTERNAL_SERVER_ERROR)))
+      }
+
+      val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
+
+      result shouldBe TaxComponentsUnreachableState
+    }
+
+    "return None where TaxCalculation service is not enabled" in new LocalSetup {
+
+      when(controller.configDecorator.taxcalcEnabled) thenReturn false
+
+      val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
+
+      resultCYm1 shouldBe None
+      resultCYm2 shouldBe None
+    }
+
+    "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
+
+      when(controller.taxCalculationService.getTaxYearReconciliations(any())(any())) thenReturn Future.successful(Nil)
+
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+
+      resultCYM1 shouldBe None
+      resultCYM2 shouldBe None
+    }
+    "return only taxCalculation CY-1 status when taxCalcShowCyMinusTwo is false" in new LocalSetup {
+
+      when(controller.configDecorator.taxCalcShowCyMinusTwo) thenReturn false
+
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+
+      resultCYM1 shouldBe Some(TaxYearReconciliation(2016, Balanced))
+      resultCYM2 shouldBe None
+    }
+
+    "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
+
+      when(controller.configDecorator.taxCalcShowCyMinusTwo) thenReturn true
+
+      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
+
+      resultCYM1 shouldBe Some(TaxYearReconciliation(2016, Balanced))
+      resultCYM2 shouldBe Some(TaxYearReconciliation(2015, Balanced))
     }
   }
 }

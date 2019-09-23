@@ -40,7 +40,6 @@ label.we_are_currently_experiencing_some_technical_problems_=Mae problemau techn
 label.continue=Parhau
 label.your_personal_tax_account=Cyfrif treth personol
 label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
-label.personal_details=Manylion personol
 label.track_your_forms=Dilyn eich ffurflenni
 
 label.your_national_insurance_number_is=Eich rhif Yswiriant Gwladol yw
@@ -60,7 +59,6 @@ label.your_address=Eich cyfeiriad
 label.main_address=Prif gyfeiriad
 label.find_your_address=Chwilio am eich cyfeiriad
 label.find_your_postal_address=Canfod eich cyfeiriad post
-label.update_your_address=Diweddaru’ch cyfeiriad
 label.change_your_main_address=Newid eich prif gyfeiriad
 label.change_your_postal_address=Newid eich cyfeiriad post
 label.postal_address=Cyfeiriad post
@@ -98,7 +96,6 @@ label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
-label.find_out_about_call_charges=Gwybodaeth am gost galwadau
 label.opens_in_a_new_window=(yn agor ffenestr newydd)
 label.yes=Iawn
 label.no=Na
@@ -115,9 +112,6 @@ label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.name=Enw
 label.change_your_name=Newid eich enw
 label.back=Yn ôl
-
-
-label.self_assessment=Hunanasesiad
 
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
@@ -163,16 +157,13 @@ label.use_your_utr_to_register_for_self_assessment_online=Defnyddiwch eich Cyfei
 label.how_to_access_your_self_assessment=Sut i gyrchu’ch Hunanasesiad
 
 label.do_you_get_tax_credits=A ydych yn cael credydau treth?
-label.national_insurance=Yswiriant Gwladol
 label.view_your_national_insurance_record=Bwrw golwg ar eich cofnod Yswiriant Gwladol
 label.there_is_a_problem_logging_you_in=Mae problem wedi codi wrth i chi fewngofnodi
 label.how_to_contact_us=Sut i gysylltu â ni
-label.your_account=Eich cyfrif
 label.self_assessment_summary=Crynodeb Hunanasesiad
 label.back_to_account_home=Yn ôl i hafan y cyfrif
 label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
-label.child_benefit=Budd-dal Plant
 label.report_changes_that_affect_your_child_benefit=Rhoi gwybod am newidiadau sy’n effeithio ar eich Budd-dal Plant
 label.if_your_childs_circumstances_change=Os yw amgylchiadau eich plentyn yn newid
 label.tell_us_if_your_childs_circumstances_change=Rhowch wybod i ni os bydd amgylchiadau’ch plentyn yn newid
@@ -188,7 +179,6 @@ label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
 label.if_you_do_not_currently_claim_child_benefit=Os nad ydych yn gwneud cais am Fudd-dal Plant ar hyn o bryd
 label.any_updates_to_your_contact_details=Mae diweddariadau i’ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
 label.you_can_see_this_part_of_your_account_if_you_complete=Gallwch weld y rhan hon o’ch cyfrif os cymerwch gamau diogelwch ychwanegol.
-label.tax_credits=Credydau treth
 label.change_where_we_send_your_letters=Newid ble’r ydym yn anfon eich llythyrau
 label.do_you_live_in_more_than_one_place=A ydych yn byw mewn mwy nag un man?
 label.confirm_your_identity=Rhoi prawf o bwy ydych
@@ -214,9 +204,6 @@ label.you_can_still_complete_your_sa=Gallwch lenwi’ch Ffurflen Dreth Hunanases
 
 label.you_cannot_access_your_account_right_now=Ni allwch gyrchu’ch cyfrif ar hyn o bryd
 label.we_need_to_speak_to_you_about_an_mci_error_=Mae angen i ni siarad â chi am wall MCI cyn y gallwch fewngofnodi.
-label.telephone_0300_200_3300=Ffôn: 0300 200 3300
-label.textphone_0300_200_3319=Ffôn Testun: 0300 200 3319
-label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
 label.8am_to_8pm_monday_to_friday=8am i 8pm, Dydd Llun i Dydd Gwener
 label.8am_to_4pm_saturdays=8am i 4pm, Dydd Sadwrn
 label.8am_to_5pm_sundays=9am i 5pm, Dydd Sul
@@ -354,7 +341,6 @@ error.country_required=Nodwch wlad
 #
 text.report_a_change_to_your_circumstances=<a class="trackLink" href="{0}">rhoi gwybod am newid</a> i’ch amgylchiadau
 text.authorise_a_tax_advisor_or_accountant_=<a class="trackLink" href="{0}">awdurdodi ymgynghorydd treth neu gyfrifydd</a> i weithredu ar eich rhan ar gyfer materion sy’n ymwneud â Thâl Incwm Uchel Budd-dal Plant
-text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">stop or restart your Child Benefit payments</a> if you or your partner are affected by the High Income Child Benefit Charge
 text.stop_or_restart_your_child_benefit_payments_=<a class="trackLink" href="{0}">ailddechrau neu roi’r gorau i’ch taliadau Budd-dal Plant</a> os yw’r Tâl Incwm Uchel Budd-dal Plant yn effeithio arnoch chi neu’ch partner
 text.if_you_do_not_claim_child_benefit_=Os nad ydych yn hawlio Budd-dal Plant, rydych fel arfer yn gymwys ar ei gyfer os ydych yn gyfrifol am blentyn sydd o dan 16 oed (neu o dan 20 oed os yw’n aros mewn addysg neu hyfforddiant cymeradwy), ac rydych yn byw yn y DU. <a class="trackLink" href="{0}" target="_blank" rel="noopener noreferrer">Gwiriwch a allwch hawlio Budd-dal Plant (yn agor ffenestr newydd)</a>
 text.stays_in_education_or_training=os yw’ch plentyn yn aros mewn addysg neu hyfforddiant
@@ -389,7 +375,6 @@ label.you_paid_too_much_tax=Gwnaethoch dalu gormod o dreth y llynedd ar gyfer bl
 label.you_paid_too_little_tax=Ni wnaethoch dalu digon o dreth ar gyfer blwyddyn dreth {0} i {1}
 label.your_income_tax=Eich Treth Incwm y llynedd ar gyfer blwyddyn dreth {0} i {1}
 label.you_missed_the_deadline_to_pay_your_tax=Gwnaethoch fethu’r dyddiad cau i dalu’ch treth ar gyfer blwyddyn dreth {0} i {1}
-label.you_do_not_owe_any_more_tax=Nid oes arnoch ddim byd i CThEM.
 label.check_to_see_if_you_paid_the_right_amount_of_tax_from_=Gwiriwch a wnaethoch dalu’r swm cywir o dreth o 6 Ebrill {0} i 5 Ebrill {1}.
 label.hmrc_owes_you_a_refund=Mae ar CThEM ad-daliad o £{0} i chi.
 label.hmrc_is_processing_your_refund=Mae CThEM wrthi’n prosesu’ch ad-daliad o £{0}.
@@ -401,7 +386,12 @@ label.you_still_owe_hmrc_you_should_have_paid_=Mae’n dal i fod arnoch £{0} i 
 label.you_still_owe_hmrc_you_must_pay_by_=Mae’n dal i fod arnoch £{0} i CThEM. Rhaid i chi dalu erbyn {1}.
 label.you_owe_hmrc_you_must_pay_by_=Mae arnoch £{0} i CThEM. Rhaid i chi dalu erbyn {1}.
 label.you_have_no_payments_to_make_to_hmrc=Nid oes gennych daliadau i’w gwneud i CThEM.
-
+label.you_paid_the_right_amount_of_tax=Gwnaethoch dalu’r swm cywir o dreth
+label.nothing_more_to_pay=Does dim byd mwy i’w dalu am y flwyddyn hon.
+label.no_record_of_employment=Nid oes gan CThEM gofnod eich bod yn gyflogedig yn ystod y flwyddyn dreth hon felly nid oes unrhyw beth mwy i’w dalu.
+label.your_tax_has_not_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
+label.no_need_to_contact_hmrc=Does dim angen i chi gysylltu â CThEM ynglŷn â hyn. Cewch lythyr os ydych wedi talu gormod o dreth neu heb dalu digon.
+label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 
 label.self_assessment=Hunanasesiad
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth

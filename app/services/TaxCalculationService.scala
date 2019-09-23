@@ -19,17 +19,18 @@ package services
 import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
-import models.TaxCalculation
+import models.{TaxCalculation, TaxYearReconciliation}
 import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
 import play.api.http.Status._
-import services.http.SimpleHttp
+import services.http.{SimpleHttp, WsAllMethods}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+
+import scala.util.control.NonFatal
 
 sealed trait TaxCalculationResponse
 case class TaxCalculationSuccessResponse(taxCalculation: TaxCalculation) extends TaxCalculationResponse
@@ -41,9 +42,9 @@ class TaxCalculationService @Inject()(
   environment: Environment,
   configuration: Configuration,
   val simpleHttp: SimpleHttp,
-  val metrics: Metrics)
+  val metrics: Metrics,
+  val http: WsAllMethods)(implicit ec: ExecutionContext)
     extends ServicesConfig with HasMetrics {
-
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val taxCalcUrl = baseUrl("taxcalc")
@@ -72,13 +73,22 @@ class TaxCalculationService @Inject()(
             Logger.debug(s"Unexpected ${r.status} response getting tax calculation from tax-calculation-service")
             TaxCalculationUnexpectedResponse(r)
         },
-        onError = {
-          case e =>
-            Logger.debug(e.toString)
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting tax calculation from tax-calculation-service", e)
-            TaxCalculationErrorResponse(e)
+        onError = { e =>
+          Logger.debug(e.toString)
+          t.completeTimerAndIncrementFailedCounter()
+          Logger.warn("Error getting tax calculation from tax-calculation-service", e)
+          TaxCalculationErrorResponse(e)
         }
       )
     }
+
+  def getTaxYearReconciliations(nino: Nino)(
+    implicit headerCarrier: HeaderCarrier): Future[List[TaxYearReconciliation]] =
+    http
+      .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/reconciliations")
+      .recover {
+        case NonFatal(e) =>
+          Logger.debug(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
+          Nil
+      }
 }
