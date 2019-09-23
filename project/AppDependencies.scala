@@ -27,7 +27,7 @@ object AppDependencies {
     "org.pegdown"              % "pegdown"            % "1.6.0",
     "org.jsoup"                % "jsoup"              % "1.11.3",
     "com.typesafe.play"       %% "play-test"          % PlayVersion.current
-  ).map(_ % "test")
+  ).map(_ % "test,it")
 
   val all: Seq[ModuleID] = compile ++ test
 }

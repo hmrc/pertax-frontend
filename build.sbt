@@ -7,7 +7,7 @@ import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
 import sbt._
 import scoverage.ScoverageKeys
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
+import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
@@ -43,7 +43,12 @@ val wartRemovedExcludedClasses = Seq(
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(plugins: _*)
+  .configs(IntegrationTest)
   .settings(
+    inConfig(Test)(testSettings),
+    inConfig(IntegrationTest)(itSettings),
+    Keys.fork in IntegrationTest := false,
+    addTestReportOption(IntegrationTest, "int-test-reports"),
     playSettings,
     scoverageSettings,
     scalaSettings,
@@ -69,6 +74,21 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.http.HeaderCarrier"
     )
   )
+
+lazy val testSettings = Seq(
+  unmanagedSourceDirectories ++= Seq(
+    baseDirectory.value / "test"
+  ),
+  fork := true
+)
+
+lazy val itSettings = Defaults.itSettings ++ Seq(
+  unmanagedSourceDirectories := Seq(
+    baseDirectory.value / "it"
+  ),
+  parallelExecution := false,
+  fork := true
+)
 
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
   tests map { test =>
