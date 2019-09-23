@@ -402,11 +402,13 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       val page = "need-to-enrol"
       val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
-
       val doc = asDocument(contentAsString(result))
-      assertContainsText(
-        doc,
-        messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2019"))
+
+      assert(
+        doc
+          .getElementById("returnTaxReturnByPost")
+          .text
+          .equals("You can send your tax return by post before 31 October 2019."))
     }
 
     "return a result with tax year 2025 when supplied with value of 'need-to-enrol'" in new LocalSetupJourney {
@@ -417,9 +419,12 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       val doc = asDocument(contentAsString(result))
-      assertContainsText(
-        doc,
-        messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2025"))
+
+      assert(
+        doc
+          .getElementById("returnTaxReturnByPost")
+          .text
+          .equals("You can send your tax return by post before 31 October 2025."))
     }
 
     "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
@@ -438,9 +443,12 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       val doc = asDocument(contentAsString(result))
-      assertContainsText(
-        doc,
-        messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2019"))
+
+      assert(
+        doc
+          .getElementById("returnTaxReturnByPost")
+          .text
+          .equals("You can send your tax return by post before 31 October 2019."))
     }
 
     "return a result with tax year 2025 when supplied with value of 'need-to-enrol-again'" in new LocalSetupJourney {
@@ -451,9 +459,12 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       val doc = asDocument(contentAsString(result))
-      assertContainsText(
-        doc,
-        messages("label.you_can_send_your_tax_return_by_post_", config.selfAssessmentEnrolUrl, "2025"))
+
+      assert(
+        doc
+          .getElementById("returnTaxReturnByPost")
+          .text
+          .equals("You can send your tax return by post before 31 October 2025."))
     }
 
     "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in new LocalSetupJourney {
