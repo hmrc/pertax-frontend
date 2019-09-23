@@ -22,21 +22,15 @@
     @back_link()
   <div class="grid-row">
     <div class="column-two-thirds">
-      <h1  class="heading-xlarge no-margin-bottom">@Messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
-    </div>
-  </div>
+      <header class="page-heading">
+        <h1 class="heading-xlarge">@Messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
+      </header>
 
-  <div class="grid-row margin-top">
-    <div class="column-two-thirds">
       <p class="lede margin-bottom">@Messages("label.the_date_you_entered_is_earlier_than_a_date_previously_held_")</p>
 
-      <p class="margin-top">@Html(Messages("label.if_you_entered_proposedStartDate_by_mistake_",
-        controllers.routes.AddressController.enterStartDate(typ).url, proposedStartDate))
-      </p>
+      <p class="margin-top">@Messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_1") @proposedStartDate @Messages("label.if_you_entered_proposedStartDate_by_mistake_text_before_link_2") <a href="@controllers.routes.AddressController.enterStartDate(typ).url">@Messages("label.if_you_entered_proposedStartDate_by_mistake_link_text")</a>.</p>
 
-      <p>@Html(Messages("label.if_you_entered_the_correct_date_contact_HMRC_",
-        "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/change-your-personal-details"))
-      </p>
+      <p>@Messages("label.if_you_entered_the_correct_date_contact_HMRC_text_before_link") <a href="@pertaxContext.configDecorator.changePersonalDetailsUrl" target="_blank" rel="noopener noreferrer">@Messages("label.if_you_entered_the_correct_date_contact_HMRC_link_text")</a> @Messages("label.if_you_entered_the_correct_date_contact_HMRC_text_after_link").</p>
 
     </div>
    </div>

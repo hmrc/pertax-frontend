@@ -28,9 +28,9 @@
     @errors(taxCreditsChoiceForm)
     <div class="grid-row">
       <div class="column-two-thirds">
-        <div class="page-heading">
-          <h1 class="heading-xlarge no-margin-bottom">@Messages("label.do_you_get_tax_credits")</h1>
-        </div>
+        <header class="page-heading">
+          <h1 class="heading-xlarge">@Messages("label.do_you_get_tax_credits")</h1>
+        </header>
 
         @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">

@@ -26,28 +26,37 @@
 
 @main(Messages("label.you_cannot_access_your_self_assessment_"), scriptElement = Some(scriptElem)) {
 
-  @webChatPartial
+@webChatPartial
 
-  <div class="grid-row">
+<div class="grid-row">
     <div class="column-two-thirds">
-      <h1 class="heading-large">@Messages("label.you_cannot_access_your_self_assessment_")</h1>
-      <h2>@Messages("label.if_you_send_your_tax_return_online")</h2>
-      <p>@Html(Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_",
-        controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index().url)), None),
-        pertaxContext.configDecorator.notShownSaRecoverYourUserId))</p>
+
+        <header class="page-heading">
+            <h1 class="heading-large">@Messages("label.you_cannot_access_your_self_assessment_")</h1>
+        </header>
+
+        <h2 class="heading-medium">@Messages("label.if_you_send_your_tax_return_online")</h2>
+
+        <p>@Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="@controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index().url)), None)">@Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_link_text")</a>, @Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link")</p>
+        <p> <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="@pertaxContext.configDecorator.notShownSaRecoverYourUserId">@Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_link_text")</a> @Messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link")</p>
+
         <h2>@Messages("label.if_you_have_never_sent_your_tax_return_online")</h2>
-        <p>@Html(Messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_",
-          pertaxContext.configDecorator.ssoToRegisterForSaEnrolment,
-          pertaxContext.configDecorator.hmrcProblemsSigningIn))</p>
-      <h2>@Messages("label.if_you_send_your_tax_return_by_post")</h2>
-      <p>@Html(Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_", pertaxContext.configDecorator.ssoToRegistration))</p>
+
+        <p>@Messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Enrol for SA" href="@pertaxContext.configDecorator.ssoToRegisterForSaEnrolment" target="_blank" rel="noopener noreferrer">@Messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_link_text") @Messages("label.opens_in_a_new_window")</a>. @Messages("label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_after_link").</p>
+
+        <p>@Messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="@pertaxContext.configDecorator.hmrcProblemsSigningIn" target="_blank">@Messages("label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
+
+        <h2>@Messages("label.if_you_send_your_tax_return_by_post")</h2>
+        <p>@Messages("label.you_cannot_view_your_self_assessment_information_here_")</p>
+        <p>@Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="@pertaxContext.configDecorator.ssoToRegistration" target="_blank" rel="noopener noreferrer">@Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
+
     </div>
 
     <div class="column-third webchat-container">
-      <h2 class="heading-small">@Messages("label.webchat_service")</h2>
-      <p class="no-margin-top">
-        <a class="openChat ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - webchat" href="#">@Messages("label.chat_online_with_one_of_our_advisers")</a>
-      </p>
+        <h2 class="heading-small">@Messages("label.webchat_service")</h2>
+        <p class="no-margin-top">
+            <a class="openChat ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - webchat" href="#">@Messages("label.chat_online_with_one_of_our_advisers")</a>
+        </p>
     </div>
-  </div>
+</div>
 }

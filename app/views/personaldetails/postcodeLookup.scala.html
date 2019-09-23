@@ -33,11 +33,11 @@
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <div class="page-heading">
-        <h1 class="heading-xlarge no-margin-bottom">
+      <header class="page-heading">
+        <h1 class="heading-xlarge">
           @typ.ifIs(primary = Messages("label.tell_us_your_main_home"), sole = Messages("label.find_your_address"), postal = Messages("label.find_your_postal_address"))
         </h1>
-      </div>
+      </header>
 
 
       @helpers.form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
@@ -78,8 +78,21 @@
               <span class="summary">@Messages("label.whats_my_main_home")</span>
             </summary>
 
-            <div class="panel panel-border-wide" id="details-content" aria-hidden="true">
-              @Html(Messages("label.your_main_home_is_usually_where_you_live_", "https://www.gov.uk/scottish-rate-income-tax/how-it-works"))
+
+            <div class="panel panel-border-narrow" id="details-content" aria-hidden="true">
+              <p>@Messages("label.your_main_home_is_usually_where_you_live_")</p>
+
+              <p>@Messages("label.your_main_home_may_be_where_")</p>
+
+              <ul class="list-bullet">
+                <li>@Messages("label.your_main_home_may_be_where_your_possessions")</li>
+                <li>@Messages("label.your_main_home_may_be_where_your_family")</li>
+                <li>@Messages("label.your_main_home_may_be_where_your_registerd_bank_address")</li>
+                <li>@Messages("label.your_main_home_may_be_where_your_registerd_for_clubs")</li>
+              </ul>
+
+              <p>@Messages("label.your_main_home_is_usually_where_you_live_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="What is my main home?" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="@pertaxContext.configDecorator.scottishRateIncomeTaxUrl" target="_blank" rel="noopener noreferrer">@Messages("label.your_main_home_is_usually_where_you_live_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
+
             </div>
           </details>
 

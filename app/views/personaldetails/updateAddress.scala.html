@@ -40,11 +40,11 @@
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <div class="page-heading">
-        <h1 class="heading-xlarge no-margin-bottom">
+      <header class="page-heading">
+        <h1 class="heading-xlarge">
           @getYourAddressLabels
         </h1>
-      </div>
+      </header>
 
       @helpers.form(action = controllers.routes.AddressController.processUpdateAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 

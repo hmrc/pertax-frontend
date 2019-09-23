@@ -15,53 +15,43 @@
  *@
 
 @(utr: SaUtr,
-  continueUrl: String,
-  deadlineYear: String,
-  currentTaxYear: String,
-  showPostLink: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+continueUrl: String,
+deadlineYear: String,
+currentTaxYear: String,
+showPostLink: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @import pertaxContext.configDecorator._
 
 @main(title = Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
+pageName = Some(Messages("label.your_personal_tax_account")),
+backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
 ) {
-  <div class="personal-details">
 
-    <div class="grid-row">
-      <div class="column-two-thirds">
-        <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again")</h1>
-      </div>
-    </div>
 
+<div class="grid-row">
     <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.use_your_unique_taxpayer_reference_utr_to_", pertaxContext.configDecorator.selfAssessmentEnrolUrl))</p>
-      </div>
-    </div>
 
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
+        <header class="page-heading">
+            <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again")</h1>
+            <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.how_to_access_your_self_assessment")</p>
+        </header>
+
+
+        <p>@Messages("label.use_your_unique_taxpayer_reference_utr_to_text_before_link") <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">@Messages("label.use_your_unique_taxpayer_reference_utr_to_link_text")</a>.</p>
         <p>@Html(Messages("label.your_utr_is_", utr))</p>
-      </div>
-    </div>
 
-    <div class="column-two-thirds">
-      <div class="grid-row panel panel-border-wide">
-        <p>@Messages("label.you_will_get_an_activation_code_in_the_post_")</p>
-      </div>
-    </div>
 
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <h2>@Messages("label.do_your_tax_return_before_the_deadline")</h2>
+        <div class="panel panel-border-wide">
+            <p>@Messages("label.you_will_get_an_activation_code_in_the_post_")</p>
+        </div>
+
+        <h2 class="heading-medium">@Messages("label.do_your_tax_return_before_the_deadline")</h2>
         <p>@Messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
         @if(showPostLink) {
-          <p>@Html(Messages("label.you_can_send_your_tax_return_by_post_", pertaxContext.configDecorator.selfAssessmentEnrolUrl, currentTaxYear))</p>
+            <p id="returnTaxReturnByPost">@Messages("label.you_can_send_your_tax_return_by_post_text_before_link") <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">@Messages("label.you_can_send_your_tax_return_by_post_link_text")</a> @Messages("label.you_can_send_your_tax_return_by_post_text_after_link", currentTaxYear).</p>
         }
-      </div>
-    </div>
 
-  </div>
+    </div>
+</div>
+
 }

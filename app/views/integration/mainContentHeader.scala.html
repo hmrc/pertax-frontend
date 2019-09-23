@@ -30,7 +30,8 @@ configDecorator: config.ConfigDecorator)(implicit messages: play.api.i18n.Messag
     <p>
       <strong class="phase-tag">@Messages("label.beta")</strong>
         @deskProToken.map { deskProToken =>
-      <span class="feedback">@Html(Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it", configDecorator.betaFeedbackUnauthenticatedUrl(deskProToken)))</span>
+      <span class="feedback">@Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") <a href="@configDecorator.betaFeedbackUnauthenticatedUrl(deskProToken)">@Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text")</a>
+@Messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")</span>
       }.getOrElse {
         <span class="feedback">@Messages("global.label.this_is_a_trial_service")</span>
       }

@@ -45,16 +45,13 @@
 ) {
     @back_link()
 
-
     @errors(residenceStartDateForm)
-
-
 
         <div class="grid-row">
             <div class="column-two-thirds">
-                <div class="page-heading">
-                    <h1 class="heading-xlarge no-margin-bottom">@typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = "")</h1>
-                </div>
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@typ.ifIs(primary = Messages("label.when_did_this_become_your_main_home"), sole = Messages("label.when_did_you_start_living_here"), postal = "")</h1>
+                </header>
 
                 <div class="form-start-date">
 
@@ -72,7 +69,7 @@
                         </summary>
                         <div class="panel panel-border-wide" id="details-content" aria-hidden="true">
                             <p>
-                                @Html(Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_", "https://www.gov.uk/scottish-rate-income-tax/how-it-works"))
+                                @Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="Why do you need to know this" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="@pertaxContext.configDecorator.scottishRateIncomeTaxUrl" target="_blank" rel="noopener noreferrer">@Messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax_link_text") @Messages("label.opens_in_a_new_window")</a>.
                             </p>
                         </div>
                     </details>
