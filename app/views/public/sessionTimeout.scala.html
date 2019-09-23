@@ -17,8 +17,11 @@
 @()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
 
 @main(Messages("label.sign_in"), displayTimeoutDialog = false) {
-  <h1 class="heading-large">@Messages("label.youve_been_signed_out")</h1>
-  <p>@Messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
-  <p>@Messages("label.please_sign_in_again")</p><br>
-  <a class="button" href="@controllers.routes.HomeController.index" role="button">@Messages("label.sign_in")</a>
+
+    <header class="page-heading">
+        <h1 class="heading-xlarge">@Messages("label.youve_been_signed_out")</h1>
+    </header>
+    <p>@Messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
+    <p>@Messages("label.please_sign_in_again")</p>
+    <a class="button" href="@controllers.routes.HomeController.index" role="button">@Messages("label.sign_in")</a>
 }
