@@ -25,12 +25,14 @@
   <div class="grid-row">
     <div class="column-two-thirds">
 
-      <h1 class="heading-xlarge">@Html(Messages("label.your_address_has_already_been_updated"))</h1>
+      <header class="page-heading">
+        <h1 class="heading-xlarge">@Html(Messages("label.your_address_has_already_been_updated"))</h1>
+      </header>
       <p class="summary">@Messages("label.to_continue_you_can")</p>
 
       <ul class="list list-bullet">
-        <li>@Html(Messages("label.see_your_current_address", "/personal-account/your-address"))</li>
-        <li>@Html(Messages("label.go_to_your_personal_tax_account_home", "/personal-account"))</li>
+        <li>@Messages("label.see_your_current_address_text_before_link") <a href="@pertaxContext.configDecorator.personalAccountYourAddress">@Messages("label.see_your_current_address_link_text")</a></li>
+        <li>@Messages("label.go_to_your_personal_tax_account_home_text_before_link") <a href="@pertaxContext.configDecorator.personalAccount">@Messages("label.go_to_your_personal_tax_account_home_link_text")</a></li>
       </ul>
     </div>
   </div>

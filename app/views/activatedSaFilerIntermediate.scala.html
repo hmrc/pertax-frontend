@@ -33,6 +33,6 @@
   <div>
     <h1 class="heading-xlarge">@Messages("label.we_are_processing_your-details")</h1>
     <p class="margin-bottom">@Messages("label.this_may_take_up_to_30_seconds")</p>
-    <p>@Html(Messages("label.if_you_are_not_redirected_in_", pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)))</p>
+    <p>@Messages("label.if_you_are_not_redirected_in_text_before_link") <a href="@pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)">@Messages("label.if_you_are_not_redirected_in_link_text")</a></p>
   </div>
 }

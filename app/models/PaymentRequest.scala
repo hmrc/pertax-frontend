@@ -23,7 +23,7 @@ case class PaymentRequest(utr: String, returnUrl: String, backUrl: String)
 
 object PaymentRequest {
   def apply(configDecorator: ConfigDecorator, utr: String): PaymentRequest = {
-    val homePageUrl = configDecorator.pertaxFrontendHomeUrl
+    val homePageUrl = configDecorator.payApiBackLinks
     PaymentRequest(utr, homePageUrl, homePageUrl)
   }
 
