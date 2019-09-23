@@ -629,7 +629,7 @@ error.country_required=Nodwch wlad
 #
 # Messages in lower case
 #
-text.opens_in_new_window=yn agor ffenestr newydd
+text.opens_in_new_window=yn agor ffenestr neu dab newydd
 text.give_someone_you_know_permission_to_access_your_tax_details=rhoi caniatad i rywun yr ydych yn ei adnabod gyrchu’ch manylion treth
 text.request_permission_to_help_someone_you_know_with_their_tax=gofyn am ganiatad i helpu rhywun yr ydych yn ei adnabod gyda’i dreth
 text.get_in_touch=cysylltu â ni
