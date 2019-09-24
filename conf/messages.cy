@@ -172,7 +172,11 @@ label.your_utr_letter_may_still_be_in_the_post=Mae’n bosibl bod y llythyr sy�
 label.we_sent_your_utr_to_you_by_post_=Rydym wedi anfon eich UTR atoch drwy’r post. Gall gymryd hyd at 14 diwrnod gwaith i gyrraedd.
 label.you_cannot_access_your_self_assessment_=You cannot access your Self Assessment information from this account
 label.have_you_used_your_utr_to_enrol=Ydych chi wedi ymrestru i gyflwyno’ch Ffurflenni Treth ar-lein?
-label.you_cannot_view_your_self_assessment_information_here_the_deadline_=You cannot view your Self Assessment information here.<br /><br />The deadline for paper tax returns is midnight on 31 October. After this date, you will have to <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank" rel="noopener noreferrer">do your tax return online (opens in a new window)</a>.
+
+label.you_cannot_view_your_self_assessment_information_here_=You cannot view your Self Assessment information here.
+label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=The deadline for paper tax returns is midnight on 31 October. After this date, you will have to
+label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=do your tax return online
+
 label.use_your_utr_to_register_for_self_assessment_online_text_before_link=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i
 label.use_your_utr_to_register_for_self_assessment_online_link_text=gofrestru ar gyfer Hunanasesiad ar-lein
 label.how_to_access_your_self_assessment=Sut i gyrchu’ch Hunanasesiad

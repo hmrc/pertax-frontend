@@ -413,10 +413,6 @@ error.country_required=Enter country
 #
 # Messages in lower case
 #
-text.opens_in_new_window=opens in a new window or tab
-text.give_someone_you_know_permission_to_access_your_tax_details=give someone you know permission to access your tax details
-text.request_permission_to_help_someone_you_know_with_their_tax=request permission to help someone you know with their tax
-text.get_in_touch=get in touch
 text.report_a_change_to_your_circumstances_link_text=report a change
 text.report_a_change_to_your_circumstances_text_after_link=to your circumstances
 text.authorise_a_tax_advisor_or_accountant_link_text=authorise a tax adviser or accountant
