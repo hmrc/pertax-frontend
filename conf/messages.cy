@@ -98,8 +98,6 @@ label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
-label.phone_lines_are_open_8am_to_8pm_monday_to_friday_and_8am_to_4pm_on_saturday=Yr oriau agor yw 08:00 tan 17:00, dydd Llun i ddydd Gwener.
-label.closed_sundays_and_bank_holidays=Ar gau ar ddydd Sadwrn, dydd Sul a gwyliau’r banc.
 label.find_out_about_call_charges=Gwybodaeth am gost galwadau
 label.opens_in_a_new_window=(yn agor ffenestr newydd)
 label.yes=Iawn
@@ -268,11 +266,9 @@ label.this_may_take_up_to_30_seconds=Gall hyn gymryd hyd at 30 eiliad.
 label.if_you_are_not_redirected_in_=Os na chewch eich ailgyfeirio cyn pen 30 eiliad, <a href="{0}">cliciwch yma</a>
 label.webchat_service=Gwasanaeth sgwrs dros y we
 label.chat_online_with_one_of_our_advisers=Sgwrsiwch ar-lein gydag un o’n ymgynghorwyr
-label.you_cant_access_your_self_assessment_=Ni allwch gyrchu’ch gwybodaeth Hunanasesiad o’r cyfrif hwn
 label.you_must_sign_out_then_sign_in_with_the_user_id_=Mae’n rhaid i chi <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="{0}">allgofnodi</a>, wedyn mewngofnodi gyda’r Dynodydd Defnyddiwr (ID) a chyfrinair a ddefnyddioch i gychwyn eich gwasanaeth Hunanasesiad ar-lein.<br /><br /><a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="{1}">Adfer eich ID</a> os ydych wedi’i golli.
 label.if_you_have_never_sent_your_tax_return_online=Os nad ydych wedi anfon eich Ffurflen Dreth ar-lein erioed o’r blaen
 label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_=Rydych eisoes wedi cofrestru gyda CThEM, ac mae’n rhaid i chi nawr <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Enrol for SA" href="{0}" target="_blank" rel="noopener noreferrer">ymrestru ar gyfer y gwasanaeth Hunanasesiad ar-lein (yn agor ffenestr newydd)</a> er mwyn cyflwyno Ffurflen Dreth neu gyrchu manylion eich cyfrif.<br /><br />Ar ôl i chi ymrestru, cewch god cychwyn drwy’r post cyn pen 7 diwrnod. Defnyddiwch hwn cyn pen 28 diwrnod i gychwyn eich cyfrif. Os daw’r cyfnod pan allwch gychwyn eich cyfrif i ben, gallwch <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Activate SA" href="{1}" target=_blank">wneud cais am god cychwyn newydd (yn agor ffenestr newydd)</a>.
-label.you_cant_view_your_self_assessment_information_here_the_deadline_=Ni allwch fwrw golwg ar eich gwybodaeth Hunanasesiad yn y fan hon.<br /><br />Y dyddiad cau ar gyfer Ffurflenni Treth papur yw 31 Hydref. Mae’n rhaid i chi nawr <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank" rel="noopener noreferrer">lenwi’ch Ffurflen Dreth ar-lein (yn agor ffenestr newydd)</a>.
 label.get_your_sa302_calculation=Cael eich cyfrifiad SA302
 label.we_can_only_show_your_sa302_calculation_if_you_=Gallwn ond ddangos eich cyfrifiad SA302 os gwnaethoch gyflwyno drwy’r wefan hon.
 label.i_didnt_file_through_this_website=Ni chyflwynais drwy’r wefan hon
@@ -305,7 +301,6 @@ error.line1_required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.line2_required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.line3_required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.line4_required=Mae angen rhoi gwybodaeth ar y llinell hon
-error.line5_required=Mae angen rhoi gwybodaeth ar y llinell hon
 head.error.line1_contains_more_than_35_characters=Gwirio llinell gyntaf eich cyfeiriad
 head.error.line2_contains_more_than_35_characters=Gwirio ail linell eich cyfeiriad
 head.error.line3_contains_more_than_35_characters=Gwirio trydedd linell eich cyfeiriad

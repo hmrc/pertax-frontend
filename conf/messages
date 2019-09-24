@@ -440,16 +440,11 @@ label.your_national_insurance_number_is_your_unique_identifier=Your National Ins
 label.view_your_national_insurance_letter=View your National Insurance letter
 label.view_gaps_in_your_record=View gaps in your record
 label.check_your_state_pension=Check your State Pension
-<<<<<<< HEAD
-label.you_paid_the_right_amount_of_tax_last_year=You paid the right amount of tax last year
 label.your_tax_has_not_been_calculated=Your tax has not been calculated yet
 label.no_need_to_contact_hmrc=There is no need to contact HMRC about this. You will receive a letter if you have paid too much or too little tax.
 label.you_paid_the_right_amount_of_tax=You paid the right amount of tax
 label.nothing_more_to_pay=There is nothing more to pay for this year.
 label.no_record_of_employment=HMRC has no record of you being employed in this tax year so there is nothing more to pay.
-label.your_tax_has_not_yet_been_calculated=Your tax has not yet been calculated
-=======
->>>>>>> Removed unused keys
 
 #
 # Benefits
