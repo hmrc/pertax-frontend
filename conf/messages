@@ -4,7 +4,6 @@
 global.label._last_signed_in={0}, you last signed in {1}
 global.label.you_last_signed_in=You last signed in {0}
 global.label.sign_out=Sign out
-global.label.submit_button=Submit
 global.label.continue_button=Continue
 global.label.start_button=Start
 global.label.find_your_address=Find your address
@@ -16,17 +15,11 @@ global.label.this_is_a_trial_service=This is a trial service.
 #
 # Mesages in title case
 #
-title.income_tax_link=Income Tax
 title.address=Address
 title.name=Name
-title.email=Email
-title.day=Day
-title.month=Month
 title.year=Year
 title.postcode=Postcode
 title.house.name.or.number=House name or number (optional)
-title.satisfied=Satisfied
-title.dissatisfied=Dissatisfied
 title.amount=Amount
 title.type=Type
 
@@ -36,16 +29,8 @@ title.type=Type
 label.beta=BETA
 label.hm_revenue_customs=HM Revenue & Customs
 label.hm_revenue_customs_ni_print=<span>HM Revenue </span>&amp; Customs
-label.english=English
-label.welsh=Cymraeg
-label.service_not_available=Service not available
-label.we_are_currently_experiencing_some_technical_problems_=We are currently experiencing some technical problems with the tax credits service, please try again later.
-label.you_can_also_tell_us_about_a_change_to_your_details_=You can also tell us about a change to your details by calling the <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/tax-credits-enquiries">Tax Credits Helpline</a>.
-label.letters_from_hm_revenue_and_customs_currently_get_sent_to_your_home_address=Letters from HM Revenue and Customs currently get sent to your home address.
-label.return_to_your_address=Return to your address
 label.continue=Continue
 label.continue_to_your_sa302=Continue to your SA302
-label.annual_taxable_income=Annual taxable income
 label.we_are_processing_your-details=We are processing your details
 label.this_may_take_up_to_30_seconds=This may take up to 30 seconds.
 label.if_you_are_not_redirected_in_text_before_link=If you are not redirected within 30 seconds
