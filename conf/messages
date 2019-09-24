@@ -141,12 +141,6 @@ label.how_to_contact_us=How to contact us
 label.opens_in_a_new_window=(opens in a new window or tab)
 label.yes=Yes
 label.no=No
-label.report_a_problem_signing_in=Report a problem signing in
-label.tell_us_your_name_and_email_address_and_someone_will_get_back_to_you_within_2_working_days=Tell us your name and email address and someone will get back to you within 2 working days.
-label.thanks_weve_received_your_details=Thanks, we have received your details
-label.someone_will_get_back_to_you_within_2_working_days=Someone will get back to you within 2 working days.
-label.return_to_pta_start=Return to personal tax account start page
-label.your_messages=Your messages
 label.list_of_messages=List of messages
 label.all_messages=All messages
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Sorry, there has been a technical problem retrieving your messages
@@ -162,33 +156,12 @@ label.you_cannot_use_this_service_to_update_your_address=You cannot use this ser
 label.your_address_cannot_be_updated=Your address cannot be updated
 label.webchat_service=Webchat service
 label.chat_online_with_one_of_our_advisers=Chat online with one of our advisers
-label.explore_gov_uk=Explore GOV.UK
 label.name=Name
 label.change_your_name=Change your name
-label.email=Email
 label.back=Back
-label.please_provide_your_name=Please provide your name.
-label.please_provide_your_email=Please provide your email.
-label.trying_to_sign_in_to_pta_from_the_start_page=Trying to sign in to personal tax account from the Start Page.
-label.could_not_sign_in_through_verify=Could not sign in through Verify.
-label.sign_in_reporter=Personal Tax Account
-label.your_income_tax=Your Income Tax
-label.this_will_be_deducted_from_your_pay_or_private_pension_using_your_tax_codes=This will be deducted from your pay or private pension using your tax code(s).
-label.money_and_tax=Money and tax
-label.tax_and_national_insurance=Tax and National Insurance
-label.pension_and_retirement=Pension and retirement
-label.see_your_existing_protection_details=See your existing protection details.
-label.child_benefit_and_tax_credits=Child Benefit and tax credits
-label.activate_your_self_assessment_using_the_12_=Activate your Self Assessment using the 12-digit activation code you received in the post.
-label.your_self_assessment_details_cannot_be_shown=Your Self Assessment details cannot be shown
-label.you_may_have_previously_activated_your_self_assessment_using_different_=You may have previously activated Self Assessment using different Government Gateway sign in details.<br /><br />You can see your Self Assessment if you <a href="{0}">sign out</a> and then sign in using your other details.
-label.check_your_self_assessment_details=Check your Self Assessment details.
 label.if_you_send_your_tax_return_online=If you send your tax return online
 label.if_you_send_your_tax_return_by_post=If you send your tax return by post
-label.you_cannot_currently_see_your_self_assessment_=You cannot currently see your Self Assessment details online.<br /><br /><a href="{0}" target="_blank" rel="noopener noreferrer">Send your tax return by post (opens in a new window or tab)</a>.
-label.you_cannot_access_this_service_because_hmrc_doesnt_know_enough_=You cannot access this service because HM Revenue and Customs (HMRC) does not know enough about you to be able to confirm your identity.<br /><br />If you have a query you can <a href="{0}" target="_blank" rel="noopener noreferrer">contact HMRC (opens in a new window or tab)</a> to get help.
 label.you_cannot_access_your_self_assessment_=You cannot access your Self Assessment information from this account
-label.it_could_be_that_you_used_different_government_gateway_sign_in_details_=It could be that you used different Government Gateway sign in details when you activated your online Self Assessment. If you did, you will need to <a href="{0}">sign out</a> and then sign back in using these other details.
 label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link=You must
 label.you_must_sign_out_then_sign_in_with_the_user_id_link_text=sign out
 label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link=then sign in with the user ID and password you used to activate your Self Assessment online.
@@ -203,10 +176,6 @@ label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessm
 label.you_cannot_view_your_self_assessment_information_here_=You cannot view your Self Assessment information here.
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=The deadline for paper tax returns is midnight on 31 October. After this date, you will have to
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=do your tax return online
-label.sign_in_with_the_user_id_you_used_or_created_=sign in with the user ID you used, or created, when you signed up for Self Assessment.<br /><br />You can <a href="{0}" target="_blank" rel="noopener noreferrer">recover your user ID (opens in a new window or tab)</a> if you have forgotten it.
-label.you_cannot_currently_see_your_self_assessment_online_=You cannot currently see your Self Assessment online, so <a href="{0}" target="_blank" rel="noopener noreferrer">send your tax return by post (opens in a new window or tab)</a> as usual.
-label.you_need_to_sign_in_with_the_user_id_you_used_or_created_=Sign in with the user ID you used, or created, when you signed up for Self Assessment (you can <a href="{0}">recover your user ID</a> if you have lost it).
-label.sign_in_with_another_user_id=Sign in with another user ID
 label.activate_your_self_assessment_registration=Activate your Self Assessment registration
 label.activate_your_self_assessment=Activate your Self Assessment
 label.get_your_sa302_calculation=Get your SA302 calculation
@@ -228,12 +197,9 @@ label.we_need_to_ask_you_some_questions_=We need to ask you some questions befor
 label.have_you_ever_filed_your_tax_return_online=Have you ever done your tax return online?
 label.did_you_deregister_from_sa_online=Did you deregister from Self Assessment online?
 label.you_need_to_sign_up_to_send_your_tax_returns_online_again=You need to sign up to send your tax returns online again
-label.use_your_utr_to_register_again_=Use your Unique Taxpayer Reference (UTR) to <a class="ga-track-anchor-click" href="{0}" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">register again for Self Assessment online</a>.
 label.registration_can_take_up_to_ten_days_=Registration can take up to 10 days. After registration you must activate your account with the code we send you by post.
 label.you_will_get_an_activation_code_in_the_post_=You will get an activation code in the post within 10 days of enrolling. Activate your account with the same Government Gateway user ID and password you used to enrol.
 label.sign_in_with_different_account_details=Sign in with different account details
-label.you_may_be_using_the_wrong_government_gateway_account_=You may be using the wrong Government Gateway account. Sign out, then sign back in with the right details.
-label.you_need_to_use_the_government_gateway_user_id_=You need to use the Government Gateway user ID and password you created when you first registered for Self Assessment online.
 label.get_help_signing_in=Get help signing in
 label.get_help_if_you_have=Get help if you have:
 label.forgotten_your_self_assessment_user_id=forgotten your Self Assessment user ID
