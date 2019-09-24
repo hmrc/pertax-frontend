@@ -100,12 +100,6 @@ label.give_friends_or_family_permission_to_access_your_account=Rhoi caniatad i�
 label.view_your_trusted_helper_contacts=Gweld eich cynorthwywyr y gallwch ymddiried ynddynt
 label.yes=Iawn
 label.no=Na
-label.report_a_problem_signing_in=Rhoi gwybod am broblem wrth fewngofnodi
-label.tell_us_your_name_and_email_address_and_someone_will_get_back_to_you_within_2_working_days=Rhowch eich enw a’ch cyfeiriad e-bost i ni, a bydd rhywun yn cysylltu â chi cyn pen 2 ddiwrnod gwaith.
-label.thanks_weve_received_your_details=Diolch. Mae eich manylion wedi dod i law
-label.someone_will_get_back_to_you_within_2_working_days=Bydd rhywun yn cysylltu â chi cyn pen 2 ddiwrnod gwaith.
-label.return_to_pta_start=Dychwelyd i dudalen ddechrau eich cyfrif treth personol
-label.your_messages=Eich negeseuon
 label.list_of_messages=Rhestr o negeseuon
 label.all_messages=Pob neges
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich negeseuon
@@ -121,38 +115,12 @@ label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
 label.nid_yw_rhai_or_tudalennau=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu i’r Gymraeg eto.
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
-label.explore_gov_uk=Chwilio drwy GOV.UK
 label.name=Enw
 label.change_your_name=Newid eich enw
-label.email=E-bost
 label.back=Yn ôl
-label.please_provide_your_name=Rhowch eich enw.
-label.please_provide_your_email=Rhowch eich cyfeiriad e-bost.
-label.trying_to_sign_in_to_pta_from_the_start_page=Rwyf/roeddwn yn ceisio mewngofnodi i’r cyfrif treth personol o’r Dudalen Ddechrau.
-label.could_not_sign_in_through_verify=Nid oeddwn yn gallu mewngofnodi drwy Verify.
-label.sign_in_reporter=Cyfrif Treth Personol
-label.your_income_tax=Eich Treth Incwm
-label.this_will_be_deducted_from_your_pay_or_private_pension_using_your_tax_codes=Bydd hwn yn cael ei ddidynnu o’ch cyflog neu bensiwn preifat drwy ddefnyddio eich cod(au) treth.
-label.money_and_tax=Arian a threth
-label.tax_and_national_insurance=Treth ac Yswiriant Gwladol
-label.pension_and_retirement=Pensiwn ac ymddeol
-label.see_your_existing_protection_details=Bwrw golwg ar fanylion eich diogelwch presennol
-label.child_benefit_and_tax_credits=Budd-dal Plant a chredydau treth
 label.self_assessment=Hunanasesiad
-label.activate_your_self_assessment_using_the_12_=Cychwyn eich Hunanasesiad gan ddefnyddio’r cod cychwyn, sy’n 12 digid, a gawsoch yn y post.
-label.your_self_assessment_details_cannot_be_shown=Ni ellir dangos eich manylion Hunanasesiad.
-label.you_may_have_previously_activated_your_self_assessment_using_different_=Mae’n bosibl eich bod eisoes wedi cychwyn Hunanasesiad drwy ddefnyddio manylion mewngofnodi gwahanol ar gyfer Porth y Llywodraeth.<br /><br />Gallwch weld eich Hunanasesiad os ydych yn <a href="{0}">allgofnodi</a> ac yna’n mewngofnodi drwy ddefnyddio’ch manylion eraill.
-label.check_your_self_assessment_details=Gwirio’ch manylion Hunanasesiad.
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
-label.you_cannot_currently_see_your_self_assessment_=Ni allwch weld eich manylion Hunanasesiad ar-lein ar hyn o bryd.<br /><br /><a href="{0}" target="_blank" rel="noopener noreferrer">Anfon eich Ffurflen Dreth drwy’r post (yn agor ffenestr neu dab newydd)</a>.
-label.you_cannot_access_this_service_because_hmrc_doesnt_know_enough_=Ni allwch gyrchu’r gwasanaeth hwn oherwydd nid yw Cyllid a Thollau EM (CThEM) yn gwybod digon amdanoch i allu cadarnhau pwy ydych.<br /><br />Os oes gennych ymholiad, dylech "_blank">gysylltu â CThEM (yn agor ffenestr neu dab newydd)</a> i gael help.
-label.you_cant_access_your_self_assessment=Ni allwch gyrchu’ch Hunanasesiad.
-label.it_could_be_that_you_used_different_government_gateway_sign_in_details_=Mae’n bosibl eich bod wedi defnyddio manylion mewngofnodi gwahanol ar gyfer Porth y Llywodraeth pan wnaethoch gychwyn eich Hunanasesiad ar-lein. Os yw hyn yn wir, bydd angen i chi <a href="{0}">allgofnodi</a> ac yna mewngofnodi drwy ddefnyddio’r manylion eraill hyn.
-label.sign_in_with_the_user_id_you_used_or_created_=Mewngofnodwch gyda’r Dynodydd Defnyddiwr a ddefnyddiwyd neu a grëwyd gennych pan wnaethoch ymuno â Hunanasesiad.<br /><br />Gallwch <a href="{0}" target="_blank" rel="noopener noreferrer">adfer eich Dynodydd Defnyddiwr (yn agor ffenestr neu dab newydd)</a> os ydych wedi’i anghofio.
-label.you_cannot_currently_see_your_self_assessment_online_=Ni allwch weld eich manylion Hunanasesiad ar-lein ar hyn o bryd. Felly, <a href="{0}" target="_blank" rel="noopener noreferrer">anfonwch eich Ffurflen Dreth drwy’r post (yn agor ffenestr neu dab newydd)</a>yn ôl yr arfer.
-label.you_need_to_sign_in_with_the_user_id_you_used_or_created_=Mewngofnodwch gyda’r Dynodydd Defnyddiwr a ddefnyddiwyd neu a grëwyd gennych pan wnaethoch ymuno â Hunanasesiad (gallwch <a href="{0}">adfer eich Dynodydd Defnyddiwr</a> os ydych wedi’i golli).
-label.sign_in_with_another_user_id=Mewngofnodwch gyda Dynodydd Defnyddiwr arall
 label.activate_your_self_assessment_registration=Cychwyn eich cofrestriad ar gyfer Hunanasesiad
 label.activate_your_self_assessment=Cychwyn eich Hunanasesiad
 label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_1=Mae angen i chi gychwyn eich cofrestriad Hunanasesiad drwy ddefnyddio’ch cod cychwn.
@@ -166,12 +134,9 @@ label.we_need_to_ask_you_some_questions_=Mae’n rhaid i ni ofyn ambell gwestiwn
 label.have_you_ever_filed_your_tax_return_online=Ydych chi wedi cyflwyno’ch Ffurflen Dreth ar-lein erioed?
 label.did_you_deregister_from_sa_online=Ydych chi wedi dadgofrestru rhag defnyddio Hunanasesiad Ar-lein?
 label.you_need_to_sign_up_to_send_your_tax_returns_online_again=Mae’n rhaid i chi gofrestru er mwyn anfon eich Ffurflenni Treth ar-lein eto
-label.use_your_utr_to_register_again_=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i <a class="ga-track-anchor-click" href="{0}" target="_blank" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register again for Self Assessment online">gofrestru eto ar gyfer Hunanasesiad ar-lein</a>.
 label.registration_can_take_up_to_ten_days_=Gall gymryd hyd at 10 diwrnod i gofrestru. Ar ôl cofrestru, mae’n rhaid i chi gychwyn eich cyfrif gyda’r cod rydym yn ei anfon atoch drwy’r post.
 label.you_will_get_an_activation_code_in_the_post_=Byddwch yn cael cod cychwyn drwy’r post cyn pen 10 diwrnod ar ôl ymrestru. Cychwynnwch eich cyfrif gyda’r un Dynodydd Defnyddiwr (ID) Porth y Llywodraeth a chyfrinair a defnyddiwyd gennych i ymrestru.
 label.sign_in_with_different_account_details=Mewngofnodi gan ddefnyddio manylion cyfrif gwahanol
-label.you_may_be_using_the_wrong_government_gateway_account_=Mae’n bosibl eich bod yn defnyddio’r cyfrif anghywir ar gyfer Porth y Llywodraeth. Allgofnodwch, ac yna mewngofnodwch eto gan ddefnyddio’r manylion cywir.
-label.you_need_to_use_the_government_gateway_user_id_=Mae angen i chi ddefnyddio’r Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer Porth y Llywodraeth a grëwyd gennych wrth gofrestru y tro cyntaf ar gyfer Hunanasesiad ar-lein.
 label.get_help_signing_in=Cael help i fewngofnodi
 label.get_help_if_you_have=Gallwch gael help os ydych wedi:
 label.forgotten_your_self_assessment_user_id=anghofio’ch Dynodydd Defnyddiwr ar gyfer Hunanasesiad
