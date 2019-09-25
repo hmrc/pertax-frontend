@@ -33,7 +33,7 @@ object AddressDto extends CountryHelper {
 
   implicit val formats = Json.format[AddressDto]
 
-  def fromAddressRecord(addressRecord: AddressRecord) = {
+  def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
     val address = addressRecord.address
     val List(line1, line2, line3, line4, line5) =
       (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
@@ -51,11 +51,11 @@ object AddressDto extends CountryHelper {
   val ukForm = Form(
     mapping(
       "line1" -> text
-        .verifying("error.line1_required", _.size > 0)
+        .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line2" -> text
-        .verifying("error.line2_required", _.size > 0)
+        .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
@@ -83,11 +83,11 @@ object AddressDto extends CountryHelper {
   val internationalForm = Form(
     mapping(
       "line1" -> text
-        .verifying("error.line1_required", _.size > 0)
+        .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line2" -> text
-        .verifying("error.line2_required", _.size > 0)
+        .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
@@ -124,7 +124,7 @@ case class AddressDto(
       line3,
       line4,
       line5,
-      postcode.map(formatMandatoryPostCode(_)),
+      postcode.map(formatMandatoryPostCode),
       country,
       Some(startDate),
       Some(endDate),
@@ -146,9 +146,9 @@ case class AddressDto(
       Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
   }
 
-  def toList = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
-  def toListWithCountry = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
-  def formatMandatoryPostCode(postCode: String) = {
+  def toList: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
+  def toListWithCountry: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
+  def formatMandatoryPostCode(postCode: String): String = {
     val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
     val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
     postCodeSplit._1 + " " + postCodeSplit._2
