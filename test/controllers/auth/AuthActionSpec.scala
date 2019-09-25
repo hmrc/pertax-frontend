@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.nisp.controllers.auth
+package controllers.auth
 
 import connectors.NewPertaxAuthConnector
+import controllers.auth.requests.AuthenticatedRequest
 import controllers.auth.{AuthAction, AuthActionImpl}
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
@@ -31,7 +32,8 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.auth.core.{AuthConnector, InsufficientConfidenceLevel, InsufficientEnrolments, SessionRecordNotFound}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
+import uk.gov.hmrc.auth.core.{AuthConnector, Enrolment, EnrolmentIdentifier, Enrolments, InsufficientConfidenceLevel, InsufficientEnrolments, SessionRecordNotFound}
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -46,8 +48,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   val mockAuthConnector: NewPertaxAuthConnector = mock[NewPertaxAuthConnector]
 
   class Harness(authAction: AuthAction) extends Controller {
-    def onPageLoad(): Action[AnyContent] = authAction { _ =>
-      Ok
+    def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
+      Ok(s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saUtr.getOrElse("fail").toString}")
     }
   }
 
@@ -89,4 +91,61 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     }
   }
 
+  "A user with nino and no SA enrolment must" - {
+    "create an authenticated request" in {
+
+      val retrievalResult: Future[Option[String] ~ Enrolments ~ Option[Credentials]] =
+        Future.successful(new ~(new ~(Some("AB123456C"), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))))
+
+      when(mockAuthConnector.authorise[Option[String] ~ Enrolments ~ Option[Credentials]](any(), any())(any(), any()))
+        .thenReturn(retrievalResult)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration)
+      val controller = new Harness(authAction)
+
+      val result = controller.onPageLoad()(FakeRequest("", ""))
+      status(result) mustBe OK
+      contentAsString(result) must include("AB123456C")
+    }
+  }
+
+  //TODO: Use Generators
+  "A user with no nino but an SA enrolment must" - {
+    "create an authenticated request" in {
+
+      val retrievalResult: Future[Option[String] ~ Enrolments ~ Option[Credentials]] =
+        Future.successful(new ~(new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(
+          EnrolmentIdentifier("UTR", "1234567890")), "")))), Some(Credentials("foo", "bar"))))
+
+      when(mockAuthConnector.authorise[Option[String] ~ Enrolments ~ Option[Credentials]](any(), any())(any(), any()))
+        .thenReturn(retrievalResult)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration)
+      val controller = new Harness(authAction)
+
+      val result = controller.onPageLoad()(FakeRequest("", ""))
+      status(result) mustBe OK
+      contentAsString(result) must include("1234567890")
+    }
+  }
+
+  "A user with a nino and an SA enrolment must" - {
+    "create an authenticated request" in {
+
+      val retrievalResult: Future[Option[String] ~ Enrolments ~ Option[Credentials]] =
+        Future.successful(new ~(new ~(Some("AB123456C"), Enrolments(Set(Enrolment("IR-SA", Seq(
+          EnrolmentIdentifier("UTR", "1234567890")), "")))), Some(Credentials("foo", "bar"))))
+
+      when(mockAuthConnector.authorise[Option[String] ~ Enrolments ~ Option[Credentials]](any(), any())(any(), any()))
+        .thenReturn(retrievalResult)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration)
+      val controller = new Harness(authAction)
+
+      val result = controller.onPageLoad()(FakeRequest("", ""))
+      status(result) mustBe OK
+      contentAsString(result) must include("AB123456C")
+      contentAsString(result) must include("1234567890")
+    }
+  }
 }

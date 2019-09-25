@@ -47,8 +47,7 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
           val saUtr = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers.find(id => id.key == "UTR").map(_.value)
           }
-          val isVerify = credentials.providerType != "GovernmmentGateway"
-          block(AuthenticatedRequest(nino.map(domain.Nino), saUtr.map(domain.SaUtr), isVerify, request))
+          block(AuthenticatedRequest(nino.map(domain.Nino), saUtr.map(domain.SaUtr), credentials.providerType, request))
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
