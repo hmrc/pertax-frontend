@@ -89,7 +89,6 @@ label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
-label.find_out_about_call_charges=Gwybodaeth am gost galwadau
 label.opens_in_a_new_window=(yn agor ffenestr neu dab newydd)
 label.yes=Iawn
 label.no=Na
