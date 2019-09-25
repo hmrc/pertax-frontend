@@ -16,18 +16,17 @@
 
 package controllers
 
-import connectors.{CreatePayment, FrontEndDelegationConnector, PayApiConnector}
+import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Reads
 import play.api.mvc._
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -35,7 +34,6 @@ import util.AuditServiceTools._
 import util.DateTimeTools
 
 import scala.concurrent.Future
-import scala.util.control.NonFatal
 
 class ApplicationController @Inject()(
   val messagesApi: MessagesApi,
@@ -60,7 +58,7 @@ class ApplicationController @Inject()(
     }
   }
 
-  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
+  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authorisedAction() {
     implicit pertaxContext =>
       import IdentityVerificationSuccessResponse._
 
@@ -116,7 +114,7 @@ class ApplicationController @Inject()(
   }
 
   def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
-    AuthorisedAction(fetchPersonDetails = false) { implicit pertaxContext =>
+    authorisedAction(fetchPersonDetails = false) { implicit pertaxContext =>
       Future.successful {
         continueUrl
           .map(_.url)
@@ -132,7 +130,7 @@ class ApplicationController @Inject()(
       }
     }
 
-  def handleSelfAssessment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+  def handleSelfAssessment: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     enforceGovernmentGatewayUser {
       selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
@@ -144,12 +142,8 @@ class ApplicationController @Inject()(
     }
   }
 
-  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
+  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authorisedAction() {
     implicit pertaxContext =>
-      val c = configDecorator.lostCredentialsChooseAccountUrl(
-        continueUrl.map(_.url).getOrElse(controllers.routes.HomeController.index().url),
-        "userId")
-
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
       selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {

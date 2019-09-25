@@ -18,9 +18,9 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
+import models._
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
-import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliation, Underpaid}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
 

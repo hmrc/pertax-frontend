@@ -17,9 +17,9 @@
 package controllers.auth
 
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength}
+import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 
 trait ConfidenceLevelChecker {
-  def userHasHighConfidenceLevel(implicit authContext: AuthContext) =
+  def userHasHighConfidenceLevel(implicit authContext: AuthContext): Boolean =
     authContext.user.confidenceLevel >= ConfidenceLevel.L200
 }

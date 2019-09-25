@@ -45,7 +45,7 @@ abstract class PertaxBaseController
   def configDecorator: ConfigDecorator = pertaxDependencies.configDecorator
 
   implicit class SessionKeyRemover(result: Future[Result]) {
-    def removeSessionKey(key: String)(implicit request: Request[_]) = result.map {
+    def removeSessionKey(key: String)(implicit request: Request[_]): Future[Result] = result.map {
       _.withSession(request.session - key)
     }
   }

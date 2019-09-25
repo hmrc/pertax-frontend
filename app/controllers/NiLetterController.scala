@@ -16,8 +16,7 @@
 
 package controllers
 
-import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector}
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import javax.inject.Inject
@@ -27,7 +26,6 @@ import play.api.mvc.{Action, AnyContent}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.http.BadRequestException
-import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 import scala.io.Source
@@ -44,7 +42,7 @@ class NiLetterController @Inject()(
   val pdfGeneratorConnector: PdfGeneratorConnector)
     extends PertaxBaseController with AuthorisedActions {
 
-  def printNationalInsuranceNumber: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+  def printNationalInsuranceNumber: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     enforcePersonDetails { payeAccount => personDetails =>
       Future.successful(
         Ok(
@@ -55,7 +53,7 @@ class NiLetterController @Inject()(
     }
   }
 
-  def saveNationalInsuranceNumberAsPdf: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+  def saveNationalInsuranceNumberAsPdf: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
       enforcePersonDetails { payeAccount => personDetails =>
         val applicationMinCss =
@@ -76,13 +74,14 @@ class NiLetterController @Inject()(
           .replaceAll("  +", "")
 
         pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
-          if (response.status != OK)
+          if (response.status != OK) {
             throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
-          else
+          } else {
             Ok(response.bodyAsBytes.toArray)
               .as("application/pdf")
               .withHeaders("Content-Disposition" -> s"attachment; filename=${Messages(
                 "label.your_national_insurance_letter").replaceAll(" ", "-")}.pdf")
+          }
         }
       }
     } else {

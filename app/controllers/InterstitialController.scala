@@ -16,13 +16,11 @@
 
 package controllers
 
-import javax.inject.Inject
-
-import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.helpers.PaperlessInterruptHelper
 import error.LocalErrorHandler
+import javax.inject.Inject
 import models.Breadcrumb
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, Request}
@@ -30,7 +28,6 @@ import play.twirl.api.Html
 import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -55,7 +52,7 @@ class InterstitialController @Inject()(
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  def displayNationalInsurance: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+  def displayNationalInsurance: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     showingWarningIfWelsh { implicit pertaxContext =>
       formPartialService.getNationalInsurancePartial.map { p =>
         Ok(
@@ -66,7 +63,7 @@ class InterstitialController @Inject()(
     }
   }
 
-  def displayChildBenefits: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+  def displayChildBenefits: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     Future.successful(
       Ok(
         views.html.interstitial.viewChildBenefitsSummaryInterstitial(
@@ -74,13 +71,13 @@ class InterstitialController @Inject()(
           taxCreditsEnabled = configDecorator.taxCreditsEnabled)))
   }
 
-  def displaySelfAssessment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+  def displaySelfAssessment: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     showingWarningIfWelsh { implicit pertaxContext =>
       val formPartial = formPartialService.getSelfAssessmentPartial recoverWith {
-        case e => Future.successful(HtmlPartial.Failure(None, ""))
+        case _ => Future.successful(HtmlPartial.Failure(None, ""))
       }
       val saPartial = saPartialService.getSaAccountSummary recoverWith {
-        case e => Future.successful(HtmlPartial.Failure(None, ""))
+        case _ => Future.successful(HtmlPartial.Failure(None, ""))
       }
 
       enforceGovernmentGatewayUser {
@@ -100,7 +97,7 @@ class InterstitialController @Inject()(
     }
   }
 
-  def displaySa302Interrupt(year: Int): Action[AnyContent] = VerifiedAction(saBreadcrumb) {
+  def displaySa302Interrupt(year: Int): Action[AnyContent] = verifiedAction(saBreadcrumb) {
     import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
     implicit pertaxContext =>
       enforceSaAccount { saAccount =>

@@ -16,14 +16,14 @@
 
 package controllers.auth
 
-import javax.inject._
 import config.ConfigDecorator
 import controllers.routes
+import javax.inject._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Request}
 import services._
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.binders.{ContinueUrl, Origin}
+import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
@@ -71,14 +71,14 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
 
   def apply(authContext: AuthContext, request: Request[AnyContent]): Future[PageVisibilityResult] = {
     implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    if (userHasHighConfidenceLevel(authContext))
+    if (userHasHighConfidenceLevel(authContext)) {
       Future.successful(PageIsVisible)
-    else {
-      allowLowConfidenceSAEnabled match {
-        case true =>
-          Future.successful(
-            new PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
-        case false => Future.successful(new PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
+    } else {
+      if (allowLowConfidenceSAEnabled) {
+        Future.successful(
+          PageBlocked(Future.successful(Redirect(routes.ApplicationController.ivExemptLandingPage(successUrl)))))
+      } else {
+        Future.successful(PageBlocked(Future.successful(buildIVUpliftUrl(ConfidenceLevel.L200))))
       }
     }
   }

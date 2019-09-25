@@ -30,7 +30,7 @@ class PertaxAuthenticationProvider @Inject()(val configDecorator: ConfigDecorato
 
   override def ggwAuthenticationProvider: GovernmentGateway = new GovernmentGateway {
 
-    override def redirectToLogin(implicit request: Request[_]) = ggRedirect
+    override def redirectToLogin(implicit request: Request[_]): Future[FailureResult] = ggRedirect
 
     override def continueURL: String = throw new RuntimeException("Unused")
 
@@ -40,16 +40,16 @@ class PertaxAuthenticationProvider @Inject()(val configDecorator: ConfigDecorato
   override def verifyAuthenticationProvider: Verify = new Verify {
     override def login: String = throw new RuntimeException("Unused")
 
-    override def redirectToLogin(implicit request: Request[_]) = idaRedirect
+    override def redirectToLogin(implicit request: Request[_]): Future[FailureResult] = idaRedirect
   }
 
-  def defaultOrigin = ggwAuthenticationProvider.defaultOrigin
+  def defaultOrigin: String = ggwAuthenticationProvider.defaultOrigin
 
   override def login: String = throw new RuntimeException("Unused")
 
-  override def redirectToLogin(implicit request: Request[_]) = ggRedirect
+  override def redirectToLogin(implicit request: Request[_]): Future[FailureResult] = ggRedirect
 
-  def postSignInRedirectUrl(implicit request: Request[_]) =
+  def postSignInRedirectUrl(implicit request: Request[_]): String =
     configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
       .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
       .url

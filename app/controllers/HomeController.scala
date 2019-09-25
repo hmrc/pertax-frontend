@@ -20,13 +20,12 @@ import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import javax.inject.Inject
-import models.{SelfAssessmentUserType, TaxCalculationStateFactory, TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState, TaxYearReconciliation}
-import org.joda.time.DateTime
+import models._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import play.twirl.api.Html
-import services.{CitizenDetailsService, IdentityVerificationFrontendService, PreferencesFrontendService, SelfAssessmentService, TaiService, TaxCalculationService, TaxComponentsSuccessResponse, TaxComponentsUnavailableResponse, UserDetailsService}
 import services.partials.{CspPartialService, MessageFrontendService}
+import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.ActiveTabHome
@@ -53,7 +52,7 @@ class HomeController @Inject()(
   val taxCalculationStateFactory: TaxCalculationStateFactory
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
 
-  def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) { implicit pertaxContext =>
+  def index: Action[AnyContent] = verifiedAction(Nil, activeTab = Some(ActiveTabHome)) { implicit pertaxContext =>
     val saUserType: Future[SelfAssessmentUserType] =
       selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
 

@@ -22,8 +22,8 @@ import models.addresslookup.AddressRecord
 import models.dto._
 import models.{AddressJourneyData, PertaxContext}
 import play.api.mvc.Result
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
 
@@ -124,7 +124,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
       case AddressJourneyData(_, Some(_), _, _, _, _, _, _) =>
         block(journeyData)
       case AddressJourneyData(_, None, _, _, _, _, _, _) =>
-        Future.successful(Redirect(routes.AddressController.personalDetails))
+        Future.successful(Redirect(routes.AddressController.personalDetails()))
     }
 
 }

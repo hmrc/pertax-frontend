@@ -17,13 +17,12 @@
 package controllers.helpers
 
 import javax.inject.Inject
-
 import services.LocalSessionCache
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import uk.gov.hmrc.http.cache.client.CacheMap
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, _}
 
 class HomePageCachingHelper @Inject()(
   val sessionCache: LocalSessionCache

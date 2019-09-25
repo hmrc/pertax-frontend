@@ -16,32 +16,31 @@
 
 package controllers.helpers
 
-import models.{Address, PersonDetails}
-import models.addresslookup.AddressRecord
+import models.Address
 import models.dto.AddressDto
 
 object AddressJourneyAuditingHelper {
 
   def addressWasUnmodified(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean =
-    originalAddressDto.map { o =>
+    originalAddressDto.exists { o =>
       o.postcode == addressDto.postcode &&
       o.line1 == addressDto.line1 &&
       o.line2 == addressDto.line2 &&
       o.line3 == addressDto.line3 &&
       o.line4 == addressDto.line4 &&
       o.line5 == addressDto.line5
-    } getOrElse false
+    }
 
   def addressWasHeavilyModifiedOrManualEntry(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean =
-    originalAddressDto.map { o =>
+    originalAddressDto.forall { o =>
       //Count address line changes
       val lines = List(addressDto.line1, addressDto.line2, addressDto.line3, addressDto.line4)
       val originalLines = List(o.line1, o.line2, o.line3, o.line4)
-      val changeCount = (lines zip originalLines).filter(e => e._1 != e._2).size
+      val changeCount = (lines zip originalLines).count(e => e._1 != e._2)
 
       o.postcode != addressDto.postcode ||
       (changeCount > 2)
-    } getOrElse true
+    }
 
   def addressDtoToAuditData(addressDto: AddressDto, prefix: String): Map[String, Option[String]] =
     Map(

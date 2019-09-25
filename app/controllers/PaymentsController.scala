@@ -38,7 +38,7 @@ class PaymentsController @Inject()(
   val payApiConnector: PayApiConnector)
     extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
 
-  def makePayment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
+  def makePayment: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
     enforceSaAccount { saAccount =>
       val paymentRequest = PaymentRequest(configDecorator, saAccount.utr.toString())
       for {

@@ -17,11 +17,10 @@
 package controllers.auth
 
 import javax.inject.Inject
-
 import uk.gov.hmrc.play.frontend.auth.TaxRegime
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
 
 class PertaxRegime @Inject()(val pertaxAuthenticationProvider: PertaxAuthenticationProvider) extends TaxRegime {
-  def isAuthorised(accounts: Accounts) = true
-  def authenticationType = pertaxAuthenticationProvider
+  def isAuthorised(accounts: Accounts): Boolean = true
+  def authenticationType: PertaxAuthenticationProvider = pertaxAuthenticationProvider
 }

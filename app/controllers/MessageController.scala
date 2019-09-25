@@ -16,20 +16,18 @@
 
 package controllers
 
-import javax.inject.Inject
-
-import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
+import javax.inject.Inject
 import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent}
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.ActiveTabMessages
-import util.LocalPartialRetriever
 
 class MessageController @Inject()(
   val messagesApi: MessagesApi,
@@ -43,23 +41,24 @@ class MessageController @Inject()(
 ) extends PertaxBaseController with AuthorisedActions {
 
   def messageBreadcrumb: Breadcrumb =
-    "label.all_messages" -> routes.MessageController.messageList.url ::
+    "label.all_messages" -> routes.MessageController.messageList().url ::
       baseBreadcrumb
 
-  def messageList = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) { implicit pertaxContext =>
-    enforceGovernmentGatewayUser {
-      enforcePayeOrSaUser {
-        messageFrontendService.getMessageListPartial map { p =>
-          Ok(
-            views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
-              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
+  def messageList: Action[AnyContent] = verifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) {
+    implicit pertaxContext =>
+      enforceGovernmentGatewayUser {
+        enforcePayeOrSaUser {
+          messageFrontendService.getMessageListPartial map { p =>
+            Ok(
+              views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
+                Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
+          }
         }
       }
-    }
   }
 
-  def messageDetail(messageToken: String) = VerifiedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) {
-    implicit pertaxContext =>
+  def messageDetail(messageToken: String): Action[AnyContent] =
+    verifiedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) { implicit pertaxContext =>
       enforceGovernmentGatewayUser {
         enforcePayeOrSaUser {
           messageFrontendService.getMessageDetailPartial(messageToken).map {
@@ -75,5 +74,5 @@ class MessageController @Inject()(
           }
         }
       }
-  }
+    }
 }

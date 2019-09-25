@@ -18,7 +18,6 @@ package controllers.auth
 
 import config.ConfigDecorator
 import models.PertaxContext
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import uk.gov.hmrc.play.frontend.auth.DelegationAwareActions
 import uk.gov.hmrc.play.frontend.controller.UnauthorisedAction
@@ -31,7 +30,7 @@ trait PublicActions extends DelegationAwareActions {
   def partialRetriever: LocalPartialRetriever
   def configDecorator: ConfigDecorator
 
-  def PublicAction(block: PertaxContext => Future[Result]): Action[AnyContent] =
+  def publicAction(block: PertaxContext => Future[Result]): Action[AnyContent] =
     UnauthorisedAction.async { implicit request =>
       trimmingFormUrlEncodedData { implicit request =>
         block(PertaxContext(request, partialRetriever, configDecorator))

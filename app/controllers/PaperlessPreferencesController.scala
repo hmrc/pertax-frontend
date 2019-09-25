@@ -16,8 +16,7 @@
 
 package controllers
 
-import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import error.LocalErrorHandler
 import javax.inject.Inject
@@ -26,7 +25,6 @@ import play.api.mvc.{Action, AnyContent}
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
-import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -43,7 +41,7 @@ class PaperlessPreferencesController @Inject()(
   val localErrorHandler: LocalErrorHandler
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def managePreferences: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
+  def managePreferences: Action[AnyContent] = verifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
     implicit pertaxContext =>
       pertaxContext.authProvider match {
         case Some("IDA") =>
