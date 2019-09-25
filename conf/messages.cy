@@ -33,8 +33,6 @@ label.your_personal_tax_account=Cyfrif treth personol
 label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
 label.personal_details=Manylion personol
 label.track_your_forms=Dilyn eich ffurflenni
-label.track_your_forms_and_letters=Dilyn eich ffurflenni a llythyrau
-label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by=Cael gwybod sut y mae’ch ffurflen yn dod yn ei blaen ac erbyn pryd y gallwch ddisgwyl ateb.
 label.your_national_insurance_number_is=Eich rhif Yswiriant Gwladol yw
 label.check_your_national_insurance_contributions=Gwirio’ch cyfraniadau Yswiriant Gwladol
 label.see_a_record_of_the_national_insurance_contributions_which_count_towards_=Gweld cofnod o’r cyfraniadau Yswiriant Gwladol sy’n cyfrif tuag at eich Pensiwn y Wladwriaeth, a gwirio unrhyw fylchau.
@@ -91,13 +89,8 @@ label.telephone_0300_200_3300=Ffôn: 0300 200 1900
 label.textphone_0300_200_3319=Ffôn testun: 0300 200 3319
 label.contact_number=0300 200 1900
 label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
-label.phone_lines_are_open_8am_to_8pm_monday_to_friday_and_8am_to_4pm_on_saturday=Yr oriau agor yw 08:00 tan 17:00, dydd Llun i ddydd Gwener.
-label.closed_sundays_and_bank_holidays=Ar gau ar ddydd Sadwrn, dydd Sul a gwyliau’r banc.
 label.find_out_about_call_charges=Gwybodaeth am gost galwadau
 label.opens_in_a_new_window=(yn agor ffenestr neu dab newydd)
-label.help_with_tax_for_friends_and_family=Helpu ffrindiau a theulu gyda’u treth
-label.give_friends_or_family_permission_to_access_your_account=Rhoi caniatad i’ch ffrindiau neu deulu gyrchu’ch cyfrif, neu dewch yn gynorthwywr y gall rhywun arall ymddiried ynddo er mwyn ei helpu gyda’i dreth.
-label.view_your_trusted_helper_contacts=Gweld eich cynorthwywyr y gallwch ymddiried ynddynt
 label.yes=Iawn
 label.no=Na
 label.list_of_messages=Rhestr o negeseuon
@@ -113,12 +106,11 @@ label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEM
 label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch cyfeiriad
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
-label.nid_yw_rhai_or_tudalennau=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu i’r Gymraeg eto.
+label.welsh_content_warning=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu i’r Gymraeg eto.
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.name=Enw
 label.change_your_name=Newid eich enw
 label.back=Yn ôl
-label.self_assessment=Hunanasesiad
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
 label.activate_your_self_assessment_registration=Cychwyn eich cofrestriad ar gyfer Hunanasesiad
@@ -166,17 +158,17 @@ label.have_you_used_your_utr_to_enrol=Ydych chi wedi ymrestru i gyflwyno’ch Ff
 label.use_your_utr_to_register_for_self_assessment_online_text_before_link=Defnyddiwch eich Cyfeirnod Unigryw y Trethdalwr (UTR) i
 label.use_your_utr_to_register_for_self_assessment_online_link_text=gofrestru ar gyfer Hunanasesiad ar-lein
 label.how_to_access_your_self_assessment=Sut i gyrchu’ch Hunanasesiad
+label.you_cannot_access_your_self_assessment_=Ni allwch ddod o hyd i’ch gwybodaeth Hunanasesiad o’r cyfrif hwn
+label.you_cannot_view_your_self_assessment_information_here_=Ni allwch fwrw golwg ar eich gwybodaeth ynghylch Hunanasesiad yma.
+label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=cyflwyno’ch Ffurflen Dreth ar-lein
+label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth papur yw canol nos ar 31 Hydref.
 
-label.understand_your_tax_code=Deall eich cod treth
 label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol
 label.view_your_national_insurance_record=Bwrw golwg ar eich cofnod Yswiriant Gwladol
 label.there_is_a_problem_logging_you_in=Mae problem wedi codi wrth i chi fewngofnodi
 label.how_to_contact_us=Sut i gysylltu â ni
-label.your_account=Eich cyfrif
 label.self_assessment_summary=Crynodeb Hunanasesiad
-label.access_your_self_assessment_information=Cyrchu’ch gwybodaeth Hunanasesiad
-label.you_cant_get_full_access_to_your_personal_tax_account_=Ni allwch gyrchu’ch cyfrif treth personol yn llawn oherwydd nid yw Cyllid a Thollau EM yn gallu cadarnhau pwy ydych.<br /><br />Gallwch fwrw golwg ar eich Ffurflen Dreth a’i chyflwyno ar-lein o hyd.
 label.back_to_account_home=Yn ôl i hafan y cyfrif
 label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
 label.national_insurance_summary=Crynodeb Yswiriant Gwladol
@@ -196,7 +188,6 @@ label.tell_us_if_you_need_to=Rhowch wybod i ni os oes angen i chi:
 label.if_you_do_not_currently_claim_child_benefit=Os nad ydych yn gwneud cais am Fudd-dal Plant ar hyn o bryd
 label.any_updates_to_your_contact_details=Mae diweddariadau i’ch manylion cyswllt yn cymryd hyd at 2 ddiwrnod i ymddangos ar y safle hwn.
 label.you_can_see_this_part_of_your_account_if_you_complete=Gallwch weld y rhan hon o’ch cyfrif os cymerwch gamau diogelwch ychwanegol.
-label.tax_credits=Credydau treth
 label.change_where_we_send_your_letters=Newid ble’r ydym yn anfon eich llythyrau
 label.do_you_live_in_more_than_one_place=A ydych yn byw mewn mwy nag un man?
 label.confirm_your_identity=Rhoi prawf o bwy ydych
@@ -220,9 +211,6 @@ label.you_can_still_complete_your_sa=Gallwch lenwi’ch Ffurflen Dreth Hunanases
 
 label.you_cannot_access_your_account_right_now=Ni allwch gyrchu’ch cyfrif ar hyn o bryd
 label.we_need_to_speak_to_you_about_an_mci_error_=Mae angen i ni siarad â chi am wall MCI cyn y gallwch fewngofnodi.
-label.telephone_0300_200_3300=Ffôn: 0300 200 3300
-label.textphone_0300_200_3319=Ffôn Testun: 0300 200 3319
-label.outside_uk_441355359022=Y tu allan i’r DU: +44 135 535 9022
 label.8am_to_8pm_monday_to_friday=8am i 8pm, Dydd Llun i Dydd Gwener
 label.8am_to_4pm_saturdays=8am i 4pm, Dydd Sadwrn
 label.8am_to_5pm_sundays=9am i 5pm, Dydd Sul
@@ -236,7 +224,6 @@ label.see_your_current_address_link_text=cyfeiriad presennol
 label.go_to_your_personal_tax_account_home_text_before_link=mynd i
 label.go_to_your_personal_tax_account_home_link_text=hafan eich cyfrif treth personol
 label.we_can_show_you_more_if_you_complete_2fa=Gallwn ddangos rhagor o fanylion i chi o’ch cofnod gyda Chyllid a Thollau EM os ydych yn rhoi prawf o bwy ydych drwy’r Dull Gwirio 2-Gam. Byddwn yn eich atgoffa i drefnu hwn y tro nesaf y byddwch yn mewngofnodi.
-label.try_again_in_7_days=Gallwch roi cynnig arall arni ar ôl 7 diwrnod.
 label.tell_us_your_main_home=Rhowch wybod i ni beth yw’ch prif gartref
 label.send_your_letters_to_your_main_address=Anfon llythyrau i’ch prif gyfeiriad
 label.do_you_want_all_your_letters_to_be_sent_=Ydych chi eisiau i lythyrau gael eu hanfon i’ch prif gyfeiriad?
@@ -272,7 +259,6 @@ label.your_main_home_may_be_where_your_registerd_bank_address=rydych wedi’ch c
 label.your_main_home_may_be_where_your_registerd_for_clubs=rydych yn aelod o glybiau neu gymdeithasau
 label.your_main_home_is_usually_where_you_live_text_before_link=O 6 Ebrill 2016 ymlaen, byddwch yn talu cyfradd yr Alban o Dreth Incwm os ydych yn byw yn yr Alban. Os ydych yn symud i’r Alban, neu o’r Alban, yn ystod blwyddyn dreth, neu’n byw mewn mwy nag un cartref, mae’n bosibl y bydd eich sefyllfa’n wahanol.
 label.your_main_home_is_usually_where_you_live_link_text=Gwirio a fyddwch yn talu cyfradd yr Alban o Dreth Incwm
-label.check_your_details=Gwirio’ch manylion
 label.change_address=Newid cyfeiriad
 label.when_you_started_living_here=Pan wnaethoch ddechrau byw fan hyn
 label.what_happens_next=Yr hyn sy’n digwydd nesaf
@@ -284,7 +270,6 @@ label.if_you_are_not_redirected_in_text_before_link=Os na chewch eich ailgyfeiri
 label.if_you_are_not_redirected_in_link_text=cliciwch yma
 label.webchat_service=Gwasanaeth sgwrs dros y we
 label.chat_online_with_one_of_our_advisers=Sgwrsiwch ar-lein gydag un o’n ymgynghorwyr
-label.you_cant_access_your_self_assessment_=Ni allwch gyrchu’ch gwybodaeth Hunanasesiad o’r cyfrif hwn
 label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link=Mae’n rhaid i chi
 label.you_must_sign_out_then_sign_in_with_the_user_id_link_text=allgofnodi
 label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link=wedyn mewngofnodi gyda’r Dynodydd Defnyddiwr (ID) a chyfrinair a ddefnyddioch i gychwyn eich gwasanaeth Hunanasesiad ar-lein.
@@ -296,7 +281,6 @@ label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessme
 label.you_have_already_registered_with_hmrc_and_must_now_enrol_for_self_assessment_text_after_link=er mwyn cyflwyno Ffurflen Dreth neu gyrchu manylion eich cyfrif
 label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_text_before_link=Ar ôl i chi ymrestru, cewch god cychwyn drwy’r post cyn pen 7 diwrnod. Defnyddiwch hwn cyn pen 28 diwrnod i gychwyn eich cyfrif. Os daw’r cyfnod pan allwch gychwyn eich cyfrif i ben, gallwch
 label.you_have_already_registered_with_hmrc_and_after_you_enrol_for_self_assessment_link_text=wneud cais am god cychwyn newydd
-label.you_cant_view_your_self_assessment_information_here_the_deadline_=Ni allwch fwrw golwg ar eich gwybodaeth Hunanasesiad yn y fan hon.<br /><br />Y dyddiad cau ar gyfer Ffurflenni Treth papur yw 31 Hydref. Mae’n rhaid i chi nawr <a class="ga-track-event" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="{0}" target="_blank" rel="noopener noreferrer">lenwi’ch Ffurflen Dreth ar-lein (yn agor ffenestr neu dab newydd)</a>.
 label.get_your_sa302_calculation=Cael eich cyfrifiad SA302
 label.we_can_only_show_your_sa302_calculation_if_you_=Gallwn ond ddangos eich cyfrifiad SA302 os gwnaethoch gyflwyno drwy’r wefan hon.
 label.i_didnt_file_through_this_website=Ni chyflwynais drwy’r wefan hon
@@ -305,16 +289,16 @@ label.use_the_commercial_software_you_filed_with=defnyddiwch y meddalwedd masnac
 label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyflwyno - gofynnwch iddo ef/hi
 label.call_us_if_you_filed_your_return_by_post_link_text=ffoniwch ni
 label.call_us_if_you_filed_your_return_by_post_text_after_link=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
-label.self_assessment_deadline_was=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar gyfer 2015 i 2016 oedd 31 Ionawr 2017.
 label.help_improve_gov_uk=Helpwch i wella gwasanaethau CThEM
 label.please_take_part_in_our_short_survey=Cymerwch ran yn ein harolwg byr (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 
-
 #
 # Error messages
+#
+# Messages prefixed with "head" are used to display form error messages at the top of the page.
 #
 head.error.enter_valid_characters=Gwirio enw neu rif eich tŷ
 head.error.address_not_selected=Dewiswch gyfeiriad
@@ -326,12 +310,10 @@ head.error.line1_required=Gwirio llinell gyntaf eich cyfeiriad
 head.error.line2_required=Gwirio ail linell eich cyfeiriad
 head.error.line3_required=Gwirio trydedd linell eich cyfeiriad
 head.error.line4_required=Gwirio pedwaredd linell eich cyfeiriad
-head.error.line5_required=Gwirio pumed linell eich cyfeiriad
 error.line1_required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.line2_required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.line3_required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.line4_required=Mae angen rhoi gwybodaeth ar y llinell hon
-error.line5_required=Mae angen rhoi gwybodaeth ar y llinell hon
 head.error.line1_contains_more_than_35_characters=Gwirio llinell gyntaf eich cyfeiriad
 head.error.line2_contains_more_than_35_characters=Gwirio ail linell eich cyfeiriad
 head.error.line3_contains_more_than_35_characters=Gwirio trydedd linell eich cyfeiriad
@@ -352,7 +334,6 @@ error.line2_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rh
 error.line3_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line4_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line5_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
-error.postcode_must_be_between_1_and_8_characters=Mae’n rhaid i’r cod post fod rhwng 1 a 8 cymeriad
 head.error.enter_a_valid_uk_postcode=Gwirio bod eich cod post yn gywir
 error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
 error.enter_valid_characters=Nodwch gymeriadau dilys
@@ -371,8 +352,6 @@ error.invalid.date.format=odwch ddyddiad dilys
 head.error.enter_a_date=Mae angen i chi nodi dyddiad
 head.error.enter_valid_date=Gwirio’r dyddiad a nodwyd gennych
 head.error.invalid.date.format=Gwirio’r dyddiad a nodwyd gennych
-head.error.enter_numbers=Gwirio’r dyddiad a nodwyd gennych
-error.enter_numbers=Nodwch ddyddiad dilys
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
 error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
 head.error.country_required=Nodwch wlad
@@ -381,10 +360,6 @@ error.country_required=Nodwch wlad
 #
 # Messages in lower case
 #
-text.opens_in_new_window=yn agor ffenestr neu dab newydd
-text.give_someone_you_know_permission_to_access_your_tax_details=rhoi caniatad i rywun yr ydych yn ei adnabod gyrchu’ch manylion treth
-text.request_permission_to_help_someone_you_know_with_their_tax=gofyn am ganiatad i helpu rhywun yr ydych yn ei adnabod gyda’i dreth
-text.get_in_touch=cysylltu â ni
 text.report_a_change_to_your_circumstances_link_text=rhoi gwybod am newid
 text.report_a_change_to_your_circumstances_text_after_link=i’ch amgylchiadau
 text.authorise_a_tax_advisor_or_accountant_link_text=awdurdodi ymgynghorydd treth neu gyfrifydd
@@ -420,22 +395,12 @@ label.account_home=Hafan y cyfrif
 title.income=Incwm
 label.pay_as_you_earn_paye=Talu Wrth Ennill (TWE)
 label.your_income_from_employers_and_private_pensions_=Gwirio neu ddiweddaru’r wybodaeth am gyflogaeth, pensiwn neu incwm arall a ddefnyddir i gyfrifo’ch Treth Incwm a’ch codau treth TWE.
-label.make_sure_you_are_paying_the_right_amount_of_tax=Sicrhau eich bod yn talu’r swm cywir o dreth
-label.view_your_income_tax_estimate=Bwrw golwg ar eich amcangyfrif Treth Incwm
-label.check_how_much_tax_you_paid_last_year=Gwirio faint o dreth y taloch y llynedd
 label.claim_your_tax_refund=Gwneud cais am eich ad-daliad treth
-label.view_your_tax_refund=Gweld eich ad-daliad treth
 label.find_out_why_you_paid_too_much=Cael gwybod pam yr ydych wedi talu gormod
 label.find_out_why_you_paid_too_little=Cael gwybod pam nad ydych wedi talu digon
-label.view_the_tax_you_paid=Gweld y dreth a dalwyd gennych
-label.get_more_information_about_when_your_p800_will_arrive=Cael rhagor o wybodaeth am bryd y bydd eich P800 yn cyrraedd
-label.get_more_information_about_the_tax_you_paid=Cael rhagor o wybodaeth am y dreth a daloch
 label.you_paid_too_much_tax=Gwnaethoch dalu gormod o dreth y llynedd ar gyfer blwyddyn dreth {0} i {1}
 label.you_paid_too_little_tax=Ni wnaethoch dalu digon o dreth ar gyfer blwyddyn dreth {0} i {1}
-label.your_income_tax=Eich Treth Incwm y llynedd ar gyfer blwyddyn dreth {0} i {1}
 label.you_missed_the_deadline_to_pay_your_tax=Gwnaethoch fethu’r dyddiad cau i dalu’ch treth ar gyfer blwyddyn dreth {0} i {1}
-label.you_do_not_owe_any_more_tax=Nid oes arnoch ddim byd i CThEM.
-label.check_to_see_if_you_paid_the_right_amount_of_tax_from_=Gwiriwch a wnaethoch dalu’r swm cywir o dreth o 6 Ebrill {0} i 5 Ebrill {1}.
 label.hmrc_owes_you_a_refund=Mae ar CThEM ad-daliad o £{0} i chi.
 label.hmrc_is_processing_your_refund=Mae CThEM wrthi’n prosesu’ch ad-daliad o £{0}.
 label.hmrc_has_paid_your_refund=Mae CThEM wedi talu’ch ad-daliad o £{0}.
@@ -446,7 +411,6 @@ label.you_still_owe_hmrc_you_should_have_paid_=Mae’n dal i fod arnoch £{0} i 
 label.you_still_owe_hmrc_you_must_pay_by_=Mae’n dal i fod arnoch £{0} i CThEM. Rhaid i chi dalu erbyn {1}.
 label.you_owe_hmrc_you_must_pay_by_=Mae arnoch £{0} i CThEM. Rhaid i chi dalu erbyn {1}.
 label.you_have_no_payments_to_make_to_hmrc=Nid oes gennych daliadau i’w gwneud i CThEM.
-label.you_do_not_owe_hmrc_anything=Nid oes arnoch ddim byd i CThEM.
 label.you_paid_the_right_amount_of_tax=Gwnaethoch dalu’r swm cywir o dreth
 label.nothing_more_to_pay=Does dim byd mwy i’w dalu am y flwyddyn hon.
 label.no_record_of_employment=Nid oes gan CThEM gofnod eich bod yn gyflogedig yn ystod y flwyddyn dreth hon felly nid oes unrhyw beth mwy i’w dalu.
@@ -454,19 +418,14 @@ label.your_tax_has_not_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
 label.no_need_to_contact_hmrc=Does dim angen i chi gysylltu â CThEM ynglŷn â hyn. Cewch lythyr os ydych wedi talu gormod o dreth neu heb dalu digon.
 label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 
-label.please_wait_for_your_tax_calculation_letter_p800=Arhoswch am eich llythyr cyfrifiad treth (P800).
 
 label.self_assessment=Hunanasesiad
-label.use_your_activation_code_to_access_this_service_=Defnyddiwch eich cod cychwyn i gyrchu’r gwasanaeth hwn. Mae’r cod yn llythyr y gwnaethrom ei anfon atoch pan wnaethoch gofrestru.
-label.you_cannot_use_this_service_you_may_not_be_enrolled_for_self_assessment_=Ni allwch ddefnyddio’r gwasanaeth hwn. Efallai nad ydych wedi’ch cofrestru ar gyfer Hunanasesiad, neu efallai’ch bod wedi cofrestru gan ddefnyddio cyfrif gwahanol.
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
-label.understand_self_assessment=Deall Hunanasesiad
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
 
-label.national_insurance=Yswiriant Gwladol
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi’n unig.
 label.your_national_insurance_number_is_your_unique_identifier=Eich rhif Yswiriant Gwladol yw’ch dynodydd unigryw.
 
@@ -474,21 +433,14 @@ label.view_your_national_insurance_letter=Bwrw golwg ar eich llythyr Yswiriant G
 label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
-
 label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn dreth {0} i {1}
-label.you_paid_the_right_amount_of_tax_last_year=Gwnaethoch dalu’r swm cywir o dreth y llynedd
-label.your_tax_has_not_yet_been_calculated=Nid yw’ch treth wedi’i chyfrifo eto
 
+#
 # Benefits
+#
 title.benefits=Budd-daliadau
-
-label.company_benefits=Buddiannau cwmni
-label.benefits_you_receive_from_your_employer_in_addition_to_your_normal_salary=Buddiannau a gewch gan eich cyflogwr yn ychwanegol i’ch cyflog arferol.
-
 label.tax_credits=Credydau treth
 label.view_your_next_payments_and_the_people_on_your_claim_and_make_changes_to_your_claim=Bwrw golwg ar eich taliadau nesaf a’r bobl ar eich cais, a gwneud newidiadau i’ch cais.
-label.change_your_circumstances=Newid eich amgylchiadau
-label.find_out_if_you_qualify_for_tax_credits=Dod i wybod a ydych yn gymwys ar gyfer credydau treth
 label.view_your_tax_credits_payments=Bwrw golwg ar eich taliadau credydau treth
 
 title.marriage_allowance=Lwfans Priodasol
@@ -498,17 +450,14 @@ label.manage_your_marriage_allowance=Rheoli’ch Lwfans Priodasol
 label.your_partner_currently_transfers_part_of_their_personal_allowance_to_you=Ar hyn o bryd, mae’ch partner yn trosglwyddo rhan o’i Lwfans Personol i chi.
 label.you_currently_transfer_part_of_your_personal_allowance_to_your_partner=Ar hyn o bryd, rydych yn trosglwyddo rhan o’ch Lwfans Personol i’ch partner.
 
-label.child_benefit=Budd-dal Plant
 label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children=Taliad yn rhydd o dreth i helpu rhieni gyda chostau magu plant.
 label.tell_us_if_your_child_is_staying_in_full_time_education=Rhowch wybod i ni a yw’ch plentyn yn aros mewn addysg amser llawn
-label.find_out_if_you_qualify_for_child_benefit=Dod i wybod a ydych yn gymwys ar gyfer Budd-dal Plant
 
 # Pensions
 title.pensions=Pensiynau
 
 title.state_pension=Pensiwn y Wladwriaeth
 label.view_your_state_pension_and_national_insurance_contributions=Bwrw golwg ar eich Pensiwn y Wladwriaeth a’ch cyfraniadau Yswiriant Gwladol.
-label.check_your_national_insurance_record_for_gaps=Gwirio’ch cofnod Yswiriant Gwladol am fylchau
 label.view_your_state_pension_forecast=Bwrw golwg ar ragolwg o’ch Pensiwn y Wladwriaeth
 
 # Your account
@@ -516,18 +465,8 @@ label.your_account=Eich Cyfrif
 
 label.messages=Negeseuon
 label.message=Neges
-label.view_your_messages=Edrychwch ar eich negeseuon
 
-label.personal_details=Manylion personol
-label.update_your_address=Diweddaru’ch cyfeiriad
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
-
-label.help_with_tax_for_friends_and_family=Helpu ffrindiau a theulu gyda’u treth
-label.give_friends_or_family_permissions_to_access_your_account=Rhoi caniatâd i’ch ffrindiau neu deulu gyrchu’ch cyfrif, neu dewch yn gynorthwywr y gall rhywun arall ymddiried ynddo i’w helpu gyda’i dreth
-label.view_your_trusted_helper_contacts=Bwrw golwg ar eich cynorthwywyr y gallwch ymddiried ynddynt
-
-label.track_your_forms_and_letters=Dilyn eich ffurflenni a llythyrau
-label.find_out_how_your_form_or_letter_is_progressing_and_when_you_should_expect_a_response_by=Cael gwybod sut y mae’ch ffurflen yn dod yn ei blaen ac erbyn pryd y gallwch ddisgwyl ateb.
 
 label.phone_text=Ffôn
 label.national_insurance_number=Rhif Yswiriant Gwladol gennych
