@@ -48,7 +48,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
   class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
-      Ok(s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saUtr.getOrElse("fail").toString}")
+      Ok(s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}")
     }
   }
 
