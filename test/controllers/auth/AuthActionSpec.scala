@@ -18,7 +18,6 @@ package controllers.auth
 
 import connectors.NewPertaxAuthConnector
 import controllers.auth.requests.AuthenticatedRequest
-import controllers.auth.{AuthAction, AuthActionImpl}
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -33,7 +32,7 @@ import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
-import uk.gov.hmrc.auth.core.{AuthConnector, Enrolment, EnrolmentIdentifier, Enrolments, InsufficientConfidenceLevel, InsufficientEnrolments, SessionRecordNotFound}
+import uk.gov.hmrc.auth.core._
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future

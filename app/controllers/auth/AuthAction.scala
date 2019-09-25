@@ -18,7 +18,7 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import connectors.NewPertaxAuthConnector
-import controllers.auth.requests.AuthenticatedRequest
+import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment}
 import controllers.routes
 import play.api.Configuration
 import play.api.mvc._
@@ -26,6 +26,7 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
@@ -44,10 +45,12 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
     authorised((ConfidenceLevel.L200 and Nino(hasNino = true)) or Enrolment("IR-SA"))
       .retrieve(Retrievals.nino and Retrievals.authorisedEnrolments and Retrievals.credentials) {
         case nino ~ Enrolments(enrolments) ~ Some(credentials) =>
-          val saUtr = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
-            enrolment.identifiers.find(id => id.key == "UTR").map(_.value)
+          val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
+            enrolment.identifiers
+              .find(id => id.key == "UTR")
+              .map(key => SelfAssessmentEnrolment(SaUtr(key.value), enrolment.state))
           }
-          block(AuthenticatedRequest(nino.map(domain.Nino), saUtr.map(domain.SaUtr), credentials.providerType, request))
+          block(AuthenticatedRequest(nino.map(domain.Nino), saEnrolment, credentials.providerType, request))
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {

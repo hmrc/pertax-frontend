@@ -20,12 +20,10 @@ import java.net.URL
 
 import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
-import controllers.auth.requests.AuthenticatedRequest
 import metrics.HasMetrics
 import models._
 import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
-import play.api.mvc.AnyContent
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -47,8 +45,8 @@ class SelfAssessmentService @Inject()(
   val runModeConfiguration: Configuration = configuration
   lazy val authUrl = new URL(baseUrl("auth"))
 
-  def getSelfAssessmentUserType()(
-    implicit hc: HeaderCarrier, request: AuthenticatedRequest[AnyContent]): Future[SelfAssessmentUserType] = {
+  def getSelfAssessmentUserType(authContext: Option[AuthContext])(
+    implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] = {
 
     import AuthEnrolment._
 

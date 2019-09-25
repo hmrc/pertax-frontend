@@ -55,9 +55,6 @@ class CitizenDetailsService @Inject()(
   val runModeConfiguration: Configuration = configuration
   lazy val citizenDetailsUrl = baseUrl("citizen-details")
 
-  /**
-    * Gets the person details
-    */
   def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
     withMetricsTimer("get-person-details") { t =>
       simpleHttp.get[PersonDetailsResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details")(
@@ -67,7 +64,7 @@ class CitizenDetailsService @Inject()(
             PersonDetailsSuccessResponse(r.json.as[PersonDetails])
 
           case r if r.status == LOCKED =>
-            t.completeTimerAndIncrementFailedCounter() //TODO - check this
+            t.completeTimerAndIncrementFailedCounter()
             Logger.warn("Personal details record in citizen-details was hidden")
             PersonDetailsHiddenResponse
 
@@ -138,11 +135,10 @@ class CitizenDetailsService @Inject()(
             Logger.warn(s"Unexpected ${r.status} response getting matching details from citizen-details")
             MatchingDetailsUnexpectedResponse(r)
         },
-        onError = {
-          case e =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting matching details from citizen-details", e)
-            MatchingDetailsErrorResponse(e)
+        onError = { e =>
+          t.completeTimerAndIncrementFailedCounter()
+          Logger.warn("Error getting matching details from citizen-details", e)
+          MatchingDetailsErrorResponse(e)
         }
       )
     }
