@@ -16,16 +16,15 @@
 
 package controllers.auth.requests
 
-import models.SelfAssessmentUserType
+import models.{PersonDetails, SelfAssessmentUserType}
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.domain.Nino
 
-case class RefinedRequest[A](
+case class UserRequest[A](
   nino: Option[Nino],
   saUserType: SelfAssessmentUserType,
   authProvider: String,
+  personDetails: Option[PersonDetails],
+  unreadMessageCount: Option[Int] = None,
   request: Request[A])
-    extends WrappedRequest[A](request) {
-
-  def isGovernmentGateway: Boolean = authProvider == "GovernmentGateway"
-}
+    extends WrappedRequest[A](request)

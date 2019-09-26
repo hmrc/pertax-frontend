@@ -20,6 +20,7 @@ import com.google.inject.{ImplementedBy, Inject}
 import connectors.NewPertaxAuthConnector
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment}
 import controllers.routes
+import models.UserName
 import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.domain
@@ -43,14 +44,20 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     authorised((ConfidenceLevel.L200 and Nino(hasNino = true)) or Enrolment("IR-SA"))
-      .retrieve(Retrievals.nino and Retrievals.authorisedEnrolments and Retrievals.credentials) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) =>
+      .retrieve(Retrievals.nino and Retrievals.authorisedEnrolments and Retrievals.credentials and Retrievals.name) {
+        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ name =>
           val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers
               .find(id => id.key == "UTR")
               .map(key => SelfAssessmentEnrolment(SaUtr(key.value), enrolment.state))
           }
-          block(AuthenticatedRequest(nino.map(domain.Nino), saEnrolment, credentials.providerType, request))
+          block(
+            AuthenticatedRequest(
+              nino.map(domain.Nino),
+              saEnrolment,
+              credentials.providerType,
+              Some(UserName(name.getOrElse(""))),
+              request))
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {

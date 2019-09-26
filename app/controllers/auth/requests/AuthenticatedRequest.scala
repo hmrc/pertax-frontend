@@ -16,6 +16,7 @@
 
 package controllers.auth.requests
 
+import models.UserName
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
@@ -25,5 +26,6 @@ case class AuthenticatedRequest[A](
   nino: Option[Nino],
   saEnrolment: Option[SelfAssessmentEnrolment],
   authProvider: String,
+  name: Option[UserName],
   request: Request[A])
     extends WrappedRequest[A](request)

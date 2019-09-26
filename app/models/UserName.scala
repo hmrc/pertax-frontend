@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.auth.requests
+package models
 
-import models.SelfAssessmentUserType
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.auth.core.retrieve.Name
 
-case class RefinedRequest[A](
-  nino: Option[Nino],
-  saUserType: SelfAssessmentUserType,
-  authProvider: String,
-  request: Request[A])
-    extends WrappedRequest[A](request) {
+case class UserName(name: Name) {
 
-  def isGovernmentGateway: Boolean = authProvider == "GovernmentGateway"
+  override def toString: String =
+    s"${name.name.getOrElse("")} ${name.lastName.getOrElse("")}".trim
+
+  def getOrElse(defaultName: String): String =
+    name match {
+      case Name(None, None) => defaultName
+      case _                => this.toString
+    }
 }
