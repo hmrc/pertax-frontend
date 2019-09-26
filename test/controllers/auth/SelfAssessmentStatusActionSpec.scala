@@ -17,6 +17,9 @@
 package controllers.auth
 
 import controllers.auth.requests.{AuthenticatedRequest, RefinedRequest, SelfAssessmentEnrolment}
+import models.MatchingDetails
+import org.mockito.Matchers._
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FreeSpec, MustMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -27,10 +30,8 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.CitizenDetailsService
+import services.{CitizenDetailsService, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import org.mockito.Mockito._
-import org.mockito.Matchers._
 
 import scala.concurrent.Future
 
@@ -61,7 +62,7 @@ class SelfAssessmentStatusActionSpec
     )
   }
 
-  "An SA user with an activated enrolment should" - {
+  "An SA user with an activated enrolment must" - {
 
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
       implicit val request: AuthenticatedRequest[AnyContent] = AuthenticatedRequest(
@@ -73,30 +74,47 @@ class SelfAssessmentStatusActionSpec
       contentAsString(result) must include("ActivatedOnlineFilerSelfAssessmentUser")
       verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
     }
-
-//    "An SA user with a not yet activated enrolment should" - {
-//      "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
-//        implicit val request: AuthenticatedRequest[AnyContent] = AuthenticatedRequest(
-//          Some(Nino("AB123456C")),
-//          None, //Some(SelfAssessmentEnrolment(SaUtr("1111111111"), "NotYetActivated")),
-//          "foo",
-//          FakeRequest())
-//        val result = harness()(request)
-//        contentAsString(result) must include("NotYetActivatedOnlineFilerSelfAssessmentUser")
-//        verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
-//      }
-//    }
-//
-//    "Return WrongAccountSelfAssessmentActionNeeded when the user does not have an active SA nor an NotYetActivated enrolment but does have a matching record with a saUtr" in {
-//
-//      await(saActionNeeded) shouldBe AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
-//      verify(service.citizenDetailsService, times(1)).getMatchingDetails(any())(any())
-//    }
-//
-//    "Return NoSelfAssessmentActionNeeded when the user does not have an active SA nor an NotYetActivated enrolment and no matching record with a saUtr " in {
-//
-//      await(saActionNeeded) shouldBe NonFilerSelfAssessmentUser
-//      verify(service.citizenDetailsService, times(1)).getMatchingDetails(any())(any())
-//    }
   }
+  "An SA user with a not yet activated enrolment must" - {
+    "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
+      implicit val request: AuthenticatedRequest[AnyContent] = AuthenticatedRequest(
+        Some(Nino("AB123456C")),
+        Some(SelfAssessmentEnrolment(SaUtr("1111111111"), "NotYetActivated")),
+        "foo",
+        FakeRequest())
+      val result = harness()(request)
+      contentAsString(result) must include("NotYetActivatedOnlineFilerSelfAssessmentUser")
+      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+    }
+  }
+
+  "A user without an SA enrolment must" - {
+    "when CitizenDetails has a matching SA account" - {
+      "return AmbiguousFilerSelfAssessmentUser" in {
+        implicit val request: AuthenticatedRequest[AnyContent] =
+          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", FakeRequest())
+
+        when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+          .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))))
+        val result = harness()(request)
+        contentAsString(result) must include("AmbiguousFilerSelfAssessmentUser")
+        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any())
+      }
+    }
+
+    "when CitizenDetails has no matching SA account" - {
+      "return NonFilerSelfAssessmentUser" in {
+        implicit val request: AuthenticatedRequest[AnyContent] =
+          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", FakeRequest())
+
+        when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+          .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
+        val result = harness()(request)
+        contentAsString(result) must include("NonFilerSelfAssessmentUser")
+        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any())
+      }
+    }
+
+  }
+
 }

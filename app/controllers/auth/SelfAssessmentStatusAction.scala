@@ -17,9 +17,9 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import controllers.auth.requests.{AuthenticatedRequest, RefinedRequest}
-import models.{ActivatedOnlineFilerSelfAssessmentUser, AmbiguousFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUserType}
-import play.api.mvc.{ActionFunction, ActionRefiner, AnyContent, Request, Result}
+import controllers.auth.requests.{AuthenticatedRequest, RefinedRequest, SelfAssessmentEnrolment}
+import models._
+import play.api.mvc.{ActionFunction, ActionRefiner, Result}
 import services.{CitizenDetailsService, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -39,26 +39,20 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
 
   def getSelfAssessmentUserType[A]()(
     implicit hc: HeaderCarrier,
-    request: AuthenticatedRequest[A]): Future[SelfAssessmentUserType] = {
-
-    val saUtr: Option[SaUtr] = request.saEnrolment.map(_.saUtr)
-
+    request: AuthenticatedRequest[A]): Future[SelfAssessmentUserType] =
     request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
-      request.saEnrolment.fold({
-        saUtr match {
-          case Some(saUtr) =>
-            Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)) //NotYetActivated online filer
-          case None =>
-            getSaUtrFromCitizenDetailsService(nino) map {
-              case Some(saUtr) => AmbiguousFilerSelfAssessmentUser(saUtr) //Ambiguous SA filer
-              case None        => NonFilerSelfAssessmentUser //Non SA Filer
-            }
-        }
-      })({ saEnrolment =>
-        Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saEnrolment.saUtr)) //Activated online filer
-      })
+      request.saEnrolment match {
+        case Some(SelfAssessmentEnrolment(saUtr, "Activated")) =>
+          Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr)) //Activated online filer
+        case Some(SelfAssessmentEnrolment(saUtr, "NotYetActivated")) =>
+          Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)) //NotYetActivated online filer
+        case None =>
+          getSaUtrFromCitizenDetailsService(nino) map {
+            case Some(saUtr) => AmbiguousFilerSelfAssessmentUser(saUtr) //Ambiguous SA filer
+            case None        => NonFilerSelfAssessmentUser //Non SA Filer
+          }
+      }
     }
-  }
 
   override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, RefinedRequest[A]]] = {
     implicit val hc: HeaderCarrier =
