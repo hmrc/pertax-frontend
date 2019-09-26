@@ -348,6 +348,7 @@ error.range.month=Mae’r mis y tu allan i’r ystod
 error.range.year=Mae’r flwyddyn y tu allan i’r ystod
 error.date.invalid=Dyddiad annilys wedi’i nodi
 error.invalid.date.format=odwch ddyddiad dilys
+error.enter_a_date=Mae angen i chi nodi dyddiad
 head.error.enter_a_date=Mae angen i chi nodi dyddiad
 head.error.enter_valid_date=Gwirio’r dyddiad a nodwyd gennych
 head.error.invalid.date.format=Gwirio’r dyddiad a nodwyd gennych
