@@ -115,6 +115,17 @@ class SelfAssessmentStatusActionSpec
       }
     }
 
+    "when user has no Nino" - {
+      "return NonFilerSelfAssessmentUser" in {
+        implicit val request: AuthenticatedRequest[AnyContent] =
+          AuthenticatedRequest(None, None, "foo", FakeRequest())
+
+        val result = harness()(request)
+        contentAsString(result) must include("NonFilerSelfAssessmentUser")
+        verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+      }
+    }
+
   }
 
 }
