@@ -26,7 +26,7 @@ import play.api.mvc._
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -56,7 +56,7 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
               nino.map(domain.Nino),
               saEnrolment,
               credentials.providerType,
-              Some(UserName(name.getOrElse(""))),
+              Some(UserName(name.getOrElse(Name(None, None)))),
               request))
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
