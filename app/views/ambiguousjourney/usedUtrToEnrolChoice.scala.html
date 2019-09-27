@@ -16,11 +16,11 @@
 
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
+@import controllers.auth.requests.UserRequest
+@import config.ConfigDecorator
 
 @(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto],
-  backlinkUrl: String)(
-    implicit pertaxContext: PertaxContext,
-    messages: play.api.i18n.Messages)
+  backlinkUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.have_you_used_your_utr_to_enrol"),
   pageName = Some(messages("label.your_personal_tax_account")),

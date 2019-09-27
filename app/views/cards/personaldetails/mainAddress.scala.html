@@ -14,11 +14,13 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, hasCorrespondenceAddressLock: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
-
 @import tags._
 
-@updateAddressLink = @{
+@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, hasCorrespondenceAddressLock: Boolean, countries: List[Country])
+(implicit messages: play.api.i18n.Messages)
+
+
+@updateAddressLink() = @{
   if(taxCreditsEnabled) controllers.routes.AddressController.taxCreditsChoice else controllers.routes.AddressController.residencyChoice
 }
 
@@ -38,16 +40,16 @@
   url = Some(updateAddressLink.url),
   gaAction = Some("Main address"),
   gaLabel = Some("Main address"),
-  heading = Messages("label.main_address"),
+  heading = messages("label.main_address"),
   bodyContent = Some(cardContent)
 ){
   <ul>
     <li>
-      <a class="ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@Messages("label.change_your_main_address")</a>
+      <a class="ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@messages("label.change_your_main_address")</a>
     </li>
     @if(!hasCorrespondenceAddress && !hasCorrespondenceAddressLock) {
     <li>
-      <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@Messages("label.change_where_we_send_your_letters")</a>
+      <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@messages("label.change_where_we_send_your_letters")</a>
     </li>
     }
   </ul>

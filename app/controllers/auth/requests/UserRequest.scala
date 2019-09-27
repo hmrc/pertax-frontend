@@ -16,12 +16,13 @@
 
 package controllers.auth.requests
 
-import models.{PersonDetails, SelfAssessmentUserType}
+import models.{PersonDetails, SelfAssessmentUserType, UserName}
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.domain.Nino
 
 case class UserRequest[A](
   nino: Option[Nino],
+  name: Option[UserName],
   saUserType: SelfAssessmentUserType,
   authProvider: String,
   personDetails: Option[PersonDetails],

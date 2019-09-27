@@ -19,13 +19,10 @@
 @import util.LanguageHelper
 @import views.util.ViewUtils._
 
-@import config.ConfigDecorator
 @import viewmodels.Link
 @import viewmodels.TaxCalculationViewModel
-@(viewModel: TaxCalculationViewModel)(
-implicit messages: play.api.i18n.Messages,
-pertaxContext: PertaxContext,
-configDecorator: ConfigDecorator)
+
+@(viewModel: TaxCalculationViewModel)(implicit messages: play.api.i18n.Messages)
 
 @card(
     id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),

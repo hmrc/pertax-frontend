@@ -43,13 +43,27 @@ class GetPersonDetailsAction @Inject()(
             Left(_),
             pd =>
               Right(
-                UserRequest(request.nino, request.saUserType, request.authProvider, pd, messageCount, request.request))
+                UserRequest(
+                  request.nino,
+                  request.name,
+                  request.saUserType,
+                  request.authProvider,
+                  pd,
+                  messageCount,
+                  request.request))
           )
         }
       } else {
         Future.successful(
           Right(
-            UserRequest(request.nino, request.saUserType, request.authProvider, None, messageCount, request.request)))
+            UserRequest(
+              request.nino,
+              request.name,
+              request.saUserType,
+              request.authProvider,
+              None,
+              messageCount,
+              request.request)))
       }
     }
 

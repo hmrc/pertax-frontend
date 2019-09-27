@@ -14,16 +14,17 @@
  * limitations under the License.
  *@
 
+@import controllers.auth.requests.UserRequest
+@import config.ConfigDecorator
+
 @(utr: SaUtr,
 continueUrl: String,
 deadlineYear: String,
 currentTaxYear: String,
-showPostLink: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+showPostLink: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@import pertaxContext.configDecorator._
-
-@main(title = Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again"),
-pageName = Some(Messages("label.your_personal_tax_account")),
+@main(title = messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again"),
+pageName = Some(messages("label.your_personal_tax_account")),
 backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
 ) {
 
@@ -32,23 +33,23 @@ backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromS
     <div class="column-two-thirds">
 
         <header class="page-heading">
-            <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again")</h1>
-            <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.how_to_access_your_self_assessment")</p>
+            <h1 class="heading-xlarge no-margin-top">@messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again")</h1>
+            <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@messages("label.how_to_access_your_self_assessment")</p>
         </header>
 
 
-        <p>@Messages("label.use_your_unique_taxpayer_reference_utr_to_text_before_link") <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">@Messages("label.use_your_unique_taxpayer_reference_utr_to_link_text")</a>.</p>
-        <p>@Html(Messages("label.your_utr_is_", utr))</p>
+        <p>@messages("label.use_your_unique_taxpayer_reference_utr_to_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">@messages("label.use_your_unique_taxpayer_reference_utr_to_link_text")</a>.</p>
+        <p>@Html(messages("label.your_utr_is_", utr))</p>
 
 
         <div class="panel panel-border-wide">
-            <p>@Messages("label.you_will_get_an_activation_code_in_the_post_")</p>
+            <p>@messages("label.you_will_get_an_activation_code_in_the_post_")</p>
         </div>
 
-        <h2 class="heading-medium">@Messages("label.do_your_tax_return_before_the_deadline")</h2>
-        <p>@Messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
+        <h2 class="heading-medium">@messages("label.do_your_tax_return_before_the_deadline")</h2>
+        <p>@messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
         @if(showPostLink) {
-            <p id="returnTaxReturnByPost">@Messages("label.you_can_send_your_tax_return_by_post_text_before_link") <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">@Messages("label.you_can_send_your_tax_return_by_post_link_text")</a> @Messages("label.you_can_send_your_tax_return_by_post_text_after_link", currentTaxYear).</p>
+            <p id="returnTaxReturnByPost">@messages("label.you_can_send_your_tax_return_by_post_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">@messages("label.you_can_send_your_tax_return_by_post_link_text")</a> @messages("label.you_can_send_your_tax_return_by_post_text_after_link", currentTaxYear).</p>
         }
 
     </div>
