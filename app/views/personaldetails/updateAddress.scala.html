@@ -14,11 +14,13 @@
  * limitations under the License.
  *@
 
-@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, addressFinderDto: Option[AddressFinderDto], addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+
+@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, addressFinderDto: Option[AddressFinderDto], addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @getYourAddressLabels = {
   @if(showEnterAddressHeader) {
@@ -111,7 +113,7 @@
         <input type="hidden" name="type" value="@updateAddressForm("type").value" />
         <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
         <input type="submit" class="button" id="updateAddress" value='@Messages("label.continue")' >
-      }(pertaxContext.request, messages)
+      }
     </div>
   </div>
 }

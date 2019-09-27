@@ -14,15 +14,14 @@
  * limitations under the License.
  *@
 
-@(field: play.api.data.Field, elementOptions: Seq[(String, String)], displayEmptyValue: Boolean, args: (Symbol,Any)*)(implicit messages: Messages)
-
 @import play.api.i18n._
 @import views.html.helper._
+
+@(field: play.api.data.Field, elementOptions: Seq[(String, String)], displayEmptyValue: Boolean, args: (Symbol,Any)*)(implicit messages: Messages)
 
 @elements = @{ new FieldElements(field.id, field, null, args.toMap, messages) }
 
 @value = @{ field.value match { case Some(x) => x case None => "" case x => x }}
-
 
 <div class="@if(elements.hasErrors){ form-group-error }">
 
@@ -34,7 +33,7 @@
 
     @if(elements.args.contains('_additionalTitleText)){<p>@elements.args.get('_additionalTitleText)</p>}
     @if(elements.args.contains('_errorsAboveInput)){
-    @elements.errors.map { error => <span style="display: block" class="error-message">@Messages(error)</span>}
+    @elements.errors.map { error => <span style="display: block" class="error-message">@messages(error)</span>}
     }
     <select id="@elements.field.name" name="@elements.field.name" class="@elements.args.get('_selectClass)">
         @if(displayEmptyValue) {
@@ -49,7 +48,7 @@
         }
     </select>
     @if(!elements.args.contains('_errorsAboveInput)){
-    @elements.errors.map { error => <span style="display: block" class="error-notification">@Messages(error)</span>}
+    @elements.errors.map { error => <span style="display: block" class="error-notification">@messages(error)</span>}
     }
 
 </div>

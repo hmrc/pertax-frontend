@@ -44,8 +44,14 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     authorised((ConfidenceLevel.L200 and Nino(hasNino = true)) or Enrolment("IR-SA"))
-      .retrieve(Retrievals.nino and Retrievals.authorisedEnrolments and Retrievals.credentials and Retrievals.name) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ name =>
+      .retrieve(
+        Retrievals.nino and
+          Retrievals.authorisedEnrolments and
+          Retrievals.credentials and
+          Retrievals.confidenceLevel and
+          Retrievals.name and
+          Retrievals.loginTimes) {
+        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins =>
           val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers
               .find(id => id.key == "UTR")
@@ -56,8 +62,11 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
               nino.map(domain.Nino),
               saEnrolment,
               credentials.providerType,
+              confidenceLevel,
               Some(UserName(name.getOrElse(Name(None, None)))),
-              request))
+              logins.previousLogin,
+              request
+            ))
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {

@@ -46,24 +46,31 @@ class GetPersonDetailsAction @Inject()(
                 UserRequest(
                   request.nino,
                   request.name,
+                  request.previousLoginTime,
                   request.saUserType,
                   request.authProvider,
+                  request.confidenceLevel,
                   pd,
                   messageCount,
-                  request.request))
+                  request.activeTab,
+                  request.request
+                ))
           )
         }
       } else {
         Future.successful(
-          Right(
-            UserRequest(
-              request.nino,
-              request.name,
-              request.saUserType,
-              request.authProvider,
-              None,
-              messageCount,
-              request.request)))
+          Right(UserRequest(
+            request.nino,
+            request.name,
+            request.previousLoginTime,
+            request.saUserType,
+            request.authProvider,
+            request.confidenceLevel,
+            None,
+            messageCount,
+            request.activeTab,
+            request.request
+          )))
       }
     }
 

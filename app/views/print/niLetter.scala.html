@@ -16,8 +16,10 @@
 
 @import models.PertaxUser._
 @import tags._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@(personDetails: models.PersonDetails, dateString:String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, dateString:String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 <div class="print-document">
   <div class="grid-row print-header">

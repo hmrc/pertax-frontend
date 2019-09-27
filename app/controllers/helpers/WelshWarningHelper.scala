@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +12,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@()(implicit messages: play.api.i18n.Messages)
+package controllers.helpers
 
-<div class="panel-indent panel-indent--info">
-  <p>@messages("label.nid_yw_rhai_or_tudalennau")</p>
-</div>
+object WelshWarningHelper {
+
+  def usingWelsh(implicit messages: play.api.i18n.Messages): Boolean = messages.lang.code == "cy"
+}

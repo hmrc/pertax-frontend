@@ -29,10 +29,8 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-class PertaxDependencies @Inject()(
-  val auditConnector: PertaxAuditConnector,
-  val authConnector: PertaxAuthConnector,
-  val partialRetriever: LocalPartialRetriever,
+class PertaxDependencies @Inject()(val auditConnector: PertaxAuditConnector, val authConnector: PertaxAuthConnector)(
+  implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator)
 
 abstract class PertaxBaseController

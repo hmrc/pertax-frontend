@@ -14,10 +14,14 @@
  * limitations under the License.
  *@
 
-@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-    @import uk.gov.hmrc.play.views.html._
-    @import uk.gov.hmrc.play.views.html.helpers._
+@(typ: AddrType, closedPostalAddress: Boolean, addr: Option[List[String]], subheading: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
 
     @additionalGaCalls = {
     @typ.ifIsPostal {
@@ -29,15 +33,15 @@
         @subheading.map(p1 =>
 
             <h2 class="heading-large">
-                {Messages("label.what_happens_next")}
+                {messages("label.what_happens_next")}
             </h2>
             <p>
-                {Messages(p1)}
+                {messages(p1)}
             </p>
         )
     }
 
-    @main(Messages("label.your_address_has_been_changed"), Some(Messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
+    @main(messages("label.your_address_has_been_changed"), Some(messages("label.your_personal_tax_account")), additionalGaCalls = Some(additionalGaCalls)) {
 
         @if(closedPostalAddress) {
 
@@ -45,14 +49,14 @@
                 <div class="column-two-thirds">
 
                     <div class="govuk-box-highlight">
-                        <h1 class="heading-xlarge">@Messages("label.your_postal_address_has_been_changed_")</h1>
+                        <h1 class="heading-xlarge">@messages("label.your_postal_address_has_been_changed_")</h1>
                     </div>
 
-                    <p>@Messages("label.all_your_letters_will_be_sent_to_this_addr")</p>
+                    <p>@messages("label.all_your_letters_will_be_sent_to_this_addr")</p>
 
                     <p>@Html(addr.map(x => x.mkString(", <br>")).getOrElse("")))</p>
 
-                    <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
+                    <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@messages("label.return_to_your_account_home")</a></p>
                 </div>
             </div>
 
@@ -61,7 +65,7 @@
                 <div class="column-two-thirds">
 
                     <div class="govuk-box-highlight">
-                        <h1 class="heading-xlarge">@Messages("label.your_address_has_been_changed")</h1>
+                        <h1 class="heading-xlarge">@messages("label.your_address_has_been_changed")</h1>
                     </div>
 
                     @typ.ifIs(
@@ -69,7 +73,7 @@
                         sole = { content },
                         postal = Html(""))
 
-                    <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@Messages("label.return_to_your_account_home")</a></p>
+                    <p><a href="@controllers.routes.HomeController.index" class="button" role="button">@messages("label.return_to_your_account_home")</a></p>
                 </div>
             </div>
 

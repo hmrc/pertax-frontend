@@ -17,14 +17,20 @@
 package controllers.auth.requests
 
 import models.{SelfAssessmentUserType, UserName}
+import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.renderer.ActiveTab
 
 case class RefinedRequest[A](
   nino: Option[Nino],
   name: Option[UserName],
+  previousLoginTime: Option[DateTime],
   saUserType: SelfAssessmentUserType,
   authProvider: String,
+  confidenceLevel: ConfidenceLevel,
+  activeTab: Option[ActiveTab],
   request: Request[A])
     extends WrappedRequest[A](request) {
 

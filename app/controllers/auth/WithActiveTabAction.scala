@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@()(implicit messages: play.api.i18n.Messages)
+package controllers.auth
 
-<div class="panel-indent panel-indent--info">
-  <p>@messages("label.nid_yw_rhai_or_tudalennau")</p>
-</div>
+import controllers.auth.requests.UserRequest
+import play.api.mvc.{ActionRefiner, Result}
+import uk.gov.hmrc.renderer.ActiveTab
+
+import scala.concurrent.Future
+
+object WithActiveTabAction {
+
+  def addActiveTab(activeTab: ActiveTab): ActionRefiner[UserRequest, UserRequest] =
+    new ActionRefiner[UserRequest, UserRequest] {
+      override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
+        Future.successful(Right(request.copy(activeTab = Some(activeTab))))
+    }
+}

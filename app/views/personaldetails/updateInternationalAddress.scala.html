@@ -14,16 +14,18 @@
  * limitations under the License.
  *@
 
-@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+
+@(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @getYourAddressLabels = {
-@typ.ifIs(primary = Messages("label.enter_your_address"),
-sole = Messages("label.enter_your_address"),
-postal = Messages("label.enter_the_address"))
+@typ.ifIs(primary = messages("label.enter_your_address"),
+sole = messages("label.enter_your_address"),
+postal = messages("label.enter_the_address"))
 }
 
 @scriptElems = {
@@ -48,7 +50,7 @@ postal = Messages("label.enter_the_address"))
 
 @main(
 title = getYourAddressLabels.toString,
-pageName = Some(Messages("label.your_personal_tax_account")),
+pageName = Some(messages("label.your_personal_tax_account")),
 scriptElement = Some(scriptElems)) {
 @back_link()
 @errors(updateAddressForm)
@@ -69,7 +71,7 @@ scriptElement = Some(scriptElems)) {
                 updateAddressForm("line1"),
                 '_inputClass -> "form-control form-control-3-4",
                 '_labelClass -> "form-label inputLabelBeforeError",
-                '_label -> Messages("label.address_line_one"),
+                '_label -> messages("label.address_line_one"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
                 )
@@ -79,7 +81,7 @@ scriptElement = Some(scriptElems)) {
                 updateAddressForm("line2"),
                 '_inputClass -> "form-control form-control-3-4",
                 '_labelClass -> "form-label",
-                '_label -> Messages("label.address_line_two"),
+                '_label -> messages("label.address_line_two"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
                 )
@@ -89,7 +91,7 @@ scriptElement = Some(scriptElems)) {
                 updateAddressForm("line3"),
                 '_inputClass -> "form-control form-control-3-4",
                 '_labelClass -> "form-label",
-                '_label -> Messages("label.address_line_three"),
+                '_label -> messages("label.address_line_three"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
                 )
@@ -99,7 +101,7 @@ scriptElement = Some(scriptElems)) {
                 updateAddressForm("line4"),
                 '_inputClass -> "form-control form-control-3-4",
                 '_labelClass -> "form-label",
-                '_label -> Messages("label.address_line_four"),
+                '_label -> messages("label.address_line_four"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
                 )
@@ -109,7 +111,7 @@ scriptElement = Some(scriptElems)) {
                 updateAddressForm("line5"),
                 '_inputClass -> "form-control form-control-3-4",
                 '_labelClass -> "form-label",
-                '_label -> Messages("label.address_line_five"),
+                '_label -> messages("label.address_line_five"),
                 'divClass -> "form-group",
                 '_maxlength -> 35
                 )
@@ -121,7 +123,7 @@ scriptElement = Some(scriptElems)) {
                 elementOptions = ("","") :: countries.map(c => (c.countryName,c.countryName)),
                 displayEmptyValue = true,
                 '_labelClass -> "form-label",
-                '_label -> Messages("label.country"),
+                '_label -> messages("label.country"),
                 '_inputClass -> "form-control",
                 '_errorsAboveInput -> true
                 )
@@ -129,8 +131,8 @@ scriptElement = Some(scriptElems)) {
 
             <input type="hidden" name="type" value="@updateAddressForm("type").value" />
             <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
-            <input type="submit" class="button" id="updateAddress" value='@Messages("label.continue")' >
-            }(pertaxContext.request, messages)
+            <input type="submit" class="button" id="updateAddress" value='@messages("label.continue")' >
+            }
         </div>
     </div>
 

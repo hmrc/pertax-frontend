@@ -14,7 +14,11 @@
  * limitations under the License.
  *@
 
-@(supportLinkEnabled: Boolean = true, includeGridWrapper: Boolean = false)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import util.LocalPartialRetriever
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+
+@(supportLinkEnabled: Boolean = true, includeGridWrapper: Boolean = false)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @if(supportLinkEnabled) {
 
@@ -22,7 +26,7 @@
     <div class="grid-wrapper">
   }
 
-  @pertaxContext.getPartialContent(pertaxContext.configDecorator.reportAProblemPartialUrl)
+  @partialRetriever.getPartialContent(configDecorator.reportAProblemPartialUrl)
 
   @if( includeGridWrapper ) {
     </div>

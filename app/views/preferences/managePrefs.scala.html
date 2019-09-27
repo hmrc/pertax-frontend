@@ -14,21 +14,23 @@
  * limitations under the License.
  *@
 
-@(managePrefsPartial: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import tags._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@main(title = Messages("label.manage_your_paperless_settings"),Some(Messages("label.your_personal_tax_account"))) {
+@(managePrefsPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(title = messages("label.manage_your_paperless_settings"),Some(messages("label.your_personal_tax_account"))) {
 
   <div class="grid-row">
     <div class="column-two-thirds">
 
       <header class="page-header">
-        <h1 class="heading-xlarge">@Messages("label.manage_your_paperless_settings")</h1>
+        <h1 class="heading-xlarge">@messages("label.manage_your_paperless_settings")</h1>
       </header>
 
       <div class="panel-indent alert-notification">
-        <p>@Messages("label.any_updates_to_your_contact_details")</p>
+        <p>@messages("label.any_updates_to_your_contact_details")</p>
       </div>
 
     </div>

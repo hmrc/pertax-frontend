@@ -14,14 +14,17 @@
  * limitations under the License.
  *@
 
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@main(Messages("label.sign_in"), displayTimeoutDialog = false) {
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(messages("label.sign_in"), displayTimeoutDialog = false) {
 
     <header class="page-heading">
-        <h1 class="heading-xlarge">@Messages("label.youve_been_signed_out")</h1>
+        <h1 class="heading-xlarge">@messages("label.youve_been_signed_out")</h1>
     </header>
-    <p>@Messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
-    <p>@Messages("label.please_sign_in_again")</p>
-    <a class="button" href="@controllers.routes.HomeController.index" role="button">@Messages("label.sign_in")</a>
+    <p>@messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
+    <p>@messages("label.please_sign_in_again")</p>
+    <a class="button" href="@controllers.routes.HomeController.index" role="button">@messages("label.sign_in")</a>
 }

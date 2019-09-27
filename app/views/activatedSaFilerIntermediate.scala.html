@@ -14,25 +14,28 @@
  * limitations under the License.
  *@
 
-@(utr: String, previousTaxYear: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+
+@(utr: String, previousTaxYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @scriptElem = {
   <script>
     $(function(){
       gaWithCallback('send', 'event', 'sa-iv-bypass', 'click', 'User type - activated online SA filer', function() {
-        window.location.href = "@pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)";
+        window.location.href = "@configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)";
       });
     });
   </script>
   <noscript>
-    <meta http-equiv="refresh" content="0; url=@pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)">
+    <meta http-equiv="refresh" content="0; url=@configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)">
   </noscript>
 }
 
-@main(Messages("label.we_are_processing_your-details"), Some(Messages("label.your_personal_tax_account")), scriptElement = Some(scriptElem)) {
+@main(messages("label.we_are_processing_your-details"), Some(messages("label.your_personal_tax_account")), scriptElement = Some(scriptElem)) {
   <div>
-    <h1 class="heading-xlarge">@Messages("label.we_are_processing_your-details")</h1>
-    <p class="margin-bottom">@Messages("label.this_may_take_up_to_30_seconds")</p>
-    <p>@Messages("label.if_you_are_not_redirected_in_text_before_link") <a href="@pertaxContext.configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)">@Messages("label.if_you_are_not_redirected_in_link_text")</a></p>
+    <h1 class="heading-xlarge">@messages("label.we_are_processing_your-details")</h1>
+    <p class="margin-bottom">@messages("label.this_may_take_up_to_30_seconds")</p>
+    <p>@messages("label.if_you_are_not_redirected_in_text_before_link") <a href="@configDecorator.ssoToSaAccountSummaryUrl(utr, previousTaxYear)">@messages("label.if_you_are_not_redirected_in_link_text")</a></p>
   </div>
 }

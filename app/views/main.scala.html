@@ -14,52 +14,53 @@
  * limitations under the License.
  *@
 
-@(title: String,
-  pageName:Option[String] = None,
-  showUserResearchBanner: Boolean = false,
-  sidebarLinks: Option[Html] = None,
-  sidebarClass: Option[String] = None,
-  supportLinkEnabled: Boolean = true,
-  headScripts: Option[Html] = None,
-  scriptElement: Option[Html] = None,
-  articleClasses: Option[String] = None,
-  includeGridWrapper: Boolean = false,
-  backlinkUrl: Option[String] = None,
-  additionalGaCalls: Option[Html] = None,
-  printableDocument: Boolean = false,
-  displayTimeoutDialog: Boolean = true
-)(mainContent: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import models.PertaxUser._
 @import util.LanguageHelper
 @import uk.gov.hmrc.renderer._
 @import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import controllers.helpers.WelshWarningHelper
 
+@(title: String,
+pageName:Option[String] = None,
+showUserResearchBanner: Boolean = false,
+sidebarLinks: Option[Html] = None,
+sidebarClass: Option[String] = None,
+supportLinkEnabled: Boolean = true,
+headScripts: Option[Html] = None,
+scriptElement: Option[Html] = None,
+articleClasses: Option[String] = None,
+includeGridWrapper: Boolean = false,
+backlinkUrl: Option[String] = None,
+additionalGaCalls: Option[Html] = None,
+printableDocument: Boolean = false,
+displayTimeoutDialog: Boolean = true
+)(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @links = @{
   var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()
 
-  ifAuthenticatedUser {
-    ifHighGovernmentGatewayOrVerifyUser {
-      ifPayeUser {
+  if(request.personDetails.isDefined) {
+      if(request.nino.isDefined) {
         seq += Map("url" -> controllers.routes.AddressController.personalDetails().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
       }
-    }
-    seq += Map("url" -> pertaxContext.configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
-    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
+    seq += Map("url" -> configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
+    seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
   }
   seq
 }
 
 @actingAttorneyBanner = {
   @{
-    for {
-      pu <- pertaxContext.user
-      principalName <- pu.name
-      attorney <- pu.authContext.attorney
-    } yield layouts.attorney_banner(Some(principalName), attorney.returnLink.url, AttorneyRegime.pertax)
+<!--    for {-->
+<!--      pu <- request-->
+<!--      principalName <- pu.name-->
+<!--      attorney <- pu.authContext.attorney-->
+<!--    } yield layouts.attorney_banner(Some(principalName), attorney.returnLink.url, AttorneyRegime.pertax)-->
+        layouts.attorney_banner(None, "", AttorneyRegime.pertax)
   }
 }
 
@@ -67,7 +68,7 @@
 
   @scriptElement
 
-  @if(pertaxContext.configDecorator.analyticsToken == Some("N/A")) {
+  @if(configDecorator.analyticsToken == Some("N/A")) {
     <script type="text/javascript">
       var ga = function(send, event, category, action, label, args) {
         console.log(JSON.stringify({
@@ -97,8 +98,8 @@
   @if(displayTimeoutDialog) {
     <script>
             window.GOVUK.timeoutDialog({
-              timeout: @pertaxContext.configDecorator.sessionTimeoutInSeconds,
-              countdown: @pertaxContext.configDecorator.sessionCountdownInSeconds,
+              timeout: @configDecorator.sessionTimeoutInSeconds,
+              countdown: @configDecorator.sessionCountdownInSeconds,
               keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
               signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
             });
@@ -115,16 +116,16 @@
 
 @mainContentHeader = {
 
-  @if(pertaxContext.welshWarning) {
+  @if(WelshWarningHelper.usingWelsh) {
     @tags.welshContentWarning()
   }
 }
 
 @{
 
-  val prev = LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp((for(u <- pertaxContext.user; t <- u.authContext.user.previouslyLoggedInAt) yield t), "")
-  val name = for(u <- pertaxContext.user; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n)
-
+  val prev = LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(request.previousLoginTime, "")
+  <!--  val name = for(u <- request; n <- u.nameOrAttorneyName) yield util.TemplateFunctions.upperCaseToTitleCase(n)-->
+  val name = ""
   val arguments = TemplateArgumentsBuilder(
 
     Some(AccountMenuStyleComponent(
@@ -132,9 +133,9 @@
         controllers.routes.LanguageSwitchController.enGb().url,
         controllers.routes.LanguageSwitchController.cyGb().url
       )),
-      signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(pertaxContext.configDecorator.getFeedbackSurveyUrl(pertaxContext.configDecorator.defaultOrigin))), None).url),
-      activeTab = pertaxContext.activeTab,
-      hideAccountMenu = pertaxContext.user.isEmpty
+      signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
+      activeTab = request.activeTab,
+      hideAccountMenu = request.personDetails.isEmpty
     )),
     Some(CssLinksComponent(
       CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie.css").url, ieVersionCondition = Some("IE")),
@@ -149,13 +150,13 @@
     )),
     Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
     Some(InlineScriptComponent(inlineScript.toString)),
-    pertaxContext.configDecorator.ssoUrl.map(SsoUrlComponent(_)),
-    pertaxContext.configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
+    configDecorator.ssoUrl.map(SsoUrlComponent(_)),
+    configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
       GoogleAnalyticsComponent(
         trackingId,
-        cookieDomain = pertaxContext.configDecorator.analyticsHost,
-        "confidenceLevel" -> pertaxContext.user.map(_.confidenceLevel.toString),
-        "authProvider" -> pertaxContext.authProvider
+        cookieDomain = configDecorator.analyticsHost,
+        "confidenceLevel" -> Some(request.confidenceLevel.toString),
+        "authProvider" -> Some(request.authProvider)
       )
     },
     Some(OptimizelyComponent(
@@ -165,7 +166,7 @@
     Some(FullWidthBannerComponent(
       Messages("label.help_improve_gov_uk"),
       Messages("label.please_take_part_in_our_short_survey"),
-      pertaxContext.configDecorator.urLinkUrl,
+      configDecorator.urLinkUrl,
       Some(Messages("label.no_thanks")),
       Some("homepage UR banner")
     )).filter(x => showUserResearchBanner),
@@ -173,20 +174,20 @@
     Some(MainContentHeaderComponent(mainContentHeader)),
     backlinkUrl.map(BackLinkUrlComponent(_)),
     Some(UserPropertiesComponent(
-      isGovernmentGateway = pertaxContext.user.map(_.isGovernmentGateway).getOrElse(false),
-      isVerify = pertaxContext.user.map(_.isVerify).getOrElse(false),
-      isSa = pertaxContext.user.map(_.isSa).getOrElse(false)
+      isGovernmentGateway = request.map(_.isGovernmentGateway).getOrElse(false),
+      isVerify = request.map(_.isVerify).getOrElse(false),
+      isSa = request.map(_.isSa).getOrElse(false)
     )),
     Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
     pageName.map(NavTitleComponent(_)),
-    Some(BetaBannerComponent(pertaxContext.configDecorator.deskproToken)),
-    Some(MessagesMenuItemComponent(pertaxContext.unreadMessageCount))
+    Some(BetaBannerComponent(configDecorator.deskproToken)),
+    Some(MessagesMenuItemComponent(request.unreadMessageCount))
   ) ++ Map[String,Any](
       "bodyClass" -> printable
     )
 
   config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(
-    pertaxContext.configDecorator.frontendTemplatePath,
+    configDecorator.frontendTemplatePath,
     layouts.article(mainContent, includeGridWrapper, articleClasses),
     arguments
   )

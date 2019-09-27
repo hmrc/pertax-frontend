@@ -58,7 +58,15 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
     getSelfAssessmentUserType()(hc, request).map { saType =>
-      Right(RefinedRequest(request.nino, request.name, saType, request.authProvider, request.request))
+      Right(
+        RefinedRequest(
+          request.nino,
+          request.name,
+          request.previousLoginTime,
+          saType,
+          request.authProvider,
+          request.confidenceLevel,
+          request.request))
     }
   }
 
