@@ -14,25 +14,26 @@
  * limitations under the License.
  *@
 
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
-
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@main(Messages("label.your_address_has_already_been_updated"), Some(Messages("label.your_personal_tax_account"))) {
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(messages("label.your_address_has_already_been_updated"), Some(messages("label.your_personal_tax_account"))) {
 
   <div class="grid-row">
     <div class="column-two-thirds">
 
       <header class="page-heading">
-        <h1 class="heading-xlarge">@Html(Messages("label.your_address_has_already_been_updated"))</h1>
+        <h1 class="heading-xlarge">@Html(messages("label.your_address_has_already_been_updated"))</h1>
       </header>
-      <p class="summary">@Messages("label.to_continue_you_can")</p>
+      <p class="summary">@messages("label.to_continue_you_can")</p>
 
       <ul class="list list-bullet">
-        <li>@Messages("label.see_your_current_address_text_before_link") <a href="@pertaxContext.configDecorator.personalAccountYourAddress">@Messages("label.see_your_current_address_link_text")</a></li>
-        <li>@Messages("label.go_to_your_personal_tax_account_home_text_before_link") <a href="@pertaxContext.configDecorator.personalAccount">@Messages("label.go_to_your_personal_tax_account_home_link_text")</a></li>
+        <li>@messages("label.see_your_current_address_text_before_link") <a href="@configDecorator.personalAccountYourAddress">@messages("label.see_your_current_address_link_text")</a></li>
+        <li>@messages("label.go_to_your_personal_tax_account_home_text_before_link") <a href="@configDecorator.personalAccount">@messages("label.go_to_your_personal_tax_account_home_link_text")</a></li>
       </ul>
     </div>
   </div>

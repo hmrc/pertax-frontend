@@ -14,20 +14,23 @@
  * limitations under the License.
  *@
 
-@(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType, postcode: String, filter: Option[String])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 @import scala.util.Try
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+
+@(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType,
+postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(
   title = typ.ifIs(
-    primary = Messages("label.select_your_address"),
-    sole = Messages("label.select_your_address"),
-    postal = Messages("label.select_an_address")
+    primary = messages("label.select_your_address"),
+    sole = messages("label.select_your_address"),
+    postal = messages("label.select_an_address")
   ),
-  pageName = Some(Messages("label.your_personal_tax_account"))
+  pageName = Some(messages("label.your_personal_tax_account"))
 ) {
 @back_link()
   @errors(addressSelectorForm)
@@ -36,7 +39,7 @@
     <div class="column-two-thirds">
       <header class="page-heading">
         <h1 class="heading-xlarge">
-          @typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address"))
+          @typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))
         </h1>
       </header>
 
@@ -44,7 +47,7 @@
           <input type="hidden" name="postcode" value="@postcode" />
 
           <fieldset>
-          <legend class="visuallyhidden">@typ.ifIs(primary = Messages("label.select_your_address"), sole = Messages("label.select_your_address"), postal = Messages("label.select_an_address"))</legend>
+          <legend class="visuallyhidden">@typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))</legend>
             @for((ad,index) <- recordSet.addresses.zipWithIndex){
               <label class="block-label" for="radio-@index">
                 <input id="radio-@index" type="radio" name="addressId" value="@ad.id" data-line1="@ad.address.lines(0)" data-line2='@Try(ad.address.lines(1)).getOrElse("")' data-line3="@ad.address.town" data-line4="" data-postcode="@ad.address.postcode" data-type="" data-etag="">
@@ -53,9 +56,9 @@
             }
         </fieldset>
 
-        <p class="form-group"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.enter_your_address_if_it_is_not_shown")</a></p>
+        <p class="form-group"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_if_it_is_not_shown")</a></p>
 
-        <input type="submit" class="button" id="submitAddressSelector" value='@Messages("global.label.continue_button")' >
+        <input type="submit" class="button" id="submitAddressSelector" value='@messages("global.label.continue_button")' >
       }(pertaxContext.request, messages)
     </div>
   </div>

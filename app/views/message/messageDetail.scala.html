@@ -14,10 +14,12 @@
  * limitations under the License.
  *@
 
-@(message: Html, title: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
+@(message: Html, title: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@main(title = title,Some(Messages("label.your_personal_tax_account"))) {
+@main(title = title,Some(messages("label.your_personal_tax_account"))) {
 
   @back_link()
   @message

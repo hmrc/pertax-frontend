@@ -14,46 +14,46 @@
  * limitations under the License.
  *@
 
-@(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import models.PertaxUser._
+@import config.ConfigDecorator
 
+@(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@interstitialWrapper(Messages("label.report_changes_that_affect_your_child_benefit"), Messages("label.report_changes_that_affect_your_child_benefit")) {
+@interstitialWrapper(messages("label.report_changes_that_affect_your_child_benefit"), messages("label.report_changes_that_affect_your_child_benefit")) {
   <div class="column-two-thirds child-benefit-partial pta-panel">
     @ifHighGovernmentGatewayOrVerifyUser {
-      <h2 class="heading-medium">@Messages("label.if_your_childs_circumstances_change")</h2>
-      <p>@Messages("label.child_benefit_stops_on_31_august_")</p>
-      <p>@Messages("label.tell_us_if_your_child")</p>
+      <h2 class="heading-medium">@messages("label.if_your_childs_circumstances_change")</h2>
+      <p>@messages("label.child_benefit_stops_on_31_august_")</p>
+      <p>@messages("label.tell_us_if_your_child")</p>
       <ul class="list list-bullet">
-        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsStaysInEducation">@Messages("text.stays_in_education_or_training")</a></li>
-        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsLaterLeavesEducation">@Messages("text.leaves_education_or_training")</a></li>
-        <li><a class="tracklink" href="@pertaxContext.configDecorator.childBenefitsHasAnyChangeInCircumstances">@Messages("text.has_any_other_change_in_their_circumstances_link_text")</a> @Messages("text.has_any_other_change_in_their_circumstances_text_after_link")</li>
+        <li><a class="trackLink" href="@configDecorator.childBenefitsStaysInEducation">@messages("text.stays_in_education_or_training")</a></li>
+        <li><a class="trackLink" href="@configDecorator.childBenefitsLaterLeavesEducation">@messages("text.leaves_education_or_training")</a></li>
+        <li><a class="tracklink" href="@configDecorator.childBenefitsHasAnyChangeInCircumstances">@messages("text.has_any_other_change_in_their_circumstances_link_text")</a> @messages("text.has_any_other_change_in_their_circumstances_text_after_link")</li>
       </ul>
 
-      <h3 class="heading-small">@Messages("label.apply_for_an_extension")</h3>
-      <p>@Messages("label.you_could_get_child_benefit_for_20_weeks_")</p>
+      <h3 class="heading-small">@messages("label.apply_for_an_extension")</h3>
+      <p>@messages("label.you_could_get_child_benefit_for_20_weeks_")</p>
       <ul class="list list-bullet">
-        <li>@Messages("label.registers_with_their_local_careers_service_")</li>
-        <li>@Messages("label.signs_up_to_join_the_armed_forces")</li>
+        <li>@messages("label.registers_with_their_local_careers_service_")</li>
+        <li>@messages("label.signs_up_to_join_the_armed_forces")</li>
       </ul>
 
-      <a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsApplyForExtension">@Messages("label.apply_for_an_extension")</a>
+      <a class="trackLink" href="@configDecorator.childBenefitsApplyForExtension">@messages("label.apply_for_an_extension")</a>
 
-      <h2 class="heading-medium">@Messages("label.other_changes_to_your_child_benefit_claim")</h2>
-      <p>@Messages("label.tell_us_if_you_need_to")</p>
+      <h2 class="heading-medium">@messages("label.other_changes_to_your_child_benefit_claim")</h2>
+      <p>@messages("label.tell_us_if_you_need_to")</p>
       <ul class="list list-bullet">
-        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsReportChange">@Messages("text.report_a_change_to_your_circumstances_link_text")</a> @Messages("text.report_a_change_to_your_circumstances_text_after_link")</li>
-        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsAuthoriseTaxAdvisor">@Messages("text.authorise_a_tax_advisor_or_accountant_link_text")</a> @Messages("text.authorise_a_tax_advisor_or_accountant_text_after_link")</li>
-        <li><a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsStopOrRestart">@Messages("text.stop_or_restart_your_child_benefit_payments_link_text")</a> @Messages("text.stop_or_restart_your_child_benefit_payments_text_after_link")</li>
+        <li><a class="trackLink" href="@configDecorator.childBenefitsReportChange">@messages("text.report_a_change_to_your_circumstances_link_text")</a> @messages("text.report_a_change_to_your_circumstances_text_after_link")</li>
+        <li><a class="trackLink" href="@configDecorator.childBenefitsAuthoriseTaxAdvisor">@messages("text.authorise_a_tax_advisor_or_accountant_link_text")</a> @messages("text.authorise_a_tax_advisor_or_accountant_text_after_link")</li>
+        <li><a class="trackLink" href="@configDecorator.childBenefitsStopOrRestart">@messages("text.stop_or_restart_your_child_benefit_payments_link_text")</a> @messages("text.stop_or_restart_your_child_benefit_payments_text_after_link")</li>
       </ul>
 
-      <h2 class="heading-medium">@Messages("label.if_you_do_not_currently_claim_child_benefit")</h2>
-      <p>@Messages("text.if_you_do_not_claim_child_benefit_text_before_link") <a class="trackLink" href="@pertaxContext.configDecorator.childBenefitsCheckIfYouCanClaim" target="_blank" rel="noopener noreferrer">@Messages("text.if_you_do_not_claim_child_benefit_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
+      <h2 class="heading-medium">@messages("label.if_you_do_not_currently_claim_child_benefit")</h2>
+      <p>@messages("text.if_you_do_not_claim_child_benefit_text_before_link") <a class="trackLink" href="@configDecorator.childBenefitsCheckIfYouCanClaim" target="_blank" rel="noopener noreferrer">@messages("text.if_you_do_not_claim_child_benefit_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
     }
     @ifLowGovernmentGatewayUser {
-      <p class="lede">@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+      <p class="lede">@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
     }
   </div>
 }

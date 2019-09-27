@@ -14,14 +14,17 @@
  * limitations under the License.
  *@
 
-@(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto], typ: AddrType)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 @import views.html.back_link
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@main(title = Messages("label.do_you_live_in_the_uk"),
-pageName = Some(Messages("label.your_personal_tax_account"))
+@(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto], typ: AddrType
+)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(title = messages("label.do_you_live_in_the_uk"),
+pageName = Some(messages("label.your_personal_tax_account"))
 ) {
 
     @back_link()
@@ -33,27 +36,27 @@ pageName = Some(Messages("label.your_personal_tax_account"))
         <div class="grid-row">
             <div class="column-two-thirds">
                 <header class="page-heading">
-                    <h1 class="heading-xlarge">@Messages("label.do_you_live_in_the_uk")</h1>
+                    <h1 class="heading-xlarge">@messages("label.do_you_live_in_the_uk")</h1>
                 </header>
 
-                <p>@Messages("label.the_uk_is_england_")</p>
+                <p>@messages("label.the_uk_is_england_")</p>
 
                 @form(action = controllers.routes.AddressController.processInternationalAddressChoice(typ)) {
                 <div class="form-group inline">
                     @input_radio_group(
                         internationalAddressChoiceForm("internationalAddressChoice"),
                         Seq(
-                            "true" -> Messages("label.yes"),
-                            "false" -> Messages("label.no")
+                            "true" -> messages("label.yes"),
+                            "false" -> messages("label.no")
                         ),
                         '_labelClass -> "block-label inputLabelBeforeError",
-                        '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.map(_.withMessage({Messages("label.select_an_answer")})),
-                        '_legend -> Messages("label.content_needed"),
+                        '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
+                        '_legend -> messages("label.content_needed"),
                         '_legendClass -> "visuallyhidden"
                     )
                 </div>
                 <div class="form-group inline">
-                    <button type="submit" class="ga-track-error" data-ga-event-action="Do you live in the UK?" data-radio-button-name="internationalAddressChoice">@Messages("global.label.continue_button")</button>
+                    <button type="submit" class="ga-track-error" data-ga-event-action="Do you live in the UK?" data-radio-button-name="internationalAddressChoice">@messages("global.label.continue_button")</button>
                 </div>
                 }
             </div>

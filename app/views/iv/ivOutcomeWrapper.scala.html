@@ -14,7 +14,10 @@
  * limitations under the License.
  *@
 
-@(title: String, header: String)(content: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+
+@(title: String, header: String)(content: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @main(title) {
 

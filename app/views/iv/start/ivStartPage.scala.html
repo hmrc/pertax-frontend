@@ -14,19 +14,21 @@
  * limitations under the License.
  *@
 
-@(redirectUrl: Option[String])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import tags._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@main(Messages("label.confirm_your_identity")) {
+@(redirectUrl: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(messages("label.confirm_your_identity")) {
 
     <header class="page-heading">
-      <h1>@Messages("label.confirm_your_identity")</h1>
+      <h1>@messages("label.confirm_your_identity")</h1>
     </header>
 
-    <p>@Messages("label.before_you_continue_we_need_to_check")</p>
-    <p>@Messages("label.we_re_going_to_ask_you_some_security_questions")</p>
-    <a href="@controllers.routes.ApplicationController.uplift(redirectUrl.map(SafeRedirectUrl.apply))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+    <p>@messages("label.before_you_continue_we_need_to_check")</p>
+    <p>@messages("label.we_re_going_to_ask_you_some_security_questions")</p>
+    <a href="@controllers.routes.ApplicationController.uplift(redirectUrl.map(SafeRedirectUrl.apply))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
 
 
 }

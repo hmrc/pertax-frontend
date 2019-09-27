@@ -14,13 +14,13 @@
  * limitations under the License.
  *@
 
-@(title: String, header: String, scriptElement: Option[Html] = None)(content: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import tags._
-@import models.PertaxUser
-@import models.PertaxUser._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@main(title, Some(Messages("label.your_personal_tax_account")), scriptElement = scriptElement) {
+@(title: String, header: String, scriptElement: Option[Html] = None)(content: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@main(title, Some(messages("label.your_personal_tax_account")), scriptElement = scriptElement) {
 
   <div class="page-heading">
     <h1 class="heading-xlarge no-margin-bottom">@header</h1>

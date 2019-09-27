@@ -14,12 +14,13 @@
  * limitations under the License.
  *@
 
-@(formPartial: Html, redirectUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import models.PertaxUser._
 @import tags._
+@import config.ConfigDecorator
 
-@interstitialWrapper(Messages("label.national_insurance_summary"), Messages("label.national_insurance")) {
+@(formPartial: Html, redirectUrl: String)(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@interstitialWrapper(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
 
   <div class="column-two-thirds">
 
@@ -27,20 +28,20 @@
 
       @ifPayeUserLoanNino { nino =>
         <div class="panel-indent panel-border-wide">
-          <p>@Messages("label.your_national_insurance_number_is")@formattedNino(nino)</p>
+          <p>@messages("label.your_national_insurance_number_is")@formattedNino(nino)</p>
         </div>
       }
 
-      @if(pertaxContext.configDecorator.nispEnabled) {
+      @if(configDecorator.nispEnabled) {
 
-        <h2 class="heading-medium">@Messages("label.check_your_national_insurance_contributions")</h2>
-        <p>@Messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
-        <p><a class="trackLink" href="@pertaxContext.configDecorator.nationalInsuranceRecordUrl">@Messages("label.check_your_national_insurance_contributions")</a></p>
+        <h2 class="heading-medium">@messages("label.check_your_national_insurance_contributions")</h2>
+        <p>@messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
+        <p><a class="trackLink" href="@configDecorator.nationalInsuranceRecordUrl">@messages("label.check_your_national_insurance_contributions")</a></p>
       }
 
-      <h2 class="heading-medium">@Messages("label.print_proof_of_your_national_insurance_number")</h2>
-      <p>@Messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")</p>
-      <p><a class="trackLink" href="@controllers.routes.NiLetterController.printNationalInsuranceNumber()">@Messages("label.print_proof_of_your_national_insurance_number")</a></p>
+      <h2 class="heading-medium">@messages("label.print_proof_of_your_national_insurance_number")</h2>
+      <p>@messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")</p>
+      <p><a class="trackLink" href="@controllers.routes.NiLetterController.printNationalInsuranceNumber()">@messages("label.print_proof_of_your_national_insurance_number")</a></p>
 
       <div class="forms-group pertax-panel" id="national_insurance">
         <div class="grid-row">
@@ -52,8 +53,8 @@
     }
 
     @ifLowGovernmentGatewayUser {
-      <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+      <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
     }
   </div>
 }
