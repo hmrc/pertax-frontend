@@ -25,27 +25,19 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.matching.Regex
 
-@RunWith(classOf[JUnitRunner])
 class MessagesSpec extends UnitSpec with WithFakeApplication {
 
-  override lazy val fakeApplication: Application = new GuiceApplicationBuilder()
-    .configure(
-      Map("application.langs" -> "en,cy", "govuk-tax.Test.enableLanguageSwitching" -> true)
-    )
-    .build()
+  override lazy val fakeApplication: Application = new GuiceApplicationBuilder().build()
 
   val messagesAPI = new DefaultMessagesApi(
     Environment.simple(),
     fakeApplication.configuration,
     new DefaultLangs(fakeApplication.configuration))
-  val languageEnglish: Lang = Lang.get("en").getOrElse(throw new Exception())
-  val languageWelsh: Lang = Lang.get("cy").getOrElse(throw new Exception())
   val matchSingleQuoteOnly: Regex = """\w+'{1}\w+""".r
   val matchBacktickQuoteOnly: Regex = """`+""".r
 
   "Application" should {
     "have the correct message configs" in {
-      messagesAPI.messages.size shouldBe 4
       messagesAPI.messages.keys should contain theSameElementsAs Vector("en", "cy", "default", "default.play")
     }
 
@@ -54,7 +46,6 @@ class MessagesSpec extends UnitSpec with WithFakeApplication {
       val englishMessageCount = messagesAPI.messages("default").size - frameworkProvidedKeys.size
 
       messagesAPI.messages("cy").size shouldBe englishMessageCount
-      messagesAPI.messages("default.play").size shouldBe 46
     }
   }
 
@@ -70,19 +61,21 @@ class MessagesSpec extends UnitSpec with WithFakeApplication {
           (key, defaultMessages.get(key))
       })
 
-      // 94% of app needs to be translated into Welsh. 94% allows for:
+      val percentageOfSameMessages = 0.04
+
+      // 96% of app needs to be translated into Welsh. 96% allows for:
       //   - Messages which just can't be different from English
       //     E.g. addresses, acronyms, numbers, etc.
       //   - Content which is pending translation to Welsh
-      same.size.toDouble / defaultMessages.size.toDouble < 0.06 shouldBe true
+      f"${same.size.toDouble / defaultMessages.size.toDouble}%.2f".toDouble <= percentageOfSameMessages shouldBe true
     }
     "have a non-empty message for each key" in {
-      assertNonEmptyValuesForDefaultMessages()
-      assertNonEmptyValuesForWelshMessages()
+      assertNonEmptyNonTemporaryValues("Default", defaultMessages)
+      assertNonEmptyNonTemporaryValues("Welsh", welshMessages)
     }
     "have no unescaped single quotes in value" in {
-      assertCorrectUseOfQuotesForDefaultMessages()
-      assertCorrectUseOfQuotesForWelshMessages()
+      assertCorrectUseOfQuotes("Default", defaultMessages)
+      assertCorrectUseOfQuotes("Welsh", welshMessages)
     }
     "have a resolvable message for keys which take args" in {
       val englishWithArgsMsgKeys = defaultMessages collect { case (key, value) if countArgs(value) > 0 => key }
@@ -119,19 +112,15 @@ class MessagesSpec extends UnitSpec with WithFakeApplication {
 
   private def isInteger(s: String): Boolean = s forall Character.isDigit
 
-  private def toArgArray(msg: String) = msg.split("\\{|\\}").map(_.trim()).filter(isInteger(_))
+  private def toArgArray(msg: String) =
+    msg
+      .split("\\{|\\}")
+      .map(_.trim())
+      .filter(_.forall(_.isDigit))
 
-  private def countArgs(msg: String) = toArgArray(msg).size
+  private def countArgs(msg: String) = toArgArray(msg).length
 
   private def listArgs(msg: String) = toArgArray(msg).mkString
-
-  private def assertNonEmptyValuesForDefaultMessages() = assertNonEmptyNonTemporaryValues("Default", defaultMessages)
-
-  private def assertNonEmptyValuesForWelshMessages() = assertNonEmptyNonTemporaryValues("Welsh", welshMessages)
-
-  private def assertCorrectUseOfQuotesForDefaultMessages() = assertCorrectUseOfQuotes("Default", defaultMessages)
-
-  private def assertCorrectUseOfQuotesForWelshMessages() = assertCorrectUseOfQuotes("Welsh", welshMessages)
 
   private def assertNonEmptyNonTemporaryValues(label: String, messages: Map[String, String]) = messages.foreach {
     case (key: String, value: String) =>
