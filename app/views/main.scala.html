@@ -150,7 +150,7 @@ displayTimeoutDialog: Boolean = true
     )),
     Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
     Some(InlineScriptComponent(inlineScript.toString)),
-    configDecorator.ssoUrl.map(SsoUrlComponent(_)),
+    configDecorator.ssoUrl.map(SsoUrlComponent),
     configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
       GoogleAnalyticsComponent(
         trackingId,
@@ -179,7 +179,7 @@ displayTimeoutDialog: Boolean = true
       isSa = request.saUserType != NonFilerSelfAssessmentUser
     )),
     Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
-    pageName.map(NavTitleComponent(_)),
+    pageName.map(NavTitleComponent),
     Some(BetaBannerComponent(configDecorator.deskproToken)),
     Some(MessagesMenuItemComponent(request.unreadMessageCount))
   ) ++ Map[String,Any](

@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.ConfigDecorator
 import connectors.FrontEndDelegationConnector
 import controllers.auth.{AuthorisedActions, PertaxRegime}
 import controllers.helpers.PaperlessInterruptHelper
@@ -43,7 +44,8 @@ class InterstitialController @Inject()(
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler
-) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
+)(implicit configDecorator: ConfigDecorator)
+    extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::

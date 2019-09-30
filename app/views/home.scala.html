@@ -30,7 +30,7 @@ showUserResearchBanner: Boolean
   <header class="page-heading">
     <h1 class="heading-xlarge">
       @ifNameAvailable {
-        @request.name.map(upperCaseToTitleCase(_.toString))
+        @request.retrievedName.map(upperCaseToTitleCase(_.toString))
       }
       @unlessNameAvailable {
         @messages("label.your_account")

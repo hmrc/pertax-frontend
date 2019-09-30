@@ -66,6 +66,7 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
           saType,
           request.authProvider,
           request.confidenceLevel,
+          None,
           request.request))
     }
   }
