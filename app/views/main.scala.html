@@ -174,9 +174,9 @@ displayTimeoutDialog: Boolean = true
     Some(MainContentHeaderComponent(mainContentHeader)),
     backlinkUrl.map(BackLinkUrlComponent(_)),
     Some(UserPropertiesComponent(
-      isGovernmentGateway = request.map(_.isGovernmentGateway).getOrElse(false),
-      isVerify = request.map(_.isVerify).getOrElse(false),
-      isSa = request.map(_.isSa).getOrElse(false)
+      isGovernmentGateway = request.authProvider == "GovernmentGateway",
+      isVerify = request.authProvider == "Verify",
+      isSa = request.saUserType != NonFilerSelfAssessmentUser
     )),
     Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
     pageName.map(NavTitleComponent(_)),
