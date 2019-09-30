@@ -390,19 +390,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       resultCYM1 shouldBe None
       resultCYM2 shouldBe None
     }
-    "return only taxCalculation CY-1 status when taxCalcShowCyMinusTwo is false" in new LocalSetup {
-
-      when(controller.configDecorator.taxCalcShowCyMinusTwo) thenReturn false
-
-      val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
-
-      resultCYM1 shouldBe Some(TaxYearReconciliation(2016, Balanced))
-      resultCYM2 shouldBe None
-    }
 
     "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
-
-      when(controller.configDecorator.taxCalcShowCyMinusTwo) thenReturn true
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
 
