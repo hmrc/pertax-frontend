@@ -64,14 +64,12 @@
 
       <p class="name">@personDetails.person.fullName</p>
 
-      @ifHighGovernmentGatewayOrVerifyUser {
-        @ifPayeUserLoanNino { nino =>
+        @if(request.nino.isDefined) {
           <div class="print-document__information-box bold-small">
             <p class="insurance-number-text">@messages("label.your_national_insurance_number_is")</p>
-            <span class="insurance-number">@formattedNino(nino)</span>
+            <span class="insurance-number">@formattedNino(request.nino.get)</span>
           </div>
         }
-      }
 
       <h2 class="keep-heading" id="keep-ni-number-safe">@messages("label.keep_this_number_in_a_safe_place_do_not_destroy_this_letter")</h2>
 

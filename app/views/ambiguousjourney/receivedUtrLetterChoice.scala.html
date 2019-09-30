@@ -18,8 +18,10 @@
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.did_you_get_your_utr_letter"),
   pageName = Some(messages("label.your_personal_tax_account")),

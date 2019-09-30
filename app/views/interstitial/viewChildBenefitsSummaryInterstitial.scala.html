@@ -14,14 +14,15 @@
  * limitations under the License.
  *@
 
-@import models.PertaxUser._
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @interstitialWrapper(messages("label.report_changes_that_affect_your_child_benefit"), messages("label.report_changes_that_affect_your_child_benefit")) {
   <div class="column-two-thirds child-benefit-partial pta-panel">
-    @ifHighGovernmentGatewayOrVerifyUser {
+    @if(request.nino.isDefined) {
       <h2 class="heading-medium">@messages("label.if_your_childs_circumstances_change")</h2>
       <p>@messages("label.child_benefit_stops_on_31_august_")</p>
       <p>@messages("label.tell_us_if_your_child")</p>
@@ -50,8 +51,7 @@
 
       <h2 class="heading-medium">@messages("label.if_you_do_not_currently_claim_child_benefit")</h2>
       <p>@messages("text.if_you_do_not_claim_child_benefit_text_before_link") <a class="trackLink" href="@configDecorator.childBenefitsCheckIfYouCanClaim" target="_blank" rel="noopener noreferrer">@messages("text.if_you_do_not_claim_child_benefit_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
-    }
-    @ifLowGovernmentGatewayUser {
+    } else {
       <p class="lede">@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
       <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
     }

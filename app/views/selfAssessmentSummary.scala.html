@@ -14,19 +14,21 @@
  * limitations under the License.
  *@
 
-@(formPartial: Html, saPartial: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import tags._
-@import models.PertaxUser._
+@import util.LocalPartialRetriever
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 
-@main(Messages("label.self_assessment_summary"),Some(Messages("label.your_personal_tax_account"))) {
+@(formPartial: Html, saPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
+
+@main(messages("label.self_assessment_summary"),Some(messages("label.your_personal_tax_account"))) {
 <div class="summary-page">
   <div class="grid-row">
     <div class="column-full">
       @saPartial
     </div>
   </div>
-  @ifHighGovernmentGatewayUser {
+  @if(request.nino.isDefined) {
     <div class="grid-row">
       <div class="summary-panel">
         <div class="column-two-thirds">

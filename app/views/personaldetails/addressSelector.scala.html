@@ -20,9 +20,11 @@
 @import scala.util.Try
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
 @(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType,
-postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @main(
   title = typ.ifIs(
@@ -59,7 +61,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
         <p class="form-group"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_if_it_is_not_shown")</a></p>
 
         <input type="submit" class="button" id="submitAddressSelector" value='@messages("global.label.continue_button")' >
-      }(pertaxContext.request, messages)
+      }
     </div>
   </div>
 }

@@ -19,9 +19,10 @@
 @import views.html.back_link
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
 @(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto], typ: AddrType
-)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.do_you_live_in_the_uk"),
 pageName = Some(messages("label.your_personal_tax_account"))

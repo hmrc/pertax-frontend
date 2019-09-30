@@ -21,8 +21,9 @@
 @import play.api.i18n.Messages
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(residenceStartDateForm: Form[DateDto], typ: AddrType)(implicit request: UserRequest[_], partialRetriever: LocalPartialRetriever, configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @scriptElem = {
   @if(residenceStartDateForm.hasErrors) {

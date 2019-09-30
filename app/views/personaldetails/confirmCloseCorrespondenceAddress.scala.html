@@ -20,8 +20,9 @@
 @import scala.util.Try
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@(addressDto: List[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(addressDto: List[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.check_your_details"),
 pageName = Some(messages("label.your_personal_tax_account"))

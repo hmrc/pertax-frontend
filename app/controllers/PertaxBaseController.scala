@@ -39,8 +39,9 @@ abstract class PertaxBaseController
 
   def auditConnector: PertaxAuditConnector = pertaxDependencies.auditConnector
   def authConnector: PertaxAuthConnector = pertaxDependencies.authConnector
-  def partialRetriever: LocalPartialRetriever = pertaxDependencies.partialRetriever
-  def configDecorator: ConfigDecorator = pertaxDependencies.configDecorator
+
+  implicit val partialRetriever: LocalPartialRetriever = pertaxDependencies.partialRetriever
+  implicit val configDecorator: ConfigDecorator = pertaxDependencies.configDecorator
 
   implicit class SessionKeyRemover(result: Future[Result]) {
     def removeSessionKey(key: String)(implicit request: Request[_]): Future[Result] = result.map {

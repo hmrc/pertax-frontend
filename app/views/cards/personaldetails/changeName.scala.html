@@ -21,7 +21,7 @@
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @cardContent = {
-    @ifNameAvailable {<p>@request.retrievedName.map(upperCaseToTitleCase(_.toString))</p>}
+    @if(request.retrievedName.isDefined) {<p>request.retrievedName.map(upperCaseToTitleCase(_.toString))</p>}
 }
 
 @card(

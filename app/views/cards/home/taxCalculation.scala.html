@@ -21,8 +21,9 @@
 
 @import viewmodels.Link
 @import viewmodels.TaxCalculationViewModel
+@import config.ConfigDecorator
 
-@(viewModel: TaxCalculationViewModel)(implicit messages: play.api.i18n.Messages)
+@(viewModel: TaxCalculationViewModel)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
 @card(
     id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),

@@ -16,8 +16,10 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@(lostCredentialsChooseAccountUrl: String, webChatPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(lostCredentialsChooseAccountUrl: String, webChatPartial: Html)(implicit request: UserRequest[_],
+configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @scriptElem = {
 <script>
@@ -51,7 +53,7 @@
 
         <h2>@messages("label.if_you_send_your_tax_return_by_post")</h2>
         <p>@messages("label.you_cannot_view_your_self_assessment_information_here_")</p>
-        <p>@messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="@pertaxContext.configDecorator.ssoToRegistration" target="_blank" rel="noopener noreferrer">@Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
+        <p>@messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Send by post" href="@configDecorator.ssoToRegistration" target="_blank" rel="noopener noreferrer">@Messages("label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
 
     </div>
 

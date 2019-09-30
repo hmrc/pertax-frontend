@@ -23,6 +23,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import controllers.helpers.WelshWarningHelper
+@import util.LocalPartialRetriever
 
 @(title: String,
 pageName:Option[String] = None,
@@ -38,7 +39,8 @@ backlinkUrl: Option[String] = None,
 additionalGaCalls: Option[Html] = None,
 printableDocument: Boolean = false,
 displayTimeoutDialog: Boolean = true
-)(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+)(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @links = @{
   var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()

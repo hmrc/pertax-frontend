@@ -18,8 +18,9 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @main(messages("label.your_address_has_already_been_updated"), Some(messages("label.your_personal_tax_account"))) {
 

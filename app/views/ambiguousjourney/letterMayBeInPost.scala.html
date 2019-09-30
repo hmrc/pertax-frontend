@@ -16,8 +16,10 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@(utr: SaUtr, continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(utr: SaUtr, continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.you_need_to_register_for_self_assessment_online"),
   pageName = Some(messages("label.your_personal_tax_account")),

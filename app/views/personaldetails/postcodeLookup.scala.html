@@ -19,8 +19,10 @@
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
 
-@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_],
+configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @main(
   title = typ.ifIs(

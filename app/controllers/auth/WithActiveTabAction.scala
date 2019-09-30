@@ -24,9 +24,22 @@ import scala.concurrent.Future
 
 object WithActiveTabAction {
 
-  def addActiveTab(activeTab: ActiveTab): ActionRefiner[UserRequest, UserRequest] =
+  def addActiveTab(currentActiveTab: ActiveTab): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {
       override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
-        Future.successful(Right(request.copy(activeTab = Some(activeTab))))
+        Future.successful(
+          Right(
+            UserRequest(
+              request.nino,
+              request.retrievedName,
+              request.previousLoginTime,
+              request.saUserType,
+              request.authProvider,
+              request.confidenceLevel,
+              request.personDetails,
+              request.unreadMessageCount,
+              Some(currentActiveTab),
+              request.request
+            )))
     }
 }
