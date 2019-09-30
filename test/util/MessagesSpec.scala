@@ -16,18 +16,13 @@
 
 package util
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import play.api.{Application, Environment}
-import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Lang}
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.Environment
+import play.api.i18n.{DefaultLangs, DefaultMessagesApi}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.matching.Regex
 
 class MessagesSpec extends UnitSpec with WithFakeApplication {
-
-  override lazy val fakeApplication: Application = new GuiceApplicationBuilder().build()
 
   val messagesAPI = new DefaultMessagesApi(
     Environment.simple(),
