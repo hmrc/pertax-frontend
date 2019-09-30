@@ -45,18 +45,18 @@ trait AuthorisedActions
 
   def verifiedAction(breadcrumb: Breadcrumb, fetchPersonDetails: Boolean = true, activeTab: Option[ActiveTab] = None)(
     block: PertaxContext => Future[Result]): Action[AnyContent] =
-    AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async { implicit authContext => implicit request =>
+    AuthorisedFor(pertaxRegime, pageVisibility = AllowAll).async { implicit authContext => implicit request => //AuthAction
       trimmingFormUrlEncodedData { implicit request =>
-        createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext =>
+        createPertaxContextAndExecute(fetchPersonDetails) { implicit pertaxContext => //AuthAction & GetPersonalDetails
           withBreadcrumb(breadcrumb) { implicit pertaxContext =>
-            withActiveTab(activeTab) { implicit pertaxContext =>
+            withActiveTab(activeTab) { implicit pertaxContext => //WithActiveTab
               enforceMinimumUserProfile {
                 block(pertaxContext)
               }
             }
           }
         }
-      }
+    }
     }
 
   def authorisedAction(fetchPersonDetails: Boolean = true, activeTab: Option[ActiveTab] = None)(

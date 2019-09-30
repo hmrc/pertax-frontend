@@ -16,20 +16,31 @@
 
 package error
 
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models.PertaxContext
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
+import util.LocalPartialRetriever
 
 object GenericErrors {
-  def badRequest(implicit pertaxContext: PertaxContext, messages: Messages): Result =
+  def badRequest(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result =
     BadRequest(
       views.html.error(
         "global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),
         Some("global.error.BadRequest.message")))
 
-  def internalServerError(implicit pertaxContext: PertaxContext, messages: Messages): Result =
+  def internalServerError(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result =
     InternalServerError(
       views.html.error(
         "global.error.InternalServerError500.title",

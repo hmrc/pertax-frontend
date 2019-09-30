@@ -16,10 +16,10 @@
 
 package controllers.helpers
 
-import models.PertaxContext
+import controllers.auth.requests.UserRequest
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import services.{ActivatePaperlessActivatedResponse, ActivatePaperlessRequiresUserActionResponse, PreferencesFrontendService}
+import services.{ActivatePaperlessRequiresUserActionResponse, PreferencesFrontendService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,14 +30,9 @@ trait PaperlessInterruptHelper {
   def preferencesFrontendService: PreferencesFrontendService
 
   def enforcePaperlessPreference(
-    block: => Future[Result])(implicit pertaxContext: PertaxContext, hc: HeaderCarrier): Future[Result] = {
-    val preferencesResponse = pertaxContext.user.map { user =>
-      preferencesFrontendService.getPaperlessPreference(user)
-    } getOrElse Future.successful(ActivatePaperlessActivatedResponse)
-
-    preferencesResponse flatMap {
+    block: => Future[Result])(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Result] =
+    preferencesFrontendService.getPaperlessPreference().flatMap {
       case ActivatePaperlessRequiresUserActionResponse(redirectUrl) => Future.successful(Redirect(redirectUrl))
       case _                                                        => block
     }
-  }
 }

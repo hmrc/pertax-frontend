@@ -35,6 +35,7 @@ class GetPersonDetailsAction @Inject()(
   val messagesApi: MessagesApi)(implicit ec: ExecutionContext)
     extends ActionRefiner[RefinedRequest, UserRequest] with ActionFunction[RefinedRequest, UserRequest]
     with I18nSupport {
+
   override protected def refine[A](request: RefinedRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       if (!request.uri.contains("/signout")) {

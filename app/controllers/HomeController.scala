@@ -17,18 +17,19 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, AuthorisedActions, PertaxRegime, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import javax.inject.Inject
 import models._
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import play.twirl.api.Html
 import services.partials.{CspPartialService, MessageFrontendService}
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.renderer.ActiveTabHome
+import uk.gov.hmrc.renderer.{ActiveTabHome, ActiveTabYourAccount}
 import uk.gov.hmrc.time.CurrentTaxYear
 
 import scala.concurrent.Future
@@ -49,36 +50,37 @@ class HomeController @Inject()(
   val pertaxRegime: PertaxRegime,
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
-  val taxCalculationStateFactory: TaxCalculationStateFactory
+  val taxCalculationStateFactory: TaxCalculationStateFactory,
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction
 ) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
 
-  def index: Action[AnyContent] = verifiedAction(Nil, activeTab = Some(ActiveTabHome)) { implicit pertaxContext =>
-    val saUserType: Future[SelfAssessmentUserType] =
-      selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
+  private val authenticate: ActionBuilder[UserRequest] = authJourney.auth andThen withActiveTabAction.addActiveTab(
+    ActiveTabHome)
 
+  def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
       configDecorator.urLinkUrl.fold(Future.successful(false))(_ =>
         homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
 
-    val responses = serviceCallResponses(pertaxContext.user.flatMap(_.nino), current.currentYear)
+    val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
+      serviceCallResponses(request.nino, current.currentYear)
 
     showUserResearchBanner flatMap { showUserResearchBanner =>
       enforcePaperlessPreference {
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-          saUserType                                                                      <- saUserType
         } yield {
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-            pertaxContext.user,
             taxSummaryState,
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
-            saUserType,
+            request.saUserType,
             current.currentYear)
 
           val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
-          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(pertaxContext.user)
+          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
           Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner))
         }

@@ -18,6 +18,7 @@ package controllers.helpers
 
 import javax.inject.{Inject, Singleton}
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models.{Address, PertaxContext, PertaxUser}
 import play.twirl.api.{Html, HtmlFormat}
 import org.joda.time.LocalDate
@@ -31,7 +32,8 @@ class PersonalDetailsCardGenerator @Inject()(
 ) {
 
   def getPersonalDetailsCards(hasCorrespondenceAddressLock: Boolean)(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
     messages: play.api.i18n.Messages): Seq[Html] =
     List(
       getChangeNameCard(),
@@ -40,21 +42,16 @@ class PersonalDetailsCardGenerator @Inject()(
       getNationalInsuranceCard()
     ).flatten
 
-  private def getPersonDetails()(implicit pertaxContext: PertaxContext) =
-    for {
-      u  <- pertaxContext.user
-      pd <- u.personDetails
-    } yield {
-      pd
-    }
+  private def getPersonDetails()(implicit request: UserRequest[_]) =
+    request.personDetails
 
-  def hasCorrespondenceAddress()(implicit pertaxContext: PertaxContext): Boolean = {
+  def hasCorrespondenceAddress()(implicit request: UserRequest[_]): Boolean = {
     val cAdd = getPersonDetails.flatMap(_.correspondenceAddress)
     cAdd.isDefined
   }
 
   def getMainAddressCard(hasCorrespondenceAddressLock: Boolean)(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
@@ -70,40 +67,39 @@ class PersonalDetailsCardGenerator @Inject()(
     }
 
   def getPostalAddressCard()(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
-      case Some(personDetails) => {
-        hasCorrespondenceAddress match {
-          case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) => {
-            val canUpdatePostalAddress =
-              personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
-            Some(
-              views.html.cards.personaldetails.postalAddress(
-                personDetails = personDetails,
-                canUpdatePostalAddress = canUpdatePostalAddress,
-                countryHelper.excludedCountries,
-                configDecorator.closePostalAddressEnabled))
-          }
-          case _ => None
+      case Some(personDetails) =>
+        if (hasCorrespondenceAddress) {
+          val canUpdatePostalAddress =
+            personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) {
+              _ != LocalDate.now
+            }
+          Some(
+            views.html.cards.personaldetails.postalAddress(
+              personDetails = personDetails,
+              canUpdatePostalAddress = canUpdatePostalAddress,
+              countryHelper.excludedCountries,
+              configDecorator.closePostalAddressEnabled))
+        } else {
+          None
         }
-      }
       case _ => None
     }
 
   def getNationalInsuranceCard()(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
-    pertaxContext.user match {
-      case Some(u) if (u.isHighGovernmentGatewayOrVerify && (u.isPaye || u.isSa)) =>
-        u.nino.map(n => views.html.cards.personaldetails.nationalInsurance(n))
-      case _ => None
+    request.nino.map { n =>
+      views.html.cards.personaldetails.nationalInsurance(n)
     }
 
   def getChangeNameCard()(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
-    PertaxUser.ifNameAvailable {
+    request.retrievedName.map { _ =>
       views.html.cards.personaldetails.changeName()
     }
 }

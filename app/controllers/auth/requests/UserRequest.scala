@@ -16,7 +16,7 @@
 
 package controllers.auth.requests
 
-import models.{PersonDetails, SelfAssessmentUserType, UserName}
+import models.{NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserName}
 import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -40,5 +40,11 @@ case class UserRequest[A](
     case Some(personDetails) => personDetails.person.shortName
     case _                   => Some(retrievedName.toString)
   }
+
+  def isGovernmentGateway: Boolean = authProvider == "GovernmentGateway"
+
+  def isVerify: Boolean = authProvider == "Verify"
+
+  def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
 
 }

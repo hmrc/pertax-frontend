@@ -77,6 +77,8 @@ class ApplicationController @Inject()(
         journeyId match {
           case Some(jid) =>
             identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+              case IdentityVerificationSuccessResponse(Success) =>
+                Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
               case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
                 Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
               case IdentityVerificationSuccessResponse(UserAborted) =>
@@ -94,8 +96,6 @@ class ApplicationController @Inject()(
               case IdentityVerificationSuccessResponse(LockedOut) =>
                 Logger.warn(s"Unable to confirm user identity: $LockedOut")
                 Unauthorized(views.html.iv.failure.lockedOut(allowContinue))
-              case IdentityVerificationSuccessResponse(Success) =>
-                Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
               case IdentityVerificationSuccessResponse(Timeout) =>
                 Logger.warn(s"Unable to confirm user identity: $Timeout")
                 InternalServerError(views.html.iv.failure.timeOut(retryUrl))

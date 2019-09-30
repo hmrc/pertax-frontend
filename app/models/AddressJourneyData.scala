@@ -25,7 +25,7 @@ case class AddressJourneyData(
   addressFinderDto: Option[AddressFinderDto],
   selectedAddressRecord: Option[AddressRecord],
   submittedAddressDto: Option[AddressDto],
-  subbmittedInternationalAddressChoiceDto: Option[InternationalAddressChoiceDto],
+  submittedInternationalAddressChoiceDto: Option[InternationalAddressChoiceDto],
   submittedStartDateDto: Option[DateDto],
   addressLookupServiceDown: Boolean
 ) {

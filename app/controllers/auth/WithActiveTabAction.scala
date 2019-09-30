@@ -22,7 +22,7 @@ import uk.gov.hmrc.renderer.ActiveTab
 
 import scala.concurrent.Future
 
-object WithActiveTabAction {
+class WithActiveTabAction {
 
   def addActiveTab(currentActiveTab: ActiveTab): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {

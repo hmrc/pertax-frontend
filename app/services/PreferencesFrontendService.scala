@@ -19,6 +19,7 @@ package services
 import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
 import models.PertaxUser
 import play.api.{Configuration, Environment, Logger}
@@ -59,8 +60,7 @@ class PreferencesFrontendService @Inject()(
   val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
   override def crypto = sessionCookieCryptoFilter.encrypt
 
-  def getPaperlessPreference(pertaxUser: PertaxUser)(
-    implicit request: Request[AnyContent]): Future[ActivatePaperlessResponse] = {
+  def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
@@ -98,7 +98,7 @@ class PreferencesFrontendService @Inject()(
         )
       }
 
-    if (pertaxUser.isGovernmentGateway) {
+    if (request.isGovernmentGateway) {
       activatePaperless
     } else {
       Future.successful(ActivatePaperlessNotAllowedResponse)

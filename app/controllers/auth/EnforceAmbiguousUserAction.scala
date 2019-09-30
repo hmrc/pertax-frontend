@@ -15,7 +15,7 @@
  */
 
 package controllers.auth
-import controllers.auth.requests.RefinedRequest
+import controllers.auth.requests.UserRequest
 import controllers.routes
 import models.AmbiguousFilerSelfAssessmentUser
 import play.api.mvc.Results._
@@ -24,9 +24,9 @@ import play.api.mvc.{ActionFunction, ActionRefiner, Result}
 import scala.concurrent.Future
 
 class EnforceAmbiguousUserAction
-    extends ActionRefiner[RefinedRequest, RefinedRequest] with ActionFunction[RefinedRequest, RefinedRequest] {
+    extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] {
 
-  override protected def refine[A](request: RefinedRequest[A]): Future[Either[Result, RefinedRequest[A]]] =
+  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     request.saUserType match {
       case _: AmbiguousFilerSelfAssessmentUser => Future.successful(Right(request))
       case _                                   => Future.successful(Left(Redirect(routes.HomeController.index())))
