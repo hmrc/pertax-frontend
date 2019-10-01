@@ -54,6 +54,7 @@ class GetPersonDetailsAction @Inject()(
                   pd,
                   messageCount,
                   request.activeTab,
+                  request.breadcrumb,
                   request.request
                 ))
           )
@@ -70,6 +71,7 @@ class GetPersonDetailsAction @Inject()(
             None,
             messageCount,
             request.activeTab,
+            request.breadcrumb,
             request.request
           )))
       }

@@ -20,6 +20,7 @@ import _root_.connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.PublicActions
+import controllers.auth.requests.UserRequest
 import controllers.helpers.ControllerLikeHelpers
 import models.{Breadcrumb, PertaxContext}
 import play.api.i18n.{I18nSupport, Messages}
@@ -52,9 +53,6 @@ abstract class PertaxBaseController
   val baseBreadcrumb: Breadcrumb =
     List("label.account_home" -> routes.HomeController.index().url)
 
-  def showingWarningIfWelsh[T](
-    block: PertaxContext => T)(implicit pertaxContext: PertaxContext, messages: Messages): T =
-    block(pertaxContext.withWelshWarning(messages.lang.code == "cy"))
 }
 
 trait PertaxBaseControllerTrait extends PertaxBaseController

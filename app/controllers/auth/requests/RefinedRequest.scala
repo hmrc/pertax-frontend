@@ -16,7 +16,7 @@
 
 package controllers.auth.requests
 
-import models.{SelfAssessmentUserType, UserName}
+import models.{Breadcrumb, SelfAssessmentUserType, UserName}
 import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -31,6 +31,7 @@ case class RefinedRequest[A](
   authProvider: String,
   confidenceLevel: ConfidenceLevel,
   activeTab: Option[ActiveTab],
+  breadcrumb: Option[Breadcrumb],
   request: Request[A])
     extends WrappedRequest[A](request) {
 
