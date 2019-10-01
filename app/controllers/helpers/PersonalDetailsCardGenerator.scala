@@ -16,14 +16,11 @@
 
 package controllers.helpers
 
-import javax.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{Address, PertaxContext, PertaxUser}
-import play.twirl.api.{Html, HtmlFormat}
+import javax.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
-import play.api.Logger
-import util.LanguageHelper
+import play.twirl.api.{Html, HtmlFormat}
 
 @Singleton
 class PersonalDetailsCardGenerator @Inject()(
@@ -71,19 +68,17 @@ class PersonalDetailsCardGenerator @Inject()(
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
-        if (hasCorrespondenceAddress) {
-          val canUpdatePostalAddress =
-            personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) {
-              _ != LocalDate.now
-            }
-          Some(
-            views.html.cards.personaldetails.postalAddress(
-              personDetails = personDetails,
-              canUpdatePostalAddress = canUpdatePostalAddress,
-              countryHelper.excludedCountries,
-              configDecorator.closePostalAddressEnabled))
-        } else {
-          None
+        hasCorrespondenceAddress match {
+          case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) =>
+            val canUpdatePostalAddress =
+              personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
+            Some(
+              views.html.cards.personaldetails.postalAddress(
+                personDetails = personDetails,
+                canUpdatePostalAddress = canUpdatePostalAddress,
+                countryHelper.excludedCountries,
+                configDecorator.closePostalAddressEnabled))
+          case _ => None
         }
       case _ => None
     }
