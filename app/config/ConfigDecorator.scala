@@ -159,6 +159,11 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val tcsServiceRouterUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
   lazy val changeNameLinkUrl = s"$dfsFrontendHost/forms/form/notification-of-a-change-in-personal-details/new"
+  lazy val changePersonalDetailsUrl =
+    "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/change-your-personal-details"
+  lazy val scottishRateIncomeTaxUrl = "https://www.gov.uk/scottish-rate-income-tax/how-it-works"
+  lazy val personalAccountYourAddress = "/personal-account/your-address"
+  lazy val personalAccount = "/personal-account"
 
   lazy val childBenefitsStaysInEducation =
     s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
@@ -201,8 +206,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val platformFrontendHost = configuration.getString("platform.frontend.host").getOrElse("")
 
   lazy val taxcalcEnabled = configuration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
-  lazy val taxCalcShowCyMinusTwo =
-    configuration.getString("feature.show-taxcalc-cy-2.enabled").getOrElse("true").toBoolean
   lazy val taxComponentsEnabled = configuration.getString("feature.tax-components.enabled").getOrElse("true").toBoolean
   lazy val saReminderBannerEnabled = configuration.getString("feature.sa-banner.enabled").getOrElse("true").toBoolean
   lazy val nispEnabled = configuration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
