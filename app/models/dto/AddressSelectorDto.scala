@@ -23,7 +23,7 @@ object AddressSelectorDto {
   val form = Form(
     mapping(
       "addressId" -> optional(text)
-        .verifying("error.address_not_selected", !_.isEmpty)
+        .verifying("error.address_not_selected", _.isDefined)
     )(AddressSelectorDto.apply)(AddressSelectorDto.unapply)
   )
 }

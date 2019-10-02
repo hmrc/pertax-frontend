@@ -98,11 +98,7 @@ class HomeController @Inject()(
       }
 
       val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
-
-      val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo) {
-        taxYr.map(_.find(_.taxYear == year - 2))
-      } else
-        Future.successful(None)
+      val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
 
       val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
         taiService.taxComponents(nino, year) map {

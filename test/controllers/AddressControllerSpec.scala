@@ -71,7 +71,9 @@ class AddressControllerSpec extends BaseSpec {
       injected[LocalSessionCache],
       injected[CitizenDetailsService],
       injected[PertaxAuditConnector],
-      injected[CorrespondenceAddressLockRepository])
+      injected[CorrespondenceAddressLockRepository],
+      injected[AddressLookupService]
+    )
 
   def buildAddressRequest(method: String, uri: String = "/test") = buildFakeRequestWithAuth(method, uri)
 
@@ -687,18 +689,39 @@ class AddressControllerSpec extends BaseSpec {
       }
     }
 
-    "call the address lookup service and return 400 when supplied no addressId in the form" in new LocalSetup {
-      val form = buildAddressRequest("POST").withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(PostalAddrType, None)(form)
+    "call the address lookup service and return 400" when {
+      "supplied no addressId in the form" in new LocalSetup {
+        val form = buildAddressRequest("POST").withFormUrlEncodedBody("postcode" -> "AA1 1AA")
+        val r = c1.processAddressSelectorForm(PostalAddrType)(form)
 
-      status(r) shouldBe BAD_REQUEST
-      verify(c1.sessionCache, times(1)).fetch()(any(), any())
+        status(r) shouldBe BAD_REQUEST
+        verify(c1.sessionCache, times(1)).fetch()(any(), any())
+      }
+
+      "supplied no addressId in the form with a filter" in new LocalSetup {
+        val optCaptor: ArgumentCaptor[Option[String]] = ArgumentCaptor.forClass(classOf[Option[String]])
+        val optCaptorPostcode = ArgumentCaptor.forClass(classOf[String])
+        val form = buildAddressRequest("POST")
+          .withFormUrlEncodedBody(
+            "postcode" -> "AA1 1AA",
+            "filter"   -> "7"
+          )
+
+        val r = await(c1.processAddressSelectorForm(PostalAddrType)(form))
+
+        verify(c1.addressLookupService).lookup(optCaptorPostcode.capture(), optCaptor.capture())(any())
+        optCaptorPostcode.getValue shouldBe "AA1 1AA"
+        optCaptor.getValue shouldBe Some("7")
+
+        status(r) shouldBe BAD_REQUEST
+        verify(c1.sessionCache, times(1)).fetch()(any(), any())
+      }
     }
 
     "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId" in new LocalSetup {
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> " GB990091234514 ", "postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(PostalAddrType, None)(form)
+      val r = c1.processAddressSelectorForm(PostalAddrType)(form)
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/postal/edit-address")
@@ -710,7 +733,7 @@ class AddressControllerSpec extends BaseSpec {
     "call the address lookup service and return a 500 when an invalid addressId is supplied in the form" in new LocalSetup {
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(PostalAddrType, None)(form)
+      val r = c1.processAddressSelectorForm(PostalAddrType)(form)
 
       status(r) shouldBe INTERNAL_SERVER_ERROR
       verify(c1.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
@@ -721,7 +744,7 @@ class AddressControllerSpec extends BaseSpec {
       val cacheAddress = AddressDto.fromAddressRecord(otherPlacePafDifferentPostcodeAddressRecord)
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> "GB990091234516", "postcode" -> "AA1 2AA")
-      val r = c2.processAddressSelectorForm(SoleAddrType, None)(form)
+      val r = c2.processAddressSelectorForm(SoleAddrType)(form)
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
@@ -731,7 +754,7 @@ class AddressControllerSpec extends BaseSpec {
       val cacheAddress = AddressDto.fromAddressRecord(twoOtherPlacePafAddressRecord)
       val form =
         buildAddressRequest("POST").withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 1AA")
-      val r = c1.processAddressSelectorForm(SoleAddrType, None)(form)
+      val r = c1.processAddressSelectorForm(SoleAddrType)(form)
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/changes")
@@ -1773,6 +1796,11 @@ class AddressControllerSpec extends BaseSpec {
       override lazy val thisYearStr = "2015"
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
 
+      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+      when(controller.addressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseFirstPostcode)
+      }
+
       def comparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
         "pertax-frontend",
         auditType,
@@ -1878,6 +1906,11 @@ class AddressControllerSpec extends BaseSpec {
       override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
+
+      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+      when(controller.addressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseFirstPostcode)
+      }
 
       def comparatorDataEvent(
         dataEvent: DataEvent,
