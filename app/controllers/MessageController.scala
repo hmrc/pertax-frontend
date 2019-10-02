@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import controllers.auth._
 import error.LocalErrorHandler
 import javax.inject.Inject
 import models.Breadcrumb
@@ -37,42 +37,48 @@ class MessageController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler
+  val localErrorHandler: LocalErrorHandler,
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction,
+  withBreadcrumbAction: WithBreadcrumbAction
 ) extends PertaxBaseController with AuthorisedActions {
 
   def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList().url ::
       baseBreadcrumb
 
-  def messageList: Action[AnyContent] = verifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) {
-    implicit pertaxContext =>
-      enforceGovernmentGatewayUser {
-        enforcePayeOrSaUser {
-          messageFrontendService.getMessageListPartial map { p =>
-            Ok(
-              views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
-                Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
-          }
+  def messageList: Action[AnyContent] =
+    (authJourney.auth andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
+      if ((request.isSa || request.nino.isDefined) && request.isGovernmentGateway) {
+        messageFrontendService.getMessageListPartial map { p =>
+          Ok(
+            views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
+              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
         }
+      } else {
+        throw new Exception("InternalServerError500")
       }
-  }
+
+    }
 
   def messageDetail(messageToken: String): Action[AnyContent] =
-    verifiedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) { implicit pertaxContext =>
-      enforceGovernmentGatewayUser {
-        enforcePayeOrSaUser {
-          messageFrontendService.getMessageDetailPartial(messageToken).map {
-            case HtmlPartial.Success(Some(title), content) =>
-              Ok(views.html.message.messageDetail(message = content, title = title))
-            case HtmlPartial.Success(None, content) =>
-              Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
-            case HtmlPartial.Failure(_, _) =>
-              Ok(
-                views.html.message.messageDetail(
-                  message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
-                  title = Messages("label.message")))
-          }
+    (authJourney.auth andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+      .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
+      if ((request.isSa || request.nino.isDefined) && request.isGovernmentGateway) {
+        messageFrontendService.getMessageDetailPartial(messageToken).map {
+          case HtmlPartial.Success(Some(title), content) =>
+            Ok(views.html.message.messageDetail(message = content, title = title))
+          case HtmlPartial.Success(None, content) =>
+            Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
+          case HtmlPartial.Failure(_, _) =>
+            Ok(
+              views.html.message.messageDetail(
+                message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
+                title = Messages("label.message")))
         }
+      } else {
+        throw new Exception("InternalServerError500")
       }
     }
 }

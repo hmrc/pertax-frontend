@@ -23,10 +23,10 @@ import controllers.routes
 import models.UserName
 import play.api.Configuration
 import play.api.mvc._
-import uk.gov.hmrc.domain
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
+import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, configuration: Configuration)(
   implicit ec: ExecutionContext)
-    extends AuthAction with AuthorisedFunctions {
+  extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
@@ -57,6 +57,15 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
               .find(id => id.key == "UTR")
               .map(key => SelfAssessmentEnrolment(SaUtr(key.value), enrolment.state))
           }
+
+          val trimmedRequest = request.map {
+            case AnyContentAsFormUrlEncoded(data) =>
+              AnyContentAsFormUrlEncoded(data.map {
+                case (key, vals) => (key, vals.map(_.trim))
+              })
+            case b => b
+          }
+
           block(
             AuthenticatedRequest(
               nino.map(domain.Nino),
@@ -65,7 +74,7 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
               confidenceLevel,
               Some(UserName(name.getOrElse(Name(None, None)))),
               logins.previousLogin,
-              request
+              trimmedRequest
             ))
         case _ => throw new RuntimeException("Can't find credentials for user")
       }

@@ -17,14 +17,15 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import controllers.auth.requests.UserRequest
+import controllers.auth._
 import error.LocalErrorHandler
 import javax.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
-import uk.gov.hmrc.renderer.ActiveTabYourAccount
+import uk.gov.hmrc.renderer.ActiveTabMessages
 
 import scala.concurrent.Future
 
@@ -38,29 +39,31 @@ class PaperlessPreferencesController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler
+  val localErrorHandler: LocalErrorHandler,
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction,
+  withBreadcrumbAction: WithBreadcrumbAction
 ) extends PertaxBaseController with AuthorisedActions {
 
-  def managePreferences: Action[AnyContent] = verifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
-    implicit pertaxContext =>
-      pertaxContext.authProvider match {
-        case Some("IDA") =>
+  def managePreferences: Action[AnyContent] =
+    (authJourney.auth andThen withActiveTabAction
+      .addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+      implicit request: UserRequest[_] =>
+        if (request.isVerify) {
           Future.successful(
             BadRequest(
               views.html.error(
                 "global.error.BadRequest.title",
                 Some("global.error.BadRequest.heading"),
                 Some("global.error.BadRequest.message"))))
-        case _ =>
-          showingWarningIfWelsh { implicit pertaxContext =>
-            for {
-              managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(
-                                     configDecorator.pertaxFrontendHomeUrl,
-                                     Messages("label.back_to_account_home"))
-            } yield {
-              Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
-            }
+        } else {
+          for {
+            managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(
+                                   configDecorator.pertaxFrontendHomeUrl,
+                                   Messages("label.back_to_account_home"))
+          } yield {
+            Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
           }
-      }
-  }
+        }
+    }
 }

@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
+import controllers.auth.{AuthJourney, AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime, WithActiveTabAction, WithBreadcrumbAction}
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import models._
@@ -29,6 +29,7 @@ import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.renderer.ActiveTabMessages
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
 import util.DateTimeTools
@@ -47,7 +48,9 @@ class ApplicationController @Inject()(
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler)
+  val localErrorHandler: LocalErrorHandler,
+  authJourney: AuthJourney,
+  withBreadcrumbAction: WithBreadcrumbAction)
     extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
@@ -130,17 +133,20 @@ class ApplicationController @Inject()(
       }
     }
 
-  def handleSelfAssessment: Action[AnyContent] = verifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceGovernmentGatewayUser {
-      selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-          Future.successful(Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl))
-        case ambigUser: AmbiguousFilerSelfAssessmentUser =>
-          Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
-        case _ => Future.successful(Redirect(routes.HomeController.index()))
+  def handleSelfAssessment: Action[AnyContent] =
+    (authJourney.auth andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) { implicit request =>
+      if (request.isGovernmentGateway) {
+        request.saUserType match {
+          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+            Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
+          case ambigUser: AmbiguousFilerSelfAssessmentUser =>
+            Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr))
+          case _ => Redirect(routes.HomeController.index())
+        }
+      } else {
+        throw new Exception("InternalServerError500")
       }
     }
-  }
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authorisedAction() {
     implicit pertaxContext =>

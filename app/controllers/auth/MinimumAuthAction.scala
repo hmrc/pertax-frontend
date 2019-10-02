@@ -37,7 +37,16 @@ class MinimumAuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector,
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     authorised() {
-      Future.successful(Right(request))
+//      val trimmedRequest: Request[Any] = request.map {
+//            case AnyContentAsFormUrlEncoded(data) =>
+//              request.queryString.map {
+//                case (key, vals) => (key, vals.map(_.trim))
+//              }
+//            case b => b
+//          }
+//
+//      Future.successful(Right(trimmedRequest))
+
     }.recover {
       case _: NoActiveSession => Left(Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession)
     }

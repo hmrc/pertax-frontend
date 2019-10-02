@@ -105,20 +105,10 @@ class InterstitialController @Inject()(
   def displaySa302Interrupt(year: Int): Action[AnyContent] = authenticateSa { implicit request =>
     if (request.isSa) {
       request.saUserType match {
-        case ActivatedOnlineFilerSelfAssessmentUser(authorisedSaUtr) => {
+        case saUser: SelfAssessmentUser => {
           Ok(
             views.html.selfassessment
-              .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = authorisedSaUtr))
-        }
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(authorisedSaUtr) => {
-          Ok(
-            views.html.selfassessment
-              .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = authorisedSaUtr))
-        }
-        case AmbiguousFilerSelfAssessmentUser(authorisedSaUtr) => {
-          Ok(
-            views.html.selfassessment
-              .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = authorisedSaUtr))
+              .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUser.saUtr))
         }
         case NonFilerSelfAssessmentUser => {
           Logger.warn("User had no sa account when one was required")
