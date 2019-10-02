@@ -17,7 +17,7 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, UserRequest, UserRequest}
+import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, UserRequest}
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, Result}
 import services.{CitizenDetailsService, MatchingDetailsSuccessResponse}
