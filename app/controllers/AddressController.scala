@@ -18,7 +18,7 @@ package controllers
 
 import connectors.FrontEndDelegationConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, AuthorisedActions, PertaxRegime, WithActiveTabAction}
+import controllers.auth.{AuthJourney, PertaxRegime, WithActiveTabAction}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
@@ -38,7 +38,6 @@ import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.AuditServiceTools._
 import util.LanguageHelper
@@ -62,7 +61,7 @@ class AddressController @Inject()(
   val correspondenceAddressLockRepository: CorrespondenceAddressLockRepository,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction
-) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
+) extends PertaxBaseController with AddressJourneyCachingHelper {
 
   def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 

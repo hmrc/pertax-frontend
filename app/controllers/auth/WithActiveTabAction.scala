@@ -39,6 +39,7 @@ class WithActiveTabAction {
               request.personDetails,
               request.unreadMessageCount,
               Some(currentActiveTab),
+              request.breadcrumb,
               request.request
             )))
     }

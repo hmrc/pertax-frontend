@@ -32,7 +32,7 @@ class PublicController @Inject()(
   val delegationConnector: FrontEndDelegationConnector
 ) extends PertaxBaseController {
 
-  def verifyEntryPoint: Action[AnyContent] = publicAction { implicit pertaxContext =>
+  def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index()).withNewSession.addingToSession(
         SessionKeys.authProvider -> AuthenticationProviderIds.VerifyProviderId
@@ -40,7 +40,7 @@ class PublicController @Inject()(
     }
   }
 
-  def governmentGatewayEntryPoint: Action[AnyContent] = publicAction { implicit pertaxContext =>
+  def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index()).withNewSession.addingToSession(
         SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId
@@ -48,25 +48,25 @@ class PublicController @Inject()(
     }
   }
 
-  def sessionTimeout: Action[AnyContent] = publicAction { implicit pertaxContext =>
+  def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Ok(views.html.public.sessionTimeout())
     }
   }
 
-  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = publicAction { implicit pertaxContext =>
+  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(configDecorator.getFeedbackSurveyUrl(origin))
     }
   }
 
-  def redirectToTaxCreditsService(): Action[AnyContent] = publicAction { implicit pertaxContext =>
+  def redirectToTaxCreditsService(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(configDecorator.tcsServiceRouterUrl, MOVED_PERMANENTLY)
     }
   }
 
-  def redirectToPersonalDetails(): Action[AnyContent] = publicAction { implicit pertaxContext =>
+  def redirectToPersonalDetails(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.AddressController.personalDetails())
     }

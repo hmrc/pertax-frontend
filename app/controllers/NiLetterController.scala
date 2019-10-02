@@ -17,8 +17,8 @@
 package controllers
 
 import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector}
-import controllers.auth.{AuthJourney, AuthorisedActions, PertaxRegime, WithBreadcrumbAction}
-import error.LocalErrorHandler
+import controllers.auth.{AuthJourney, PertaxRegime, WithBreadcrumbAction}
+import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import org.joda.time.LocalDate
 import play.api.i18n.{Messages, MessagesApi}
@@ -42,7 +42,7 @@ class NiLetterController @Inject()(
   val pdfGeneratorConnector: PdfGeneratorConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction)
-    extends PertaxBaseController with AuthorisedActions {
+    extends PertaxBaseController with RendersErrors {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
     (authJourney.auth andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) { implicit request =>
@@ -53,7 +53,7 @@ class NiLetterController @Inject()(
             LocalDate.now.toString("MM/YY"),
             configDecorator.saveNiLetterAsPdfLinkEnabled))
       } else {
-        throw new Exception("InternalServerError500")
+        error(INTERNAL_SERVER_ERROR)
       }
     }
 
@@ -91,7 +91,8 @@ class NiLetterController @Inject()(
             }
           }
         } else {
-          throw new Exception("InternalServerError500")
+          futureError(INTERNAL_SERVER_ERROR)
+
         }
       } else {
         Future.successful(

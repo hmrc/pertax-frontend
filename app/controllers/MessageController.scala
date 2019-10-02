@@ -28,6 +28,7 @@ import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.ActiveTabMessages
+import error.RendersErrors
 
 class MessageController @Inject()(
   val messagesApi: MessagesApi,
@@ -41,7 +42,7 @@ class MessageController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction
-) extends PertaxBaseController with AuthorisedActions {
+) extends PertaxBaseController with RendersErrors {
 
   def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList().url ::
@@ -57,7 +58,7 @@ class MessageController @Inject()(
               Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
         }
       } else {
-        throw new Exception("InternalServerError500")
+        futureError(INTERNAL_SERVER_ERROR)
       }
 
     }
@@ -78,7 +79,7 @@ class MessageController @Inject()(
                 title = Messages("label.message")))
         }
       } else {
-        throw new Exception("InternalServerError500")
+        futureError(INTERNAL_SERVER_ERROR)
       }
     }
 }

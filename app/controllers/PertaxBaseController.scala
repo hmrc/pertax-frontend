@@ -20,10 +20,9 @@ import _root_.connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.PublicActions
-import controllers.auth.requests.UserRequest
 import controllers.helpers.ControllerLikeHelpers
-import models.{Breadcrumb, PertaxContext}
-import play.api.i18n.{I18nSupport, Messages}
+import models.Breadcrumb
+import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.play.frontend.controller.Utf8MimeTypes
 import util.LocalPartialRetriever
@@ -39,6 +38,7 @@ abstract class PertaxBaseController
   val pertaxDependencies: PertaxDependencies
 
   def auditConnector: PertaxAuditConnector = pertaxDependencies.auditConnector
+
   def authConnector: PertaxAuthConnector = pertaxDependencies.authConnector
 
   implicit val partialRetriever: LocalPartialRetriever = pertaxDependencies.partialRetriever

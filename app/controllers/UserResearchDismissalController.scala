@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import controllers.auth.{AuthJourney, PertaxRegime}
 import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import javax.inject.Inject
@@ -25,8 +25,6 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import services._
 import services.partials.MessageFrontendService
-
-import scala.concurrent.Future
 
 class UserResearchDismissalController @Inject()(
   val messagesApi: MessagesApi,
@@ -37,11 +35,12 @@ class UserResearchDismissalController @Inject()(
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
-  val homePageCachingHelper: HomePageCachingHelper
-) extends PertaxBaseController with AuthorisedActions {
+  val homePageCachingHelper: HomePageCachingHelper,
+  authJourney: AuthJourney
+) extends PertaxBaseController {
 
-  def dismissUrBanner: Action[AnyContent] = verifiedAction(Nil) { implicit request =>
+  def dismissUrBanner: Action[AnyContent] = authJourney.auth { implicit request =>
     homePageCachingHelper.storeUserUrDismissal()
-    Future.successful(NoContent)
+    NoContent
   }
 }

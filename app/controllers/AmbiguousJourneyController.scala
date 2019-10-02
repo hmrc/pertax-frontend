@@ -17,18 +17,15 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.requests.{RefinedRequest, UserRequest}
-import controllers.auth.{AuthJourney, AuthorisedActions, EnforceAmbiguousUserAction, PertaxRegime}
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction, PertaxRegime}
 import javax.inject.Inject
+import models.AmbiguousFilerSelfAssessmentUser
 import models.dto.AmbiguousUserFlowDto
-import models.{AmbiguousFilerSelfAssessmentUser, PertaxContext}
 import play.api.i18n.MessagesApi
-import play.api.mvc.Results.Redirect
-import play.api.mvc.{Action, ActionBuilder, AnyContent, Result}
+import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, LocalSessionCache, SelfAssessmentService, UserDetailsService}
-import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.{DateTimeTools, TaxYearRetriever}
 
@@ -47,7 +44,7 @@ class AmbiguousJourneyController @Inject()(
   val taxYearRetriever: TaxYearRetriever,
   authJourney: AuthJourney,
   enforceAmbiguousUserAction: EnforceAmbiguousUserAction
-) extends PertaxBaseController with AuthorisedActions with CurrentTaxYear {
+) extends PertaxBaseController with CurrentTaxYear {
 
   private val authenticate: ActionBuilder[UserRequest] = authJourney.auth
 

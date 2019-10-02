@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, configuration: Configuration)(
   implicit ec: ExecutionContext)
-  extends AuthAction with AuthorisedFunctions {
+    extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
@@ -58,16 +58,18 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
               .map(key => SelfAssessmentEnrolment(SaUtr(key.value), enrolment.state))
           }
 
-          val trimmedRequest = request.map {
-            case AnyContentAsFormUrlEncoded(data) =>
-              AnyContentAsFormUrlEncoded(data.map {
-                case (key, vals) => (key, vals.map(_.trim))
-              })
-            case b => b
-          }
+          val trimmedRequest: Request[A] = request
+            .map {
+              case AnyContentAsFormUrlEncoded(data) =>
+                AnyContentAsFormUrlEncoded(data.map {
+                  case (key, vals) => (key, vals.map(_.trim))
+                })
+              case b => b
+            }
+            .asInstanceOf[Request[A]]
 
           block(
-            AuthenticatedRequest(
+            AuthenticatedRequest[A](
               nino.map(domain.Nino),
               saEnrolment,
               credentials.providerType,

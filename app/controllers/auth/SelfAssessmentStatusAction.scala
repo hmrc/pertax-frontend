@@ -17,7 +17,7 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import controllers.auth.requests.{AuthenticatedRequest, RefinedRequest, SelfAssessmentEnrolment}
+import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, UserRequest, UserRequest}
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, Result}
 import services.{CitizenDetailsService, MatchingDetailsSuccessResponse}
@@ -28,8 +28,7 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetailsService)(implicit ec: ExecutionContext)
-    extends ActionRefiner[AuthenticatedRequest, RefinedRequest]
-    with ActionFunction[AuthenticatedRequest, RefinedRequest] {
+    extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
     citizenDetailsService.getMatchingDetails(nino) map {
@@ -54,18 +53,20 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
       }
     }
 
-  override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, RefinedRequest[A]]] = {
+  override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, UserRequest[A]]] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
     getSelfAssessmentUserType()(hc, request).map { saType =>
       Right(
-        RefinedRequest(
+        UserRequest(
           request.nino,
           request.name,
           request.previousLoginTime,
           saType,
           request.authProvider,
           request.confidenceLevel,
+          None,
+          None,
           None,
           None,
           request.request))

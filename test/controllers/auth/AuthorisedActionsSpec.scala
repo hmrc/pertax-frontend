@@ -61,7 +61,7 @@ class AuthorisedActionsSpec extends BaseSpec {
         None
       )
 
-      lazy val localActions = new PertaxBaseController with AuthorisedActions {
+      lazy val localActions = new PertaxBaseController {
         override val citizenDetailsService = MockitoSugar.mock[CitizenDetailsService]
         override val userDetailsService: UserDetailsService = MockitoSugar.mock[UserDetailsService]
         override val pertaxDependencies: PertaxDependencies = MockPertaxDependencies
@@ -269,7 +269,7 @@ class AuthorisedActionsSpec extends BaseSpec {
           ))
       )
 
-      lazy val localActions = new PertaxBaseController with AuthorisedActions {
+      lazy val localActions = new PertaxBaseController {
         override val pertaxDependencies: PertaxDependencies = MockPertaxDependencies
         override val citizenDetailsService = MockitoSugar.mock[CitizenDetailsService]
         override val delegationConnector = MockitoSugar.mock[FrontEndDelegationConnector]

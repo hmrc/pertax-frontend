@@ -17,6 +17,7 @@
 package controllers.auth
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import controllers.auth.requests.{RefinedRequest, UserRequest}
 import models.PersonDetails
 import play.api.mvc.{ActionFunction, ActionRefiner, Result}
@@ -26,17 +27,20 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import play.api.mvc.Results.Locked
 import play.api.i18n.{I18nSupport, MessagesApi}
+import util.LocalPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject()(
   citizenDetailsService: CitizenDetailsService,
   messageFrontendService: MessageFrontendService,
-  val messagesApi: MessagesApi)(implicit ec: ExecutionContext)
-    extends ActionRefiner[RefinedRequest, UserRequest] with ActionFunction[RefinedRequest, UserRequest]
-    with I18nSupport {
+  val messagesApi: MessagesApi)(
+  implicit configDecorator: ConfigDecorator,
+  partialRetriever: LocalPartialRetriever,
+  ec: ExecutionContext)
+    extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
-  override protected def refine[A](request: RefinedRequest[A]): Future[Either[Result, UserRequest[A]]] =
+  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       if (!request.uri.contains("/signout")) {
         getPersonDetails()(request).map { a =>
@@ -46,7 +50,7 @@ class GetPersonDetailsAction @Inject()(
               Right(
                 UserRequest(
                   request.nino,
-                  request.name,
+                  request.retrievedName,
                   request.previousLoginTime,
                   request.saUserType,
                   request.authProvider,
@@ -63,7 +67,7 @@ class GetPersonDetailsAction @Inject()(
         Future.successful(
           Right(UserRequest(
             request.nino,
-            request.name,
+            request.retrievedName,
             request.previousLoginTime,
             request.saUserType,
             request.authProvider,
@@ -77,10 +81,10 @@ class GetPersonDetailsAction @Inject()(
       }
     }
 
-  def populatingUnreadMessageCount()(implicit request: RefinedRequest[_]): Future[Option[Int]] =
+  def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
     messageFrontendService.getUnreadMessageCount
 
-  private def getPersonDetails()(implicit request: RefinedRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
+  private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))

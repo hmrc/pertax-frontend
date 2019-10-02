@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.FrontEndDelegationConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, AuthorisedActions, PertaxRegime, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, PertaxRegime, WithBreadcrumbAction}
 import controllers.helpers.PaperlessInterruptHelper
 import error.LocalErrorHandler
 import javax.inject.Inject
@@ -32,6 +32,7 @@ import services.partials.{FormPartialService, MessageFrontendService, SaPartialS
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
+import error.RendersErrors
 
 import scala.concurrent.Future
 
@@ -50,7 +51,7 @@ class InterstitialController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction
 )(implicit configDecorator: ConfigDecorator)
-    extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper {
+    extends PertaxBaseController with PaperlessInterruptHelper with RendersErrors {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::
@@ -99,7 +100,8 @@ class InterstitialController @Inject()(
             saPartial successfulContentOrElse Html("")
           ))
       }
-    } else throw new Exception("InternalServerError500")
+    } else futureError(INTERNAL_SERVER_ERROR)
+
   }
 
   def displaySa302Interrupt(year: Int): Action[AnyContent] = authenticateSa { implicit request =>
@@ -112,12 +114,12 @@ class InterstitialController @Inject()(
         }
         case NonFilerSelfAssessmentUser => {
           Logger.warn("User had no sa account when one was required")
-          throw new Exception("InternalServerError500")
+          error(INTERNAL_SERVER_ERROR)
         }
       }
     } else {
       Logger.warn("User had no sa account when one was required")
-      throw new Exception("InternalServerError500")
+      error(INTERNAL_SERVER_ERROR)
     }
   }
 }

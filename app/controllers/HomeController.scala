@@ -18,7 +18,7 @@ package controllers
 
 import connectors.FrontEndDelegationConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, AuthorisedActions, PertaxRegime, WithActiveTabAction}
+import controllers.auth.{AuthJourney, PertaxRegime, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import javax.inject.Inject
 import models._
@@ -53,7 +53,7 @@ class HomeController @Inject()(
   val taxCalculationStateFactory: TaxCalculationStateFactory,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction
-) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
+) extends PertaxBaseController with PaperlessInterruptHelper with CurrentTaxYear {
 
   private val authenticate: ActionBuilder[UserRequest] = authJourney.auth andThen withActiveTabAction.addActiveTab(
     ActiveTabHome)

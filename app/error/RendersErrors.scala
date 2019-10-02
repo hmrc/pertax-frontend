@@ -16,19 +16,29 @@
 
 package error
 
-import models.PertaxContext
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import play.api.i18n.Messages
 import play.api.mvc._
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 trait RendersErrors extends Results {
 
-  def futureError(statusCode: Int)(implicit context: PertaxContext, messages: Messages): Future[Result] =
+  def futureError(statusCode: Int)(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Future[Result] =
     Future.successful(error(statusCode))
 
-  def error(statusCode: Int)(implicit context: PertaxContext, messages: Messages): Result = {
+  def error(statusCode: Int)(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"

@@ -43,7 +43,7 @@ class PaperlessPreferencesController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction
-) extends PertaxBaseController with AuthorisedActions {
+) extends PertaxBaseController {
 
   def managePreferences: Action[AnyContent] =
     (authJourney.auth andThen withActiveTabAction

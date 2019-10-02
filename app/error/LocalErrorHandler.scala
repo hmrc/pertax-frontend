@@ -19,7 +19,7 @@ package error
 import akka.stream.Materializer
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import controllers.auth.PertaxRegime
 import javax.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
@@ -28,6 +28,7 @@ import play.api.mvc._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import util.LocalPartialRetriever
+
 @Singleton
 class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
@@ -40,7 +41,7 @@ class LocalErrorHandler @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val authConnector: PertaxAuthConnector,
   val materializer: Materializer
-) extends HttpErrorHandler with AuthorisedActions with I18nSupport {
+) extends HttpErrorHandler with I18nSupport {
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String) =
     if (statusCode == BAD_REQUEST || statusCode == NOT_FOUND) {

@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthJourney, AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime, WithActiveTabAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, LocalPageVisibilityPredicateFactory, PertaxRegime, WithBreadcrumbAction}
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import models._
@@ -29,7 +29,6 @@ import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
-import uk.gov.hmrc.renderer.ActiveTabMessages
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
 import util.DateTimeTools
@@ -51,7 +50,7 @@ class ApplicationController @Inject()(
   val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction)
-    extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
+    extends PertaxBaseController with CurrentTaxYear with RendersErrors {
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
     val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
@@ -144,7 +143,7 @@ class ApplicationController @Inject()(
           case _ => Redirect(routes.HomeController.index())
         }
       } else {
-        throw new Exception("InternalServerError500")
+        error(INTERNAL_SERVER_ERROR)
       }
     }
 
