@@ -16,7 +16,7 @@
 
 package controllers.auth
 
-import controllers.auth.requests.RefinedRequest
+import controllers.auth.requests.UserRequest
 import models.{AmbiguousFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
 import org.scalatest.{FreeSpec, MustMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -24,18 +24,19 @@ import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 
 import scala.concurrent.Future
 
 class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with GuiceOneAppPerSuite {
 
-  def harness[A]()(implicit request: RefinedRequest[A]): Future[Result] = {
+  def harness[A]()(implicit request: UserRequest[A]): Future[Result] = {
 
     lazy val actionProvider = app.injector.instanceOf[EnforceAmbiguousUserAction]
 
     actionProvider.invokeBlock(
-      request, { _: RefinedRequest[_] =>
+      request, { _: UserRequest[_] =>
         Future.successful(
           Ok("")
         )
@@ -48,7 +49,18 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
 
       "return the request it was passed" in {
         val refinedRequest =
-          RefinedRequest(None, AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")), "", FakeRequest())
+          UserRequest(
+            None,
+            None,
+            None,
+            AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+            "",
+            ConfidenceLevel.L50,
+            None,
+            None,
+            None,
+            None,
+            FakeRequest())
         val result = harness()(refinedRequest)
         status(result) mustBe OK
       }
@@ -57,7 +69,18 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
 
         "redirect to the landing page" in {
           val refinedRequest =
-            RefinedRequest(None, NonFilerSelfAssessmentUser, "", FakeRequest())
+            UserRequest(
+              None,
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              "",
+              ConfidenceLevel.L50,
+              None,
+              None,
+              None,
+              None,
+              FakeRequest())
           val result = harness()(refinedRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result).get must endWith("/personal-account")

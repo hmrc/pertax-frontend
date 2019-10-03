@@ -17,45 +17,58 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
-import models.PertaxContext
+import controllers.auth.requests.UserRequest
+import models.{AmbiguousFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, PertaxContext}
 import org.jsoup.Jsoup
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import util.{BaseSpec, Fixtures}
 
 class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec {
 
-  val messages = Messages.Implicits.applicationMessages
+  implicit val messages = Messages.Implicits.applicationMessages
 
   "Rendering viewNationalInsuranceInterstitialHome.scala.html" should {
 
     "show NINO section when user is High GG and with Paye" in {
-      val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = true, isGovernmentGateway = true, isHighGG = true)
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        None,
+        None,
+        NonFilerSelfAssessmentUser,
+        "GovernmentGateway",
+        ConfidenceLevel.L200,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest())
       val document = Jsoup.parse(
         views.html.interstitial
-          .viewNationalInsuranceInterstitialHome(Html(""), "asfa")(
-            PertaxContext(
-              FakeRequest("GET", "/test"),
-              mockLocalPartialRetreiver,
-              injected[ConfigDecorator],
-              Some(pertaxUser)),
-            messages)
+          .viewNationalInsuranceInterstitialHome(Html(""), "asfa")
           .toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 
     "show NINO section when user is Verify (not GG) and not SA" in {
-      val pertaxUser = Fixtures.buildFakePertaxUser(withSa = false, isGovernmentGateway = false)
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        None,
+        None,
+        NonFilerSelfAssessmentUser,
+        "Verify",
+        ConfidenceLevel.L500,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest())
       val document = Jsoup.parse(
         views.html.interstitial
-          .viewNationalInsuranceInterstitialHome(Html(""), "aas")(
-            PertaxContext(
-              FakeRequest("GET", "/test"),
-              mockLocalPartialRetreiver,
-              injected[ConfigDecorator],
-              Some(pertaxUser)),
-            messages)
+          .viewNationalInsuranceInterstitialHome(Html(""), "aas")
           .toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }

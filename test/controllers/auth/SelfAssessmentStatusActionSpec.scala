@@ -16,7 +16,7 @@
 
 package controllers.auth
 
-import controllers.auth.requests.{AuthenticatedRequest, RefinedRequest, SelfAssessmentEnrolment}
+import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, UserRequest}
 import models.MatchingDetails
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -31,6 +31,7 @@ import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{CitizenDetailsService, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 import scala.concurrent.Future
@@ -54,9 +55,9 @@ class SelfAssessmentStatusActionSpec
     lazy val actionProvider = app.injector.instanceOf[SelfAssessmentStatusAction]
 
     actionProvider.invokeBlock(
-      request, { refinedRequest: RefinedRequest[_] =>
+      request, { userRequest: UserRequest[_] =>
         Future.successful(
-          Ok(s"Nino: ${refinedRequest.nino.getOrElse("fail").toString}, SaUtr: ${refinedRequest.saUserType.toString}")
+          Ok(s"Nino: ${userRequest.nino.getOrElse("fail").toString}, SaUtr: ${userRequest.saUserType.toString}")
         )
       }
     )
@@ -69,6 +70,9 @@ class SelfAssessmentStatusActionSpec
         Some(Nino("AB123456C")),
         Some(SelfAssessmentEnrolment(SaUtr("1111111111"), "Activated")),
         "foo",
+        ConfidenceLevel.L200,
+        None,
+        None,
         FakeRequest())
       val result = harness()(request)
       contentAsString(result) must include("ActivatedOnlineFilerSelfAssessmentUser")
@@ -81,6 +85,9 @@ class SelfAssessmentStatusActionSpec
         Some(Nino("AB123456C")),
         Some(SelfAssessmentEnrolment(SaUtr("1111111111"), "NotYetActivated")),
         "foo",
+        ConfidenceLevel.L200,
+        None,
+        None,
         FakeRequest())
       val result = harness()(request)
       contentAsString(result) must include("NotYetActivatedOnlineFilerSelfAssessmentUser")
@@ -92,7 +99,7 @@ class SelfAssessmentStatusActionSpec
     "when CitizenDetails has a matching SA account" - {
       "return AmbiguousFilerSelfAssessmentUser" in {
         implicit val request: AuthenticatedRequest[AnyContent] =
-          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", FakeRequest())
+          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", ConfidenceLevel.L200, None, None, FakeRequest())
 
         when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
           .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))))
@@ -105,7 +112,7 @@ class SelfAssessmentStatusActionSpec
     "when CitizenDetails has no matching SA account" - {
       "return NonFilerSelfAssessmentUser" in {
         implicit val request: AuthenticatedRequest[AnyContent] =
-          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", FakeRequest())
+          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", ConfidenceLevel.L200, None, None, FakeRequest())
 
         when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
           .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
@@ -118,7 +125,7 @@ class SelfAssessmentStatusActionSpec
     "when user has no Nino" - {
       "return NonFilerSelfAssessmentUser" in {
         implicit val request: AuthenticatedRequest[AnyContent] =
-          AuthenticatedRequest(None, None, "foo", FakeRequest())
+          AuthenticatedRequest(None, None, "foo", ConfidenceLevel.L50, None, None, FakeRequest())
 
         val result = harness()(request)
         contentAsString(result) must include("NonFilerSelfAssessmentUser")

@@ -382,10 +382,12 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
-  val mockLocalPartialRetreiver: LocalPartialRetriever = {
+  implicit val mockLocalPartialRetreiver: LocalPartialRetriever = {
     val pr = MockitoSugar.mock[LocalPartialRetriever]
     when(pr.getPartialContent(any(), any(), any())(any())) thenReturn Html("")
     pr
   }
+
+  implicit val configDecorator = app.injector.instanceOf[ConfigDecorator]
 
 }

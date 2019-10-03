@@ -17,10 +17,11 @@
 package controllers.helpers
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models._
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.test.FakeRequest
@@ -28,53 +29,62 @@ import uk.gov.hmrc.domain.SaUtr
 import util.{BaseSpec, DateTimeTools, Fixtures}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import play.api.http.Status.SEE_OTHER
+import services.PreferencesFrontendService
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.http.HttpResponse
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
-class HomeCardGeneratorSpec extends BaseSpec {
+import scala.concurrent.Future
 
-  trait SpecSetup extends I18nSupport {
+class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
 
     override def messagesApi: MessagesApi = injected[MessagesApi]
 
-    val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-  }
-
   "Calling getPayAsYouEarnCard" should {
 
-    trait LocalSetup extends SpecSetup {
+    "return nothing when called with no Pertax user" in {
 
-      def hasPertaxUser: Boolean
-      def isPayeUser: Boolean
-      def taxComponentsState: TaxComponentsState
+      implicit val userRequest = UserRequest(None,
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+        NonFilerSelfAssessmentUser,
+        "Verify",
+        ConfidenceLevel.L500,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest())
 
-      lazy val pertaxUser: Option[PertaxUser] =
-        if (hasPertaxUser)
-          Some(
-            PertaxUser(
-              Fixtures.buildFakeAuthContext(withPaye = isPayeUser),
-              UserDetails(UserDetails.GovernmentGatewayAuthProvider),
-              None,
-              true))
-        else
-          None
-
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
-    }
-
-    "return nothing when called with no Pertax user" in new LocalSetup {
-      val hasPertaxUser = false
-      val isPayeUser = false
-      val taxComponentsState = TaxComponentsUnreachableState
+      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
+      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody shouldBe None
-
     }
 
-    "return nothing when called with a Pertax user that is not PAYE" in new LocalSetup {
+    //TODO: How can you be a pertax user without PAYE?
+    "return nothing when called with a Pertax user that is not PAYE" ignore {
       val hasPertaxUser = true
       val isPayeUser = false
       val taxComponentsState = TaxComponentsUnreachableState
+
+      implicit val userRequest = UserRequest(None,
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+        NonFilerSelfAssessmentUser,
+        "Verify",
+        ConfidenceLevel.L500,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest())
+
+      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
+      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody shouldBe None
     }

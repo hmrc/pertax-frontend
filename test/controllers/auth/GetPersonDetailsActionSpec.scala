@@ -16,7 +16,7 @@
 
 package controllers.auth
 
-import controllers.auth.requests.{RefinedRequest, UserRequest}
+import controllers.auth.requests.UserRequest
 import models.{AmbiguousFilerSelfAssessmentUser, Person, PersonDetails}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -26,12 +26,13 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.Result
 import play.api.mvc.Results.Ok
-import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 
 import scala.concurrent.Future
@@ -45,12 +46,12 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
     .build()
 
-  def harness[A]()(implicit request: RefinedRequest[A]): Future[Result] = {
+  def harness[A]()(implicit request: UserRequest[A]): Future[Result] = {
 
     lazy val actionProvider = app.injector.instanceOf[GetPersonDetailsAction]
 
     actionProvider.invokeBlock(
-      request, { userRequest: UserRequest[AnyContent] =>
+      request, { userRequest: UserRequest[_] =>
         Future.successful(
           Ok(s"Person Details: ${userRequest.personDetails.isDefined}")
         )
@@ -70,7 +71,18 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             PersonDetails("", Person(None, None, None, None, None, None, None, None, None), None, None))))
 
         val refinedRequest =
-          RefinedRequest(None, AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")), "", FakeRequest())
+          UserRequest(
+            None,
+            None,
+            None,
+            AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+            "",
+            ConfidenceLevel.L50,
+            None,
+            None,
+            None,
+            None,
+            FakeRequest("", ""))
         val result = harness()(refinedRequest)
         status(result) mustBe OK
         contentAsString(result) must contain("true")

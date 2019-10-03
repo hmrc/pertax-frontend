@@ -32,7 +32,7 @@ class mainContentHeaderSpec extends BaseSpec {
       val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
       val document = Jsoup.parse(
         views.html.integration
-          .mainContentHeader(Some("Firstname"), Some(millis), Nil, false, None, None, injected[ConfigDecorator])
+          .mainContentHeader(Some("Firstname"), Some(millis), Nil, false, None, None)
           .toString)
       document.select(".last-login > p").text shouldBe "Firstname, you last signed in 12:00am, Friday 30 April 1982"
     }
@@ -41,7 +41,7 @@ class mainContentHeaderSpec extends BaseSpec {
       val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
       val document = Jsoup.parse(
         views.html.integration
-          .mainContentHeader(None, Some(millis), Nil, false, None, None, injected[ConfigDecorator])
+          .mainContentHeader(None, Some(millis), Nil, false, None, None)
           .toString)
       document.select(".last-login > p").text shouldBe "You last signed in 12:00am, Friday 30 April 1982"
     }
@@ -49,7 +49,7 @@ class mainContentHeaderSpec extends BaseSpec {
     "not show last logged in details when lastLogin is not supplied" in {
       val document = Jsoup.parse(
         views.html.integration
-          .mainContentHeader(None, None, Nil, false, None, None, injected[ConfigDecorator])
+          .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
       document.select(".last-login").isEmpty shouldBe true
     }
@@ -57,14 +57,7 @@ class mainContentHeaderSpec extends BaseSpec {
     "show breadcrumb when one is passed" in {
       val document = Jsoup.parse(
         views.html.integration
-          .mainContentHeader(
-            None,
-            None,
-            List(("/url", "Link Text"), ("/url2", "Link Text 2")),
-            true,
-            None,
-            None,
-            injected[ConfigDecorator])
+          .mainContentHeader(None, None, List(("/url", "Link Text"), ("/url2", "Link Text 2")), true, None, None)
           .toString)
       val doc = Jsoup.parse(document.select("#global-breadcrumb").toString)
 
@@ -73,21 +66,19 @@ class mainContentHeaderSpec extends BaseSpec {
     }
 
     "hide breadcrumb when none is passed" in {
-      val document = Jsoup.parse(
-        views.html.integration.mainContentHeader(None, None, Nil, true, None, None, injected[ConfigDecorator]).toString)
+      val document = Jsoup.parse(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
       document.select("#global-breadcrumb").isEmpty shouldBe true
     }
 
     "show BETA banner showBetaBanner is true" in {
-      val document = Jsoup.parse(
-        views.html.integration.mainContentHeader(None, None, Nil, true, None, None, injected[ConfigDecorator]).toString)
+      val document = Jsoup.parse(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
       document.select(".beta-banner .phase-tag").text shouldBe "BETA"
     }
 
     "hide BETA banner showBetaBanner is false" in {
       val document = Jsoup.parse(
         views.html.integration
-          .mainContentHeader(None, None, Nil, false, None, None, injected[ConfigDecorator])
+          .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
       document.select(".beta-banner .phase-tag").isEmpty shouldBe true
     }
@@ -95,7 +86,7 @@ class mainContentHeaderSpec extends BaseSpec {
     "show feedback link in BETA banner when passed deskProToken with PTA" in {
       val document = Jsoup.parse(
         views.html.integration
-          .mainContentHeader(None, None, Nil, true, Some("PTA"), None, injected[ConfigDecorator])
+          .mainContentHeader(None, None, Nil, true, Some("PTA"), None)
           .toString)
       document
         .select(".beta-banner .feedback")
@@ -105,7 +96,7 @@ class mainContentHeaderSpec extends BaseSpec {
     "hide feedback link in BETA banner when not passed any deskProToken" in {
       val document = Jsoup.parse(
         views.html.integration
-          .mainContentHeader(None, None, Nil, false, None, None, injected[ConfigDecorator])
+          .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
       document.select(".beta-banner .feedback").isEmpty shouldBe true
     }
