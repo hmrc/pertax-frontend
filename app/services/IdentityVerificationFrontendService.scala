@@ -55,7 +55,7 @@ class IdentityVerificationFrontendService @Inject()(
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  lazy val identityVerificationFrontendUrl = baseUrl("identity-verification-frontend")
+  lazy val identityVerificationFrontendUrl: String = baseUrl("identity-verification-frontend")
 
   def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
     withMetricsTimer("get-iv-journey-status") { t =>

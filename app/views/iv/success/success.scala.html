@@ -14,11 +14,11 @@
  * limitations under the License.
  *@
 
-@(continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(continueUrl: String)(implicit messages: play.api.i18n.Messages)
 
-@views.html.iv.ivOutcomeWrapper(Messages("label.we_have_confirmed_your_identity"), Messages("label.we_have_confirmed_your_identity")) {
+@views.html.iv.ivOutcomeWrapper(messages("label.we_have_confirmed_your_identity"), messages("label.we_have_confirmed_your_identity")) {
 
-  <p class="margin-bottom">@Messages("label.you_can_sign_in_to_your_personal_tax_account")</p>
+  <p class="margin-bottom">@messages("label.you_can_sign_in_to_your_personal_tax_account")</p>
 
-  <a href="@continueUrl" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+  <a href="@continueUrl" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
 }
