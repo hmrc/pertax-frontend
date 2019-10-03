@@ -19,7 +19,7 @@ package error
 import akka.stream.Materializer
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuthConnector}
-import controllers.auth.PertaxRegime
+import controllers.auth.{AuthJourney, PertaxRegime}
 import javax.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
@@ -29,32 +29,40 @@ import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import util.LocalPartialRetriever
 
+import scala.concurrent.Future
+
 @Singleton
 class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
   val userDetailsService: UserDetailsService,
   val citizenDetailsService: CitizenDetailsService,
   val messageFrontendService: MessageFrontendService,
-  val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
   val pertaxRegime: PertaxRegime,
   val delegationConnector: FrontEndDelegationConnector,
   val authConnector: PertaxAuthConnector,
-  val materializer: Materializer
-) extends HttpErrorHandler with I18nSupport {
+  val materializer: Materializer,
+  authJourney: AuthJourney
+)(implicit val partialRetriever: LocalPartialRetriever, val configDecorator: ConfigDecorator)
+    extends HttpErrorHandler with I18nSupport with RendersErrors {
 
-  def onClientError(request: RequestHeader, statusCode: Int, message: String) =
+  def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
     if (statusCode == BAD_REQUEST || statusCode == NOT_FOUND) {
-      authorisedAction() { implicit pertaxContext =>
-        futureError(statusCode)
-      }.apply(request).run()(materializer)
+      authJourney.auth
+        .async { implicit request =>
+          futureError(statusCode)
+        }
+        .apply(request)
+        .run()(materializer)
     } else {
-      publicAction { implicit pertaxContext =>
-        futureError(statusCode)
-      }.apply(request).run()(materializer)
+      Action
+        .async { implicit request =>
+          futureError(statusCode)
+        }
+        .apply(request)
+        .run()(materializer)
     }
 
-  def onServerError(request: RequestHeader, exception: Throwable) =
+  def onServerError(request: RequestHeader, exception: Throwable): Future[Result] =
     onClientError(request, INTERNAL_SERVER_ERROR, "")
 
 }
