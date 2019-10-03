@@ -51,6 +51,8 @@ class ApplicationController @Inject()(
   val pertaxDependencies: PertaxDependencies,
   val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
+  authAction: AuthAction,
+  selfAssessmentStatusAction: SelfAssessmentStatusAction,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction)
     extends PertaxBaseController with CurrentTaxYear with RendersErrors {
@@ -72,57 +74,51 @@ class ApplicationController @Inject()(
 
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
-      lazy val allowContinue = configDecorator.allowSaPreview && request.saUserType != NonFilerSelfAssessmentUser
-
-      if (configDecorator.allowLowConfidenceSAEnabled) {
-        Future.successful(Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl)))
-      } else {
-        journeyId match {
-          case Some(jid) =>
-            identityVerificationFrontendService.getIVJourneyStatus(jid).map {
-              case IdentityVerificationSuccessResponse(Success) =>
-                Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
-              case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-                Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
-              case IdentityVerificationSuccessResponse(UserAborted) =>
-                Logger.warn(s"Unable to confirm user identity: $UserAborted")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(FailedMatching) =>
-                Logger.warn(s"Unable to confirm user identity: $FailedMatching")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(Incomplete) =>
-                Logger.warn(s"Unable to confirm user identity: $Incomplete")
-                Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
-              case IdentityVerificationSuccessResponse(PrecondFailed) =>
-                Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(LockedOut) =>
-                Logger.warn(s"Unable to confirm user identity: $LockedOut")
-                Unauthorized(views.html.iv.failure.lockedOut(allowContinue))
-              case IdentityVerificationSuccessResponse(Timeout) =>
-                Logger.warn(s"Unable to confirm user identity: $Timeout")
-                InternalServerError(views.html.iv.failure.timeOut(retryUrl))
-              case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-                Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-                InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
-              case r =>
-                Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
-                InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
-            }
-          case None =>
-            Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
-            Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
-        }
+      journeyId match {
+        case Some(jid) =>
+          identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+            case IdentityVerificationSuccessResponse(Success) =>
+              Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+            case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
+              Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
+            case IdentityVerificationSuccessResponse(UserAborted) =>
+              Logger.warn(s"Unable to confirm user identity: $UserAborted")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(FailedMatching) =>
+              Logger.warn(s"Unable to confirm user identity: $FailedMatching")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(Incomplete) =>
+              Logger.warn(s"Unable to confirm user identity: $Incomplete")
+              Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
+            case IdentityVerificationSuccessResponse(PrecondFailed) =>
+              Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(LockedOut) =>
+              Logger.warn(s"Unable to confirm user identity: $LockedOut")
+              Unauthorized(views.html.iv.failure.lockedOut(false))
+            case IdentityVerificationSuccessResponse(Timeout) =>
+              Logger.warn(s"Unable to confirm user identity: $Timeout")
+              InternalServerError(views.html.iv.failure.timeOut(retryUrl))
+            case IdentityVerificationSuccessResponse(TechnicalIssue) =>
+              Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+            case r =>
+              Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
+              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+          }
+        case None =>
+          Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
+          Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
       }
   }
 
   def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
-    authJourney.auth { implicit request =>
+    (authAction andThen selfAssessmentStatusAction) { implicit request =>
       continueUrl
         .map(_.url)
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         .fold(BadRequest("Missing origin")) { url: String =>
-          if (request.authProvider == " GovernmentGateway") {
+          if (request.isGovernmentGateway) {
             Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
           } else {
             Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)

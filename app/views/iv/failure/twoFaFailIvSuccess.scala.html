@@ -14,7 +14,9 @@
  * limitations under the License.
  *@
 
-@()(implicit messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import util.LocalPartialRetriever
+@()(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @views.html.iv.ivOutcomeWrapper(messages("label.we_ve_confirmed_your_identity"), messages("label.we_ve_confirmed_your_identity")) {
   <p>@messages("label.we_can_show_you_more_if_you_complete_2fa")</p>

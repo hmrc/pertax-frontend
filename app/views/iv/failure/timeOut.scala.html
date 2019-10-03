@@ -16,7 +16,8 @@
 
 @import config.ConfigDecorator
 
-@(retryUrl: String)(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@import util.LocalPartialRetriever
+@(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
 @views.html.iv.ivOutcomeWrapper(messages("label.you_have_been_signed_out"), messages("label.you_have_been_signed_out")) {
 

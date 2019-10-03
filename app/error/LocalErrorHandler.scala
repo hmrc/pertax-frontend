@@ -56,7 +56,7 @@ class LocalErrorHandler @Inject()(
     } else {
       Action
         .async { implicit request =>
-          futureError(statusCode)
+          unauthenticatedFutureError(statusCode)
         }
         .apply(request)
         .run()(materializer)

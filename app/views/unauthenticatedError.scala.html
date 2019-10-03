@@ -18,21 +18,23 @@
 @import controllers.auth.requests.UserRequest
 @import util.LocalPartialRetriever
 
-@(title: String, header: String)(content: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
+@(title: String, heading: Option[String] = None, body: Option[String] = None)(implicit request: Request[_],
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
-@unauthenticatedMain(title) {
+@unauthenticatedMain(title = messages(title),
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some("javascript:window.history.back();")
+) {
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
-
-        <header class="page-heading">
-            <h1 class="heading-xlarge">@header</h1>
-        </header>
-
-        @content
-
+    <div class="grid-row pertax-error">
+        <div class="column-two-thirds">
+            <header class="page-header">
+                <h1>@messages(heading.getOrElse(title))</h1>
+            </header>
+            @body.map { body =>
+                <p>@Html(messages(body))</p>
+            }
+        </div>
     </div>
-  </div>
 
 }

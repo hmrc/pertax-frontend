@@ -54,4 +54,31 @@ trait RendersErrors extends Results {
 
   }
 
+  def unauthenticatedFutureError(statusCode: Int)(
+    implicit request: Request[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Future[Result] =
+    Future.successful(unauthenticatedError(statusCode))
+
+  def unauthenticatedError(statusCode: Int)(
+    implicit request: Request[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result = {
+
+    val errorKey = statusCode match {
+      case BAD_REQUEST => "badRequest400"
+      case NOT_FOUND   => "pageNotFound404"
+      case _           => "InternalServerError500"
+    }
+
+    Status(statusCode)(
+      views.html.unauthenticatedError(
+        s"global.error.$errorKey.title",
+        Some(s"global.error.$errorKey.heading"),
+        Some(s"global.error.$errorKey.message")))
+
+  }
+
 }
