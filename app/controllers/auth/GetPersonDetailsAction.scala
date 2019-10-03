@@ -93,7 +93,7 @@ class GetPersonDetailsAction @Inject()(
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     request.nino match {
-      case Some(nino) if request.isGovernmentGateway =>
+      case Some(nino) =>
         citizenDetailsService.personDetails(nino).map {
           case PersonDetailsSuccessResponse(pd) => Right(Some(pd))
           case PersonDetailsHiddenResponse =>
