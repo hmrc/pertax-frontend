@@ -17,9 +17,10 @@
 package controllers.helpers
 
 import controllers.auth.requests.UserRequest
+import models.ActivatePaperlessRequiresUserActionResponse
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import services.{ActivatePaperlessRequiresUserActionResponse, PreferencesFrontendService}
+import services.PreferencesFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global

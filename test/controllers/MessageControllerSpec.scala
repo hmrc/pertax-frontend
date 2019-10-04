@@ -59,9 +59,6 @@ class MessageControllerSpec extends BaseSpec {
     lazy val controller = {
       val c = injected[MessageController]
 
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority()))
-      }
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
       }
@@ -77,13 +74,6 @@ class MessageControllerSpec extends BaseSpec {
 
     "call messages and return 200 when called by a high sa  GG user" in new LocalSetup {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
-      }
-
       when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
@@ -98,15 +88,8 @@ class MessageControllerSpec extends BaseSpec {
 
     "call messages and return 200 when called by a high paye GG user" in new LocalSetup {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
       when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
@@ -123,13 +106,6 @@ class MessageControllerSpec extends BaseSpec {
 
     "return 401 for a high GG user for a high GG user not enrolled in SA" in new LocalSetup {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
-      }
-
       val r = controller.messageList(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
 
@@ -139,12 +115,6 @@ class MessageControllerSpec extends BaseSpec {
     }
 
     "return 401 for a Verify user enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = true)))
-      }
 
       when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
@@ -159,12 +129,6 @@ class MessageControllerSpec extends BaseSpec {
     }
 
     "return 401 for a Verify not enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = false)))
-      }
 
       when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
@@ -184,13 +148,6 @@ class MessageControllerSpec extends BaseSpec {
 
     "call messages and return 200 when called by a SA high GG" in new LocalSetup {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
-      }
-
       when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
@@ -205,15 +162,8 @@ class MessageControllerSpec extends BaseSpec {
 
     "call messages and return 200 when called by a high PAYE GG" in new LocalSetup {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
       when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
       }
 
       when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
@@ -230,13 +180,6 @@ class MessageControllerSpec extends BaseSpec {
 
     "return 401 for a high GG user not enrolled in SA" in new LocalSetup {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
-      }
-
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
@@ -244,12 +187,6 @@ class MessageControllerSpec extends BaseSpec {
     }
 
     "return 401 for a high GG user not logged in via GG and enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = true)))
-      }
 
       when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
@@ -264,12 +201,6 @@ class MessageControllerSpec extends BaseSpec {
     }
 
     "return 401 for a high GG user not logged in via GG and not enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = false)))
-      }
 
       when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))

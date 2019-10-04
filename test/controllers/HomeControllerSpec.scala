@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.DateTime
@@ -32,41 +32,22 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
-import services.partials.{CspPartialService, MessageFrontendService}
+import services.partials.MessageFrontendService
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
 
 import scala.concurrent.Future
 
-class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[TaiService].toInstance(MockitoSugar.mock[TaiService]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))
-    .overrides(bind[PreferencesFrontendService].toInstance(MockitoSugar.mock[PreferencesFrontendService]))
-    .overrides(bind[IdentityVerificationFrontendService].toInstance(
-      MockitoSugar.mock[IdentityVerificationFrontendService]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[TaxCalculationService].toInstance(MockitoSugar.mock[TaxCalculationService]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
-    .build()
+class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
   override def beforeEach: Unit =
     reset(
@@ -86,7 +67,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino = Fixtures.fakeNino
-    lazy val personDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
+    lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
     lazy val year = 2017
@@ -99,31 +80,12 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       SaUtr("1111111111"))
     lazy val getLtaServiceResponse = Future.successful(true)
 
-    lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
     lazy val allowLowConfidenceSA = false
-
-    implicit val userRequest = UserRequest(
-      Some(nino),
-      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-      Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-      selfAssessmentUserType,
-      authProviderType,
-      ConfidenceLevel.L500,
-      Some(personDetailsResponse.personDetails),
-      None,
-      None,
-      None,
-      FakeRequest()
-    )
 
     lazy val controller = {
 
       val c = injected[HomeController]
 
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
       when(c.taiService.taxComponents(meq(nino), any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
       }
@@ -195,22 +157,30 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "Calling HomeController.index" should {
 
-    "return a 303 status when accessing index page and authorisation is not fulfilled" in new LocalSetup {
-
-      val r = controller.index()(FakeRequest("GET", "/personal-account")) //No auth in this fake request
-
-      status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some(
-        "/gg-sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account&accountType=individual&origin=PERTAX")
-    }
-
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
+      val userRequest = UserRequestFixture.buildUserRequest()
 
-      val r = controller.index()(buildFakeRequestWithAuth("GET"))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        //      .overrides(bind[CspPartialService].toInstance(mock[CspPartialService]))
+        //      .overrides(bind[PreferencesFrontendService].toInstance(mock[PreferencesFrontendService]))
+        //      .overrides(bind[IdentityVerificationFrontendService].toInstance(
+        //        mock[IdentityVerificationFrontendService]))
+        //      .overrides(bind[PertaxAuthConnector].toInstance(mock[PertaxAuthConnector]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        //      .overrides(bind[FrontEndDelegationConnector].toInstance(mock[FrontEndDelegationConnector]))
+        //      .overrides(bind[TaxCalculationService].toInstance(mock[TaxCalculationService]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        //      .overrides(bind[SelfAssessmentService].toInstance(mock[SelfAssessmentService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
+        //      .overrides(bind[LocalSessionCache].toInstance(mock[LocalSessionCache]))
+        .build()
+
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -224,11 +194,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
 
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
+      val userRequest = UserRequestFixture.buildUserRequest(saUser = NonFilerSelfAssessmentUser)
 
-      val r = controller.index()(buildFakeRequestWithAuth("GET"))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
+        .build()
+
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -238,55 +216,25 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       if (controller.configDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-    }
-
-    "return a 200 status when accessing index page with good nino and a non sa User with no Lta protections" in new LocalSetup {
-
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val getLtaServiceResponse = Future.successful(false)
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
-      val r = controller.index()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if (controller.configDecorator.taxComponentsEnabled)
-        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-    }
-
-    "return a 423 status when accessing index page with a nino that is hidden in citizen-details with an SA user" in new LocalSetup {
-
-      override lazy val personDetailsResponse = PersonDetailsHiddenResponse
-
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe LOCKED
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
-    }
-
-    "return a 200 status without calling citizen-detials or tai, when accessing index page without paye account" in new LocalSetup {
-
-      override lazy val withPaye = false
-
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(meq(nino))(any())
-      verify(controller.taiService, times(0)).taxComponents(any(), meq(current.currentYear))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
 
+      val userRequest = UserRequestFixture.buildUserRequest()
+
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
+        .build()
+
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -294,19 +242,42 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "redirect when Preferences Frontend returns ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
 
+      val userRequest = UserRequestFixture.buildUserRequest()
+
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
+        .build()
       override lazy val getPaperlessPreferenceResponse =
         ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("http://www.example.com")
     }
 
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
 
+      val userRequest = UserRequestFixture.buildUserRequest()
+
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
+        .build()
+
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -316,19 +287,19 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
 
-      override lazy val personDetailsResponse = PersonDetailsNotFoundResponse
+      val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
+        .build()
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-    }
-
-    "return a 200 status when accessing index page with a nino that produces an error when calling citizen-details" in new LocalSetup {
-
-      override lazy val personDetailsResponse = PersonDetailsErrorResponse(null)
-
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())

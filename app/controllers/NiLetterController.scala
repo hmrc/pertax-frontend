@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector}
-import controllers.auth.{AuthJourney, PertaxRegime, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import org.joda.time.LocalDate

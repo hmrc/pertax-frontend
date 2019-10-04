@@ -19,58 +19,36 @@ package controllers.helpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.inject.bind
-import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.domain.Nino
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.personaldetails._
 
 class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .build()
-
   trait SpecSetup extends I18nSupport {
     override def messagesApi: MessagesApi = injected[MessagesApi]
 
-    implicit lazy val pertaxContext =
-      PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator], pertaxUser)
-
     lazy val controller = injected[PersonalDetailsCardGenerator]
-    lazy val pertaxUser = Some(
-      PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
   }
 
   trait MainAddressSetup extends SpecSetup {
 
-    implicit val userRequest = UserRequest(
-      Some(Fixtures.fakeNino),
-      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-      Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-      NonFilerSelfAssessmentUser,
-      "Verify",
-      ConfidenceLevel.L500,
-      None,
-      None,
-      None,
-      None,
-      FakeRequest()
-    )
-
     def taxCreditsEnabled: Boolean
 
     def userHasPersonDetails: Boolean
+
     def userHasCorrespondenceAddress: Boolean
+
     def mainHomeStartDate: Option[String]
+
     def hasCorrespondenceAddressLock: Boolean
+
+    implicit def userRequest: UserRequest[_]
 
     def buildPersonDetails =
       PersonDetails(
@@ -89,14 +67,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
         Some(Fixtures.buildFakeAddress),
         if (userHasCorrespondenceAddress) Some(Fixtures.buildFakeAddress) else None
       )
-
-    override lazy val pertaxUser = Some(
-      PertaxUser(
-        Fixtures.buildFakeAuthContext(),
-        UserDetails(UserDetails.VerifyAuthProvider),
-        personDetails = if (userHasPersonDetails) Some(buildPersonDetails) else None,
-        true
-      ))
 
     override lazy val controller = {
       val c = injected[PersonalDetailsCardGenerator]
@@ -125,6 +95,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = None
       override lazy val hasCorrespondenceAddressLock = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe None
 
     }
@@ -135,6 +110,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
+
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
 
       cardBody shouldBe Some(
         mainAddress(
@@ -154,6 +134,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe Some(
         mainAddress(
           buildPersonDetails,
@@ -171,6 +156,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = true
+
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
 
       cardBody shouldBe Some(
         mainAddress(
@@ -190,6 +180,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe Some(
         mainAddress(
           buildPersonDetails,
@@ -208,6 +203,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe Some(
         mainAddress(
           buildPersonDetails,
@@ -222,25 +222,17 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
   trait PostalAddressSetup extends SpecSetup {
 
-    def canUpdatePostalAddress: Boolean
-    def userHasPersonDetails: Boolean
-    def userHasCorrespondenceAddress: Boolean
-    def userHasWelshLanguageUnitAddress: Boolean
-    def closePostalAddressEnabled: Boolean
+    implicit def userRequest: UserRequest[_]
 
-    implicit val userRequest = UserRequest(
-      Some(Fixtures.fakeNino),
-      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-      Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-      NonFilerSelfAssessmentUser,
-      "Verify",
-      ConfidenceLevel.L500,
-      None,
-      None,
-      None,
-      None,
-      FakeRequest()
-    )
+    def canUpdatePostalAddress: Boolean
+
+    def userHasPersonDetails: Boolean
+
+    def userHasCorrespondenceAddress: Boolean
+
+    def userHasWelshLanguageUnitAddress: Boolean
+
+    def closePostalAddressEnabled: Boolean
 
     def buildPersonDetails =
       PersonDetails(
@@ -288,16 +280,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("Residential")
     )
 
-    override lazy val pertaxUser = Some(
-      PertaxUser(
-        Fixtures.buildFakeAuthContext(),
-        UserDetails(UserDetails.VerifyAuthProvider),
-        personDetails = if (userHasPersonDetails) {
-          Some(buildPersonDetails)
-        } else None,
-        true
-      ))
-
     lazy val cardBody = controller.getPostalAddressCard()
 
     when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
@@ -320,6 +302,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe None
     }
 
@@ -330,6 +317,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe None
     }
 
@@ -339,6 +331,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val canUpdatePostalAddress = true
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
+
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
 
       cardBody shouldBe Some(
         postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled))
@@ -352,6 +349,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = true
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe Some(
         postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled))
 
@@ -364,6 +366,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, false))
 
     }
@@ -375,6 +382,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override val userHasWelshLanguageUnitAddress = true
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
       cardBody shouldBe None
     }
   }
@@ -382,29 +394,19 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
   "Calling getNationalInsuranceCard" should {
 
     trait LocalSetup extends SpecSetup {
-
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        "Verify",
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit def userRequest: UserRequest[_]
 
       lazy val cardBody = controller.getNationalInsuranceCard()
-      def nino: Nino
     }
 
     "always return the same markup" in new LocalSetup {
-      override lazy val nino = pertaxUser.get.nino.get
 
-      cardBody shouldBe Some(nationalInsurance(nino))
+      implicit val userRequest = UserRequestFixture.buildUserRequest()
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
+
+      cardBody shouldBe Some(nationalInsurance(userRequest.nino.get))
     }
   }
 
@@ -412,23 +414,9 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
     trait LocalSetup extends SpecSetup {
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        "Verify",
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit def userRequest: UserRequest[_]
 
       lazy val cardBody = controller.getChangeNameCard()
-
-      def userHasPersonDetails: Boolean
 
       def buildPersonDetails =
         PersonDetails(
@@ -448,23 +436,22 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
           None
         )
 
-      override lazy val pertaxUser = Some(
-        PertaxUser(
-          Fixtures.buildFakeAuthContext(),
-          UserDetails(UserDetails.VerifyAuthProvider),
-          personDetails = if (userHasPersonDetails) Some(buildPersonDetails) else None,
-          true
-        ))
     }
 
     "always return the correct markup when user has a name" in new LocalSetup {
-      override def userHasPersonDetails = true
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
 
       cardBody shouldBe Some(changeName())
     }
 
     "always return None when user does not have a name available" in new LocalSetup {
-      override def userHasPersonDetails = false
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
+      val app: Application = localGuiceApplicationBuilder(userRequest)
+        .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+        .build()
 
       cardBody shouldBe None
     }

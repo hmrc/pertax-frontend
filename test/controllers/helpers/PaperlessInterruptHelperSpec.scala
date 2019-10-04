@@ -17,7 +17,7 @@
 package controllers.helpers
 
 import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, UserName}
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar

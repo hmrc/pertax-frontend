@@ -17,7 +17,6 @@
 package services
 
 import com.kenshoo.play.metrics.Metrics
-import controllers.auth.PertaxAuthenticationProvider
 import javax.inject.{Inject, Singleton}
 import metrics._
 import models.addresslookup.RecordSet
@@ -42,7 +41,6 @@ class AddressLookupService @Inject()(
   configuration: Configuration,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
-  val pertaxAuthenticationProvider: PertaxAuthenticationProvider,
   val tools: Tools)
     extends ServicesConfig with HasMetrics {
 

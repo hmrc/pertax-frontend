@@ -18,7 +18,7 @@ package controllers
 
 import connectors.FrontEndDelegationConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction, PertaxRegime}
+import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction}
 import javax.inject.Inject
 import models.AmbiguousFilerSelfAssessmentUser
 import models.dto.AmbiguousUserFlowDto

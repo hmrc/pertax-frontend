@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.{FrontEndDelegationConnector, PayApiConnector}
-import controllers.auth.{AuthJourney, PertaxRegime, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import javax.inject.Inject
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}

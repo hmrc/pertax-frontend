@@ -19,12 +19,11 @@ package controllers
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import models._
-import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
-import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -32,11 +31,9 @@ import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever, TaxYearRetriever}
 import views.html.ViewSpec
-import views.html.ambiguousjourney.youNeedToEnrol
 
 import scala.concurrent.Future
 
@@ -85,9 +82,6 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       }
       when(injected[PertaxAuditConnector].sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)
-      }
-      when(injected[PertaxAuthConnector].currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(confidenceLevel = ConfidenceLevel.L200)))
       }
       when(injected[CitizenDetailsService].personDetails(meq(nino))(any())) thenReturn {
         Future.successful(personDetailsResponse)

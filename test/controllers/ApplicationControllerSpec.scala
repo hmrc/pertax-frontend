@@ -89,17 +89,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr("1111111111"))
 
-    lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
     val allowLowConfidenceSA = false
 
     lazy val controller = {
 
       val c = injected[ApplicationController]
-
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
 
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
@@ -189,8 +183,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return 303 when called with a GG user that needs to activate their SA enollment." in new LocalSetup {
 
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
       override lazy val getCitizenDetailsResponse = true
       override lazy val getSelfAssessmentServiceResponse =
         NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
@@ -204,8 +196,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return 200 when called with a GG user that is SA or has an SA enrollment in another account." in new LocalSetup {
 
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
       override lazy val getCitizenDetailsResponse = true
       override lazy val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 

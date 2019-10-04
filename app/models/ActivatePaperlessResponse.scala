@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package models
 
-import javax.inject.Inject
-import uk.gov.hmrc.play.frontend.auth.TaxRegime
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
-
-class PertaxRegime @Inject()(val pertaxAuthenticationProvider: PertaxAuthenticationProvider) extends TaxRegime {
-  def isAuthorised(accounts: Accounts): Boolean = true
-  def authenticationType: PertaxAuthenticationProvider = pertaxAuthenticationProvider
-}
+sealed trait ActivatePaperlessResponse
+case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
+case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
+case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse

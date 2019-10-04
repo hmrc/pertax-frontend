@@ -18,9 +18,9 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.PertaxRegime
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.LocalErrorHandler
-import models.UserDetails
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, UserDetails}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -41,8 +41,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
   trait LocalSetup {
 
-    lazy val request = buildFakeRequestWithAuth("GET")
-
     def authProviderType: String
     def withPaye: Boolean
     def withSa: Boolean
@@ -50,8 +48,6 @@ class InterstitialControllerSpec extends BaseSpec {
     def simulateFormPartialServiceFailure: Boolean
     def simulateSaPartialServiceFailure: Boolean
     def paperlessResponse: ActivatePaperlessResponse
-
-    lazy val authority = buildFakeAuthority(withPaye, withSa, confidenceLevel)
 
     lazy val c = new InterstitialController(
       injected[MessagesApi],
@@ -64,7 +60,9 @@ class InterstitialControllerSpec extends BaseSpec {
       MockitoSugar.mock[MessageFrontendService],
       MockPertaxDependencies,
       injected[PertaxRegime],
-      injected[LocalErrorHandler]
+      injected[LocalErrorHandler],
+      injected[AuthJourney],
+      injected[WithBreadcrumbAction]
     ) {
       private def formPartialServiceResponse = Future.successful {
         if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
@@ -82,9 +80,6 @@ class InterstitialControllerSpec extends BaseSpec {
 
       when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-      when(authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
       }
       when(userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))

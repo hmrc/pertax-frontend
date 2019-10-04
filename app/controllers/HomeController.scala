@@ -18,7 +18,7 @@ package controllers
 
 import connectors.FrontEndDelegationConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, PertaxRegime, WithActiveTabAction}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import javax.inject.Inject
 import models._

@@ -19,7 +19,7 @@ package error
 import akka.stream.Materializer
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuthConnector}
-import controllers.auth.{AuthJourney, PertaxRegime}
+import controllers.auth.AuthJourney
 import javax.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._

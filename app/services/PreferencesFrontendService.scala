@@ -16,31 +16,26 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import models.PertaxUser
-import play.api.{Configuration, Environment, Logger}
+import models.{ActivatePaperlessActivatedResponse, ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, ActivatePaperlessResponse}
 import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{AnyContent, Request}
+import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 
 import scala.concurrent.Future
 
-sealed trait ActivatePaperlessResponse
-case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
-case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
-case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse
 @Singleton
 class PreferencesFrontendService @Inject()(
   environment: Environment,

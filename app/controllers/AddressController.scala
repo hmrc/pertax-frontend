@@ -18,7 +18,7 @@ package controllers
 
 import connectors.FrontEndDelegationConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, PertaxRegime, WithActiveTabAction}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
@@ -54,7 +54,6 @@ class AddressController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val sessionCache: LocalSessionCache,
   val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val countryHelper: CountryHelper,

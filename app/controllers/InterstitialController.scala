@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.FrontEndDelegationConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, PertaxRegime, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.helpers.PaperlessInterruptHelper
 import error.LocalErrorHandler
 import javax.inject.Inject

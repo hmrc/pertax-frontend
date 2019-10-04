@@ -18,7 +18,7 @@ package services
 
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, UserName}
+import models.{ActivatePaperlessActivatedResponse, ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
 import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito._

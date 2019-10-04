@@ -27,13 +27,13 @@ import play.api.libs.json.Json._
 import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.HeaderCarrier
-import util.BaseSpec
+import util.{BaseSpec, UserRequestFixture}
 
 import scala.concurrent.Future
 
 class HomePageCachingHelperSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(UserRequestFixture.buildUserRequest())
     .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
     .build()
 
@@ -45,7 +45,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
       def urBannerDismissedValueInSessionCache: Option[Boolean]
 
-      lazy val cachingHelper = {
+      lazy val cachingHelper: HomePageCachingHelper = {
 
         val c = injected[HomePageCachingHelper]
 

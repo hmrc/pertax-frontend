@@ -70,15 +70,6 @@ class NiLetterControllerSpec extends BaseSpec {
       when(c.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
         Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
       }
-
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(
-            buildFakeAuthority(
-              withPaye = true,
-              withSa = true,
-              confidenceLevel = if (isHighGG) ConfidenceLevel.L200 else ConfidenceLevel.L50)))
-      }
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }

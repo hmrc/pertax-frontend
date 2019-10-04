@@ -17,32 +17,26 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{CreatePayment, FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
-import models.{ActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUserType, UserDetails}
+import connectors._
+import models.UserDetails
 import org.joda.time.DateTime
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
-import play.api.test.Helpers.redirectLocation
-import play.twirl.api.Html
-import services.{CitizenDetailsService, IdentityVerificationFrontendService, IdentityVerificationResponse, IdentityVerificationSuccessResponse, LocalSessionCache, PersonDetailsResponse, PersonDetailsSuccessResponse, SelfAssessmentService, UserDetailsService}
+import play.api.test.Helpers.{redirectLocation, _}
 import services.partials.{CspPartialService, MessageFrontendService}
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import services._
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.Fixtures.buildFakeRequestWithAuth
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
-import util.Fixtures.{buildFakeAuthority, buildFakeRequestWithAuth}
-import org.mockito.Matchers.{eq => meq, _}
-import play.api.mvc._
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
@@ -72,17 +66,11 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
 
-    lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
     val allowLowConfidenceSA = false
 
     lazy val controller = {
 
       val c = injected[PaymentsController]
-
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
 
       when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(UserDetails.GovernmentGatewayAuthProvider)))
@@ -112,9 +100,6 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
   "makePayment" should {
     "redirect to the response's nextUrl" in new LocalSetup {
 
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
       val expectedNextUrl = "someNextUrl"
       val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
 
@@ -127,8 +112,6 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "redirect to a BAD_REQUEST page if createPayment failed" in new LocalSetup {
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
 
       when(controller.payApiConnector.createPayment(any())(any(), any()))
         .thenReturn(Future.successful(None))

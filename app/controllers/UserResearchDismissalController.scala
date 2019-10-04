@@ -17,7 +17,7 @@
 package controllers
 
 import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthJourney, PertaxRegime}
+import controllers.auth.AuthJourney
 import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import javax.inject.Inject
