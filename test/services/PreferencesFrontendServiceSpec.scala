@@ -49,7 +49,6 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
     .overrides(bind[Metrics].toInstance(mockMetrics))
     .build()
 
-
   //TODO: Find a way to mock metrics in a testable way
   "PreferencesFrontend" should {
 
