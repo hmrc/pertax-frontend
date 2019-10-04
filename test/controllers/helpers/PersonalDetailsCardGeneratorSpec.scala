@@ -17,14 +17,17 @@
 package controllers.helpers
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models._
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.inject.bind
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.Nino
 import util.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
@@ -47,6 +50,20 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
   }
 
   trait MainAddressSetup extends SpecSetup {
+
+    implicit val userRequest = UserRequest(
+      Some(Fixtures.fakeNino),
+      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+      Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+      NonFilerSelfAssessmentUser,
+      "Verify",
+      ConfidenceLevel.L500,
+      None,
+      None,
+      None,
+      None,
+      FakeRequest()
+    )
 
     def taxCreditsEnabled: Boolean
 
@@ -211,6 +228,20 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     def userHasWelshLanguageUnitAddress: Boolean
     def closePostalAddressEnabled: Boolean
 
+    implicit val userRequest = UserRequest(
+      Some(Fixtures.fakeNino),
+      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+      Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+      NonFilerSelfAssessmentUser,
+      "Verify",
+      ConfidenceLevel.L500,
+      None,
+      None,
+      None,
+      None,
+      FakeRequest()
+    )
+
     def buildPersonDetails =
       PersonDetails(
         "115",
@@ -351,6 +382,21 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
   "Calling getNationalInsuranceCard" should {
 
     trait LocalSetup extends SpecSetup {
+
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+        NonFilerSelfAssessmentUser,
+        "Verify",
+        ConfidenceLevel.L500,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest()
+      )
+
       lazy val cardBody = controller.getNationalInsuranceCard()
       def nino: Nino
     }
@@ -365,6 +411,21 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
   "Calling getChangeNameCard" should {
 
     trait LocalSetup extends SpecSetup {
+
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+        NonFilerSelfAssessmentUser,
+        "Verify",
+        ConfidenceLevel.L500,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest()
+      )
+
       lazy val cardBody = controller.getChangeNameCard()
 
       def userHasPersonDetails: Boolean

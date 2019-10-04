@@ -18,11 +18,12 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
@@ -38,6 +39,8 @@ import play.api.test.Helpers._
 import repositories.CorrespondenceAddressLockRepository
 import services.partials.MessageFrontendService
 import services._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -2110,6 +2113,21 @@ class AddressControllerSpec extends BaseSpec {
   "Calling AddressController.lookingUpAddress" should {
 
     trait LookingUpAddressLocalSetup extends WithAddressControllerSpecSetup with Results {
+      import uk.gov.hmrc.auth.core.ConfidenceLevel
+
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+        NonFilerSelfAssessmentUser,
+        "Verify",
+        ConfidenceLevel.L500,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest()
+      )
 
       def addressLookupResponse: AddressLookupResponse
 

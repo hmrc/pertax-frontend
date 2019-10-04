@@ -89,7 +89,7 @@ class InterstitialControllerSpec extends BaseSpec {
       when(userDetailsService.getUserDetails(any())(any())) thenReturn {
         Future.successful(Some(UserDetails(authProviderType)))
       }
-      when(preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
+      when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
         Future.successful(paperlessResponse)
       }
       when(messageFrontendService.getUnreadMessageCount(any())) thenReturn {

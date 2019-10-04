@@ -18,6 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => meq, _}
@@ -32,6 +33,7 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -84,7 +86,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
+    lazy val personDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
     lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
     lazy val year = 2017
@@ -93,13 +95,27 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
-    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+    lazy val selfAssessmentUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr("1111111111"))
     lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
 
     lazy val allowLowConfidenceSA = false
+
+    implicit val userRequest = UserRequest(
+      Some(nino),
+      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+      Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+      selfAssessmentUserType,
+      authProviderType,
+      ConfidenceLevel.L500,
+      Some(personDetailsResponse.personDetails),
+      None,
+      None,
+      None,
+      FakeRequest()
+    )
 
     lazy val controller = {
 
@@ -126,7 +142,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.cspPartialService.webchatClickToChatScriptPartial(any())(any())) thenReturn {
         Future.successful(HtmlPartial.Success(None, Html("<script></script>")))
       }
-      when(c.preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
+      when(c.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
         Future.successful(getPaperlessPreferenceResponse)
       }
       when(c.taxCalculationService.getTaxCalculation(meq(nino), meq(year - 1))(any())) thenReturn {
@@ -136,7 +152,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         Future.successful(getIVJourneyStatusResponse)
       }
       when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
-        Future.successful(getSelfAssessmentServiceResponse)
+        Future.successful(selfAssessmentUserType)
       }
       when(c.auditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)

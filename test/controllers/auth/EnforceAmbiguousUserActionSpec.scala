@@ -48,7 +48,7 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
     "when a user is ambiguous" - {
 
       "return the request it was passed" in {
-        val refinedRequest =
+        val userRequest =
           UserRequest(
             None,
             None,
@@ -61,14 +61,14 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
             None,
             None,
             FakeRequest())
-        val result = harness()(refinedRequest)
+        val result = harness()(userRequest)
         status(result) mustBe OK
       }
 
       "when a user is not ambiguous" - {
 
         "redirect to the landing page" in {
-          val refinedRequest =
+          val userRequest =
             UserRequest(
               None,
               None,
@@ -81,7 +81,7 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
               None,
               None,
               FakeRequest())
-          val result = harness()(refinedRequest)
+          val result = harness()(userRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result).get must endWith("/personal-account")
         }

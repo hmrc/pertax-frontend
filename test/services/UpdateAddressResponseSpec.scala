@@ -17,19 +17,37 @@
 package services
 
 import config.ConfigDecorator
-import models.PertaxContext
+import controllers.auth.requests.UserRequest
+import models.{NonFilerSelfAssessmentUser, PertaxContext, UserName}
+import org.joda.time.DateTime
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.http.HttpResponse
-import util.BaseSpec
+import util.{BaseSpec, Fixtures}
 
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
   implicit lazy val pertaxContext =
     PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
   override def messagesApi: MessagesApi = injected[MessagesApi]
+
+  implicit val userRequest = UserRequest(
+    Some(Fixtures.fakeNino),
+    Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+    Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+    NonFilerSelfAssessmentUser,
+    "Verify",
+    ConfidenceLevel.L500,
+    None,
+    None,
+    None,
+    None,
+    FakeRequest()
+  )
 
   def genericFunc(): Result =
     Ok
