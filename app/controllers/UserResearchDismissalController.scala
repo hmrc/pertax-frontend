@@ -33,7 +33,6 @@ class UserResearchDismissalController @Inject()(
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney

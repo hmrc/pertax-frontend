@@ -47,13 +47,17 @@ class AddressLookupService @Inject()(
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val addressLookupUrl = baseUrl("address-lookup")
+  lazy val defaultOrigin = configuration
+    .getString("sosOrigin")
+    .orElse(configuration.getString("appName"))
+    .getOrElse("undefined")
 
   def lookup(postcode: String, filter: Option[String] = None)(
     implicit hc: HeaderCarrier): Future[AddressLookupResponse] =
     withMetricsTimer("address-lookup") { t =>
       val hn = tools.urlEncode(filter.getOrElse(""))
       val pc = postcode.replaceAll(" ", "")
-      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> pertaxAuthenticationProvider.defaultOrigin)
+      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> defaultOrigin)
 
       simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v1/gb/addresses.json?postcode=$pc&filter=$hn")(
         onComplete = {

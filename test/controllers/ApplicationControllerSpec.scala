@@ -18,6 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -34,12 +35,13 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
 import services.partials.{CspPartialService, MessageFrontendService}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -50,7 +52,21 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  lazy val fakeRequest = FakeRequest("", "")
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    "SomeAuth",
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))

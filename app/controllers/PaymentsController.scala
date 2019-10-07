@@ -33,7 +33,6 @@ class PaymentsController @Inject()(
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val citizenDetailsService: CitizenDetailsService,
-  val pertaxRegime: PertaxRegime,
   val userDetailsService: UserDetailsService,
   val pertaxDependencies: PertaxDependencies,
   val payApiConnector: PayApiConnector,

@@ -17,17 +17,20 @@
 package controllers
 
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import models.UserDetails
+import controllers.auth.requests.UserRequest
+import models.{ActivatedOnlineFilerSelfAssessmentUser, UserDetails}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._
@@ -38,7 +41,21 @@ import scala.concurrent.Future
 
 class PaperlessPreferencesControllerSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  lazy val fakeRequest = FakeRequest("", "")
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    "SomeAuth",
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
@@ -61,15 +78,11 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
 
     lazy val request = buildFakeRequestWithAuth("GET")
     lazy val verifyRequest = buildFakeRequestWithVerify("GET")
-    lazy val authority = buildFakeAuthority(withPaye, withSa, confidenceLevel)
 
     lazy val controller = {
 
       val c = injected[PaperlessPreferencesController]
 
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
       when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
@@ -87,9 +100,6 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
 
       val c = injected[PaperlessPreferencesController]
 
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
       when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }

@@ -31,12 +31,8 @@ import scala.collection.JavaConverters._
 
 class TaxCalculationViewSpec extends BaseSpec {
 
-  val pertaxUser: PertaxUser = Fixtures.buildFakePertaxUser(isGovernmentGateway = true, isHighGG = true)
-
   implicit val messages: Messages = Messages.Implicits.applicationMessages
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val pertaxContext: PertaxContext =
-    PertaxContext(FakeRequest("GET", "/test"), mockLocalPartialRetreiver, configDecorator, Some(pertaxUser))
+  override implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).eachAttr("href").asScala should contain(href)

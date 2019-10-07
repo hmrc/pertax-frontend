@@ -18,19 +18,21 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.LocalErrorHandler
-import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, UserDetails}
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, AmbiguousFilerSelfAssessmentUser, UserDetails}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
 import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever, MockPertaxDependencies}
@@ -49,6 +51,20 @@ class InterstitialControllerSpec extends BaseSpec {
     def simulateSaPartialServiceFailure: Boolean
     def paperlessResponse: ActivatePaperlessResponse
 
+    lazy val fakeRequest = FakeRequest("", "")
+    lazy val userRequest = UserRequest(
+      None,
+      None,
+      None,
+      ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+      "SomeAuth",
+      ConfidenceLevel.L200,
+      None,
+      None,
+      None,
+      None,
+      fakeRequest)
+
     lazy val c = new InterstitialController(
       injected[MessagesApi],
       MockitoSugar.mock[FormPartialService],
@@ -59,7 +75,6 @@ class InterstitialControllerSpec extends BaseSpec {
       MockitoSugar.mock[PreferencesFrontendService],
       MockitoSugar.mock[MessageFrontendService],
       MockPertaxDependencies,
-      injected[PertaxRegime],
       injected[LocalErrorHandler],
       injected[AuthJourney],
       injected[WithBreadcrumbAction]
@@ -110,7 +125,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displayNationalInsurance(request)
+      val r = c.displayNationalInsurance(userRequest)
       status(r) shouldBe OK
 
       verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -132,7 +147,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displayChildBenefits(request)
+      val r = c.displayChildBenefits(userRequest)
       status(r) shouldBe OK
 
       verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -152,7 +167,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displaySelfAssessment(request)
+      val r = c.displaySelfAssessment(userRequest)
       status(r) shouldBe OK
 
       verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -170,7 +185,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displaySelfAssessment(request)
+      val r = c.displaySelfAssessment(userRequest)
       status(r) shouldBe UNAUTHORIZED
 
       verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -188,7 +203,7 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displaySelfAssessment(request)
+      val r = c.displaySelfAssessment(userRequest)
       status(r) shouldBe UNAUTHORIZED
 
       verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -207,7 +222,7 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        val r = c.displaySa302Interrupt(2014)(request)
+        val r = c.displaySa302Interrupt(2014)(userRequest)
         status(r) shouldBe OK
 
         verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
@@ -222,7 +237,7 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        val r = c.displaySa302Interrupt(2014)(request)
+        val r = c.displaySa302Interrupt(2014)(userRequest)
         status(r) shouldBe UNAUTHORIZED
 
         verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())

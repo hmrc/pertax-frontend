@@ -17,19 +17,21 @@
 package controllers
 
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import models.UserDetails
+import controllers.auth.requests.UserRequest
+import models.{ActivatedOnlineFilerSelfAssessmentUser, UserDetails}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
@@ -39,7 +41,21 @@ import scala.concurrent.Future
 
 class MessageControllerSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  lazy val fakeRequest = FakeRequest("", "")
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    "SomeAuth",
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
@@ -54,14 +70,9 @@ class MessageControllerSpec extends BaseSpec {
 
   trait LocalSetup {
 
-    def authProviderType: String
-
     lazy val controller = {
       val c = injected[MessageController]
 
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(authProviderType)))
-      }
       when(c.messageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }

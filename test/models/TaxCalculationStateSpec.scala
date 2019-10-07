@@ -17,17 +17,35 @@
 package models
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.SaUtr
 import util.{BaseSpec, DateTimeTools}
 
 class TaxCalculationStateSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  lazy val fakeRequest = FakeRequest("", "")
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    "SomeAuth",
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
     .build()
 

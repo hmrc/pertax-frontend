@@ -16,15 +16,19 @@
 
 package services
 
-import models.MessageCount
+import controllers.auth.requests.UserRequest
+import models.{ActivatedOnlineFilerSelfAssessmentUser, MessageCount}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
+import play.api.test.FakeRequest
 import play.twirl.api.Html
 import services.http.WsAllMethods
 import services.partials.MessageFrontendService
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
@@ -34,7 +38,21 @@ import uk.gov.hmrc.http.HttpResponse
 
 class MessageFrontendServiceSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  lazy val fakeRequest = FakeRequest("", "")
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    "SomeAuth",
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
     .overrides(bind[WsAllMethods].toInstance(MockitoSugar.mock[WsAllMethods]))
     .build()
 

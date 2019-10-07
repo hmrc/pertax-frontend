@@ -18,7 +18,6 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
-import controllers.auth.PertaxAuthenticationProvider
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -67,11 +66,9 @@ class AddressLookupServiceSpec extends BaseSpec {
         injected[Configuration],
         fakeSimpleHttp,
         MockitoSugar.mock[Metrics],
-        MockitoSugar.mock[PertaxAuthenticationProvider],
         fakeTools) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
-        when(pertaxAuthenticationProvider.defaultOrigin) thenReturn "PERTAX"
       }
 
       (addressLookupService, addressLookupService.metricsOperator, timer, fakeSimpleHttp)

@@ -46,7 +46,6 @@ class InterstitialController @Inject()(
   val preferencesFrontendService: PreferencesFrontendService,
   val messageFrontendService: MessageFrontendService,
   val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction

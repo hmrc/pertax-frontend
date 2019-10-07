@@ -18,7 +18,8 @@ package controllers
 
 import config.ConfigDecorator
 import connectors._
-import models.UserDetails
+import controllers.auth.requests.UserRequest
+import models.{ActivatedOnlineFilerSelfAssessmentUser, UserDetails}
 import org.joda.time.DateTime
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.when
@@ -26,14 +27,15 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
+import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import services.partials.{CspPartialService, MessageFrontendService}
 import services._
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures.buildFakeRequestWithAuth
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
@@ -44,7 +46,21 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override def now: () => DateTime = DateTime.now
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  lazy val fakeRequest = FakeRequest("", "")
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    "SomeAuth",
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))

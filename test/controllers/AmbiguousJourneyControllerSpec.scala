@@ -18,6 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -29,6 +30,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import services.partials.MessageFrontendService
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import util.Fixtures._
@@ -42,12 +44,23 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   lazy val fakeRequest = FakeRequest("", "")
-
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+    "SomeAuth",
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest)
   override val messages: Messages = messagesApi.preferred(fakeRequest)
 
   lazy val mockTaxYearRetriever = MockitoSugar.mock[TaxYearRetriever]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))

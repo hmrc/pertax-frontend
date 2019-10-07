@@ -49,7 +49,6 @@ class ApplicationController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
   val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   authAction: AuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
@@ -57,13 +56,8 @@ class ApplicationController @Inject()(
   withBreadcrumbAction: WithBreadcrumbAction)
     extends PertaxBaseController with CurrentTaxYear with RendersErrors {
 
-  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
-    val pvp: LocalConfidenceLevelPredicate =
-      localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
-
-    AuthorisedFor(pertaxRegime, pageVisibility = pvp).async { implicit authContext => implicit request =>
-      Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
-    }
+  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.auth.async {
+    Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
   }
 
   def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.auth.async {
