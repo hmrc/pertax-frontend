@@ -31,9 +31,9 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, PersonDetailsSuccessResponse}
+import services.{CitizenDetailsService, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 import scala.concurrent.Future
 
@@ -44,6 +44,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
+    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .build()
 
   def harness[A]()(implicit request: UserRequest[A]): Future[Result] = {
@@ -56,19 +57,21 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
   }
 
   "GetPersonDetailsAction must" - {
-    "when a user is ambiguous" - {
 
-      "return the request it was passed" in {
-        when(mockMessageFrontendService.getUnreadMessageCount(any()))
-          .thenReturn(Future.successful(Some(1)))
+    when(mockMessageFrontendService.getUnreadMessageCount(any()))
+      .thenReturn(Future.successful(Some(1)))
+
+    "when a user has PersonDetails in CitizenDetails" - {
+
+      "add the PersonDetails to the request" in {
 
         when(mockCitizenDetailsService.personDetails(any())(any()))
           .thenReturn(Future.successful(PersonDetailsSuccessResponse(
-            PersonDetails("", Person(None, None, None, None, None, None, None, None, None), None, None))))
+            PersonDetails("blah", Person(Some("blah"), None, None, None, None, None, None, None, None), None, None))))
 
         val refinedRequest =
           UserRequest(
-            None,
+            Some(Nino("AB123456C")),
             None,
             None,
             AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
@@ -80,10 +83,34 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             None,
             FakeRequest("", ""))
         val result = harness()(refinedRequest)
-        println(contentAsString(result))
         status(result) mustBe OK
-        verify(mockCitizenDetailsService, times(1))
-        contentAsString(result) must contain("true")
+        contentAsString(result) must include("true")
+      }
+
+    }
+
+    "when a user has no PersonDetails in CitizenDetails" - {
+      "return the request it was passed" in {
+
+        when(mockCitizenDetailsService.personDetails(any())(any()))
+          .thenReturn(Future.successful(PersonDetailsNotFoundResponse))
+
+        val refinedRequest =
+          UserRequest(
+            Some(Nino("AB123456C")),
+            None,
+            None,
+            AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+            "",
+            ConfidenceLevel.L50,
+            None,
+            None,
+            None,
+            None,
+            FakeRequest("", ""))
+        val result = harness()(refinedRequest)
+        status(result) mustBe OK
+        contentAsString(result) must include("false")
       }
 
     }
