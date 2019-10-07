@@ -50,13 +50,9 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
 
     lazy val actionProvider = app.injector.instanceOf[GetPersonDetailsAction]
 
-    actionProvider.invokeBlock(
-      request, { userRequest: UserRequest[_] =>
-        Future.successful(
-          Ok(s"Person Details: ${userRequest.personDetails.isDefined}")
-        )
-      }
-    )
+    actionProvider.invokeBlock(request, { userRequest: UserRequest[_] =>
+      Future.successful(Ok(s"Person Details: ${userRequest.personDetails.isDefined}"))
+    })
   }
 
   "GetPersonDetailsAction must" - {
@@ -84,7 +80,9 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             None,
             FakeRequest("", ""))
         val result = harness()(refinedRequest)
+        println(contentAsString(result))
         status(result) mustBe OK
+        verify(mockCitizenDetailsService, times(1))
         contentAsString(result) must contain("true")
       }
 

@@ -169,7 +169,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
   }
 
   "Calling getSelfAssessmentCard" should {
-    val taxYear = "1718"
+    val taxYear = "1819"
     val nextDeadlineTaxYear = 2019
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {

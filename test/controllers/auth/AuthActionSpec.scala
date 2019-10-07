@@ -18,6 +18,8 @@ package controllers.auth
 
 import connectors.NewPertaxAuthConnector
 import controllers.auth.requests.AuthenticatedRequest
+import models.UserName
+import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -31,7 +33,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
 import uk.gov.hmrc.auth.core._
 
 import scala.concurrent.ExecutionContext.Implicits._
@@ -48,7 +50,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
   class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
-      Ok(s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}")
+      Ok(
+        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}")
     }
   }
 
@@ -93,10 +96,22 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user with nino and no SA enrolment must" - {
     "create an authenticated request" in {
 
-      val retrievalResult: Future[Option[String] ~ Enrolments ~ Option[Credentials]] =
-        Future.successful(new ~(new ~(Some("AB123456C"), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))))
+      val retrievalResult
+        : Future[Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes] =
+        Future.successful(
+          new ~(
+            new ~(
+              new ~(
+                new ~(new ~(Some("AB123456C"), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))),
+                ConfidenceLevel.L200),
+              None),
+            LoginTimes(DateTime.now(), None)
+          ))
 
-      when(mockAuthConnector.authorise[Option[String] ~ Enrolments ~ Option[Credentials]](any(), any())(any(), any()))
+      when(mockAuthConnector
+        .authorise[Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes](
+          any(),
+          any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val authAction = new AuthActionImpl(mockAuthConnector, app.configuration)
@@ -112,11 +127,26 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user with no nino but an SA enrolment must" - {
     "create an authenticated request" in {
 
-      val retrievalResult: Future[Option[String] ~ Enrolments ~ Option[Credentials]] =
-        Future.successful(new ~(new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(
-          EnrolmentIdentifier("UTR", "1234567890")), "")))), Some(Credentials("foo", "bar"))))
+      val retrievalResult
+        : Future[Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes] =
+        Future.successful(
+          new ~(
+            new ~(
+              new ~(
+                new ~(
+                  new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "")))),
+                  Some(Credentials("foo", "bar"))),
+                ConfidenceLevel.L200
+              ),
+              None
+            ),
+            LoginTimes(DateTime.now(), None)
+          ))
 
-      when(mockAuthConnector.authorise[Option[String] ~ Enrolments ~ Option[Credentials]](any(), any())(any(), any()))
+      when(mockAuthConnector
+        .authorise[Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes](
+          any(),
+          any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val authAction = new AuthActionImpl(mockAuthConnector, app.configuration)
@@ -131,11 +161,28 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user with a nino and an SA enrolment must" - {
     "create an authenticated request" in {
 
-      val retrievalResult: Future[Option[String] ~ Enrolments ~ Option[Credentials]] =
-        Future.successful(new ~(new ~(Some("AB123456C"), Enrolments(Set(Enrolment("IR-SA", Seq(
-          EnrolmentIdentifier("UTR", "1234567890")), "")))), Some(Credentials("foo", "bar"))))
+      val retrievalResult
+        : Future[Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes] =
+        Future.successful(
+          new ~(
+            new ~(
+              new ~(
+                new ~(
+                  new ~(
+                    Some("AB123456C"),
+                    Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "")))),
+                  Some(Credentials("foo", "bar"))),
+                ConfidenceLevel.L200
+              ),
+              None
+            ),
+            LoginTimes(DateTime.now(), None)
+          ))
 
-      when(mockAuthConnector.authorise[Option[String] ~ Enrolments ~ Option[Credentials]](any(), any())(any(), any()))
+      when(mockAuthConnector
+        .authorise[Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes](
+          any(),
+          any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val authAction = new AuthActionImpl(mockAuthConnector, app.configuration)

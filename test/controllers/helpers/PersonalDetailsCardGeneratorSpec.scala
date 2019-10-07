@@ -282,7 +282,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
     lazy val cardBody = controller.getPostalAddressCard()
 
-    when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
+//    when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
 
     lazy val excludedCountries = List(
       Country("GREAT BRITAIN"),
