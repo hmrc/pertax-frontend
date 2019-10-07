@@ -25,7 +25,7 @@ import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, AnyContentAsEmpty, Request, Result}
+import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -136,11 +136,14 @@ class InterstitialControllerSpec extends BaseSpec {
 
   "Calling displayChildBenefits" should {
 
-    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user who is high gg" in new LocalSetup {
+    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in new LocalSetup {
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
+      val fakeRequestWithPath = FakeRequest("GET", "/foo")
+
       lazy val userRequest = UserRequest(
         None,
         None,
@@ -152,14 +155,18 @@ class InterstitialControllerSpec extends BaseSpec {
         None,
         None,
         None,
-        fakeRequest)
+        fakeRequestWithPath)
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(userRequest.asInstanceOf[UserRequest[A]])
+      })
 
       val testController = controller(userRequest)
-
       val r = testController.displayChildBenefits(userRequest)
+
       status(r) shouldBe OK
 
-      verify(testController.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(testController.citizenDetailsService, times(0)).personDetails(meq(Fixtures.fakeNino))(any())
     }
   }
@@ -184,12 +191,16 @@ class InterstitialControllerSpec extends BaseSpec {
         None,
         fakeRequest)
 
-      val testController = controller(userRequest)
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(userRequest.asInstanceOf[UserRequest[A]])
+      })
 
+      val testController = controller(userRequest)
       val r = testController.displaySelfAssessment(userRequest)
+
       status(r) shouldBe OK
 
-      verify(testController.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(testController.formPartialService, times(1))
         .getSelfAssessmentPartial(any()) //Not called at the min due to DFS bug
       verify(testController.citizenDetailsService, times(0)).personDetails(any())(any())
@@ -200,12 +211,13 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateFormPartialServiceFailure = true
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
       lazy val userRequest = UserRequest(
-        None,
+        Some(Fixtures.fakeNino),
         None,
         None,
         NonFilerSelfAssessmentUser,
-        "SomeAuth",
+        "GovernmentGateway",
         ConfidenceLevel.L200,
         None,
         None,
@@ -213,12 +225,16 @@ class InterstitialControllerSpec extends BaseSpec {
         None,
         fakeRequest)
 
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(userRequest.asInstanceOf[UserRequest[A]])
+      })
+
       val testController = controller(userRequest)
 
       val r = testController.displaySelfAssessment(userRequest)
       status(r) shouldBe UNAUTHORIZED
 
-      verify(testController.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
       verify(testController.citizenDetailsService, times(0)).personDetails(any())(any())
     }
@@ -241,12 +257,16 @@ class InterstitialControllerSpec extends BaseSpec {
         None,
         fakeRequest)
 
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(userRequest.asInstanceOf[UserRequest[A]])
+      })
+
       val testController = controller(userRequest)
 
       val r = testController.displaySelfAssessment(userRequest)
       status(r) shouldBe UNAUTHORIZED
 
-      verify(testController.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
       verify(testController.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
     }
@@ -272,12 +292,16 @@ class InterstitialControllerSpec extends BaseSpec {
           fakeRequest
         )
 
+        when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(userRequest.asInstanceOf[UserRequest[A]])
+        })
+
         val testController = controller(userRequest)
 
         val r = testController.displaySa302Interrupt(2014)(userRequest)
-        status(r) shouldBe OK
 
-        verify(testController.messageFrontendService, times(1)).getUnreadMessageCount(any())
+        status(r) shouldBe OK
       }
 
       "should return UNAUTHORIZED response when accessing with a none SA user with a valid tax year" in new LocalSetup {
@@ -298,12 +322,15 @@ class InterstitialControllerSpec extends BaseSpec {
           None,
           fakeRequest)
 
+        when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(userRequest.asInstanceOf[UserRequest[A]])
+        })
+
         val testController = controller(userRequest)
-
         val r = testController.displaySa302Interrupt(2014)(userRequest)
-        status(r) shouldBe UNAUTHORIZED
 
-        verify(testController.messageFrontendService, times(1)).getUnreadMessageCount(any())
+        status(r) shouldBe UNAUTHORIZED
       }
     }
   }
