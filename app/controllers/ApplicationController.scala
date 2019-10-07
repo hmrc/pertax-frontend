@@ -67,7 +67,6 @@ class ApplicationController @Inject()(
 
   def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.auth.async {
     implicit request =>
-      //Will be populated if we arrived here because of an IV success/failure
       val journeyId =
         List(request.request.getQueryString("token"), request.request.getQueryString("journeyId")).flatten.headOption
 
@@ -94,7 +93,7 @@ class ApplicationController @Inject()(
               Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
             case IdentityVerificationSuccessResponse(LockedOut) =>
               Logger.warn(s"Unable to confirm user identity: $LockedOut")
-              Unauthorized(views.html.iv.failure.lockedOut(false))
+              Unauthorized(views.html.iv.failure.lockedOut(allowContinue = false))
             case IdentityVerificationSuccessResponse(Timeout) =>
               Logger.warn(s"Unable to confirm user identity: $Timeout")
               InternalServerError(views.html.iv.failure.timeOut(retryUrl))
