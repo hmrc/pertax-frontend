@@ -99,7 +99,7 @@ class InterstitialController @Inject()(
             saPartial successfulContentOrElse Html("")
           ))
       }
-    } else futureError(INTERNAL_SERVER_ERROR)
+    } else futureError(UNAUTHORIZED)
 
   }
 
@@ -112,13 +112,13 @@ class InterstitialController @Inject()(
               .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUser.saUtr))
         }
         case NonFilerSelfAssessmentUser => {
-          Logger.warn("User had no sa account when one was required")
+          Logger.warn("User had no sa account (non filer) when one was required")
           error(INTERNAL_SERVER_ERROR)
         }
       }
     } else {
       Logger.warn("User had no sa account when one was required")
-      error(INTERNAL_SERVER_ERROR)
+      error(UNAUTHORIZED)
     }
   }
 }

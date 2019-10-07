@@ -178,12 +178,13 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
       lazy val userRequest = UserRequest(
         None,
         None,
         None,
         ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-        "SomeAuth",
+        "GovernmentGateway",
         ConfidenceLevel.L200,
         None,
         None,
@@ -239,17 +240,19 @@ class InterstitialControllerSpec extends BaseSpec {
       verify(testController.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
+    //TODO Don't understand this test - why unauthorised if not logged in via GG - isn't Verify a valid authProvider?
     "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
 
       lazy val simulateFormPartialServiceFailure = true
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
       lazy val userRequest = UserRequest(
         Some(Fixtures.fakeNino),
         None,
         None,
         NonFilerSelfAssessmentUser,
-        "SomeAuth",
+        "Verify",
         ConfidenceLevel.L500,
         None,
         None,
@@ -268,7 +271,7 @@ class InterstitialControllerSpec extends BaseSpec {
       status(r) shouldBe UNAUTHORIZED
 
       verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
-      verify(testController.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
+      verify(testController.citizenDetailsService, times(0)).personDetails(meq(Fixtures.fakeNino))(any())
     }
 
     "Calling getSa302" should {
@@ -278,12 +281,13 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
         lazy val userRequest = UserRequest(
           Some(Fixtures.fakeNino),
           None,
           None,
           ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-          "SomeAuth",
+          "GovernmentGateway",
           ConfidenceLevel.L200,
           None,
           None,
@@ -299,12 +303,12 @@ class InterstitialControllerSpec extends BaseSpec {
 
         val testController = controller(userRequest)
 
-        val r = testController.displaySa302Interrupt(2014)(userRequest)
+        val r = testController.displaySa302Interrupt(2018)(userRequest)
 
         status(r) shouldBe OK
       }
 
-      "should return UNAUTHORIZED response when accessing with a none SA user with a valid tax year" in new LocalSetup {
+      "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
 
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure = false
@@ -314,7 +318,7 @@ class InterstitialControllerSpec extends BaseSpec {
           None,
           None,
           NonFilerSelfAssessmentUser,
-          "SomeAuth",
+          "GovernmentGateway",
           ConfidenceLevel.L200,
           None,
           None,
@@ -328,7 +332,7 @@ class InterstitialControllerSpec extends BaseSpec {
         })
 
         val testController = controller(userRequest)
-        val r = testController.displaySa302Interrupt(2014)(userRequest)
+        val r = testController.displaySa302Interrupt(2018)(userRequest)
 
         status(r) shouldBe UNAUTHORIZED
       }
