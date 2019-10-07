@@ -33,7 +33,7 @@ class FakeAuthJourney extends MockitoSugar {
 
       override val auth = new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(userRequest)
+          block(userRequest.asInstanceOf[UserRequest[A]])
       }
 
     }
