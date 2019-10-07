@@ -37,7 +37,6 @@ class LocalErrorHandler @Inject()(
   val userDetailsService: UserDetailsService,
   val citizenDetailsService: CitizenDetailsService,
   val messageFrontendService: MessageFrontendService,
-  val pertaxRegime: PertaxRegime,
   val delegationConnector: FrontEndDelegationConnector,
   val authConnector: PertaxAuthConnector,
   val materializer: Materializer,

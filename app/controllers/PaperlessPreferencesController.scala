@@ -38,7 +38,6 @@ class PaperlessPreferencesController @Inject()(
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,

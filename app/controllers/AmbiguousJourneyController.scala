@@ -34,7 +34,6 @@ import scala.concurrent.Future
 class AmbiguousJourneyController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
-  val pertaxRegime: PertaxRegime,
   val userDetailsService: UserDetailsService,
   val pertaxDependencies: PertaxDependencies,
   val delegationConnector: FrontEndDelegationConnector,

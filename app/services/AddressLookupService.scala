@@ -23,6 +23,7 @@ import models.addresslookup.RecordSet
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
+import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 import util._

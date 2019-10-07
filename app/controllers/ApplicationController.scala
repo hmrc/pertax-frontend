@@ -49,7 +49,6 @@ class ApplicationController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
   val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
   authAction: AuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,

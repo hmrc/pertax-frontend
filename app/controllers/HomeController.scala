@@ -47,7 +47,6 @@ class HomeController @Inject()(
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
   val taxCalculationStateFactory: TaxCalculationStateFactory,
