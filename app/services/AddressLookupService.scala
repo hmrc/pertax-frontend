@@ -17,6 +17,7 @@
 package services
 
 import com.kenshoo.play.metrics.Metrics
+import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
 import metrics._
 import models.addresslookup.RecordSet
@@ -39,6 +40,7 @@ final case class AddressLookupErrorResponse(cause: Exception) extends AddressLoo
 class AddressLookupService @Inject()(
   environment: Environment,
   configuration: Configuration,
+  configDecorator: ConfigDecorator,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   val tools: Tools)
@@ -47,17 +49,13 @@ class AddressLookupService @Inject()(
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val addressLookupUrl = baseUrl("address-lookup")
-  lazy val defaultOrigin = configuration
-    .getString("sosOrigin")
-    .orElse(configuration.getString("appName"))
-    .getOrElse("undefined")
 
   def lookup(postcode: String, filter: Option[String] = None)(
     implicit hc: HeaderCarrier): Future[AddressLookupResponse] =
     withMetricsTimer("address-lookup") { t =>
       val hn = tools.urlEncode(filter.getOrElse(""))
       val pc = postcode.replaceAll(" ", "")
-      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> defaultOrigin)
+      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
 
       simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v1/gb/addresses.json?postcode=$pc&filter=$hn")(
         onComplete = {
