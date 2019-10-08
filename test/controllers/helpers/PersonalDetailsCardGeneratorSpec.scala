@@ -96,7 +96,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val hasCorrespondenceAddressLock = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -112,7 +112,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val hasCorrespondenceAddressLock = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -135,7 +135,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val hasCorrespondenceAddressLock = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -158,7 +158,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val hasCorrespondenceAddressLock = true
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -181,7 +181,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val hasCorrespondenceAddressLock = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -204,7 +204,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val hasCorrespondenceAddressLock = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -303,7 +303,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -318,7 +318,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -333,7 +333,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -350,7 +350,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val closePostalAddressEnabled = true
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -367,7 +367,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -383,7 +383,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -402,7 +402,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     "always return the same markup" in new LocalSetup {
 
       implicit val userRequest = UserRequestFixture.buildUserRequest()
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -440,7 +440,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
     "always return the correct markup when user has a name" in new LocalSetup {
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 
@@ -449,7 +449,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
 
     "always return None when user does not have a name available" in new LocalSetup {
       implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
         .build()
 

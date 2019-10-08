@@ -16,22 +16,27 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import models.Breadcrumb
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 class PartialsController @Inject()(
   val messagesApi: MessagesApi,
-  val pertaxDependencies: PertaxDependencies,
   val delegationConnector: FrontEndDelegationConnector,
-  val localErrorHandler: LocalErrorHandler
-) extends PertaxBaseController {
+  val localErrorHandler: LocalErrorHandler,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController {
 
   def mainContentHeader(
     name: Option[String],

@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth._
 import error.LocalErrorHandler
@@ -26,6 +27,7 @@ import play.api.mvc.{Action, AnyContent}
 import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
 import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
 import uk.gov.hmrc.renderer.ActiveTabMessages
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -37,12 +39,15 @@ class PaperlessPreferencesController @Inject()(
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
   val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
-  withBreadcrumbAction: WithBreadcrumbAction
-) extends PertaxBaseController {
+  withBreadcrumbAction: WithBreadcrumbAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController {
 
   def managePreferences: Action[AnyContent] =
     (authJourney.auth andThen withActiveTabAction

@@ -16,12 +16,14 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import javax.inject.Inject
 import models._
+import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import play.twirl.api.Html
@@ -31,6 +33,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.{ActiveTabHome, ActiveTabYourAccount}
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -46,13 +49,18 @@ class HomeController @Inject()(
   val userDetailsService: UserDetailsService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
   val taxCalculationStateFactory: TaxCalculationStateFactory,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction
-) extends PertaxBaseController with PaperlessInterruptHelper with CurrentTaxYear {
+  withActiveTabAction: WithActiveTabAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController with PaperlessInterruptHelper with CurrentTaxYear {
+
+  override def now: () => DateTime = () => DateTime.now()
 
   private val authenticate: ActionBuilder[UserRequest] = authJourney.auth andThen withActiveTabAction.addActiveTab(
     ActiveTabHome)

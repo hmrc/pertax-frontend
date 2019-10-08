@@ -51,23 +51,27 @@ import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
 
 import scala.concurrent.Future
 
-class AddressControllerSpec extends BaseSpec {
+class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
   val userRequest = UserRequestFixture.buildUserRequest()
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[AddressLookupService].toInstance(MockitoSugar.mock[AddressLookupService]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind[CorrespondenceAddressLockRepository].toInstance(
-      MockitoSugar.mock[CorrespondenceAddressLockRepository]))
+  val mockConfigDecorator = mock[ConfigDecorator]
+  val mockAuditConnector = mock[PertaxAuditConnector]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
+    .overrides(
+      bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]),
+      bind[UserDetailsService].toInstance(mock[UserDetailsService]),
+      bind[AddressLookupService].toInstance(mock[AddressLookupService]),
+      bind[FrontEndDelegationConnector].toInstance(mock[FrontEndDelegationConnector]),
+      bind[LocalSessionCache].toInstance(mock[LocalSessionCache]),
+      bind[PertaxAuditConnector].toInstance(mockAuditConnector),
+      bind[PertaxAuthConnector].toInstance(mock[PertaxAuthConnector]),
+      bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
+      bind[MessageFrontendService].toInstance(mock[MessageFrontendService]),
+      bind[ConfigDecorator].toInstance(mockConfigDecorator),
+      bind[CorrespondenceAddressLockRepository].toInstance(mock[CorrespondenceAddressLockRepository])
+    )
     .build()
 
   override def beforeEach: Unit =
@@ -121,7 +125,7 @@ class AddressControllerSpec extends BaseSpec {
         Future.successful(sessionCacheResponse)
       }
       when(injected[LocalSessionCache].remove()(any(), any())) thenReturn {
-        Future.successful(MockitoSugar.mock[HttpResponse])
+        Future.successful(mock[HttpResponse])
       }
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
@@ -132,13 +136,13 @@ class AddressControllerSpec extends BaseSpec {
       when(injected[CorrespondenceAddressLockRepository].get(any())) thenReturn {
         Future.successful(getCorrespondenceAddressLock)
       }
-      when(addressController.configDecorator.tcsChangeAddressUrl) thenReturn "/tax-credits-service/personal/change-address"
-      when(addressController.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(addressController.configDecorator.taxCreditsEnabled) thenReturn true
-      when(addressController.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
-      when(addressController.configDecorator.analyticsToken) thenReturn Some("N/A")
-      when(addressController.configDecorator.currentLocalDate) thenReturn LocalDate.parse("2016-02-02")
-      when(addressController.configDecorator.updateInternationalAddressInPta) thenReturn false
+      when(mockConfigDecorator.tcsChangeAddressUrl) thenReturn "/tax-credits-service/personal/change-address"
+      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(mockConfigDecorator.taxCreditsEnabled) thenReturn true
+      when(mockConfigDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
+      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
+      when(mockConfigDecorator.currentLocalDate) thenReturn LocalDate.parse("2016-02-02")
+      when(mockConfigDecorator.updateInternationalAddressInPta) thenReturn false
 
       addressController
     }
@@ -175,7 +179,7 @@ class AddressControllerSpec extends BaseSpec {
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
 
       status(r) shouldBe OK
-      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
   }
 
@@ -495,7 +499,7 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
 
     "verify an audit event has been sent for a user clicking the change postal address link" in new LocalSetup {
@@ -509,7 +513,7 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
   }
 
@@ -554,7 +558,7 @@ class AddressControllerSpec extends BaseSpec {
 
         status(r) shouldBe NOT_FOUND
         val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-        verify(c1.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+        verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
         pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
           eventCaptor.getValue,
           "addressLookupNotFound",
@@ -574,7 +578,7 @@ class AddressControllerSpec extends BaseSpec {
           .cache(meq("postalSelectedAddressRecord"), meq(fakeStreetPafAddressRecord))(any(), any(), any())
         verify(c1.sessionCache, times(1)).fetch()(any(), any())
         val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-        verify(c1.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+        verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
         pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
           eventCaptor.getValue,
           "addressLookupResults",
@@ -595,7 +599,7 @@ class AddressControllerSpec extends BaseSpec {
           .cache(meq("soleSelectedAddressRecord"), meq(fakeStreetPafAddressRecord))(any(), any(), any())
         verify(c1.sessionCache, times(1)).fetch()(any(), any())
         val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-        verify(c1.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+        verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
         pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
           eventCaptor.getValue,
           "addressLookupResults",
@@ -609,7 +613,7 @@ class AddressControllerSpec extends BaseSpec {
 
         status(r) shouldBe OK
         val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-        verify(c1.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+        verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
         verify(c1.sessionCache, times(1)).fetch()(any(), any())
         pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
           eventCaptor.getValue,
@@ -1148,7 +1152,7 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
 
     "verify an audit event has been sent when user chooses to add postal address" in new LocalSetup {
@@ -1161,7 +1165,7 @@ class AddressControllerSpec extends BaseSpec {
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
     }
   }
 
@@ -1799,7 +1803,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe OK
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
@@ -1809,14 +1813,14 @@ class AddressControllerSpec extends BaseSpec {
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
       override def getCorrespondenceAddressLock: Option[AddressJourneyTTLModel] =
-        Some(MockitoSugar.mock[AddressJourneyTTLModel])
+        Some(mock[AddressJourneyTTLModel])
 
       val r = controller.submitConfirmClosePostalAddress(FakeRequest("POST", ""))
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some(routes.AddressController.personalDetails().url)
 
-      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
+      verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.citizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
       verify(controller.correspondenceAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix))
     }
@@ -1860,7 +1864,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe INTERNAL_SERVER_ERROR
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
@@ -1926,7 +1930,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
-      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
+      verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -1943,7 +1947,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
-      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
+      verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -1977,7 +1981,7 @@ class AddressControllerSpec extends BaseSpec {
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
 
-      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any())
+      verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -1996,7 +2000,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(
         dataEvent,
@@ -2024,7 +2028,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(
         dataEvent,
@@ -2050,7 +2054,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
@@ -2073,7 +2077,7 @@ class AddressControllerSpec extends BaseSpec {
 
       status(r) shouldBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(
         dataEvent,

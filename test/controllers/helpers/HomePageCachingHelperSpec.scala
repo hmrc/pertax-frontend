@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class HomePageCachingHelperSpec extends BaseSpec {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(UserRequestFixture.buildUserRequest())
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
     .build()
 

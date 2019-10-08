@@ -39,7 +39,7 @@ import views.html.ViewSpec
 
 import scala.concurrent.Future
 
-class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
+class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec with MockitoSugar {
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
@@ -58,20 +58,24 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
     fakeRequest)
   override val messages: Messages = messagesApi.preferred(fakeRequest)
 
-  lazy val mockTaxYearRetriever = MockitoSugar.mock[TaxYearRetriever]
+  lazy val mockTaxYearRetriever = mock[TaxYearRetriever]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[TaxYearRetriever].toInstance(mockTaxYearRetriever))
+  val mockConfigDecorator = mock[ConfigDecorator]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
+    .overrides(
+      bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]),
+      bind[UserDetailsService].toInstance(mock[UserDetailsService]),
+      bind[FrontEndDelegationConnector].toInstance(mock[FrontEndDelegationConnector]),
+      bind[LocalSessionCache].toInstance(mock[LocalSessionCache]),
+      bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]),
+      bind[PertaxAuthConnector].toInstance(mock[PertaxAuthConnector]),
+      bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
+      bind[ConfigDecorator].toInstance(mockConfigDecorator),
+      bind[SelfAssessmentService].toInstance(mock[SelfAssessmentService]),
+      bind[MessageFrontendService].toInstance(mock[MessageFrontendService]),
+      bind[TaxYearRetriever].toInstance(mockTaxYearRetriever)
+    )
     .build()
 
   override def beforeEach: Unit =
@@ -105,11 +109,11 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with ViewSpec {
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }
-      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(c.configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
-      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
-      when(c.configDecorator.saAmbigSkipUTRLetterEnabled) thenReturn saSkipLetterPage
-      when(c.configDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn saAmbigSimplifiedJourney
+      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(mockConfigDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
+      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
+      when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn saSkipLetterPage
+      when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn saAmbigSimplifiedJourney
 
       c
     }

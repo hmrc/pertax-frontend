@@ -55,7 +55,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
     None,
     fakeRequest)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
     .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
     .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))

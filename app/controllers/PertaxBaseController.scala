@@ -19,7 +19,6 @@ package controllers
 import _root_.connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.PublicActions
 import controllers.helpers.ControllerLikeHelpers
 import models.Breadcrumb
 import play.api.i18n.I18nSupport
@@ -29,20 +28,7 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-class PertaxDependencies @Inject()(val auditConnector: PertaxAuditConnector, val authConnector: PertaxAuthConnector)(
-  implicit val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator)
-
-abstract class PertaxBaseController
-    extends Controller with Utf8MimeTypes with PublicActions with I18nSupport with ControllerLikeHelpers {
-  val pertaxDependencies: PertaxDependencies
-
-  def auditConnector: PertaxAuditConnector = pertaxDependencies.auditConnector
-
-  def authConnector: PertaxAuthConnector = pertaxDependencies.authConnector
-
-  implicit val partialRetriever: LocalPartialRetriever = pertaxDependencies.partialRetriever
-  implicit val configDecorator: ConfigDecorator = pertaxDependencies.configDecorator
+abstract class PertaxBaseController extends Controller with Utf8MimeTypes with I18nSupport with ControllerLikeHelpers {
 
   implicit class SessionKeyRemover(result: Future[Result]) {
     def removeSessionKey(key: String)(implicit request: Request[_]): Future[Result] = result.map {

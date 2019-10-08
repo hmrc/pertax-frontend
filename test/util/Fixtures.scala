@@ -334,12 +334,11 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
       "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ=="
     )
 
-  protected def localGuiceApplicationBuilder[A](userRequest: UserRequest[A]): GuiceApplicationBuilder =
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind[TemplateRenderer].toInstance(MockTemplateRenderer),
-        bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter]),
-        bind[AuthJourney].toInstance(FakeAuthJourney(userRequest))
+        bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter])
       )
       .configure(encryptionConfig)
 

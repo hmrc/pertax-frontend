@@ -16,12 +16,14 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth._
 import controllers.auth.requests.UserRequest
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
 import models._
+import org.joda.time.DateTime
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc._
@@ -34,7 +36,7 @@ import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
-import util.DateTimeTools
+import util.{DateTimeTools, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
@@ -48,13 +50,18 @@ class ApplicationController @Inject()(
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
-  val pertaxDependencies: PertaxDependencies,
   val localErrorHandler: LocalErrorHandler,
   authAction: AuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction)
+  withBreadcrumbAction: WithBreadcrumbAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
     extends PertaxBaseController with CurrentTaxYear with RendersErrors {
+
+  override def now: () => DateTime = () => DateTime.now()
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.auth.async {
     Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))

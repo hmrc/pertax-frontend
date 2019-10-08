@@ -50,7 +50,7 @@ import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
-class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
+class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
   lazy val fakeRequest = FakeRequest("", "")
   lazy val userRequest = UserRequest(
@@ -66,21 +66,25 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     None,
     fakeRequest)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))
+  val mockConfigDecorator = mock[ConfigDecorator]
+  val mockAuditConnector = mock[PertaxAuditConnector]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(
-      bind[IdentityVerificationFrontendService].toInstance(MockitoSugar.mock[IdentityVerificationFrontendService]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
-    .overrides(bind[PayApiConnector].toInstance(MockitoSugar.mock[PayApiConnector]))
+      bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]),
+      bind[MessageFrontendService].toInstance(mock[MessageFrontendService]),
+      bind[CspPartialService].toInstance(mock[CspPartialService]),
+      bind[IdentityVerificationFrontendService].toInstance(mock[IdentityVerificationFrontendService]),
+      bind[PertaxAuthConnector].toInstance(mock[PertaxAuthConnector]),
+      bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]),
+      bind[FrontEndDelegationConnector].toInstance(mock[FrontEndDelegationConnector]),
+      bind[UserDetailsService].toInstance(mock[UserDetailsService]),
+      bind[SelfAssessmentService].toInstance(mock[SelfAssessmentService]),
+      bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
+      bind[ConfigDecorator].toInstance(mock[ConfigDecorator]),
+      bind[LocalSessionCache].toInstance(mock[LocalSessionCache]),
+      bind[PayApiConnector].toInstance(mock[PayApiConnector])
+    )
     .build()
 
   override def beforeEach: Unit =
@@ -127,7 +131,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
         Future.successful(getSelfAssessmentServiceResponse)
       }
-      when(c.auditConnector.sendEvent(any())(any(), any())) thenReturn {
+      when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)
       }
       when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
@@ -137,24 +141,24 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         Future.successful(None)
       }
 
-      when(c.configDecorator.taxComponentsEnabled) thenReturn true
-      when(c.configDecorator.taxcalcEnabled) thenReturn true
-      when(c.configDecorator.ltaEnabled) thenReturn true
-      when(c.configDecorator.allowSaPreview) thenReturn true
-      when(c.configDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
-      when(c.configDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
-      when(c.configDecorator.companyAuthHost) thenReturn ""
-      when(c.configDecorator.pertaxFrontendHost) thenReturn ""
-      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
-      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
-      when(c.configDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
-      when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(c.configDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
-      when(c.configDecorator.gg_web_context) thenReturn "gg-sign-in"
-      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(c.configDecorator.urLinkUrl) thenReturn None
-      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
+      when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
+      when(mockConfigDecorator.taxcalcEnabled) thenReturn true
+      when(mockConfigDecorator.ltaEnabled) thenReturn true
+      when(mockConfigDecorator.allowSaPreview) thenReturn true
+      when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
+      when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
+      when(mockConfigDecorator.companyAuthHost) thenReturn ""
+      when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
+      when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
+      when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
+      when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
+      when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
+      when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
+      when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
+      when(mockConfigDecorator.gg_web_context) thenReturn "gg-sign-in"
+      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(mockConfigDecorator.urLinkUrl) thenReturn None
+      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
 
       c
     }
@@ -394,7 +398,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1))
+      verify(mockAuditConnector, times(1))
         .sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
@@ -414,7 +418,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         .toString()
         .contains("Activate your Self Assessment registration") shouldBe true
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1))
+      verify(mockAuditConnector, times(1))
         .sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
@@ -433,7 +437,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         .toString()
         .contains("Find out how to access your Self Assessment") shouldBe true
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(controller.auditConnector, times(1))
+      verify(mockAuditConnector, times(1))
         .sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
     }
 
@@ -448,7 +452,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
       doc.getElementsByClass("heading-xlarge").toString().contains("We cannot confirm your identity") shouldBe true
-      verify(controller.auditConnector, times(0)).sendEvent(any())(any(), any()) //TODO - check captured event
+      verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any()) //TODO - check captured event
 
     }
 

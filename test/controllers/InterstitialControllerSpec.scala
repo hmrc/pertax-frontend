@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.LocalErrorHandler
@@ -34,11 +35,11 @@ import services.partials.{FormPartialService, MessageFrontendService, SaPartialS
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.{BaseSpec, Fixtures, MockPertaxDependencies}
+import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
-class InterstitialControllerSpec extends BaseSpec {
+class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
   trait LocalSetup {
 
@@ -48,23 +49,24 @@ class InterstitialControllerSpec extends BaseSpec {
 
     lazy val fakeRequest = FakeRequest("", "")
 
-    val mockAuthJourney = MockitoSugar.mock[AuthJourney]
+    val mockAuthJourney = mock[AuthJourney]
 
-    def controller =
+    def controller: InterstitialController =
       new InterstitialController(
         injected[MessagesApi],
-        MockitoSugar.mock[FormPartialService],
-        MockitoSugar.mock[SaPartialService],
-        MockitoSugar.mock[CitizenDetailsService],
-        MockitoSugar.mock[UserDetailsService],
-        MockitoSugar.mock[FrontEndDelegationConnector],
-        MockitoSugar.mock[PreferencesFrontendService],
-        MockitoSugar.mock[MessageFrontendService],
-        MockPertaxDependencies,
+        mock[FormPartialService],
+        mock[SaPartialService],
+        mock[CitizenDetailsService],
+        mock[UserDetailsService],
+        mock[FrontEndDelegationConnector],
+        mock[PreferencesFrontendService],
+        mock[MessageFrontendService],
         injected[LocalErrorHandler],
         mockAuthJourney,
-        injected[WithBreadcrumbAction]
-      ) {
+        injected[WithBreadcrumbAction],
+        mock[PertaxAuditConnector],
+        mock[PertaxAuthConnector]
+      )(mock[LocalPartialRetriever], mock[ConfigDecorator]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))

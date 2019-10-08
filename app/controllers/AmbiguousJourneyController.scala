@@ -16,18 +16,20 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction}
 import javax.inject.Inject
 import models.AmbiguousFilerSelfAssessmentUser
 import models.dto.AmbiguousUserFlowDto
+import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, LocalSessionCache, SelfAssessmentService, UserDetailsService}
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.{DateTimeTools, TaxYearRetriever}
+import util.{DateTimeTools, LocalPartialRetriever, TaxYearRetriever}
 
 import scala.concurrent.Future
 
@@ -35,15 +37,20 @@ class AmbiguousJourneyController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
-  val pertaxDependencies: PertaxDependencies,
   val delegationConnector: FrontEndDelegationConnector,
   val sessionCache: LocalSessionCache,
   val messageFrontendService: MessageFrontendService,
   val selfAssessmentService: SelfAssessmentService,
   val taxYearRetriever: TaxYearRetriever,
   authJourney: AuthJourney,
-  enforceAmbiguousUserAction: EnforceAmbiguousUserAction
-) extends PertaxBaseController with CurrentTaxYear {
+  enforceAmbiguousUserAction: EnforceAmbiguousUserAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController with CurrentTaxYear {
+
+  override def now: () => DateTime = () => DateTime.now()
 
   private val authenticate: ActionBuilder[UserRequest] = authJourney.auth
 

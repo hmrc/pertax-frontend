@@ -16,21 +16,26 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import javax.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProviderIds
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 class PublicController @Inject()(
   val messagesApi: MessagesApi,
-  val pertaxDependencies: PertaxDependencies,
-  val delegationConnector: FrontEndDelegationConnector
-) extends PertaxBaseController {
+  val delegationConnector: FrontEndDelegationConnector,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController {
 
   def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {

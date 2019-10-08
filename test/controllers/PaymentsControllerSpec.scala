@@ -42,7 +42,7 @@ import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
-class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
+class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
   override def now: () => DateTime = DateTime.now
 
@@ -60,19 +60,24 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
     None,
     fakeRequest)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
-    .overrides(bind[PayApiConnector].toInstance(MockitoSugar.mock[PayApiConnector]))
+  val mockConfigDecorator = mock[ConfigDecorator]
+  val mockAuditConnector = mock[PertaxAuditConnector]
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
+    .overrides(
+      bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]),
+      bind[MessageFrontendService].toInstance(mock[MessageFrontendService]),
+      bind[CspPartialService].toInstance(mock[CspPartialService]),
+      bind[PertaxAuthConnector].toInstance(mock[PertaxAuthConnector]),
+      bind[PertaxAuditConnector].toInstance(mockAuditConnector),
+      bind[FrontEndDelegationConnector].toInstance(mock[FrontEndDelegationConnector]),
+      bind[UserDetailsService].toInstance(mock[UserDetailsService]),
+      bind[SelfAssessmentService].toInstance(mock[SelfAssessmentService]),
+      bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
+      bind[ConfigDecorator].toInstance(mockConfigDecorator),
+      bind[LocalSessionCache].toInstance(mock[LocalSessionCache]),
+      bind[PayApiConnector].toInstance(mock[PayApiConnector])
+    )
     .build()
 
   trait LocalSetup {
@@ -94,7 +99,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       when(c.citizenDetailsService.personDetails(meq(nino))(any())) thenReturn {
         Future.successful(personDetailsResponse)
       }
-      when(c.auditConnector.sendEvent(any())(any(), any())) thenReturn {
+      when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)
       }
       when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
@@ -104,10 +109,10 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
         Future.successful(None)
       }
 
-      when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
+      when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
+      when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
+      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
 
       c
     }

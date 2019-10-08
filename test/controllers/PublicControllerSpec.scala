@@ -34,32 +34,36 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.{BaseSpec, LocalPartialRetriever}
 
-class PublicControllerSpec extends BaseSpec {
+class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
   val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(injected[ApplicationCrypto])
+
+  val mockConfigDecorator = mock[ConfigDecorator]
 
   override lazy val app = new GuiceApplicationBuilder()
     .overrides(bind[MetricsFilter].to[DisabledMetricsFilter].eagerly)
     .overrides(bind[Metrics].to[DisabledMetrics].eagerly)
     .disable[com.kenshoo.play.metrics.PlayModule]
     .configure("metrics.enabled" -> false)
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind(classOf[CookieCryptoFilter]).toInstance(MockitoSugar.mock[SessionCookieCryptoFilter]))
-    .overrides(bind[Config].toInstance(MockitoSugar.mock[Config]))
+    .overrides(
+      bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]),
+      bind[PertaxAuthConnector].toInstance(mock[PertaxAuthConnector]),
+      bind[FrontEndDelegationConnector].toInstance(mock[FrontEndDelegationConnector]),
+      bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
+      bind[ConfigDecorator].toInstance(mockConfigDecorator),
+      bind(classOf[CookieCryptoFilter]).toInstance(mock[SessionCookieCryptoFilter]),
+      bind[Config].toInstance(mock[Config])
+    )
     .build()
 
   trait LocalSetup {
     lazy val controller = {
       val c = injected[PublicController]
-      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(c.configDecorator.tcsServiceRouterUrl) thenReturn "/tax-credits-service/renewals/service-router"
-      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
+      when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
+      when(mockConfigDecorator.tcsServiceRouterUrl) thenReturn "/tax-credits-service/renewals/service-router"
+      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
+      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
       c
     }
   }

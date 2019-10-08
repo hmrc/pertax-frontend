@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.AuthJourney
 import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
@@ -25,6 +26,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import services._
 import services.partials.MessageFrontendService
+import util.LocalPartialRetriever
 
 class UserResearchDismissalController @Inject()(
   val messagesApi: MessagesApi,
@@ -32,11 +34,14 @@ class UserResearchDismissalController @Inject()(
   val userDetailsService: UserDetailsService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,
-  authJourney: AuthJourney
-) extends PertaxBaseController {
+  authJourney: AuthJourney,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.auth { implicit request =>
     homePageCachingHelper.storeUserUrDismissal()

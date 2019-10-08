@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
@@ -40,7 +41,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.ActiveTabYourAccount
 import util.AuditServiceTools._
-import util.LanguageHelper
+import util.{LanguageHelper, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
@@ -53,14 +54,17 @@ class AddressController @Inject()(
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
   val sessionCache: LocalSessionCache,
-  val pertaxDependencies: PertaxDependencies,
   val localErrorHandler: LocalErrorHandler,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val countryHelper: CountryHelper,
   val correspondenceAddressLockRepository: CorrespondenceAddressLockRepository,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction
-) extends PertaxBaseController with AddressJourneyCachingHelper {
+  withActiveTabAction: WithActiveTabAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController with AddressJourneyCachingHelper {
 
   def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 

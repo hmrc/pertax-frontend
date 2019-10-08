@@ -49,6 +49,9 @@ import scala.concurrent.Future
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
+  val mockConfigDecorator = mock[ConfigDecorator]
+  val mockAuditConnector = mock[PertaxAuditConnector]
+
   override def beforeEach: Unit =
     reset(
       injected[PertaxAuditConnector],
@@ -116,7 +119,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
         Future.successful(selfAssessmentUserType)
       }
-      when(c.auditConnector.sendEvent(any())(any(), any())) thenReturn {
+      when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)
       }
       when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
@@ -126,24 +129,24 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
         Future.successful(None)
       }
 
-      when(c.configDecorator.taxComponentsEnabled) thenReturn true
-      when(c.configDecorator.taxcalcEnabled) thenReturn true
-      when(c.configDecorator.ltaEnabled) thenReturn true
-      when(c.configDecorator.allowSaPreview) thenReturn true
-      when(c.configDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
-      when(c.configDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
-      when(c.configDecorator.companyAuthHost) thenReturn ""
-      when(c.configDecorator.pertaxFrontendHost) thenReturn ""
-      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
-      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
-      when(c.configDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
-      when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(c.configDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
-      when(c.configDecorator.gg_web_context) thenReturn "gg-sign-in"
-      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(c.configDecorator.urLinkUrl) thenReturn None
-      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
+      when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
+      when(mockConfigDecorator.taxcalcEnabled) thenReturn true
+      when(mockConfigDecorator.ltaEnabled) thenReturn true
+      when(mockConfigDecorator.allowSaPreview) thenReturn true
+      when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
+      when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
+      when(mockConfigDecorator.companyAuthHost) thenReturn ""
+      when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
+      when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
+      when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
+      when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
+      when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
+      when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
+      when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
+      when(mockConfigDecorator.gg_web_context) thenReturn "gg-sign-in"
+      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+      when(mockConfigDecorator.urLinkUrl) thenReturn None
+      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
 
       c
     }
@@ -161,7 +164,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest()
 
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
         .overrides(bind[TaiService].toInstance(mock[TaiService]))
         .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
@@ -185,9 +188,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if (controller.configDecorator.taxComponentsEnabled)
+      if (mockConfigDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (controller.configDecorator.taxcalcEnabled)
+      if (mockConfigDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
@@ -196,7 +199,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest(saUser = NonFilerSelfAssessmentUser)
 
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
         .overrides(bind[TaiService].toInstance(mock[TaiService]))
         .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
@@ -211,9 +214,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if (controller.configDecorator.taxComponentsEnabled)
+      if (mockConfigDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (controller.configDecorator.taxcalcEnabled)
+      if (mockConfigDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
       verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
@@ -222,7 +225,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest()
 
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
         .overrides(bind[TaiService].toInstance(mock[TaiService]))
         .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
@@ -244,7 +247,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest()
 
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
         .overrides(bind[TaiService].toInstance(mock[TaiService]))
         .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
@@ -265,7 +268,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest()
 
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
         .overrides(bind[TaiService].toInstance(mock[TaiService]))
         .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
@@ -281,7 +284,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       status(r) shouldBe OK
 
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      if (controller.configDecorator.taxcalcEnabled)
+      if (mockConfigDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -289,7 +292,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
 
-      val app: Application = localGuiceApplicationBuilder(userRequest)
+      val app: Application = localGuiceApplicationBuilder
         .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
         .overrides(bind[TaiService].toInstance(mock[TaiService]))
         .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
@@ -320,7 +323,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
 
-      when(controller.configDecorator.taxComponentsEnabled) thenReturn false
+      when(mockConfigDecorator.taxComponentsEnabled) thenReturn false
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
@@ -360,7 +363,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return None where TaxCalculation service is not enabled" in new LocalSetup {
 
-      when(controller.configDecorator.taxcalcEnabled) thenReturn false
+      when(mockConfigDecorator.taxcalcEnabled) thenReturn false
 
       val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
 

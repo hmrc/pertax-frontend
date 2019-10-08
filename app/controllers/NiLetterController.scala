@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector}
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.{LocalErrorHandler, RendersErrors}
 import javax.inject.Inject
@@ -26,6 +27,7 @@ import play.api.mvc.{Action, AnyContent}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.http.BadRequestException
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 import scala.io.Source
@@ -36,11 +38,14 @@ class NiLetterController @Inject()(
   val userDetailsService: UserDetailsService,
   val messageFrontendService: MessageFrontendService,
   val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
   val localErrorHandler: LocalErrorHandler,
   val pdfGeneratorConnector: PdfGeneratorConnector,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction)
+  withBreadcrumbAction: WithBreadcrumbAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
     extends PertaxBaseController with RendersErrors {
 
   def printNationalInsuranceNumber: Action[AnyContent] =

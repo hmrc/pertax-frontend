@@ -16,7 +16,8 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth._
 import error.LocalErrorHandler
 import javax.inject.Inject
@@ -29,6 +30,7 @@ import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.ActiveTabMessages
 import error.RendersErrors
+import util.LocalPartialRetriever
 
 class MessageController @Inject()(
   val messagesApi: MessagesApi,
@@ -36,12 +38,15 @@ class MessageController @Inject()(
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
   val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
   val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
-  withBreadcrumbAction: WithBreadcrumbAction
-) extends PertaxBaseController with RendersErrors {
+  withBreadcrumbAction: WithBreadcrumbAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit val partialRetriever: LocalPartialRetriever,
+  val configDecorator: ConfigDecorator)
+    extends PertaxBaseController with RendersErrors {
 
   def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList().url ::
@@ -59,7 +64,6 @@ class MessageController @Inject()(
       } else {
         futureError(INTERNAL_SERVER_ERROR)
       }
-
     }
 
   def messageDetail(messageToken: String): Action[AnyContent] =

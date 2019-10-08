@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.FrontEndDelegationConnector
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.helpers.PaperlessInterruptHelper
@@ -33,6 +33,7 @@ import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsS
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 import error.RendersErrors
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
@@ -45,11 +46,13 @@ class InterstitialController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val preferencesFrontendService: PreferencesFrontendService,
   val messageFrontendService: MessageFrontendService,
-  val pertaxDependencies: PertaxDependencies,
   val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction
-)(implicit configDecorator: ConfigDecorator)
+  withBreadcrumbAction: WithBreadcrumbAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
     extends PertaxBaseController with PaperlessInterruptHelper with RendersErrors {
 
   val saBreadcrumb: Breadcrumb =

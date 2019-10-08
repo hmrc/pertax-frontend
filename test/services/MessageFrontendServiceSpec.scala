@@ -52,7 +52,7 @@ class MessageFrontendServiceSpec extends BaseSpec {
     None,
     fakeRequest)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder(userRequest)
+  override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[WsAllMethods].toInstance(MockitoSugar.mock[WsAllMethods]))
     .build()
 

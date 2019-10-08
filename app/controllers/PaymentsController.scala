@@ -16,17 +16,20 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PayApiConnector}
+import config.ConfigDecorator
+import connectors.{FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import javax.inject.Inject
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
+import org.joda.time.DateTime
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.LocalPartialRetriever
 
 class PaymentsController @Inject()(
   val messagesApi: MessagesApi,
@@ -34,11 +37,16 @@ class PaymentsController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val citizenDetailsService: CitizenDetailsService,
   val userDetailsService: UserDetailsService,
-  val pertaxDependencies: PertaxDependencies,
   val payApiConnector: PayApiConnector,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction)
+  withBreadcrumbAction: WithBreadcrumbAction,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
     extends PertaxBaseController with CurrentTaxYear with RendersErrors {
+
+  override def now: () => DateTime = () => DateTime.now()
 
   def makePayment: Action[AnyContent] =
     (authJourney.auth andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async { implicit request =>
