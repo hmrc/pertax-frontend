@@ -25,7 +25,7 @@ import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -50,7 +50,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
     val mockAuthJourney = MockitoSugar.mock[AuthJourney]
 
-    def controller(request: UserRequest[_]) =
+    def controller =
       new InterstitialController(
         injected[MessagesApi],
         MockitoSugar.mock[FormPartialService],
@@ -101,31 +101,30 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user " in new LocalSetup {
 
-      lazy val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        None,
-        None,
-        NonFilerSelfAssessmentUser,
-        "SomeAuth",
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        fakeRequest)
-
       when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(userRequest.asInstanceOf[UserRequest[A]])
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              "SomeAuth",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request))
       })
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val testController = controller(userRequest)
+      val testController = controller
 
-      val result = testController.displayNationalInsurance(userRequest)
+      val result = testController.displayNationalInsurance(fakeRequest)
 
       status(result) shouldBe OK
 
@@ -144,26 +143,25 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val fakeRequestWithPath = FakeRequest("GET", "/foo")
 
-      lazy val userRequest = UserRequest(
-        None,
-        None,
-        None,
-        NonFilerSelfAssessmentUser,
-        "SomeAuth",
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        fakeRequestWithPath)
-
       when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(userRequest.asInstanceOf[UserRequest[A]])
+          block(
+            UserRequest(
+              None,
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              "SomeAuth",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request))
       })
 
-      val testController = controller(userRequest)
-      val r = testController.displayChildBenefits(userRequest)
+      val testController = controller
+      val r = testController.displayChildBenefits(fakeRequestWithPath)
 
       status(r) shouldBe OK
 
@@ -179,26 +177,25 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      lazy val userRequest = UserRequest(
-        None,
-        None,
-        None,
-        ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-        "GovernmentGateway",
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        fakeRequest)
-
       when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(userRequest.asInstanceOf[UserRequest[A]])
+          block(
+            UserRequest(
+              None,
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request))
       })
 
-      val testController = controller(userRequest)
-      val r = testController.displaySelfAssessment(userRequest)
+      val testController = controller
+      val r = testController.displaySelfAssessment(fakeRequest)
 
       status(r) shouldBe OK
 
@@ -213,27 +210,26 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      lazy val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        None,
-        None,
-        NonFilerSelfAssessmentUser,
-        "GovernmentGateway",
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        fakeRequest)
-
       when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(userRequest.asInstanceOf[UserRequest[A]])
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request))
       })
 
-      val testController = controller(userRequest)
+      val testController = controller
 
-      val r = testController.displaySelfAssessment(userRequest)
+      val r = testController.displaySelfAssessment(fakeRequest)
       status(r) shouldBe UNAUTHORIZED
 
       verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
@@ -247,27 +243,26 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      lazy val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        None,
-        None,
-        NonFilerSelfAssessmentUser,
-        "Verify",
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        fakeRequest)
-
       when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(userRequest.asInstanceOf[UserRequest[A]])
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              "Verify",
+              ConfidenceLevel.L500,
+              None,
+              None,
+              None,
+              None,
+              request))
       })
 
-      val testController = controller(userRequest)
+      val testController = controller
 
-      val r = testController.displaySelfAssessment(userRequest)
+      val r = testController.displaySelfAssessment(fakeRequest)
       status(r) shouldBe UNAUTHORIZED
 
       verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
@@ -282,28 +277,27 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        lazy val userRequest = UserRequest(
-          Some(Fixtures.fakeNino),
-          None,
-          None,
-          ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-          "GovernmentGateway",
-          ConfidenceLevel.L200,
-          None,
-          None,
-          None,
-          None,
-          fakeRequest
-        )
-
         when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(userRequest.asInstanceOf[UserRequest[A]])
+            block(
+              UserRequest(
+                Some(Fixtures.fakeNino),
+                None,
+                None,
+                ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+                "GovernmentGateway",
+                ConfidenceLevel.L200,
+                None,
+                None,
+                None,
+                None,
+                request
+              ))
         })
 
-        val testController = controller(userRequest)
+        val testController = controller
 
-        val r = testController.displaySa302Interrupt(2018)(userRequest)
+        val r = testController.displaySa302Interrupt(2018)(fakeRequest)
 
         status(r) shouldBe OK
       }
@@ -313,26 +307,26 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
-        lazy val userRequest = UserRequest(
-          Some(Fixtures.fakeNino),
-          None,
-          None,
-          NonFilerSelfAssessmentUser,
-          "GovernmentGateway",
-          ConfidenceLevel.L200,
-          None,
-          None,
-          None,
-          None,
-          fakeRequest)
 
         when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(userRequest.asInstanceOf[UserRequest[A]])
+            block(
+              UserRequest(
+                Some(Fixtures.fakeNino),
+                None,
+                None,
+                NonFilerSelfAssessmentUser,
+                "GovernmentGateway",
+                ConfidenceLevel.L200,
+                None,
+                None,
+                None,
+                None,
+                request))
         })
 
-        val testController = controller(userRequest)
-        val r = testController.displaySa302Interrupt(2018)(userRequest)
+        val testController = controller
+        val r = testController.displaySa302Interrupt(2018)(fakeRequest)
 
         status(r) shouldBe UNAUTHORIZED
       }

@@ -23,7 +23,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.ActiveTab
 
-case class UserRequest[A](
+case class UserRequest[+A](
   nino: Option[Nino],
   retrievedName: Option[UserName],
   previousLoginTime: Option[DateTime],
