@@ -47,7 +47,7 @@ import scala.concurrent.Future
 class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
   override def beforeEach: Unit =
-    reset(mock[MessageFrontendService], mock[CitizenDetailsService])
+    reset(mockMessageFrontendService, mock[CitizenDetailsService])
 
   val mockAuthJourney = mock[AuthJourney]
   val mockMessageFrontendService = mock[MessageFrontendService]
@@ -104,7 +104,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
-    /*"call messages and return 200 when called by a high paye GG user" in {
+    "call messages and return 200 when called by a high paye GG user" in {
 
       when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -113,8 +113,8 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "SomeAuth",
+              NonFilerSelfAssessmentUser,
+              "GovernmentGateway",
               ConfidenceLevel.L200,
               None,
               None,
@@ -124,18 +124,13 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
             ))
       })
 
-      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
       when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
-      val r = controller.messageList(FakeRequest("GET", "/foo"))
+      val r = controller.messageList(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.messageFrontendService, times(1)).getMessageListPartial(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
     }
@@ -392,6 +387,6 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
       verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
-    }*/
+    }
   }
 }
