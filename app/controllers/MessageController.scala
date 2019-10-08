@@ -55,21 +55,21 @@ class MessageController @Inject()(
   def messageList: Action[AnyContent] =
     (authJourney.auth andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
-      if ((request.isSa || request.nino.isDefined) && request.isGovernmentGateway) {
+      if (request.isGovernmentGateway) {
         messageFrontendService.getMessageListPartial map { p =>
           Ok(
             views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
               Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
         }
       } else {
-        futureError(INTERNAL_SERVER_ERROR)
+        futureError(UNAUTHORIZED)
       }
     }
 
   def messageDetail(messageToken: String): Action[AnyContent] =
     (authJourney.auth andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
       .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
-      if ((request.isSa || request.nino.isDefined) && request.isGovernmentGateway) {
+      if (request.isGovernmentGateway) {
         messageFrontendService.getMessageDetailPartial(messageToken).map {
           case HtmlPartial.Success(Some(title), content) =>
             Ok(views.html.message.messageDetail(message = content, title = title))
@@ -82,7 +82,7 @@ class MessageController @Inject()(
                 title = Messages("label.message")))
         }
       } else {
-        futureError(INTERNAL_SERVER_ERROR)
+        futureError(UNAUTHORIZED)
       }
     }
 }

@@ -123,11 +123,6 @@ partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
   }
 }
 
-  @{println(configDecorator.defaultOrigin)
-  println(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
-  println(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url)
-  }
-
 @{
 
   val prev = LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(request.previousLoginTime, "")
