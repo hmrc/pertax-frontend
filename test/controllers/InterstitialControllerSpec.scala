@@ -300,6 +300,7 @@ class InterstitialControllerSpec extends BaseSpec {
         val r = testController.displaySa302Interrupt(2018)(fakeRequest)
 
         status(r) shouldBe OK
+        contentAsString(r) should include("1111111111")
       }
 
       "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
