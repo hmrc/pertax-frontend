@@ -28,7 +28,9 @@ import play.api.inject.bind
 import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.personaldetails._
 
-class PersonalDetailsCardGeneratorSpec extends BaseSpec {
+class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   trait SpecSetup extends I18nSupport {
     override def messagesApi: MessagesApi = injected[MessagesApi]

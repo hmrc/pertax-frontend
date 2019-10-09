@@ -19,12 +19,14 @@ package views.html.integration
 import config.ConfigDecorator
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import util.{BaseSpec, DateTimeTools}
 
-class mainContentHeaderSpec extends BaseSpec {
+class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
 
   implicit val messages = Messages.Implicits.applicationMessages
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   "Rendering mainContentHeader.scala.html" should {
 

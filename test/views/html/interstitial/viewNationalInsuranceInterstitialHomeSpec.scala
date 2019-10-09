@@ -16,9 +16,11 @@
 
 package views.html.interstitial
 
+import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.NonFilerSelfAssessmentUser
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import play.api.Play
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
@@ -27,12 +29,13 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
-class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec {
+class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSugar {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   implicit val messages = Messages.Implicits.applicationMessages
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   "Rendering viewNationalInsuranceInterstitialHome.scala.html" should {
 

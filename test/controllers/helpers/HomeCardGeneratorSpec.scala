@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.DateTime
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -28,9 +29,12 @@ import uk.gov.hmrc.domain.SaUtr
 import util.{BaseSpec, Fixtures}
 import views.html.cards.home._
 
-class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
+class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar {
 
   override def messagesApi: MessagesApi = injected[MessagesApi]
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+
+  val homeCardGenerator = new HomeCardGenerator()(mock[ConfigDecorator])
 
   "Calling getPayAsYouEarnCard" should {
     "return nothing when called with no Pertax user" in {
@@ -49,8 +53,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsUnreachableState)
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody shouldBe None
     }
@@ -72,8 +75,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsUnreachableState)
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody shouldBe None
     }
@@ -94,8 +96,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
 
       cardBody shouldBe None
     }
@@ -117,8 +118,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsUnreachableState)
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody shouldBe Some(payAsYouEarn())
     }
@@ -139,8 +139,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsDisabledState)
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
 
       cardBody shouldBe Some(payAsYouEarn())
     }
@@ -161,8 +160,8 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
+      lazy val cardBody =
+        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
 
       cardBody shouldBe Some(payAsYouEarn())
     }
@@ -189,8 +188,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
@@ -212,8 +210,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
@@ -235,8 +232,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
@@ -258,8 +254,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe None
     }
@@ -281,8 +276,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
         FakeRequest()
       )
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe None
     }
@@ -291,8 +285,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
   "Calling getNationalInsuranceCard" should {
     "always return the same markup" in {
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getNationalInsuranceCard()
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
 
       cardBody shouldBe Some(nationalInsurance())
     }
@@ -302,8 +295,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
     "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in {
       lazy val showTaxCreditsPaymentLink = true
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
 
       cardBody shouldBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
@@ -311,8 +303,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
     "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
       lazy val showTaxCreditsPaymentLink = false
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
 
       cardBody shouldBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
@@ -320,8 +311,8 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
 
   "Calling getChildBenefitCard" should {
     "always return the same markup" in {
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getChildBenefitCard()
+
+      lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
       cardBody shouldBe Some(childBenefit())
     }
@@ -335,8 +326,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
@@ -348,8 +338,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
@@ -361,8 +350,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
@@ -374,8 +362,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
 
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
@@ -383,8 +370,8 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport {
 
   "Calling getStatePensionCard" should {
     "always return the same markup" in {
-      val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-      lazy val cardBody = serviceUnderTest.getStatePensionCard()
+
+      lazy val cardBody = homeCardGenerator.getStatePensionCard()
 
       cardBody shouldBe Some(statePension())
     }

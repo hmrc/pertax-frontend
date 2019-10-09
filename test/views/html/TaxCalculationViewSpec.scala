@@ -32,7 +32,7 @@ import scala.collection.JavaConverters._
 class TaxCalculationViewSpec extends BaseSpec {
 
   implicit val messages: Messages = Messages.Implicits.applicationMessages
-  override implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).eachAttr("href").asScala should contain(href)

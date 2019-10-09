@@ -16,11 +16,13 @@
 
 package views.html
 
+import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -31,7 +33,9 @@ import util.{BaseSpec, Fixtures}
 
 import scala.collection.JavaConversions._
 
-class homeSpec extends BaseSpec {
+class homeSpec extends BaseSpec with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 

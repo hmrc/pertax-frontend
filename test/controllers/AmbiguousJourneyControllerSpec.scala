@@ -58,6 +58,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
     }
 
+  override def beforeEach: Unit =
+    reset(mockAuthJourney)
+
   "Calling AmbiguousJourneyController.processFileReturnOnlineChoice" should {
 
     "redirect to 'Have you de-enrolled from self assessment' page when supplied with value Yes (true) and not on simplified journey" in {
@@ -709,9 +712,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
-              buildFakeRequestWithAuth("GET")
-//                .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
-                .asInstanceOf[Request[A]]
+              request
             ))
       })
 
@@ -726,85 +727,203 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling AmbiguousJourneyController.filedReturnOnlineChoice" should {
     "return 200 when self assessment user type is AmbiguousFilerSelfAssessmentUser" in {
-      val r = controller.filedReturnOnlineChoice(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe OK
+      val result = controller.filedReturnOnlineChoice(FakeRequest())
+      status(result) shouldBe OK
     }
   }
 
   "Calling AmbiguousJourneyController.deEnrolledFromSaChoice " should {
     "return 200 when AmbiguousJourneyController.deEnrolledFromSaChoice is called" in {
-      val r = controller.deEnrolledFromSaChoice(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe OK
+      val result = controller.deEnrolledFromSaChoice(FakeRequest())
+      status(result) shouldBe OK
     }
   }
 
   "Calling AmbiguousJourneyController.filedReturnByPostChoice" should {
     "return 200 when AmbiguousJourneyController.filedReturnByPostChoice is called" in {
-      val r = controller.filedReturnByPostChoice(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe OK
+      val result = controller.filedReturnByPostChoice(FakeRequest())
+      status(result) shouldBe OK
     }
   }
 
   "Calling AmbiguousJourneyController.receivedUtrLetterChoice" should {
     "return 200 when AmbiguousJourneyController.receivedUtrLetterChoice is called" in {
-      val r = controller.receivedUtrLetterChoice(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe OK
+      val result = controller.receivedUtrLetterChoice(FakeRequest())
+      status(result) shouldBe OK
     }
   }
 
   "Calling AmbiguousJourneyController.usedUtrToEnrolChoice" should {
     "return 200 when AmbiguousJourneyController.usedUtrToEnrolChoice is called" in {
-      val r = controller.usedUtrToEnrolChoice(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
+      val r = controller.usedUtrToEnrolChoice(FakeRequest())
       status(r) shouldBe OK
     }
   }
 
   "Calling AmbiguousJourneyController.handleAmbiguousJourneyLandingPages" should {
     "return 200 when supplied with value of 'need-to-enrol' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      val page = "need-to-enrol"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      val page = "need-to-enrol"
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
       status(r) shouldBe 200
     }
 
     "return a result with tax year 2019 when supplied with value of 'need-to-enrol'" in {
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockTaxYearRetriever.currentYear).thenReturn(2019)
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
       val page = "need-to-enrol"
-      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
       val doc = Jsoup.parse(contentAsString(result))
 
       assert(
@@ -816,13 +935,30 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return a result with tax year 2025 when supplied with value of 'need-to-enrol'" in {
 
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
       when(mockTaxYearRetriever.currentYear).thenReturn(2025)
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
       val page = "need-to-enrol"
-      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
 
       val doc = Jsoup.parse(contentAsString(result))
 
@@ -834,25 +970,60 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      val page = "need-to-enrol-again"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe 200
+      val page = "need-to-enrol-again"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
+
+      status(result) shouldBe 200
     }
 
     "return a result with tax year 2019 when supplied with value of 'need-to-enrol-again'" in {
+
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockTaxYearRetriever.currentYear).thenReturn(2019)
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
       val page = "need-to-enrol-again"
-      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
 
       val doc = Jsoup.parse(contentAsString(result))
 
@@ -865,13 +1036,30 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return a result with tax year 2025 when supplied with value of 'need-to-enrol-again'" in {
 
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
       when(mockTaxYearRetriever.currentYear).thenReturn(2025)
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
       val page = "need-to-enrol-again"
-      val result = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
 
       val doc = Jsoup.parse(contentAsString(result))
 
@@ -883,47 +1071,115 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      val page = "need-to-use-created-creds"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe 200
+      val page = "need-to-use-created-creds"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
+
+      status(result) shouldBe 200
     }
 
     "return 200 when supplied with value of 'deadline' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      val page = "deadline"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
+
+      val page = "deadline"
+      val r = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
 
       status(r) shouldBe 200
     }
 
     "return 200 when supplied with value of 'letter-in-post' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      val page = "letter-in-post"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe 200
+      val page = "letter-in-post"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
+
+      status(result) shouldBe 200
     }
 
     "return 200 when supplied with value of 'pin-expired' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      val page = "pin-expired"
-      val r = controller.handleAmbiguousJourneyLandingPages(page)(buildFakeRequestWithAuth("GET"))
-      val getSelfAssessmentServiceResponse = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       when(mockConfigDecorator.saAmbigSimplifiedJourneyEnabled) thenReturn false
       when(mockConfigDecorator.saAmbigSkipUTRLetterEnabled) thenReturn false
 
-      status(r) shouldBe 200
+      val page = "pin-expired"
+      val result = controller.handleAmbiguousJourneyLandingPages(page)(FakeRequest())
+
+      status(result) shouldBe 200
     }
   }
 }

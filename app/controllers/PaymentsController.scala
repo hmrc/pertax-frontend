@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.PayApiConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import javax.inject.Inject
@@ -26,23 +26,15 @@ import org.joda.time.DateTime
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
-import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 
 class PaymentsController @Inject()(
   val messagesApi: MessagesApi,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
   val payApiConnector: PayApiConnector,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  withBreadcrumbAction: WithBreadcrumbAction)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer)

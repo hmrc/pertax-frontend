@@ -353,7 +353,4 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
     when(pr.getPartialContent(any(), any(), any())(any())) thenReturn Html("")
     pr
   }
-
-  implicit val configDecorator = app.injector.instanceOf[ConfigDecorator]
-
 }

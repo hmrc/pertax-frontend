@@ -16,11 +16,13 @@
 
 package views.html.ambiguousjourney
 
+import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.dto.AmbiguousUserFlowDto
 import models.{NonFilerSelfAssessmentUser, UserName}
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -28,7 +30,9 @@ import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
-class usedUtrToEnrolChoiceSpec extends BaseSpec {
+class usedUtrToEnrolChoiceSpec extends BaseSpec with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 

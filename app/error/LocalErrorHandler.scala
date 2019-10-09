@@ -18,15 +18,12 @@ package error
 
 import akka.stream.Materializer
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuthConnector}
 import controllers.auth.AuthJourney
 import javax.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
-import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
@@ -35,11 +32,6 @@ import scala.concurrent.Future
 @Singleton
 class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
-  val userDetailsService: UserDetailsService,
-  val citizenDetailsService: CitizenDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val authConnector: PertaxAuthConnector,
   val materializer: Materializer,
   authJourney: AuthJourney
 )(

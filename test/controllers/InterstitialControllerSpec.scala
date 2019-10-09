@@ -53,6 +53,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
     lazy val fakeRequest = FakeRequest("", "")
 
     val mockAuthJourney = mock[AuthJourney]
+    val mockConfigDecorator = mock[ConfigDecorator]
 
     def controller: InterstitialController =
       new InterstitialController(
@@ -62,7 +63,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         mock[PreferencesFrontendService],
         mockAuthJourney,
         injected[WithBreadcrumbAction]
-      )(mock[LocalPartialRetriever], mock[ConfigDecorator], injected[TemplateRenderer]) {
+      )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
@@ -80,10 +81,10 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(paperlessResponse)
         }
-        when(configDecorator.taxCreditsEnabled) thenReturn true
-        when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-        when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
-        when(configDecorator.analyticsToken) thenReturn Some("N/A")
+        when(mockConfigDecorator.taxCreditsEnabled) thenReturn true
+        when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+        when(mockConfigDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
+        when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
 
       }
   }

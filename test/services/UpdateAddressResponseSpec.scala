@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{NonFilerSelfAssessmentUser, PertaxContext, UserName}
 import org.joda.time.DateTime
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
@@ -30,7 +31,10 @@ import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.http.HttpResponse
 import util.{BaseSpec, Fixtures}
 
-class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
+class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+
   implicit lazy val pertaxContext =
     PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
   override def messagesApi: MessagesApi = injected[MessagesApi]
