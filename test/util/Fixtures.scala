@@ -326,12 +326,13 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
 
   implicit val hc = HeaderCarrier()
 
-  val encryptionConfig =
+  val configValues =
     Map(
       "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ=="
+      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "metrics.enabled"               -> false
     )
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
@@ -340,7 +341,9 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
         bind[TemplateRenderer].toInstance(MockTemplateRenderer),
         bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter])
       )
-      .configure(encryptionConfig)
+      .configure(configValues)
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
   lazy val config = app.injector.instanceOf[ConfigDecorator]
 

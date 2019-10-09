@@ -29,16 +29,15 @@ import services.http.WsAllMethods
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HttpResponse
 
 class MessageFrontendServiceSpec extends BaseSpec {
 
-  lazy val fakeRequest = FakeRequest("", "")
   lazy val userRequest = UserRequest(
     None,
     None,
@@ -50,23 +49,20 @@ class MessageFrontendServiceSpec extends BaseSpec {
     None,
     None,
     None,
-    fakeRequest)
+    FakeRequest("", "")
+  )
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(bind[WsAllMethods].toInstance(MockitoSugar.mock[WsAllMethods]))
     .build()
+
+  val messageFrontendService: MessageFrontendService = injected[MessageFrontendService]
 
   override def beforeEach: Unit =
     reset(injected[WsAllMethods])
 
-  trait LocalSetup {
-
-    val messageFrontendService = injected[MessageFrontendService]
-  }
-
   "Calling getMessageListPartial" should {
-
-    "return message partial for list of messages" in new LocalSetup {
+    "return message partial for list of messages" in {
 
       when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
@@ -79,8 +75,7 @@ class MessageFrontendServiceSpec extends BaseSpec {
   }
 
   "Calling getMessageDetailPartial" should {
-
-    "return message partial for message details" in new LocalSetup {
+    "return message partial for message details" in {
 
       when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String")))
@@ -93,8 +88,7 @@ class MessageFrontendServiceSpec extends BaseSpec {
   }
 
   "Calling getMessageInboxLinkPartial" should {
-
-    "return message inbox link partial" in new LocalSetup {
+    "return message inbox link partial" in {
 
       when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
@@ -104,12 +98,10 @@ class MessageFrontendServiceSpec extends BaseSpec {
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
-
   }
 
   "Calling getMessageCount" should {
-
-    "return None unread messages when http client does not return a usable response" in new LocalSetup {
+    "return None unread messages when http client does not return a usable response" in {
 
       when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](None)
@@ -119,7 +111,7 @@ class MessageFrontendServiceSpec extends BaseSpec {
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
 
-    "return Some(0) unread messages when http client returns 0 unrread messages" in new LocalSetup {
+    "return Some(0) unread messages when http client returns 0 unrread messages" in {
 
       when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(0)))
@@ -129,7 +121,7 @@ class MessageFrontendServiceSpec extends BaseSpec {
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
 
-    "return Some(10) unread messages when http client returns 10 unrread messages" in new LocalSetup {
+    "return Some(10) unread messages when http client returns 10 unrread messages" in {
 
       when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(10)))
@@ -139,5 +131,4 @@ class MessageFrontendServiceSpec extends BaseSpec {
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
   }
-
 }

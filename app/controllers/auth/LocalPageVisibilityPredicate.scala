@@ -32,12 +32,9 @@ import scala.concurrent._
 
 @Singleton
 class LocalPageVisibilityPredicateFactory @Inject()(
-  citizenDetailsService: CitizenDetailsService,
-  selfAssessmentService: SelfAssessmentService,
+  injectedCitizenDetailsService: CitizenDetailsService,
   configDecorator: ConfigDecorator
 ) {
-
-  val (cds, sas) = (citizenDetailsService, selfAssessmentService)
 
   def build(successUrl: Option[SafeRedirectUrl] = None, origin: Origin) = {
     val (s, o) = (successUrl, origin.origin)
@@ -50,8 +47,7 @@ class LocalPageVisibilityPredicateFactory @Inject()(
       override lazy val onwardUrl = configDecorator.pertaxFrontendHost + routes.ApplicationController
         .showUpliftJourneyOutcome(successUrl)
       override lazy val allowLowConfidenceSAEnabled = configDecorator.allowLowConfidenceSAEnabled
-      override lazy val citizenDetailsService = cds
-      override lazy val selfAssessmentService = sas
+      override lazy val citizenDetailsService = injectedCitizenDetailsService
     }
   }
 }
@@ -63,7 +59,6 @@ trait LocalConfidenceLevelPredicate extends PageVisibilityPredicate with Confide
   def origin: String
   def onwardUrl: String
   def allowLowConfidenceSAEnabled: Boolean
-  def selfAssessmentService: SelfAssessmentService
   def citizenDetailsService: CitizenDetailsService
 
   private lazy val failureUrl = onwardUrl

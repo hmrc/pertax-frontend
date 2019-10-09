@@ -61,7 +61,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
   val mockCspPartialService = mock[CspPartialService]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
-  val mockSelfAssessmentService = mock[SelfAssessmentService]
   val mockLocalSessionCache = mock[LocalSessionCache]
 
   override def beforeEach: Unit =
@@ -127,9 +126,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       }
       when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
         Future.successful(getIVJourneyStatusResponse)
-      }
-      when(mockSelfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
-        Future.successful(selfAssessmentUserType)
       }
       when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)

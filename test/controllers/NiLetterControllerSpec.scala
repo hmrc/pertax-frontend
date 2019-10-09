@@ -46,7 +46,7 @@ class NiLetterControllerSpec extends BaseSpec {
     .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
     .overrides(bind[PartialRetriever].toInstance(MockitoSugar.mock[PartialRetriever]))
     .overrides(bind[CookieCryptoFilter].toInstance(sessionCookieCryptoFilter))
-    .configure(encryptionConfig)
+    .configure(configValues)
     .build()
 
   override def beforeEach: Unit =

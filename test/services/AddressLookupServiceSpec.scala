@@ -77,6 +77,7 @@ class AddressLookupServiceSpec extends BaseSpec {
     }
 
     def headerCarrier = client.getLastHeaderCarrier
+
   }
 
   "Calling AddressLookupService.lookup" should {
