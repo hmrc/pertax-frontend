@@ -44,13 +44,7 @@ class NiLetterControllerSpec extends BaseSpec {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
     .overrides(bind[PartialRetriever].toInstance(MockitoSugar.mock[PartialRetriever]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
     .overrides(bind[CookieCryptoFilter].toInstance(sessionCookieCryptoFilter))
     .configure(encryptionConfig)
     .build()
@@ -67,16 +61,8 @@ class NiLetterControllerSpec extends BaseSpec {
 
       val c = injected[NiLetterController]
 
-      when(c.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
-      }
-
-      val authProviderType = if (isVerify) UserDetails.VerifyAuthProvider else UserDetails.GovernmentGatewayAuthProvider
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(authProviderType)))
       }
 
       c
@@ -93,7 +79,6 @@ class NiLetterControllerSpec extends BaseSpec {
       lazy val r = controller.printNationalInsuranceNumber()(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe OK
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
     }
 
     "call printNationalInsuranceNumber should return OK when called by a verify user" in new LocalSetup {
@@ -103,7 +88,6 @@ class NiLetterControllerSpec extends BaseSpec {
       lazy val r = controller.printNationalInsuranceNumber()(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe OK
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
       val doc = Jsoup.parse(contentAsString(r))
       doc.getElementById("page-title").text() shouldBe "Your National Insurance letter"
       doc

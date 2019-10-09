@@ -19,9 +19,10 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 @import util.LocalPartialRetriever
+@import uk.gov.hmrc.renderer.TemplateRenderer
 
 @(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
+partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.have_you_ever_done_your_tax_return_by_post"),
   pageName = Some(messages("label.your_personal_tax_account")),

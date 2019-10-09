@@ -50,6 +50,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.model.DataEvent
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
 
@@ -75,6 +76,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       mockAuditConnector,
       mockCorrespondenceAddressLockRepository
     )
+
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   trait WithAddressControllerSpecSetup {
 
@@ -107,21 +110,16 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val addressController = new AddressController(
         mock[MessagesApi],
         mockCitizenDetailsService,
-        mockUserDetailsService,
         mock[AddressLookupService],
         mock[AddressMovedService],
-        mock[MessageFrontendService],
-        mock[FrontEndDelegationConnector],
-        mockLocalSessionCache,
-        mock[LocalErrorHandler],
         mock[PersonalDetailsCardGenerator],
         mock[CountryHelper],
         mockCorrespondenceAddressLockRepository,
         mockAuthJourney,
+        mockLocalSessionCache,
         injected[WithActiveTabAction],
-        mockAuditConnector,
-        mock[PertaxAuthConnector]
-      )(mock[LocalPartialRetriever], mockConfigDecorator) {
+        mockAuditConnector
+      )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer]) {
 
         when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
           Future.successful(AuditResult.Success)

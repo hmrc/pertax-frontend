@@ -86,9 +86,6 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
       when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(UserDetails.GovernmentGatewayAuthProvider)))
-      }
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }
@@ -102,9 +99,6 @@ class PaperlessPreferencesControllerSpec extends BaseSpec {
 
       when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
-      }
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(UserDetails.VerifyAuthProvider)))
       }
       when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)

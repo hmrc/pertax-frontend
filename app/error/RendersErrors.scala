@@ -21,11 +21,14 @@ import controllers.auth.requests.UserRequest
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import play.api.i18n.Messages
 import play.api.mvc._
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 trait RendersErrors extends Results {
+
+  implicit def templateRenderer: TemplateRenderer
 
   def futureError(statusCode: Int)(
     implicit request: UserRequest[_],

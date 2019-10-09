@@ -18,13 +18,17 @@ package error
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.PertaxContext
+import play.api.Play
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
 object GenericErrors {
+
+  implicit val templateRenderer: TemplateRenderer = Play.current.injector.instanceOf[TemplateRenderer]
+
   def badRequest(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,

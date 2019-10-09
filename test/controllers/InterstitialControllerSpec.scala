@@ -35,11 +35,14 @@ import services.partials.{FormPartialService, MessageFrontendService, SaPartialS
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
+
+  override lazy val app = localGuiceApplicationBuilder().build()
 
   trait LocalSetup {
 
@@ -56,17 +59,10 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         injected[MessagesApi],
         mock[FormPartialService],
         mock[SaPartialService],
-        mock[CitizenDetailsService],
-        mock[UserDetailsService],
-        mock[FrontEndDelegationConnector],
         mock[PreferencesFrontendService],
-        mock[MessageFrontendService],
-        injected[LocalErrorHandler],
         mockAuthJourney,
-        injected[WithBreadcrumbAction],
-        mock[PertaxAuditConnector],
-        mock[PertaxAuthConnector]
-      )(mock[LocalPartialRetriever], mock[ConfigDecorator]) {
+        injected[WithBreadcrumbAction]
+      )(mock[LocalPartialRetriever], mock[ConfigDecorator], injected[TemplateRenderer]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
@@ -81,15 +77,8 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
           }
         }
 
-        when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-          Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-        }
-
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(paperlessResponse)
-        }
-        when(messageFrontendService.getUnreadMessageCount(any())) thenReturn {
-          Future.successful(None)
         }
         when(configDecorator.taxCreditsEnabled) thenReturn true
         when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
@@ -167,7 +156,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       status(r) shouldBe OK
 
-      verify(testController.citizenDetailsService, times(0)).personDetails(meq(Fixtures.fakeNino))(any())
     }
   }
 
@@ -203,7 +191,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       verify(testController.formPartialService, times(1))
         .getSelfAssessmentPartial(any()) //Not called at the min due to DFS bug
-      verify(testController.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in new LocalSetup {
@@ -235,10 +222,8 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       status(r) shouldBe UNAUTHORIZED
 
       verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
-      verify(testController.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
-    //TODO Don't understand this test - why unauthorised if not logged in via GG - isn't Verify a valid authProvider?
     "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
 
       lazy val simulateFormPartialServiceFailure = true
@@ -268,7 +253,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       status(r) shouldBe UNAUTHORIZED
 
       verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
-      verify(testController.citizenDetailsService, times(0)).personDetails(meq(Fixtures.fakeNino))(any())
     }
 
     "Calling getSa302" should {

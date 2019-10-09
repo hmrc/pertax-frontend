@@ -187,13 +187,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if (mockConfigDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (mockConfigDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
@@ -213,13 +210,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
       if (mockConfigDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
       if (mockConfigDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
@@ -241,7 +235,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "redirect when Preferences Frontend returns ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
@@ -284,7 +277,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
       if (mockConfigDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
@@ -306,7 +298,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
   }

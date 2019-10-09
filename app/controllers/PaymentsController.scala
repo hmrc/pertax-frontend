@@ -28,6 +28,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 
@@ -43,7 +44,8 @@ class PaymentsController @Inject()(
   auditConnector: PertaxAuditConnector,
   authConnector: PertaxAuthConnector)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
     extends PertaxBaseController with CurrentTaxYear with RendersErrors {
 
   override def now: () => DateTime = () => DateTime.now()

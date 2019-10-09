@@ -17,10 +17,10 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.PertaxAuditConnector
 import controllers.auth._
 import controllers.auth.requests.UserRequest
-import error.{LocalErrorHandler, RendersErrors}
+import error.RendersErrors
 import javax.inject.Inject
 import models._
 import org.joda.time.DateTime
@@ -29,11 +29,11 @@ import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
-import services.partials.{CspPartialService, MessageFrontendService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
 import util.{DateTimeTools, LocalPartialRetriever}
@@ -42,23 +42,15 @@ import scala.concurrent.Future
 
 class ApplicationController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  val selfAssessmentService: SelfAssessmentService,
-  val cspPartialService: CspPartialService,
-  val userDetailsService: UserDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
-  val localErrorHandler: LocalErrorHandler,
   authAction: AuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  auditConnector: PertaxAuditConnector)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
     extends PertaxBaseController with CurrentTaxYear with RendersErrors {
 
   override def now: () => DateTime = () => DateTime.now()

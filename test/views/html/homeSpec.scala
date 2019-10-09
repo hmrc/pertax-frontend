@@ -26,13 +26,17 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
 import scala.collection.JavaConversions._
 
 class homeSpec extends BaseSpec {
 
-  implicit val messages: Messages = Messages.Implicits.applicationMessages
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
+
+  implicit val messages = Messages.Implicits.applicationMessages
+  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
   val messageInboxPartial = Html("")
 

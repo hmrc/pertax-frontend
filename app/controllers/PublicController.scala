@@ -24,17 +24,15 @@ import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.auth.AuthenticationProviderIds
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-class PublicController @Inject()(
-  val messagesApi: MessagesApi,
-  val delegationConnector: FrontEndDelegationConnector,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+class PublicController @Inject()(val messagesApi: MessagesApi)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
     extends PertaxBaseController {
 
   def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>

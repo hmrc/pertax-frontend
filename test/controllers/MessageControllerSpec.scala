@@ -34,6 +34,7 @@ import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -47,20 +48,15 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   val mockAuthJourney = mock[AuthJourney]
   val mockMessageFrontendService = mock[MessageFrontendService]
 
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
+
   def controller: MessageController =
     new MessageController(
       injected[MessagesApi],
       mockMessageFrontendService,
-      mock[CitizenDetailsService],
-      mock[UserDetailsService],
-      mock[FrontEndDelegationConnector],
-      injected[LocalErrorHandler],
       mockAuthJourney,
       injected[WithActiveTabAction],
-      injected[WithBreadcrumbAction],
-      mock[PertaxAuditConnector],
-      mock[PertaxAuthConnector]
-    )(mock[LocalPartialRetriever], configDecorator) {
+      injected[WithBreadcrumbAction])(mock[LocalPartialRetriever], configDecorator, injected[TemplateRenderer]) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }
@@ -121,7 +117,6 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       status(r) shouldBe UNAUTHORIZED
 
       verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
   }
 
@@ -154,7 +149,6 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
       status(r) shouldBe OK
       verify(controller.messageFrontendService, times(1)).getMessageDetailPartial(any())(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
     "return 401 for a Verify user" in {
@@ -180,7 +174,6 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
       status(r) shouldBe UNAUTHORIZED
       verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
   }
 }

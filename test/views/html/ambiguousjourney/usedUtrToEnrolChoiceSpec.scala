@@ -25,11 +25,16 @@ import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
 class usedUtrToEnrolChoiceSpec extends BaseSpec {
 
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
+
   implicit val messages = Messages.Implicits.applicationMessages
+  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+
   implicit val userRequest = UserRequest(
     Some(Fixtures.fakeNino),
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),

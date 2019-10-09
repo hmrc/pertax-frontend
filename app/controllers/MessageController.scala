@@ -17,35 +17,27 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth._
-import error.LocalErrorHandler
+import error.RendersErrors
 import javax.inject.Inject
 import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.ActiveTabMessages
-import error.RendersErrors
+import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
 
 class MessageController @Inject()(
   val messagesApi: MessagesApi,
   val messageFrontendService: MessageFrontendService,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  withBreadcrumbAction: WithBreadcrumbAction)(
   implicit val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator)
+  val configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
     extends PertaxBaseController with RendersErrors {
 
   def messageBreadcrumb: Breadcrumb =

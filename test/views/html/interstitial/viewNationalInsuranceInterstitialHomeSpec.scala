@@ -16,20 +16,23 @@
 
 package views.html.interstitial
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{AmbiguousFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, PertaxContext}
+import models.NonFilerSelfAssessmentUser
 import org.jsoup.Jsoup
+import play.api.Play
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
 class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec {
 
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
+
   implicit val messages = Messages.Implicits.applicationMessages
+  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
   "Rendering viewNationalInsuranceInterstitialHome.scala.html" should {
 

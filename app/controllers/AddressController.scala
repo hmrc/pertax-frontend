@@ -17,13 +17,12 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
-import error.LocalErrorHandler
 import javax.inject.Inject
 import models._
 import models.addresslookup.RecordSet
@@ -36,10 +35,9 @@ import play.api.mvc._
 import play.twirl.api.Html
 import repositories.CorrespondenceAddressLockRepository
 import services._
-import services.partials.MessageFrontendService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.renderer.ActiveTabYourAccount
+import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
 import util.{LanguageHelper, LocalPartialRetriever}
 
@@ -48,22 +46,18 @@ import scala.concurrent.Future
 class AddressController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
   val addressLookupService: AddressLookupService,
   val addressMovedService: AddressMovedService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val sessionCache: LocalSessionCache,
-  val localErrorHandler: LocalErrorHandler,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val countryHelper: CountryHelper,
   val correspondenceAddressLockRepository: CorrespondenceAddressLockRepository,
   authJourney: AuthJourney,
+  val sessionCache: LocalSessionCache,
   withActiveTabAction: WithActiveTabAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  auditConnector: PertaxAuditConnector)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
     extends PertaxBaseController with AddressJourneyCachingHelper {
 
   def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)

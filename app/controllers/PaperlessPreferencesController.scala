@@ -17,36 +17,26 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.requests.UserRequest
 import controllers.auth._
-import error.LocalErrorHandler
+import controllers.auth.requests.UserRequest
 import javax.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
-import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
-import uk.gov.hmrc.renderer.ActiveTabMessages
+import services.partials.PreferencesFrontendPartialService
+import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 class PaperlessPreferencesController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val preferencesFrontendService: PreferencesFrontendService,
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  withBreadcrumbAction: WithBreadcrumbAction)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
     extends PertaxBaseController {
 
   def managePreferences: Action[AnyContent] =

@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
@@ -27,11 +26,10 @@ import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import play.twirl.api.Html
-import services.partials.{CspPartialService, MessageFrontendService}
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.renderer.{ActiveTabHome, ActiveTabYourAccount}
+import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 
@@ -39,25 +37,16 @@ import scala.concurrent.Future
 
 class HomeController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
   val preferencesFrontendService: PreferencesFrontendService,
   val taiService: TaiService,
-  val identityVerificationFrontendService: IdentityVerificationFrontendService,
   val taxCalculationService: TaxCalculationService,
-  val selfAssessmentService: SelfAssessmentService,
-  val cspPartialService: CspPartialService,
-  val userDetailsService: UserDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
-  val taxCalculationStateFactory: TaxCalculationStateFactory,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  withActiveTabAction: WithActiveTabAction)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
     extends PertaxBaseController with PaperlessInterruptHelper with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()

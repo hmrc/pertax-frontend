@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction}
 import javax.inject.Inject
@@ -26,8 +25,7 @@ import models.dto.AmbiguousUserFlowDto
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent}
-import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, LocalSessionCache, SelfAssessmentService, UserDetailsService}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.{DateTimeTools, LocalPartialRetriever, TaxYearRetriever}
 
@@ -39,7 +37,8 @@ class AmbiguousJourneyController @Inject()(
   authJourney: AuthJourney,
   enforceAmbiguousUserAction: EnforceAmbiguousUserAction)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
     extends PertaxBaseController with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()

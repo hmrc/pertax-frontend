@@ -17,16 +17,15 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PdfGeneratorConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.{LocalErrorHandler, RendersErrors}
+import error.RendersErrors
 import javax.inject.Inject
 import org.joda.time.LocalDate
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.http.BadRequestException
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -34,18 +33,12 @@ import scala.io.Source
 
 class NiLetterController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val localErrorHandler: LocalErrorHandler,
   val pdfGeneratorConnector: PdfGeneratorConnector,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  withBreadcrumbAction: WithBreadcrumbAction)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
     extends PertaxBaseController with RendersErrors {
 
   def printNationalInsuranceNumber: Action[AnyContent] =

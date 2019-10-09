@@ -71,19 +71,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(
-      bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]),
-      bind[MessageFrontendService].toInstance(mock[MessageFrontendService]),
-      bind[CspPartialService].toInstance(mock[CspPartialService]),
       bind[IdentityVerificationFrontendService].toInstance(mock[IdentityVerificationFrontendService]),
-      bind[PertaxAuthConnector].toInstance(mock[PertaxAuthConnector]),
       bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]),
-      bind[FrontEndDelegationConnector].toInstance(mock[FrontEndDelegationConnector]),
-      bind[UserDetailsService].toInstance(mock[UserDetailsService]),
-      bind[SelfAssessmentService].toInstance(mock[SelfAssessmentService]),
       bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
-      bind[ConfigDecorator].toInstance(mock[ConfigDecorator]),
-      bind[LocalSessionCache].toInstance(mock[LocalSessionCache]),
-      bind[PayApiConnector].toInstance(mock[PayApiConnector])
+      bind[ConfigDecorator].toInstance(mock[ConfigDecorator])
     )
     .build()
 
@@ -115,21 +106,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       val c = injected[ApplicationController]
 
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(authProviderType)))
-      }
-      when(c.citizenDetailsService.personDetails(meq(nino))(any())) thenReturn {
-        Future.successful(personDetailsResponse)
-      }
-      when(c.cspPartialService.webchatClickToChatScriptPartial(any())(any())) thenReturn {
-        Future.successful(HtmlPartial.Success(None, Html("<script></script>")))
-      }
-
       when(c.identityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
         Future.successful(getIVJourneyStatusResponse)
-      }
-      when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
-        Future.successful(getSelfAssessmentServiceResponse)
       }
       when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
         Future.successful(AuditResult.Success)
@@ -182,7 +160,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       redirectLocation(r) shouldBe Some(
         "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
 
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
@@ -195,7 +172,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       status(r) shouldBe BAD_REQUEST
       redirectLocation(r) shouldBe None
 
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
     }
   }
 
@@ -222,7 +198,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.handleSelfAssessment()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
   }
 
@@ -236,7 +211,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "redirect to the IV exempt landing page when the 'sa allow low confidence' feature is on" in new LocalSetup {
@@ -254,7 +228,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe UNAUTHORIZED
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "redirect to the IV exempt landing page when IV journey outcome was InsufficientEvidence" in new LocalSetup {
@@ -273,7 +246,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe UNAUTHORIZED
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "return 500 when IV journey outcome was TechnicalIssues" in new LocalSetup {
@@ -283,7 +255,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe INTERNAL_SERVER_ERROR
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "return 500 when IV journey outcome was Timeout" in new LocalSetup {
@@ -293,7 +264,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe INTERNAL_SERVER_ERROR
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "return bad request when continueUrl is not relative" in new LocalSetup {
@@ -307,7 +277,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       status(r) shouldBe BAD_REQUEST
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
   }
@@ -349,7 +318,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.signout(None, None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe BAD_REQUEST
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "redirect to verify sign-out link with correct continue url when signed in with verify, with no continue URL and but an origin" in new LocalSetup {
@@ -369,7 +337,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.signout(None, None)(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe BAD_REQUEST
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "return bad request when supplied with a none relative url" in new LocalSetup {
@@ -380,7 +347,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
         buildFakeRequestWithAuth("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
       status(r) shouldBe BAD_REQUEST
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
   }
 
@@ -395,8 +361,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val doc = Jsoup.parse(contentAsString(r))
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1))
         .sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
@@ -410,8 +374,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val r = controller.ivExemptLandingPage(None)(buildFakeRequestWithAuth("GET"))
       val doc = Jsoup.parse(contentAsString(r))
       status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
 
       doc
         .getElementsByClass("heading-large")
@@ -430,8 +392,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val doc = Jsoup.parse(contentAsString(r))
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-
       doc
         .getElementsByClass("heading-xlarge")
         .toString()
@@ -449,8 +409,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val doc = Jsoup.parse(contentAsString(r))
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-
       doc.getElementsByClass("heading-xlarge").toString().contains("We cannot confirm your identity") shouldBe true
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any()) //TODO - check captured event
 
@@ -465,7 +423,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       status(r) shouldBe BAD_REQUEST
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
   }
 

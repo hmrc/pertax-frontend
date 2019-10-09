@@ -27,6 +27,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, UserDetailsService}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -41,7 +42,10 @@ class LocalErrorHandler @Inject()(
   val authConnector: PertaxAuthConnector,
   val materializer: Materializer,
   authJourney: AuthJourney
-)(implicit val partialRetriever: LocalPartialRetriever, val configDecorator: ConfigDecorator)
+)(
+  implicit val partialRetriever: LocalPartialRetriever,
+  val configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
     extends HttpErrorHandler with I18nSupport with RendersErrors {
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =

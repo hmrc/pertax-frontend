@@ -19,9 +19,10 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import util.LocalPartialRetriever
+@import uk.gov.hmrc.renderer.TemplateRenderer
 
 @(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
+partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.did_you_get_your_utr_letter"),
   pageName = Some(messages("label.your_personal_tax_account")),

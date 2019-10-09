@@ -17,12 +17,13 @@
 @import controllers.auth.requests.UserRequest
 @import config.ConfigDecorator
 @import util.LocalPartialRetriever
+@import uk.gov.hmrc.renderer.TemplateRenderer
 
 @(utr: SaUtr,
   continueUrl: String,
   deadlineYear: String,
   currentTaxYear: String,
-  showPostLink: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
+  showPostLink: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.you_need_to_sign_up_to_send_your_tax_returns_online"),
   pageName = Some(messages("label.your_personal_tax_account")),

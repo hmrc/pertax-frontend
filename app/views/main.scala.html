@@ -40,7 +40,7 @@ additionalGaCalls: Option[Html] = None,
 printableDocument: Boolean = false,
 displayTimeoutDialog: Boolean = true
 )(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
+partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @links = @{
   var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()
@@ -188,7 +188,7 @@ partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
       "bodyClass" -> printable
     )
 
-  config.StaticGlobalDependencies.deps.templateRenderer.renderDefaultTemplate(
+  templateRenderer.renderDefaultTemplate(
     configDecorator.frontendTemplatePath,
     layouts.article(mainContent, includeGridWrapper, articleClasses),
     arguments

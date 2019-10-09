@@ -18,8 +18,9 @@
 @import util.LocalPartialRetriever
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
 
-@(formPartial: Html, saPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
+@(formPartial: Html, saPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(messages("label.self_assessment_summary"),Some(messages("label.your_personal_tax_account"))) {
 <div class="summary-page">

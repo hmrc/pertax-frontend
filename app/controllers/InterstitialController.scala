@@ -17,22 +17,21 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.helpers.PaperlessInterruptHelper
-import error.LocalErrorHandler
+import error.RendersErrors
 import javax.inject.Inject
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent, Request}
 import play.twirl.api.Html
-import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
-import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
+import services.PreferencesFrontendService
+import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
-import error.RendersErrors
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -41,18 +40,12 @@ class InterstitialController @Inject()(
   val messagesApi: MessagesApi,
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val delegationConnector: FrontEndDelegationConnector,
   val preferencesFrontendService: PreferencesFrontendService,
-  val messageFrontendService: MessageFrontendService,
-  val localErrorHandler: LocalErrorHandler,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  withBreadcrumbAction: WithBreadcrumbAction)(
   implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
     extends PertaxBaseController with PaperlessInterruptHelper with RendersErrors {
 
   val saBreadcrumb: Breadcrumb =

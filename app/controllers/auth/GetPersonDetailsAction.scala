@@ -27,6 +27,7 @@ import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,7 +38,8 @@ class GetPersonDetailsAction @Inject()(
   val messagesApi: MessagesApi)(
   implicit configDecorator: ConfigDecorator,
   partialRetriever: LocalPartialRetriever,
-  ec: ExecutionContext)
+  ec: ExecutionContext,
+  templateRenderer: TemplateRenderer)
     extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
