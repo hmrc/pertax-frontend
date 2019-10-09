@@ -16,76 +16,97 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import models.UserDetails
+import config.ConfigDecorator
+import connectors.PdfGeneratorConnector
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import models.AmbiguousFilerSelfAssessmentUser
 import org.jsoup.Jsoup
-import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.Application
+import play.api.i18n.MessagesApi
 import play.api.inject._
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, Configuration}
-import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
-import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
-import uk.gov.hmrc.play.partials.PartialRetriever
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures._
-import util.{BaseSpec, Fixtures, MockTemplateRenderer}
+import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 
 import scala.concurrent.Future
 
-class NiLetterControllerSpec extends BaseSpec {
+class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
 
-  val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(injected[ApplicationCrypto])
+  val mockPdfGeneratorConnector = mock[PdfGeneratorConnector]
+  val mockAuthJourney = mock[AuthJourney]
 
-  override implicit lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
-    .overrides(bind[PartialRetriever].toInstance(MockitoSugar.mock[PartialRetriever]))
-    .overrides(bind[CookieCryptoFilter].toInstance(sessionCookieCryptoFilter))
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .overrides(
+      bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
+      bind[AuthJourney].toInstance(mockAuthJourney)
+    )
     .configure(configValues)
     .build()
 
-  override def beforeEach: Unit =
-    reset(injected[CitizenDetailsService])
-
-  trait LocalSetup {
-
-    def isHighGG: Boolean
-    def isVerify: Boolean
-
-    lazy val controller = {
-
-      val c = injected[NiLetterController]
-
-      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
-
-      c
-    }
-
-  }
+  def controller: NiLetterController =
+    new NiLetterController(
+      injected[MessagesApi],
+      mockPdfGeneratorConnector,
+      mockAuthJourney,
+      injected[WithBreadcrumbAction])(
+      mockLocalPartialRetreiver,
+      injected[ConfigDecorator],
+      injected[TemplateRenderer]
+    )
 
   "Calling NiLetterController.printNationalInsuranceNumber" should {
 
-    "call printNationalInsuranceNumber should return OK when called by a high GG user" in new LocalSetup {
-      override lazy val isHighGG = true
-      override lazy val isVerify = false
+    "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              Some(buildPersonDetails),
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      lazy val r = controller.printNationalInsuranceNumber()(buildFakeRequestWithAuth("GET"))
+      lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
 
       status(r) shouldBe OK
     }
 
-    "call printNationalInsuranceNumber should return OK when called by a verify user" in new LocalSetup {
-      override lazy val isHighGG = false
-      override lazy val isVerify = true
+    "call printNationalInsuranceNumber should return OK when called by a verify user" in {
+      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "Verify",
+              ConfidenceLevel.L500,
+              Some(buildPersonDetails),
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      lazy val r = controller.printNationalInsuranceNumber()(buildFakeRequestWithAuth("GET"))
+      lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
 
       status(r) shouldBe OK
       val doc = Jsoup.parse(contentAsString(r))

@@ -18,6 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.{FrontEndDelegationConnector, PayApiConnector, PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction, WithBreadcrumbAction}
 import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.DateTime
@@ -27,6 +28,7 @@ import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
+import play.api.i18n.MessagesApi
 import play.api.inject._
 import play.api.libs.json.JsBoolean
 import play.api.mvc._
@@ -41,9 +43,9 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.play.binders.Origin
-
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
@@ -68,23 +70,30 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
   val mockConfigDecorator = mock[ConfigDecorator]
   val mockAuditConnector = mock[PertaxAuditConnector]
+  val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
+  val mockAuthAction = mock[AuthAction]
+  val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
+  val mockAuthJourney = mock[AuthJourney]
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[IdentityVerificationFrontendService].toInstance(mock[IdentityVerificationFrontendService]),
-      bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]),
-      bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
-      bind[ConfigDecorator].toInstance(mock[ConfigDecorator])
+      bind[IdentityVerificationFrontendService].toInstance(mockIdentityVerificationFrontendService),
+      bind[PertaxAuditConnector].toInstance(mockAuditConnector),
+      bind[ConfigDecorator].toInstance(mockConfigDecorator),
+      bind[AuthAction].toInstance(mockAuthAction),
+      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
+      bind[AuthJourney].toInstance(mockAuthJourney)
     )
     .build()
 
   override def beforeEach: Unit =
     reset(
-      injected[PertaxAuditConnector],
-      injected[PertaxAuthConnector],
-      injected[CitizenDetailsService],
-      injected[MessageFrontendService],
-      injected[UserDetailsService]
+      mockConfigDecorator,
+      mockAuditConnector,
+      mockIdentityVerificationFrontendService,
+      mockAuthAction,
+      mockSelfAssessmentStatusAction,
+      mockAuthJourney
     )
 
   trait LocalSetup {
@@ -92,7 +101,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino = Fixtures.fakeNino
     lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
-    lazy val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200
     lazy val withPaye: Boolean = true
     lazy val year = current.currentYear
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
@@ -100,48 +108,43 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr("1111111111"))
 
-    val allowLowConfidenceSA = false
+    def controller: ApplicationController =
+      new ApplicationController(
+        injected[MessagesApi],
+        mockIdentityVerificationFrontendService,
+        mockAuthAction,
+        mockSelfAssessmentStatusAction,
+        mockAuthJourney,
+        injected[WithBreadcrumbAction],
+        mockAuditConnector
+      )(mockLocalPartialRetreiver, mock[ConfigDecorator], injected[TemplateRenderer]) {
 
-    lazy val controller = {
+        when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
+          Future.successful(getIVJourneyStatusResponse)
+        }
+        when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
+          Future.successful(AuditResult.Success)
+        }
 
-      val c = injected[ApplicationController]
-
-      when(c.identityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
-        Future.successful(getIVJourneyStatusResponse)
+        when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
+        when(mockConfigDecorator.taxcalcEnabled) thenReturn true
+        when(mockConfigDecorator.ltaEnabled) thenReturn true
+        when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
+        when(mockConfigDecorator.companyAuthHost) thenReturn ""
+        when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
+        when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
+        when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
+        when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
+        when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
+        when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
+        when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
+        when(mockConfigDecorator.gg_web_context) thenReturn "gg-sign-in"
+        when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+        when(mockConfigDecorator.urLinkUrl) thenReturn None
+        when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
       }
-      when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
-        Future.successful(AuditResult.Success)
-      }
-      when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
-        Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(true)))))
-      }
-      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
 
-      when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
-      when(mockConfigDecorator.taxcalcEnabled) thenReturn true
-      when(mockConfigDecorator.ltaEnabled) thenReturn true
-      when(mockConfigDecorator.allowSaPreview) thenReturn true
-      when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
-      when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
-      when(mockConfigDecorator.companyAuthHost) thenReturn ""
-      when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
-      when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
-      when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
-      when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
-      when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
-      when(mockConfigDecorator.gg_web_context) thenReturn "gg-sign-in"
-      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(mockConfigDecorator.urLinkUrl) thenReturn None
-      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
-
-      c
-    }
-
-    def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
+    def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {
       controller //Call to inject mocks
       route(app, req)
     }
@@ -152,18 +155,16 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "send the user to IV using the PERTAX origin" in new LocalSetup {
 
-      override lazy val confidenceLevel = ConfidenceLevel.L0
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
 
-      val r = controller.uplift(Some(SafeRedirectUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some(
+      val result = controller.uplift(Some(SafeRedirectUrl("/personal-account")))(buildFakeRequestWithAuth("GET"))
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(
         "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
 
     }
 
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
-      override lazy val confidenceLevel = ConfidenceLevel.L0
       override lazy val getSelfAssessmentServiceResponse = NonFilerSelfAssessmentUser
 
       val r =
@@ -215,7 +216,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to the IV exempt landing page when the 'sa allow low confidence' feature is on" in new LocalSetup {
 
-      override val allowLowConfidenceSA = true
       val r = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/personal-account/sa-continue")
