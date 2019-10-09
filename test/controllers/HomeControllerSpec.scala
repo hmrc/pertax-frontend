@@ -164,7 +164,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     }
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
-      controller //Call to inject mocks
+      controller
       route(app, req)
     }
 
@@ -175,13 +175,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
       val app: Application = localGuiceApplicationBuilder
-        .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-        .overrides(bind[TaiService].toInstance(mockTaiService))
-        .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
-        .overrides(bind[PertaxAuditConnector].toInstance(mockAuditConnector))
-        .overrides(bind[UserDetailsService].toInstance(mockUserDetailsService))
-        .overrides(bind[LocalPartialRetriever].toInstance(mockLocalPartialRetriever))
-        .overrides(bind[ConfigDecorator].toInstance(mockConfigDecorator))
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
         .build()
 
       val r: Future[Result] = controller.index()(FakeRequest())
@@ -226,14 +226,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest()
 
-      val app: Application = localGuiceApplicationBuilder
-        .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-        .overrides(bind[TaiService].toInstance(mockTaiService))
-        .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
-        .overrides(bind[PertaxAuditConnector].toInstance(mockAuditConnector))
-        .overrides(bind[UserDetailsService].toInstance(mockUserDetailsService))
-        .overrides(bind[LocalPartialRetriever].toInstance(mockLocalPartialRetriever))
-        .overrides(bind[ConfigDecorator].toInstance(mockConfigDecorator))
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
         .build()
 
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
@@ -269,14 +269,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest()
 
-      val app: Application = localGuiceApplicationBuilder
-        .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-        .overrides(bind[TaiService].toInstance(mockTaiService))
-        .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
-        .overrides(bind[PertaxAuditConnector].toInstance(mockAuditConnector))
-        .overrides(bind[UserDetailsService].toInstance(mockUserDetailsService))
-        .overrides(bind[LocalPartialRetriever].toInstance(mockLocalPartialRetriever))
-        .overrides(bind[ConfigDecorator].toInstance(mockConfigDecorator))
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
         .build()
 
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
@@ -293,14 +293,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
 
-      val app: Application = localGuiceApplicationBuilder
-        .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-        .overrides(bind[TaiService].toInstance(mockTaiService))
-        .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
-        .overrides(bind[PertaxAuditConnector].toInstance(mockAuditConnector))
-        .overrides(bind[UserDetailsService].toInstance(mockUserDetailsService))
-        .overrides(bind[LocalPartialRetriever].toInstance(mockLocalPartialRetriever))
-        .overrides(bind[ConfigDecorator].toInstance(mockConfigDecorator))
+      val app: Application = localGuiceApplicationBuilder()
+        .overrides(bind[CitizenDetailsService].toInstance(mock[CitizenDetailsService]))
+        .overrides(bind[TaiService].toInstance(mock[TaiService]))
+        .overrides(bind[MessageFrontendService].toInstance(mock[MessageFrontendService]))
+        .overrides(bind[PertaxAuditConnector].toInstance(mock[PertaxAuditConnector]))
+        .overrides(bind[UserDetailsService].toInstance(mock[UserDetailsService]))
+        .overrides(bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]))
+        .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
         .build()
 
       val r: Future[Result] = controller.index()(FakeRequest())

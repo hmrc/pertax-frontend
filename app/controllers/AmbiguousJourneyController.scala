@@ -35,17 +35,9 @@ import scala.concurrent.Future
 
 class AmbiguousJourneyController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val sessionCache: LocalSessionCache,
-  val messageFrontendService: MessageFrontendService,
-  val selfAssessmentService: SelfAssessmentService,
   val taxYearRetriever: TaxYearRetriever,
   authJourney: AuthJourney,
-  enforceAmbiguousUserAction: EnforceAmbiguousUserAction,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  enforceAmbiguousUserAction: EnforceAmbiguousUserAction)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator)
     extends PertaxBaseController with CurrentTaxYear {
