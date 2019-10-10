@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 import scala.concurrent.Future
@@ -45,6 +45,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
+    .configure(Map("metrics.enabled" -> false))
     .build()
 
   def harness[A]()(implicit request: UserRequest[A]): Future[Result] = {

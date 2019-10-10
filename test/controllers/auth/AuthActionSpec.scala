@@ -44,6 +44,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
+    .configure(Map("metrics.enabled" -> false))
     .build()
 
   val mockAuthConnector: NewPertaxAuthConnector = mock[NewPertaxAuthConnector]
