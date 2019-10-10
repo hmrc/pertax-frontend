@@ -48,7 +48,6 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
   val mockAuthJourney = mock[AuthJourney]
   val mockMessageFrontendService = mock[MessageFrontendService]
-  val mockConfigDecorator = mock[ConfigDecorator]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
@@ -58,7 +57,10 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       mockMessageFrontendService,
       mockAuthJourney,
       injected[WithActiveTabAction],
-      injected[WithBreadcrumbAction])(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer]) {
+      injected[WithBreadcrumbAction])(
+      mock[LocalPartialRetriever],
+      injected[ConfigDecorator],
+      injected[TemplateRenderer]) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }

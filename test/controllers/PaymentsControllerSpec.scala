@@ -18,30 +18,25 @@ package controllers
 
 import config.ConfigDecorator
 import connectors._
-import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, UserDetails}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import models.ActivatedOnlineFilerSelfAssessmentUser
 import org.joda.time.DateTime
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
-import play.api.libs.json.JsBoolean
+import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import services.partials.{CspPartialService, MessageFrontendService}
-import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.binders.Origin
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures.buildFakeRequestWithAuth
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
@@ -50,27 +45,12 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
   override def now: () => DateTime = DateTime.now
 
   lazy val fakeRequest = FakeRequest("", "")
-  lazy val userRequest = UserRequest(
-    None,
-    None,
-    None,
-    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-    "SomeAuth",
-    ConfidenceLevel.L200,
-    None,
-    None,
-    None,
-    None,
-    fakeRequest)
 
-  val mockConfigDecorator = mock[ConfigDecorator]
   val mockPayConnector = mock[PayApiConnector]
   val mockAuthJourney = mock[AuthJourney]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[LocalPartialRetriever].toInstance(mock[LocalPartialRetriever]),
-      bind[ConfigDecorator].toInstance(mockConfigDecorator),
       bind[PayApiConnector].toInstance(mockPayConnector),
       bind[AuthJourney].toInstance(mockAuthJourney)
     )
@@ -82,21 +62,25 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       mockPayConnector,
       mockAuthJourney,
       injected[WithBreadcrumbAction]
-    )(mock[LocalPartialRetriever], mockConfigDecorator, mock[TemplateRenderer]) {
+    )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer])
 
-      when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
-        Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(true)))))
-      }
-      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
-
-      when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
-
-    }
+  when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+      block(
+        UserRequest(
+          Some(Fixtures.fakeNino),
+          None,
+          None,
+          ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+          "GovernmentGateway",
+          ConfidenceLevel.L200,
+          None,
+          None,
+          None,
+          None,
+          request
+        ))
+  })
 
   "makePayment" should {
     "redirect to the response's nextUrl" in {
@@ -107,9 +91,9 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       when(mockPayConnector.createPayment(any())(any(), any()))
         .thenReturn(Future.successful(Some(createPaymentResponse)))
 
-      val r = controller.makePayment()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("someNextUrl")
+      val result = controller.makePayment()(FakeRequest())
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("someNextUrl")
     }
 
     "redirect to a BAD_REQUEST page if createPayment failed" in {
@@ -117,8 +101,8 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       when(mockPayConnector.createPayment(any())(any(), any()))
         .thenReturn(Future.successful(None))
 
-      val r = controller.makePayment()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe BAD_REQUEST
+      val result = controller.makePayment()(FakeRequest())
+      status(result) shouldBe BAD_REQUEST
     }
   }
 }

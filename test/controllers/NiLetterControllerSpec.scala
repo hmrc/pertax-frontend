@@ -56,7 +56,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       mockPdfGeneratorConnector,
       mockAuthJourney,
       injected[WithBreadcrumbAction])(
-      mockLocalPartialRetreiver,
+      mockLocalPartialRetriever,
       injected[ConfigDecorator],
       injected[TemplateRenderer]
     )

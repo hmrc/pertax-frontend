@@ -68,7 +68,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     None,
     fakeRequest)
 
-  val mockConfigDecorator = mock[ConfigDecorator]
   val mockAuditConnector = mock[PertaxAuditConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockAuthAction = mock[AuthAction]
@@ -79,7 +78,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     .overrides(
       bind[IdentityVerificationFrontendService].toInstance(mockIdentityVerificationFrontendService),
       bind[PertaxAuditConnector].toInstance(mockAuditConnector),
-      bind[ConfigDecorator].toInstance(mockConfigDecorator),
       bind[AuthAction].toInstance(mockAuthAction),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(mockAuthJourney)
@@ -88,7 +86,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
   override def beforeEach: Unit =
     reset(
-      mockConfigDecorator,
       mockAuditConnector,
       mockIdentityVerificationFrontendService,
       mockAuthAction,
@@ -117,7 +114,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector
-      )(mockLocalPartialRetreiver, mock[ConfigDecorator], injected[TemplateRenderer]) {
+      )(mockLocalPartialRetriever, mock[ConfigDecorator], injected[TemplateRenderer]) {
 
         when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
           Future.successful(getIVJourneyStatusResponse)
@@ -126,22 +123,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
           Future.successful(AuditResult.Success)
         }
 
-        when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
-        when(mockConfigDecorator.taxcalcEnabled) thenReturn true
-        when(mockConfigDecorator.ltaEnabled) thenReturn true
-        when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
-        when(mockConfigDecorator.companyAuthHost) thenReturn ""
-        when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
-        when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
-        when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
-        when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
-        when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-        when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-        when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
-        when(mockConfigDecorator.gg_web_context) thenReturn "gg-sign-in"
-        when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
-        when(mockConfigDecorator.urLinkUrl) thenReturn None
-        when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
       }
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {

@@ -17,21 +17,19 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.LocalErrorHandler
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsEmpty, Request, Result}
+import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
-import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
+import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -53,7 +51,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
     lazy val fakeRequest = FakeRequest("", "")
 
     val mockAuthJourney = mock[AuthJourney]
-    val mockConfigDecorator = mock[ConfigDecorator]
 
     def controller: InterstitialController =
       new InterstitialController(
@@ -63,7 +60,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         mock[PreferencesFrontendService],
         mockAuthJourney,
         injected[WithBreadcrumbAction]
-      )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer]) {
+      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
@@ -81,11 +78,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(paperlessResponse)
         }
-        when(mockConfigDecorator.taxCreditsEnabled) thenReturn true
-        when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
-        when(mockConfigDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
-        when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
-
       }
   }
 
@@ -152,10 +144,9 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               request))
       })
 
-      val testController = controller
-      val r = testController.displayChildBenefits(fakeRequestWithPath)
+      val result = controller.displayChildBenefits(fakeRequestWithPath)
 
-      status(r) shouldBe OK
+      status(result) shouldBe OK
 
     }
   }

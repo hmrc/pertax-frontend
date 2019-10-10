@@ -30,7 +30,7 @@ trait ViewSpec extends BaseSpec {
 
   val messages: Messages = Messages(Lang("en"), app.injector.instanceOf[MessagesApi])
 
-  val pertaxContext = PertaxContext(FakeRequest("", ""), mockLocalPartialRetreiver, injected[ConfigDecorator])
+  val pertaxContext = PertaxContext(FakeRequest("", ""), mockLocalPartialRetriever, injected[ConfigDecorator])
 
   def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")

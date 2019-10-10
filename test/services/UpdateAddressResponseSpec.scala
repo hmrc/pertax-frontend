@@ -36,7 +36,7 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSu
   implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   implicit lazy val pertaxContext =
-    PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
+    PertaxContext(FakeRequest(), mockLocalPartialRetriever, injected[ConfigDecorator])
   override def messagesApi: MessagesApi = injected[MessagesApi]
 
   implicit val userRequest = UserRequest(
