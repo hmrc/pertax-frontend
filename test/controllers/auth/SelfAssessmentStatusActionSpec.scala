@@ -42,6 +42,7 @@ class SelfAssessmentStatusActionSpec
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
     .overrides(bind[AuthAction].toInstance(mockAuthAction))
+    .configure(Map("metrics.enabled" -> false))
     .build()
 
   val mockAuthAction = mock[AuthAction]
