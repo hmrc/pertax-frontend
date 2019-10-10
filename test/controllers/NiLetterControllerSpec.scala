@@ -64,7 +64,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   "Calling NiLetterController.printNationalInsuranceNumber" should {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -88,7 +88,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
     }
 
     "call printNationalInsuranceNumber should return OK when called by a verify user" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(

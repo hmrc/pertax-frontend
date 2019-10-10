@@ -55,12 +55,12 @@ class ApplicationController @Inject()(
 
   override def now: () => DateTime = () => DateTime.now()
 
-  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.auth.async {
+  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.authWithPersonalDetails.async {
     Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
   }
 
-  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.auth.async {
-    implicit request =>
+  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+    authJourney.authWithPersonalDetails.async { implicit request =>
       val journeyId =
         List(request.request.getQueryString("token"), request.request.getQueryString("journeyId")).flatten.headOption
 
@@ -102,10 +102,10 @@ class ApplicationController @Inject()(
           Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
           Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
       }
-  }
+    }
 
   def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
-    (authAction andThen selfAssessmentStatusAction) { implicit request =>
+    authJourney.authWithSelfAssessment { implicit request =>
       continueUrl
         .map(_.url)
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
@@ -119,22 +119,23 @@ class ApplicationController @Inject()(
     }
 
   def handleSelfAssessment: Action[AnyContent] =
-    (authJourney.auth andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) { implicit request =>
-      if (request.isGovernmentGateway) {
-        request.saUserType match {
-          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-            Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-          case ambigUser: AmbiguousFilerSelfAssessmentUser =>
-            Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr))
-          case _ => Redirect(routes.HomeController.index())
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {
+      implicit request =>
+        if (request.isGovernmentGateway) {
+          request.saUserType match {
+            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+              Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
+            case ambigUser: AmbiguousFilerSelfAssessmentUser =>
+              Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr))
+            case _ => Redirect(routes.HomeController.index())
+          }
+        } else {
+          error(INTERNAL_SERVER_ERROR)
         }
-      } else {
-        error(INTERNAL_SERVER_ERROR)
-      }
     }
 
-  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.auth {
-    implicit request =>
+  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+    authJourney.authWithPersonalDetails { implicit request =>
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {
@@ -150,7 +151,7 @@ class ApplicationController @Inject()(
         case NonFilerSelfAssessmentUser =>
           Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl))
       }
-  }
+    }
 
   private def handleIvExemptAuditing(
     saUserType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =

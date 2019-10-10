@@ -110,8 +110,8 @@ class AddressController @Inject()(
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
-  private val authenticate: ActionBuilder[UserRequest] = authJourney.auth andThen withActiveTabAction.addActiveTab(
-    ActiveTabYourAccount)
+  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
+    .addActiveTab(ActiveTabYourAccount)
 
   def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>
     import models.dto.AddressPageVisitedDto

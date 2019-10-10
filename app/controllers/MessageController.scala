@@ -45,7 +45,7 @@ class MessageController @Inject()(
       baseBreadcrumb
 
   def messageList: Action[AnyContent] =
-    (authJourney.auth andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
       if (request.isGovernmentGateway) {
         messageFrontendService.getMessageListPartial map { p =>
@@ -59,7 +59,7 @@ class MessageController @Inject()(
     }
 
   def messageDetail(messageToken: String): Action[AnyContent] =
-    (authJourney.auth andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
       .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
       if (request.isGovernmentGateway) {
         messageFrontendService.getMessageDetailPartial(messageToken).map {

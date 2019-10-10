@@ -64,7 +64,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
     "call getManagePreferences" should {
       "Return 200 and show messages when a user is logged in using GG" in {
 
-        when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               UserRequest(
@@ -89,7 +89,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
       "Return 400 for Verify users" in {
 
-        when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               UserRequest(

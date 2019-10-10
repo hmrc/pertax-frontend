@@ -42,7 +42,7 @@ class LocalErrorHandler @Inject()(
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
     if (statusCode == BAD_REQUEST || statusCode == NOT_FOUND) {
-      authJourney.auth
+      authJourney.authWithPersonalDetails
         .async { implicit request =>
           futureError(statusCode)
         }

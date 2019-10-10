@@ -43,7 +43,7 @@ class AmbiguousJourneyController @Inject()(
 
   override def now: () => DateTime = () => DateTime.now()
 
-  private val authenticate: ActionBuilder[UserRequest] = authJourney.auth
+  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails
 
   def filedReturnOnlineChoice: Action[AnyContent] = (authenticate andThen enforceAmbiguousUserAction).async {
     implicit request =>

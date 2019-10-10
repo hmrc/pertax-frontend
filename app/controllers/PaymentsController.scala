@@ -43,28 +43,29 @@ class PaymentsController @Inject()(
   override def now: () => DateTime = () => DateTime.now()
 
   def makePayment: Action[AnyContent] =
-    (authJourney.auth andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async { implicit request =>
-      if (request.isSa) {
-        request.saUserType match {
-          case saUser: SelfAssessmentUser => {
-            val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
-            for {
-              response <- payApiConnector.createPayment(paymentRequest)
-            } yield {
-              response match {
-                case Some(createPayment) => Redirect(createPayment.nextUrl)
-                case None                => error(BAD_REQUEST)
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+      implicit request =>
+        if (request.isSa) {
+          request.saUserType match {
+            case saUser: SelfAssessmentUser => {
+              val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
+              for {
+                response <- payApiConnector.createPayment(paymentRequest)
+              } yield {
+                response match {
+                  case Some(createPayment) => Redirect(createPayment.nextUrl)
+                  case None                => error(BAD_REQUEST)
+                }
               }
             }
+            case NonFilerSelfAssessmentUser => {
+              Logger.warn("User had no sa account when one was required")
+              futureError(INTERNAL_SERVER_ERROR)
+            }
           }
-          case NonFilerSelfAssessmentUser => {
-            Logger.warn("User had no sa account when one was required")
-            futureError(INTERNAL_SERVER_ERROR)
-          }
+        } else {
+          Logger.warn("User had no sa account when one was required")
+          futureError(INTERNAL_SERVER_ERROR)
         }
-      } else {
-        Logger.warn("User had no sa account when one was required")
-        futureError(INTERNAL_SERVER_ERROR)
-      }
     }
 }

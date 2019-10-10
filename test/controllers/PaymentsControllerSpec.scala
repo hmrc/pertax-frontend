@@ -64,7 +64,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       injected[WithBreadcrumbAction]
     )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer])
 
-  when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+  when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
       block(
         UserRequest(

@@ -40,7 +40,7 @@ class PaperlessPreferencesController @Inject()(
     extends PertaxBaseController {
 
   def managePreferences: Action[AnyContent] =
-    (authJourney.auth andThen withActiveTabAction
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction
       .addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request: UserRequest[_] =>
         if (request.isVerify) {

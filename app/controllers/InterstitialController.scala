@@ -55,9 +55,11 @@ class InterstitialController @Inject()(
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  private val authenticate: ActionBuilder[UserRequest] = authJourney.auth andThen withBreadcrumbAction.addBreadcrumb(
+  private val authenticate
+    : ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(
     baseBreadcrumb)
-  private val authenticateSa: ActionBuilder[UserRequest] = authJourney.auth andThen withBreadcrumbAction.addBreadcrumb(
+  private val authenticateSa
+    : ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(
     saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>

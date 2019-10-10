@@ -64,7 +64,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.processFileReturnOnlineChoice" should {
 
     "redirect to 'Have you de-enrolled from self assessment' page when supplied with value Yes (true) and not on simplified journey" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -94,7 +94,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to 'Have you filed your tax return by post' page when supplied with value No (false) and not on simplified journey" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -123,7 +123,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to 'Have you used your utr to enrol' page when supplied with value No (false) and on simplified journey" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -152,7 +152,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return a bad request when supplied no value" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -183,7 +183,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect to 'You need to enrol' page when supplied with value Yes (true)" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -214,7 +214,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -246,7 +246,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return a bad request when supplied no value" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -274,7 +274,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling AmbiguousJourneyController.processFiledReturnByPostChoice" should {
     "redirect to 'Have you used your utr to register' page when supplied with value Yes (true)" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -304,7 +304,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false) when skip sa page feature is set to false" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -334,7 +334,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to 'Have you used your utr to enrol' page when supplied with value No (false) when skip sa page feature is set to true" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -364,7 +364,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return a bad request when supplied no value" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -395,7 +395,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.processReceivedUtrLetterChoice" should {
 
     "redirect to 'Have you used your utr to enrol' page when supplied with value Yes (true)" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -425,7 +425,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to 'Your letter may still be in the post' page when supplied with value No (false)" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -455,7 +455,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return a bad request when supplied no value" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -516,7 +516,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.processUsedUtrToEnrolChoice" should {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -546,7 +546,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to 'You need to enrol for sa' page when supplied with value No (false)" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -576,7 +576,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return a bad request when supplied no value" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -607,7 +607,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.processUsedUtrToRegisterChoice" should {
 
     "redirect to 'Your pin has expired' page when supplied with value Yes (true)" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -637,7 +637,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to 'The deadline is' page when supplied with value No (false)" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -667,7 +667,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return a bad request when supplied no value" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -698,7 +698,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling AmbiguousJourneyController.usedUtrToRegisterChoice" should {
     "return 200 when AmbiguousJourneyController.usedUtrToRegisterChoice is called" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -728,7 +728,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.filedReturnOnlineChoice" should {
     "return 200 when self assessment user type is AmbiguousFilerSelfAssessmentUser" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -757,7 +757,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.deEnrolledFromSaChoice " should {
     "return 200 when AmbiguousJourneyController.deEnrolledFromSaChoice is called" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -786,7 +786,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.filedReturnByPostChoice" should {
     "return 200 when AmbiguousJourneyController.filedReturnByPostChoice is called" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -815,7 +815,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.receivedUtrLetterChoice" should {
     "return 200 when AmbiguousJourneyController.receivedUtrLetterChoice is called" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -843,7 +843,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
   "Calling AmbiguousJourneyController.usedUtrToEnrolChoice" should {
     "return 200 when AmbiguousJourneyController.usedUtrToEnrolChoice is called" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -872,7 +872,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   "Calling AmbiguousJourneyController.handleAmbiguousJourneyLandingPages" should {
     "return 200 when supplied with value of 'need-to-enrol' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -900,7 +900,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return a result with tax year 2019 when supplied with value of 'need-to-enrol'" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -935,7 +935,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return a result with tax year 2025 when supplied with value of 'need-to-enrol'" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -971,7 +971,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -1000,7 +1000,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return a result with tax year 2019 when supplied with value of 'need-to-enrol-again'" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -1036,7 +1036,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
 
     "return a result with tax year 2025 when supplied with value of 'need-to-enrol-again'" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -1071,7 +1071,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -1099,7 +1099,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return 200 when supplied with value of 'deadline' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -1127,7 +1127,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return 200 when supplied with value of 'letter-in-post' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -1155,7 +1155,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "return 200 when supplied with value of 'pin-expired' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(

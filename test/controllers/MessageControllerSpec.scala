@@ -69,7 +69,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   "Calling MessageController.messageList" should {
     "call messages and return 200 when called by a high GG user" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -99,7 +99,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
     "return 401 for a verify user" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -127,7 +127,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   "Calling MessageController.messageDetail" should {
     "call messages and return 200 when called by a GovernmentGateway user" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -157,7 +157,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
     "return 401 for a Verify user" in {
 
-      when(mockAuthJourney.auth).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(

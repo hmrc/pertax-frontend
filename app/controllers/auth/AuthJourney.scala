@@ -25,6 +25,9 @@ class AuthJourney @Inject()(
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   getPersonDetailsAction: GetPersonDetailsAction) {
 
-  val auth: ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+  val authWithPersonalDetails
+    : ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+
+  val authWithSelfAssessment: ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction
 
 }
