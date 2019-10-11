@@ -4,14 +4,13 @@
   margin-bottom: 2em;
 }
 
-@media screen and (min-width: 600px) and (max-width: 900px) {
+@media screen and (min-width:600px) and (max-width:900px) {
   .card {
     flex-basis: 45.99%;
     // Every card in the first row needs horizontal margin
     &:nth-child(2n-1) {
       margin-right: 3%;
     }
-
     // Every card in the second row needs horizontal margin
     &:nth-child(2n-2) {
       margin-left: 3%;
@@ -19,7 +18,7 @@
   }
 }
 
-@media screen and (min-width: 900px) {
+@media screen and (min-width:900px) {
   .card {
     flex-basis: 31%;
 
@@ -132,7 +131,7 @@ html[data-useragent*='MSIE 10.0'] .flex-container {
         transition-delay: .25s;
       }
 
-      .card-heading a {
+      .card-heading a{
         color: $page-colour;
         transition-delay: .25s;
       }
