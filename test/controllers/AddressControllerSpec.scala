@@ -56,7 +56,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
   val userRequest = UserRequestFixture.buildUserRequest()
 
-  val mockConfigDecorator = injected[ConfigDecorator]
   val mockAuditConnector = mock[PertaxAuditConnector]
   val mockAuthJourney = mock[AuthJourney]
   val mockLocalSessionCache = mock[LocalSessionCache]
@@ -116,7 +115,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockLocalSessionCache,
         injected[WithActiveTabAction],
         mockAuditConnector
-      )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer]) {
+      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
 
         when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
           Future.successful(AuditResult.Success)
@@ -229,13 +228,27 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     "return Address when option contains address" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map()))
 
-      val r = controller.getAddress(Some(buildFakeAddress))
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      r shouldBe buildFakeAddress
+      val result = controller.getAddress(Some(buildFakeAddress))
+
+      result shouldBe buildFakeAddress
     }
 
     "return error when address is None" in new LocalSetup {
       lazy val sessionCacheResponse = Some(CacheMap("id", Map()))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest(personDetails = None).asInstanceOf[UserRequest[A]]
+          )
+      })
 
       an[Exception] shouldBe thrownBy {
         controller.getAddress(None)
@@ -257,9 +270,16 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val r = controller.taxCreditsChoice(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe OK
+      val result = controller.taxCreditsChoice(FakeRequest())
+
+      status(result) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -267,10 +287,17 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     with LocalSetup {
       lazy val sessionCacheResponse = None
 
-      val r = controller.taxCreditsChoice(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      val result = controller.taxCreditsChoice(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -311,17 +338,43 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
-      val r = controller.processTaxCreditsChoice(
-        FakeRequest("POST", "").withFormUrlEncodedBody("taxCreditsChoice" -> "false"))
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/residency-choice")
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processTaxCreditsChoice(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/your-address/residency-choice")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
-      val r = controller.processTaxCreditsChoice(FakeRequest("POST", ""))
 
-      status(r) shouldBe BAD_REQUEST
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processTaxCreditsChoice(FakeRequest())
+
+      status(result) shouldBe BAD_REQUEST
     }
 
   }
@@ -341,9 +394,16 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))))
 
-      val r = controller.residencyChoice(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe OK
+      val result = controller.residencyChoice(FakeRequest())
+
+      status(result) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -351,20 +411,34 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(true)))))
 
-      val r = controller.residencyChoice(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      val result = controller.residencyChoice(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "return to the beginning of journey when the user has not selected any tax credits choice on the previous page" in new LocalSetup {
       lazy val sessionCacheResponse = None
 
-      val r = controller.residencyChoice(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      val result = controller.residencyChoice(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -383,32 +457,84 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to find address page with primary type when supplied value=primary" in new LocalSetup {
-      val r = controller.processResidencyChoice(
-        FakeRequest("POST", "").withFormUrlEncodedBody("residencyChoice" -> "primary"))
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody("residencyChoice" -> "primary")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processResidencyChoice(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
     }
 
     "redirect to find address page with sole type when supplied value=sole" in new LocalSetup {
-      val r =
-        controller.processResidencyChoice(FakeRequest("POST", "").withFormUrlEncodedBody("residencyChoice" -> "sole"))
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody("residencyChoice" -> "sole")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processResidencyChoice(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
     }
 
     "return a bad request when supplied value=bad" in new LocalSetup {
-      val r =
-        controller.processResidencyChoice(FakeRequest("POST", "").withFormUrlEncodedBody("residencyChoice" -> "bad"))
 
-      status(r) shouldBe BAD_REQUEST
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody("residencyChoice" -> "bad")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processResidencyChoice(FakeRequest())
+
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
-      val r = controller.processResidencyChoice(FakeRequest("POST", ""))
 
-      status(r) shouldBe BAD_REQUEST
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processResidencyChoice(FakeRequest())
+
+      status(result) shouldBe BAD_REQUEST
     }
   }
 
@@ -426,9 +552,16 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val r = controller.internationalAddressChoice(SoleAddrType)(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe OK
+      val result = controller.internationalAddressChoice(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -436,10 +569,17 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     with LocalSetup {
       lazy val sessionCacheResponse = None
 
-      val r = controller.internationalAddressChoice(SoleAddrType)(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      val result = controller.internationalAddressChoice(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/personal-details")
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -458,25 +598,63 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
-      val r = controller.processInternationalAddressChoice(SoleAddrType)(
-        FakeRequest("POST", "").withFormUrlEncodedBody("internationalAddressChoice" -> "true"))
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/find-address")
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processInternationalAddressChoice(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/your-address/sole/find-address")
     }
 
     "redirect to 'cannot use this service' page when value = No (false)" in new LocalSetup {
-      val r = controller.processInternationalAddressChoice(SoleAddrType)(
-        FakeRequest("POST", "").withFormUrlEncodedBody("internationalAddressChoice" -> "false"))
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/personal-account/your-address/sole/cannot-use-the-service")
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+      val result = controller.processInternationalAddressChoice(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some("/personal-account/your-address/sole/cannot-use-the-service")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
-      val r = controller.processInternationalAddressChoice(SoleAddrType)(FakeRequest("POST", ""))
 
-      status(r) shouldBe BAD_REQUEST
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .asInstanceOf[Request[A]]
+              )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processInternationalAddressChoice(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe BAD_REQUEST
     }
 
   }
@@ -495,9 +673,16 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
 
-      val r = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe OK
+      val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -505,30 +690,51 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      val r = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe OK
+      val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
+
+      status(result) shouldBe OK
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in new LocalSetup {
       lazy val sessionCacheResponse = None
 
-      val r = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe SEE_OTHER
+      val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      redirectLocation(await(result)) shouldBe Some("/personal-account/personal-details")
     }
 
     "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in new LocalSetup {
       lazy val sessionCacheResponse = None
 
-      val r = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          )
+      })
 
-      status(r) shouldBe SEE_OTHER
+      val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(await(r)) shouldBe Some("/personal-account/personal-details")
+      redirectLocation(await(result)) shouldBe Some("/personal-account/personal-details")
     }
 
     "verify an audit event has been sent for a user clicking the change address link" in new LocalSetup {
