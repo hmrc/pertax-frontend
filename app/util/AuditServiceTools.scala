@@ -26,7 +26,7 @@ object AuditServiceTools {
   def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(
     implicit hc: HeaderCarrier,
     request: UserRequest[_]): DataEvent =
-    //TODO: Is this needed?
+    //TODO: Waiting to confirm analytics
 
 //    def getIdentifierPair(key: String, f: Accounts => Option[String]): Option[(String, String)] =
 //      context.user.flatMap(user => f(user.authContext.principal.accounts)).map((key, _))
@@ -50,13 +50,12 @@ object AuditServiceTools {
 //      "transactionName" -> Some(transactionName)
 //    )
 //
-//    DataEvent(
-//      auditSource = "pertax-frontend",
-//      auditType = auditType,
-//      tags = hc.headers.toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
-//      detail = standardAuditData ++ customAuditData
-//    )
-    ???
+    DataEvent(
+      auditSource = "pertax-frontend",
+      auditType = auditType,
+      tags = hc.headers.toMap,
+      detail = Map.empty
+    )
 
   def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(
     implicit hc: HeaderCarrier,

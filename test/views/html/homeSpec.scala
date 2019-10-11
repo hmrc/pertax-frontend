@@ -35,7 +35,7 @@ import scala.collection.JavaConversions._
 
 class homeSpec extends BaseSpec with MockitoSugar {
 
-  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
@@ -49,7 +49,7 @@ class homeSpec extends BaseSpec with MockitoSugar {
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest = UserRequest(
         Some(Fixtures.fakeNino),
-        None,
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
         "GovernmentGateway",

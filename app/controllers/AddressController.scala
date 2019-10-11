@@ -118,18 +118,19 @@ class AddressController @Inject()(
     def optNino: Option[Nino] = request.nino
 
     for {
-      hasCorrespondenceAddressLock <- optNino match {
-                                       case Some(nino) =>
+      hasCorrespondenceAddressLock <- optNino
+                                       .map { nino =>
                                          correspondenceAddressLockRepository.get(nino.withoutSuffix) map (_.isDefined)
-                                       case _ => Future.successful(false)
-                                     }
+                                       }
+                                       .getOrElse(Future.successful(false))
       personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(
         hasCorrespondenceAddressLock)
       personDetails: Option[PersonDetails] = request.personDetails
-      _ <- personDetails match {
-            case Some(p) => auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", p))
-            case _       => Future.successful(Unit)
-          }
+      _ <- personDetails
+            .map { details =>
+              auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
+            }
+            .getOrElse(Future.successful(Unit))
       _ <- cacheAddressPageVisited(AddressPageVisitedDto(true))
     } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
   }
