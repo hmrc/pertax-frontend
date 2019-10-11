@@ -33,10 +33,8 @@ import util.{BaseSpec, Fixtures}
 
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSugar {
 
-  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  implicit lazy val pertaxContext =
-    PertaxContext(FakeRequest(), mockLocalPartialRetriever, injected[ConfigDecorator])
   override def messagesApi: MessagesApi = injected[MessagesApi]
 
   implicit val userRequest = UserRequest(

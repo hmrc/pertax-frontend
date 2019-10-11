@@ -106,8 +106,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     def getCorrespondenceAddressLock: Option[AddressJourneyTTLModel] = None
 
-    lazy val controller = {
-      val addressController = new AddressController(
+    def controller =
+      new AddressController(
         mock[MessagesApi],
         mockCitizenDetailsService,
         mock[AddressLookupService],
@@ -160,8 +160,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         when(mockConfigDecorator.updateInternationalAddressInPta) thenReturn false
 
       }
-      addressController
-    }
   }
 
   "Calling AddressController.personalDetails" should {
