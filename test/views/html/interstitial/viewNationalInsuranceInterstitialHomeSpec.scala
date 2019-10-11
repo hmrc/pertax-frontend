@@ -35,7 +35,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
 
   implicit val messages = Messages.Implicits.applicationMessages
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
-  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   "Rendering viewNationalInsuranceInterstitialHome.scala.html" should {
 
