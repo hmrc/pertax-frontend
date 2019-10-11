@@ -18,17 +18,16 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.Json
+import play.api.{Configuration, Environment}
 import services.http.{FakeSimpleHttp, WsAllMethods}
-import uk.gov.hmrc.domain.Nino
-import util.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.HttpResponse
+import util.{BaseSpec, Fixtures}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class TaxCalculationServiceSpec extends BaseSpec {

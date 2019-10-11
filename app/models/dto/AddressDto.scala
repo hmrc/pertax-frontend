@@ -17,16 +17,12 @@
 package models.dto
 
 import controllers.helpers.CountryHelper
-import models.{Address, Country, addresslookup}
-import org.joda.time.{DateTime, LocalDate}
-import play.api.data.{Form, FormError}
-import play.api.data.Forms._
-import play.api.i18n.Messages
-import play.api.libs.json.Json
 import models.addresslookup.AddressRecord
-import play.api.mvc.Request
-import play.mvc.BodyParser.AnyContent
-import uk.gov.hmrc.play.validators._
+import models.{Address, Country}
+import org.joda.time.LocalDate
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.Json
 import util.PertaxValidators._
 
 object AddressDto extends CountryHelper {

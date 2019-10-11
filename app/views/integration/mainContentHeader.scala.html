@@ -18,54 +18,55 @@
 @import util.LanguageHelper
 
 @(name: Option[String],
-lastLogin: Option[org.joda.time.DateTime],
-breadcrumb: Breadcrumb,
-showBetaBanner: Boolean,
-deskProToken: Option[String],
-langReturnUrl: Option[String])(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+        lastLogin: Option[org.joda.time.DateTime],
+        breadcrumb: Breadcrumb,
+        showBetaBanner: Boolean,
+        deskProToken: Option[String],
+        langReturnUrl: Option[String])(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 
 <div class="service-info">
-  @if(showBetaBanner) {
-  <div class="beta-banner">
-    <p>
-      <strong class="phase-tag">@messages("label.beta")</strong>
-        @deskProToken.map { deskProToken =>
-      <span class="feedback">@messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") <a href="@configDecorator.betaFeedbackUnauthenticatedUrl(deskProToken)">@messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text")</a>
-@messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")</span>
-      }.getOrElse {
-        <span class="feedback">@messages("global.label.this_is_a_trial_service")</span>
-      }
-    </p>
-  </div>
-  }
+    @if(showBetaBanner) {
+        <div class="beta-banner">
+            <p>
+                <strong class="phase-tag">@messages("label.beta")</strong>
+                @deskProToken.map { deskProToken =>
+                <span class="feedback">@messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_before_link") <a href="@configDecorator.betaFeedbackUnauthenticatedUrl(deskProToken)">@messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_link_text")</a>
+                    @messages("global.label.this_is_a_new_service_your_feedback_will_help_us_to_improve_it_text_after_link")
+                </span>
+                }.getOrElse {
+                    <span class="feedback">@messages("global.label.this_is_a_trial_service")</span>
+                }
+            </p>
+        </div>
+    }
 
-  <div class="logo">
-    <span class="organisation-logo organisation-logo-medium">@messages("label.hm_revenue_customs")</span>
-  </div>
-
-  @for(lastLogin <- lastLogin) {
-    <div class="last-login mobile-hidden">
-      <p class="service-info-p">
-        @name.map { name =>
-          @messages("global.label._last_signed_in", name, LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
-        }.getOrElse {
-          @messages("global.label.you_last_signed_in", LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
-        }
-      </p>
+    <div class="logo">
+        <span class="organisation-logo organisation-logo-medium">@messages("label.hm_revenue_customs")</span>
     </div>
-  }
+
+    @for(lastLogin <- lastLogin) {
+        <div class="last-login mobile-hidden">
+            <p class="service-info-p">
+            @name.map { name =>
+                @messages("global.label._last_signed_in", name, LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
+            }.getOrElse {
+                @messages("global.label.you_last_signed_in", LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
+            }
+            </p>
+        </div>
+    }
 </div>
 
 
-@if(breadcrumb.nonEmpty) {
-  <div id="global-breadcrumb" class="header-context">
-    <nav>
-      <ol class="group">
-        @breadcrumb.toList.map { item =>
-          <li><a href="@item._2">@messages(item._1)</a></li>
-        }
-      </ol>
-    </nav>
-  </div>
-}
+    @if(breadcrumb.nonEmpty) {
+        <div id="global-breadcrumb" class="header-context">
+            <nav>
+                <ol class="group">
+                @breadcrumb.toList.map { item =>
+                    <li><a href="@item._2">@messages(item._1)</a></li>
+                }
+                </ol>
+            </nav>
+        </div>
+    }

@@ -18,10 +18,9 @@ package services
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, PertaxContext, UserName}
+import models.{NonFilerSelfAssessmentUser, UserName}
 import org.joda.time.DateTime
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok

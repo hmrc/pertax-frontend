@@ -19,7 +19,6 @@ package services
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import error.GenericErrors
-import models.PertaxContext
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HttpResponse

@@ -17,8 +17,8 @@
 package config
 
 import javax.inject.Inject
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig

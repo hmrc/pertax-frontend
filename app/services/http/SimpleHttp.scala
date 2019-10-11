@@ -17,12 +17,11 @@
 package services.http
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.libs.json.Writes
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 @Singleton
 class SimpleHttp @Inject()(http: WsAllMethods) {
 

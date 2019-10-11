@@ -16,7 +16,7 @@
 
 package models.dto
 
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json

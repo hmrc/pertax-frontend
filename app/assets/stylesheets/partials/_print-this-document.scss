@@ -3,11 +3,13 @@
   display: none;
   margin: 0 0 15px 0;
   position: relative;
+
   &__icon {
     left: 0;
     position: absolute;
     top: 2px;
   }
+
   &__link {
     color: $black;
     font-size: 16px;
@@ -21,6 +23,7 @@
   position: relative;
   display: inline-block;
   margin: 0 0 0 15px;
+
   &__link,
   &__link:visited {
     color: $black;
@@ -39,21 +42,26 @@
   box-shadow: 6px 6px 0 0 $grey-3;
   padding: 25px 50px;
   width: 75%;
+
   .print-header {
     margin-bottom: 15px;
+
     .column-one-third {
       border-left: #28A197 solid;
       padding-left: 8px;
     }
+
     h2 {
       font-size: 1.4em;
       font-weight: normal;
       margin: 0;
       line-height: 1;
+
       span {
         display: block;
       }
     }
+
     h3 {
       text-align: right;
       margin-top: 2em;
@@ -62,21 +70,27 @@
       font-weight: 600;
     }
   }
+
   .document-address {
     &__recipient {
       margin-top: 50px;
     }
+
     &__sender {
       text-align: left;
+
       .phone {
         margin-top: 1.05263em;
       }
+
       .phone-number {
         margin-left: 1em;
       }
+
       .sender-details {
         float: right;
       }
+
       @media (min-width: 641px) {
         .sender-details {
           width: 90%;
@@ -98,9 +112,11 @@
       }
     }
   }
+
   .list li {
     margin-bottom: 0;
   }
+
   &__information-box {
     border: 2px solid #28a197;
     display: block;
@@ -191,7 +207,7 @@
     box-shadow: none;
   }
   .save-this {
-    display:none;
+    display: none;
   }
   #footer {
     display: none;
@@ -226,36 +242,45 @@
     right: 0;
     top: 0;
     width: 90%;
+
     .document-address__recipient {
       float: left;
       width: 59%;
     }
+
     .document-address__sender {
       float: right;
       width: 41%;
+
       .your-nino {
         width: 60%;
         float: left;
       }
+
       .your-nino-number {
         width: 40%;
         float: left;
       }
     }
+
     .ni-letter .column-two-thirds {
       width: 62%;
       float: left;
     }
+
     .ni-letter .column-one-third {
       width: 38%;
       float: left;
     }
+
     p, li {
       font-size: 16px;
     }
+
     p.list-paragraph {
       margin-bottom: 5px;
     }
+
     p.available-information {
       font-size: 24px;
       margin-bottom: 0;

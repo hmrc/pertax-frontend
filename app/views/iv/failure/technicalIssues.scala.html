@@ -16,18 +16,17 @@
 
 @import config.ConfigDecorator
 @import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import util.LocalPartialRetriever
 
 @(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @views.html.iv.ivOutcomeWrapper(messages("label.service_unavailable"), messages("label.service_unavailable")) {
 
-  <p>@messages("label.sorry_we_are_currently_experiencing_technical_issues")</p>
-  <p>@messages("label.you_can")</p>
+    <p>@messages("label.sorry_we_are_currently_experiencing_technical_issues")</p>
+    <p>@messages("label.you_can")</p>
 
-  <ul class="list list-bullet">
-    <li><a href="@retryUrl">@messages("label.try_confirm_identity_again")</a></li>
-    <li><a class="ga-track-anchor-click" href="@configDecorator.generalQueriesUrl" data-ga-event-category="link - click" data-ga-event-action="Service unavailable" data-ga-event-label="contact HM Revenue and Customs for help">@messages("label.contact_hm_revenues_and_customs_for_help")</a></li>
-  </ul>
+    <ul class="list list-bullet">
+        <li><a href="@retryUrl">@messages("label.try_confirm_identity_again")</a></li>
+        <li><a class="ga-track-anchor-click" href="@configDecorator.generalQueriesUrl" data-ga-event-category="link - click" data-ga-event-action="Service unavailable" data-ga-event-label="contact HM Revenue and Customs for help">@messages("label.contact_hm_revenues_and_customs_for_help")</a></li>
+    </ul>
 }

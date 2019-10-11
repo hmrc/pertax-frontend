@@ -20,50 +20,52 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 
 @(utr: SaUtr, continueUrl: String, backlinkUrl: Call)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.sign_in_with_different_account_details"),
-  pageName = Some(messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(backlinkUrl.url)
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some(backlinkUrl.url)
 ) {
 
     <div class="grid-row">
-      <div class="column-two-thirds">
+        <div class="column-two-thirds">
 
-        <header class="page-heading">
-          <h1 class="heading-xlarge no-margin-top">@messages("label.sign_in_with_different_account_details")</h1>
-          <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@messages("label.how_to_access_your_self_assessment")</p>
-        </header>
+            <header class="page-heading">
+                <h1 class="heading-xlarge no-margin-top">@messages("label.sign_in_with_different_account_details")</h1>
+                <p class="heading-secondary"><span class="visuallyhidden">
+                    This section is </span>@messages("label.how_to_access_your_self_assessment")</p>
+            </header>
 
-          <p>@messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.ggLoginUrl" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">@messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_link_text")</a>.</p>
+            <p>@messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.ggLoginUrl" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">@messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_link_text")</a>
+                .</p>
 
-        <h3 class="heading-medium">@messages("label.problems_signing_in")</h3>
-        <p>@messages("label.get_help_if_you_have")</p>
-        <ul class="list list-bullet">
-          <li><a class="ga-track-anchor-click"
-                 href="@configDecorator.lostUserIdUrl"
-                 data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
-                 data-ga-event-label="forgotten your Self Assessment user ID">@messages("label.forgotten_your_self_assessment_user_id")</a>
-          </li>
-          <li><a class="ga-track-anchor-click"
-                 href="@configDecorator.lostPasswordUrl"
-                 data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
-                 data-ga-event-label="forgotten your Self Assessment password">@messages("label.forgotten_your_self_assessment_password")</a>
-          </li>
-          <li><a class="ga-track-anchor-click"
-                 href="@configDecorator.problemsSigningInUrl"
-                 data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
-                 data-ga-event-label="forgotten your Self Assessment user ID and password">@messages("label.forgotten_your_self_assessment_user_id_and_password")</a>
-          </li>
-        </ul>
+            <h3 class="heading-medium">@messages("label.problems_signing_in")</h3>
+            <p>@messages("label.get_help_if_you_have")</p>
+            <ul class="list list-bullet">
+                <li><a class="ga-track-anchor-click"
+                href="@configDecorator.lostUserIdUrl"
+                data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
+                data-ga-event-label="forgotten your Self Assessment user ID">@messages("label.forgotten_your_self_assessment_user_id")</a>
+                </li>
+                <li><a class="ga-track-anchor-click"
+                href="@configDecorator.lostPasswordUrl"
+                data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
+                data-ga-event-label="forgotten your Self Assessment password">@messages("label.forgotten_your_self_assessment_password")</a>
+                </li>
+                <li><a class="ga-track-anchor-click"
+                href="@configDecorator.problemsSigningInUrl"
+                data-ga-event-category="link - click" data-ga-event-action="Sign in with different account details"
+                data-ga-event-label="forgotten your Self Assessment user ID and password">@messages("label.forgotten_your_self_assessment_user_id_and_password")</a>
+                </li>
+            </ul>
 
 
-        <div class="panel panel-border-wide">
-          <p>@messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_")</p>
-          <p>@Html(messages("label.your_utr_is_", utr))</p>
+            <div class="panel panel-border-wide">
+                <p>@messages("label.you_may_need_to_use_your_utr_to_recover_your_sign_in_details_")</p>
+                <p>@Html(messages("label.your_utr_is_", utr))</p>
+            </div>
+
         </div>
-
-      </div>
     </div>
 
 }

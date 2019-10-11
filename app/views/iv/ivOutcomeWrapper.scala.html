@@ -15,25 +15,24 @@
  *@
 
 @import config.ConfigDecorator
-@import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
 @(title: String, header: String)(content: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@unauthenticatedMain(title) {
+    @unauthenticatedMain(title) {
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
+        <div class="grid-row">
+            <div class="column-two-thirds">
 
-        <header class="page-heading">
-            <h1 class="heading-xlarge">@header</h1>
-        </header>
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@header</h1>
+                </header>
 
-        @content
+                @content
 
-    </div>
-  </div>
+            </div>
+        </div>
 
-}
+    }

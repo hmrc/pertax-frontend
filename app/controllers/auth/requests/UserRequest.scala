@@ -16,7 +16,7 @@
 
 package controllers.auth.requests
 
-import models.{Breadcrumb, NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType, UserName}
+import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.ConfidenceLevel

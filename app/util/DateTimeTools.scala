@@ -16,8 +16,8 @@
 
 package util
 
-import org.joda.time.{DateTime, _}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import org.joda.time.{DateTime, _}
 import play.api.Logger
 import uk.gov.hmrc.time.CurrentTaxYear
 

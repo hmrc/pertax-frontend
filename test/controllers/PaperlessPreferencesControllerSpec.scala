@@ -28,7 +28,7 @@ import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
+import services.partials.PreferencesFrontendPartialService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial

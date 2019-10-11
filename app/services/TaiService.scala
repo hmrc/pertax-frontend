@@ -16,20 +16,19 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import metrics._
 import models._
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.{Configuration, Environment, Logger}
-import play.api.Mode.Mode
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 sealed trait TaxComponentsResponse
 case class TaxComponentsSuccessResponse(taxComponents: TaxComponents) extends TaxComponentsResponse

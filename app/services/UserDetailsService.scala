@@ -16,16 +16,15 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
-
 import com.kenshoo.play.metrics.Metrics
+import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
 import models.UserDetails
 import play.api.Logger
 import services.http.SimpleHttp
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 @Singleton
 class UserDetailsService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics) extends HasMetrics {

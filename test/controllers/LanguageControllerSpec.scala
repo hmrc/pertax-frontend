@@ -18,8 +18,6 @@ package controllers
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.language.LanguageController
 import util.BaseSpec
 
 class LanguageControllerSpec extends BaseSpec {

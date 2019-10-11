@@ -19,8 +19,7 @@ package modules
 import com.google.inject.AbstractModule
 import config.{ApplicationCryptoProvider, LocalTemplateRenderer, SessionCookieCryptoFilterProvider}
 import filters._
-import services.http.WsAllMethods
-import services.http.WSHttp
+import services.http.{WSHttp, WsAllMethods}
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters._
 import uk.gov.hmrc.renderer.TemplateRenderer

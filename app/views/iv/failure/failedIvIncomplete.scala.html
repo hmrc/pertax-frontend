@@ -16,18 +16,17 @@
 
 @import config.ConfigDecorator
 @import uk.gov.hmrc.renderer.TemplateRenderer
-
 @import util.LocalPartialRetriever
 
 @(retryUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @views.html.iv.ivOutcomeWrapper(messages("label.we_cannot_confirm_your_identity"), messages("label.we_cannot_confirm_your_identity")) {
 
-  <p>@messages("label.you_have_not_given_us_enough_information")</p>
-  <p>@messages("label.you_can")</p>
+    <p>@messages("label.you_have_not_given_us_enough_information")</p>
+    <p>@messages("label.you_can")</p>
 
-  <ul class="list list-bullet">
-    <li><a href="@retryUrl">@messages("label.try_confirm_identity_again")</a></li>
-    <li><a class="ga-track-anchor-click" href="@configDecorator.generalQueriesUrl" data-ga-event-category="link - click" data-ga-event-action="We cannot confirm your identity" data-ga-event-label="contact HM Revenue and Customs for help">@messages("label.contact_hm_revenues_and_customs_for_help")</a></li>
-  </ul>
+    <ul class="list list-bullet">
+        <li><a href="@retryUrl">@messages("label.try_confirm_identity_again")</a></li>
+        <li><a class="ga-track-anchor-click" href="@configDecorator.generalQueriesUrl" data-ga-event-category="link - click" data-ga-event-action="We cannot confirm your identity" data-ga-event-label="contact HM Revenue and Customs for help">@messages("label.contact_hm_revenues_and_customs_for_help")</a></li>
+    </ul>
 }

@@ -22,9 +22,7 @@ import models._
 import org.joda.time.LocalDate
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.inject.bind
 import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.personaldetails._
 

@@ -14,31 +14,30 @@
  * limitations under the License.
  *@
 
-@import tags._
-@import util.LocalPartialRetriever
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
 @(formPartial: Html, saPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("label.self_assessment_summary"),Some(messages("label.your_personal_tax_account"))) {
-<div class="summary-page">
-  <div class="grid-row">
-    <div class="column-full">
-      @saPartial
-    </div>
-  </div>
-  @if(request.nino.isDefined) {
-    <div class="grid-row">
-      <div class="summary-panel">
-        <div class="column-two-thirds">
-          <div class="form-group" id="self-assessment-forms">
-            @formPartial
-          </div>
+@main(messages("label.self_assessment_summary"), Some(messages("label.your_personal_tax_account"))) {
+    <div class="summary-page">
+        <div class="grid-row">
+            <div class="column-full">
+            @saPartial
+            </div>
         </div>
-      </div>
+        @if(request.nino.isDefined) {
+            <div class="grid-row">
+                <div class="summary-panel">
+                    <div class="column-two-thirds">
+                        <div class="form-group" id="self-assessment-forms">
+                        @formPartial
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
-  }
-</div>
 }

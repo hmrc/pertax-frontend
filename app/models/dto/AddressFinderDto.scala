@@ -18,9 +18,7 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Messages
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.validators.Validators
 import util.PertaxValidators._
 object AddressFinderDto {
 

@@ -17,37 +17,30 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper}
 import models._
 import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
 import play.api.i18n.MessagesApi
-import play.api.inject._
 import play.api.libs.json.JsBoolean
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import services._
-import services.partials.{CspPartialService, MessageFrontendService}
+import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 

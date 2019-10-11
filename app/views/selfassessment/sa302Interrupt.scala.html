@@ -16,32 +16,32 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
 @(year: String, saUtr: SaUtr)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("label.get_your_sa302_calculation"),Some(messages("label.your_personal_tax_account"))) {
-<div class="grid-row">
-  <div class="column-two-thirds">
-    <h1 class="heading-large no-margin-bottom">@messages("label.get_your_sa302_calculation")</h1>
-    <p>@messages("label.we_can_only_show_your_sa302_calculation_if_you_")</p>
-      <details class="margin-top" role="group">
-        <summary role="button" aria-controls="details-content" tabindex="0" aria-expanded="false">
-          <span class="summary">@messages("label.i_didnt_file_through_this_website")</span>
-        </summary>
-        <div class="panel panel-indent panel-border-narrow" id="details-content" aria-hidden="true">
-          <p>@messages("label.to_get_your_sa302_calculation")</p>
-          <ul class="bullets">
-            <li>@messages("label.use_the_commercial_software_you_filed_with")</li>
-            <li>@messages("label.if_your_accountant_filed_check_with_them")</li>
-            <li><a href="@configDecorator.selfAssessmentContactUrl" target="_blank" rel="noopener noreferrer">@messages("label.call_us_if_you_filed_your_return_by_post_link_text") @messages("label.opens_in_a_new_window")</a> @messages("label.call_us_if_you_filed_your_return_by_post_text_after_link")</li>
-          </ul>
+@main(messages("label.get_your_sa302_calculation"), Some(messages("label.your_personal_tax_account"))) {
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            <h1 class="heading-large no-margin-bottom">@messages("label.get_your_sa302_calculation")</h1>
+            <p>@messages("label.we_can_only_show_your_sa302_calculation_if_you_")</p>
+            <details class="margin-top" role="group">
+                <summary role="button" aria-controls="details-content" tabindex="0" aria-expanded="false">
+                    <span class="summary">@messages("label.i_didnt_file_through_this_website")</span>
+                </summary>
+                <div class="panel panel-indent panel-border-narrow" id="details-content" aria-hidden="true">
+                    <p>@messages("label.to_get_your_sa302_calculation")</p>
+                    <ul class="bullets">
+                        <li>@messages("label.use_the_commercial_software_you_filed_with")</li>
+                        <li>@messages("label.if_your_accountant_filed_check_with_them")</li>
+                        <li><a href="@configDecorator.selfAssessmentContactUrl" target="_blank" rel="noopener noreferrer">@messages("label.call_us_if_you_filed_your_return_by_post_link_text") @messages("label.opens_in_a_new_window")</a> @messages("label.call_us_if_you_filed_your_return_by_post_text_after_link")</li>
+                    </ul>
+                </div>
+            </details>
+            <p>
+                <a type="submit" class="button" href="@configDecorator.sa302Url(saUtr.toString, year.toString)" role="button">@messages("label.continue_to_your_sa302")</a>
+            </p>
         </div>
-      </details>
-      <p>
-          <a type="submit" class="button" href="@configDecorator.sa302Url(saUtr.toString, year.toString)" role="button">@messages("label.continue_to_your_sa302")</a>
-      </p>
-  </div>
-</div>
+    </div>
 }

@@ -16,7 +16,6 @@
 
 package controllers.bindable
 
-import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import util.BaseSpec
 

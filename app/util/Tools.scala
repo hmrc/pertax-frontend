@@ -16,7 +16,7 @@
 
 package util
 
-import java.net.{URI, URL, URLEncoder}
+import java.net.{URI, URLEncoder}
 
 import javax.inject.Inject
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}

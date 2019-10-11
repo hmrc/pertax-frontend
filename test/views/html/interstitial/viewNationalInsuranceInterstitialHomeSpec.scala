@@ -21,7 +21,6 @@ import controllers.auth.requests.UserRequest
 import models.NonFilerSelfAssessmentUser
 import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
-import play.api.Play
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html

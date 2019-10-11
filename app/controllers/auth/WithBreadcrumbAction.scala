@@ -19,7 +19,6 @@ package controllers.auth
 import controllers.auth.requests.UserRequest
 import models.Breadcrumb
 import play.api.mvc.{ActionRefiner, Result}
-import uk.gov.hmrc.renderer.ActiveTab
 
 import scala.concurrent.Future
 

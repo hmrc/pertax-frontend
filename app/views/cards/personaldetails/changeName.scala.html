@@ -14,24 +14,26 @@
  * limitations under the License.
  *@
 
-@import tags._
-@import controllers.auth.requests.UserRequest
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import tags._
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@cardContent = {
-    @if(request.retrievedName.isDefined) {<p>request.retrievedName.map(upperCaseToTitleCase(_.toString))</p>}
-}
+    @cardContent = {
+    @if(request.retrievedName.isDefined) {
+        <p>request.retrievedName.map(upperCaseToTitleCase(_.toString))</p>
+    }
+    }
 
-@card(
-    url = Some(configDecorator.changeNameLinkUrl),
-    gaAction = Some("Personal details"),
-    gaLabel = Some("Name"),
-    heading = messages("label.name"),
-    bodyContent = Some(cardContent)
-){
-    <ul>
-        <li><a class="ga-track-anchor-click" href="@configDecorator.changeNameLinkUrl" data-ga-event-category="link - click" data-ga-event-action="Personal details" data-ga-event-label="Change your name">@messages("label.change_your_name")</a></li>
-    </ul>
-}
+    @card(
+        url = Some(configDecorator.changeNameLinkUrl),
+        gaAction = Some("Personal details"),
+        gaLabel = Some("Name"),
+        heading = messages("label.name"),
+        bodyContent = Some(cardContent)
+    ) {
+        <ul>
+            <li><a class="ga-track-anchor-click" href="@configDecorator.changeNameLinkUrl" data-ga-event-category="link - click" data-ga-event-action="Personal details" data-ga-event-label="Change your name">@messages("label.change_your_name")</a></li>
+        </ul>
+    }

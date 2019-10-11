@@ -19,19 +19,18 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import models.addresslookup.RecordSet
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
-import services.http.FakeSimpleHttp
-import models.addresslookup.RecordSet
 import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
+import services.http.FakeSimpleHttp
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import util.Fixtures._
-import util.{BaseSpec, Fixtures, Tools}
 import uk.gov.hmrc.http.HttpResponse
+import util.Fixtures._
+import util.{BaseSpec, Tools}
 
 import scala.io.Source
 

@@ -16,13 +16,10 @@
 
 package util
 
-import java.io
-
 import controllers.auth.requests.UserRequest
-import models.{PersonDetails, PertaxContext}
-import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
+import models.PersonDetails
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.DataEvent
 
 object AuditServiceTools {
 

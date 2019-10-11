@@ -18,10 +18,10 @@ package services.http
 
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import javax.inject.{Inject, Singleton}
 import connectors.PertaxAuditConnector
-import play.api.{Configuration, Environment, Play}
+import javax.inject.{Inject, Singleton}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.{AppName, RunMode}

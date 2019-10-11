@@ -13,27 +13,27 @@ $desktop-breakpoint: 769px !default;
     }
   } @else {
     @if $size == desktop {
-      @media (min-width: $desktop-breakpoint){
+      @media (min-width: $desktop-breakpoint) {
         @content;
       }
     } @else if $size == tablet {
-      @media (min-width: $tablet-breakpoint){
+      @media (min-width: $tablet-breakpoint) {
         @content;
       }
     } @else if $size == mobile {
-      @media (max-width: $tablet-breakpoint - 1px){
+      @media (max-width: $tablet-breakpoint - 1px) {
         @content;
       }
     } @else if $max-width != false {
-      @media (max-width: $max-width){
+      @media (max-width: $max-width) {
         @content;
       }
     } @else if $min-width != false {
-      @media (min-width: $min-width){
+      @media (min-width: $min-width) {
         @content;
       }
     } @else {
-      @media (min-width: $size){
+      @media (min-width: $size) {
         @content
       }
     }

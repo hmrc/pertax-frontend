@@ -20,8 +20,6 @@ import java.util.UUID
 
 import akka.stream.Materializer
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, FakeAuthJourney}
 import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}

@@ -19,9 +19,9 @@ package services.partials
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.mvc.Request
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig

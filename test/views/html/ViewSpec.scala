@@ -21,8 +21,7 @@ import models.PertaxContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import play.api.i18n.{Lang, Messages}
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.test.FakeRequest
 import util.BaseSpec
 

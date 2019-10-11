@@ -17,38 +17,30 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
-import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{CountryHelper, PersonalDetailsCardGenerator}
-import error.LocalErrorHandler
 import models._
-import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
-import org.joda.time.{DateTime, LocalDate}
-import org.jsoup.Jsoup
+import org.joda.time.LocalDate
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.inject.bind
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{ActionBuilder, Request, Result, Results}
+import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.CorrespondenceAddressLockRepository
 import services._
-import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
+import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._

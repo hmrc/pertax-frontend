@@ -17,16 +17,15 @@
 package views.html
 
 import config.ConfigDecorator
-import models.{PertaxContext, PertaxUser}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
-import play.api.test.FakeRequest
-import util.{BaseSpec, Fixtures}
-import viewmodels.{Heading, TaxCalculationViewModel, TaxYears, UnderpaidUrl}
+import util.BaseSpec
 import viewmodels.Message.text
+import viewmodels.{Heading, TaxCalculationViewModel, TaxYears, UnderpaidUrl}
 import views.html.cards.home.taxCalculation
+
 import scala.collection.JavaConverters._
 
 class TaxCalculationViewSpec extends BaseSpec {

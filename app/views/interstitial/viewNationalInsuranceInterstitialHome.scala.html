@@ -14,48 +14,47 @@
  * limitations under the License.
  *@
 
-@import models.PertaxUser._
-@import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
+@import tags._
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
 @(formPartial: Html, redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@interstitialWrapper(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
+    @interstitialWrapper(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
 
-  <div class="column-two-thirds">
+        <div class="column-two-thirds">
 
-    @if(request.nino.isDefined) {
+        @if(request.nino.isDefined) {
 
-      @request.nino.map { nino =>
-        <div class="panel-indent panel-border-wide">
-          <p>@messages("label.your_national_insurance_number_is")@formattedNino(nino)</p>
+            @request.nino.map { nino =>
+                <div class="panel-indent panel-border-wide">
+                    <p>@messages("label.your_national_insurance_number_is") @formattedNino(nino)</p>
+                </div>
+            }
+
+            @if(configDecorator.nispEnabled) {
+                <h2 class="heading-medium">@messages("label.check_your_national_insurance_contributions")</h2>
+                <p>@messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
+                <p><a class="trackLink" href="@configDecorator.nationalInsuranceRecordUrl">@messages("label.check_your_national_insurance_contributions")</a></p>
+            }
+
+            <h2 class="heading-medium">@messages("label.print_proof_of_your_national_insurance_number")</h2>
+            <p>@messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")</p>
+            <p><a class="trackLink" href="@controllers.routes.NiLetterController.printNationalInsuranceNumber()">@messages("label.print_proof_of_your_national_insurance_number")</a></p>
+
+            <div class="forms-group pertax-panel" id="national_insurance">
+                <div class="grid-row">
+                    <div class="column-full">
+                    @formPartial
+                    </div>
+                </div>
+            </div>
+        } else {
+            <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+            <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
+        }
         </div>
-      }
-
-      @if(configDecorator.nispEnabled) {
-        <h2 class="heading-medium">@messages("label.check_your_national_insurance_contributions")</h2>
-        <p>@messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
-        <p><a class="trackLink" href="@configDecorator.nationalInsuranceRecordUrl">@messages("label.check_your_national_insurance_contributions")</a></p>
-      }
-
-      <h2 class="heading-medium">@messages("label.print_proof_of_your_national_insurance_number")</h2>
-      <p>@messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")</p>
-      <p><a class="trackLink" href="@controllers.routes.NiLetterController.printNationalInsuranceNumber()">@messages("label.print_proof_of_your_national_insurance_number")</a></p>
-
-      <div class="forms-group pertax-panel" id="national_insurance">
-        <div class="grid-row">
-          <div class="column-full">
-            @formPartial
-          </div>
-        </div>
-      </div>
-    } else {
-      <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
     }
-  </div>
-}

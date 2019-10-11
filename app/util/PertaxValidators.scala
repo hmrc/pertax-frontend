@@ -16,14 +16,9 @@
 
 package util
 
-import java.io
-
-import play.api.Logger
-import play.api.data.{FieldMapping, FormError}
 import play.api.data.Forms._
 import play.api.data.format.Formatter
-import play.api.i18n.Messages
-import uk.gov.hmrc.play.validators._
+import play.api.data.{FieldMapping, FormError}
 
 object PertaxValidators {
 

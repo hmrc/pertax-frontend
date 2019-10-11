@@ -20,9 +20,9 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig

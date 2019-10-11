@@ -17,8 +17,8 @@
 package connectors
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.connectors.DelegationConnector

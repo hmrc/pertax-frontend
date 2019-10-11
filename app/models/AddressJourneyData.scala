@@ -16,8 +16,8 @@
 
 package models
 
-import models.dto._
 import models.addresslookup.AddressRecord
+import models.dto._
 
 case class AddressJourneyData(
   addressPageVisitedDto: Option[AddressPageVisitedDto],

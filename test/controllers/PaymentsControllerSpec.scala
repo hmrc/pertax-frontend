@@ -35,7 +35,6 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.Fixtures.buildFakeRequestWithAuth
 import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future

@@ -16,47 +16,48 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
-@import util.LocalPartialRetriever
+@import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
 @(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.did_you_deregister_from_sa_online"),
-  pageName = Some(messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.filedReturnOnlineChoice().url)
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.filedReturnOnlineChoice().url)
 ) {
 
     @errors(AmbiguousUserForm)
 
     <div class="grid-row">
-      <div class="column-two-thirds">
+        <div class="column-two-thirds">
 
-        <header class="page-heading">
-          <h1 class="heading-xlarge no-margin-top">@messages("label.did_you_deregister_from_sa_online")</h1>
-          <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@messages("label.how_to_access_your_self_assessment")</p>
-        </header>
+            <header class="page-heading">
+                <h1 class="heading-xlarge no-margin-top">@messages("label.did_you_deregister_from_sa_online")</h1>
+                <p class="heading-secondary"><span class="visuallyhidden">
+                    This section is </span>@messages("label.how_to_access_your_self_assessment")</p>
+            </header>
 
-        @form(action = controllers.routes.AmbiguousJourneyController.processDeEnroledFromSaChoice) {
-          <div class="form-group inline">
-            @input_radio_group(
-              AmbiguousUserForm("ambiguousUserFormChoice"),
-              Seq("true" -> messages("label.yes"), "false" -> messages("label.no")),
-              '_labelClass -> "block-label",
-              '_error -> AmbiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({
-                messages("label.select_an_answer")
-              })),
-              '_legendClass -> "visuallyhidden",
-              '_legend -> messages("label.did_you_deregister_from_sa_online")
-            )
-          </div>
-          <div class="form-group">
-            <input type="submit" class="button" value="@messages("global.label.continue_button")" />
-          </div>
-        }
-      </div>
+            @form(action = controllers.routes.AmbiguousJourneyController.processDeEnroledFromSaChoice) {
+                <div class="form-group inline">
+                @input_radio_group(
+                    AmbiguousUserForm("ambiguousUserFormChoice"),
+                    Seq("true" -> messages("label.yes"), "false" -> messages("label.no")),
+                    '_labelClass -> "block-label",
+                    '_error -> AmbiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({
+                        messages("label.select_an_answer")
+                    })),
+                    '_legendClass -> "visuallyhidden",
+                    '_legend -> messages("label.did_you_deregister_from_sa_online")
+                )
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="button" value="@messages("global.label.continue_button")" />
+                </div>
+            }
+        </div>
     </div>
 
 

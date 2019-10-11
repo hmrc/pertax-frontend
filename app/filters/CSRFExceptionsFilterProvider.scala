@@ -17,9 +17,8 @@
 package filters
 
 import javax.inject.{Inject, Provider, Singleton}
-
-import play.api.{Application, Configuration}
 import play.api.mvc.Request
+import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal

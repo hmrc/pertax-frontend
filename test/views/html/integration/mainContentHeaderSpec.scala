@@ -21,7 +21,7 @@ import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
-import util.{BaseSpec, DateTimeTools}
+import util.BaseSpec
 
 class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
 

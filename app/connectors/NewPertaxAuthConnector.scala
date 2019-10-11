@@ -17,8 +17,8 @@
 package connectors
 
 import com.google.inject.Inject
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import services.http.WSHttp
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.config.ServicesConfig
