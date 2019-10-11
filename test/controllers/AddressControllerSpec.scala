@@ -23,23 +23,22 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.helpers.{CountryHelper, PersonalDetailsCardGenerator}
 import models._
-import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
+import models.addresslookup.RecordSet
 import models.dto._
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{ActionBuilder, Request, Result, Results}
+import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.CorrespondenceAddressLockRepository
 import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -1870,303 +1869,508 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
 
   }
-//
-//  "Calling AddressController.confirmClosePostalAddress" should {
-//
-//    trait LocalSetup extends WithAddressControllerSpecSetup {
-//      override lazy val fakeAddress = buildFakeAddress
-//      override lazy val nino = Fixtures.fakeNino
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
-//      override lazy val sessionCacheResponse =
-//        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
-//      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-//      override lazy val thisYearStr = "2015"
-//    }
-//
-//    "render the appropriate content that includes the address" in new LocalSetup {
-//      val result = controller.confirmClosePostalAddress(FakeRequest())
-//
-//      contentAsString(result) should include(fakeAddress.line1.getOrElse("line6"))
-//    }
-//  }
-//
-//  "Calling AddressController.processUpdateInternationalAddressForm" should {
-//
-//    trait LocalSetup extends WithAddressControllerSpecSetup {
-//      override lazy val fakeAddress = buildFakeAddress
-//      override lazy val nino = Fixtures.fakeNino
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
-//      override lazy val sessionCacheResponse =
-//        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
-//      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-//      override lazy val thisYearStr = "2015"
-//    }
-//
-//    "return 400 when supplied invalid form input" in new LocalSetup {
-//      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("selectedAddressRecord" -> Json.toJson(""))))
-//
-//      val result = controller.processUpdateInternationalAddressForm(PostalAddrType)(FakeRequest("POST", ""))
-//
-//      status(result) shouldBe BAD_REQUEST
-//      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-//    }
-//
-//    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in new LocalSetup {
-//      val result = controller.processUpdateInternationalAddressForm(PostalAddrType)(
-//        FakeRequest("POST", "").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/changes")
-//      verify(controller.sessionCache, times(1)).cache(
-//        meq("postalSubmittedAddressDto"),
-//        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
-//      verify(controller.sessionCache, times(1))
-//        .cache(meq("postalSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
-//      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-//    }
-//
-//    "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in new LocalSetup {
-//      val result = controller.processUpdateInternationalAddressForm(SoleAddrType)(
-//        FakeRequest("POST", "").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
-//      verify(controller.sessionCache, times(1)).cache(
-//        meq("soleSubmittedAddressDto"),
-//        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
-//      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-//    }
-//
-//  }
-//
-//  "Calling AddressController.enterStartDate" should {
-//
-//    trait LocalSetup extends WithAddressControllerSpecSetup {
-//      override lazy val fakeAddress = buildFakeAddress
-//      override lazy val nino = Fixtures.fakeNino
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
-//      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-//      override lazy val thisYearStr = "2015"
-//    }
-//
-//    "return 200 when passed PrimaryAddrType and submittedAddressDto is in keystore" in new LocalSetup {
-//      lazy val sessionCacheResponse = Some(
-//        CacheMap(
-//          "id",
-//          Map("primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))))
-//
-//      val result = controller.enterStartDate(PrimaryAddrType)(FakeRequest())
-//
-//      status(result) shouldBe OK
-//      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-//    }
-//
-//    "return 200 when passed SoleAddrType and submittedAddressDto is in keystore" in new LocalSetup {
-//      lazy val sessionCacheResponse = Some(
-//        CacheMap(
-//          "id",
-//          Map("soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))))
-//
-//      val result = controller.enterStartDate(SoleAddrType)(FakeRequest())
-//
-//      status(result) shouldBe OK
-//      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-//    }
-//
-//    "redirect to 'edit address' when passed PostalAddrType as this step is not valid for postal" in new LocalSetup {
-//      lazy val sessionCacheResponse =
-//        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-//
-//      val result = controller.enterStartDate(PostalAddrType)(FakeRequest())
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
-//      verify(controller.sessionCache, times(0)).fetch()(any(), any())
-//    }
-//
-//    "redirect back to start of journey if submittedAddressDto is missing from keystore" in new LocalSetup {
-//      lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
-//
-//      val result = controller.enterStartDate(PrimaryAddrType)(FakeRequest())
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-//      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-//    }
-//
-//  }
-//
-//  "Calling AddressController.processEnterStartDate" should {
-//
-//    trait LocalSetup extends WithAddressControllerSpecSetup {
-//      override lazy val fakeAddress = buildFakeAddress
-//      override lazy val nino = Fixtures.fakeNino
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
-//      override lazy val sessionCacheResponse =
-//        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-//      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-//      override lazy val thisYearStr = "2015"
-//    }
-//
-//    "return 303 when passed PrimaryAddrType and a valid form with low numbers" in new LocalSetup {
-//      val result = controller.processEnterStartDate(PrimaryAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016"))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-//      verify(controller.sessionCache, times(1))
-//        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
-//    }
-//
-//    "return 303 when passed PrimaryAddrType and date is in the today" in new LocalSetup {
-//
-//      val result = controller.processEnterStartDate(PrimaryAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016"))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-//      verify(controller.sessionCache, times(1))
-//        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
-//    }
-//
-//    "redirect to the changes to sole address page when passed PrimaryAddrType and a valid form with high numbers" in new LocalSetup {
-//      val result = controller.processEnterStartDate(SoleAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
-//      verify(controller.sessionCache, times(1))
-//        .cache(meq("soleSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2015)))(any(), any(), any())
-//    }
-//
-//    "return 400 when passed PrimaryAddrType and missing date fields" in new LocalSetup {
-//      val result =
-//        controller.processEnterStartDate(PrimaryAddrType)(FakeRequest("POST", "").withFormUrlEncodedBody())
-//      status(result) shouldBe BAD_REQUEST
-//      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-//    }
-//
-//    "return 400 when passed PrimaryAddrType and day out of range" in new LocalSetup {
-//      status(
-//        controller.processEnterStartDate(PrimaryAddrType)(
-//          FakeRequest("POST", "").withFormUrlEncodedBody(
-//            "startDate.day"   -> "0",
-//            "startDate.month" -> "1",
-//            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-//      status(
-//        controller.processEnterStartDate(PrimaryAddrType)(
-//          FakeRequest("POST", "").withFormUrlEncodedBody(
-//            "startDate.day"   -> "32",
-//            "startDate.month" -> "1",
-//            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-//      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-//    }
-//
-//    "return 400 when passed PrimaryAddrType and month out of range" in new LocalSetup {
-//      status(
-//        controller.processEnterStartDate(PrimaryAddrType)(
-//          FakeRequest("POST", "").withFormUrlEncodedBody(
-//            "startDate.day"   -> "1",
-//            "startDate.month" -> "0",
-//            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-//      status(
-//        controller.processEnterStartDate(PrimaryAddrType)(
-//          FakeRequest("POST", "").withFormUrlEncodedBody(
-//            "startDate.day"   -> "31",
-//            "startDate.month" -> "13",
-//            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-//      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-//    }
-//
-//    "return 400 when passed PrimaryAddrType and date is in the future" in new LocalSetup {
-//      status(
-//        controller.processEnterStartDate(PrimaryAddrType)(
-//          FakeRequest("POST", "").withFormUrlEncodedBody(
-//            "startDate.day"   -> "3",
-//            "startDate.month" -> "2",
-//            "startDate.year"  -> "2016"))) shouldBe BAD_REQUEST
-//      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-//    }
-//
-//    "return a 400 when startDate is earlier than recorded with sole address type" in new LocalSetup {
-//      val result = controller.processEnterStartDate(SoleAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015"))
-//
-//      status(result) shouldBe BAD_REQUEST
-//    }
-//
-//    "return a 400 when startDate is the same as recorded with sole address type" in new LocalSetup {
-//      val result = controller.processEnterStartDate(SoleAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015"))
-//
-//      status(result) shouldBe BAD_REQUEST
-//    }
-//
-//    "return a 400 when startDate is earlier than recorded with primary address type" in new LocalSetup {
-//      val result = controller.processEnterStartDate(PrimaryAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015"))
-//
-//      status(result) shouldBe BAD_REQUEST
-//    }
-//
-//    "return a 400 when startDate is the same as recorded with primary address type" in new LocalSetup {
-//      val result = controller.processEnterStartDate(PrimaryAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015"))
-//
-//      status(result) shouldBe BAD_REQUEST
-//    }
-//
-//    "redirect to correct successful url when supplied with startDate after recorded with sole address type" in new LocalSetup {
-//      val result = controller.processEnterStartDate(SoleAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
-//    }
-//
-//    "redirect to correct successful url when supplied with startDate after startDate on record with primary address" in new LocalSetup {
-//      val result = controller.processEnterStartDate(PrimaryAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-//    }
-//
-//    "redirect to success page when no startDate is on record" in new LocalSetup {
-//      lazy val personDetailsNoStartDate =
-//        personDetails.copy(address = personDetails.address.map(_.copy(startDate = None)))
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoStartDate)
-//
-//      val result = controller.processEnterStartDate(PrimaryAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-//    }
-//
-//    "redirect to success page when no address is on record" in new LocalSetup {
-//      lazy val personDetailsNoAddress = personDetails.copy(address = None)
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoAddress)
-//
-//      val result = controller.processEnterStartDate(PrimaryAddrType)(
-//        FakeRequest("POST", "")
-//          .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr))
-//
-//      status(result) shouldBe SEE_OTHER
-//      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-//    }
-//
-//  }
+
+  "Calling AddressController.confirmClosePostalAddress" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse =
+        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest()
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+    }
+
+    "render the appropriate content that includes the address" in new LocalSetup {
+      val result = controller.confirmClosePostalAddress(FakeRequest())
+
+      contentAsString(result) should include(fakeAddress.line1.getOrElse("line6"))
+    }
+  }
+
+  "Calling AddressController.processUpdateInternationalAddressForm" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse =
+        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "return 400 when supplied invalid form input" in new LocalSetup {
+      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("selectedAddressRecord" -> Json.toJson(""))))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest()
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processUpdateInternationalAddressForm(PostalAddrType)(FakeRequest("POST", ""))
+
+      status(result) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processUpdateInternationalAddressForm(PostalAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/changes")
+      verify(controller.sessionCache, times(1)).cache(
+        meq("postalSubmittedAddressDto"),
+        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
+      verify(controller.sessionCache, times(1))
+        .cache(meq("postalSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processUpdateInternationalAddressForm(SoleAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
+      verify(controller.sessionCache, times(1)).cache(
+        meq("soleSubmittedAddressDto"),
+        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+  }
+
+  "Calling AddressController.enterStartDate" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "return 200 when passed PrimaryAddrType and submittedAddressDto is in keystore" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(
+        CacheMap(
+          "id",
+          Map("primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest()
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.enterStartDate(PrimaryAddrType)(FakeRequest())
+
+      status(result) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return 200 when passed SoleAddrType and submittedAddressDto is in keystore" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(
+        CacheMap(
+          "id",
+          Map("soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest()
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.enterStartDate(SoleAddrType)(FakeRequest())
+
+      status(result) shouldBe OK
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "redirect to 'edit address' when passed PostalAddrType as this step is not valid for postal" in new LocalSetup {
+      lazy val sessionCacheResponse =
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest()
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.enterStartDate(PostalAddrType)(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
+      verify(controller.sessionCache, times(0)).fetch()(any(), any())
+    }
+
+    "redirect back to start of journey if submittedAddressDto is missing from keystore" in new LocalSetup {
+      lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest()
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.enterStartDate(PrimaryAddrType)(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+    }
+
+  }
+
+  "Calling AddressController.processEnterStartDate" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val sessionCacheResponse =
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+    }
+
+    "return 303 when passed PrimaryAddrType and a valid form with low numbers" in new LocalSetup {
+
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+      verify(controller.sessionCache, times(1))
+        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
+    }
+
+    "return 303 when passed PrimaryAddrType and date is in the today" in new LocalSetup {
+
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+      verify(controller.sessionCache, times(1))
+        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
+    }
+
+    "redirect to the changes to sole address page when passed PrimaryAddrType and a valid form with high numbers" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+      val result = controller.processEnterStartDate(SoleAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
+      verify(controller.sessionCache, times(1))
+        .cache(meq("soleSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2015)))(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and missing date fields" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "").withFormUrlEncodedBody()
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result =
+        controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+      status(result) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and day out of range" in new LocalSetup {
+      status(
+        controller.processEnterStartDate(PrimaryAddrType)(
+          FakeRequest("POST", "").withFormUrlEncodedBody(
+            "startDate.day"   -> "0",
+            "startDate.month" -> "1",
+            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
+      status(
+        controller.processEnterStartDate(PrimaryAddrType)(
+          FakeRequest("POST", "").withFormUrlEncodedBody(
+            "startDate.day"   -> "32",
+            "startDate.month" -> "1",
+            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and month out of range" in new LocalSetup {
+      status(
+        controller.processEnterStartDate(PrimaryAddrType)(
+          FakeRequest("POST", "").withFormUrlEncodedBody(
+            "startDate.day"   -> "1",
+            "startDate.month" -> "0",
+            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
+
+      status(
+        controller.processEnterStartDate(PrimaryAddrType)(
+          FakeRequest("POST", "").withFormUrlEncodedBody(
+            "startDate.day"   -> "31",
+            "startDate.month" -> "13",
+            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
+
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and date is in the future" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      status(controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)) shouldBe BAD_REQUEST
+
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return a 400 when startDate is earlier than recorded with sole address type" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(SoleAddrType)(requestWithForm)
+
+      status(result) shouldBe BAD_REQUEST
+    }
+
+    "return a 400 when startDate is the same as recorded with sole address type" in new LocalSetup {
+
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(SoleAddrType)(requestWithForm)
+
+      status(result) shouldBe BAD_REQUEST
+    }
+
+    "return a 400 when startDate is earlier than recorded with primary address type" in new LocalSetup {
+
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe BAD_REQUEST
+    }
+
+    "return a 400 when startDate is the same as recorded with primary address type" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe BAD_REQUEST
+    }
+
+    "redirect to correct successful url when supplied with startDate after recorded with sole address type" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(SoleAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
+    }
+
+    "redirect to correct successful url when supplied with startDate after startDate on record with primary address" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+    }
+
+    "redirect to success page when no startDate is on record" in new LocalSetup {
+      lazy val personDetailsNoStartDate =
+        personDetails.copy(address = personDetails.address.map(_.copy(startDate = None)))
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoStartDate)
+
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+    }
+
+    "redirect to success page when no address is on record" in new LocalSetup {
+      lazy val personDetailsNoAddress = personDetails.copy(address = None)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoAddress)
+
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+    }
+
+  }
 //
 //  "Calling AddressController.reviewChanges" should {
 //
