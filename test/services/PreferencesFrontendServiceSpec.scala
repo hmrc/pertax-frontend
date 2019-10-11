@@ -73,9 +73,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       when(mockSimpleHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(Json.obj()))))
 
-      lazy val r = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference()
 
-      await(r) shouldBe ActivatePaperlessActivatedResponse
+      await(result) shouldBe ActivatePaperlessActivatedResponse
 
       /*      verify(mockMetrics., times(1)).startTimer(metricId)
       verify(mockMetrics, times(1)).incrementSuccessCounter(metricId)
@@ -102,9 +102,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       when(mockSimpleHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(Json.obj()))))
 
-      lazy val r = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference()
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
 
       /*      verify(met, times(0)).startTimer(metricId)
       verify(met, times(0)).incrementSuccessCounter(metricId)
@@ -129,9 +129,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
       when(mockSimpleHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
         .thenReturn(Future.successful(HttpResponse(SEE_OTHER)))
-      lazy val r = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference()
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
 
       /*      verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
@@ -156,9 +156,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
       when(mockSimpleHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(Json.obj()))))
-      lazy val r = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference()
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
 
       /*      verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
@@ -184,9 +184,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       when(mockSimpleHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
         .thenReturn(Future.successful(
           HttpResponse(PRECONDITION_FAILED, Some(Json.obj("redirectUserTo" -> "http://www.testurl.com")))))
-      lazy val r = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference()
 
-      await(r) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
+      await(result) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
 
       /*      verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
@@ -211,9 +211,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
       when(mockSimpleHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
         .thenReturn(Future.failed(new RuntimeException("Any")))
-      lazy val r = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference()
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
       /*      verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()*/
