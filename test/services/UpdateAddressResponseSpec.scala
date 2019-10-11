@@ -21,6 +21,7 @@ import controllers.auth.requests.UserRequest
 import models.{NonFilerSelfAssessmentUser, PertaxContext, UserName}
 import org.joda.time.DateTime
 import org.scalatest.mockito.MockitoSugar
+import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
@@ -33,10 +34,8 @@ import util.{BaseSpec, Fixtures}
 
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSugar {
 
-  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  implicit lazy val pertaxContext =
-    PertaxContext(FakeRequest(), mockLocalPartialRetriever, injected[ConfigDecorator])
   override def messagesApi: MessagesApi = injected[MessagesApi]
 
   implicit val userRequest = UserRequest(
@@ -68,13 +67,13 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSu
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
-      val updateAddressResponse = new UpdateAddressUnexpectedResponse(HttpResponse(123))
+      val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123))
       val result = updateAddressResponse.response(genericFunc)
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
-      val updateAddressResponse = new UpdateAddressErrorResponse(new RuntimeException("not used"))
+      val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
       val result = updateAddressResponse.response(genericFunc)
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
