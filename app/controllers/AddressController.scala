@@ -281,6 +281,7 @@ class AddressController @Inject()(
       addressJourneyEnforcer { _ => _ =>
         AddressFinderDto.form.bindFromRequest.fold(
           formWithErrors => {
+            println(formWithErrors)
             Future.successful(BadRequest(views.html.personaldetails.postcodeLookup(formWithErrors, typ)))
           },
           addressFinderDto => {

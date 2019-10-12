@@ -33,7 +33,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, AnyContentAsFormUrlEncoded, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.CorrespondenceAddressLockRepository
@@ -46,6 +46,8 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
+import util.fixtures.PersonFixture._
+import util.fixtures.AddressFixture._
 import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
 
 import scala.concurrent.Future
@@ -840,7 +842,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+            UserRequestFixture.buildUserRequest(
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
+                .asInstanceOf[Request[A]]).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -863,7 +868,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+            UserRequestFixture.buildUserRequest(
+              request = FakeRequest("POST", "")
+              .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
+              .asInstanceOf[Request[A]]).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -944,7 +952,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+            UserRequestFixture.buildUserRequest(request = FakeRequest("POST", "")
+              .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
+              .asInstanceOf[Request[A]]).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -2161,43 +2171,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 400 when passed PrimaryAddrType and day out of range" in new LocalSetup {
-      status(
-        controller.processEnterStartDate(PrimaryAddrType)(
-          FakeRequest("POST", "").withFormUrlEncodedBody(
-            "startDate.day"   -> "0",
-            "startDate.month" -> "1",
-            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-      status(
-        controller.processEnterStartDate(PrimaryAddrType)(
-          FakeRequest("POST", "").withFormUrlEncodedBody(
-            "startDate.day"   -> "32",
-            "startDate.month" -> "1",
-            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and month out of range" in new LocalSetup {
-      status(
-        controller.processEnterStartDate(PrimaryAddrType)(
-          FakeRequest("POST", "").withFormUrlEncodedBody(
-            "startDate.day"   -> "1",
-            "startDate.month" -> "0",
-            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-
-      status(
-        controller.processEnterStartDate(PrimaryAddrType)(
-          FakeRequest("POST", "").withFormUrlEncodedBody(
-            "startDate.day"   -> "31",
-            "startDate.month" -> "13",
-            "startDate.year"  -> thisYearStr))) shouldBe BAD_REQUEST
-
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and date is in the future" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
+    "return 400 when passed PrimaryAddrType and day out of range - too early" in new LocalSetup {
+      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -2208,9 +2184,83 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      status(controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)) shouldBe BAD_REQUEST
-
+      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+      status(result) shouldBe BAD_REQUEST
       verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and day out of range - too late" in new LocalSetup {
+      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "32", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+
+      status(result) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and month out of range at lower bound" in new LocalSetup {
+      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "0", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(requestWithForm)
+      status(result) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and month out of range at upper bound" in new LocalSetup {
+      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "13", "startDate.year" -> thisYearStr)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm)
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
+      status(result) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+    }
+
+    "return 400 when passed PrimaryAddrType and the updated start date is not after the start date on record" in new LocalSetup {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequestFixture
+              .buildUserRequest(request = requestWithForm,
+                personDetails = Some(PersonDetails("", emptyPerson, Some(address(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
+      status(result) shouldBe BAD_REQUEST
+      verify(controller.sessionCache, times(1)).cache(any(), any())(any(), any(), any())
     }
 
     "return a 400 when startDate is earlier than recorded with sole address type" in new LocalSetup {
