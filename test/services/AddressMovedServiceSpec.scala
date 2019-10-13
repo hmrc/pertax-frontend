@@ -16,6 +16,7 @@
 
 package services
 
+import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar

@@ -40,22 +40,25 @@ object AuditServiceTools {
 //      hc.deviceID.map(("deviceId", _)),
 //      context.request.cookies.get("mdtpdf").map(cookie => ("deviceFingerprint", cookie.value))
 //    ).flatten.toMap
-//
-//    val customAuditData = detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
-//
-//    val customTags = Map(
-//      "clientIP"        -> hc.trueClientIp,
-//      "clientPort"      -> hc.trueClientPort,
-//      "path"            -> Some(context.request.path),
-//      "transactionName" -> Some(transactionName)
-//    )
-//
-    DataEvent(
-      auditSource = "pertax-frontend",
-      auditType = auditType,
-      tags = hc.headers.toMap,
-      detail = Map.empty
-    )
+    {
+      val customTags = Map(
+        "clientIP"        -> hc.trueClientIp,
+        "clientPort"      -> hc.trueClientPort,
+        "path"            -> Some(request.path),
+        "transactionName" -> Some(transactionName)
+      )
+
+      val standardAuditData: Map[String, String] = Map("nino" -> request.nino.getOrElse("N/A").toString)
+
+      val customAuditData = detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
+
+      DataEvent(
+        auditSource = "pertax-frontend",
+        auditType = auditType,
+        tags = hc.headers.toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
+        detail = standardAuditData ++ customAuditData
+      )
+    }
 
   def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(
     implicit hc: HeaderCarrier,

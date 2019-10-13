@@ -17,14 +17,10 @@
 package services
 
 import javax.inject.Inject
+import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-
-sealed trait AddressChanged
-object MovedToScotland extends AddressChanged
-object MovedFromScotland extends AddressChanged
-object AnyOtherMove extends AddressChanged
 
 class AddressMovedService @Inject()(addressLookupService: AddressLookupService) {
 
