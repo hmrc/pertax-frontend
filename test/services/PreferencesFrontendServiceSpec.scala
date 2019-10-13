@@ -43,7 +43,7 @@ import scala.concurrent.Future
 
 class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar {
 
-  val mockHttp = mock[SimpleHttp]
+  val mockHttp = mock[WsAllMethods]
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]
   val mockTimer = mock[Timer]
@@ -51,7 +51,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
   val mockCounter = mock[Counter]
 
   override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[SimpleHttp].toInstance(mockHttp))
+    .overrides(bind[WsAllMethods].toInstance(mockHttp))
     .overrides(bind[Metrics].toInstance(mockMetrics))
     .build()
 
@@ -84,7 +84,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      when(mockHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
+      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
         .thenReturn {
           Future.successful(HttpResponse(OK, Some(Json.obj())))
         }
@@ -115,7 +115,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      when(mockHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
+      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(Json.obj()))))
 
       val result = service.getPaperlessPreference()
@@ -143,7 +143,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
+      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(SEE_OTHER)))
       val result = service.getPaperlessPreference()
 
@@ -170,7 +170,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
+      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(Json.obj()))))
       val result = service.getPaperlessPreference()
 
@@ -197,7 +197,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
+      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(
           HttpResponse(PRECONDITION_FAILED, Some(Json.obj("redirectUserTo" -> "http://www.testurl.com")))))
       val result = service.getPaperlessPreference()
@@ -225,7 +225,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.put[AnyContent, HttpResponse](any(), any())(any(), any())(any(), any()))
+      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
         .thenReturn {
           Future.failed(new RuntimeException("Any"))
         }

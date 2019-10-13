@@ -27,25 +27,27 @@ import play.api.http.Status._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Environment, Logger}
-import services.http.SimpleHttp
+import services.http.{SimpleHttp, WsAllMethods}
 import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendService @Inject()(
   environment: Environment,
   configuration: Configuration,
-  val simpleHttp: SimpleHttp,
+  val simpleHttp: WsAllMethods,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val applicationCrypto: ApplicationCrypto,
   val tools: Tools)
+  (implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
 
   val mode: Mode = environment.mode
@@ -65,8 +67,7 @@ class PreferencesFrontendService @Inject()(
           s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
             .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
-        simpleHttp.put[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true))(
-          onComplete = {
+        simpleHttp.PUT[JsObject, HttpResponse](url, Json.obj("active" -> true)) map {
             case r if r.status >= 200 && r.status < 300 =>
               t.completeTimerAndIncrementSuccessCounter()
               ActivatePaperlessActivatedResponse
@@ -83,14 +84,12 @@ class PreferencesFrontendService @Inject()(
               Logger.warn(
                 s"Unexpected ${r.status} response getting paperless preference record from preferences-frontend-service")
               ActivatePaperlessNotAllowedResponse
-          },
-          onError = {
+          } recover {
             case e =>
               t.completeTimerAndIncrementFailedCounter()
               Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
               ActivatePaperlessNotAllowedResponse
           }
-        )
       }
 
     if (request.isGovernmentGateway) {
