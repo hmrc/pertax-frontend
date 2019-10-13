@@ -25,6 +25,54 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import util.PertaxValidators._
 
+case class AddressDto(
+  line1: String,
+  line2: String,
+  line3: Option[String],
+  line4: Option[String],
+  line5: Option[String],
+  postcode: Option[String],
+  country: Option[String],
+  propertyRefNo: Option[String]
+) {
+  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) =
+    Address(
+      Some(line1),
+      Some(line2),
+      line3,
+      line4,
+      line5,
+      postcode.map(formatMandatoryPostCode),
+      country,
+      Some(startDate),
+      Some(endDate),
+      Some(`type`))
+  def toAddress(`type`: String, startDate: LocalDate) = postcode match {
+    case Some(postcode) =>
+      Address(
+        Some(line1),
+        Some(line2),
+        line3,
+        line4,
+        line5,
+        Some(formatMandatoryPostCode(postcode)),
+        None,
+        Some(startDate),
+        None,
+        Some(`type`))
+    case None =>
+      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
+  }
+
+  def toList: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
+  def toListWithCountry: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
+  def formatMandatoryPostCode(postCode: String): String = {
+    val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
+    val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
+    postCodeSplit._1 + " " + postCodeSplit._2
+  }
+}
+
 object AddressDto extends CountryHelper {
 
   implicit val formats = Json.format[AddressDto]
@@ -101,52 +149,4 @@ object AddressDto extends CountryHelper {
       "propertyRefNo" -> optional(nonEmptyText)
     )(AddressDto.apply)(AddressDto.unapply)
   )
-}
-
-case class AddressDto(
-  line1: String,
-  line2: String,
-  line3: Option[String],
-  line4: Option[String],
-  line5: Option[String],
-  postcode: Option[String],
-  country: Option[String],
-  propertyRefNo: Option[String]
-) {
-  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) =
-    Address(
-      Some(line1),
-      Some(line2),
-      line3,
-      line4,
-      line5,
-      postcode.map(formatMandatoryPostCode),
-      country,
-      Some(startDate),
-      Some(endDate),
-      Some(`type`))
-  def toAddress(`type`: String, startDate: LocalDate) = postcode match {
-    case Some(postcode) =>
-      Address(
-        Some(line1),
-        Some(line2),
-        line3,
-        line4,
-        line5,
-        Some(formatMandatoryPostCode(postcode)),
-        None,
-        Some(startDate),
-        None,
-        Some(`type`))
-    case None =>
-      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
-  }
-
-  def toList: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
-  def toListWithCountry: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
-  def formatMandatoryPostCode(postCode: String): String = {
-    val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
-    val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
-    postCodeSplit._1 + " " + postCodeSplit._2
-  }
 }

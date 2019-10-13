@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package models
+package models.addresslookup
 
-import play.api.libs.json._
+import play.api.libs.json.Json
 
-case class PersonDetails(
-  etag: String,
-  person: Person,
-  address: Option[Address],
-  correspondenceAddress: Option[Address]
-)
+/**
+  * Represents one address record. Arrays of these are returned from the address-lookup microservice.
+  */
+case class AddressRecord(
+  id: String,
+  address: Address,
+  // ISO639-1 code, e.g. 'en' for English
+  // see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+  language: String) {
 
-object PersonDetails {
-  implicit val formats = Json.format[PersonDetails]
+  def isValid: Boolean = address.isValid && language.length == 2
+}
+
+object AddressRecord {
+  implicit val formats = Json.format[AddressRecord]
 }

@@ -22,6 +22,10 @@ import play.api.data.Forms._
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.mappers.DateTuple._
 
+case class DateDto(
+  startDate: LocalDate
+)
+
 object DateDto {
 
   implicit val formats = Json.format[DateDto]
@@ -36,7 +40,3 @@ object DateDto {
     )(DateDto.apply)(DateDto.unapply)
   )
 }
-
-case class DateDto(
-  startDate: LocalDate
-)

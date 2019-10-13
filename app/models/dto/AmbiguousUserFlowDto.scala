@@ -20,6 +20,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
+case class AmbiguousUserFlowDto(value: Boolean)
+
 object AmbiguousUserFlowDto {
 
   implicit val formats = Json.format[AmbiguousUserFlowDto]
@@ -32,5 +34,3 @@ object AmbiguousUserFlowDto {
     )(AmbiguousUserFlowDto.apply)(AmbiguousUserFlowDto.unapply)
   )
 }
-
-case class AmbiguousUserFlowDto(value: Boolean)

@@ -18,10 +18,6 @@ package models
 
 import play.api.libs.json.Json
 
-object TaxCalculation {
-  implicit val formats = Json.format[TaxCalculation]
-}
-
 case class TaxCalculation(
   p800_status: String,
   amount: BigDecimal,
@@ -31,3 +27,7 @@ case class TaxCalculation(
   businessReason: Option[String],
   dueDate: Option[String]
 )
+
+object TaxCalculation {
+  implicit val formats = Json.format[TaxCalculation]
+}

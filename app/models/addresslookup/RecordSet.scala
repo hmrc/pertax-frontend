@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package models.addresslookup
 
-import play.api.libs.json._
+import play.api.libs.json.JsValue
 
-case class PersonDetails(
-  etag: String,
-  person: Person,
-  address: Option[Address],
-  correspondenceAddress: Option[Address]
-)
+case class RecordSet(addresses: Seq[AddressRecord])
 
-object PersonDetails {
-  implicit val formats = Json.format[PersonDetails]
+object RecordSet {
+  def fromJsonAddressLookupService(addressListAsJson: JsValue): RecordSet = {
+    val addresses = addressListAsJson.as[Seq[AddressRecord]]
+    RecordSet(addresses)
+  }
 }

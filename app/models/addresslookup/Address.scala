@@ -18,22 +18,6 @@ package models.addresslookup
 
 import play.api.libs.json.{JsValue, Json}
 
-/** Represents a country as per ISO3166. */
-case class Country(
-  // ISO3166-1 or ISO3166-2 code, e.g. "GB" or "GB-ENG" (note that "GB" is the official
-  // code for UK although "UK" is a reserved synonym and may be used instead)
-  // See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-  // and https://en.wikipedia.org/wiki/ISO_3166-2:GB
-  code: String,
-  // The printable name for the country, e.g. "United Kingdom"
-  name: String)
-
-object Country {
-  implicit val formats = Json.format[Country]
-}
-
-//-------------------------------------------------------------------------------------------------
-
 /**
   * Address typically represents a postal address.
   * For UK addresses, 'town' will always be present.
@@ -70,32 +54,4 @@ case class Address(
 
 object Address {
   implicit val formats = Json.format[Address]
-}
-
-/**
-  * Represents one address record. Arrays of these are returned from the address-lookup microservice.
-  */
-case class AddressRecord(
-  id: String,
-  address: Address,
-  // ISO639-1 code, e.g. 'en' for English
-  // see https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
-  language: String) {
-
-  def isValid: Boolean = address.isValid && language.length == 2
-}
-
-object AddressRecord {
-  implicit val formats = Json.format[AddressRecord]
-}
-
-//-------------------------------------------------------------------------------------------------
-
-case class RecordSet(addresses: Seq[AddressRecord])
-
-object RecordSet {
-  def fromJsonAddressLookupService(addressListAsJson: JsValue): RecordSet = {
-    val addresses = addressListAsJson.as[Seq[AddressRecord]]
-    RecordSet(addresses)
-  }
 }

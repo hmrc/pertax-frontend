@@ -20,6 +20,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import util.PertaxValidators._
+case class AddressFinderDto(postcode: String, filter: Option[String])
+
 object AddressFinderDto {
 
   implicit val formats = Json.format[AddressFinderDto]
@@ -39,5 +41,3 @@ object AddressFinderDto {
     )(AddressFinderDto.apply)(AddressFinderDto.unapply)
   )
 }
-
-case class AddressFinderDto(postcode: String, filter: Option[String])
