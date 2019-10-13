@@ -32,7 +32,7 @@ import util.{BaseSpec, Fixtures}
 
 class usedUtrToEnrolChoiceSpec extends BaseSpec with MockitoSugar {
 
-  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 

@@ -16,6 +16,9 @@
 
 package services
 
+import com.codahale.metrics.{Counter, MetricRegistry, Timer}
+import com.codahale.metrics.Timer.Context
+import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, MessageCount}
 import org.mockito.Matchers._
@@ -23,9 +26,10 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import services.http.WsAllMethods
+import services.http.{SimpleHttp, WsAllMethods}
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.domain.SaUtr
@@ -36,7 +40,7 @@ import util.Fixtures._
 
 import scala.concurrent.Future
 
-class MessageFrontendServiceSpec extends BaseSpec {
+class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
 
   lazy val userRequest = UserRequest(
     None,
@@ -52,14 +56,29 @@ class MessageFrontendServiceSpec extends BaseSpec {
     FakeRequest("", "")
   )
 
+  val mockMetrics = mock[Metrics]
+  val mockMetricRegistry = mock[MetricRegistry]
+  val mockTimer = mock[Timer]
+  val mockCounter = mock[Counter]
+  val mockContext = mock[Context]
+
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(bind[WsAllMethods].toInstance(MockitoSugar.mock[WsAllMethods]))
+    .overrides(bind[Metrics].toInstance(mockMetrics))
     .build()
 
   val messageFrontendService: MessageFrontendService = injected[MessageFrontendService]
 
-  override def beforeEach: Unit =
-    reset(injected[WsAllMethods])
+  override def beforeEach: Unit = reset(
+    injected[WsAllMethods]
+  )
+
+  when(mockMetrics.defaultRegistry).thenReturn(mockMetricRegistry)
+
+  when(mockMetricRegistry.timer(anyString())).thenReturn(mockTimer)
+  when(mockMetricRegistry.counter(anyString())).thenReturn(mockCounter)
+
+  when(mockTimer.time()).thenReturn(mockContext)
 
   "Calling getMessageListPartial" should {
     "return message partial for list of messages" in {
@@ -67,7 +86,9 @@ class MessageFrontendServiceSpec extends BaseSpec {
       when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      await(messageFrontendService.getMessageListPartial(buildFakeRequestWithAuth("GET"))) shouldBe
+      val result = messageFrontendService.getMessageListPartial(FakeRequest())
+
+      await(result) shouldBe
         HtmlPartial.Success(Some("Title"), Html("<title/>"))
 
       verify(messageFrontendService.http, times(1)).GET[Html](any())(any(), any(), any())
@@ -80,8 +101,8 @@ class MessageFrontendServiceSpec extends BaseSpec {
       when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String")))
 
-      await(messageFrontendService.getMessageDetailPartial("")(buildFakeRequestWithAuth("GET"))) shouldBe
-        HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
+      val partial = messageFrontendService.getMessageDetailPartial("")(FakeRequest())
+      await(partial) shouldBe HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
@@ -93,20 +114,22 @@ class MessageFrontendServiceSpec extends BaseSpec {
       when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
 
-      await(messageFrontendService.getMessageInboxLinkPartial(buildFakeRequestWithAuth("GET"))) shouldBe
-        HtmlPartial.Success(None, Html("link to messages"))
+      val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest())
+      await(partial) shouldBe HtmlPartial.Success(None, Html("link to messages"))
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
   }
 
   "Calling getMessageCount" should {
+    def messageCount = messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
+
     "return None unread messages when http client does not return a usable response" in {
 
       when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](None)
 
-      await(messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))) shouldBe None
+      await(messageCount) shouldBe None
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
@@ -116,7 +139,7 @@ class MessageFrontendServiceSpec extends BaseSpec {
       when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(0)))
 
-      await(messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))) shouldBe Some(0)
+      await(messageCount) shouldBe Some(0)
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
@@ -126,7 +149,7 @@ class MessageFrontendServiceSpec extends BaseSpec {
       when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(10)))
 
-      await(messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))) shouldBe Some(10)
+      await(messageCount) shouldBe Some(10)
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
     }
