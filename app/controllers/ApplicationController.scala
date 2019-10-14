@@ -55,56 +55,52 @@ class ApplicationController @Inject()(
 
   override def now: () => DateTime = () => DateTime.now()
 
-  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = authJourney.authWithPersonalDetails.async {
+  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
     Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
   }
 
   def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
-    authJourney.authWithPersonalDetails.async { implicit request =>
+    Action.async { implicit request =>
       val journeyId =
-        List(request.request.getQueryString("token"), request.request.getQueryString("journeyId")).flatten.headOption
+        List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
 
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
-      if (configDecorator.allowLowConfidenceSAEnabled) {
-        Future.successful(Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl)))
-      } else {
-        journeyId match {
-          case Some(jid) =>
-            identityVerificationFrontendService.getIVJourneyStatus(jid).map {
-              case IdentityVerificationSuccessResponse(Success) =>
-                Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
-              case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-                Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
-              case IdentityVerificationSuccessResponse(UserAborted) =>
-                Logger.warn(s"Unable to confirm user identity: $UserAborted")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(FailedMatching) =>
-                Logger.warn(s"Unable to confirm user identity: $FailedMatching")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(Incomplete) =>
-                Logger.warn(s"Unable to confirm user identity: $Incomplete")
-                Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
-              case IdentityVerificationSuccessResponse(PrecondFailed) =>
-                Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(LockedOut) =>
-                Logger.warn(s"Unable to confirm user identity: $LockedOut")
-                Unauthorized(views.html.iv.failure.lockedOut(allowContinue = false))
-              case IdentityVerificationSuccessResponse(Timeout) =>
-                Logger.warn(s"Unable to confirm user identity: $Timeout")
-                InternalServerError(views.html.iv.failure.timeOut(retryUrl))
-              case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-                Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-                InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
-              case r =>
-                Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
-                InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
-            }
-          case None =>
-            Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
-            Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
-        }
+      journeyId match {
+        case Some(jid) =>
+          identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+            case IdentityVerificationSuccessResponse(Success) =>
+              Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+            case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
+              Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
+            case IdentityVerificationSuccessResponse(UserAborted) =>
+              Logger.warn(s"Unable to confirm user identity: $UserAborted")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(FailedMatching) =>
+              Logger.warn(s"Unable to confirm user identity: $FailedMatching")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(Incomplete) =>
+              Logger.warn(s"Unable to confirm user identity: $Incomplete")
+              Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
+            case IdentityVerificationSuccessResponse(PrecondFailed) =>
+              Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(LockedOut) =>
+              Logger.warn(s"Unable to confirm user identity: $LockedOut")
+              Unauthorized(views.html.iv.failure.lockedOut(allowContinue = false))
+            case IdentityVerificationSuccessResponse(Timeout) =>
+              Logger.warn(s"Unable to confirm user identity: $Timeout")
+              InternalServerError(views.html.iv.failure.timeOut(retryUrl))
+            case IdentityVerificationSuccessResponse(TechnicalIssue) =>
+              Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+            case r =>
+              Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
+              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+          }
+        case None =>
+          Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
+          Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
       }
     }
 

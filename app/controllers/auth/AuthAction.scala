@@ -17,11 +17,13 @@
 package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
+import config.ConfigDecorator
 import connectors.NewPertaxAuthConnector
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment}
 import controllers.routes
 import models.UserName
 import play.api.Configuration
+import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -34,8 +36,10 @@ import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, configuration: Configuration)(
-  implicit ec: ExecutionContext)
+class AuthActionImpl @Inject()(
+  val authConnector: NewPertaxAuthConnector,
+  configuration: Configuration,
+  configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -84,9 +88,19 @@ class AuthActionImpl @Inject()(val authConnector: NewPertaxAuthConnector, config
     case _: NoActiveSession => Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession
 
     case _: InsufficientConfidenceLevel =>
-      Results.Redirect(
-        controllers.routes.ApplicationController
-          .uplift(redirectUrl = Some(SafeRedirectUrl(request.uri))))
+      Redirect(
+        configDecorator.identityVerificationUpliftUrl,
+        Map(
+          "origin"          -> Seq(configDecorator.origin),
+          "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
+          "completionURL" -> Seq(
+            configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(
+              Some(SafeRedirectUrl(request.uri)))),
+          "failureURL" -> Seq(
+            configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(
+              Some(SafeRedirectUrl(request.uri))))
+        )
+      )
 
     //TODO: handle this nicerly
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")

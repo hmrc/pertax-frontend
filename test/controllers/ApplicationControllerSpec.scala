@@ -113,33 +113,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
   "Calling ApplicationController.uplift" should {
 
-    "send the user to IV using the PERTAX origin" ignore new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              "GovernmentGateway",
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
-      })
-
-      val result = controller.uplift(Some(SafeRedirectUrl("/personal-account")))(FakeRequest())
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(
-        "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
-
-    }
-
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
@@ -171,7 +144,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
   "Calling ApplicationController.handleSelfAssessment" should {
 
-    "return 303 when called with a GG user that needs to activate their SA enollment." ignore new LocalSetup {
+    "return 303 when called with a GG user that needs to activate their SA enrolment." in new LocalSetup {
 
       override lazy val getCitizenDetailsResponse = true
 
@@ -196,7 +169,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(
-        "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin")
+        "/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account")
 
     }
 
@@ -256,45 +229,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
       status(result) shouldBe OK
 
-    }
-
-    "redirect to the IV exempt landing page when the 'sa allow low confidence' feature is on" ignore new LocalSetup {
-
-      val mockConfigDecorator = mock[ConfigDecorator]
-      def testController: ApplicationController =
-        new ApplicationController(
-          injected[MessagesApi],
-          mockIdentityVerificationFrontendService,
-          mockAuthAction,
-          mockSelfAssessmentStatusAction,
-          mockAuthJourney,
-          injected[WithBreadcrumbAction],
-          mockAuditConnector
-        )(mockLocalPartialRetriever, mockConfigDecorator, injected[TemplateRenderer])
-
-      when(mockConfigDecorator.allowLowConfidenceSAEnabled).thenReturn(true)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
-      })
-
-      val result = testController.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/sa-continue")
     }
 
     "return 401 when IV journey outcome was LockedOut" in new LocalSetup {
