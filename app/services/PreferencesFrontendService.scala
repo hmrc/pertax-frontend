@@ -46,8 +46,7 @@ class PreferencesFrontendService @Inject()(
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val applicationCrypto: ApplicationCrypto,
-  val tools: Tools)
-  (implicit ec: ExecutionContext)
+  val tools: Tools)(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
 
   val mode: Mode = environment.mode
@@ -68,28 +67,28 @@ class PreferencesFrontendService @Inject()(
             .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
 
         simpleHttp.PUT[JsObject, HttpResponse](url, Json.obj("active" -> true)) map {
-            case r if r.status >= 200 && r.status < 300 =>
-              t.completeTimerAndIncrementSuccessCounter()
-              ActivatePaperlessActivatedResponse
+          case r if r.status >= 200 && r.status < 300 =>
+            t.completeTimerAndIncrementSuccessCounter()
+            ActivatePaperlessActivatedResponse
 
-            case r if r.status == PRECONDITION_FAILED =>
-              t.completeTimerAndIncrementSuccessCounter()
-              val redirectUrl = (r.json \ "redirectUserTo")
-              Logger.warn(
-                "Precondition failed when getting paperless preference record from preferences-frontend-service")
-              ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
+          case r if r.status == PRECONDITION_FAILED =>
+            t.completeTimerAndIncrementSuccessCounter()
+            val redirectUrl = (r.json \ "redirectUserTo")
+            Logger.warn(
+              "Precondition failed when getting paperless preference record from preferences-frontend-service")
+            ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
 
-            case r =>
-              t.completeTimerAndIncrementFailedCounter()
-              Logger.warn(
-                s"Unexpected ${r.status} response getting paperless preference record from preferences-frontend-service")
-              ActivatePaperlessNotAllowedResponse
-          } recover {
-            case e =>
-              t.completeTimerAndIncrementFailedCounter()
-              Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
-              ActivatePaperlessNotAllowedResponse
-          }
+          case r =>
+            t.completeTimerAndIncrementFailedCounter()
+            Logger.warn(
+              s"Unexpected ${r.status} response getting paperless preference record from preferences-frontend-service")
+            ActivatePaperlessNotAllowedResponse
+        } recover {
+          case e =>
+            t.completeTimerAndIncrementFailedCounter()
+            Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
+            ActivatePaperlessNotAllowedResponse
+        }
       }
 
     if (request.isGovernmentGateway) {
