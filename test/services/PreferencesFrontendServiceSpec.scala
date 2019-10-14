@@ -18,6 +18,7 @@ package services
 
 import com.codahale.metrics.Timer.Context
 import com.codahale.metrics.{Counter, MetricRegistry, Timer}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models._
@@ -27,23 +28,18 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.http.ContentTypes
 import play.api.http.Status._
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
-import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
-import services.http.{SimpleHttp, WsAllMethods}
+import play.api.test.Helpers.CONTENT_TYPE
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Name
-import uk.gov.hmrc.http.HttpResponse
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, Fixtures, WireMockHelper}
 
-import scala.concurrent.Future
+class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with WireMockHelper {
 
-class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar {
-
-  val mockHttp = mock[WsAllMethods]
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]
   val mockTimer = mock[Timer]
@@ -51,8 +47,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
   val mockCounter = mock[Counter]
 
   override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[WsAllMethods].toInstance(mockHttp))
     .overrides(bind[Metrics].toInstance(mockMetrics))
+    .configure("microservice.services.preferences-frontend.port" -> server.port)
     .build()
 
   when(mockMetrics.defaultRegistry).thenReturn(mockMetricRegistry)
@@ -84,10 +80,22 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
-        .thenReturn {
-          Future.successful(HttpResponse(OK, Some(Json.obj())))
-        }
+      val url = "/paperless/activate"
+
+      val jsonBody =
+        """{
+          | "redirectUserTo": "/foo"
+          |}
+          |""".stripMargin
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(200)
+              .withBody(jsonBody)
+          ))
 
       val result = service.getPaperlessPreference()
 
@@ -115,9 +123,6 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(Json.obj()))))
-
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse
@@ -143,8 +148,17 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(SEE_OTHER)))
+
+      val url = "/paperless/activate"
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(303)
+          ))
+
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse
@@ -170,8 +184,17 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(Json.obj()))))
+
+      val url = "/paperless/activate"
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(400)
+          ))
+
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse
@@ -197,9 +220,24 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
-        .thenReturn(Future.successful(
-          HttpResponse(PRECONDITION_FAILED, Some(Json.obj("redirectUserTo" -> "http://www.testurl.com")))))
+
+      val url = "/paperless/activate"
+
+      val jsonBody =
+        """{
+          | "redirectUserTo": "http://www.testurl.com"
+          |}
+          |""".stripMargin
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(PRECONDITION_FAILED)
+              .withBody(jsonBody)
+          ))
+
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
@@ -225,10 +263,17 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
-      when(mockHttp.PUT[AnyContent, HttpResponse](any(), any())(any(), any(), any(), any()))
-        .thenReturn {
-          Future.failed(new RuntimeException("Any"))
-        }
+
+      val url = "/paperless/activate"
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(500)
+          ))
+
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse

@@ -29,7 +29,7 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Environment, Logger}
 import services.http.{SimpleHttp, WsAllMethods}
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
@@ -65,23 +65,18 @@ class PreferencesFrontendService @Inject()(
         val url =
           s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
             .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
+        simpleHttp.PUT[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true)) map {
 
-        simpleHttp.PUT[JsObject, HttpResponse](url, Json.obj("active" -> true)) map {
-          case r if r.status >= 200 && r.status < 300 =>
+          case ActivatePaperlessActivatedResponse =>
             t.completeTimerAndIncrementSuccessCounter()
             ActivatePaperlessActivatedResponse
 
-          case r if r.status == PRECONDITION_FAILED =>
+          case a: ActivatePaperlessRequiresUserActionResponse =>
             t.completeTimerAndIncrementSuccessCounter()
-            val redirectUrl = (r.json \ "redirectUserTo")
-            Logger.warn(
-              "Precondition failed when getting paperless preference record from preferences-frontend-service")
-            ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
+            a
 
-          case r =>
+          case ActivatePaperlessNotAllowedResponse =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(
-              s"Unexpected ${r.status} response getting paperless preference record from preferences-frontend-service")
             ActivatePaperlessNotAllowedResponse
         } recover {
           case e =>

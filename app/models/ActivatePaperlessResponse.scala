@@ -16,7 +16,35 @@
 
 package models
 
+import play.api.Logger
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
+import play.api.Mode.Mode
+import play.api.http.Status._
+
 sealed trait ActivatePaperlessResponse
 case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
 case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
 case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse
+
+object ActivatePaperlessResponse {
+
+  implicit lazy val httpReads: HttpReads[ActivatePaperlessResponse] =
+    new HttpReads[ActivatePaperlessResponse] {
+      override def read(method: String, url: String, response: HttpResponse): ActivatePaperlessResponse =
+        response.status match {
+          case r if r >= 200 && r < 300 =>
+            ActivatePaperlessActivatedResponse
+
+          case PRECONDITION_FAILED =>
+            val redirectUrl = (response.json \ "redirectUserTo")
+            Logger.warn(
+              "Precondition failed when getting paperless preference record from preferences-frontend-service")
+            ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
+
+          case r =>
+            Logger.warn(s"Unexpected $r response getting paperless preference record from preferences-frontend-service")
+            ActivatePaperlessNotAllowedResponse
+        }
+    }
+
+}
