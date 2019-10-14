@@ -344,10 +344,12 @@ class AddressController @Inject()(
       }
     }
 
-  def processAddressSelectorForm(typ: AddrType, filter: Option[String]): Action[AnyContent] =
+  def processAddressSelectorForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       val postcode =
         request.body.asFormUrlEncoded.flatMap(_.get("postcode").flatMap(_.headOption)).getOrElse("")
+      val filter =
+        request.body.asFormUrlEncoded.flatMap(_.get("filter").flatMap(_.headOption))
 
       addressJourneyEnforcer { _ => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>

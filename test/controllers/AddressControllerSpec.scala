@@ -1053,25 +1053,57 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     }
 
-    "call the address lookup service and return 400 when supplied no addressId in the form" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequestFixture
-              .buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                  .asInstanceOf[Request[A]]
-              )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
+    "call the address lookup service and return 400" when {
+      "supplied no addressId in the form" in new LocalSetup {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              UserRequestFixture
+                .buildUserRequest(
+                  request = FakeRequest("POST", "")
+                    .withFormUrlEncodedBody(
+                      "postcode" -> "AA1 1AA")
+                    .asInstanceOf[Request[A]]
+                )
+                .asInstanceOf[UserRequest[A]]
+            )
+        })
 
-      val result = c1.processAddressSelectorForm(PostalAddrType, None)(FakeRequest())
+        val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+        status(result) shouldBe BAD_REQUEST
+        verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      }
+
+      "supplied no addressId in the form with a filter" in new LocalSetup {
+        val optCaptor: ArgumentCaptor[Option[String]] = ArgumentCaptor.forClass(classOf[Option[String]])
+        val optCaptorPostcode = ArgumentCaptor.forClass(classOf[String])
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              UserRequestFixture
+                .buildUserRequest(
+                  request = FakeRequest("POST", "")
+                    .withFormUrlEncodedBody(
+                      "postcode" -> "AA1 1AA",
+                      "filter" -> "7")
+                    .asInstanceOf[Request[A]]
+                )
+                .asInstanceOf[UserRequest[A]]
+            )
+        })
+
+        val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
+
+        verify(c1.addressLookupService).lookup(optCaptorPostcode.capture(), optCaptor.capture())(any())
+        optCaptorPostcode.getValue shouldBe "AA1 1AA"
+        optCaptor.getValue shouldBe Some("7")
+
+        status(result) shouldBe BAD_REQUEST
+        verify(c1.sessionCache, times(1)).fetch()(any(), any())
+      }
     }
 
     "call the address lookup service and redirect to the edit address form for a postal address type when supplied with an addressId" in new LocalSetup {
@@ -1089,7 +1121,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c1.processAddressSelectorForm(PostalAddrType, None)(FakeRequest())
+      val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
@@ -1113,7 +1145,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c1.processAddressSelectorForm(PostalAddrType, None)(FakeRequest())
+      val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
@@ -1136,7 +1168,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c2.processAddressSelectorForm(SoleAddrType, None)(form)
+      val result = c2.processAddressSelectorForm(SoleAddrType)(form)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
@@ -1158,7 +1190,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c1.processAddressSelectorForm(SoleAddrType, None)(form)
+      val result = c1.processAddressSelectorForm(SoleAddrType)(form)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
@@ -2843,6 +2875,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       override lazy val thisYearStr = "2015"
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
 
+      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+      when(controller.addressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseFirstPostcode)
+      }
+
       def comparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
         "pertax-frontend",
         auditType,
@@ -3008,6 +3045,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
+
+      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+      when(controller.addressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseFirstPostcode)
+      }
 
       def comparatorDataEvent(
         dataEvent: DataEvent,
