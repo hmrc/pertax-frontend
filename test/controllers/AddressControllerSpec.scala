@@ -56,8 +56,6 @@ import scala.concurrent.Future
 
 class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
-  val userRequest = UserRequestFixture.buildUserRequest()
-
   val mockAuditConnector = mock[PertaxAuditConnector]
   val mockAuthJourney = mock[AuthJourney]
   val mockLocalSessionCache = mock[LocalSessionCache]
@@ -1037,20 +1035,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
       val addressLookupResponseDifferentPostcode = AddressLookupSuccessResponse(newPostcodePlacePafRecordSet)
 
-      lazy val c1 = {
-        when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-          Future.successful(addressLookupResponseFirstPostcode)
-        }
-        controller
-      }
-
-      lazy val c2 = {
-        when(mockAddressLookupService.lookup(meq("AA1 2AA"), any())(any())) thenReturn {
-          Future.successful(addressLookupResponseDifferentPostcode)
-        }
-        controller
-      }
-
     }
 
 
@@ -1070,15 +1054,17 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
             )
         })
 
-        val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
+        when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+          Future.successful(addressLookupResponseFirstPostcode)
+        }
+
+        val result = controller.processAddressSelectorForm(PostalAddrType)(FakeRequest())
 
         status(result) shouldBe BAD_REQUEST
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
 
       "supplied no addressId in the form with a filter" in new LocalSetup {
-        val optCaptor: ArgumentCaptor[Option[String]] = ArgumentCaptor.forClass(classOf[Option[String]])
-        val optCaptorPostcode = ArgumentCaptor.forClass(classOf[String])
 
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -1095,14 +1081,16 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
             )
         })
 
-        val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
+        when(mockAddressLookupService.lookup(any(), any())(any())) thenReturn {
+          Future.successful(addressLookupResponseFirstPostcode)
+        }
 
-        verify(c1.addressLookupService).lookup(optCaptorPostcode.capture(), optCaptor.capture())(any())
-        optCaptorPostcode.getValue shouldBe "AA1 1AA"
-        optCaptor.getValue shouldBe Some("7")
+        val result = controller.processAddressSelectorForm(PostalAddrType)(FakeRequest())
 
         status(result) shouldBe BAD_REQUEST
-        verify(c1.sessionCache, times(1)).fetch()(any(), any())
+
+        verify(mockAddressLookupService).lookup(any(), any())(any())
+        verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
     }
 
@@ -1121,7 +1109,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
+      when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseFirstPostcode)
+      }
+
+      val result = controller.processAddressSelectorForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
@@ -1145,7 +1137,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c1.processAddressSelectorForm(PostalAddrType)(FakeRequest())
+      when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseFirstPostcode)
+      }
+
+      val result = controller.processAddressSelectorForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
@@ -1168,7 +1164,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c2.processAddressSelectorForm(SoleAddrType)(form)
+      when(mockAddressLookupService.lookup(meq("AA1 2AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseDifferentPostcode)
+      }
+
+      val result = controller.processAddressSelectorForm(SoleAddrType)(form)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
@@ -1190,7 +1190,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           )
       })
 
-      val result = c1.processAddressSelectorForm(SoleAddrType)(form)
+      when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
+        Future.successful(addressLookupResponseFirstPostcode)
+      }
+
+      val result = controller.processAddressSelectorForm(SoleAddrType)(form)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
@@ -2875,11 +2879,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       override lazy val thisYearStr = "2015"
       override lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
 
-      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
-      when(controller.addressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-        Future.successful(addressLookupResponseFirstPostcode)
-      }
-
       def comparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
         "pertax-frontend",
         auditType,
@@ -3045,11 +3044,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
-
-      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
-      when(controller.addressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-        Future.successful(addressLookupResponseFirstPostcode)
-      }
 
       def comparatorDataEvent(
         dataEvent: DataEvent,
