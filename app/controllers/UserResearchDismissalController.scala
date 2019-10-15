@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{FrontEndDelegationConnector, NewPertaxAuthConnector, PertaxAuditConnector}
 import controllers.auth.AuthJourney
 import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
@@ -38,7 +38,7 @@ class UserResearchDismissalController @Inject()(
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
+  authConnector: NewPertaxAuthConnector)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator)
     extends PertaxBaseController {

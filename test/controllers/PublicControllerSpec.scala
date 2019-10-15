@@ -36,28 +36,6 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
     mockTemplateRenderer
   )
 
-  "Calling PublicController.verifyEntryPoint" should {
-
-    "return 200" in {
-
-      val r = controller.verifyEntryPoint(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe Session(Map("ap" -> "IDA"))
-    }
-  }
-
-  "Calling PublicController.governmentGatewayEntryPoint" should {
-
-    "return 200" in {
-
-      val r = controller.governmentGatewayEntryPoint(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe Session(Map("ap" -> "GGW"))
-    }
-  }
-
   "Calling PublicController.sessionTimeout" should {
 
     "return 200" in {
