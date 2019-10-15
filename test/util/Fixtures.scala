@@ -40,8 +40,6 @@ import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProviderIds
-import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
@@ -267,8 +265,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
       SessionKeys.userId               -> "/auth/oid/flastname",
-      SessionKeys.token                -> "FAKEGGTOKEN", //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-      SessionKeys.authProvider         -> AuthenticationProviderIds.GovernmentGatewayId //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.token                -> "FAKEGGTOKEN" //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
@@ -281,8 +278,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
       SessionKeys.userId               -> "/auth/oid/flastname",
-      SessionKeys.token                -> "FAKEVERIFYTOKEN", //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-      SessionKeys.authProvider         -> AuthenticationProviderIds.VerifyProviderId //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.token                -> "FAKEVERIFYTOKEN" //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
@@ -309,16 +305,6 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
 }
 
-@Singleton
-class FakeCookieCryptoFilter @Inject()(override val mat: Materializer) extends CookieCryptoFilter {
-
-  override protected val encrypter: String => String = x => x
-  override protected val decrypter: String => String = x => x
-
-  override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader) =
-    next(rh)
-}
-
 trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach {
   this: Suite =>
 
@@ -336,8 +322,7 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
-        bind[TemplateRenderer].toInstance(MockTemplateRenderer),
-        bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter])
+        bind[TemplateRenderer].toInstance(MockTemplateRenderer)
       )
       .configure(configValues)
 
