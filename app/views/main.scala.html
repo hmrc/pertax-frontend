@@ -61,7 +61,7 @@
             <!--      principalName <- pu.name-->
             <!--      attorney <- pu.authContext.attorney-->
             <!--    } yield layouts.attorney_banner(Some(principalName), attorney.returnLink.url, AttorneyRegime.pertax)-->
-        layouts.attorney_banner(None, "", AttorneyRegime.pertax)
+        layouts.attorney_banner(request.name, "", AttorneyRegime.pertax)
     }
     }
 

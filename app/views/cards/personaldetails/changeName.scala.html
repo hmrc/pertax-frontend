@@ -17,12 +17,13 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import tags._
+@import models.UserName
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
     @cardContent = {
     @if(request.retrievedName.isDefined) {
-        <p>request.retrievedName.map(upperCaseToTitleCase(_.toString))</p>
+        <p>@{request.retrievedName.map((name: UserName) => upperCaseToTitleCase(name.toString))}</p>
     }
     }
 
