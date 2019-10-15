@@ -16,20 +16,15 @@
 
 package views.html
 
-import config.ConfigDecorator
-import models.PertaxContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.{Lang, Messages, MessagesApi}
-import play.api.test.FakeRequest
 import util.BaseSpec
 
 trait ViewSpec extends BaseSpec {
 
   val messages: Messages = Messages(Lang("en"), app.injector.instanceOf[MessagesApi])
-
-  val pertaxContext = PertaxContext(FakeRequest("", ""), mockLocalPartialRetriever, injected[ConfigDecorator])
 
   def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
