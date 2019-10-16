@@ -51,8 +51,7 @@
         </ul>
 
         <h2 class="heading-medium">@messages("label.if_you_do_not_currently_claim_child_benefit")</h2>
-        <p>@messages("text.if_you_do_not_claim_child_benefit_text_before_link") <a class="trackLink" href="@configDecorator.childBenefitsCheckIfYouCanClaim" target="_blank" rel="noopener noreferrer">@messages("text.if_you_do_not_claim_child_benefit_link_text") @messages("label.opens_in_a_new_window")</a>
-            .</p>
+        <p>@messages("text.if_you_do_not_claim_child_benefit_text_before_link") <a class="trackLink" href="@configDecorator.childBenefitsCheckIfYouCanClaim" target="_blank" rel="noopener noreferrer">@messages("text.if_you_do_not_claim_child_benefit_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
     } else {
         <p class="lede">@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
         <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
