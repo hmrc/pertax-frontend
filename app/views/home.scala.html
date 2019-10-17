@@ -30,7 +30,7 @@
 
         <header class="page-heading">
             <h1 class="heading-xlarge">
-            @request.retrievedName.fold(messages("label.your_account"))((userName: UserName) => upperCaseToTitleCase(userName.toString))
+            @request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)
             </h1>
             <p class="heading-secondary"><span class="visuallyhidden">
                 This section is </span>@messages("label.account_home")</p>
