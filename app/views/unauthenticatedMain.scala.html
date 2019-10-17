@@ -41,17 +41,6 @@
 )(mainContent: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
         partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-    @actingAttorneyBanner = {
-    @{
-            <!--    for {-->
-            <!--      pu <- request-->
-            <!--      principalName <- pu.name-->
-            <!--      attorney <- pu.authContext.attorney-->
-            <!--    } yield layouts.attorney_banner(Some(principalName), attorney.returnLink.url, AttorneyRegime.pertax)-->
-        layouts.attorney_banner(None, "", AttorneyRegime.pertax)
-    }
-    }
-
     @inlineScript = {
 
     @scriptElement
@@ -164,7 +153,7 @@
                 isVerify = false,
                 isSa = false
             )),
-            Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
+            None,
             pageName.map(NavTitleComponent),
             Some(BetaBannerComponent(configDecorator.deskproToken)),
             None

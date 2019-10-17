@@ -24,6 +24,7 @@
 @import controllers.helpers.WelshWarningHelper
 @import util.LocalPartialRetriever
 
+@import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @(title: String,
         pageName: Option[String] = None,
         showUserResearchBanner: Boolean = false,
@@ -56,13 +57,12 @@
 
     @actingAttorneyBanner = {
     @{
-            <!--    for {-->
-            <!--      pu <- request-->
-            <!--      principalName <- pu.name-->
-            <!--      attorney <- pu.authContext.attorney-->
-            <!--    } yield layouts.attorney_banner(Some(principalName), attorney.returnLink.url, AttorneyRegime.pertax)-->
-        layouts.attorney_banner(request.name, "", AttorneyRegime.pertax)
+
+        request.trustedHelper.map { (helper: TrustedHelper) =>
+            layouts.attorney_banner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
+        }
     }
+
     }
 
     @inlineScript = {

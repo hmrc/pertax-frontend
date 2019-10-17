@@ -55,7 +55,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}")
+        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
+          s"trustedHelper: ${request.trustedHelper}")
     }
   }
 
@@ -209,6 +210,40 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       status(result) mustBe OK
       contentAsString(result) must include("AB123456C")
       contentAsString(result) must include("1234567890")
+    }
+  }
+
+  "A user with trustedHelper must" - {
+    "create an authenticated request containing the trustedHelper" in {
+
+      val retrievalResult: Future[
+        Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
+          TrustedHelper]] =
+        Future.successful(
+          new ~(
+            new ~(
+              new ~(
+                new ~(
+                  new ~(new ~(Some("AB123456C"), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))),
+                  ConfidenceLevel.L200),
+                None),
+              LoginTimes(DateTime.now(), None)
+            ),
+            Some(TrustedHelper("principalName", "attorneyName", "returnUrl", "principalNino"))
+          ))
+
+      when(mockAuthConnector
+        .authorise[
+          Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
+            TrustedHelper]](any(), any())(any(), any()))
+        .thenReturn(retrievalResult)
+
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val controller = new Harness(authAction)
+
+      val result = controller.onPageLoad()(FakeRequest("", ""))
+      status(result) mustBe OK
+      contentAsString(result) must include("Some(TrustedHelper(principalName,attorneyName,returnUrl,principalNino))")
     }
   }
 }
