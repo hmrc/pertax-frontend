@@ -135,7 +135,7 @@ class ApplicationController @Inject()(
     }
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
-    authJourney.authWithPersonalDetails { implicit request =>
+    authJourney.minimumAuthWithSelfAssessment { implicit request =>
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {

@@ -22,6 +22,7 @@ import play.api.mvc.ActionBuilder
 
 class AuthJourney @Inject()(
   authAction: AuthAction,
+  minimumAuthAction: MinimumAuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   getPersonDetailsAction: GetPersonDetailsAction) {
 
@@ -29,5 +30,7 @@ class AuthJourney @Inject()(
     : ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
 
   val authWithSelfAssessment: ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction
+
+  val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest] = minimumAuthAction andThen selfAssessmentStatusAction
 
 }
