@@ -72,6 +72,7 @@ class SelfAssessmentStatusActionSpec
         ConfidenceLevel.L200,
         None,
         None,
+        None,
         FakeRequest())
       val result = harness()(request)
       contentAsString(result) must include("ActivatedOnlineFilerSelfAssessmentUser")
@@ -87,6 +88,7 @@ class SelfAssessmentStatusActionSpec
         ConfidenceLevel.L200,
         None,
         None,
+        None,
         FakeRequest())
       val result = harness()(request)
       contentAsString(result) must include("NotYetActivatedOnlineFilerSelfAssessmentUser")
@@ -98,7 +100,15 @@ class SelfAssessmentStatusActionSpec
     "when CitizenDetails has a matching SA account" - {
       "return AmbiguousFilerSelfAssessmentUser" in {
         implicit val request: AuthenticatedRequest[AnyContent] =
-          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", ConfidenceLevel.L200, None, None, FakeRequest())
+          AuthenticatedRequest(
+            Some(Nino("AB123456C")),
+            None,
+            "foo",
+            ConfidenceLevel.L200,
+            None,
+            None,
+            None,
+            FakeRequest())
 
         when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
           .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))))
@@ -111,7 +121,15 @@ class SelfAssessmentStatusActionSpec
     "when CitizenDetails has no matching SA account" - {
       "return NonFilerSelfAssessmentUser" in {
         implicit val request: AuthenticatedRequest[AnyContent] =
-          AuthenticatedRequest(Some(Nino("AB123456C")), None, "foo", ConfidenceLevel.L200, None, None, FakeRequest())
+          AuthenticatedRequest(
+            Some(Nino("AB123456C")),
+            None,
+            "foo",
+            ConfidenceLevel.L200,
+            None,
+            None,
+            None,
+            FakeRequest())
 
         when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
           .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
@@ -124,7 +142,7 @@ class SelfAssessmentStatusActionSpec
     "when user has no Nino" - {
       "return NonFilerSelfAssessmentUser" in {
         implicit val request: AuthenticatedRequest[AnyContent] =
-          AuthenticatedRequest(None, None, "foo", ConfidenceLevel.L50, None, None, FakeRequest())
+          AuthenticatedRequest(None, None, "foo", ConfidenceLevel.L50, None, None, None, FakeRequest())
 
         val result = harness()(request)
         contentAsString(result) must include("NonFilerSelfAssessmentUser")

@@ -20,6 +20,7 @@ import models.UserName
 import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 case class SelfAssessmentEnrolment(saUtr: SaUtr, status: String)
@@ -31,5 +32,6 @@ case class AuthenticatedRequest[A](
   confidenceLevel: ConfidenceLevel,
   name: Option[UserName],
   previousLoginTime: Option[DateTime],
+  trustedHelper: Option[TrustedHelper],
   request: Request[A])
     extends WrappedRequest[A](request)

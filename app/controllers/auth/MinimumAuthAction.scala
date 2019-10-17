@@ -53,8 +53,9 @@ class MinimumAuthAction @Inject()(
           Retrievals.credentials and
           Retrievals.confidenceLevel and
           Retrievals.name and
-          Retrievals.loginTimes) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins =>
+          Retrievals.loginTimes and
+          Retrievals.trustedHelper) {
+        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper =>
           val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers
               .find(id => id.key == "UTR")
@@ -79,6 +80,7 @@ class MinimumAuthAction @Inject()(
               confidenceLevel,
               Some(UserName(name.getOrElse(Name(None, None)))),
               logins.previousLogin,
+              trustedHelper,
               trimmedRequest
             ))
         case _ => throw new RuntimeException("Can't find credentials for user")
