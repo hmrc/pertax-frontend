@@ -50,6 +50,7 @@ class deEnrolledFromSaChoiceSpec extends BaseSpec with MockitoSugar {
     None,
     None,
     None,
+    None,
     FakeRequest()
   )
 

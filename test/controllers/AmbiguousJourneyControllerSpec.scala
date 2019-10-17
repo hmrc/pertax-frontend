@@ -78,6 +78,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
@@ -104,6 +105,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -137,6 +139,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
@@ -162,6 +165,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -197,6 +201,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
@@ -224,6 +229,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -260,6 +266,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST").asInstanceOf[Request[A]]
             ))
       })
@@ -284,6 +291,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -318,6 +326,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
@@ -348,6 +357,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
@@ -374,6 +384,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -409,6 +420,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
@@ -439,6 +451,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
@@ -465,6 +478,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -530,6 +544,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
@@ -560,6 +575,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
@@ -586,6 +602,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -621,6 +638,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
@@ -651,6 +669,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
@@ -677,6 +696,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -712,6 +732,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -738,6 +759,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -771,6 +793,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -796,6 +819,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -829,6 +853,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -853,6 +878,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -886,6 +912,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -910,6 +937,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -945,6 +973,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -985,6 +1014,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -1010,6 +1040,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -1050,6 +1081,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -1085,6 +1117,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -1109,6 +1142,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -1141,6 +1175,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -1165,6 +1200,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,

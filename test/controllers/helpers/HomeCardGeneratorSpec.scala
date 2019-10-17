@@ -50,6 +50,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -72,6 +73,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -89,6 +91,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         NonFilerSelfAssessmentUser,
         "Verify",
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,
@@ -115,6 +118,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -136,6 +140,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -153,6 +158,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         NonFilerSelfAssessmentUser,
         "Verify",
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,
@@ -185,6 +191,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -203,6 +210,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         saUserType,
         "GovernmentGateway",
         ConfidenceLevel.L200,
+        None,
         None,
         None,
         None,
@@ -229,6 +237,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -251,6 +260,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -269,6 +279,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         saUserType,
         "Verify",
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,

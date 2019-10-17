@@ -81,6 +81,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -111,8 +112,8 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
-              request
-            ))
+              None,
+              request))
       })
 
       val r = controller.messageList(FakeRequest("GET", "/foo"))
@@ -135,6 +136,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -165,6 +167,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "Verify",
               ConfidenceLevel.L500,
+              None,
               None,
               None,
               None,

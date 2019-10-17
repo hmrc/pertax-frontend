@@ -48,6 +48,7 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSu
     None,
     None,
     None,
+    None,
     FakeRequest()
   )
 

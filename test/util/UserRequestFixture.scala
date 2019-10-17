@@ -36,18 +36,19 @@ object UserRequestFixture {
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
     personDetails: Option[PersonDetails] = Some(Fixtures.buildPersonDetails),
     messageCount: Option[Int] = None,
-    request: Request[_] = FakeRequest()) = UserRequest(
-    nino,
-    userName,
-    lastLoginTime,
-    saUser,
-    authProviderType,
-    confidenceLevel,
-    personDetails,
-    messageCount,
-    None,
-    None,
-    request
-  )
+    request: Request[_] = FakeRequest()) =
+    UserRequest(
+      nino,
+      userName,
+      lastLoginTime,
+      saUser,
+      authProviderType,
+      confidenceLevel,
+      personDetails,
+      None,
+      messageCount,
+      None,
+      None,
+      request)
 
 }

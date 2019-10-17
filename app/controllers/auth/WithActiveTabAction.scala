@@ -37,6 +37,7 @@ class WithActiveTabAction {
               request.authProvider,
               request.confidenceLevel,
               request.personDetails,
+              request.trustedHelper,
               request.unreadMessageCount,
               Some(currentActiveTab),
               request.breadcrumb,

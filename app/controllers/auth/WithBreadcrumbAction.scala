@@ -37,6 +37,7 @@ class WithBreadcrumbAction {
               request.authProvider,
               request.confidenceLevel,
               request.personDetails,
+              request.trustedHelper,
               request.unreadMessageCount,
               request.activeTab,
               Some(breadcrumb),

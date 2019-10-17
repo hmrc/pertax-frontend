@@ -75,6 +75,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -118,6 +119,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -140,6 +142,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         NonFilerSelfAssessmentUser,
         "Verify",
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,
@@ -180,6 +183,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -212,6 +216,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         NonFilerSelfAssessmentUser,
         "GovernmentGateway",
         ConfidenceLevel.L200,
+        None,
         None,
         None,
         None,
@@ -255,6 +260,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         NonFilerSelfAssessmentUser,
         "Verify",
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,

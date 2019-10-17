@@ -42,6 +42,7 @@ class TaxCalculationStateSpec extends BaseSpec {
     None,
     None,
     None,
+    None,
     fakeRequest)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder

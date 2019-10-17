@@ -50,6 +50,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         None,
         None,
         None,
+        None,
         FakeRequest())
       val document = Jsoup.parse(
         views.html.interstitial
@@ -66,6 +67,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         NonFilerSelfAssessmentUser,
         "Verify",
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,

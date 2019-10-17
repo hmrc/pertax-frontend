@@ -77,6 +77,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
           None,
           None,
           None,
+          None,
           request
         ))
   })

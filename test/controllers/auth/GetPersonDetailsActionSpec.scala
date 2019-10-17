@@ -82,7 +82,9 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             None,
             None,
             None,
-            FakeRequest("", ""))
+            None,
+            FakeRequest("", "")
+          )
         val result = harness()(refinedRequest)
         status(result) mustBe OK
         contentAsString(result) must include("true")
@@ -108,7 +110,9 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             None,
             None,
             None,
-            FakeRequest("", ""))
+            None,
+            FakeRequest("", "")
+          )
         val result = harness()(refinedRequest)
         status(result) mustBe OK
         contentAsString(result) must include("false")

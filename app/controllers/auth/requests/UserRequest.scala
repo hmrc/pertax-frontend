@@ -20,6 +20,7 @@ import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.ActiveTab
 
@@ -31,6 +32,7 @@ case class UserRequest[+A](
   authProvider: String,
   confidenceLevel: ConfidenceLevel,
   personDetails: Option[PersonDetails],
+  trustedHelper: Option[TrustedHelper],
   unreadMessageCount: Option[Int] = None,
   activeTab: Option[ActiveTab] = None,
   breadcrumb: Option[Breadcrumb] = None,

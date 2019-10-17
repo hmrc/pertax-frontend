@@ -168,6 +168,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -197,8 +198,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
-              request
-            ))
+              None,
+              request))
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
@@ -226,6 +227,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -249,6 +251,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -281,6 +284,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -305,6 +309,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -340,6 +345,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -368,6 +374,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -390,6 +397,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -423,6 +431,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -448,6 +457,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -480,6 +490,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -504,6 +515,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,

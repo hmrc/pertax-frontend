@@ -78,8 +78,8 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
                 None,
                 None,
                 None,
-                request
-              ))
+                None,
+                request))
         })
 
         val r = controller.managePreferences(FakeRequest())
@@ -99,6 +99,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
                 ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
                 "Verify",
                 ConfidenceLevel.L500,
+                None,
                 None,
                 None,
                 None,

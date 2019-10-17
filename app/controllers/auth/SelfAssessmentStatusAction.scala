@@ -66,10 +66,12 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
           request.authProvider,
           request.confidenceLevel,
           None,
+          request.trustedHelper,
           None,
           None,
           None,
-          request.request))
+          request.request
+        ))
     }
   }
 
