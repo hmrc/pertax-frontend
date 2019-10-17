@@ -604,7 +604,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 200 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -613,7 +613,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
-              ConfidenceLevel.L200,
+              ConfidenceLevel.L50,
               None,
               None,
               None,
@@ -633,7 +633,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to the SA activation page on the portal for a user logged in with GG linked to SA which is not yet activated" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -642,7 +642,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
-              ConfidenceLevel.L200,
+              ConfidenceLevel.L50,
               None,
               None,
               None,
@@ -666,7 +666,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to 'Find out how to access your Self Assessment' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -675,7 +675,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
               "GovernmentGateway",
-              ConfidenceLevel.L200,
+              ConfidenceLevel.L50,
               None,
               None,
               None,
@@ -699,7 +699,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to 'We cannot confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequest(
@@ -708,7 +708,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               NonFilerSelfAssessmentUser,
               "GovernmentGateway",
-              ConfidenceLevel.L200,
+              ConfidenceLevel.L50,
               None,
               None,
               None,
