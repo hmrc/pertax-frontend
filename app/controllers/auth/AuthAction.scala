@@ -49,7 +49,7 @@ class AuthActionImpl @Inject()(
     authorised((Enrolment("IR-SA") or Nino(hasNino = true)) and ConfidenceLevel.L200)
       .retrieve(
         Retrievals.nino and
-          Retrievals.authorisedEnrolments and
+          Retrievals.allEnrolments and
           Retrievals.credentials and
           Retrievals.confidenceLevel and
           Retrievals.name and
