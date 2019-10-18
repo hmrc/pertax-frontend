@@ -41,7 +41,9 @@ case class UserRequest[+A](
 
   def name: Option[String] = personDetails match {
     case Some(personDetails) => personDetails.person.shortName
-    case _                   => Some(retrievedName.toString)
+    case _ => {
+      if (retrievedName.isDefined) Some(retrievedName.get.toString) else None
+    }
   }
 
   def isGovernmentGateway: Boolean = authProvider == "GovernmentGateway"

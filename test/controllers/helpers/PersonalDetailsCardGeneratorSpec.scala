@@ -403,7 +403,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
     }
 
     "always return None when user does not have a name available" in new LocalSetup {
-      implicit val userRequest = UserRequestFixture.buildUserRequest(userName = None)
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None, userName = None)
 
       cardBody shouldBe None
     }
