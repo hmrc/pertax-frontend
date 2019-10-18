@@ -39,10 +39,10 @@ case class UserRequest[+A](
   request: Request[A])
     extends WrappedRequest[A](request) {
 
-  def name: Option[String] = personDetails match {
-    case Some(personDetails) => personDetails.person.shortName
+  def name: Option[String] = retrievedName match {
+    case Some(retrievedName) => Some(retrievedName.toString)
     case _ => {
-      if (retrievedName.isDefined) Some(retrievedName.get.toString) else None
+      if (personDetails.isDefined) personDetails.get.person.shortName else None
     }
   }
 

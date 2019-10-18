@@ -56,33 +56,61 @@ class AuthActionImpl @Inject()(
           Retrievals.loginTimes and
           Retrievals.trustedHelper) {
         case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper =>
-          val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
-            enrolment.identifiers
-              .find(id => id.key == "UTR")
-              .map(key => SelfAssessmentEnrolment(SaUtr(key.value), enrolment.state))
+          if (trustedHelper.isDefined) {
+
+            val trimmedRequest: Request[A] = request
+              .map {
+                case AnyContentAsFormUrlEncoded(data) =>
+                  AnyContentAsFormUrlEncoded(data.map {
+                    case (key, vals) => (key, vals.map(_.trim))
+                  })
+                case b => b
+              }
+              .asInstanceOf[Request[A]]
+
+            block(
+              AuthenticatedRequest[A](
+                trustedHelper.map(helper => domain.Nino(helper.principalNino)),
+                None,
+                credentials.providerType,
+                confidenceLevel,
+                trustedHelper.map(helper => UserName(Name(Some(helper.principalName), None))),
+                logins.previousLogin,
+                trustedHelper,
+                trimmedRequest
+              ))
+
+          } else {
+
+            val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
+              enrolment.identifiers
+                .find(id => id.key == "UTR")
+                .map(key => SelfAssessmentEnrolment(SaUtr(key.value), enrolment.state))
+            }
+
+            val trimmedRequest: Request[A] = request
+              .map {
+                case AnyContentAsFormUrlEncoded(data) =>
+                  AnyContentAsFormUrlEncoded(data.map {
+                    case (key, vals) => (key, vals.map(_.trim))
+                  })
+                case b => b
+              }
+              .asInstanceOf[Request[A]]
+
+            block(
+              AuthenticatedRequest[A](
+                nino.map(domain.Nino),
+                saEnrolment,
+                credentials.providerType,
+                confidenceLevel,
+                Some(UserName(name.getOrElse(Name(None, None)))),
+                logins.previousLogin,
+                trustedHelper,
+                trimmedRequest
+              ))
           }
 
-          val trimmedRequest: Request[A] = request
-            .map {
-              case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map {
-                  case (key, vals) => (key, vals.map(_.trim))
-                })
-              case b => b
-            }
-            .asInstanceOf[Request[A]]
-
-          block(
-            AuthenticatedRequest[A](
-              nino.map(domain.Nino),
-              saEnrolment,
-              credentials.providerType,
-              confidenceLevel,
-              Some(UserName(name.getOrElse(Name(None, None)))),
-              logins.previousLogin,
-              trustedHelper,
-              trimmedRequest
-            ))
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
