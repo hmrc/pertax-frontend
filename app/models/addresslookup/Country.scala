@@ -19,9 +19,7 @@ package models.addresslookup
 import play.api.libs.json.Json
 
 /** Represents a country as per ISO3166. */
-case class Country(
-  code: String,
-  name: String)
+case class Country(code: String, name: String)
 
 object Country {
   implicit val formats = Json.format[Country]

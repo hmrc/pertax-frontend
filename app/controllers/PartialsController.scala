@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, NewPertaxAuthConnector, PertaxAuditConnector}
+import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import models.Breadcrumb
@@ -33,7 +33,7 @@ class PartialsController @Inject()(
   val delegationConnector: FrontEndDelegationConnector,
   val localErrorHandler: LocalErrorHandler,
   auditConnector: PertaxAuditConnector,
-  authConnector: NewPertaxAuthConnector)(
+  authConnector: PertaxAuthConnector)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator)
     extends PertaxBaseController {

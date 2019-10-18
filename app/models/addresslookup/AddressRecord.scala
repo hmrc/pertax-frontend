@@ -21,10 +21,7 @@ import play.api.libs.json.Json
 /**
   * Represents one address record. Arrays of these are returned from the address-lookup microservice.
   */
-case class AddressRecord(
-  id: String,
-  address: Address,
-  language: String) {
+case class AddressRecord(id: String, address: Address, language: String) {
 
   def isValid: Boolean = address.isValid && language.length == 2
 }

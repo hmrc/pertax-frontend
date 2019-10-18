@@ -23,10 +23,7 @@ import services.http.WSHttp
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.config.ServicesConfig
 
-class NewPertaxAuthConnector @Inject()(
-  val http: WSHttp,
-  environment: Environment,
-  val runModeConfiguration: Configuration)
+class PertaxAuthConnector @Inject()(val http: WSHttp, environment: Environment, val runModeConfiguration: Configuration)
     extends PlayAuthConnector with ServicesConfig {
 
   val serviceUrl: String = baseUrl("auth")
