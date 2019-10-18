@@ -33,7 +33,6 @@ object AddressJourneyAuditingHelper {
 
   def addressWasHeavilyModifiedOrManualEntry(originalAddressDto: Option[AddressDto], addressDto: AddressDto): Boolean =
     originalAddressDto.forall { o =>
-      //Count address line changes
       val lines = List(addressDto.line1, addressDto.line2, addressDto.line3, addressDto.line4)
       val originalLines = List(o.line1, o.line2, o.line3, o.line4)
       val changeCount = (lines zip originalLines).count(e => e._1 != e._2)

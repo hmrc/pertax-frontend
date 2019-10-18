@@ -51,7 +51,8 @@ class MessageController @Inject()(
         messageFrontendService.getMessageListPartial map { p =>
           Ok(
             views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
-              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
+              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")))
+          )
         }
       } else {
         futureError(UNAUTHORIZED)
@@ -71,7 +72,9 @@ class MessageController @Inject()(
             Ok(
               views.html.message.messageDetail(
                 message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
-                title = Messages("label.message")))
+                title = Messages("label.message")
+              )
+            )
         }
       } else {
         futureError(UNAUTHORIZED)

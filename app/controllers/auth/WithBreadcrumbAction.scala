@@ -42,7 +42,9 @@ class WithBreadcrumbAction {
               request.activeTab,
               Some(breadcrumb),
               request.request
-            )))
+            )
+          )
+        )
     }
 
 }

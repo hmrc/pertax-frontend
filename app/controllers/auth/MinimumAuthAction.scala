@@ -23,7 +23,6 @@ import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment}
 import controllers.routes
 import models.UserName
 import play.api.Configuration
-import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
@@ -32,7 +31,6 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -82,7 +80,8 @@ class MinimumAuthAction @Inject()(
               logins.previousLogin,
               trustedHelper,
               trimmedRequest
-            ))
+            )
+          )
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {

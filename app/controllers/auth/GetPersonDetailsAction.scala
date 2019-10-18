@@ -83,7 +83,8 @@ class GetPersonDetailsAction @Inject()(
               request.activeTab,
               request.breadcrumb,
               request.request
-            ))
+            )
+          )
         )
       }
     }

@@ -78,7 +78,8 @@ class AuthActionImpl @Inject()(
                 logins.previousLogin,
                 trustedHelper,
                 trimmedRequest
-              ))
+              )
+            )
 
           } else {
 
@@ -108,7 +109,8 @@ class AuthActionImpl @Inject()(
                 logins.previousLogin,
                 trustedHelper,
                 trimmedRequest
-              ))
+              )
+            )
           }
 
         case _ => throw new RuntimeException("Can't find credentials for user")

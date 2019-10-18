@@ -42,6 +42,8 @@ class WithActiveTabAction {
               Some(currentActiveTab),
               request.breadcrumb,
               request.request
-            )))
+            )
+          )
+        )
     }
 }

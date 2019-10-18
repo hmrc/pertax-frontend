@@ -119,5 +119,4 @@ class HomeController @Inject()(
         (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
       }
     }
-
 }

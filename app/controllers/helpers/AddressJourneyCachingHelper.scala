@@ -64,7 +64,6 @@ trait AddressJourneyCachingHelper { this: AddressController =>
   def clearCache()(implicit hc: HeaderCarrier): Future[HttpResponse] =
     sessionCache.remove()
 
-  //This is needed beacuse there is no AddrType available to call gettingCachedJourneyData
   def gettingCachedAddressPageVisitedDto[T](block: Option[AddressPageVisitedDto] => Future[T])(
     implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() flatMap {
@@ -103,9 +102,10 @@ trait AddressJourneyCachingHelper { this: AddressController =>
             cacheMap.getEntry[InternationalAddressChoiceDto]("internationalAddressChoiceDto"),
             cacheMap.getEntry[DateDto](s"${typ}SubmittedStartDateDto"),
             cacheMap.getEntry[Boolean]("addressLookupServiceDown").getOrElse(false)
-          ))
+          )
+        )
       case None =>
-        block(AddressJourneyData(None, None, None, None, None, None, None, false))
+        block(AddressJourneyData(None, None, None, None, None, None, None, addressLookupServiceDown = false))
     }
 
   def enforceDisplayAddressPageVisited(addressPageVisitedDto: Option[AddressPageVisitedDto])(block: => Future[Result])(

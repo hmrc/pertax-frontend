@@ -71,7 +71,8 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
           None,
           None,
           request.request
-        ))
+        )
+      )
     }
   }
 

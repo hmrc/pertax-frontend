@@ -104,15 +104,13 @@ class InterstitialController @Inject()(
   def displaySa302Interrupt(year: Int): Action[AnyContent] = authenticateSa { implicit request =>
     if (request.isSa) {
       request.saUserType match {
-        case saUser: SelfAssessmentUser => {
+        case saUser: SelfAssessmentUser =>
           Ok(
             views.html.selfassessment
               .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUser.saUtr))
-        }
-        case NonFilerSelfAssessmentUser => {
+        case NonFilerSelfAssessmentUser =>
           Logger.warn("User had no sa account (non filer) when one was required")
           error(INTERNAL_SERVER_ERROR)
-        }
       }
     } else {
       Logger.warn("User had no sa account when one was required")

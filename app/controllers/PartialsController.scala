@@ -59,7 +59,8 @@ class PartialsController @Inject()(
           breadcrumb,
           showBetaBanner.getOrElse(false),
           deskProToken,
-          langReturnUrl.filter(x => configDecorator.welshLangEnabled))
+          langReturnUrl.filter(x => configDecorator.welshLangEnabled)
+        )
       )
     }
   }
