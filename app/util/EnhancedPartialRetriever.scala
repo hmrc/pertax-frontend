@@ -56,7 +56,7 @@ abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: Application
           e match {
             case ex: HttpException =>
               HtmlPartial.Failure(Some(ex.responseCode))
-            case ex =>
+            case _ =>
               HtmlPartial.Failure(None)
           }
       }

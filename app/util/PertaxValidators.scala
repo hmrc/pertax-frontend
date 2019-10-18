@@ -31,7 +31,7 @@ object PertaxValidators {
         val anyCheckedFieldContainsData =
           fieldsToCheck.foldLeft[Boolean](false)((dataFound, rf) => dataFound || !formData.getOrElse(rf, "").isEmpty)
         if (anyCheckedFieldContainsData) Seq(FormError(key, s"error.${key}_required")) else Nil
-      case v =>
+      case _ =>
         Nil
     }
 

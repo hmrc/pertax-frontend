@@ -68,6 +68,5 @@ class MessageFrontendService @Inject()(
           Logger.warn(s"Failed to load json", e)
           None
       }
-
     }
 }
