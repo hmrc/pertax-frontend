@@ -94,7 +94,7 @@ class PersonalDetailsCardGenerator @Inject()(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
-    request.retrievedName.map { _ =>
+    request.name.map { _ =>
       views.html.cards.personaldetails.changeName()
     }
 }

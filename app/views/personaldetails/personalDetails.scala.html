@@ -29,7 +29,7 @@
 
       <header class="page-heading" role="heading">
         <h1 class="heading-xlarge">
-            @request.retrievedName.map((userName: UserName) => upperCaseToTitleCase(userName.toString)).getOrElse(messages("label.your_account"))
+            @request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account"))
         </h1>
         <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@messages("label.personal_details")</p>
       </header>
