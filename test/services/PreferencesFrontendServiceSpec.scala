@@ -18,7 +18,7 @@ package services
 
 import com.codahale.metrics.Timer.Context
 import com.codahale.metrics.{Counter, MetricRegistry, Timer}
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.{any => wireAny, verify => wireVerify, _}
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models._
@@ -102,9 +102,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       await(result) shouldBe ActivatePaperlessActivatedResponse
 
-      /*      verify(mockMetrics., times(1)).startTimer(metricId)
-      verify(mockMetrics, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()*/
+//      verify(mockMetricRegistry, times(1)).timer(any()).time
+//      verify(mockMetricRegistry, times(1)).counter(any()).inc()
+//      verify(mockContext, times(1)).stop
     }
 
     "return ActivatePaperlessNotAllowedResponse if user is not Government Gateway" in {

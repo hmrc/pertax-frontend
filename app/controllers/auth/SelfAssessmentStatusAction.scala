@@ -48,7 +48,7 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
         case None =>
           getSaUtrFromCitizenDetailsService(nino) map {
             case Some(saUtr) => AmbiguousFilerSelfAssessmentUser(saUtr) //Ambiguous SA filer
-            case None => NonFilerSelfAssessmentUser //Non SA Filer
+            case None        => NonFilerSelfAssessmentUser //Non SA Filer
           }
       }
     }

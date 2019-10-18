@@ -37,6 +37,8 @@ import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
+import util.Fixtures
+import uk.gov.hmrc.domain.SaUtrGenerator
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -102,6 +104,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user with nino and no SA enrolment must" - {
     "create an authenticated request" in {
 
+      val nino = Fixtures.fakeNino.nino
       val retrievalResult: Future[
         Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
           TrustedHelper]] =
@@ -110,7 +113,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
             new ~(
               new ~(
                 new ~(
-                  new ~(new ~(Some("AB123456C"), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))),
+                  new ~(new ~(Some(nino), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))),
                   ConfidenceLevel.L200),
                 None),
               LoginTimes(DateTime.now(), None)
@@ -129,14 +132,14 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
-      contentAsString(result) must include("AB123456C")
+      contentAsString(result) must include(nino)
     }
   }
 
-  //TODO: Use Generators
   "A user with no nino but an SA enrolment must" - {
     "create an authenticated request" in {
 
+      val utr = new SaUtrGenerator().nextSaUtr.utr
       val retrievalResult: Future[
         Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
           TrustedHelper]] =
@@ -146,7 +149,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
               new ~(
                 new ~(
                   new ~(
-                    new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "")))),
+                    new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "")))),
                     Some(Credentials("foo", "bar"))),
                   ConfidenceLevel.L200
                 ),
@@ -168,13 +171,15 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
-      contentAsString(result) must include("1234567890")
+      contentAsString(result) must include(utr)
     }
   }
 
   "A user with a nino and an SA enrolment must" - {
     "create an authenticated request" in {
 
+      val nino = Fixtures.fakeNino.nino
+      val utr = new SaUtrGenerator().nextSaUtr.utr
       val retrievalResult: Future[
         Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
           TrustedHelper]] =
@@ -184,9 +189,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
               new ~(
                 new ~(
                   new ~(
-                    new ~(
-                      Some("AB123456C"),
-                      Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", "1234567890")), "")))),
+                    new ~(Some(nino), Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "")))),
                     Some(Credentials("foo", "bar"))),
                   ConfidenceLevel.L200
                 ),
@@ -208,14 +211,15 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
-      contentAsString(result) must include("AB123456C")
-      contentAsString(result) must include("1234567890")
+      contentAsString(result) must include(nino)
+      contentAsString(result) must include(utr)
     }
   }
 
   "A user with trustedHelper must" - {
     "create an authenticated request containing the trustedHelper" in {
 
+      val fakePrincipalNino = Fixtures.fakeNino.toString()
       val retrievalResult: Future[
         Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
           TrustedHelper]] =
@@ -224,12 +228,14 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
             new ~(
               new ~(
                 new ~(
-                  new ~(new ~(Some("AB123456C"), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))),
+                  new ~(
+                    new ~(Some(Fixtures.fakeNino.toString()), Enrolments(Set.empty)),
+                    Some(Credentials("foo", "bar"))),
                   ConfidenceLevel.L200),
                 None),
               LoginTimes(DateTime.now(), None)
             ),
-            Some(TrustedHelper("principalName", "attorneyName", "returnUrl", "principalNino"))
+            Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino))
           ))
 
       when(mockAuthConnector
@@ -243,7 +249,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
-      contentAsString(result) must include("Some(TrustedHelper(principalName,attorneyName,returnUrl,principalNino))")
+      contentAsString(result) must include(
+        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
     }
   }
 }

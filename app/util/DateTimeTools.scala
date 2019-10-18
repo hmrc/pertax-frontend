@@ -48,7 +48,7 @@ object DateTimeTools extends CurrentTaxYear {
 
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
 
-  def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime) //FIXME - remove and use LocalDate instead
+  def short(dateTime: LocalDate) = formatter("dd/MM/yyy").print(dateTime)
 
   def asHumanDateFromUnixDate(unixDate: String): String =
     Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {

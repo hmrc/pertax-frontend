@@ -131,7 +131,6 @@ class AuthActionImpl @Inject()(
         )
       )
 
-    //TODO: handle this nicerly
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }
 }

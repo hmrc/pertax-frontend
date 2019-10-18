@@ -59,29 +59,6 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
       cardBody shouldBe None
     }
 
-    //TODO: How can you be a pertax user without PAYE?
-    "return nothing when called with a Pertax user that is not PAYE" in {
-
-      implicit val userRequest = UserRequest(
-        None,
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        "Verify",
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
-
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
-
-      cardBody shouldBe None
-    }
-
     "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
 
       implicit val userRequest = UserRequest(
@@ -104,7 +81,6 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
       cardBody shouldBe None
     }
 
-    //TODO: what will the request look like when the endpoint is returning an error??
     "return the static version of the markup (no card actions) when called with with a user that is PAYE but there was an error calling the endpoint" in {
 
       implicit val userRequest = UserRequest(
