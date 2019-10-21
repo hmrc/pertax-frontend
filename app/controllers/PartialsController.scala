@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
 import javax.inject.Inject
 import models.Breadcrumb
@@ -30,7 +30,6 @@ import scala.concurrent.Future
 
 class PartialsController @Inject()(
   val messagesApi: MessagesApi,
-  val delegationConnector: FrontEndDelegationConnector,
   val localErrorHandler: LocalErrorHandler,
   auditConnector: PertaxAuditConnector,
   authConnector: PertaxAuthConnector)(

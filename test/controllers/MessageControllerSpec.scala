@@ -35,6 +35,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import org.jsoup.Jsoup
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -48,6 +49,8 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   val mockMessageFrontendService = mock[MessageFrontendService]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
+
+  implicit lazy val mat = app.materializer
 
   def controller: MessageController =
     new MessageController(
@@ -86,14 +89,16 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
             ))
       })
 
-      when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
+      when(mockMessageFrontendService.getMessageListPartial(any())) thenReturn {
+        Future(HtmlPartial.Success(Some("Success"), Html("<title>Message List</title>")))
       }
 
       val r = controller.messageList(FakeRequest())
+      val body = contentAsString(r)
 
       status(r) shouldBe OK
-      verify(controller.messageFrontendService, times(1)).getMessageListPartial(any())
+      verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
+      body should include("Message List")
     }
 
     "return 401 for a verify user" in {
@@ -119,7 +124,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       val r = controller.messageList(FakeRequest("GET", "/foo"))
       status(r) shouldBe UNAUTHORIZED
 
-      verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
+      verify(mockMessageFrontendService, times(0)).getMessageListPartial(any())
     }
   }
 
@@ -145,14 +150,83 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
             ))
       })
 
-      when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
 
       status(r) shouldBe OK
-      verify(controller.messageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+    }
+
+    "call messages and return 200 with no page title when called by a high GG user" in {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+        Future(HtmlPartial.Success(None, Html("List")))
+      }
+
+      val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
+      val body = contentAsString(r)
+
+      status(r) shouldBe OK
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      body should include("List")
+    }
+
+    "call messages and return 200 with default messages when called by a high GG user" in {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              "GovernmentGateway",
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+        Future(HtmlPartial.Failure(None, ""))
+      }
+
+      val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
+      val body = bodyOf(r)
+      val doc = Jsoup.parse(body)
+
+      Option(doc.getElementsByTag("article").text()).get should include(
+        "Sorry, there has been a technical problem retrieving your message")
+
+      status(r) shouldBe OK
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
     }
 
     "return 401 for a Verify user" in {
@@ -178,7 +252,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
       status(r) shouldBe UNAUTHORIZED
-      verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(0)).getMessageDetailPartial(any())(any())
     }
   }
 }

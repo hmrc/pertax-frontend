@@ -119,6 +119,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       val r = service.personDetails(nino)
 
       await(r) shouldBe PersonDetailsNotFoundResponse
+
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()

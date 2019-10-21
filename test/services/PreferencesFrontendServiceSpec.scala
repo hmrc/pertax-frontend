@@ -59,6 +59,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
   when(mockTimer.time()).thenReturn(mockContext)
 
+  when(mockContext.stop()).thenReturn(1L)
+
   //TODO: Find a way to mock metrics in a testable way
   "PreferencesFrontend" should {
 

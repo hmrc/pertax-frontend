@@ -18,19 +18,22 @@ package services
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
-import org.mockito.Matchers._
+import models.{OverpaidStatus, Reconciliation, TaxYearReconciliation}
+import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.{Configuration, Environment}
-import services.http.{FakeSimpleHttp, WsAllMethods}
+import services.http.{FakeSimpleHttp, SimpleHttp, WsAllMethods}
 import uk.gov.hmrc.http.HttpResponse
 import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
-class TaxCalculationServiceSpec extends BaseSpec {
+class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoSugar {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
@@ -40,6 +43,7 @@ class TaxCalculationServiceSpec extends BaseSpec {
     val jsonTaxCalcDetails = Json.toJson(taxCalcDetails)
     val anException = new RuntimeException("Any")
     val metricId = "get-taxcalc-summary"
+    val mockHttp = mock[WsAllMethods]
 
     lazy val r = service.getTaxCalculation(Fixtures.fakeNino, 2015)
 
@@ -55,7 +59,7 @@ class TaxCalculationServiceSpec extends BaseSpec {
         injected[Configuration],
         fakeSimpleHttp,
         MockitoSugar.mock[Metrics],
-        injected[WsAllMethods]) {
+        mockHttp) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
@@ -108,6 +112,47 @@ class TaxCalculationServiceSpec extends BaseSpec {
       verify(timer, times(1)).stop()
     }
 
+  }
+
+  "Calling TaxCalculationService.getTaxYearReconciliations" should {
+
+    "return a list of TaxYearReconciliations when given a valid nino" in new SpecSetup {
+      override def httpResponse: HttpResponse = HttpResponse(OK, Some(jsonTaxCalcDetails))
+      override def simulateTaxCalculationServiceIsDown: Boolean = false
+
+      val expectedTaxYearList =
+        List(TaxYearReconciliation(2019, Reconciliation.overpaid(Some(100), OverpaidStatus.Refund)))
+
+      val fakeNino = Fixtures.fakeNino
+
+      when(mockHttp.GET[List[TaxYearReconciliation]](any())(any(), any(), any()))
+        .thenReturn(expectedTaxYearList)
+
+      val result = service.getTaxYearReconciliations(fakeNino)
+
+      whenReady(result) {
+        _ shouldBe expectedTaxYearList
+      }
+
+    }
+
+    "return nil when unable to get a list of TaxYearReconciliation" in new SpecSetup {
+      override def httpResponse: HttpResponse = HttpResponse(OK, Some(jsonTaxCalcDetails))
+      override def simulateTaxCalculationServiceIsDown: Boolean = false
+
+      val expectedTaxYearList = Nil
+
+      val fakeNino = Fixtures.fakeNino
+
+      when(mockHttp.GET[List[TaxYearReconciliation]](any())(any(), any(), any()))
+        .thenReturn(Future.failed(new RuntimeException))
+
+      val result = service.getTaxYearReconciliations(fakeNino)
+
+      whenReady(result) {
+        _ shouldBe Nil
+      }
+    }
   }
 
 }
