@@ -40,7 +40,7 @@ import play.api.test.Helpers._
 import repositories.CorrespondenceAddressLockRepository
 import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -174,7 +174,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(Some(Fixtures.fakeNino), None, None, NonFilerSelfAssessmentUser, "SomeAuth", ConfidenceLevel.L200, None, None, None, None, None, request)
+            UserRequest(Some(Fixtures.fakeNino), None, None, NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, request)
           )
       })
 
@@ -831,6 +831,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequestFixture.buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
                 .asInstanceOf[Request[A]]).asInstanceOf[UserRequest[A]]
@@ -857,6 +858,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequestFixture.buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
               .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
               .asInstanceOf[Request[A]])
@@ -889,6 +891,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequestFixture.buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
               .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
               .asInstanceOf[Request[A]])
@@ -918,6 +921,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             UserRequestFixture.buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
                 .asInstanceOf[Request[A]])
@@ -2894,6 +2898,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           block(
             UserRequestFixture
               .buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
                 personDetails = Some(buildPersonDetailsCorrespondenceAddress),
                 request = FakeRequest("POST", "/test")
               .asInstanceOf[Request[A]])
@@ -3003,6 +3008,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           block(
             UserRequestFixture
               .buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
                 personDetails = Some(buildPersonDetailsCorrespondenceAddress),
                 request = FakeRequest("POST", "/test")
               .asInstanceOf[Request[A]])
@@ -3199,6 +3205,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           block(
             UserRequestFixture
               .buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
               )
@@ -3242,6 +3249,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           block(
             UserRequestFixture
               .buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
                 request = requestWithForm
                   .asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
@@ -3279,6 +3287,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           block(
             UserRequestFixture
               .buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
               )
@@ -3314,6 +3323,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           block(
             UserRequestFixture
               .buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
               )
@@ -3375,7 +3385,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     trait LookingUpAddressLocalSetup extends WithAddressControllerSpecSetup {
 
-      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")), NonFilerSelfAssessmentUser, "GovernmentGateway", ConfidenceLevel.L200, None, None, None, None, None, FakeRequest())
+      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, FakeRequest())
 
       def addressLookupResponse: AddressLookupResponse
 

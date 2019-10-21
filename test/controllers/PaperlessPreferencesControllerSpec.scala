@@ -30,6 +30,7 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.PreferencesFrontendPartialService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -72,14 +73,15 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
                 None,
                 None,
                 NonFilerSelfAssessmentUser,
-                "GovernmentGateway",
+                Credentials("", "GovernmentGateway"),
                 ConfidenceLevel.L200,
                 None,
                 None,
                 None,
                 None,
                 None,
-                request))
+                request
+              ))
         })
 
         val r = controller.managePreferences(FakeRequest())
@@ -97,7 +99,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
                 None,
                 None,
                 ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-                "Verify",
+                Credentials("", "Verify"),
                 ConfidenceLevel.L500,
                 None,
                 None,

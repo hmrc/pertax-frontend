@@ -157,7 +157,7 @@
                     trackingId,
                     cookieDomain = configDecorator.analyticsHost,
                     "confidenceLevel" -> Some(request.confidenceLevel.toString),
-                    "authProvider" -> Some(request.authProvider)
+                    "authProvider" -> Some(request.credentials.providerType)
                 )
             },
             Some(OptimizelyComponent(
@@ -175,9 +175,9 @@
             Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
             Some(UserPropertiesComponent(
-                isGovernmentGateway = request.authProvider == "GovernmentGateway",
-                isVerify = request.authProvider == "Verify",
-                isSa = request.saUserType != NonFilerSelfAssessmentUser
+                isGovernmentGateway = request.isGovernmentGateway,
+                isVerify = request.isVerify,
+                isSa = request.isSa
             )),
             Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
             pageName.map(NavTitleComponent),

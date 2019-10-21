@@ -26,7 +26,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
@@ -34,7 +34,7 @@ class deEnrolledFromSaChoiceSpec extends BaseSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  override implicit lazy val app = localGuiceApplicationBuilder().overrides().build()
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   implicit val messages = Messages.Implicits.applicationMessages
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
@@ -44,7 +44,7 @@ class deEnrolledFromSaChoiceSpec extends BaseSpec with MockitoSugar {
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
     NonFilerSelfAssessmentUser,
-    "GovernmentGateway",
+    Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
     None,
     None,

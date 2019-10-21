@@ -36,6 +36,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 import org.jsoup.Jsoup
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -78,7 +79,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -111,7 +112,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               NonFilerSelfAssessmentUser,
-              "Verify",
+              Credentials("", "Verify"),
               ConfidenceLevel.L500,
               None,
               None,
@@ -139,7 +140,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -170,7 +171,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -203,7 +204,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -239,7 +240,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "Verify",
+              Credentials("", "Verify"),
               ConfidenceLevel.L500,
               None,
               None,

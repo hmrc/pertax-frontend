@@ -35,7 +35,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import util.{BaseSpec, Fixtures, WireMockHelper}
 
 class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with WireMockHelper {
@@ -71,7 +71,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
         None,
         None,
@@ -115,7 +115,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,
@@ -142,7 +142,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,
@@ -179,7 +179,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,
@@ -216,7 +216,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
         None,
         None,
@@ -260,7 +260,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,

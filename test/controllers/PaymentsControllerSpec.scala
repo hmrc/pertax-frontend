@@ -32,6 +32,7 @@ import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -71,7 +72,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
           None,
           None,
           ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-          "GovernmentGateway",
+          Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
           None,
           None,

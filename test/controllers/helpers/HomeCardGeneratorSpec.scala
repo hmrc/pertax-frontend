@@ -24,7 +24,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.SaUtr
 import util.{BaseSpec, Fixtures}
 import views.html.cards.home._
@@ -44,7 +44,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L50,
         None,
         None,
@@ -66,7 +66,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,
@@ -88,7 +88,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,
@@ -110,7 +110,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,
@@ -132,7 +132,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,
@@ -161,7 +161,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         saUserType,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
         None,
         None,
@@ -184,7 +184,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         saUserType,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
         None,
         None,
@@ -207,7 +207,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         saUserType,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
         None,
         None,
@@ -230,7 +230,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         saUserType,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
         None,
         None,
@@ -253,7 +253,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
         Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         saUserType,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,

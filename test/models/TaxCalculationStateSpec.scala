@@ -25,6 +25,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import util.BaseSpec
 
@@ -36,14 +37,15 @@ class TaxCalculationStateSpec extends BaseSpec {
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-    "SomeAuth",
+    Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
     None,
     None,
     None,
     None,
     None,
-    fakeRequest)
+    fakeRequest
+  )
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))

@@ -63,7 +63,7 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
           request.name,
           request.previousLoginTime,
           saType,
-          request.authProvider,
+          request.credentials,
           request.confidenceLevel,
           None,
           request.trustedHelper,

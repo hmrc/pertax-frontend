@@ -34,7 +34,7 @@ class WithActiveTabAction {
               request.retrievedName,
               request.previousLoginTime,
               request.saUserType,
-              request.authProvider,
+              request.credentials,
               request.confidenceLevel,
               request.personDetails,
               request.trustedHelper,

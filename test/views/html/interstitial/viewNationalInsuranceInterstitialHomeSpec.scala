@@ -25,6 +25,7 @@ import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
@@ -44,14 +45,15 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         None,
         None,
         NonFilerSelfAssessmentUser,
-        "GovernmentGateway",
+        Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
         None,
         None,
         None,
         None,
         None,
-        FakeRequest())
+        FakeRequest()
+      )
       val document = Jsoup.parse(
         views.html.interstitial
           .viewNationalInsuranceInterstitialHome(Html(""), "asfa")
@@ -65,7 +67,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         None,
         None,
         NonFilerSelfAssessmentUser,
-        "Verify",
+        Credentials("", "Verify"),
         ConfidenceLevel.L500,
         None,
         None,

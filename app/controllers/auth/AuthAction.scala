@@ -72,7 +72,7 @@ class AuthActionImpl @Inject()(
               AuthenticatedRequest[A](
                 trustedHelper.map(helper => domain.Nino(helper.principalNino)),
                 None,
-                credentials.providerType,
+                credentials,
                 confidenceLevel,
                 trustedHelper.map(helper => UserName(Name(Some(helper.principalName), None))),
                 logins.previousLogin,
@@ -103,7 +103,7 @@ class AuthActionImpl @Inject()(
               AuthenticatedRequest[A](
                 nino.map(domain.Nino),
                 saEnrolment,
-                credentials.providerType,
+                credentials,
                 confidenceLevel,
                 Some(UserName(name.getOrElse(Name(None, None)))),
                 logins.previousLogin,

@@ -20,6 +20,7 @@ import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.ActiveTab
@@ -29,7 +30,7 @@ case class UserRequest[+A](
   retrievedName: Option[UserName],
   previousLoginTime: Option[DateTime],
   saUserType: SelfAssessmentUserType,
-  authProvider: String,
+  credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   personDetails: Option[PersonDetails],
   trustedHelper: Option[TrustedHelper],
@@ -45,9 +46,9 @@ case class UserRequest[+A](
       if (personDetails.isDefined) personDetails.get.person.shortName else None
   }
 
-  def isGovernmentGateway: Boolean = authProvider == "GovernmentGateway"
+  def isGovernmentGateway: Boolean = credentials.providerType == "GovernmentGateway"
 
-  def isVerify: Boolean = authProvider == "Verify"
+  def isVerify: Boolean = credentials.providerType == "Verify"
 
   def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
 

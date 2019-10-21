@@ -31,6 +31,7 @@ import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
@@ -72,7 +73,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
               None,
               None,
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               Some(buildPersonDetails),
               None,
@@ -97,7 +98,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
               None,
               None,
               AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "Verify",
+              Credentials("", "Verify"),
               ConfidenceLevel.L500,
               Some(buildPersonDetails),
               None,

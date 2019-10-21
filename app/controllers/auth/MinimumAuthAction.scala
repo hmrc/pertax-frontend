@@ -74,7 +74,7 @@ class MinimumAuthAction @Inject()(
             AuthenticatedRequest[A](
               nino.map(domain.Nino),
               saEnrolment,
-              credentials.providerType,
+              credentials,
               confidenceLevel,
               Some(UserName(name.getOrElse(Name(None, None)))),
               logins.previousLogin,

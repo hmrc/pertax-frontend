@@ -33,6 +33,7 @@ import play.api.test.Helpers._
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 import scala.concurrent.Future
@@ -76,7 +77,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             None,
             None,
             AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
-            "",
+            Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,
             None,
@@ -104,7 +105,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             None,
             None,
             AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
-            "",
+            Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,
             None,

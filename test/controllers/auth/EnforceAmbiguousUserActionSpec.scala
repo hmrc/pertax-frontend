@@ -27,6 +27,7 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 
 import scala.concurrent.Future
@@ -60,14 +61,15 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
             None,
             None,
             AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
-            "",
+            Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,
             None,
             None,
             None,
             None,
-            FakeRequest())
+            FakeRequest()
+          )
         val result = harness()(userRequest)
         status(result) mustBe OK
       }
@@ -81,7 +83,7 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
               None,
               None,
               NonFilerSelfAssessmentUser,
-              "",
+              Credentials("", "Verify"),
               ConfidenceLevel.L50,
               None,
               None,

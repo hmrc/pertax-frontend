@@ -33,6 +33,7 @@ import play.api.test.Helpers._
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -162,7 +163,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -192,14 +193,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               NonFilerSelfAssessmentUser,
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
               None,
               None,
               None,
-              request))
+              request
+            ))
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
@@ -221,7 +223,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -249,7 +251,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -278,7 +280,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -307,7 +309,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -339,7 +341,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -368,7 +370,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -395,7 +397,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -425,7 +427,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -455,7 +457,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -484,7 +486,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -513,7 +515,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,

@@ -32,6 +32,7 @@ import play.twirl.api.Html
 import services.http.{SimpleHttp, WsAllMethods}
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -47,7 +48,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-    "SomeAuth",
+    Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
     None,
     None,

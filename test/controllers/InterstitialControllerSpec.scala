@@ -31,6 +31,7 @@ import play.twirl.api.Html
 import services._
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -93,7 +94,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               NonFilerSelfAssessmentUser,
-              "SomeAuth",
+              Credentials("", "Verify"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -136,7 +137,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               NonFilerSelfAssessmentUser,
-              "SomeAuth",
+              Credentials("", "Verify"),
               ConfidenceLevel.L200,
               None,
               None,
@@ -169,14 +170,15 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
               None,
               None,
               None,
-              request))
+              request
+            ))
       })
 
       val testController = controller
@@ -202,14 +204,15 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               NonFilerSelfAssessmentUser,
-              "GovernmentGateway",
+              Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
               None,
               None,
               None,
               None,
-              request))
+              request
+            ))
       })
 
       val testController = controller
@@ -234,7 +237,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               NonFilerSelfAssessmentUser,
-              "Verify",
+              Credentials("", "Verify"),
               ConfidenceLevel.L500,
               None,
               None,
@@ -268,7 +271,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
                 None,
                 None,
                 ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-                "GovernmentGateway",
+                Credentials("", "GovernmentGateway"),
                 ConfidenceLevel.L200,
                 None,
                 None,
@@ -301,14 +304,15 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
                 None,
                 None,
                 NonFilerSelfAssessmentUser,
-                "GovernmentGateway",
+                Credentials("", "GovernmentGateway"),
                 ConfidenceLevel.L200,
                 None,
                 None,
                 None,
                 None,
                 None,
-                request))
+                request
+              ))
         })
 
         val testController = controller

@@ -27,7 +27,7 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.http.HttpResponse
 import util.{BaseSpec, Fixtures}
 
@@ -42,7 +42,7 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSu
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
     NonFilerSelfAssessmentUser,
-    "Verify",
+    Credentials("", "Verify"),
     ConfidenceLevel.L500,
     None,
     None,

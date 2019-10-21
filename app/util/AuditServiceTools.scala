@@ -17,7 +17,7 @@
 package util
 
 import controllers.auth.requests.UserRequest
-import models.PersonDetails
+import models.{PersonDetails, SelfAssessmentUser}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.DataEvent
 
@@ -25,40 +25,34 @@ object AuditServiceTools {
 
   def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(
     implicit hc: HeaderCarrier,
-    request: UserRequest[_]): DataEvent =
-    //TODO: Waiting to confirm analytics
+    request: UserRequest[_]): DataEvent = {
+    val customTags = Map(
+      "clientIP"        -> hc.trueClientIp,
+      "clientPort"      -> hc.trueClientPort,
+      "path"            -> Some(request.path),
+      "transactionName" -> Some(transactionName)
+    )
 
-//    def getIdentifierPair(key: String, f: Accounts => Option[String]): Option[(String, String)] =
-//      context.user.flatMap(user => f(user.authContext.principal.accounts)).map((key, _))
-//
-//    val standardAuditData: Map[String, String] = List(
-//      getIdentifierPair("ctUtr", _.ct.map(_.utr.utr)),
-//      getIdentifierPair("nino", _.paye.map(_.nino.nino)),
-//      getIdentifierPair("saUtr", _.sa.map(_.utr.utr)),
-//      getIdentifierPair("vrn", _.vat.map(_.vrn.vrn)),
-//      context.user.flatMap(user => user.authContext.user.governmentGatewayToken).map(("credId", _)),
-//      hc.deviceID.map(("deviceId", _)),
-//      context.request.cookies.get("mdtpdf").map(cookie => ("deviceFingerprint", cookie.value))
-//    ).flatten.toMap
-    {
-      val customTags = Map(
-        "clientIP"        -> hc.trueClientIp,
-        "clientPort"      -> hc.trueClientPort,
-        "path"            -> Some(request.path),
-        "transactionName" -> Some(transactionName)
-      )
+    val standardAuditData: Map[String, String] = List(
+      Some(("nino", request.nino.getOrElse("N/A").toString)),
+      request.saUserType match {
+        case saUser: SelfAssessmentUser => Some(("saUtr", saUser.saUtr.utr))
+        case _                          => None
+      },
+      Some("credId", request.credentials.providerId),
+      hc.deviceID.map(id => ("deviceId", id)),
+      request.cookies.get("mdtpdf").map(fingerprint => ("deviceFingerprint", fingerprint.value))
+    ).flatten.toMap
 
-      val standardAuditData: Map[String, String] = Map("nino" -> request.nino.getOrElse("N/A").toString)
+    val customAuditData = detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
 
-      val customAuditData = detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
-
-      DataEvent(
-        auditSource = "pertax-frontend",
-        auditType = auditType,
-        tags = hc.headers.toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
-        detail = standardAuditData ++ customAuditData
-      )
-    }
+    DataEvent(
+      auditSource = "pertax-frontend",
+      auditType = auditType,
+      tags = hc.headers.toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
+      detail = standardAuditData ++ customAuditData
+    )
+  }
 
   def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(
     implicit hc: HeaderCarrier,

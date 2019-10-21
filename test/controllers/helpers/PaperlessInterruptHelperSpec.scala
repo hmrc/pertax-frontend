@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
@@ -40,7 +40,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
       Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
       None,
       NonFilerSelfAssessmentUser,
-      "GovernmentGateway",
+      Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L200,
       None,
       None,
