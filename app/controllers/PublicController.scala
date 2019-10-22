@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import javax.inject.Inject
+import com.google.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.play.binders.Origin

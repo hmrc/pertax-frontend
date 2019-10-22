@@ -17,7 +17,7 @@
 package services.partials
 
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import metrics.HasMetrics
 import play.api.Mode.Mode
 import play.api.mvc.Request

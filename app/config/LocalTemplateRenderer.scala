@@ -16,7 +16,7 @@
 
 package config
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
 import services.http.WsAllMethods

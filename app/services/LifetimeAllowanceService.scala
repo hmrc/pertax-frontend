@@ -17,7 +17,7 @@
 package services
 
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import metrics.HasMetrics
 import models.LtaProtections
 import play.api.Mode.Mode

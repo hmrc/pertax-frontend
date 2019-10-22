@@ -21,7 +21,7 @@ import connectors.PertaxAuditConnector
 import controllers.auth._
 import controllers.auth.requests.UserRequest
 import error.RendersErrors
-import javax.inject.Inject
+import com.google.inject.Inject
 import models._
 import org.joda.time.DateTime
 import play.api.Logger

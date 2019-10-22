@@ -17,7 +17,7 @@
 package models
 
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import util.DateTimeTools._
 

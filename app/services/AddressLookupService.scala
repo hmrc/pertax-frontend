@@ -18,7 +18,7 @@ package services
 
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import metrics._
 import models.addresslookup.RecordSet
 import play.api.Mode.Mode

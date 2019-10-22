@@ -18,7 +18,7 @@ package controllers.helpers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import play.twirl.api.{Html, HtmlFormat}
 

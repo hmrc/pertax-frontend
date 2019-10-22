@@ -16,7 +16,7 @@
 
 package controllers.helpers
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import services.LocalSessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap

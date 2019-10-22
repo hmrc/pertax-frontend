@@ -23,7 +23,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
-import javax.inject.Inject
+import com.google.inject.Inject
 import models._
 import models.addresslookup.RecordSet
 import models.dto._

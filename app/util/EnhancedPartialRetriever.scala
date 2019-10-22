@@ -16,7 +16,7 @@
 
 package util
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import metrics.HasMetrics
 import play.api.Logger
 import uk.gov.hmrc.crypto.ApplicationCrypto

@@ -21,7 +21,7 @@ import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.AuthJourney
 import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
-import javax.inject.Inject
+import com.google.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import services._

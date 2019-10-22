@@ -17,7 +17,7 @@
 package filters
 
 import com.kenshoo.play.metrics.MetricsFilter
-import javax.inject.Inject
+import com.google.inject.Inject
 import play.api.http.DefaultHttpFilters
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter

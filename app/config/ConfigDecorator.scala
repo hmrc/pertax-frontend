@@ -19,7 +19,7 @@ package config
 import java.net.{URL, URLEncoder}
 
 import controllers.routes
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}

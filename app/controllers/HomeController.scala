@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
-import javax.inject.Inject
+import com.google.inject.Inject
 import models._
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
