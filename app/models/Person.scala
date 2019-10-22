@@ -17,9 +17,9 @@
 package models
 
 import org.joda.time.{Instant, LocalDate}
-import play.api.libs.json.{JsNumber, JsResult, JsSuccess, JsValue, Json, Reads}
+import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
-import util.DateTimeTools
+import _root_.util.DateTimeTools
 
 case class Person(
   firstName: Option[String],

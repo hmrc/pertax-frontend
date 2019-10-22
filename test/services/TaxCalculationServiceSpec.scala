@@ -19,14 +19,14 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models.{OverpaidStatus, Reconciliation, TaxYearReconciliation}
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.{Configuration, Environment}
-import services.http.{FakeSimpleHttp, SimpleHttp, WsAllMethods}
+import services.http.{FakeSimpleHttp, WsAllMethods}
 import uk.gov.hmrc.http.HttpResponse
 import util.{BaseSpec, Fixtures}
 

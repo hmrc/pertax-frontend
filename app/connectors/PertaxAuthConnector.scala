@@ -16,13 +16,14 @@
 
 package connectors
 
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
 import services.http.WSHttp
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.config.ServicesConfig
 
+@Singleton
 class PertaxAuthConnector @Inject()(val http: WSHttp, environment: Environment, val runModeConfiguration: Configuration)
     extends PlayAuthConnector with ServicesConfig {
 

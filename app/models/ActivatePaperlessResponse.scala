@@ -17,9 +17,8 @@
 package models
 
 import play.api.Logger
-import uk.gov.hmrc.http.{HttpReads, HttpResponse}
-import play.api.Mode.Mode
 import play.api.http.Status._
+import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 sealed trait ActivatePaperlessResponse
 case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse

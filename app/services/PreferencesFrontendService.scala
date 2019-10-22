@@ -23,13 +23,11 @@ import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
 import models.{ActivatePaperlessActivatedResponse, ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, ActivatePaperlessResponse}
 import play.api.Mode.Mode
-import play.api.http.Status._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Environment, Logger}
-import services.http.{SimpleHttp, WsAllMethods}
+import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter

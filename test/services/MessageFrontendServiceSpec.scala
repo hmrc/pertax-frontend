@@ -16,8 +16,8 @@
 
 package services
 
-import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import com.codahale.metrics.Timer.Context
+import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, MessageCount}
@@ -26,10 +26,9 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import services.http.{SimpleHttp, WsAllMethods}
+import services.http.WsAllMethods
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials

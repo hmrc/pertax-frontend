@@ -19,7 +19,6 @@ package controllers
 import config.ConfigDecorator
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.Session
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer

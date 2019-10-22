@@ -18,9 +18,7 @@ package util
 
 import java.util.UUID
 
-import akka.stream.Materializer
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
@@ -35,7 +33,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, RequestHeader, Result}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Generator, Nino}
@@ -44,7 +42,6 @@ import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
-import scala.concurrent.Future
 import scala.reflect.ClassTag
 import scala.util.Random
 

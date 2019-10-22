@@ -16,7 +16,7 @@
 
 package models.addresslookup
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 
 /**
   * Address typically represents a postal address.

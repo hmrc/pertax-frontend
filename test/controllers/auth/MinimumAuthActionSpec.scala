@@ -37,8 +37,8 @@ import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
-import util.Fixtures
 import uk.gov.hmrc.domain.SaUtrGenerator
+import util.Fixtures
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
