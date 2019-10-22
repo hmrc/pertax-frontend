@@ -16,18 +16,16 @@
 
 package models
 
-import play.api.libs.json.Json
+import uk.gov.hmrc.auth.core.retrieve.Name
 
-object TaxCalculation {
-  implicit val formats = Json.format[TaxCalculation]
+case class UserName(name: Name) {
+
+  override def toString: String =
+    s"${name.name.getOrElse("")} ${name.lastName.getOrElse("")}".trim
+
+  def getOrElse(defaultName: String): String =
+    name match {
+      case Name(None, None) => defaultName
+      case _                => this.toString
+    }
 }
-
-case class TaxCalculation(
-  p800_status: String,
-  amount: BigDecimal,
-  taxYear: Int,
-  paymentStatus: Option[String],
-  datePaid: Option[String],
-  businessReason: Option[String],
-  dueDate: Option[String]
-)

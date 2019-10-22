@@ -16,40 +16,41 @@
 
 package services
 
-import javax.inject.Inject
+import com.google.inject.Inject
+import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-
-sealed trait AddressChanged
-object MovedToScotland extends AddressChanged
-object MovedFromScotland extends AddressChanged
-object AnyOtherMove extends AddressChanged
 
 class AddressMovedService @Inject()(addressLookupService: AddressLookupService) {
 
   def moved(fromAddressId: String, toAddressId: String)(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext): Future[AddressChanged] =
-    for {
-      fromResponse <- addressLookupService.lookup(fromAddressId)
-      toResponse   <- addressLookupService.lookup(toAddressId)
-    } yield {
-      (fromResponse, toResponse) match {
-        case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
-          val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
-          val toSubdivision = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+    if (toAddressId.trim.nonEmpty) {
 
-          if (hasMovedFromScotland(fromSubdivision, toSubdivision))
-            MovedFromScotland
-          else if (hasMovedToScotland(fromSubdivision, toSubdivision))
-            MovedToScotland
-          else
+      for {
+        fromResponse <- addressLookupService.lookup(fromAddressId)
+        toResponse   <- addressLookupService.lookup(toAddressId)
+      } yield {
+        (fromResponse, toResponse) match {
+          case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
+            val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+            val toSubdivision = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+
+            if (hasMovedFromScotland(fromSubdivision, toSubdivision))
+              MovedFromScotland
+            else if (hasMovedToScotland(fromSubdivision, toSubdivision))
+              MovedToScotland
+            else
+              AnyOtherMove
+
+          case _ =>
             AnyOtherMove
-
-        case _ =>
-          AnyOtherMove
+        }
       }
+    } else {
+      Future.successful(AnyOtherMove)
     }
 
   def toMessageKey(addressChanged: AddressChanged): Option[String] =

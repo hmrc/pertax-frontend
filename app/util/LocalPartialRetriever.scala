@@ -16,7 +16,7 @@
 
 package util
 
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter

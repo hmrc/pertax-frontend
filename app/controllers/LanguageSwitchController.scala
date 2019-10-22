@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import javax.inject.Inject
+import com.google.inject.Inject
 import play.api.Configuration
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.{Action, AnyContent}

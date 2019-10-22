@@ -16,20 +16,35 @@
 
 package error
 
-import models.PertaxContext
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import play.api.Play
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
+import uk.gov.hmrc.renderer.TemplateRenderer
+import util.LocalPartialRetriever
 
 object GenericErrors {
-  def badRequest(implicit pertaxContext: PertaxContext, messages: Messages): Result =
+
+  implicit val templateRenderer: TemplateRenderer = Play.current.injector.instanceOf[TemplateRenderer]
+
+  def badRequest(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result =
     BadRequest(
       views.html.error(
         "global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),
         Some("global.error.BadRequest.message")))
 
-  def internalServerError(implicit pertaxContext: PertaxContext, messages: Messages): Result =
+  def internalServerError(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result =
     InternalServerError(
       views.html.error(
         "global.error.InternalServerError500.title",

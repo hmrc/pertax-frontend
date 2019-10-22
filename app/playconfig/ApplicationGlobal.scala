@@ -22,8 +22,8 @@ import play.api.Mode.Mode
 import play.api._
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.bootstrap.Routing.RemovingOfTrailingSlashes
-import uk.gov.hmrc.play.graphite.GraphiteConfig
 import uk.gov.hmrc.play.frontend.config.ErrorAuditingSettings
+import uk.gov.hmrc.play.graphite.GraphiteConfig
 
 object ApplicationGlobal
     extends GlobalSettings with GraphiteConfig with RemovingOfTrailingSlashes with ErrorAuditingSettings with RunMode {

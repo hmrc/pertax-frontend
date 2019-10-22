@@ -16,79 +16,28 @@
 
 package controllers
 
-import com.kenshoo.play.metrics.{DisabledMetrics, DisabledMetricsFilter, Metrics, MetricsFilter}
-import com.typesafe.config.Config
-import config.{ConfigDecorator, LocalTemplateRenderer}
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import org.mockito.Matchers.{eq => meq}
-import org.mockito.Mockito.when
+import config.ConfigDecorator
 import org.scalatest.mockito.MockitoSugar
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Session
+import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
-import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
 import uk.gov.hmrc.renderer.TemplateRenderer
+import util.BaseSpec
 import util.Fixtures._
-import util.{BaseSpec, LocalPartialRetriever}
 
-class PublicControllerSpec extends BaseSpec {
+class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
-  val sessionCookieCryptoFilter = new SessionCookieCryptoFilter(injected[ApplicationCrypto])
+  val mockTemplateRenderer = mock[TemplateRenderer]
 
-  override lazy val app = new GuiceApplicationBuilder()
-    .overrides(bind[MetricsFilter].to[DisabledMetricsFilter].eagerly)
-    .overrides(bind[Metrics].to[DisabledMetrics].eagerly)
-    .disable[com.kenshoo.play.metrics.PlayModule]
-    .configure("metrics.enabled" -> false)
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind(classOf[CookieCryptoFilter]).toInstance(MockitoSugar.mock[SessionCookieCryptoFilter]))
-    .overrides(bind[Config].toInstance(MockitoSugar.mock[Config]))
-    .build()
-
-  trait LocalSetup {
-    lazy val controller = {
-      val c = injected[PublicController]
-      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(c.configDecorator.tcsServiceRouterUrl) thenReturn "/tax-credits-service/renewals/service-router"
-      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
-      c
-    }
-  }
-
-  "Calling PublicController.verifyEntryPoint" should {
-
-    "return 200" in new LocalSetup {
-
-      val r = controller.verifyEntryPoint(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe Session(Map("ap" -> "IDA"))
-    }
-  }
-
-  "Calling PublicController.governmentGatewayEntryPoint" should {
-
-    "return 200" in new LocalSetup {
-
-      val r = controller.governmentGatewayEntryPoint(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe Session(Map("ap" -> "GGW"))
-    }
-  }
+  def controller = new PublicController(injected[MessagesApi])(
+    mockLocalPartialRetriever,
+    injected[ConfigDecorator],
+    mockTemplateRenderer
+  )
 
   "Calling PublicController.sessionTimeout" should {
 
-    "return 200" in new LocalSetup {
+    "return 200" in {
 
       val r = controller.sessionTimeout(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
@@ -97,7 +46,7 @@ class PublicControllerSpec extends BaseSpec {
 
   "Calling PublicController.redirectToExitSurvey" should {
 
-    "return 303" in new LocalSetup {
+    "return 303" in {
 
       val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
@@ -107,7 +56,7 @@ class PublicControllerSpec extends BaseSpec {
 
   "Calling PublicController.redirectToTaxCreditsService" should {
 
-    "redirect to tax-credits-service/renewals/service-router" in new LocalSetup {
+    "redirect to tax-credits-service/renewals/service-router" in {
 
       val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe MOVED_PERMANENTLY
@@ -117,7 +66,7 @@ class PublicControllerSpec extends BaseSpec {
 
   "Calling PublicController.redirectToPersonalDetails" should {
 
-    "redirect to /personal-details page" in new LocalSetup {
+    "redirect to /personal-details page" in {
       val r = controller.redirectToPersonalDetails()(buildFakeRequestWithAuth("GET"))
 
       status(r) shouldBe SEE_OTHER

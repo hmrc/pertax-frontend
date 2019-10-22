@@ -18,10 +18,10 @@ package services.http
 
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import javax.inject.{Inject, Singleton}
 import connectors.PertaxAuditConnector
-import play.api.{Configuration, Environment, Play}
+import com.google.inject.{Inject, Singleton}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.config.{AppName, RunMode}
@@ -35,7 +35,8 @@ trait WSHttp
 class WsAllMethods @Inject()(
   environment: Environment,
   config: Configuration,
-  override val auditConnector: PertaxAuditConnector)
+  val actorSystem: ActorSystem,
+  val auditConnector: PertaxAuditConnector)
     extends WSHttp with HttpAuditing with AppName with RunMode {
 
   val mode: Mode = environment.mode
@@ -44,7 +45,5 @@ class WsAllMethods @Inject()(
 
   override val hooks = Seq(AuditingHook)
 
-  override protected def actorSystem: ActorSystem = Play.current.actorSystem
-
-  override protected def configuration: Option[Config] = Some(Play.current.configuration.underlying)
+  override protected def configuration: Option[Config] = Some(config.underlying)
 }

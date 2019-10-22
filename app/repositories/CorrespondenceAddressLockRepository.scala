@@ -20,7 +20,7 @@ import java.time.zone.ZoneRules
 import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import models.AddressJourneyTTLModel
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.commands.WriteResult

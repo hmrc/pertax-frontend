@@ -16,10 +16,9 @@
 
 package util
 
-import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.crypto.ApplicationCrypto
 
-class ToolsSpec extends BaseSpec with OneAppPerSuite {
+class ToolsSpec extends BaseSpec {
 
   val tools = new Tools(injected[ApplicationCrypto])
 

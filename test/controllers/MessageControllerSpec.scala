@@ -16,271 +16,244 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import models.UserDetails
-import org.mockito.Matchers.{eq => meq, _}
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
+import org.jsoup.Jsoup
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
-import play.api.inject._
-import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.i18n.MessagesApi
+import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import services.CitizenDetailsService
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, PersonDetailsSuccessResponse, UserDetailsService}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.Fixtures._
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class MessageControllerSpec extends BaseSpec {
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .build()
+class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
   override def beforeEach: Unit =
-    reset(injected[MessageFrontendService], injected[CitizenDetailsService])
+    reset(mockMessageFrontendService, mock[CitizenDetailsService])
 
-  trait LocalSetup {
+  val mockAuthJourney = mock[AuthJourney]
+  val mockMessageFrontendService = mock[MessageFrontendService]
 
-    def authProviderType: String
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-    lazy val controller = {
-      val c = injected[MessageController]
+  implicit lazy val mat = app.materializer
 
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority()))
-      }
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(authProviderType)))
-      }
-      when(c.messageFrontendService.getUnreadMessageCount(any())) thenReturn {
+  def controller: MessageController =
+    new MessageController(
+      injected[MessagesApi],
+      mockMessageFrontendService,
+      mockAuthJourney,
+      injected[WithActiveTabAction],
+      injected[WithBreadcrumbAction])(
+      mock[LocalPartialRetriever],
+      injected[ConfigDecorator],
+      injected[TemplateRenderer]) {
+      when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }
-
-      c
     }
-  }
 
   "Calling MessageController.messageList" should {
+    "call messages and return 200 when called by a high GG user" in {
 
-    "call messages and return 200 when called by a high sa  GG user" in new LocalSetup {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
+      when(mockMessageFrontendService.getMessageListPartial(any())) thenReturn {
+        Future(HtmlPartial.Success(Some("Success"), Html("<title>Message List</title>")))
       }
 
-      when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
-      }
+      val r = controller.messageList(FakeRequest())
+      val body = contentAsString(r)
 
-      val r = controller.messageList(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(1)).getMessageListPartial(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
+      verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
+      body should include("Message List")
     }
 
-    "call messages and return 200 when called by a high paye GG user" in new LocalSetup {
+    "return 401 for a verify user" in {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              Credentials("", "Verify"),
+              ConfidenceLevel.L500,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request))
+      })
 
-      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
-      }
-
-      when(controller.messageFrontendService.getMessageListPartial(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
-      }
-
-      val r = controller.messageList(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(1)).getMessageListPartial(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
-    }
-
-    "return 401 for a high GG user for a high GG user not enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
-      }
-
-      val r = controller.messageList(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageList(FakeRequest("GET", "/foo"))
       status(r) shouldBe UNAUTHORIZED
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
+      verify(mockMessageFrontendService, times(0)).getMessageListPartial(any())
     }
-
-    "return 401 for a Verify user enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = true)))
-      }
-
-      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
-      val r = controller.messageList(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe UNAUTHORIZED
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
-    }
-
-    "return 401 for a Verify not enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = false)))
-      }
-
-      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
-      val r = controller.messageList(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe UNAUTHORIZED
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(0)).getMessageListPartial(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
-    }
-
   }
 
   "Calling MessageController.messageDetail" should {
+    "call messages and return 200 when called by a GovernmentGateway user" in {
 
-    "call messages and return 200 when called by a SA high GG" in new LocalSetup {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = true, confidenceLevel = ConfidenceLevel.L200)))
-      }
-
-      when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
-      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
+
       status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(1)).getMessageDetailPartial(any())(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
     }
 
-    "call messages and return 200 when called by a high PAYE GG" in new LocalSetup {
+    "call messages and return 200 with no page title when called by a high GG user" in {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+        Future(HtmlPartial.Success(None, Html("List")))
       }
 
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = true, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
-      }
+      val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
+      val body = contentAsString(r)
 
-      when(controller.messageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
-      }
-
-      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(1)).getMessageDetailPartial(any())(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(any())(any())
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      body should include("List")
     }
 
-    "return 401 for a high GG user not enrolled in SA" in new LocalSetup {
+    "call messages and return 200 with default messages when called by a high GG user" in {
 
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(
-          Some(buildFakeAuthority(withPaye = false, withSa = false, confidenceLevel = ConfidenceLevel.L200)))
+      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+        Future(HtmlPartial.Failure(None, ""))
       }
 
-      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe UNAUTHORIZED
-      verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(any())(any())
+      val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
+      val body = bodyOf(r)
+      val doc = Jsoup.parse(body)
+
+      Option(doc.getElementsByTag("article").text()).get should include(
+        "Sorry, there has been a technical problem retrieving your message")
+
+      status(r) shouldBe OK
+      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
     }
 
-    "return 401 for a high GG user not logged in via GG and enrolled in SA" in new LocalSetup {
+    "return 401 for a Verify user" in {
 
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "Verify"),
+              ConfidenceLevel.L500,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = true)))
-      }
-
-      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
-      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
       status(r) shouldBe UNAUTHORIZED
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
-    }
-
-    "return 401 for a high GG user not logged in via GG and not enrolled in SA" in new LocalSetup {
-
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
-
-      when(controller.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(buildFakeAuthority(withSa = false)))
-      }
-
-      when(controller.citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-
-      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe UNAUTHORIZED
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.messageFrontendService, times(0)).getMessageDetailPartial(any())(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
+      verify(mockMessageFrontendService, times(0)).getMessageDetailPartial(any())(any())
     }
   }
 }

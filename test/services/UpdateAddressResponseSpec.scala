@@ -17,19 +17,40 @@
 package services
 
 import config.ConfigDecorator
-import models.PertaxContext
+import controllers.auth.requests.UserRequest
+import models.{NonFilerSelfAssessmentUser, UserName}
+import org.joda.time.DateTime
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.http.HttpResponse
-import util.BaseSpec
+import util.{BaseSpec, Fixtures}
 
-class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
-  implicit lazy val pertaxContext =
-    PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
+class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+
   override def messagesApi: MessagesApi = injected[MessagesApi]
+
+  implicit val userRequest = UserRequest(
+    Some(Fixtures.fakeNino),
+    Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+    Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+    NonFilerSelfAssessmentUser,
+    Credentials("", "Verify"),
+    ConfidenceLevel.L500,
+    None,
+    None,
+    None,
+    None,
+    None,
+    FakeRequest()
+  )
 
   def genericFunc(): Result =
     Ok
@@ -46,13 +67,13 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
-      val updateAddressResponse = new UpdateAddressUnexpectedResponse(HttpResponse(123))
+      val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123))
       val result = updateAddressResponse.response(genericFunc)
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
-      val updateAddressResponse = new UpdateAddressErrorResponse(new RuntimeException("not used"))
+      val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
       val result = updateAddressResponse.response(genericFunc)
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }

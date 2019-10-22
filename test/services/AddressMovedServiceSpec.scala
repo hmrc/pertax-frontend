@@ -17,11 +17,12 @@
 package services
 
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
+import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.http.Status._
 import uk.gov.hmrc.http.HttpResponse
 import util.BaseSpec
-import play.api.http.Status._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -81,6 +82,10 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
           .thenReturn(Future.successful(AddressLookupSuccessResponse(RecordSet(Seq.empty))))
 
         await(service.moved(fromPostcode, toPostcode)) shouldBe AnyOtherMove
+      }
+
+      "there is no postcode for the moving to address" in {
+        await(service.moved(fromPostcode, "")) shouldBe AnyOtherMove
       }
     }
 
