@@ -16,8 +16,8 @@
 
 package services.partials
 
+import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
 import models.MessageCount
 import play.api.Mode.Mode
@@ -27,18 +27,18 @@ import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class MessageFrontendService @Inject()(
   environment: Environment,
   configuration: Configuration,
   override val http: WsAllMethods,
   val metrics: Metrics,
-  val applicationCrypto: ApplicationCrypto)
+  val applicationCrypto: ApplicationCrypto)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode

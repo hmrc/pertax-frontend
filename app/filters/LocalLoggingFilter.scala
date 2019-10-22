@@ -17,7 +17,7 @@
 package filters
 
 import com.typesafe.config.Config
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import net.ceedubs.ficus.Ficus._
 import play.api.Configuration
 import uk.gov.hmrc.play.config.ControllerConfig

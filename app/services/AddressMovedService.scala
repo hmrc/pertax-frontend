@@ -16,7 +16,7 @@
 
 package services
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
 import uk.gov.hmrc.http.HeaderCarrier
 

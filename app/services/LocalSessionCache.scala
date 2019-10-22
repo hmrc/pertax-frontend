@@ -17,7 +17,7 @@
 package services
 
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
 import services.http.WsAllMethods

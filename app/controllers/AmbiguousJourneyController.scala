@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction}
-import javax.inject.Inject
+import com.google.inject.Inject
 import models.AmbiguousFilerSelfAssessmentUser
 import models.dto.AmbiguousUserFlowDto
 import org.joda.time.DateTime

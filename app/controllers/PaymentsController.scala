@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
-import javax.inject.Inject
+import com.google.inject.Inject
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
 import org.joda.time.DateTime
 import play.api.Logger

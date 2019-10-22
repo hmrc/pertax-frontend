@@ -19,7 +19,7 @@ package services.http
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
 import connectors.PertaxAuditConnector
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment, Play}
 import uk.gov.hmrc.http._

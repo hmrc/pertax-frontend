@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.helpers.PaperlessInterruptHelper
 import error.RendersErrors
-import javax.inject.Inject
+import com.google.inject.Inject
 import models._
 import play.api.Logger
 import play.api.i18n.MessagesApi

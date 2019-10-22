@@ -18,7 +18,7 @@ package filters
 
 import com.typesafe.config.Config
 import connectors.PertaxAuditConnector
-import javax.inject._
+import com.google.inject._
 import net.ceedubs.ficus.Ficus._
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}

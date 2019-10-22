@@ -17,7 +17,7 @@
 package models
 
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.time.CurrentTaxYear
 @Singleton
 class LocalTaxYearResolver @Inject()(val configDecorator: ConfigDecorator) extends CurrentTaxYear {

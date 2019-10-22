@@ -16,14 +16,14 @@
 
 package services.http
 
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
-class SimpleHttp @Inject()(http: WsAllMethods) {
+class SimpleHttp @Inject()(http: WsAllMethods)(implicit executionContext: ExecutionContext) {
 
   implicit val r = new HttpReads[HttpResponse] {
     override def read(method: String, url: String, response: HttpResponse): HttpResponse = response

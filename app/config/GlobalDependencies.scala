@@ -17,7 +17,7 @@
 package config
 
 import connectors.PertaxAuditConnector
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Play}
 import uk.gov.hmrc.renderer.TemplateRenderer
 

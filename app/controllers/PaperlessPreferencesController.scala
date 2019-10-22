@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth._
 import controllers.auth.requests.UserRequest
-import javax.inject.Inject
+import com.google.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.partials.PreferencesFrontendPartialService

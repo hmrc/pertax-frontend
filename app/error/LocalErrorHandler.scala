@@ -19,7 +19,7 @@ package error
 import akka.stream.Materializer
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}

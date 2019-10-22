@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth._
 import error.RendersErrors
-import javax.inject.Inject
+import com.google.inject.Inject
 import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}

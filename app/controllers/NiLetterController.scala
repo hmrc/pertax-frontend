@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
-import javax.inject.Inject
+import com.google.inject.Inject
 import org.joda.time.LocalDate
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}

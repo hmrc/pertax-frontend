@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import util.BaseSpec
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SimpleHttpSpec extends BaseSpec {
 

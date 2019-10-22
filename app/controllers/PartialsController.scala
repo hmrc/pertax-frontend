@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
-import javax.inject.Inject
+import com.google.inject.Inject
 import models.Breadcrumb
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
