@@ -28,14 +28,14 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CspPartialService @Inject()(
   environment: Environment,
   configuration: Configuration,
   val http: WsAllMethods,
   val metrics: Metrics,
-  applicationCrypto: ApplicationCrypto)
+  applicationCrypto: ApplicationCrypto)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode

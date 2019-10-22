@@ -24,10 +24,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.renderer.TemplateRenderer
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
-class LocalTemplateRenderer @Inject()(environment: Environment, configuration: Configuration, wsHttp: WsAllMethods)
+class LocalTemplateRenderer @Inject()(environment: Environment, configuration: Configuration, wsHttp: WsAllMethods)(
+  implicit executionContext: ExecutionContext)
     extends TemplateRenderer with ServicesConfig {
 
   val mode: Mode = environment.mode
@@ -37,7 +38,6 @@ class LocalTemplateRenderer @Inject()(environment: Environment, configuration: C
     runModeConfiguration.getInt("template.refreshInterval").getOrElse(600) seconds
 
   private implicit val hc = HeaderCarrier()
-  import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
   override def fetchTemplate(path: String): Future[String] =
     wsHttp.GET(path).map(_.body)

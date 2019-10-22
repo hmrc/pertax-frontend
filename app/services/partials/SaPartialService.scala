@@ -16,9 +16,9 @@
 
 package services.partials
 
+import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import com.google.inject.{Inject, Singleton}
 import metrics.HasMetrics
 import play.api.Mode.Mode
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SaPartialService @Inject()(
   environment: Environment,
@@ -40,7 +40,7 @@ class SaPartialService @Inject()(
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   applicationCrypto: ApplicationCrypto,
-  val tools: Tools)
+  val tools: Tools)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig with I18nSupport {
 
   val mode: Mode = environment.mode
