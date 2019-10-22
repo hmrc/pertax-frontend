@@ -41,17 +41,17 @@ abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: Application
   override def crypto = sessionCookieCryptoFilter.encrypt
 
   def loadPartial(url: String)(implicit hc: HeaderCarrier): Future[HtmlPartial] =
-    withMetricsTimer("load-partial") { t =>
+    withMetricsTimer("load-partial") { timer =>
       http.GET[HtmlPartial](url) map {
-        case p: HtmlPartial.Success =>
-          t.completeTimerAndIncrementSuccessCounter()
-          p
-        case p: HtmlPartial.Failure =>
-          t.completeTimerAndIncrementFailedCounter()
-          p
+        case partial: HtmlPartial.Success =>
+          timer.completeTimerAndIncrementSuccessCounter()
+          partial
+        case partial: HtmlPartial.Failure =>
+          timer.completeTimerAndIncrementFailedCounter()
+          partial
       } recover {
         case e =>
-          t.completeTimerAndIncrementFailedCounter()
+          timer.completeTimerAndIncrementFailedCounter()
           Logger.warn(s"Failed to load partial", e)
           e match {
             case ex: HttpException =>

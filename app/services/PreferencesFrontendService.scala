@@ -59,26 +59,26 @@ class PreferencesFrontendService @Inject()(
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
     def activatePaperless: Future[ActivatePaperlessResponse] =
-      withMetricsTimer("get-activate-paperless") { t =>
+      withMetricsTimer("get-activate-paperless") { timer =>
         val url =
           s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
             .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
         simpleHttp.PUT[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true)) map {
 
           case ActivatePaperlessActivatedResponse =>
-            t.completeTimerAndIncrementSuccessCounter()
+            timer.completeTimerAndIncrementSuccessCounter()
             ActivatePaperlessActivatedResponse
 
-          case a: ActivatePaperlessRequiresUserActionResponse =>
-            t.completeTimerAndIncrementSuccessCounter()
-            a
+          case response: ActivatePaperlessRequiresUserActionResponse =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
 
           case ActivatePaperlessNotAllowedResponse =>
-            t.completeTimerAndIncrementFailedCounter()
+            timer.completeTimerAndIncrementFailedCounter()
             ActivatePaperlessNotAllowedResponse
         } recover {
           case e =>
-            t.completeTimerAndIncrementFailedCounter()
+            timer.completeTimerAndIncrementFailedCounter()
             Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
             ActivatePaperlessNotAllowedResponse
         }
