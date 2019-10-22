@@ -17,31 +17,49 @@
 package views.html.ambiguousjourney
 
 import config.ConfigDecorator
-import models.PertaxContext
+import controllers.auth.requests.UserRequest
 import models.dto.AmbiguousUserFlowDto
+import models.{NonFilerSelfAssessmentUser, UserName}
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import play.twirl.api.Html
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
-class usedUtrToEnrolChoiceSpec extends BaseSpec {
+class usedUtrToEnrolChoiceSpec extends BaseSpec with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   implicit val messages = Messages.Implicits.applicationMessages
+  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+
+  implicit val userRequest = UserRequest(
+    Some(Fixtures.fakeNino),
+    Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+    Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+    NonFilerSelfAssessmentUser,
+    Credentials("", "GovernmentGateway"),
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    None,
+    FakeRequest()
+  )
 
   "usedUtrToEnrolChoice view" should {
     "check page contents" in {
-      val pertaxUser = Fixtures.buildFakePertaxUser(isGovernmentGateway = true, isHighGG = true)
       val form = AmbiguousUserFlowDto.form
       val document = Jsoup.parse(
         views.html.ambiguousjourney
-          .usedUtrToEnrolChoice(form, "")(
-            PertaxContext(
-              FakeRequest("GET", "/test"),
-              mockLocalPartialRetreiver,
-              injected[ConfigDecorator],
-              Some(pertaxUser)),
-            messages)
+          .usedUtrToEnrolChoice(form, "")
           .toString)
       document.getElementsByTag("h1").text shouldBe Messages("label.have_you_used_your_utr_to_enrol")
 

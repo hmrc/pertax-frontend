@@ -14,10 +14,14 @@
  * limitations under the License.
  *@
 
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@views.html.iv.ivOutcomeWrapper(Messages("label.we_ve_confirmed_your_identity"), Messages("label.we_ve_confirmed_your_identity")) {
-  <p>@Messages("label.we_can_show_you_more_if_you_complete_2fa")</p>
-  <p>@Messages("label.you_can_still_complete_your_sa")</p>
-  <a href="@controllers.routes.HomeController.index" class="button" id="continue" role="button">@Messages("global.label.continue_button")</a>
+@()(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@views.html.iv.ivOutcomeWrapper(messages("label.we_ve_confirmed_your_identity"), messages("label.we_ve_confirmed_your_identity")) {
+    <p>@messages("label.we_can_show_you_more_if_you_complete_2fa")</p>
+    <p>@messages("label.you_can_still_complete_your_sa")</p>
+    <a href="@controllers.routes.HomeController.index" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
 }

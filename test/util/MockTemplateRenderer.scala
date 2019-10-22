@@ -16,11 +16,8 @@
 
 package util
 
-import config.LocalTemplateRenderer
-import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.twirl.api.Html
-import services.http.WsAllMethods
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.Future

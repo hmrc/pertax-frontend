@@ -17,10 +17,9 @@
 package views.util
 
 import config.ConfigDecorator
-import models._
 import play.api.i18n.Messages
 import util.LanguageHelper
-import viewmodels.{Date, Empty, Literal, MakePaymentUrl, Message, NotCalculatedUrl, NotEmployedUrl, OverpaidReasonsUrl, OverpaidUrl, RightAmountUrl, TaxPaidUrl, Text, UnderpaidReasonsUrl, UnderpaidUrl, Url}
+import viewmodels._
 
 object ViewUtils {
 

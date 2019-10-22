@@ -17,65 +17,52 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper}
 import models._
 import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
-import play.api.inject._
+import play.api.i18n.MessagesApi
 import play.api.libs.json.JsBoolean
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.twirl.api.Html
 import services._
-import services.partials.{CspPartialService, MessageFrontendService}
+import services.partials.MessageFrontendService
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
-class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
+class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[TaiService].toInstance(MockitoSugar.mock[TaiService]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .overrides(bind[CspPartialService].toInstance(MockitoSugar.mock[CspPartialService]))
-    .overrides(bind[PreferencesFrontendService].toInstance(MockitoSugar.mock[PreferencesFrontendService]))
-    .overrides(bind[IdentityVerificationFrontendService].toInstance(
-      MockitoSugar.mock[IdentityVerificationFrontendService]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[TaxCalculationService].toInstance(MockitoSugar.mock[TaxCalculationService]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[SelfAssessmentService].toInstance(MockitoSugar.mock[SelfAssessmentService]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
-    .build()
+  val mockConfigDecorator = mock[ConfigDecorator]
+  val mockTaxCalculationService = mock[TaxCalculationService]
+  val mockTaiService = mock[TaiService]
+  val mockMessageFrontendService = mock[MessageFrontendService]
+  val mockPreferencesFrontendService = mock[PreferencesFrontendService]
+  val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
+  val mockLocalSessionCache = mock[LocalSessionCache]
+  val mockAuthJourney = mock[AuthJourney]
+  val mockTemplateRenderer = mock[TemplateRenderer]
 
   override def beforeEach: Unit =
     reset(
-      injected[PertaxAuditConnector],
-      injected[PertaxAuthConnector],
-      injected[TaxCalculationService],
-      injected[CitizenDetailsService],
-      injected[TaiService],
-      injected[MessageFrontendService],
-      injected[UserDetailsService],
-      injected[ConfigDecorator]
+      mockConfigDecorator,
+      mockTaxCalculationService,
+      mockTaiService,
+      mockMessageFrontendService
     )
 
   override def now: () => DateTime = DateTime.now
@@ -93,85 +80,71 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
-    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
+    lazy val selfAssessmentUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr("1111111111"))
     lazy val getLtaServiceResponse = Future.successful(true)
 
-    lazy val authority = buildFakeAuthority(nino = nino, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
     lazy val allowLowConfidenceSA = false
 
-    lazy val controller = {
+    def controller =
+      new HomeController(
+        injected[MessagesApi],
+        mockPreferencesFrontendService,
+        mockTaiService,
+        mockTaxCalculationService,
+        injected[HomeCardGenerator],
+        injected[HomePageCachingHelper],
+        mockAuthJourney,
+        injected[WithActiveTabAction]
+      )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer)
 
-      val c = injected[HomeController]
-
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
-      when(c.taiService.taxComponents(meq(nino), any[Int])(any[HeaderCarrier])) thenReturn {
-        Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
-      }
-      when(c.taxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
-        Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
-      }
-      when(c.taxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])) thenReturn {
-        Future.successful(buildTaxYearReconciliations)
-      }
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(authProviderType)))
-      }
-      when(c.citizenDetailsService.personDetails(meq(nino))(any())) thenReturn {
-        Future.successful(personDetailsResponse)
-      }
-      when(c.cspPartialService.webchatClickToChatScriptPartial(any())(any())) thenReturn {
-        Future.successful(HtmlPartial.Success(None, Html("<script></script>")))
-      }
-      when(c.preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
-        Future.successful(getPaperlessPreferenceResponse)
-      }
-      when(c.taxCalculationService.getTaxCalculation(meq(nino), meq(year - 1))(any())) thenReturn {
-        Future.successful(getTaxCalculationResponse)
-      }
-      when(c.identityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
-        Future.successful(getIVJourneyStatusResponse)
-      }
-      when(c.selfAssessmentService.getSelfAssessmentUserType(any())(any())) thenReturn {
-        Future.successful(getSelfAssessmentServiceResponse)
-      }
-      when(c.auditConnector.sendEvent(any())(any(), any())) thenReturn {
-        Future.successful(AuditResult.Success)
-      }
-      when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
-        Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(true)))))
-      }
-      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
-
-      when(c.configDecorator.taxComponentsEnabled) thenReturn true
-      when(c.configDecorator.taxcalcEnabled) thenReturn true
-      when(c.configDecorator.ltaEnabled) thenReturn true
-      when(c.configDecorator.allowSaPreview) thenReturn true
-      when(c.configDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
-      when(c.configDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
-      when(c.configDecorator.companyAuthHost) thenReturn ""
-      when(c.configDecorator.pertaxFrontendHost) thenReturn ""
-      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
-      when(c.configDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
-      when(c.configDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
-      when(c.configDecorator.defaultOrigin) thenReturn Origin("PERTAX")
-      when(c.configDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-      when(c.configDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
-      when(c.configDecorator.gg_web_context) thenReturn "gg-sign-in"
-      when(c.configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(c.configDecorator.urLinkUrl) thenReturn None
-      when(c.configDecorator.analyticsToken) thenReturn Some("N/A")
-
-      c
+    when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
+      Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
+    }
+    when(mockTaxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
+      Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
+    }
+    when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])) thenReturn {
+      Future.successful(buildTaxYearReconciliations)
+    }
+    when(mockPreferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+      Future.successful(getPaperlessPreferenceResponse)
+    }
+    when(mockTaxCalculationService.getTaxCalculation(meq(nino), meq(year - 1))(any())) thenReturn {
+      Future.successful(getTaxCalculationResponse)
+    }
+    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
+      Future.successful(getIVJourneyStatusResponse)
     }
 
+    when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
+      Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(true)))))
+    }
+    when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
+      Future.successful(None)
+    }
+
+    when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
+    when(mockConfigDecorator.taxcalcEnabled) thenReturn true
+    when(mockConfigDecorator.ltaEnabled) thenReturn true
+    when(mockConfigDecorator.allowSaPreview) thenReturn true
+    when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
+    when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
+    when(mockConfigDecorator.companyAuthHost) thenReturn ""
+    when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
+    when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
+    when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
+    when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
+    when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
+    when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
+    when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
+    when(mockConfigDecorator.gg_web_context) thenReturn "gg-sign-in"
+    when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
+    when(mockConfigDecorator.urLinkUrl) thenReturn None
+    when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
+
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
-      controller //Call to inject mocks
+      controller
       route(app, req)
     }
 
@@ -179,143 +152,177 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "Calling HomeController.index" should {
 
-    "return a 303 status when accessing index page and authorisation is not fulfilled" in new LocalSetup {
-
-      val r = controller.index()(FakeRequest("GET", "/personal-account")) //No auth in this fake request
-
-      status(r) shouldBe 303
-      redirectLocation(r) shouldBe Some(
-        "/gg-sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Fpersonal-account&accountType=individual&origin=PERTAX")
-    }
-
+    val configDecorator = injected[ConfigDecorator]
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = true, withPaye = withPaye, confidenceLevel = confidenceLevel)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      val r = controller.index()(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if (controller.configDecorator.taxComponentsEnabled)
+      if (configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (controller.configDecorator.taxcalcEnabled)
+      if (configDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
 
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      val r = controller.index()(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if (controller.configDecorator.taxComponentsEnabled)
+      if (configDecorator.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (controller.configDecorator.taxcalcEnabled)
+      if (configDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-    }
-
-    "return a 200 status when accessing index page with good nino and a non sa User with no Lta protections" in new LocalSetup {
-
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val getLtaServiceResponse = Future.successful(false)
-      override lazy val authority =
-        buildFakeAuthority(nino = nino, withSa = false, withPaye = withPaye, confidenceLevel = confidenceLevel)
-
-      val r = controller.index()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(nino))(any())
-      if (controller.configDecorator.taxComponentsEnabled)
-        verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (controller.configDecorator.taxcalcEnabled)
-        verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
-      verify(controller.userDetailsService, times(1)).getUserDetails(meq("/userDetailsLink"))(any())
-    }
-
-    "return a 423 status when accessing index page with a nino that is hidden in citizen-details with an SA user" in new LocalSetup {
-
-      override lazy val personDetailsResponse = PersonDetailsHiddenResponse
-
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe LOCKED
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
-    }
-
-    "return a 200 status without calling citizen-detials or tai, when accessing index page without paye account" in new LocalSetup {
-
-      override lazy val withPaye = false
-
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(controller.citizenDetailsService, times(0)).personDetails(meq(nino))(any())
-      verify(controller.taiService, times(0)).taxComponents(any(), meq(current.currentYear))(any())
     }
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
 
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
     "redirect when Preferences Frontend returns ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
 
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
       override lazy val getPaperlessPreferenceResponse =
         ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("http://www.example.com")
     }
 
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
 
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      if (controller.configDecorator.taxcalcEnabled)
+      if (configDecorator.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
 
-      override lazy val personDetailsResponse = PersonDetailsNotFoundResponse
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
+      val r: Future[Result] = controller.index()(FakeRequest())
       status(r) shouldBe OK
 
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
-    }
-
-    "return a 200 status when accessing index page with a nino that produces an error when calling citizen-details" in new LocalSetup {
-
-      override lazy val personDetailsResponse = PersonDetailsErrorResponse(null)
-
-      val r = controller.index(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
-
-      verify(controller.messageFrontendService, times(1)).getUnreadMessageCount(any())
     }
 
   }
@@ -324,16 +331,28 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     val userNino = Some(fakeNino)
 
-    "return TaxComponentsDisabled status where there is not a Nino" in new LocalSetup {
-
-      val result = await(controller.serviceCallResponses(None, year))
-
-      result shouldBe ((TaxComponentsDisabledState, None, None))
-    }
-
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
 
-      when(controller.configDecorator.taxComponentsEnabled) thenReturn false
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      when(mockConfigDecorator.taxComponentsEnabled) thenReturn false
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
@@ -343,6 +362,25 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
 
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
       result shouldBe TaxComponentsAvailableState(
         TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
@@ -351,7 +389,26 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return TaxComponentsNotAvailableState status when TaxComponentsUnavailableResponse from TaxComponents" in new LocalSetup {
 
-      when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsUnavailableResponse)
       }
 
@@ -362,7 +419,26 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
 
-      when(controller.taiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
         Future.successful(TaxComponentsUnexpectedResponse(HttpResponse(INTERNAL_SERVER_ERROR)))
       }
 
@@ -373,7 +449,26 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return None where TaxCalculation service is not enabled" in new LocalSetup {
 
-      when(controller.configDecorator.taxcalcEnabled) thenReturn false
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      when(mockConfigDecorator.taxcalcEnabled) thenReturn false
 
       val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
 
@@ -383,7 +478,26 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
 
-      when(controller.taxCalculationService.getTaxYearReconciliations(any())(any())) thenReturn Future.successful(Nil)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      when(mockTaxCalculationService.getTaxYearReconciliations(any())(any())) thenReturn Future.successful(Nil)
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
 
@@ -392,6 +506,25 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
 

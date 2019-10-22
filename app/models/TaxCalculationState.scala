@@ -16,9 +16,8 @@
 
 package models
 
-import javax.inject.{Inject, Singleton}
-
 import config.ConfigDecorator
+import com.google.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import util.DateTimeTools._
 
@@ -94,13 +93,13 @@ class TaxCalculationStateFactory @Inject()(
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), _)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
 
-      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, None)), _) =>
+      case (Some(TaxCalculation("Underpaid", _, taxYear, Some("PAID_ALL"), _, _, None)), _) =>
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, None)
 
-      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))), _) =>
+      case (Some(TaxCalculation("Underpaid", _, taxYear, Some("PAID_ALL"), _, _, Some(dueDate))), _) =>
         TaxCalculationUnderpaidPaidAllState(taxYear, taxYear + 1, Some(new LocalDate(dueDate)))
 
-      case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENTS_DOWN"), _, _, _)), _) =>
+      case (Some(TaxCalculation("Underpaid", _, taxYear, Some("PAYMENTS_DOWN"), _, _, _)), _) =>
         TaxCalculationUnderpaidPaymentsDownState(taxYear, taxYear + 1)
 
       case (Some(TaxCalculation("Overpaid", amount, taxYear, Some("REFUND"), _, _, _)), _) =>

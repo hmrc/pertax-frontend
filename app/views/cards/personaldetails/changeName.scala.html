@@ -14,25 +14,27 @@
  * limitations under the License.
  *@
 
-@import tags._
-@import models.PertaxUser._
-@import models.PersonDetails._
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import tags._
+@import models.UserName
 
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
-@cardContent = {
-    @ifNameAvailable {<p>@pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))</p>}
-}
+    @cardContent = {
+    @if(request.name.isDefined) {
+        <p>@{request.name.map(upperCaseToTitleCase)}</p>
+    }
+    }
 
-@card(
-    url = Some(pertaxContext.configDecorator.changeNameLinkUrl),
-    gaAction = Some("Personal details"),
-    gaLabel = Some("Name"),
-    heading = Messages("label.name"),
-    bodyContent = Some(cardContent)
-){
-    <ul>
-        <li><a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.changeNameLinkUrl" data-ga-event-category="link - click" data-ga-event-action="Personal details" data-ga-event-label="Change your name">@Messages("label.change_your_name")</a></li>
-    </ul>
-}
+    @card(
+        url = Some(configDecorator.changeNameLinkUrl),
+        gaAction = Some("Personal details"),
+        gaLabel = Some("Name"),
+        heading = messages("label.name"),
+        bodyContent = Some(cardContent)
+    ) {
+        <ul>
+            <li><a class="ga-track-anchor-click" href="@configDecorator.changeNameLinkUrl" data-ga-event-category="link - click" data-ga-event-action="Personal details" data-ga-event-label="Change your name">@messages("label.change_your_name")</a></li>
+        </ul>
+    }

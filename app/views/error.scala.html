@@ -14,22 +14,28 @@
  * limitations under the License.
  *@
 
-@(title: String, heading: Option[String] = None, body: Option[String] = None)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@main(title = Messages(title),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some("javascript:window.history.back();")
+@(title: String, heading: Option[String] = None, body: Option[String] = None)(implicit request: UserRequest[_],
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@main(title = messages(title),
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some("javascript:window.history.back();")
 ) {
 
-  <div class="grid-row pertax-error">
-    <div class="column-two-thirds">
-      <header class="page-header">
-        <h1>@Messages(heading.getOrElse(title))</h1>
-      </header>
-      @body.map { body =>
-        <p>@Html(Messages(body))</p>
-      }
+    <div class="grid-row pertax-error">
+        <div class="column-two-thirds">
+            <header class="page-header">
+                <h1>@messages(heading.getOrElse(title))</h1>
+            </header>
+            @body.map { body =>
+                <p>@Html(messages(body))</p>
+            }
+        </div>
     </div>
-  </div>
 
 }

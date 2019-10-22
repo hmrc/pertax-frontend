@@ -17,32 +17,50 @@
 package views.html.ambiguousjourney
 
 import config.ConfigDecorator
-import models.PertaxContext
+import controllers.auth.requests.UserRequest
 import models.dto.AmbiguousUserFlowDto
+import models.{NonFilerSelfAssessmentUser, UserName}
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
-class deEnrolledFromSaChoiceSpec extends BaseSpec {
+class deEnrolledFromSaChoiceSpec extends BaseSpec with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   implicit val messages = Messages.Implicits.applicationMessages
+  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+
+  implicit val userRequest = UserRequest(
+    Some(Fixtures.fakeNino),
+    Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+    Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+    NonFilerSelfAssessmentUser,
+    Credentials("", "GovernmentGateway"),
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    None,
+    FakeRequest()
+  )
 
   "deEnrolledFromSaChoice view" should {
     "check page contents" in {
-      val pertaxUser = Fixtures.buildFakePertaxUser(isGovernmentGateway = true, isHighGG = true)
-      val form = AmbiguousUserFlowDto.form
       val formWithErrors =
         AmbiguousUserFlowDto.form.withError("ambiguousUserFormChoice", Messages("error.enrolled.to.send.tax.required"))
       val document = Jsoup.parse(
         views.html.ambiguousjourney
-          .deEnrolledFromSaChoice(formWithErrors)(
-            PertaxContext(
-              FakeRequest("GET", "/test"),
-              mockLocalPartialRetreiver,
-              injected[ConfigDecorator],
-              Some(pertaxUser)),
-            messages)
+          .deEnrolledFromSaChoice(formWithErrors)
           .toString)
       document.getElementsByTag("h1").text shouldBe Messages("label.did_you_deregister_from_sa_online")
       document.getElementsByClass("error-summary-list").text shouldBe Messages(

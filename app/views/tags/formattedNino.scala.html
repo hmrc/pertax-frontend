@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(nino: Nino)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@(nino: Nino)
 <span class="nino">
-  @Html(nino.value.grouped(2).mkString("<span></span>"))
+    @Html(nino.value.grouped(2).mkString("<span></span>"))
 </span>
