@@ -40,10 +40,10 @@ case class UserRequest[+A](
   request: Request[A])
     extends WrappedRequest[A](request) {
 
-  def name: Option[String] = retrievedName match {
-    case Some(retrievedName) => Some(retrievedName.toString)
+  def name: Option[String] = personDetails match {
+    case Some(personDetails) => personDetails.person.shortName
     case _ =>
-      if (personDetails.isDefined) personDetails.get.person.shortName else None
+      if (retrievedName.isDefined) Some(retrievedName.get.name.toString) else None
   }
 
   def isGovernmentGateway: Boolean = credentials.providerType == "GovernmentGateway"
