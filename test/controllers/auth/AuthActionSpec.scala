@@ -149,7 +149,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
               new ~(
                 new ~(
                   new ~(
-                    new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "")))),
+                    new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated")))),
                     Some(Credentials("foo", "bar"))),
                   ConfidenceLevel.L200
                 ),
@@ -189,7 +189,9 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
               new ~(
                 new ~(
                   new ~(
-                    new ~(Some(nino), Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "")))),
+                    new ~(
+                      Some(nino),
+                      Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated")))),
                     Some(Credentials("foo", "bar"))),
                   ConfidenceLevel.L200
                 ),

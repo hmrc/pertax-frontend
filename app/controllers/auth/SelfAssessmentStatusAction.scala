@@ -17,7 +17,7 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, UserRequest}
+import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, Result}
 import services.{CitizenDetailsService, MatchingDetailsSuccessResponse}
@@ -41,9 +41,9 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
     request: AuthenticatedRequest[A]): Future[SelfAssessmentUserType] =
     request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
       request.saEnrolment match {
-        case Some(SelfAssessmentEnrolment(saUtr, "Activated")) =>
+        case Some(SelfAssessmentEnrolment(saUtr, Activated)) =>
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr)) //Activated online filer
-        case Some(SelfAssessmentEnrolment(saUtr, "NotYetActivated")) =>
+        case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>
           Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)) //NotYetActivated online filer
         case None =>
           getSaUtrFromCitizenDetailsService(nino) map {

@@ -19,7 +19,7 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
 import connectors.PertaxAuthConnector
-import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment}
+import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
 import controllers.routes
 import models.UserName
 import play.api.Configuration
@@ -86,7 +86,7 @@ class AuthActionImpl @Inject()(
             val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
               enrolment.identifiers
                 .find(id => id.key == "UTR")
-                .map(key => SelfAssessmentEnrolment(SaUtr(key.value), enrolment.state))
+                .map(key => SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
             }
 
             val trimmedRequest: Request[A] = request

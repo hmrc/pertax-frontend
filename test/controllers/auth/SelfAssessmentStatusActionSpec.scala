@@ -16,7 +16,7 @@
 
 package controllers.auth
 
-import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, UserRequest}
+import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
 import models.MatchingDetails
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -68,7 +68,7 @@ class SelfAssessmentStatusActionSpec
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
       implicit val request: AuthenticatedRequest[AnyContent] = AuthenticatedRequest(
         Some(Nino("AB123456C")),
-        Some(SelfAssessmentEnrolment(SaUtr("1111111111"), "Activated")),
+        Some(SelfAssessmentEnrolment(SaUtr("1111111111"), Activated)),
         Credentials("", "Verify"),
         ConfidenceLevel.L200,
         None,
@@ -85,7 +85,7 @@ class SelfAssessmentStatusActionSpec
     "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
       implicit val request: AuthenticatedRequest[AnyContent] = AuthenticatedRequest(
         Some(Nino("AB123456C")),
-        Some(SelfAssessmentEnrolment(SaUtr("1111111111"), "NotYetActivated")),
+        Some(SelfAssessmentEnrolment(SaUtr("1111111111"), NotYetActivated)),
         Credentials("", "Verify"),
         ConfidenceLevel.L200,
         None,

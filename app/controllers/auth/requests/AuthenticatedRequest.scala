@@ -24,7 +24,20 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
-case class SelfAssessmentEnrolment(saUtr: SaUtr, status: String)
+sealed trait SelfAssessmentStatus
+case object Activated extends SelfAssessmentStatus
+case object NotYetActivated extends SelfAssessmentStatus
+
+object SelfAssessmentStatus {
+
+  def fromString(value: String): SelfAssessmentStatus = value match {
+    case "Activated"       => Activated
+    case "NotYetActivated" => NotYetActivated
+    case _                 => throw new RuntimeException(s"Unexpected Self Assessment enrolment status of $value was returned")
+  }
+}
+
+case class SelfAssessmentEnrolment(saUtr: SaUtr, status: SelfAssessmentStatus)
 
 case class AuthenticatedRequest[A](
   nino: Option[Nino],
