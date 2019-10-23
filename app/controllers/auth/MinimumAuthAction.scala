@@ -44,7 +44,7 @@ class MinimumAuthAction @Inject()(
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised((Enrolment("IR-SA") or Nino(hasNino = true)) and ConfidenceLevel.L50)
+    authorised(ConfidenceLevel.L50)
       .retrieve(
         Retrievals.nino and
           Retrievals.allEnrolments and
