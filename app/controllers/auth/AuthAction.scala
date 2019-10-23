@@ -46,7 +46,7 @@ class AuthActionImpl @Inject()(
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised((Enrolment("IR-SA") or Nino(hasNino = true)) and ConfidenceLevel.L200)
+    authorised(ConfidenceLevel.L200)
       .retrieve(
         Retrievals.nino and
           Retrievals.allEnrolments and
