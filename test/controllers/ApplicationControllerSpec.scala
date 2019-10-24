@@ -131,6 +131,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -160,6 +161,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -195,6 +197,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -219,6 +222,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -253,6 +257,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -276,6 +281,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -309,6 +315,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -332,6 +339,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -365,6 +373,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -388,6 +397,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -429,6 +439,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -450,6 +461,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "Verify"),
               ConfidenceLevel.L500,
+              None,
               None,
               None,
               None,
@@ -482,6 +494,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -503,6 +516,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -536,6 +550,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -558,6 +573,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "Verify"),
               ConfidenceLevel.L500,
+              None,
               None,
               None,
               None,
@@ -589,6 +605,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -603,6 +620,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "Verify"),
               ConfidenceLevel.L500,
+              None,
               None,
               None,
               None,
@@ -638,6 +656,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -663,6 +682,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L50,
+              None,
               None,
               None,
               None,
@@ -702,6 +722,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -736,7 +757,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
-              request))
+              None,
+              request
+            ))
       })
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
@@ -760,6 +783,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               NonFilerSelfAssessmentUser,
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,

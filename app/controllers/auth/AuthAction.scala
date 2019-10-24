@@ -54,8 +54,9 @@ class AuthActionImpl @Inject()(
           Retrievals.confidenceLevel and
           Retrievals.name and
           Retrievals.loginTimes and
-          Retrievals.trustedHelper) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper =>
+          Retrievals.trustedHelper and
+          Retrievals.profile) {
+        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper ~ profile =>
           if (trustedHelper.isDefined) {
 
             val trimmedRequest: Request[A] = request
@@ -77,6 +78,7 @@ class AuthActionImpl @Inject()(
                 trustedHelper.map(helper => UserName(Name(Some(helper.principalName), None))),
                 logins.previousLogin,
                 trustedHelper,
+                profile,
                 trimmedRequest
               )
             )
@@ -108,6 +110,7 @@ class AuthActionImpl @Inject()(
                 Some(UserName(name.getOrElse(Name(None, None)))),
                 logins.previousLogin,
                 trustedHelper,
+                profile,
                 trimmedRequest
               )
             )

@@ -80,6 +80,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
                 None,
                 None,
                 None,
+                None,
                 request
               ))
         })
@@ -101,6 +102,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
                 ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
                 Credentials("", "Verify"),
                 ConfidenceLevel.L500,
+                None,
                 None,
                 None,
                 None,

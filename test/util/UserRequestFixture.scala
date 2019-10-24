@@ -46,6 +46,7 @@ object UserRequestFixture {
       confidenceLevel,
       personDetails,
       None,
+      None,
       messageCount,
       None,
       None,

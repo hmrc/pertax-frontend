@@ -181,7 +181,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(Some(Fixtures.fakeNino), None, None, NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, request)
+            UserRequest(Some(Fixtures.fakeNino), None, None, NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, None, request)
           )
       })
 
@@ -2928,7 +2928,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     trait LookingUpAddressLocalSetup extends WithAddressControllerSpecSetup {
 
-      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, FakeRequest())
+      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, None, FakeRequest())
 
       def addressLookupResponse: AddressLookupResponse
 
