@@ -26,7 +26,7 @@ import play.api.Configuration
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
+import uk.gov.hmrc.auth.core.retrieve.{Name, v2, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
@@ -52,8 +52,9 @@ class MinimumAuthAction @Inject()(
           Retrievals.confidenceLevel and
           Retrievals.name and
           Retrievals.loginTimes and
-          Retrievals.trustedHelper) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper =>
+          Retrievals.trustedHelper and
+          Retrievals.profile) {
+        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper ~ profile =>
           val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers
               .find(id => id.key == "UTR")
@@ -79,6 +80,7 @@ class MinimumAuthAction @Inject()(
               Some(UserName(name.getOrElse(Name(None, None)))),
               logins.previousLogin,
               trustedHelper,
+              profile,
               trimmedRequest
             )
           )

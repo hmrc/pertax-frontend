@@ -80,6 +80,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -101,6 +102,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
               Credentials("", "Verify"),
               ConfidenceLevel.L500,
               Some(buildPersonDetails),
+              None,
               None,
               None,
               None,

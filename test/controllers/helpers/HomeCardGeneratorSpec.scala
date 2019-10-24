@@ -51,6 +51,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -68,6 +69,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         NonFilerSelfAssessmentUser,
         Credentials("", "Verify"),
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,
@@ -95,6 +97,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -117,6 +120,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -134,6 +138,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         NonFilerSelfAssessmentUser,
         Credentials("", "Verify"),
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,
@@ -168,6 +173,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -186,6 +192,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         saUserType,
         Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
+        None,
         None,
         None,
         None,
@@ -214,6 +221,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -237,6 +245,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -255,6 +264,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
         saUserType,
         Credentials("", "Verify"),
         ConfidenceLevel.L500,
+        None,
         None,
         None,
         None,

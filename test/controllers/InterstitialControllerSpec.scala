@@ -101,6 +101,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request))
       })
 
@@ -144,6 +145,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request))
       })
 
@@ -172,6 +174,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -211,6 +214,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -239,6 +243,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
               NonFilerSelfAssessmentUser,
               Credentials("", "Verify"),
               ConfidenceLevel.L500,
+              None,
               None,
               None,
               None,
@@ -278,6 +283,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
                 None,
                 None,
                 None,
+                None,
                 request
               ))
         })
@@ -306,6 +312,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
                 NonFilerSelfAssessmentUser,
                 Credentials("", "GovernmentGateway"),
                 ConfidenceLevel.L200,
+                None,
                 None,
                 None,
                 None,

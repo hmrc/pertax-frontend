@@ -86,6 +86,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -119,6 +120,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request))
       })
 
@@ -142,6 +144,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -173,6 +176,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
+              None,
               None,
               None,
               None,
@@ -211,6 +215,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -242,6 +247,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
               ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "Verify"),
               ConfidenceLevel.L500,
+              None,
               None,
               None,
               None,

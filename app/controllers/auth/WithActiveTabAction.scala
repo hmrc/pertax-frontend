@@ -38,6 +38,7 @@ class WithActiveTabAction {
               request.confidenceLevel,
               request.personDetails,
               request.trustedHelper,
+              request.profile,
               request.unreadMessageCount,
               Some(currentActiveTab),
               request.breadcrumb,
