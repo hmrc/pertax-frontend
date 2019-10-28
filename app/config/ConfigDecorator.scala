@@ -39,6 +39,8 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val ida_web_context = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
   lazy val gg_web_context = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
 
+  lazy val authProviderChoice = configuration.getString(s"external-url.auth-provider-choice").getOrElse("")
+
   val defaultOrigin = Origin("PERTAX")
 
   def currentLocalDate: LocalDate = LocalDate.now()

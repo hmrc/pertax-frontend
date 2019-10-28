@@ -30,7 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
@@ -116,7 +116,40 @@ class AuthActionImpl @Inject()(
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession => Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession
+    case _: NoActiveSession => {
+
+      def idaRedirect(implicit request: Request[_]): Result = {
+        lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
+
+          Redirect(idaSignIn).withSession(
+            SessionKeys.redirect    -> postSignInRedirectUrl
+          )
+      }
+      def ggRedirect(implicit request: Request[_]): Result = {
+        lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+          Redirect(
+            ggSignIn,
+            Map(
+              "continue"    -> Seq(postSignInRedirectUrl),
+              "accountType" -> Seq("individual")
+            )
+        )
+      }
+
+      def postSignInRedirectUrl(implicit request: Request[_]): String =
+        configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
+          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
+          .url
+
+        request.session.get(SessionKeys.authProvider) match {
+          case Some("Verify") =>
+            idaRedirect(request)
+          case Some("GovernmentGateway") =>
+            ggRedirect(request)
+          case _ =>
+            Redirect(configDecorator.authProviderChoice)
+        }
+    }
 
     case _: InsufficientConfidenceLevel =>
       Redirect(
