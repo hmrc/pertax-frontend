@@ -34,7 +34,7 @@ class CorrespondenceAddressLockRepositorySpec extends BaseSpec {
         val london: TimeZone = TimeZone.getTimeZone("Europe/London")
         val instantInUK = tomorrow.toInstant.atZone(london.toZoneId)
 
-        val expected = instantInUK.toLocalDate.atStartOfDay().plusHours(1).atZone(london.toZoneId).toOffsetDateTime
+        val expected = instantInUK.toLocalDate.atStartOfDay().atZone(london.toZoneId).toOffsetDateTime
 
         getNextMidnight shouldBe expected
       }

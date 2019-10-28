@@ -76,14 +76,14 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   }
 
   "A user with no active session must" - {
-    "be redirected to the session timeout page" in {
+    "be redirected to the auth provider choice page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
-      redirectLocation(result).get must endWith("/personal-account/signin")
+      redirectLocation(result).get must endWith("/auth-login-stub")
     }
   }
 

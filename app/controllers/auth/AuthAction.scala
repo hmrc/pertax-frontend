@@ -30,7 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
@@ -116,7 +116,7 @@ class AuthActionImpl @Inject()(
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession => Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession
+    case _: NoActiveSession => Redirect(configDecorator.authProviderChoice)
 
     case _: InsufficientConfidenceLevel =>
       Redirect(
