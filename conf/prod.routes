@@ -1,4 +1,4 @@
-
+GET    /personal-account/start-verify                                        @controllers.PublicController.verifyEntryPoint
 GET    /personal-account/signin                                              @controllers.PublicController.sessionTimeout
 GET    /personal-account/signed-out                                          @controllers.PublicController.redirectToExitSurvey(origin: Origin)
 GET    /personal-account/tax-credits-summary                                 @controllers.PublicController.redirectToTaxCreditsService()
