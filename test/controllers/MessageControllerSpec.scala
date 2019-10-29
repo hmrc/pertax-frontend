@@ -36,7 +36,8 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -74,20 +75,8 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              request = request
             ))
       })
 
@@ -108,20 +97,11 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request))
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request))
       })
 
       val r = controller.messageList(FakeRequest("GET", "/foo"))
@@ -137,20 +117,8 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              request = request
             ))
       })
 
@@ -169,21 +137,8 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
@@ -203,21 +158,8 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
@@ -240,20 +182,10 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 

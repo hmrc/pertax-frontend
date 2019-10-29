@@ -17,9 +17,7 @@
 package services
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, UserName}
-import org.joda.time.DateTime
+import models.NonFilerSelfAssessmentUser
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
@@ -27,9 +25,10 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HttpResponse
-import util.{BaseSpec, Fixtures}
+import util.UserRequestFixture.buildUserRequest
+import util.BaseSpec
 
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSugar {
 
@@ -37,20 +36,11 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSu
 
   override def messagesApi: MessagesApi = injected[MessagesApi]
 
-  implicit val userRequest = UserRequest(
-    Some(Fixtures.fakeNino),
-    Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-    Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-    NonFilerSelfAssessmentUser,
-    Credentials("", "Verify"),
-    ConfidenceLevel.L500,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    FakeRequest()
+  implicit val userRequest = buildUserRequest(
+    saUser = NonFilerSelfAssessmentUser,
+    credentials = Credentials("", "Verify"),
+    confidenceLevel = ConfidenceLevel.L500,
+    request = FakeRequest()
   )
 
   def genericFunc(): Result =
