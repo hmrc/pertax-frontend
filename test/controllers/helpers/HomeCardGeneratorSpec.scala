@@ -22,11 +22,13 @@ import models._
 import org.joda.time.DateTime
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.SaUtr
-import util.{BaseSpec, Fixtures}
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.home._
 
 class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar {
@@ -39,20 +41,12 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
   "Calling getPayAsYouEarnCard" should {
     "return nothing when called with no Pertax user" in {
 
-      implicit val userRequest = UserRequest(
-        None,
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L50,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        nino = None,
+        saUser = NonFilerSelfAssessmentUser,
+        confidenceLevel = ConfidenceLevel.L50,
+        personDetails = None,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
@@ -62,20 +56,11 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
 
     "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
@@ -85,20 +70,11 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
 
     "return the static version of the markup (no card actions) when called with with a user that is PAYE but there was an error calling the endpoint" in {
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
@@ -108,20 +84,11 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
 
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in {
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
@@ -131,20 +98,11 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
 
     "return correct markup when called with with a Pertax user that is PAYE" in {
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
       )
 
       lazy val cardBody =
@@ -161,21 +119,8 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        saUserType,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
@@ -185,20 +130,9 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        saUserType,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
@@ -209,20 +143,9 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     "return correct markup when called with AmbiguousFilerSelfAssessmentUser" in {
       val saUserType = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        saUserType,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
@@ -233,20 +156,9 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     "return nothing when called with NonFilerSelfAssessmentUser" in {
       val saUserType = NonFilerSelfAssessmentUser
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        saUserType,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
@@ -257,20 +169,11 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     "return nothing for a verify user" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        saUserType,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)

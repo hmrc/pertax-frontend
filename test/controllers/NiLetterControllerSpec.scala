@@ -34,6 +34,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
+import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 
 import scala.concurrent.Future
@@ -68,21 +69,8 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              Some(buildPersonDetails),
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
@@ -94,20 +82,10 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              Some(buildPersonDetails),
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 
