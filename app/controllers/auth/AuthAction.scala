@@ -127,16 +127,19 @@ class AuthActionImpl @Inject()(
         case Some(configDecorator.authProviderVerify) => {
           lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
           Redirect(idaSignIn).withSession(
-            "login_redirect" -> configDecorator.defaultOrigin.toString,
-            "loginOrigin"    -> postSignInRedirectUrl(request)
+            "loginOrigin"    -> configDecorator.defaultOrigin.origin,
+            "login_redirect" -> postSignInRedirectUrl(request)
           )
         }
         case Some(configDecorator.authProviderGG) => {
           lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
-          Redirect(ggSignIn).withSession(
-            "continue"    -> postSignInRedirectUrl(request),
-            "accountType" -> "individual",
-            "origin"      -> configDecorator.defaultOrigin.toString
+          Redirect(
+            ggSignIn,
+            Map(
+              "continue"    -> Seq(postSignInRedirectUrl(request)),
+              "accountType" -> Seq("individual"),
+              "origin"      -> Seq(configDecorator.defaultOrigin.origin)
+            )
           )
         }
         case _ => Redirect(configDecorator.authProviderChoice)
