@@ -98,8 +98,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       status(result) mustBe SEE_OTHER
       session(result) mustBe new Session(
         Map(
-          "login_redirect" -> Origin("PERTAX").toString,
-          "loginOrigin"    -> "/personal-account/do-uplift?redirectUrl=%2Ffoo"))
+          "loginOrigin"    -> Origin("PERTAX").origin,
+          "login_redirect" -> "/personal-account/do-uplift?redirectUrl=%2Ffoo"))
       redirectLocation(result).get must endWith("/ida/login")
     }
     "be redirected to the GG login page if GG provider" in {
@@ -111,13 +111,9 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
         FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderGG)
       val result = controller.onPageLoad()(request)
       status(result) mustBe SEE_OTHER
-      session(result) mustBe new Session(
-        Map(
-          "continue"    -> "/personal-account/do-uplift?redirectUrl=%2Ffoo",
-          "accountType" -> "individual",
-          "origin"      -> Origin("PERTAX").toString))
 
-      redirectLocation(result).get must endWith("/gg/sign-in")
+      redirectLocation(result).get must endWith(
+        "/gg/sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Ffoo&accountType=individual&origin=PERTAX")
     }
   }
 

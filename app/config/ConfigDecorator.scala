@@ -43,8 +43,8 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   val defaultOrigin = Origin("PERTAX")
 
-  val authProviderGG = "GovernmentGateway"
-  val authProviderVerify = "Verify"
+  val authProviderGG = "GGW"
+  val authProviderVerify = "IDA"
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
