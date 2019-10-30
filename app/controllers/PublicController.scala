@@ -42,6 +42,14 @@ class PublicController @Inject()(val messagesApi: MessagesApi)(
     }
   }
 
+  def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful {
+      Redirect(routes.HomeController.index).withNewSession.addingToSession(
+        SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId
+      )
+    }
+  }
+
   def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Ok(views.html.public.sessionTimeout())
