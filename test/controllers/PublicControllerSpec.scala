@@ -19,7 +19,10 @@ package controllers
 import config.ConfigDecorator
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
+import play.api.mvc.Session
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.BaseSpec
@@ -27,11 +30,12 @@ import util.Fixtures._
 
 class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
-  val mockTemplateRenderer = mock[TemplateRenderer]
+  private val mockTemplateRenderer = mock[TemplateRenderer]
+  private val configDecorator = injected[ConfigDecorator]
 
-  def controller = new PublicController(injected[MessagesApi])(
+  private def controller = new PublicController(injected[MessagesApi])(
     mockLocalPartialRetriever,
-    injected[ConfigDecorator],
+    configDecorator,
     mockTemplateRenderer
   )
 
@@ -74,4 +78,27 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
+  "Calling PublicController.verifyEntryPoint" should {
+
+    "redirect to /personal-account page with Verify auth provider" in {
+      val request = FakeRequest("GET", "/personal-account/start-verify")
+      val r = controller.verifyEntryPoint()(request)
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/personal-account")
+      session(r) shouldBe new Session(Map(SessionKeys.authProvider -> configDecorator.authProviderVerify))
+    }
+  }
+
+  "Calling PublicController.governmentGatewayEntryPoint" should {
+
+    "redirect to /personal-account page with GG auth provider" in {
+      val request = FakeRequest("GET", "/personal-account/start-government-gateway")
+      val r = controller.governmentGatewayEntryPoint()(request)
+
+      status(r) shouldBe SEE_OTHER
+      redirectLocation(r) shouldBe Some("/personal-account")
+      session(r) shouldBe new Session(Map(SessionKeys.authProvider -> configDecorator.authProviderGG))
+    }
+  }
 }
