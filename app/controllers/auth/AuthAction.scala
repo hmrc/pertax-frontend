@@ -116,7 +116,38 @@ class AuthActionImpl @Inject()(
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession => Redirect(configDecorator.authProviderChoice)
+    case _: NoActiveSession => {
+
+      def postSignInRedirectUrl(implicit request: Request[_]) =
+        configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
+          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
+          .url
+
+      request.session.get(SessionKeys.authProvider) match {
+        case Some("Verify") => {
+          lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
+          Redirect(
+            idaSignIn,
+            Map(
+              "login_redirect" -> Seq(configDecorator.defaultOrigin.toString),
+              "loginOrigin"    -> Seq(postSignInRedirectUrl(request))
+            )
+          )
+        }
+        case Some("GovernmentGateway") => {
+          lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+          Redirect(
+            ggSignIn,
+            Map(
+              "continue"    -> Seq(postSignInRedirectUrl(request)),
+              "accountType" -> Seq("individual"),
+              "origin"      -> Seq(configDecorator.defaultOrigin.toString)
+            )
+          )
+        }
+        case _ => Redirect(configDecorator.authProviderChoice)
+      }
+    }
 
     case _: InsufficientConfidenceLevel =>
       Redirect(
