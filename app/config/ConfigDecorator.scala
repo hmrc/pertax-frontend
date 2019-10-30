@@ -43,6 +43,9 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   val defaultOrigin = Origin("PERTAX")
 
+  val authProviderGG = "GovernmentGateway"
+  val authProviderVerify = "Verify"
+
   def currentLocalDate: LocalDate = LocalDate.now()
 
   private lazy val contactFrontendService = baseUrl("contact-frontend")

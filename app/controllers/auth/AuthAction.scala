@@ -124,25 +124,19 @@ class AuthActionImpl @Inject()(
           .url
 
       request.session.get(SessionKeys.authProvider) match {
-        case Some("Verify") => {
+        case Some(configDecorator.authProviderVerify) => {
           lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
-          Redirect(
-            idaSignIn,
-            Map(
-              "login_redirect" -> Seq(configDecorator.defaultOrigin.toString),
-              "loginOrigin"    -> Seq(postSignInRedirectUrl(request))
-            )
+          Redirect(idaSignIn).withSession(
+            "login_redirect" -> configDecorator.defaultOrigin.toString,
+            "loginOrigin"    -> postSignInRedirectUrl(request)
           )
         }
-        case Some("GovernmentGateway") => {
+        case Some(configDecorator.authProviderGG) => {
           lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
-          Redirect(
-            ggSignIn,
-            Map(
-              "continue"    -> Seq(postSignInRedirectUrl(request)),
-              "accountType" -> Seq("individual"),
-              "origin"      -> Seq(configDecorator.defaultOrigin.toString)
-            )
+          Redirect(ggSignIn).withSession(
+            "continue"    -> postSignInRedirectUrl(request),
+            "accountType" -> "individual",
+            "origin"      -> configDecorator.defaultOrigin.toString
           )
         }
         case _ => Redirect(configDecorator.authProviderChoice)

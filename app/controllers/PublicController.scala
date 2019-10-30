@@ -22,7 +22,6 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProviderIds
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
@@ -37,7 +36,7 @@ class PublicController @Inject()(val messagesApi: MessagesApi)(
   def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        SessionKeys.authProvider -> AuthenticationProviderIds.VerifyProviderId
+        SessionKeys.authProvider -> configDecorator.authProviderVerify
       )
     }
   }
@@ -45,7 +44,7 @@ class PublicController @Inject()(val messagesApi: MessagesApi)(
   def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId
+        SessionKeys.authProvider -> configDecorator.authProviderGG
       )
     }
   }
