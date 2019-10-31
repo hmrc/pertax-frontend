@@ -95,7 +95,7 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
       when(addressLookupService.lookup(toPostcode))
         .thenReturn(Future.successful(AddressLookupSuccessResponse(scotlandRecordSet)))
 
-      await(service.moved(fromPostcode, toPostcode)) shouldBe MovedToScotland
+      val result = await(service.moved(fromPostcode, toPostcode)) shouldBe MovedToScotland
     }
 
     "be MovedFromScotland when they have moved from Scotland" in {
