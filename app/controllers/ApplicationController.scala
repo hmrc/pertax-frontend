@@ -43,8 +43,6 @@ import scala.concurrent.Future
 class ApplicationController @Inject()(
   val messagesApi: MessagesApi,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  authAction: AuthAction,
-  selfAssessmentStatusAction: SelfAssessmentStatusAction,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: PertaxAuditConnector)(
@@ -125,7 +123,7 @@ class ApplicationController @Inject()(
           request.saUserType match {
             case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
               Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-            case ambigUser: AmbiguousFilerSelfAssessmentUser =>
+            case ambigUser: WrongCredentialsSelfAssessmentUser =>
               Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr))
             case _ => Redirect(routes.HomeController.index())
           }
@@ -145,7 +143,7 @@ class ApplicationController @Inject()(
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
           Ok(views.html.iv.failure.failedIvContinueToActivateSa())
-        case ambigUser: AmbiguousFilerSelfAssessmentUser =>
+        case ambigUser: WrongCredentialsSelfAssessmentUser =>
           handleIvExemptAuditing("Ambiguous SA filer")
           Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr))
         case NonFilerSelfAssessmentUser =>

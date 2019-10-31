@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -52,16 +52,12 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
   val mockAuditConnector = mock[PertaxAuditConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
-  val mockAuthAction = mock[AuthAction]
-  val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockAuthJourney = mock[AuthJourney]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[IdentityVerificationFrontendService].toInstance(mockIdentityVerificationFrontendService),
       bind[PertaxAuditConnector].toInstance(mockAuditConnector),
-      bind[AuthAction].toInstance(mockAuthAction),
-      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(mockAuthJourney)
     )
     .build()
@@ -70,8 +66,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     reset(
       mockAuditConnector,
       mockIdentityVerificationFrontendService,
-      mockAuthAction,
-      mockSelfAssessmentStatusAction,
       mockAuthJourney
     )
 
@@ -91,8 +85,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       new ApplicationController(
         injected[MessagesApi],
         mockIdentityVerificationFrontendService,
-        mockAuthAction,
-        mockSelfAssessmentStatusAction,
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector
@@ -187,7 +179,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -694,7 +686,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L50,
               None,

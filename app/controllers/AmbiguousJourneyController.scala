@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction}
 import com.google.inject.Inject
-import models.AmbiguousFilerSelfAssessmentUser
+import models.WrongCredentialsSelfAssessmentUser
 import models.dto.AmbiguousUserFlowDto
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
@@ -188,7 +188,7 @@ class AmbiguousJourneyController @Inject()(
     (authenticate andThen enforceAmbiguousUserAction) { implicit request =>
       val continueUrl = controllers.routes.HomeController.index().url
       request.saUserType match {
-        case AmbiguousFilerSelfAssessmentUser(saUtr) =>
+        case WrongCredentialsSelfAssessmentUser(saUtr) =>
           val currentTaxYear = taxYearRetriever.currentYear
           val deadlineYear = currentTaxYear + 1
           val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost

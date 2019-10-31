@@ -72,7 +72,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -103,7 +103,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -133,7 +133,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -163,7 +163,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -195,7 +195,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -227,7 +227,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -260,7 +260,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -289,7 +289,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -320,7 +320,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -351,7 +351,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -382,7 +382,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -414,7 +414,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -445,7 +445,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -476,7 +476,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -538,7 +538,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -569,7 +569,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -600,7 +600,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -632,7 +632,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -663,7 +663,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -694,7 +694,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -726,7 +726,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -748,7 +748,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   }
 
   "Calling AmbiguousJourneyController.filedReturnOnlineChoice" should {
-    "return 200 when self assessment user type is AmbiguousFilerSelfAssessmentUser" in {
+    "return 200 when self assessment user type is WrongCredentialsSelfAssessmentUser" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -757,7 +757,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -787,7 +787,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -817,7 +817,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -847,7 +847,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -876,7 +876,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -897,7 +897,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   }
 
   "Calling AmbiguousJourneyController.handleAmbiguousJourneyLandingPages" should {
-    "return 200 when supplied with value of 'need-to-enrol' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'need-to-enrol' and SA user type is WrongCredentialsSelfAssessmentUser" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -906,7 +906,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -935,7 +935,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -971,7 +971,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -999,7 +999,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
           .equals("You can send your tax return by post before 31 October 2025."))
     }
 
-    "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is WrongCredentialsSelfAssessmentUser" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -1008,7 +1008,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -1038,7 +1038,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -1075,7 +1075,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -1103,7 +1103,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
           .equals("You can send your tax return by post before 31 October 2025."))
     }
 
-    "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is WrongCredentialsSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
@@ -1111,7 +1111,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -1132,7 +1132,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 200
     }
 
-    "return 200 when supplied with value of 'deadline' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'deadline' and SA user type is WrongCredentialsSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
@@ -1140,7 +1140,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -1161,7 +1161,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       status(r) shouldBe 200
     }
 
-    "return 200 when supplied with value of 'letter-in-post' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'letter-in-post' and SA user type is WrongCredentialsSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
@@ -1169,7 +1169,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
@@ -1190,7 +1190,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 200
     }
 
-    "return 200 when supplied with value of 'pin-expired' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'pin-expired' and SA user type is WrongCredentialsSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
@@ -1198,7 +1198,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               None,
