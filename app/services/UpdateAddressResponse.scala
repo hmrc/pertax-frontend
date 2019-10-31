@@ -16,14 +16,20 @@
 
 package services
 
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import error.GenericErrors
-import models.PertaxContext
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HttpResponse
+import util.LocalPartialRetriever
 
 sealed trait UpdateAddressResponse {
-  def response(successResponseBlock: () => Result)(implicit pertaxContext: PertaxContext, messages: Messages): Result =
+  def response(successResponseBlock: () => Result)(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result =
     this match {
       case UpdateAddressBadRequestResponse    => GenericErrors.badRequest
       case UpdateAddressUnexpectedResponse(_) => GenericErrors.internalServerError

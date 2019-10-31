@@ -17,53 +17,52 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import connectors.PertaxAuditConnector
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
 import controllers.helpers.AddressJourneyAuditingHelper._
 import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
-import error.LocalErrorHandler
-import javax.inject.Inject
+import com.google.inject.Inject
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
 import org.joda.time.LocalDate
 import play.api.Logger
-import play.api.data.FormError
+import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
 import repositories.CorrespondenceAddressLockRepository
 import services._
-import services.partials.MessageFrontendService
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.PayeAccount
-import uk.gov.hmrc.renderer.ActiveTabYourAccount
+import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
-import util.LanguageHelper
+import util.{LanguageHelper, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
 class AddressController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
   val addressLookupService: AddressLookupService,
   val addressMovedService: AddressMovedService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val sessionCache: LocalSessionCache,
-  val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val countryHelper: CountryHelper,
-  val correspondenceAddressLockRepository: CorrespondenceAddressLockRepository
-) extends PertaxBaseController with AuthorisedActions with AddressJourneyCachingHelper {
+  val correspondenceAddressLockRepository: CorrespondenceAddressLockRepository,
+  authJourney: AuthJourney,
+  val sessionCache: LocalSessionCache,
+  withActiveTabAction: WithActiveTabAction,
+  auditConnector: PertaxAuditConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
+    extends PertaxBaseController with AddressJourneyCachingHelper {
 
-  def dateDtoForm = DateDto.form(configDecorator.currentLocalDate)
+  def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
-  def currentAddressType(personDetails: PersonDetails) =
+  def currentAddressType(personDetails: PersonDetails): String =
     personDetails.address.flatMap(_.`type`).getOrElse("Residential")
 
   def getAddress(address: Option[Address]): Address =
@@ -73,18 +72,23 @@ class AddressController @Inject()(
     }
 
   def addressBreadcrumb: Breadcrumb =
-    "label.personal_details" -> routes.AddressController.personalDetails.url ::
+    "label.personal_details" -> routes.AddressController.personalDetails().url ::
       baseBreadcrumb
 
-  def addressJourneyEnforcer(block: PayeAccount => PersonDetails => Future[Result])(
-    implicit pertaxContext: PertaxContext): Future[Result] =
-    PertaxUser.ifHighGovernmentGatewayOrVerifyUser {
-      enforcePersonDetails { payeAccount => personDetails =>
-        block(payeAccount)(personDetails)
+  def addressJourneyEnforcer(block: Nino => PersonDetails => Future[Result])(
+    implicit request: UserRequest[_]): Future[Result] =
+    (for {
+      payeAccount   <- request.nino
+      personDetails <- request.personDetails
+    } yield {
+      block(payeAccount)(personDetails)
+    }).getOrElse {
+      Future.successful {
+        val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController
+          .personalDetails()
+          .url
+        Ok(views.html.interstitial.displayAddressInterstitial(continueUrl))
       }
-    } getOrElse Future.successful {
-      val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController.personalDetails.url
-      Ok(views.html.interstitial.displayAddressInterstitial(continueUrl))
     }
 
   def lookingUpAddress(
@@ -93,7 +97,7 @@ class AddressController @Inject()(
     lookupServiceDown: Boolean,
     filter: Option[String] = None,
     forceLookup: Boolean = false)(f: PartialFunction[AddressLookupResponse, Future[Result]])(
-    implicit context: PertaxContext): Future[Result] =
+    implicit request: UserRequest[_]): Future[Result] =
     if (!forceLookup && lookupServiceDown) {
       Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
     } else {
@@ -106,44 +110,48 @@ class AddressController @Inject()(
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
-  def personalDetails: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
-    implicit pertaxContext =>
-      import models.dto.AddressPageVisitedDto
-      def optNino = pertaxContext.user.flatMap(_.personDetails.flatMap(_.person.nino))
+  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
+    .addActiveTab(ActiveTabYourAccount)
 
-      for {
-        hasCorrespondenceAddressLock <- optNino match {
-                                         case Some(nino) =>
-                                           correspondenceAddressLockRepository.get(nino.withoutSuffix) map (_.isDefined)
-                                         case _ => Future.successful(false)
+  def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>
+    import models.dto.AddressPageVisitedDto
+    def optNino: Option[Nino] = request.nino
+
+    for {
+      hasCorrespondenceAddressLock <- optNino
+                                       .map { nino =>
+                                         correspondenceAddressLockRepository.get(nino.withoutSuffix) map (_.isDefined)
                                        }
-        personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(
-          hasCorrespondenceAddressLock)
-        personDetails: Option[PersonDetails] = pertaxContext.user.flatMap(_.personDetails)
-        _ <- personDetails match {
-              case Some(p) => auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", p))
-              case _       => Future.successful(Unit)
+                                       .getOrElse(Future.successful(false))
+      personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(
+        hasCorrespondenceAddressLock)
+      personDetails: Option[PersonDetails] = request.personDetails
+      _ <- personDetails
+            .map { details =>
+              auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
             }
-        _ <- cacheAddressPageVisited(AddressPageVisitedDto(true))
-      } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
+            .getOrElse(Future.successful(Unit))
+      _ <- cacheAddressPageVisited(AddressPageVisitedDto(true))
+    } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
   }
 
-  def taxCreditsChoice = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
-    implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personalDetails =>
-        gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(views.html.personaldetails
-                .taxCreditsChoice(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl)))
-          }
+  def taxCreditsChoice: Action[AnyContent] = authenticate.async { implicit request =>
+    addressJourneyEnforcer { _ => _ =>
+      gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+        enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+          Future.successful(
+            Ok(
+              views.html.personaldetails
+                .taxCreditsChoice(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+          )
         }
       }
+    }
   }
 
-  def processTaxCreditsChoice = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
-    implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personalDetails =>
+  def processTaxCreditsChoice: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
         TaxCreditsChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(
@@ -152,35 +160,36 @@ class AddressController @Inject()(
           },
           taxCreditsChoiceDto => {
             cacheSubmitedTaxCreditsChoiceDto(taxCreditsChoiceDto) map { _ =>
-              taxCreditsChoiceDto.value match {
-                case true  => Redirect(configDecorator.tcsChangeAddressUrl)
-                case false => Redirect(routes.AddressController.residencyChoice())
+              if (taxCreditsChoiceDto.value) {
+                Redirect(configDecorator.tcsChangeAddressUrl)
+              } else {
+                Redirect(routes.AddressController.residencyChoice())
               }
             }
           }
         )
 
       }
-  }
+    }
 
-  def residencyChoice: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
-    implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
-        gettingCachedTaxCreditsChoiceDto {
-          case Some(TaxCreditsChoiceDto(false)) =>
+  def residencyChoice: Action[AnyContent] = authenticate.async { implicit request =>
+    addressJourneyEnforcer { _ => _ =>
+      gettingCachedTaxCreditsChoiceDto {
+        case Some(TaxCreditsChoiceDto(false)) =>
+          Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
+        case _ =>
+          if (configDecorator.taxCreditsEnabled) {
+            Redirect(routes.AddressController.personalDetails())
+          } else {
             Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
-          case _ =>
-            configDecorator.taxCreditsEnabled match {
-              case true  => Redirect(routes.AddressController.personalDetails)
-              case false => Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
-            }
-        }
+          }
       }
+    }
   }
 
   def processResidencyChoice: Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
         ResidencyChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(BadRequest(views.html.personaldetails.residencyChoice(formWithErrors)))
@@ -196,34 +205,35 @@ class AddressController @Inject()(
     }
 
   def internationalAddressChoice(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personalDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
         gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(
-              Ok(views.html.personaldetails.internationalAddressChoice(InternationalAddressChoiceDto.form, typ)))
+              Ok(views.html.personaldetails.internationalAddressChoice(InternationalAddressChoiceDto.form, typ))
+            )
           }
         }
       }
     }
 
   def processInternationalAddressChoice(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personalDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(BadRequest(views.html.personaldetails.internationalAddressChoice(formWithErrors, typ)))
           },
           internationalAddressChoiceDto => {
             cacheSubmittedInternationalAddressChoiceDto(internationalAddressChoiceDto) map { _ =>
-              internationalAddressChoiceDto.value match {
-                case true => Redirect(routes.AddressController.showPostcodeLookupForm(typ))
-                case false =>
-                  if (configDecorator.updateInternationalAddressInPta) {
-                    Redirect(routes.AddressController.showUpdateInternationalAddressForm(typ))
-                  } else {
-                    Redirect(routes.AddressController.cannotUseThisService(typ))
-                  }
+              if (internationalAddressChoiceDto.value) {
+                Redirect(routes.AddressController.showPostcodeLookupForm(typ))
+              } else {
+                if (configDecorator.updateInternationalAddressInPta) {
+                  Redirect(routes.AddressController.showUpdateInternationalAddressForm(typ))
+                } else {
+                  Redirect(routes.AddressController.cannotUseThisService(typ))
+                }
               }
             }
           }
@@ -233,8 +243,8 @@ class AddressController @Inject()(
     }
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personalDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
         gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(Ok(views.html.personaldetails.cannotUseService(typ)))
@@ -244,8 +254,8 @@ class AddressController @Inject()(
     }
 
   def showPostcodeLookupForm(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
           cacheSubmittedInternationalAddressChoiceDto(InternationalAddressChoiceDto.apply(true))
           typ match {
@@ -261,7 +271,7 @@ class AddressController @Inject()(
             case _ =>
               auditConnector.sendEvent(
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false))
-              enforceResidencyChoiceSubmitted(journeyData) { x =>
+              enforceResidencyChoiceSubmitted(journeyData) { _ =>
                 Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
               }
           }
@@ -270,15 +280,15 @@ class AddressController @Inject()(
     }
 
   def processPostcodeLookupForm(typ: AddrType, back: Option[Boolean] = None): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
         AddressFinderDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(BadRequest(views.html.personaldetails.postcodeLookup(formWithErrors, typ)))
           },
           addressFinderDto => {
             for {
-              cacheMap <- cacheAddressFinderDto(typ, addressFinderDto)
+              _ <- cacheAddressFinderDto(typ, addressFinderDto)
               lookupDown <- gettingCachedAddressLookupServiceDown { lookup =>
                              lookup
                            }
@@ -289,52 +299,50 @@ class AddressController @Inject()(
                          addressFinderDto.filter,
                          forceLookup = true) {
                          case AddressLookupSuccessResponse(RecordSet(Seq())) => //No records returned by postcode lookup
-                           {
-                             auditConnector.sendEvent(buildEvent(
+                           auditConnector.sendEvent(
+                             buildEvent(
                                "addressLookupNotFound",
                                "find_address",
                                Map("postcode" -> Some(addressFinderDto.postcode), "filter" -> addressFinderDto.filter)))
-                             Future.successful(
-                               NotFound(views.html.personaldetails.postcodeLookup(
-                                 AddressFinderDto.form
-                                   .fill(AddressFinderDto(addressFinderDto.postcode, addressFinderDto.filter))
-                                   .withError(
-                                     FormError("postcode", "error.address_doesnt_exist_try_to_enter_manually")),
-                                 typ
-                               )))
-                           }
+                           Future.successful(
+                             NotFound(views.html.personaldetails.postcodeLookup(
+                               AddressFinderDto.form
+                                 .fill(AddressFinderDto(addressFinderDto.postcode, addressFinderDto.filter))
+                                 .withError(FormError("postcode", "error.address_doesnt_exist_try_to_enter_manually")),
+                               typ
+                             )))
                          case AddressLookupSuccessResponse(RecordSet(Seq(addressRecord))) => //One record returned by postcode lookup
-                           {
-                             if (back.getOrElse(false)) {
-                               Future.successful(Redirect(routes.AddressController.showPostcodeLookupForm(typ)))
-                             } else {
-                               auditConnector.sendEvent(
-                                 buildEvent(
-                                   "addressLookupResults",
-                                   "find_address",
-                                   Map(
-                                     "postcode" -> Some(addressRecord.address.postcode),
-                                     "filter"   -> addressFinderDto.filter)))
-                               cacheSelectedAddressRecord(typ, addressRecord) map { _ =>
-                                 Redirect(routes.AddressController.showUpdateAddressForm(typ))
-                               }
+                           if (back.getOrElse(false)) {
+                             Future.successful(Redirect(routes.AddressController.showPostcodeLookupForm(typ)))
+                           } else {
+                             auditConnector.sendEvent(
+                               buildEvent(
+                                 "addressLookupResults",
+                                 "find_address",
+                                 Map(
+                                   "postcode" -> Some(addressRecord.address.postcode),
+                                   "filter"   -> addressFinderDto.filter)))
+                             cacheSelectedAddressRecord(typ, addressRecord) map { _ =>
+                               Redirect(routes.AddressController.showUpdateAddressForm(typ))
                              }
                            }
                          case AddressLookupSuccessResponse(recordSet) => //More than one record returned by postcode lookup
-                           {
-                             auditConnector.sendEvent(buildEvent(
+                           auditConnector.sendEvent(
+                             buildEvent(
                                "addressLookupResults",
                                "find_address",
                                Map("postcode" -> Some(addressFinderDto.postcode), "filter" -> addressFinderDto.filter)))
-                             Future.successful(
-                               Ok(
-                                 views.html.personaldetails.addressSelector(
-                                   AddressSelectorDto.form,
-                                   recordSet,
-                                   typ,
-                                   addressFinderDto.postcode,
-                                   addressFinderDto.filter)))
-                           }
+                           Future.successful(
+                             Ok(
+                               views.html.personaldetails.addressSelector(
+                                 AddressSelectorDto.form,
+                                 recordSet,
+                                 typ,
+                                 addressFinderDto.postcode,
+                                 addressFinderDto.filter
+                               )
+                             )
+                           )
                        }
             } yield result
           }
@@ -343,13 +351,13 @@ class AddressController @Inject()(
     }
 
   def processAddressSelectorForm(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    authenticate.async { implicit request =>
       val postcode =
-        pertaxContext.request.body.asFormUrlEncoded.flatMap(_.get("postcode").flatMap(_.headOption)).getOrElse("")
+        request.body.asFormUrlEncoded.flatMap(_.get("postcode").flatMap(_.headOption)).getOrElse("")
       val filter =
-        pertaxContext.request.body.asFormUrlEncoded.flatMap(_.get("filter").flatMap(_.headOption))
+        request.body.asFormUrlEncoded.flatMap(_.get("filter").flatMap(_.headOption))
 
-      addressJourneyEnforcer { payeAccount => personDetails =>
+      addressJourneyEnforcer { _ => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors => {
@@ -374,15 +382,13 @@ class AddressController @Inject()(
                                 .equalsIgnoreCase(
                                   personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
                               (typ, postCodeHasChanged) match {
-                                case (PostalAddrType, true) =>
-                                  Redirect(routes.AddressController.enterStartDate(typ))
+                                case (PostalAddrType, true) => Redirect(routes.AddressController.enterStartDate(typ))
                                 case (PostalAddrType, false) =>
                                   Redirect(routes.AddressController.showUpdateAddressForm(typ))
                                 case (_, true) => Redirect(routes.AddressController.enterStartDate(typ))
-                                case (_, false) => {
+                                case (_, false) =>
                                   cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
                                   Redirect(routes.AddressController.reviewChanges(typ))
-                                }
                               }
                           }
                       }
@@ -394,7 +400,10 @@ class AddressController @Inject()(
                         views.html.error(
                           "global.error.InternalServerError500.title",
                           Some("global.error.InternalServerError500.title"),
-                          Some("global.error.InternalServerError500.message"))))
+                          Some("global.error.InternalServerError500.message")
+                        )
+                      )
+                    )
                   }
               }
             }
@@ -404,10 +413,10 @@ class AddressController @Inject()(
     }
 
   def showUpdateAddressForm(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    authenticate.async { implicit request =>
       gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord == None
-        addressJourneyEnforcer { payeAccount => personDetails =>
+        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        addressJourneyEnforcer { _ => _ =>
           typ match {
             case PostalAddrType =>
               enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
@@ -431,7 +440,10 @@ class AddressController @Inject()(
                       typ,
                       journeyData.addressFinderDto,
                       journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader)))
+                      showEnterAddressHeader
+                    )
+                  )
+                )
               }
           }
         }
@@ -439,10 +451,10 @@ class AddressController @Inject()(
     }
 
   def processUpdateAddressForm(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    authenticate.async { implicit request =>
       gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord == None
-        addressJourneyEnforcer { payeAccount => personDetails =>
+        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        addressJourneyEnforcer { _ => personDetails =>
           {
             AddressDto.ukForm.bindFromRequest.fold(
               formWithErrors => {
@@ -453,7 +465,10 @@ class AddressController @Inject()(
                       typ,
                       journeyData.addressFinderDto,
                       journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader)))
+                      showEnterAddressHeader
+                    )
+                  )
+                )
               },
               addressDto => {
                 cacheSubmittedAddressDto(typ, addressDto) flatMap {
@@ -481,9 +496,9 @@ class AddressController @Inject()(
     }
 
   def showUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    authenticate.async { implicit request =>
       gettingCachedJourneyData[Result](typ) { journeyData =>
-        addressJourneyEnforcer { payeAccount => personDetails =>
+        addressJourneyEnforcer { _ => personDetails =>
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(
@@ -495,16 +510,22 @@ class AddressController @Inject()(
                       journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(
                         AddressDto.internationalForm.fill),
                       typ,
-                      countryHelper.countries)))
+                      countryHelper.countries
+                    )
+                  )
+                )
               }
 
             case _ =>
               auditConnector.sendEvent(
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true))
-              enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
+              enforceResidencyChoiceSubmitted(journeyData) { _ =>
                 Future.successful(
-                  Ok(views.html.personaldetails
-                    .updateInternationalAddress(AddressDto.internationalForm, typ, countryHelper.countries)))
+                  Ok(
+                    views.html.personaldetails
+                      .updateInternationalAddress(AddressDto.internationalForm, typ, countryHelper.countries)
+                  )
+                )
               }
           }
         }
@@ -512,9 +533,9 @@ class AddressController @Inject()(
     }
 
   def processUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      gettingCachedJourneyData[Result](typ) { journeyData =>
-        addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      gettingCachedJourneyData[Result](typ) { _ =>
+        addressJourneyEnforcer { _ => _ =>
           {
             AddressDto.internationalForm.bindFromRequest.fold(
               formWithErrors => {
@@ -538,20 +559,20 @@ class AddressController @Inject()(
       }
     }
 
-  def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result])(implicit pertaxContext: PertaxContext) =
+  def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result]): Future[Result] =
     typ match {
-      case x: ResidentialAddrType => block
+      case _: ResidentialAddrType => block
       case PostalAddrType         => Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
     }
 
   def enterStartDate(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           gettingCachedJourneyData(typ) { journeyData =>
             val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
             val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
-            journeyData.submittedAddressDto map { a =>
+            journeyData.submittedAddressDto map { _ =>
               Future.successful(Ok(views.html.personaldetails.enterStartDate(
                 if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", "")))
                   journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
@@ -567,8 +588,8 @@ class AddressController @Inject()(
     }
 
   def processEnterStartDate(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm.bindFromRequest.fold(
             formWithErrors => {
@@ -595,15 +616,17 @@ class AddressController @Inject()(
       }
     }
 
-  def ensuringSubmissionRequirments(typ: AddrType, journeyData: AddressJourneyData)(block: => Future[Result]) =
-    if (journeyData.submittedStartDateDto == None && (typ == PrimaryAddrType | typ == SoleAddrType))
+  def ensuringSubmissionRequirments(typ: AddrType, journeyData: AddressJourneyData)(
+    block: => Future[Result]): Future[Result] =
+    if (journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType)) {
       Future.successful(Redirect(routes.AddressController.personalDetails()))
-    else
+    } else {
       block
+    }
 
   def closePostalAddressChoice: Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
         Future.successful(
           Ok(views.html.personaldetails.closeCorrespondenceAdressChoice(address, ClosePostalAddressChoiceDto.form)))
@@ -611,18 +634,21 @@ class AddressController @Inject()(
     }
 
   def processClosePostalAddressChoice: Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personalDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => personalDetails =>
         ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(
-              BadRequest(views.html.personaldetails
-                .closeCorrespondenceAdressChoice(getAddress(personalDetails.address).fullAddress, formWithErrors)))
+              BadRequest(
+                views.html.personaldetails
+                  .closeCorrespondenceAdressChoice(getAddress(personalDetails.address).fullAddress, formWithErrors))
+            )
           },
           closePostalAddressChoiceDto => {
-            closePostalAddressChoiceDto.value match {
-              case true  => Future.successful(Redirect(routes.AddressController.confirmClosePostalAddress()))
-              case false => Future.successful(Redirect(routes.AddressController.personalDetails()))
+            if (closePostalAddressChoiceDto.value) {
+              Future.successful(Redirect(routes.AddressController.confirmClosePostalAddress()))
+            } else {
+              Future.successful(Redirect(routes.AddressController.personalDetails()))
             }
           }
         )
@@ -630,16 +656,15 @@ class AddressController @Inject()(
     }
 
   def confirmClosePostalAddress: Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
         Future.successful(Ok(views.html.personaldetails.confirmCloseCorrespondenceAddress(address)))
-
       }
     }
 
-  private def submitConfirmClosePostalAddress(payeAccount: PayeAccount, personDetails: PersonDetails)(
-    implicit pertaxContext: PertaxContext): Future[Result] = {
+  private def submitConfirmClosePostalAddress(nino: Nino, personDetails: PersonDetails)(
+    implicit request: UserRequest[_]): Future[Result] = {
     def internalServerError =
       InternalServerError(
         views.html.error(
@@ -651,7 +676,7 @@ class AddressController @Inject()(
     val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
 
     for {
-      response <- citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, closingAddress)
+      response <- citizenDetailsService.updateAddress(nino, personDetails.etag, closingAddress)
       action <- response match {
                  case UpdateAddressBadRequestResponse =>
                    Future.successful(
@@ -659,7 +684,10 @@ class AddressController @Inject()(
                        views.html.error(
                          "global.error.BadRequest.title",
                          Some("global.error.BadRequest.title"),
-                         Some("global.error.BadRequest.message"))))
+                         Some("global.error.BadRequest.message")
+                       )
+                     )
+                   )
                  case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
                    Future.successful(internalServerError)
                  case UpdateAddressSuccessResponse =>
@@ -670,16 +698,18 @@ class AddressController @Inject()(
                              "closure_of_correspondence",
                              auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
                      _        <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                     inserted <- correspondenceAddressLockRepository.insert(payeAccount.nino.withoutSuffix)
+                     inserted <- correspondenceAddressLockRepository.insert(nino.withoutSuffix)
                      _        <- addressMovedService.moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
                    } yield
                      if (inserted) {
                        Ok(
                          views.html.personaldetails.updateAddressConfirmation(
                            PostalAddrType,
-                           true,
+                           closedPostalAddress = true,
                            Some(getAddress(personDetails.address).fullAddress),
-                           None))
+                           None
+                         )
+                       )
                      } else {
                        internalServerError
                      }
@@ -688,29 +718,30 @@ class AddressController @Inject()(
   }
 
   def submitConfirmClosePostalAddress: Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { nino => personDetails =>
         for {
-          optLock <- correspondenceAddressLockRepository.get(payeAccount.nino.withoutSuffix)
+          optLock <- correspondenceAddressLockRepository.get(nino.withoutSuffix)
           result <- optLock match {
                      case Some(_) =>
                        Future.successful(Redirect(routes.AddressController.personalDetails()))
                      case None =>
-                       submitConfirmClosePostalAddress(payeAccount, personDetails)
+                       submitConfirmClosePostalAddress(nino, personDetails)
                    }
         } yield result
       }
     }
 
   def reviewChanges(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
-          val isUkAddress: Boolean = journeyData.subbmittedInternationalAddressChoiceDto.map(_.value).getOrElse(true)
+          val isUkAddress: Boolean = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
           val doYouLiveInTheUK: String =
-            journeyData.subbmittedInternationalAddressChoiceDto.map(_.value).getOrElse(true) match {
-              case true  => "label.yes"
-              case false => "label.no"
+            if (journeyData.submittedInternationalAddressChoiceDto.forall(_.value)) {
+              "label.yes"
+            } else {
+              "label.no"
             }
 
           if (isUkAddress) {
@@ -730,7 +761,10 @@ class AddressController @Inject()(
                       doYouLiveInTheUK,
                       isUkAddress,
                       journeyData.submittedStartDateDto,
-                      showAddressChangedDate)))
+                      showAddressChangedDate
+                    )
+                  )
+                )
               }
             }
           } else {
@@ -745,7 +779,10 @@ class AddressController @Inject()(
                       doYouLiveInTheUK,
                       isUkAddress,
                       journeyData.submittedStartDateDto,
-                      true)))
+                      displayDateAddressChanged = true
+                    )
+                  )
+                )
               }
             }
           }
@@ -757,7 +794,7 @@ class AddressController @Inject()(
     originalAddressDto: Option[AddressDto],
     addressDto: AddressDto,
     personDetails: PersonDetails,
-    addressType: String)(implicit hc: HeaderCarrier, pertaxContext: PertaxContext) =
+    addressType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]) =
     if (addressWasUnmodified(originalAddressDto, addressDto))
       auditConnector.sendEvent(
         buildEvent(
@@ -771,7 +808,9 @@ class AddressController @Inject()(
         buildEvent(
           "manualAddressSubmitted",
           "change_of_address",
-          dataToAudit(addressDto, personDetails.etag, addressType, None, originalAddressDto.flatMap(_.propertyRefNo))))
+          dataToAudit(addressDto, personDetails.etag, addressType, None, originalAddressDto.flatMap(_.propertyRefNo))
+        )
+      )
     else
       auditConnector.sendEvent(
         buildEvent(
@@ -782,8 +821,10 @@ class AddressController @Inject()(
             personDetails.etag,
             addressType,
             originalAddressDto,
-            originalAddressDto.flatMap(_.propertyRefNo))
-        ))
+            originalAddressDto.flatMap(_.propertyRefNo)
+          )
+        )
+      )
 
   private def mapAddressType(typ: AddrType) = typ match {
     case PostalAddrType => "Correspondence"
@@ -791,10 +832,10 @@ class AddressController @Inject()(
   }
 
   def submitChanges(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
+    authenticate.async { implicit request =>
       val addressType = mapAddressType(typ)
 
-      addressJourneyEnforcer { payeAccount => personDetails =>
+      addressJourneyEnforcer { nino => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
           ensuringSubmissionRequirments(typ, journeyData) {
 
@@ -811,7 +852,7 @@ class AddressController @Inject()(
                     journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
                   val addressDtowithFormattedPostCode =
-                    addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode(_)))
+                    addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
                   handleAddressChangeAuditing(
                     originalAddressDto,
                     addressDtowithFormattedPostCode,
@@ -819,11 +860,18 @@ class AddressController @Inject()(
                     addressType)
                   clearCache()
 
-                  Ok(views.html.personaldetails
-                    .updateAddressConfirmation(typ, false, None, addressMovedService.toMessageKey(addressChanged)))
+                  Ok(
+                    views.html.personaldetails
+                      .updateAddressConfirmation(
+                        typ,
+                        closedPostalAddress = false,
+                        None,
+                        addressMovedService.toMessageKey(addressChanged)
+                      )
+                  )
                 }
 
-                citizenDetailsService.updateAddress(payeAccount.nino, personDetails.etag, address) map {
+                citizenDetailsService.updateAddress(nino, personDetails.etag, address) map {
                   _.response(successResponseBlock)
                 }
               }
@@ -834,8 +882,8 @@ class AddressController @Inject()(
     }
 
   def showAddressAlreadyUpdated(typ: AddrType): Action[AnyContent] =
-    VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) { implicit pertaxContext =>
-      addressJourneyEnforcer { payeAccount => personDetails =>
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
         Future.successful(Ok(views.html.personaldetails.addressAlreadyUpdated()))
       }
     }

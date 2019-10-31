@@ -19,6 +19,8 @@ package models.dto
 import play.api.data.Form
 import play.api.data.Forms._
 
+case class AddressSelectorDto(addressId: Option[String])
+
 object AddressSelectorDto {
   val form = Form(
     mapping(
@@ -27,5 +29,3 @@ object AddressSelectorDto {
     )(AddressSelectorDto.apply)(AddressSelectorDto.unapply)
   )
 }
-
-case class AddressSelectorDto(addressId: Option[String])

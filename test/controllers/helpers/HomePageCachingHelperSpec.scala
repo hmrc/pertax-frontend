@@ -18,15 +18,12 @@ package controllers.helpers
 
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatest.Succeeded
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
-import play.api.libs.json.Json._
 import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.http.HeaderCarrier
 import util.BaseSpec
 
 import scala.concurrent.Future
@@ -45,7 +42,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
       def urBannerDismissedValueInSessionCache: Option[Boolean]
 
-      lazy val cachingHelper = {
+      lazy val cachingHelper: HomePageCachingHelper = {
 
         val c = injected[HomePageCachingHelper]
 

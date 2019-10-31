@@ -14,20 +14,24 @@
  * limitations under the License.
  *@
 
-@(continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
+@(continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(Messages("label.personal_details"), Some(Messages("label.your_personal_tax_account"))) {
+@main(messages("label.personal_details"), Some(messages("label.your_personal_tax_account"))) {
 
-  <div class="page-heading">
-    <h1 class="heading-large no-margin-bottom no-margin-top">@Messages("label.personal_details")</h1>
-  </div>
-
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      <p>@Messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-      <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(continueUrl)))" class="button" role="button">@Messages("global.label.continue_button")</a>
+    <div class="page-heading">
+        <h1 class="heading-large no-margin-bottom no-margin-top">@messages("label.personal_details")</h1>
     </div>
-  </div>
+
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
+            <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(continueUrl)))" class="button" role="button">@messages("global.label.continue_button")</a>
+        </div>
+    </div>
 
 }

@@ -16,159 +16,145 @@
 
 package controllers
 
-import connectors.{CreatePayment, FrontEndDelegationConnector, PayApiConnector}
-import controllers.auth.{AuthorisedActions, LocalPageVisibilityPredicateFactory, PertaxRegime}
-import error.{LocalErrorHandler, RendersErrors}
-import javax.inject.Inject
+import config.ConfigDecorator
+import connectors.PertaxAuditConnector
+import controllers.auth._
+import controllers.auth.requests.UserRequest
+import error.RendersErrors
+import com.google.inject.Inject
 import models._
+import org.joda.time.DateTime
 import play.api.Logger
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Reads
 import play.api.mvc._
+import services.IdentityVerificationSuccessResponse._
 import services._
-import services.partials.{CspPartialService, MessageFrontendService}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools._
-import util.DateTimeTools
+import util.{DateTimeTools, LocalPartialRetriever}
 
 import scala.concurrent.Future
-import scala.util.control.NonFatal
 
 class ApplicationController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  val selfAssessmentService: SelfAssessmentService,
-  val cspPartialService: CspPartialService,
-  val userDetailsService: UserDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val localPageVisibilityPredicateFactory: LocalPageVisibilityPredicateFactory,
-  val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler)
-    extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
+  authAction: AuthAction,
+  selfAssessmentStatusAction: SelfAssessmentStatusAction,
+  authJourney: AuthJourney,
+  withBreadcrumbAction: WithBreadcrumbAction,
+  auditConnector: PertaxAuditConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
+    extends PertaxBaseController with CurrentTaxYear with RendersErrors {
 
-  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = {
-    val pvp = localPageVisibilityPredicateFactory.build(redirectUrl, configDecorator.defaultOrigin)
+  override def now: () => DateTime = () => DateTime.now()
 
-    AuthorisedFor(pertaxRegime, pageVisibility = pvp).async { implicit authContext => implicit request =>
-      Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
-    }
+  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
+    Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
   }
 
-  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
-    implicit pertaxContext =>
-      import IdentityVerificationSuccessResponse._
-
-      //Will be populated if we arrived here because of an IV success/failure
-      val journeyId = List(
-        pertaxContext.request.getQueryString("token"),
-        pertaxContext.request.getQueryString("journeyId")).flatten.headOption
+  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+    Action.async { implicit request =>
+      val journeyId =
+        List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
 
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
-      lazy val allowContinue = configDecorator.allowSaPreview && pertaxContext.user.exists(_.isSa)
-
-      if (configDecorator.allowLowConfidenceSAEnabled) {
-        Future.successful(Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl)))
-      } else {
-        journeyId match {
-          case Some(jid) =>
-            identityVerificationFrontendService.getIVJourneyStatus(jid).map {
-              case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-                Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
-              case IdentityVerificationSuccessResponse(UserAborted) =>
-                Logger.warn(s"Unable to confirm user identity: $UserAborted")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(FailedMatching) =>
-                Logger.warn(s"Unable to confirm user identity: $FailedMatching")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(Incomplete) =>
-                Logger.warn(s"Unable to confirm user identity: $Incomplete")
-                Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
-              case IdentityVerificationSuccessResponse(PrecondFailed) =>
-                Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
-                Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-              case IdentityVerificationSuccessResponse(LockedOut) =>
-                Logger.warn(s"Unable to confirm user identity: $LockedOut")
-                Unauthorized(views.html.iv.failure.lockedOut(allowContinue))
-              case IdentityVerificationSuccessResponse(Success) =>
-                Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
-              case IdentityVerificationSuccessResponse(Timeout) =>
-                Logger.warn(s"Unable to confirm user identity: $Timeout")
-                InternalServerError(views.html.iv.failure.timeOut(retryUrl))
-              case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-                Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-                InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
-              case r =>
-                Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
-                InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
-            }
-          case None =>
-            Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
-            Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
-        }
+      journeyId match {
+        case Some(jid) =>
+          identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+            case IdentityVerificationSuccessResponse(Success) =>
+              Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+            case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
+              Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
+            case IdentityVerificationSuccessResponse(UserAborted) =>
+              Logger.warn(s"Unable to confirm user identity: $UserAborted")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(FailedMatching) =>
+              Logger.warn(s"Unable to confirm user identity: $FailedMatching")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(Incomplete) =>
+              Logger.warn(s"Unable to confirm user identity: $Incomplete")
+              Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
+            case IdentityVerificationSuccessResponse(PrecondFailed) =>
+              Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
+              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+            case IdentityVerificationSuccessResponse(LockedOut) =>
+              Logger.warn(s"Unable to confirm user identity: $LockedOut")
+              Unauthorized(views.html.iv.failure.lockedOut(allowContinue = false))
+            case IdentityVerificationSuccessResponse(Timeout) =>
+              Logger.warn(s"Unable to confirm user identity: $Timeout")
+              InternalServerError(views.html.iv.failure.timeOut(retryUrl))
+            case IdentityVerificationSuccessResponse(TechnicalIssue) =>
+              Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+            case r =>
+              Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
+              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+          }
+        case None =>
+          Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
+          Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
       }
-  }
+    }
 
   def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
-    AuthorisedAction(fetchPersonDetails = false) { implicit pertaxContext =>
-      Future.successful {
-        continueUrl
-          .map(_.url)
-          .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
-          .fold(BadRequest("Missing origin")) { url: String =>
-            pertaxContext.user match {
-              case Some(user) if user.isGovernmentGateway =>
-                Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
-              case _ =>
-                Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
-            }
+    authJourney.authWithSelfAssessment { implicit request =>
+      continueUrl
+        .map(_.url)
+        .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
+        .fold(BadRequest("Missing origin")) { url: String =>
+          if (request.isGovernmentGateway) {
+            Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
+          } else {
+            Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
           }
-      }
+        }
     }
 
-  def handleSelfAssessment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceGovernmentGatewayUser {
-      selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-          Future.successful(Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl))
-        case ambigUser: AmbiguousFilerSelfAssessmentUser =>
-          Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
-        case _ => Future.successful(Redirect(routes.HomeController.index()))
-      }
+  def handleSelfAssessment: Action[AnyContent] =
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {
+      implicit request =>
+        if (request.isGovernmentGateway) {
+          request.saUserType match {
+            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+              Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
+            case ambigUser: AmbiguousFilerSelfAssessmentUser =>
+              Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr))
+            case _ => Redirect(routes.HomeController.index())
+          }
+        } else {
+          error(INTERNAL_SERVER_ERROR)
+        }
     }
-  }
 
-  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] = AuthorisedAction() {
-    implicit pertaxContext =>
-      val c = configDecorator.lostCredentialsChooseAccountUrl(
-        continueUrl.map(_.url).getOrElse(controllers.routes.HomeController.index().url),
-        "userId")
-
+  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+    authJourney.minimumAuthWithSelfAssessment { implicit request =>
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
-      selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext) flatMap {
+      request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(x) =>
           handleIvExemptAuditing("Activated online SA filer")
-          Future.successful(
-            Ok(views.html.activatedSaFilerIntermediate(x.toString, DateTimeTools.previousAndCurrentTaxYear)))
+          Ok(views.html.activatedSaFilerIntermediate(x.toString, DateTimeTools.previousAndCurrentTaxYear))
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
-          Future.successful(Ok(views.html.iv.failure.failedIvContinueToActivateSa()))
+          Ok(views.html.iv.failure.failedIvContinueToActivateSa())
         case ambigUser: AmbiguousFilerSelfAssessmentUser =>
           handleIvExemptAuditing("Ambiguous SA filer")
-          Future.successful(Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr)))
+          Ok(views.html.selfAssessmentNotShown(ambigUser.saUtr))
         case NonFilerSelfAssessmentUser =>
-          Future.successful(Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl)))
+          Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl))
       }
-  }
+    }
 
-  private def handleIvExemptAuditing(saUserType: String)(implicit hc: HeaderCarrier, pertaxContext: PertaxContext) =
+  private def handleIvExemptAuditing(
+    saUserType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =
     auditConnector.sendEvent(
       buildEvent(
         "saIdentityVerificationBypass",

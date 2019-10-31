@@ -16,8 +16,8 @@
 
 package models
 
-import models.dto._
 import models.addresslookup.AddressRecord
+import models.dto._
 
 case class AddressJourneyData(
   addressPageVisitedDto: Option[AddressPageVisitedDto],
@@ -25,7 +25,7 @@ case class AddressJourneyData(
   addressFinderDto: Option[AddressFinderDto],
   selectedAddressRecord: Option[AddressRecord],
   submittedAddressDto: Option[AddressDto],
-  subbmittedInternationalAddressChoiceDto: Option[InternationalAddressChoiceDto],
+  submittedInternationalAddressChoiceDto: Option[InternationalAddressChoiceDto],
   submittedStartDateDto: Option[DateDto],
   addressLookupServiceDown: Boolean
 ) {

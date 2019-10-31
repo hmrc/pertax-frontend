@@ -19,7 +19,7 @@ package config
 import java.net.{URL, URLEncoder}
 
 import controllers.routes
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import org.joda.time.LocalDate
 import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
@@ -39,7 +39,12 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val ida_web_context = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
   lazy val gg_web_context = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
 
+  lazy val authProviderChoice = configuration.getString(s"external-url.auth-provider-choice.host").getOrElse("")
+
   val defaultOrigin = Origin("PERTAX")
+
+  val authProviderGG = "GGW"
+  val authProviderVerify = "IDA"
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
@@ -138,6 +143,8 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
     s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(
       continueUrl)}&origin=${enc(defaultOrigin.toString)}"
   lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
+  lazy val origin =
+    configuration.getString("sosOrigin").orElse(configuration.getString("appName")).getOrElse("undefined")
   lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
   lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
   lazy val problemsSigningInUrl = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"

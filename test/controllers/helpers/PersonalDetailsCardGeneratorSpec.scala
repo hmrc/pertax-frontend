@@ -17,43 +17,38 @@
 package controllers.helpers
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.LocalDate
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.inject.bind
-import play.api.test.FakeRequest
-import uk.gov.hmrc.domain.Nino
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.personaldetails._
 
-class PersonalDetailsCardGeneratorSpec extends BaseSpec {
+class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I18nSupport {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
-    .build()
+  implicit val mockConfigDecorator = mock[ConfigDecorator]
+  override def messagesApi: MessagesApi = injected[MessagesApi]
 
-  trait SpecSetup extends I18nSupport {
-    override def messagesApi: MessagesApi = injected[MessagesApi]
+  def controller = new PersonalDetailsCardGenerator(
+    mockConfigDecorator,
+    injected[CountryHelper]
+  )
 
-    implicit lazy val pertaxContext =
-      PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator], pertaxUser)
-
-    lazy val controller = injected[PersonalDetailsCardGenerator]
-    lazy val pertaxUser = Some(
-      PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
-  }
-
-  trait MainAddressSetup extends SpecSetup {
+  trait MainAddressSetup {
 
     def taxCreditsEnabled: Boolean
 
     def userHasPersonDetails: Boolean
+
     def userHasCorrespondenceAddress: Boolean
+
     def mainHomeStartDate: Option[String]
+
     def hasCorrespondenceAddressLock: Boolean
+
+    implicit def userRequest: UserRequest[_]
 
     def buildPersonDetails =
       PersonDetails(
@@ -73,31 +68,20 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
         if (userHasCorrespondenceAddress) Some(Fixtures.buildFakeAddress) else None
       )
 
-    override lazy val pertaxUser = Some(
-      PertaxUser(
-        Fixtures.buildFakeAuthContext(),
-        UserDetails(UserDetails.VerifyAuthProvider),
-        personDetails = if (userHasPersonDetails) Some(buildPersonDetails) else None,
-        true
-      ))
-
-    override lazy val controller = {
-      val c = injected[PersonalDetailsCardGenerator]
-      when(c.configDecorator.taxCreditsEnabled) thenReturn taxCreditsEnabled
-      c
-    }
-
-    lazy val excludedCountries = List(
-      Country("GREAT BRITAIN"),
-      Country("SCOTLAND"),
-      Country("ENGLAND"),
-      Country("WALES"),
-      Country("NORTHERN IRELAND")
-    )
+    when(mockConfigDecorator.taxCreditsEnabled) thenReturn taxCreditsEnabled
 
     lazy val cardBody: Option[_root_.play.twirl.api.HtmlFormat.Appendable] =
       controller.getMainAddressCard(hasCorrespondenceAddressLock)
+
   }
+
+  lazy val excludedCountries = List(
+    Country("GREAT BRITAIN"),
+    Country("SCOTLAND"),
+    Country("ENGLAND"),
+    Country("WALES"),
+    Country("NORTHERN IRELAND")
+  )
 
   "Calling getMainAddressCard" should {
 
@@ -107,6 +91,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = None
       override lazy val hasCorrespondenceAddressLock = false
+
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
 
       cardBody shouldBe None
 
@@ -118,6 +104,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = true
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
+
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
 
       cardBody shouldBe Some(
         mainAddress(
@@ -137,6 +125,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+
       cardBody shouldBe Some(
         mainAddress(
           buildPersonDetails,
@@ -154,6 +144,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasCorrespondenceAddress = false
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = true
+
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
 
       cardBody shouldBe Some(
         mainAddress(
@@ -173,6 +165,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+
       cardBody shouldBe Some(
         mainAddress(
           buildPersonDetails,
@@ -191,6 +185,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+
       cardBody shouldBe Some(
         mainAddress(
           buildPersonDetails,
@@ -203,12 +199,18 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
     }
   }
 
-  trait PostalAddressSetup extends SpecSetup {
+  trait PostalAddressSetup {
+
+    implicit def userRequest: UserRequest[_]
 
     def canUpdatePostalAddress: Boolean
+
     def userHasPersonDetails: Boolean
+
     def userHasCorrespondenceAddress: Boolean
+
     def userHasWelshLanguageUnitAddress: Boolean
+
     def closePostalAddressEnabled: Boolean
 
     def buildPersonDetails =
@@ -257,17 +259,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       Some("Residential")
     )
 
-    override lazy val pertaxUser = Some(
-      PertaxUser(
-        Fixtures.buildFakeAuthContext(),
-        UserDetails(UserDetails.VerifyAuthProvider),
-        personDetails = if (userHasPersonDetails) {
-          Some(buildPersonDetails)
-        } else None,
-        true
-      ))
-
-    lazy val cardBody = controller.getPostalAddressCard()
+    def cardBody = controller.getPostalAddressCard()
 
     when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
 
@@ -289,6 +281,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
+
       cardBody shouldBe None
     }
 
@@ -299,6 +293,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+
       cardBody shouldBe None
     }
 
@@ -308,6 +304,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val canUpdatePostalAddress = true
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
+
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
 
       cardBody shouldBe Some(
         postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled))
@@ -321,6 +319,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = true
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+
       cardBody shouldBe Some(
         postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled))
 
@@ -333,6 +333,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+
       cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, false))
 
     }
@@ -344,30 +346,35 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
       override val userHasWelshLanguageUnitAddress = true
       override lazy val closePostalAddressEnabled = false
 
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+
       cardBody shouldBe None
     }
   }
 
   "Calling getNationalInsuranceCard" should {
 
-    trait LocalSetup extends SpecSetup {
+    trait LocalSetup {
+      implicit def userRequest: UserRequest[_]
+
       lazy val cardBody = controller.getNationalInsuranceCard()
-      def nino: Nino
     }
 
     "always return the same markup" in new LocalSetup {
-      override lazy val nino = pertaxUser.get.nino.get
 
-      cardBody shouldBe Some(nationalInsurance(nino))
+      implicit val userRequest = UserRequestFixture.buildUserRequest()
+
+      cardBody shouldBe Some(nationalInsurance(userRequest.nino.get))
     }
   }
 
   "Calling getChangeNameCard" should {
 
-    trait LocalSetup extends SpecSetup {
-      lazy val cardBody = controller.getChangeNameCard()
+    trait LocalSetup {
 
-      def userHasPersonDetails: Boolean
+      implicit def userRequest: UserRequest[_]
+
+      lazy val cardBody = controller.getChangeNameCard()
 
       def buildPersonDetails =
         PersonDetails(
@@ -387,23 +394,16 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec {
           None
         )
 
-      override lazy val pertaxUser = Some(
-        PertaxUser(
-          Fixtures.buildFakeAuthContext(),
-          UserDetails(UserDetails.VerifyAuthProvider),
-          personDetails = if (userHasPersonDetails) Some(buildPersonDetails) else None,
-          true
-        ))
     }
 
     "always return the correct markup when user has a name" in new LocalSetup {
-      override def userHasPersonDetails = true
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
 
       cardBody shouldBe Some(changeName())
     }
 
     "always return None when user does not have a name available" in new LocalSetup {
-      override def userHasPersonDetails = false
+      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None, userName = None)
 
       cardBody shouldBe None
     }

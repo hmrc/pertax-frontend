@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package models
 
-import javax.inject.Inject
+import play.api.libs.json.Json
 
-import uk.gov.hmrc.play.frontend.auth.TaxRegime
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
+case class TaxCalculation(
+  p800_status: String,
+  amount: BigDecimal,
+  taxYear: Int,
+  paymentStatus: Option[String],
+  datePaid: Option[String],
+  businessReason: Option[String],
+  dueDate: Option[String]
+)
 
-class PertaxRegime @Inject()(val pertaxAuthenticationProvider: PertaxAuthenticationProvider) extends TaxRegime {
-  def isAuthorised(accounts: Accounts) = true
-  def authenticationType = pertaxAuthenticationProvider
+object TaxCalculation {
+  implicit val formats = Json.format[TaxCalculation]
 }

@@ -14,49 +14,48 @@
  * limitations under the License.
  *@
 
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import models.UserName
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
+
 @(incomeCards: Seq[Html],
-  benefitCards: Seq[Html],
-  pensionCards: Seq[Html],
-  showUserResearchBanner: Boolean
-)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+        benefitCards: Seq[Html],
+        pensionCards: Seq[Html],
+        showUserResearchBanner: Boolean
+)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@import models.PertaxUser._
-@import models.PersonDetails._
+    @main(messages("label.account_home"), Some(messages("label.your_personal_tax_account")), showUserResearchBanner) {
 
-@main(Messages("label.account_home"),Some(Messages("label.your_personal_tax_account")), showUserResearchBanner) {
-
-  <header class="page-heading">
-    <h1 class="heading-xlarge">
-      @ifNameAvailable {
-        @pertaxContext.user.flatMap(_.name.map(upperCaseToTitleCase))
-      }
-      @unlessNameAvailable {
-        @Messages("label.your_account")
-      }
-    </h1>
-    <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.account_home")</p>
-  </header>
+        <header class="page-heading">
+            <h1 class="heading-xlarge">
+            @request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)
+            </h1>
+            <p class="heading-secondary"><span class="visuallyhidden">
+                This section is </span>@messages("label.account_home")</p>
+        </header>
 
 
-  <div class="pertax-home">
+        <div class="pertax-home">
 
-    <h2 class="section-header flush--top">@Messages("title.income")</h2>
+            <h2 class="section-header flush--top">@messages("title.income")</h2>
 
-    <div class="flex-container grid-row">
-      @incomeCards
-    </div>
+            <div class="flex-container grid-row">
+            @incomeCards
+            </div>
 
-    <h2 class="section-header flush--top">@Messages("title.benefits")</h2>
+            <h2 class="section-header flush--top">@messages("title.benefits")</h2>
 
-    <div class="flex-container grid-row">
-      @benefitCards
-    </div>
+            <div class="flex-container grid-row">
+            @benefitCards
+            </div>
 
-    <h2 class="section-header flush--top">@Messages("title.pensions")</h2>
+            <h2 class="section-header flush--top">@messages("title.pensions")</h2>
 
-    <div class="flex-container grid-row">
-      @pensionCards
-    </div>
+            <div class="flex-container grid-row">
+            @pensionCards
+            </div>
 
-  </div>
-}
+        </div>
+    }

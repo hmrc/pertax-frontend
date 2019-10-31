@@ -18,8 +18,11 @@ package models
 
 import uk.gov.hmrc.domain.SaUtr
 
-trait SelfAssessmentUserType
-case class ActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUserType
-case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUserType
-case class AmbiguousFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUserType
+sealed trait SelfAssessmentUserType
+sealed trait SelfAssessmentUser extends SelfAssessmentUserType {
+  def saUtr: SaUtr
+}
+case class ActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
+case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
+case class AmbiguousFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
 case object NonFilerSelfAssessmentUser extends SelfAssessmentUserType

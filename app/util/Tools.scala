@@ -16,9 +16,9 @@
 
 package util
 
-import java.net.{URI, URL, URLEncoder}
+import java.net.{URI, URLEncoder}
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 
 class Tools @Inject()(val applicationCrypto: ApplicationCrypto) {
