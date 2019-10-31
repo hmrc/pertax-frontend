@@ -17,6 +17,7 @@
 package controllers.auth
 
 import com.google.inject.Inject
+import connectors.EnrolmentsConnector
 import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, Result}
@@ -27,28 +28,40 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetailsService)(implicit ec: ExecutionContext)
+class SelfAssessmentStatusAction @Inject()(
+  citizenDetailsService: CitizenDetailsService,
+  enrolmentsConnector: EnrolmentsConnector)(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
-  def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
+  private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
     citizenDetailsService.getMatchingDetails(nino) map {
       case MatchingDetailsSuccessResponse(matchingDetails) => matchingDetails.saUtr
       case _                                               => None
     }
 
-  def getSelfAssessmentUserType[A]()(
+  private def enrolledOnDifferentCredentials(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] =
+    enrolmentsConnector
+      .getUserIdsWithEnrolments(saUtr.utr)
+      .map(x =>
+        if (x.nonEmpty) {
+          WrongCredentialsSelfAssessmentUser(saUtr)
+        } else {
+          NonFilerSelfAssessmentUser
+      })
+
+  private def getSelfAssessmentUserType[A](
     implicit hc: HeaderCarrier,
     request: AuthenticatedRequest[A]): Future[SelfAssessmentUserType] =
     request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
       request.saEnrolment match {
         case Some(SelfAssessmentEnrolment(saUtr, Activated)) =>
-          Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr)) //Activated online filer
+          Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>
-          Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)) //NotYetActivated online filer
+          Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case None =>
-          getSaUtrFromCitizenDetailsService(nino) map {
-            case Some(saUtr) => AmbiguousFilerSelfAssessmentUser(saUtr) //Ambiguous SA filer
-            case None        => NonFilerSelfAssessmentUser //Non SA Filer
+          getSaUtrFromCitizenDetailsService(nino).flatMap {
+            case Some(saUtr) => enrolledOnDifferentCredentials(saUtr)
+            case None        => Future.successful(NonFilerSelfAssessmentUser)
           }
       }
     }
@@ -56,7 +69,7 @@ class SelfAssessmentStatusAction @Inject()(citizenDetailsService: CitizenDetails
   override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, UserRequest[A]]] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    getSelfAssessmentUserType()(hc, request).map { saType =>
+    getSelfAssessmentUserType(hc, request).map { saType =>
       Right(
         UserRequest(
           request.nino,

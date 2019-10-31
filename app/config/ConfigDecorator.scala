@@ -56,6 +56,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
   private lazy val payApiUrl = baseUrl("pay-api")
   lazy val authLoginApiService = baseUrl("auth-login-api")
+  private lazy val enrolmentStoreProxyService = baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
     configuration.getString(s"external-url.$key").filter(_ => env == "Dev")
@@ -190,6 +191,8 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
   lazy val myStatePensionAccount = s"$nispFrontendHost/check-your-state-pension/account/pta"
   lazy val lifetimeProtectionAllowance = s"$dfsFrontendHost/protect-your-lifetime-allowance/existing-protections"
+
+  lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
 
   lazy val marriageAllowanceSalaryAmount = "£11,500"
 

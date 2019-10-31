@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import models.AmbiguousFilerSelfAssessmentUser
+import models.WrongCredentialsSelfAssessmentUser
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -72,7 +72,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "GovernmentGateway"),
               ConfidenceLevel.L200,
               Some(buildPersonDetails),
@@ -97,7 +97,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
               Some(Fixtures.fakeNino),
               None,
               None,
-              AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
               Credentials("", "Verify"),
               ConfidenceLevel.L500,
               Some(buildPersonDetails),
