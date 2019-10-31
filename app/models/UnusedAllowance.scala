@@ -18,8 +18,8 @@ package models
 
 import play.api.libs.json.Json
 
+case class UnusedAllowance(value: BigDecimal)
+
 object UnusedAllowance {
   implicit val formats = Json.format[UnusedAllowance]
 }
-
-case class UnusedAllowance(value: BigDecimal)

@@ -14,20 +14,25 @@
  * limitations under the License.
  *@
 
-@(title: String, header: String)(content: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@main(title) {
+@(title: String, header: String)(content: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-  <div class="grid-row">
-    <div class="column-two-thirds">
+    @unauthenticatedMain(title) {
 
-        <header class="page-heading">
-            <h1 class="heading-xlarge">@header</h1>
-        </header>
+        <div class="grid-row">
+            <div class="column-two-thirds">
 
-        @content
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@header</h1>
+                </header>
 
-    </div>
-  </div>
+                @content
 
-}
+            </div>
+        </div>
+
+    }

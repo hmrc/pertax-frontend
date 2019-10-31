@@ -18,10 +18,8 @@ package config
 
 import java.net.{MalformedURLException, URL}
 
-import org.mockito.Matchers.{eq => meq}
-import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
 import play.api.i18n.Langs
+import play.api.{Configuration, Environment}
 import util.BaseSpec
 
 class ConfigDecoratorSpec extends BaseSpec {

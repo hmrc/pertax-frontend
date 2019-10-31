@@ -17,7 +17,6 @@
 package connectors
 
 import models.PaymentRequest
-import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -29,8 +28,7 @@ import uk.gov.hmrc.http.HttpResponse
 import util.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 

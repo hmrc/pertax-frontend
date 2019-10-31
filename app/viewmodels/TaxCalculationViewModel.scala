@@ -19,7 +19,7 @@ package viewmodels
 import config.ConfigDecorator
 import models.OverpaidStatus._
 import models.UnderpaidStatus._
-import models.{Balanced, BalancedNoEmployment, NotReconciled, Overpaid, OverpaidTolerance, Reconciliation, TaxYearReconciliation, Underpaid, UnderpaidTolerance}
+import models._
 import viewmodels.Message.text
 
 case class TaxCalculationViewModel(

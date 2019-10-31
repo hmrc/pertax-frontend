@@ -14,19 +14,21 @@
  * limitations under the License.
  *@
 
-@(title: String, header: String, scriptElement: Option[Html] = None)(content: Html)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@import tags._
-@import models.PertaxUser
-@import models.PertaxUser._
+@(title: String, header: String, scriptElement: Option[Html] = None)(content: Html)(implicit request: UserRequest[_],
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(title, Some(Messages("label.your_personal_tax_account")), scriptElement = scriptElement) {
+@main(title, Some(messages("label.your_personal_tax_account")), scriptElement = scriptElement) {
 
-  <div class="page-heading">
-    <h1 class="heading-xlarge no-margin-bottom">@header</h1>
-  </div>
-  <div class="grid-row">
+    <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">@header</h1>
+    </div>
+    <div class="grid-row">
     @content
-  </div>
+    </div>
 
 }

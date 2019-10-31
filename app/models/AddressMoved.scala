@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package models
 
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength}
-
-trait ConfidenceLevelChecker {
-  def userHasHighConfidenceLevel(implicit authContext: AuthContext) =
-    authContext.user.confidenceLevel >= ConfidenceLevel.L200
-}
+sealed trait AddressChanged
+object MovedToScotland extends AddressChanged
+object MovedFromScotland extends AddressChanged
+object AnyOtherMove extends AddressChanged

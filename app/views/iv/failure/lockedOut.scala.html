@@ -14,10 +14,14 @@
  * limitations under the License.
  *@
 
-@(allowContinue: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@views.html.iv.ivOutcomeWrapper(Messages("label.we_cannot_confirm_your_identity"), Messages("label.we_cannot_confirm_your_identity")) {
+@(allowContinue: Boolean)(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-  <p>@Messages("label.you_have_tried_to_confirm_your_identity_")</p>
-  <p>@Messages("label.try_again_in_24_hours")</p>
+@views.html.iv.ivOutcomeWrapper(messages("label.we_cannot_confirm_your_identity"), messages("label.we_cannot_confirm_your_identity")) {
+
+    <p>@messages("label.you_have_tried_to_confirm_your_identity_")</p>
+    <p>@messages("label.try_again_in_24_hours")</p>
 }

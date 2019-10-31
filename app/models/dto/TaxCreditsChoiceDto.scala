@@ -20,6 +20,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
+case class TaxCreditsChoiceDto(value: Boolean)
+
 object TaxCreditsChoiceDto {
 
   implicit val formats = Json.format[TaxCreditsChoiceDto]
@@ -32,5 +34,3 @@ object TaxCreditsChoiceDto {
     )(TaxCreditsChoiceDto.apply)(TaxCreditsChoiceDto.unapply)
   )
 }
-
-case class TaxCreditsChoiceDto(value: Boolean)

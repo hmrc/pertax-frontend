@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package util
+package models.addresslookup
 
-import config.ConfigDecorator
-import connectors.{PertaxAuditConnector, PertaxAuthConnector}
-import controllers.PertaxDependencies
-import org.scalatest.mockito.MockitoSugar
+import play.api.libs.json.Json
 
-object MockPertaxDependencies
-    extends PertaxDependencies(
-      MockitoSugar.mock[PertaxAuditConnector],
-      MockitoSugar.mock[PertaxAuthConnector],
-      MockitoSugar.mock[LocalPartialRetriever],
-      MockitoSugar.mock[ConfigDecorator]
-    )
+/**
+  * Represents one address record. Arrays of these are returned from the address-lookup microservice.
+  */
+case class AddressRecord(id: String, address: Address, language: String) {
+
+  def isValid: Boolean = address.isValid && language.length == 2
+}
+
+object AddressRecord {
+  implicit val formats = Json.format[AddressRecord]
+}

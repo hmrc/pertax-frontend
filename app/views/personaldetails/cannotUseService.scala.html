@@ -14,10 +14,15 @@
  * limitations under the License.
  *@
 
-@(typ: AddrType)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
+@import uk.gov.hmrc.renderer.TemplateRenderer
 
-@main(title = Messages("label.your_address_cannot_be_updated"),
-pageName = Some(Messages("label.your_personal_tax_account"))
+@(typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@main(title = messages("label.your_address_cannot_be_updated"),
+pageName = Some(messages("label.your_personal_tax_account"))
 ) {
     @back_link()
 
@@ -25,14 +30,13 @@ pageName = Some(Messages("label.your_personal_tax_account"))
         <div class="column-two-thirds">
 
             <header class="page-heading">
-                <h1 class="heading-xlarge">@Messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
+                <h1 class="heading-xlarge">@messages("label.you_cannot_use_this_service_to_update_your_address")</h1>
             </header>
 
+    <p class="lede margin-bottom">@messages("label.this_is_because_you_do_not_live_in_the_uk")</p>
+    <p class="margin-top">@messages("label.if_you_do_live_in_the_uk_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="change your address" href="@controllers.routes.AddressController.showPostcodeLookupForm(typ)">@messages("label.if_you_do_live_in_the_uk_link_text")</a>.</p>
 
-    <p class="lede margin-bottom">@Messages("label.this_is_because_you_do_not_live_in_the_uk")</p>
-    <p class="margin-top">@Messages("label.if_you_do_live_in_the_uk_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="change your address" href="@controllers.routes.AddressController.showPostcodeLookupForm(typ)">@Messages("label.if_you_do_live_in_the_uk_link_text")</a>.</p>
-
-    <p>@Messages("label.if_you_do_not_live_in_the_uk_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window or tab)" href="@pertaxContext.configDecorator.updateAddressShortFormUrl" target="_blank" rel="noopener noreferrer">@Messages("label.if_you_do_not_live_in_the_uk_link_text") @Messages("label.opens_in_a_new_window")</a>.</p>
+    <p>@messages("label.if_you_do_not_live_in_the_uk_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="You cannot use this service to update your address" data-ga-event-label="fill in the ‘Notification of a change in personal details’ form to update your address (opens in a new window or tab)" href="@configDecorator.updateAddressShortFormUrl" target="_blank" rel="noopener noreferrer">@messages("label.if_you_do_not_live_in_the_uk_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
   </div>
 </div>
 
