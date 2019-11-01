@@ -24,15 +24,18 @@
 @main(messages("title.signed_in_wrong_account.h1"), Some(messages("title.signed_in_wrong_account.h1")), backlinkUrl = Some(controllers.routes.HomeController.index().url)) {
  <div class="grid-row">
    <div class="column-two-thirds">
-    <h1 class="govuk-heading-xl">You are not signed in to the right account</h1>
 
-    <div class="heading-secondary"><span class="visuallyhidden">
-     This section is </span>Access your Self Assessment
-    </div>
+    <header class="page-heading">
+     <h1 class="heading-xlarge">
+      You are not signed in to the right account
+     </h1>
+     <p class="heading-secondary"><span class="visuallyhidden">
+      This section is </span>Access your Self Assessment</p>
+    </header>
 
     <p>You used a different account when you first signed-up to view or send your tax returns online. </p>
-    <a href="@controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials" class="button startSa">@messages("global.label.continue_button")</a>
 
+    <a href="@controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials" class="button startSa">@messages("global.label.continue_button")</a>
    </div>
   </div>
 }
