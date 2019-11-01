@@ -29,7 +29,7 @@ object AmbiguousUserFlowDto {
   val form = Form(
     mapping(
       "ambiguousUserFormChoice" -> optional(boolean)
-        .verifying("error.enrolled.to.send.tax.required", _.isDefined)
+        .verifying("error.you_must_select_an_answer", _.isDefined)
         .transform[Boolean](_.getOrElse(false), Some(_)) //getOrElse here will never fall back to default because of isDefined above
     )(AmbiguousUserFlowDto.apply)(AmbiguousUserFlowDto.unapply)
   )
