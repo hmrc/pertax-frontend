@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import models.{SelfAssessmentUser, SelfAssessmentUserType}
 import models.dto.SAWrongCredentialsDto
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent}
@@ -56,14 +57,20 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
     )
   }
 
+  def getSaUtr[A](implicit request: UserRequest[A]): Option[String] =
+    request.saUserType match {
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+      case _                          => None
+    }
+
   def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.doYouKnowUserId(SAWrongCredentialsDto.form))
+    Ok(views.html.selfassessment.doYouKnowUserId(SAWrongCredentialsDto.form, getSaUtr))
   }
 
   def processDoYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
     SAWrongCredentialsDto.form.bindFromRequest.fold(
       formWithErrors => {
-        BadRequest(views.html.selfassessment.doYouKnowUserId(formWithErrors))
+        BadRequest(views.html.selfassessment.doYouKnowUserId(formWithErrors, getSaUtr))
       },
       wrongCredentialsDto => {
         if (wrongCredentialsDto.value) {
