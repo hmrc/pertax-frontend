@@ -33,7 +33,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, TaxYearRetriever}
+import util.{BaseSpec, DateTimeTools, Fixtures, LocalPartialRetriever, TaxYearRetriever}
 
 import scala.concurrent.Future
 
@@ -46,21 +46,26 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   val mockTaxYearRetriever = mock[TaxYearRetriever]
   val mockConfigDecorator = mock[ConfigDecorator]
   val mockAuthJourney = mock[AuthJourney]
+  val mockDateTimeTools = mock[DateTimeTools]
 
   def controller =
     new AmbiguousJourneyController(
       injected[MessagesApi],
       mockTaxYearRetriever,
       mockAuthJourney,
-      injected[EnforceAmbiguousUserAction]
+      injected[EnforceAmbiguousUserAction],
+      mockDateTimeTools
     )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer]) {
       when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
       when(mockConfigDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
       when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
     }
 
-  override def beforeEach: Unit =
-    reset(mockAuthJourney)
+  override def beforeEach: Unit = {
+    reset(mockAuthJourney, mockDateTimeTools)
+
+    when(mockDateTimeTools.showSendTaxReturnByPost).thenReturn(true)
+  }
 
   "Calling AmbiguousJourneyController.processFileReturnOnlineChoice" should {
 
