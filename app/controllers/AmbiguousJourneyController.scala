@@ -35,7 +35,8 @@ class AmbiguousJourneyController @Inject()(
   val messagesApi: MessagesApi,
   val taxYearRetriever: TaxYearRetriever,
   authJourney: AuthJourney,
-  enforceAmbiguousUserAction: EnforceAmbiguousUserAction)(
+  enforceAmbiguousUserAction: EnforceAmbiguousUserAction,
+  dateTimeTools: DateTimeTools)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer)
@@ -191,7 +192,7 @@ class AmbiguousJourneyController @Inject()(
         case AmbiguousFilerSelfAssessmentUser(saUtr) =>
           val currentTaxYear = taxYearRetriever.currentYear
           val deadlineYear = currentTaxYear + 1
-          val showSendTaxReturnByPost = DateTimeTools.showSendTaxReturnByPost
+          val showSendTaxReturnByPost = dateTimeTools.showSendTaxReturnByPost
 
           page match {
             case "need-to-enrol" =>
