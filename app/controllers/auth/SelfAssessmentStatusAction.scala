@@ -58,11 +58,12 @@ class SelfAssessmentStatusAction @Inject()(
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>
           Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
-        case None =>
+        case None => {
           getSaUtrFromCitizenDetailsService(nino).flatMap {
             case Some(saUtr) => enrolledOnDifferentCredentials(saUtr)
             case None        => Future.successful(NonFilerSelfAssessmentUser)
           }
+        }
       }
     }
 
