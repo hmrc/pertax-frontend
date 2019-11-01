@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import models.dto.AmbiguousUserFlowDto
+import models.dto.SAWrongCredentialsDto
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -38,16 +38,16 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
   }
 
   def doYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.doYouKnowOtherCredentials(AmbiguousUserFlowDto.form))
+    Ok(views.html.selfassessment.doYouKnowOtherCredentials(SAWrongCredentialsDto.form))
   }
 
   def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
-    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+    SAWrongCredentialsDto.form.bindFromRequest.fold(
       formWithErrors => {
         BadRequest(views.html.selfassessment.doYouKnowOtherCredentials(formWithErrors))
       },
-      ambiguousFiledOnlineChoiceDto => {
-        if (ambiguousFiledOnlineChoiceDto.value) {
+      wrongCredentialsDto => {
+        if (wrongCredentialsDto.value) {
           Redirect(configDecorator.signinGGUrl)
         } else {
           Redirect(routes.SaWrongCredentialsController.doYouKnowUserId())
@@ -57,16 +57,16 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
   }
 
   def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.doYouKnowUserId(AmbiguousUserFlowDto.form))
+    Ok(views.html.selfassessment.doYouKnowUserId(SAWrongCredentialsDto.form))
   }
 
   def processDoYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    AmbiguousUserFlowDto.form.bindFromRequest.fold(
+    SAWrongCredentialsDto.form.bindFromRequest.fold(
       formWithErrors => {
         BadRequest(views.html.selfassessment.doYouKnowUserId(formWithErrors))
       },
-      ambiguousFiledOnlineChoiceDto => {
-        if (ambiguousFiledOnlineChoiceDto.value) {
+      wrongCredentialsDto => {
+        if (wrongCredentialsDto.value) {
           Redirect(configDecorator.lostUserIdWithSa)
         } else {
           Redirect(configDecorator.selfAssessmentContactUrl)

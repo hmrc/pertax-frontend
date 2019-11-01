@@ -89,7 +89,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
             UserRequestFixture
               .buildUserRequest(
                 request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
+                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
                   .asInstanceOf[Request[A]]
               )
               .asInstanceOf[UserRequest[A]]
@@ -108,7 +108,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
             UserRequestFixture
               .buildUserRequest(
                 request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
+                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
                   .asInstanceOf[Request[A]]
               )
               .asInstanceOf[UserRequest[A]]
@@ -147,7 +147,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
             UserRequestFixture
               .buildUserRequest(
                 request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
+                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
                   .asInstanceOf[Request[A]]
               )
               .asInstanceOf[UserRequest[A]]
@@ -166,7 +166,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
             UserRequestFixture
               .buildUserRequest(
                 request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
+                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
                   .asInstanceOf[Request[A]]
               )
               .asInstanceOf[UserRequest[A]]
