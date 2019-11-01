@@ -29,17 +29,16 @@
 
     <div class="grid-row">
         <div class="column-two-thirds">
-            <h1 class="govuk-heading-xl">@messages("title.do_you_know_user_id.h1")</h1>
 
-            <div class="heading-secondary">
-                <span class="visuallyhidden">
-                    This section is
-                </span>
-                Access your Self Assessment
-            </div>
+            <header class="page-heading">
+                <h1 class="heading-xlarge">
+                @messages("title.do_you_know_user_id.h1")
+                </h1>
+                <p class="heading-secondary"><span class="visuallyhidden">
+                    This section is </span>Access your Self Assessment</p>
+            </header>
 
             @errors(wrongCredentialsUserForm)
-
             @form(action = controllers.routes.SaWrongCredentialsController.processDoYouKnowUserId){
                 <div class="form-group">
                 @input_radio_group(
@@ -58,7 +57,10 @@
                     <button type="submit" class="ga-track-error" data-ga-event-action=@messages("title.do_you_know_user_id.h1") data-radio-button-name="wrongCredentialsFormChoice">@messages("global.label.continue_button")</button>
                 </div>
             }
+
         </div>
+
+
     </div>
 
 }
