@@ -20,17 +20,17 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
-case class AmbiguousUserFlowDto(value: Boolean)
+final case class SAWrongCredentialsDto(value: Boolean)
 
-object AmbiguousUserFlowDto {
+object SAWrongCredentialsDto {
 
-  implicit val formats = Json.format[AmbiguousUserFlowDto]
+  implicit val formats = Json.format[SAWrongCredentialsDto]
 
   val form = Form(
     mapping(
-      "ambiguousUserFormChoice" -> optional(boolean)
-        .verifying("error.enrolled.to.send.tax.required", _.isDefined)
-        .transform[Boolean](_.getOrElse(false), Some(_)) //getOrElse here will never fall back to default because of isDefined above
-    )(AmbiguousUserFlowDto.apply)(AmbiguousUserFlowDto.unapply)
+      "wrongCredentialsFormChoice" -> optional(boolean)
+        .verifying("error.you_must_select_an_answer", _.isDefined)
+        .transform[Boolean](_.getOrElse(false), Some(_))
+    )(SAWrongCredentialsDto.apply)(SAWrongCredentialsDto.unapply)
   )
 }

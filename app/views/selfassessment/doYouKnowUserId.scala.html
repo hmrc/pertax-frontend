@@ -21,7 +21,7 @@
 @import tags._
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@(ambiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(messages("title.do_you_know_user_id.h1"),
     Some(messages("title.do_you_know_user_id.h1")),
@@ -38,24 +38,24 @@
                 Access your Self Assessment
             </div>
 
-            @errors(ambiguousUserForm)
+            @errors(wrongCredentialsUserForm)
 
             @form(action = controllers.routes.SaWrongCredentialsController.processDoYouKnowUserId){
                 <div class="form-group">
                 @input_radio_group(
-                    ambiguousUserForm("ambiguousUserFormChoice"),
+                    wrongCredentialsUserForm("wrongCredentialsFormChoice"),
                     Seq(
                         "true" -> messages("label.yes"),
                         "false" -> messages("label.no")
                     ),
                     '_labelClass -> "block-label inputLabelBeforeError",
-                    '_error -> ambiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
+                    '_error -> wrongCredentialsUserForm("wrongCredentialsFormChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
                     '_legend -> messages("label.content_needed"),
                     '_legendClass -> "visuallyhidden"
                 )
                 </div>
                 <div class="form-group inline">
-                    <button type="submit" class="ga-track-error" data-ga-event-action=@messages("title.do_you_know_user_id.h1") data-radio-button-name="ambiguousUserFormChoice">@messages("global.label.continue_button")</button>
+                    <button type="submit" class="ga-track-error" data-ga-event-action=@messages("title.do_you_know_user_id.h1") data-radio-button-name="wrongCredentialsFormChoice">@messages("global.label.continue_button")</button>
                 </div>
             }
         </div>
