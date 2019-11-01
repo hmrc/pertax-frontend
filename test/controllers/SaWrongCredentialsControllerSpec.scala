@@ -81,6 +81,15 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
+  "doYouKnowUserId" should {
+    "render the do-you-know-your-user-id page" in {
+      val result = controller.doYouKnowOtherCredentials(FakeRequest())
+      contentAsString(result) should include(messagesApi("title.do_you_know_user_id.h1"))
+      contentAsString(result) should include("1111111111")
+      status(result) shouldBe OK
+    }
+  }
+
   "processDoYouKnowOtherCredentials" should {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
       when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {

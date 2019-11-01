@@ -21,7 +21,7 @@
 @import tags._
 @import uk.gov.hmrc.play.views.html.helpers._
 
-@(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto], saUtr: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(messages("title.do_you_know_user_id.h1"),
     Some(messages("title.do_you_know_user_id.h1")),
@@ -38,7 +38,14 @@
                     This section is </span>Access your Self Assessment</p>
             </header>
 
+            @saUtr.map { utr =>
+                <p>
+                    You will need your Unique Taxpayer Reference. It is @utr.
+                </p>
+            }
+
             @errors(wrongCredentialsUserForm)
+
             @form(action = controllers.routes.SaWrongCredentialsController.processDoYouKnowUserId){
                 <div class="form-group">
                 @input_radio_group(
