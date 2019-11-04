@@ -30,7 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
@@ -116,7 +116,35 @@ class AuthActionImpl @Inject()(
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession => Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession
+    case _: NoActiveSession => {
+
+      def postSignInRedirectUrl(implicit request: Request[_]) =
+        configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
+          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
+          .url
+
+      request.session.get(SessionKeys.authProvider) match {
+        case Some(configDecorator.authProviderVerify) => {
+          lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
+          Redirect(idaSignIn).withSession(
+            "loginOrigin"    -> configDecorator.defaultOrigin.origin,
+            "login_redirect" -> postSignInRedirectUrl(request)
+          )
+        }
+        case Some(configDecorator.authProviderGG) => {
+          lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+          Redirect(
+            ggSignIn,
+            Map(
+              "continue"    -> Seq(postSignInRedirectUrl(request)),
+              "accountType" -> Seq("individual"),
+              "origin"      -> Seq(configDecorator.defaultOrigin.origin)
+            )
+          )
+        }
+        case _ => Redirect(configDecorator.authProviderChoice)
+      }
+    }
 
     case _: InsufficientConfidenceLevel =>
       Redirect(
