@@ -509,4 +509,6 @@ title.do_you_know_other_credentials.h1=Ydych chi’n gwybod ID defnyddiwr a chyf
 title.do_you_know_user_id.h1=Ydych chi’n gwybod yr ID defnyddiwr?
 title.sign_in_again.h1=Mae angen i chi fewngofnodi yn ôl i Borth y Llywodraeth
 title.reset_your_password.h1=Mae angen i chi ailosod eich cyfrinair
+title.find_your_user_id.h1=Mae angen ichi ddod o hyd i’ch ID defnyddiwr
+
 

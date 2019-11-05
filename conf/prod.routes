@@ -27,7 +27,8 @@ POST        /personal-account/self-assessment/do-you-know-other-credentials     
 GET         /personal-account/self-assessment/do-you-know-user-id                      @controllers.SaWrongCredentialsController.doYouKnowUserId
 POST        /personal-account/self-assessment/do-you-know-user-id                      @controllers.SaWrongCredentialsController.processDoYouKnowUserId
 GET         /personal-account/self-assessment/sign-in-again                            @controllers.SaWrongCredentialsController.signInAgain
-GET         /personal-account/self-assessment/need-to-reset-password                            @controllers.SaWrongCredentialsController.needToResetPassword
+GET         /personal-account/self-assessment/need-to-reset-password                   @controllers.SaWrongCredentialsController.needToResetPassword
+GET         /personal-account/self-assessment/find-your-user-id                        @controllers.SaWrongCredentialsController.findYourUserId
 
 GET         /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
 POST        /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice

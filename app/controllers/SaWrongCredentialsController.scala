@@ -50,14 +50,18 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
     Ok(views.html.selfassessment.doYouKnowUserId(SAWrongCredentialsDto.form))
   }
 
-  def needToResetPassword: Action[AnyContent] = authenticate { implicit request =>
-    val saUtr =
-      request.saUserType match {
-        case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
-        case _                          => None
-      }
+  private def getSaUtr(implicit request: UserRequest[AnyContent]) =
+    request.saUserType match {
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+      case _                          => None
+    }
 
-    Ok(views.html.selfassessment.needToResetPassword(saUtr))
+  def needToResetPassword: Action[AnyContent] = authenticate { implicit request =>
+    Ok(views.html.selfassessment.needToResetPassword(getSaUtr))
+  }
+
+  def findYourUserId: Action[AnyContent] = authenticate { implicit request =>
+    Ok(views.html.selfassessment.findYourUserId(getSaUtr))
   }
 
   def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
@@ -84,7 +88,7 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
         if (wrongCredentialsDto.value) {
           Redirect(routes.SaWrongCredentialsController.needToResetPassword())
         } else {
-          Redirect(configDecorator.selfAssessmentContactUrl)
+          Redirect(routes.SaWrongCredentialsController.findYourUserId())
         }
       }
     )

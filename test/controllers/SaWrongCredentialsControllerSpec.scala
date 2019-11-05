@@ -107,6 +107,16 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
+  "findYourUserId" should {
+    "render the find-your-user-id page" in {
+      val result = controller.findYourUserId(FakeRequest())
+      val content = contentAsString(result)
+      content should include("1111111111")
+      content should include(messagesApi("title.find_your_user_id.h1"))
+      status(result) shouldBe OK
+    }
+  }
+
   "processDoYouKnowOtherCredentials" should {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
       when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
@@ -202,7 +212,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.processDoYouKnowUserId(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(config.selfAssessmentContactUrl)
+      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.findYourUserId().url)
     }
 
     "return a bad request when supplied no value" in {
