@@ -21,7 +21,7 @@
 
 @(saUtr: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("title.find_your_user_id.h1"), Some(messages("title.find_your_user_id.h1")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
+@main(messages("title.find_your_user_id.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
     <div class="grid-row">
         <div class="column-two-thirds">
 
@@ -30,17 +30,17 @@
                     @messages("title.find_your_user_id.h1")
                 </h1>
                 <p class="heading-secondary"><span class="visuallyhidden">
-                    This section is </span>Access your Self Assessment</p>
+                    This section is </span>@messages("label.access_your_self_assessment")</p>
             </header>
 
             <p>
-                You will need your Unique Taxpayer Reference.
+                @messages("labels.need_utr")
             </p>
 
             @saUtr.map { utr =>
                 <div class="form-group panel">
                     <p>
-                        It is @utr.
+                        @messages("labels.it_is", utr)
                     </p>
                 </div>
             }
