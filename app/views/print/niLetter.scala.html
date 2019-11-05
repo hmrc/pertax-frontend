@@ -21,6 +21,8 @@
 
 @(personDetails: models.PersonDetails, dateString: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
+@welshPostcode = @{"LL49 9BF"}
+
 <div class="print-document">
     <div class="grid-row print-header">
         <div class="column-one-third">
@@ -60,7 +62,7 @@
 
                     @if(usingWelsh) {
                         <br>
-                        @messages("label.nic_eo_hmrc_address.line4")
+                        @welshPostcode
                     }
 
                 </address>
