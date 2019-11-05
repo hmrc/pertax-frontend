@@ -42,6 +42,24 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
     Ok(views.html.selfassessment.doYouKnowOtherCredentials(SAWrongCredentialsDto.form))
   }
 
+  def signInAgain: Action[AnyContent] = authenticate { implicit request =>
+    Ok(views.html.selfassessment.signInAgain())
+  }
+
+  def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
+    Ok(views.html.selfassessment.doYouKnowUserId(SAWrongCredentialsDto.form))
+  }
+
+  def needToResetPassword: Action[AnyContent] = authenticate { implicit request =>
+    val saUtr =
+      request.saUserType match {
+        case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+        case _                          => None
+      }
+
+    Ok(views.html.selfassessment.needToResetPassword(saUtr))
+  }
+
   def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
     SAWrongCredentialsDto.form.bindFromRequest.fold(
       formWithErrors => {
@@ -49,7 +67,7 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
       },
       wrongCredentialsDto => {
         if (wrongCredentialsDto.value) {
-          Redirect(configDecorator.signinGGUrl)
+          Redirect(routes.SaWrongCredentialsController.signInAgain())
         } else {
           Redirect(routes.SaWrongCredentialsController.doYouKnowUserId())
         }
@@ -57,29 +75,18 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
     )
   }
 
-  def getSaUtr[A](implicit request: UserRequest[A]): Option[String] =
-    request.saUserType match {
-      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
-      case _                          => None
-    }
-
-  def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.doYouKnowUserId(SAWrongCredentialsDto.form, getSaUtr))
-  }
-
   def processDoYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
     SAWrongCredentialsDto.form.bindFromRequest.fold(
       formWithErrors => {
-        BadRequest(views.html.selfassessment.doYouKnowUserId(formWithErrors, getSaUtr))
+        BadRequest(views.html.selfassessment.doYouKnowUserId(formWithErrors))
       },
       wrongCredentialsDto => {
         if (wrongCredentialsDto.value) {
-          Redirect(configDecorator.lostUserIdWithSa)
+          Redirect(routes.SaWrongCredentialsController.needToResetPassword())
         } else {
           Redirect(configDecorator.selfAssessmentContactUrl)
         }
       }
     )
   }
-
 }

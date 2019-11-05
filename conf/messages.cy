@@ -503,3 +503,10 @@ label.child.trust.fund=Cronfa Ymddiriedolaeth Plant
 label.child.trust.fund.details=Pan fyddwch yn cyrraedd 16 oed, cymerwch reolaeth o’ch Cronfa Ymddiriedolaeth Plant. Gofynnwch i’ch rhieni neu’ch gofalwr - am ragor o wybodaeth, ewch i www.gov.uk/child-trust-funds
 label.hmrc_date=CThEM {0}
 label.page=Tudalen
+
+title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
+title.do_you_know_other_credentials.h1=Ydych chi’n gwybod ID defnyddiwr a chyfrinair y cyfrif rydych chi’n ei ddefnyddio ar gyfer Hunanasesu?
+title.do_you_know_user_id.h1=Ydych chi’n gwybod yr ID defnyddiwr?
+title.sign_in_again.h1=Mae angen i chi fewngofnodi yn ôl i Borth y Llywodraeth
+title.reset_your_password.h1=Mae angen i chi ailosod eich cyfrinair
+
