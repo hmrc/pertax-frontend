@@ -42,10 +42,12 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, imp
 
   import CorrespondenceAddressLockRepository._
 
-  def insert(nino: String): Future[Boolean] =
-    insertCore(nino, getNextMidnight).map(_.ok) recover {
+  def insert(nino: String): Future[Boolean] = {
+    val date = getNextMidnight(OffsetDateTime.now())
+    insertCore(nino, date).map(_.ok) recover {
       case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
     }
+  }
 
   def get(nino: String): Future[Option[AddressJourneyTTLModel]] =
     getCore(
@@ -112,8 +114,6 @@ object CorrespondenceAddressLockRepository {
   def toBSONDateTime(dateTime: OffsetDateTime): BSONDateTime =
     BSONDateTime(dateTime.toInstant.toEpochMilli)
 
-  def getNextMidnight: OffsetDateTime = getNextMidnight(OffsetDateTime.now())
-
   private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
     utcNextDay.toLocalDate.atStartOfDay.atZone(UK_TIME_ZONE).toOffsetDateTime
@@ -123,7 +123,7 @@ object CorrespondenceAddressLockRepository {
   // So the lock needs to be safe for both scenarios during BST.
   // A safe guard is put in place so that if the user comes in between 11 UTC+0 and midnight UTC+0 we would lock them till
   // midnight UTC+0 of the next day in case NPS resets at midnight UTC+1 instead of midnight UTC+0.
-  private[repositories] def getNextMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
+  def getNextMidnight(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val ukDateTime = offsetDateTime.atZoneSameInstant(UK_TIME_ZONE)
     val utcMidnightInUkDateTime = nextUTCMidnightInUKDateTime(offsetDateTime)
     ukDateTime.getOffset match {

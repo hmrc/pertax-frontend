@@ -92,7 +92,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
     }
   }
 
-  "Calling CitizenDetailsService.personDetails" should {
+  "Calling CitizenDetailsService.fakePersonDetails" should {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-person-details"

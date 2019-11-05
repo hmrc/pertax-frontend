@@ -41,7 +41,8 @@ import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
-import util.{BaseSpec, Fixtures}
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, UserRequestFixture}
 
 import scala.concurrent.Future
 
@@ -158,20 +159,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
@@ -188,19 +177,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
             ))
       })
 
@@ -218,19 +197,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              request = request
             ))
       })
 
@@ -246,20 +214,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getPaperlessPreferenceResponse =
@@ -275,20 +231,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
 
@@ -304,20 +248,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
@@ -336,19 +268,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              request = request
             ))
       })
 
@@ -365,20 +286,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
@@ -392,20 +301,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
@@ -422,20 +319,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       when(mockTaiService.taxComponents(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
@@ -451,21 +336,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+          block(buildUserRequest(request = request))
       })
 
       when(mockConfigDecorator.taxcalcEnabled) thenReturn false
@@ -481,20 +352,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       when(mockTaxCalculationService.getTaxYearReconciliations(any())(any())) thenReturn Future.successful(Nil)
@@ -510,20 +369,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))

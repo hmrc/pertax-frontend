@@ -25,7 +25,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -33,7 +33,8 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
-import util.{BaseSpec, DateTimeTools, Fixtures, LocalPartialRetriever, TaxYearRetriever}
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, DateTimeTools, LocalPartialRetriever, TaxYearRetriever}
 
 import scala.concurrent.Future
 
@@ -67,25 +68,17 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     when(mockDateTimeTools.showSendTaxReturnByPost).thenReturn(true)
   }
 
+  val ambiguousUser = NotEnrolledSelfAssessmentUser(SaUtr("1111111111"))
+
   "Calling AmbiguousJourneyController.processFileReturnOnlineChoice" should {
 
     "redirect to 'Have you de-enrolled from self assessment' page when supplied with value Yes (true) and not on simplified journey" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
             ))
@@ -104,19 +97,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -134,19 +117,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -164,19 +137,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST").asInstanceOf[Request[A]]
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST").asInstanceOf[Request[A]]
             ))
       })
 
@@ -196,19 +159,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
             ))
@@ -228,19 +181,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -261,19 +204,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST").asInstanceOf[Request[A]]
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST").asInstanceOf[Request[A]]
             ))
       })
 
@@ -290,19 +223,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
             ))
@@ -321,19 +244,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -352,19 +265,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -383,19 +286,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .asInstanceOf[Request[A]]
             ))
       })
@@ -415,19 +308,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
             ))
@@ -446,19 +329,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -477,19 +350,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .asInstanceOf[Request[A]]
             ))
       })
@@ -539,19 +402,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
             ))
@@ -570,19 +423,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -601,19 +444,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .asInstanceOf[Request[A]]
             ))
       })
@@ -633,19 +466,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "true")
                 .asInstanceOf[Request[A]]
             ))
@@ -664,19 +487,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .withFormUrlEncodedBody("ambiguousUserFormChoice" -> "false")
                 .asInstanceOf[Request[A]]
             ))
@@ -695,19 +508,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              buildFakeRequestWithAuth("POST")
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = buildFakeRequestWithAuth("POST")
                 .asInstanceOf[Request[A]]
             ))
       })
@@ -727,19 +530,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -753,24 +546,14 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   }
 
   "Calling AmbiguousJourneyController.filedReturnOnlineChoice" should {
-    "return 200 when self assessment user type is NotEnrolledSelfAssessmentUser" in {
+    "return 200 when self assessment user type is AmbiguousFilerSelfAssessmentUser" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -788,19 +571,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -818,19 +591,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -848,19 +611,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -877,19 +630,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -902,24 +645,14 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
   }
 
   "Calling AmbiguousJourneyController.handleAmbiguousJourneyLandingPages" should {
-    "return 200 when supplied with value of 'need-to-enrol' and SA user type is NotEnrolledSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'need-to-enrol' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -936,19 +669,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -972,19 +695,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -1004,24 +717,14 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
           .equals("You can send your tax return by post before 31 October 2025."))
     }
 
-    "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is NotEnrolledSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'need-to-enrol-again' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -1039,19 +742,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -1076,19 +769,9 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -1108,23 +791,13 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
           .equals("You can send your tax return by post before 31 October 2025."))
     }
 
-    "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is NotEnrolledSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'need-to-use-created-creds' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -1137,23 +810,13 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 200
     }
 
-    "return 200 when supplied with value of 'deadline' and SA user type is NotEnrolledSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'deadline' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -1166,23 +829,13 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       status(r) shouldBe 200
     }
 
-    "return 200 when supplied with value of 'letter-in-post' and SA user type is NotEnrolledSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'letter-in-post' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
@@ -1195,23 +848,13 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe 200
     }
 
-    "return 200 when supplied with value of 'pin-expired' and SA user type is NotEnrolledSelfAssessmentUser" in {
+    "return 200 when supplied with value of 'pin-expired' and SA user type is AmbiguousFilerSelfAssessmentUser" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = ambiguousUser,
+              request = request
             ))
       })
 
