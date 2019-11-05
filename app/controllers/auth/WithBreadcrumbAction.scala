@@ -38,6 +38,7 @@ class WithBreadcrumbAction {
               request.confidenceLevel,
               request.personDetails,
               request.trustedHelper,
+              request.profile,
               request.unreadMessageCount,
               request.activeTab,
               Some(breadcrumb),

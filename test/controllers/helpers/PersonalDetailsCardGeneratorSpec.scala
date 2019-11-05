@@ -23,6 +23,9 @@ import org.joda.time.LocalDate
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.personaldetails._
 
@@ -92,7 +95,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val mainHomeStartDate = None
       override lazy val hasCorrespondenceAddressLock = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = None, request = FakeRequest())
 
       cardBody shouldBe None
 
@@ -105,7 +109,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(
         mainAddress(
@@ -125,7 +130,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(
         mainAddress(
@@ -145,7 +151,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = true
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(
         mainAddress(
@@ -165,7 +172,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(
         mainAddress(
@@ -185,7 +193,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val mainHomeStartDate = Some("15 March 2015")
       override lazy val hasCorrespondenceAddressLock = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(
         mainAddress(
@@ -281,7 +290,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = None, request = FakeRequest())
 
       cardBody shouldBe None
     }
@@ -293,7 +303,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe None
     }
@@ -305,7 +316,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(
         postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled))
@@ -319,7 +331,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = true
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(
         postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, closePostalAddressEnabled))
@@ -333,7 +346,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override lazy val userHasWelshLanguageUnitAddress = false
       override lazy val closePostalAddressEnabled = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(postalAddress(buildPersonDetails, canUpdatePostalAddress, excludedCountries, false))
 
@@ -346,7 +360,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       override val userHasWelshLanguageUnitAddress = true
       override lazy val closePostalAddressEnabled = false
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe None
     }
@@ -362,7 +377,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
 
     "always return the same markup" in new LocalSetup {
 
-      implicit val userRequest = UserRequestFixture.buildUserRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
       cardBody shouldBe Some(nationalInsurance(userRequest.nino.get))
     }
@@ -397,13 +412,15 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
     }
 
     "always return the correct markup when user has a name" in new LocalSetup {
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = Some(buildPersonDetails))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody shouldBe Some(changeName())
     }
 
     "always return None when user does not have a name available" in new LocalSetup {
-      implicit val userRequest = UserRequestFixture.buildUserRequest(personDetails = None, userName = None)
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
 
       cardBody shouldBe None
     }

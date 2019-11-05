@@ -31,12 +31,11 @@ import play.api.inject.bind
 import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.{BaseSpec, Fixtures}
+import util.UserRequestFixture.buildUserRequest
+import util.BaseSpec
 
 import scala.concurrent.Future
 
@@ -67,19 +66,8 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
       block(
-        UserRequest(
-          Some(Fixtures.fakeNino),
-          None,
-          None,
-          ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-          Credentials("", "GovernmentGateway"),
-          ConfidenceLevel.L200,
-          None,
-          None,
-          None,
-          None,
-          None,
-          request
+        buildUserRequest(
+          request = request
         ))
   })
 
