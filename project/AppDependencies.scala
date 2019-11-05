@@ -12,12 +12,12 @@ object AppDependencies {
     "uk.gov.hmrc"         %% "url-builder"              % "3.1.0",
     "uk.gov.hmrc"         %% "http-caching-client"      % "8.5.0-play-25",
     "uk.gov.hmrc"         %% "play-language"            % "4.0.0",
-    "uk.gov.hmrc"         %% "local-template-renderer"  % "2.7.0-play-25",
+    "uk.gov.hmrc"         %% "local-template-renderer"  % "2.8.0-play-25",
     "uk.gov.hmrc"         %% "play-ui"                  % "7.33.0-play-25",
     "uk.gov.hmrc"         %% "tax-year"                 % "0.6.0",
     "org.reactivemongo"   %% "play2-reactivemongo"      % "0.16.2-play25",
     "uk.gov.hmrc"         %% "domain"                   % "5.6.0-play-25",
-    "uk.gov.hmrc"         %% "auth-client"              %  "2.30.0-play-25"
+    "uk.gov.hmrc"         %% "auth-client"              % "2.30.0-play-25"
   )
 
   val test = Seq(
