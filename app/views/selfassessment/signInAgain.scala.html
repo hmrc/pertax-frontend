@@ -30,10 +30,10 @@
                     @messages("title.sign_in_again.h1")
                 </h1>
                 <p class="heading-secondary"><span class="visuallyhidden">
-                    This section is </span>Access your Self Assessment</p>
+                    This section is </span>@messages("label.access_your_self_assessment")</p>
             </header>
 
-            <p>You will be asked to sign in again with the correct user ID and password.</p>
+            <p>@messages("label.sign_in_again")</p>
 
             <a href="@configDecorator.signinGGUrl" class="button" id="continue">@messages("global.label.continue_button")</a>
         </div>
