@@ -168,7 +168,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     }
 
-    "return 200 when called with a GG user that is SA or has an SA enrollment in another account." in new LocalSetup {
+    "return 303 when called with a GG user that is SA or has an SA enrollment in another account." in new LocalSetup {
 
       override lazy val getCitizenDetailsResponse = true
 
@@ -192,8 +192,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       })
 
       val result = controller.handleSelfAssessment()(FakeRequest())
-      status(result) shouldBe OK
-
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
   }
 

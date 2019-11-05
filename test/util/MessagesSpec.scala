@@ -62,8 +62,9 @@ class MessagesSpec extends UnitSpec with WithFakeApplication {
       //   - Messages which just can't be different from English
       //     E.g. addresses, acronyms, numbers, etc.
       //   - Content which is pending translation to Welsh
-      f"${same.size.toDouble / defaultMessages.size.toDouble}%.2f".toDouble <= percentageOfSameMessages shouldBe true
+      same.size.toDouble / defaultMessages.size <= percentageOfSameMessages shouldBe true
     }
+
     "have a non-empty message for each key" in {
       assertNonEmptyNonTemporaryValues("Default", defaultMessages)
       assertNonEmptyNonTemporaryValues("Welsh", welshMessages)

@@ -83,9 +83,26 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
   "doYouKnowUserId" should {
     "render the do-you-know-your-user-id page" in {
-      val result = controller.doYouKnowOtherCredentials(FakeRequest())
+      val result = controller.doYouKnowUserId(FakeRequest())
       contentAsString(result) should include(messagesApi("title.do_you_know_user_id.h1"))
-      contentAsString(result) should include("1111111111")
+      status(result) shouldBe OK
+    }
+  }
+
+  "signInAgain" should {
+    "render the sign-in-again page" in {
+      val result = controller.signInAgain(FakeRequest())
+      contentAsString(result) should include(messagesApi("title.sign_in_again.h1"))
+      status(result) shouldBe OK
+    }
+  }
+
+  "needToResetPassword" should {
+    "render the need-to-reset-password page" in {
+      val result = controller.needToResetPassword(FakeRequest())
+      val content = contentAsString(result)
+      content should include("1111111111")
+      content should include(messagesApi("title.reset_your_password.h1"))
       status(result) shouldBe OK
     }
   }
@@ -107,7 +124,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = controller.processDoYouKnowOtherCredentials(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(config.signinGGUrl)
+      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.signInAgain().url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
@@ -165,7 +182,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = controller.processDoYouKnowUserId(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(config.lostUserIdWithSa)
+      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.needToResetPassword().url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {

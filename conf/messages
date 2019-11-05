@@ -505,3 +505,7 @@ label.manage_your_paperless_settings=Manage your paperless settings
 title.signed_in_wrong_account.h1=You are not signed in to the right account
 title.do_you_know_other_credentials.h1=Do you know the user ID and password for the account you use for Self Assessment?
 title.do_you_know_user_id.h1=Do you know the user ID?
+title.sign_in_again.h1=You need to sign back in to Government Gateway
+title.reset_your_password.h1=You need to reset your password
+
+
