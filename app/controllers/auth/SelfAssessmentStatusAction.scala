@@ -46,7 +46,7 @@ class SelfAssessmentStatusAction @Inject()(
         if (x.nonEmpty) {
           WrongCredentialsSelfAssessmentUser(saUtr)
         } else {
-          NonFilerSelfAssessmentUser
+          NotEnrolledSelfAssessmentUser(saUtr)
       })
 
   private def getSelfAssessmentUserType[A](

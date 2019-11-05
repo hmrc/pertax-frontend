@@ -195,6 +195,34 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       status(result) shouldBe SEE_OTHER
       redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
+
+    "return 200 when called with a GG user that is SA but has not enrolled." in new LocalSetup {
+
+      override lazy val getCitizenDetailsResponse = true
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            UserRequest(
+              Some(Fixtures.fakeNino),
+              None,
+              None,
+              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
+              Credentials("", "GovernmentGateway"),
+              ConfidenceLevel.L200,
+              None,
+              None,
+              None,
+              None,
+              None,
+              request
+            ))
+      })
+
+      val result = controller.handleSelfAssessment()(FakeRequest())
+      status(result) shouldBe OK
+
+    }
   }
 
   "Calling ApplicationController.showUpliftJourneyOutcome" should {
