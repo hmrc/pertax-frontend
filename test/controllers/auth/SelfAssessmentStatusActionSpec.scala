@@ -41,6 +41,8 @@ import scala.concurrent.Future
 class SelfAssessmentStatusActionSpec
     extends FreeSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
 
+  val saUtr = SaUtr("1111111111")
+
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   val enrolmentsConnector = mock[EnrolmentsConnector]
 
@@ -81,7 +83,7 @@ class SelfAssessmentStatusActionSpec
       )
 
       val result = harness()(request)
-      contentAsString(result) must include("ActivatedOnlineFilerSelfAssessmentUser")
+      contentAsString(result) must include(s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
       verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
     }
   }
@@ -99,7 +101,7 @@ class SelfAssessmentStatusActionSpec
       )
 
       val result = harness()(request)
-      contentAsString(result) must include("NotYetActivatedOnlineFilerSelfAssessmentUser")
+      contentAsString(result) must include(s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
       verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
     }
   }
@@ -127,12 +129,12 @@ class SelfAssessmentStatusActionSpec
             .thenReturn(Future.successful(Seq("some cred id")))
 
           val result = harness()(request)
-          contentAsString(result) must include("WrongCredentialsSelfAssessmentUser")
+          contentAsString(result) must include(s"WrongCredentialsSelfAssessmentUser(${saUtr.utr})")
         }
       }
 
       "and they have no SA enrolment" - {
-        "return NonFilerSelfAssessmentUser" in {
+        "return NotEnrolledSelfAssessmentUser" in {
           implicit val request: AuthenticatedRequest[AnyContent] =
             AuthenticatedRequest(
               Some(Nino("AB123456C")),
@@ -144,15 +146,13 @@ class SelfAssessmentStatusActionSpec
               None,
               FakeRequest())
 
-          val saUtr = SaUtr("1111111111")
-
           when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
             .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
           when(enrolmentsConnector.getUserIdsWithEnrolments(meq(saUtr.utr))(any(), any()))
             .thenReturn(Future.successful(Seq.empty))
 
           val result = harness()(request)
-          contentAsString(result) must include("NonFilerSelfAssessmentUser")
+          contentAsString(result) must include(s"NotEnrolledSelfAssessmentUser(${saUtr.utr})")
         }
       }
     }
@@ -196,7 +196,5 @@ class SelfAssessmentStatusActionSpec
         verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
       }
     }
-
   }
-
 }

@@ -17,7 +17,7 @@
 package controllers.auth
 
 import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
+import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser}
 import org.scalatest.{FreeSpec, MustMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -60,7 +60,7 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
             None,
             None,
             None,
-            WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
+            NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,

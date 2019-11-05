@@ -222,6 +222,29 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
+    "return correct markup when called with NotEnrolledSelfAssessmentUser" in {
+      val saUserType = NotEnrolledSelfAssessmentUser(SaUtr("1111111111"))
+
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
+        saUserType,
+        Credentials("", "GovernmentGateway"),
+        ConfidenceLevel.L200,
+        None,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+
+      cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
+    }
+
     "return nothing when called with NonFilerSelfAssessmentUser" in {
       val saUserType = NonFilerSelfAssessmentUser
 

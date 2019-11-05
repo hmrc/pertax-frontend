@@ -123,8 +123,10 @@ class ApplicationController @Inject()(
           request.saUserType match {
             case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
               Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-            case wrongCredentialsUser: WrongCredentialsSelfAssessmentUser =>
+            case WrongCredentialsSelfAssessmentUser(_) =>
               Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
+            case NotEnrolledSelfAssessmentUser(saUtr) =>
+              Ok(views.html.selfAssessmentNotShown(saUtr))
             case _ => Redirect(routes.HomeController.index())
           }
         } else {
@@ -146,6 +148,8 @@ class ApplicationController @Inject()(
         case wrongCredentialsUser: WrongCredentialsSelfAssessmentUser =>
           handleIvExemptAuditing("Ambiguous SA filer")
           Ok(views.html.selfAssessmentNotShown(wrongCredentialsUser.saUtr))
+        case NotEnrolledSelfAssessmentUser(saUtr) =>
+          Ok(views.html.selfAssessmentNotShown(saUtr))
         case NonFilerSelfAssessmentUser =>
           Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl))
       }
