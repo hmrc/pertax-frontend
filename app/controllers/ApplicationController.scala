@@ -146,9 +146,10 @@ class ApplicationController @Inject()(
           handleIvExemptAuditing("Not yet activated SA filer")
           Ok(views.html.iv.failure.failedIvContinueToActivateSa())
         case wrongCredentialsUser: WrongCredentialsSelfAssessmentUser =>
-          handleIvExemptAuditing("Ambiguous SA filer")
+          handleIvExemptAuditing("Wrong credentials SA filer")
           Ok(views.html.selfAssessmentNotShown(wrongCredentialsUser.saUtr))
         case NotEnrolledSelfAssessmentUser(saUtr) =>
+          handleIvExemptAuditing("Never enrolled SA filer")
           Ok(views.html.selfAssessmentNotShown(saUtr))
         case NonFilerSelfAssessmentUser =>
           Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl))

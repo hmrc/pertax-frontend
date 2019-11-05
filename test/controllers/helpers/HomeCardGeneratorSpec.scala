@@ -143,20 +143,9 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     "return correct markup when called with WrongCredentialsSelfAssessmentUser" in {
       val saUserType = WrongCredentialsSelfAssessmentUser(SaUtr("1111111111"))
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        saUserType,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
       )
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)

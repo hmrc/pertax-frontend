@@ -118,20 +118,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
             ))
       })
 
@@ -172,20 +161,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
+              request = request
             ))
       })
 
@@ -531,7 +509,32 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
         .contains("Find out how to access your Self Assessment") shouldBe true
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1))
-        .sendEvent(eventCaptor.capture())(any(), any()) //TODO - check captured event
+        .sendEvent(eventCaptor.capture())(any(), any())
+    }
+
+    "redirect to 'Find out how to access your Self Assessment' page for a user who has a SAUtr but has never enrolled" in new LocalSetup {
+
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              confidenceLevel = ConfidenceLevel.L50,
+              saUser = NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
+              request = request
+            ))
+      })
+
+      val result = controller.ivExemptLandingPage(None)(FakeRequest())
+      val doc = Jsoup.parse(contentAsString(result))
+      status(result) shouldBe OK
+
+      doc
+        .getElementsByClass("heading-xlarge")
+        .toString()
+        .contains("Find out how to access your Self Assessment") shouldBe true
+      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(mockAuditConnector, times(1))
+        .sendEvent(eventCaptor.capture())(any(), any())
     }
 
     "redirect to 'We cannot confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
