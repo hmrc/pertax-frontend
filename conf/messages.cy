@@ -504,20 +504,19 @@ label.child.trust.fund.details=Pan fyddwch yn cyrraedd 16 oed, cymerwch reolaeth
 label.hmrc_date=CThEM {0}
 label.page=Tudalen
 
-label.access_your_self_assessment=Access your Self Assessment
+label.access_your_self_assessment=Cyrchwch eich Hunanasesiad
 
 title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
-label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
+label.signed_in_wrong_account=Fe wnaethoch chi ddefnyddio cyfrif gwahanol pan wnaethoch chi arwyddo gyntaf i weld neu anfon eich ffurflenni treth ar-lein.
 
 title.sign_in_again.h1=Mae angen i chi fewngofnodi yn ôl i Borth y Llywodraeth
-label.sign_in_again=You will be asked to sign in again with the correct user ID and password.
+label.sign_in_again=Gofynnir i chi fewngofnodi eto gyda’r ID defnyddiwr a’r cyfrinair cywir.
 
 title.do_you_know_other_credentials.h1=Ydych chi’n gwybod ID defnyddiwr a chyfrinair y cyfrif rydych chi’n ei ddefnyddio ar gyfer Hunanasesu?
 title.do_you_know_user_id.h1=Ydych chi’n gwybod yr ID defnyddiwr?
 
 title.reset_your_password.h1=Mae angen i chi ailosod eich cyfrinair
-labels.need_utr=You will need your Unique Taxpayer Reference.
+labels.need_utr=Bydd angen eich Cyfeirnod Trethdalwr Unigryw arnoch chi.
+labels.it_is=Mae’n {0}
 
 title.find_your_user_id.h1=Mae angen ichi ddod o hyd i’ch ID defnyddiwr
-
-
