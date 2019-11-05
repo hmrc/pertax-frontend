@@ -64,6 +64,25 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
       }
     }
 
+    "NO_CONTENT response should return no enrolments" in {
+      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+
+      connector.getUserIdsWithEnrolments(utr).futureValue shouldBe Seq.empty
+    }
+
+    "query users with no principal enrolment returns empty enrolments" in {
+      val json = Json.parse("""
+                              |{
+                              |    "principalUserIds": []
+                              |}""".stripMargin)
+
+      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+
+      connector.getUserIdsWithEnrolments(utr).futureValue shouldBe Seq.empty
+    }
+
     "query users with assigned enrolment return two principleIds" in {
       val json = Json.parse("""
                               |{
