@@ -507,5 +507,6 @@ title.do_you_know_other_credentials.h1=Do you know the user ID and password for 
 title.do_you_know_user_id.h1=Do you know the user ID?
 title.sign_in_again.h1=You need to sign back in to Government Gateway
 title.reset_your_password.h1=You need to reset your password
+title.find_your_user_id.h1=You need to find your user ID
 
 
