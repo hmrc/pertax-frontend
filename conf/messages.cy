@@ -44,7 +44,6 @@ label.print_your_national_insurance_summary=Argraffu’ch crynodeb Yswiriant Gwl
 label.nic_eo_hmrc_address.line1=Cyllid a Thollau EM
 label.nic_eo_hmrc_address.line2=Tŷ Thedford
 label.nic_eo_hmrc_address.line3=Porthmadog
-label.nic_eo_hmrc_address.line4=LL49 9BF
 label.print=Argraffu’r llythyr hwn
 label.save_as_a_PDF=ACadw fel PDF
 label.date=Dyddiad
