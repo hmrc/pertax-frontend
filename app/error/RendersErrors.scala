@@ -53,7 +53,7 @@ trait RendersErrors extends Results {
       views.html.error(
         s"global.error.$errorKey.title",
         Some(s"global.error.$errorKey.heading"),
-        Some(s"global.error.$errorKey.message")))
+        List(s"global.error.$errorKey.message")))
 
   }
 
