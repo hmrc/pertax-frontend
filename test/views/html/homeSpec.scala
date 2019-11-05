@@ -59,6 +59,7 @@ class homeSpec extends BaseSpec with MockitoSugar {
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -85,6 +86,7 @@ class homeSpec extends BaseSpec with MockitoSugar {
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
 
@@ -105,6 +107,7 @@ class homeSpec extends BaseSpec with MockitoSugar {
         NonFilerSelfAssessmentUser,
         Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
+        None,
         None,
         None,
         None,

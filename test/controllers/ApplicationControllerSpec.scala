@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction, WithBreadcrumbAction}
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -45,6 +45,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.{BaseSpec, Fixtures}
+import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
@@ -52,12 +53,16 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
   val mockAuditConnector = mock[PertaxAuditConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
+  val mockAuthAction = mock[AuthAction]
+  val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockAuthJourney = mock[AuthJourney]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[IdentityVerificationFrontendService].toInstance(mockIdentityVerificationFrontendService),
       bind[PertaxAuditConnector].toInstance(mockAuditConnector),
+      bind[AuthAction].toInstance(mockAuthAction),
+      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(mockAuthJourney)
     )
     .build()
@@ -66,6 +71,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     reset(
       mockAuditConnector,
       mockIdentityVerificationFrontendService,
+      mockAuthAction,
+      mockSelfAssessmentStatusAction,
       mockAuthJourney
     )
 
@@ -123,6 +130,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -145,19 +153,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              request = request
             ))
       })
 
@@ -169,7 +167,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     }
 
     "return 303 when called with a GG user that is SA or has an SA enrollment in another account." in new LocalSetup {
-
       override lazy val getCitizenDetailsResponse = true
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
@@ -187,6 +184,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
               None,
               None,
               None,
+              None,
               request
             ))
       })
@@ -196,26 +194,16 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
 
-    "return 200 when called with a GG user that is SA but has not enrolled." in new LocalSetup {
+    "return 200 when called with a GG user that is SA or has an SA enrollment in another account." in new LocalSetup {
 
       override lazy val getCitizenDetailsResponse = true
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
+              request = request
             ))
       })
 
@@ -232,20 +220,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
@@ -261,20 +237,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("LockedOut")
@@ -289,20 +253,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("InsufficientEvidence")
@@ -317,20 +269,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("UserAborted")
@@ -345,20 +285,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("TechnicalIssues")
@@ -373,20 +301,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Timeout")
@@ -401,20 +317,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
@@ -437,20 +341,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       val result = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(FakeRequest())
@@ -463,19 +355,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 
@@ -490,20 +373,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
@@ -516,20 +387,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
@@ -544,19 +403,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 
@@ -571,19 +421,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 
@@ -597,38 +438,20 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 
@@ -646,19 +469,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L50,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              confidenceLevel = ConfidenceLevel.L50,
+              request = request
             ))
       })
 
@@ -676,19 +489,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L50,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              confidenceLevel = ConfidenceLevel.L50,
+              saUser = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+              request = request
             ))
       })
 
@@ -710,19 +514,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L50,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              confidenceLevel = ConfidenceLevel.L50,
+              saUser = WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
+              request = request
             ))
       })
 
@@ -744,19 +539,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L50,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request))
+            buildUserRequest(
+              confidenceLevel = ConfidenceLevel.L50,
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
+            ))
       })
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
@@ -773,19 +560,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              None,
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
             ))
       })
 

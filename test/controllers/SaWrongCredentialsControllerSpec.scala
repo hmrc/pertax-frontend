@@ -53,6 +53,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
           None,
           None,
           None,
+          None,
           request
         ))
   })

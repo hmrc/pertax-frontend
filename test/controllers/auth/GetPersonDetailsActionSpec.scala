@@ -84,6 +84,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             None,
             None,
             None,
+            None,
             FakeRequest("", "")
           )
         val result = harness()(refinedRequest)
@@ -107,6 +108,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
+            None,
             None,
             None,
             None,

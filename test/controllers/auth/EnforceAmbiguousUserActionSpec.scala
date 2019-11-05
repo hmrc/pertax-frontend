@@ -68,6 +68,7 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
             None,
             None,
             None,
+            None,
             FakeRequest()
           )
         val result = harness()(userRequest)
@@ -85,6 +86,7 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
               NonFilerSelfAssessmentUser,
               Credentials("", "Verify"),
               ConfidenceLevel.L50,
+              None,
               None,
               None,
               None,

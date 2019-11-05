@@ -32,11 +32,13 @@ import play.api.http.ContentTypes
 import play.api.http.Status._
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import util.{BaseSpec, Fixtures, WireMockHelper}
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, UserRequestFixture, WireMockHelper}
 
 class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with WireMockHelper {
 
@@ -66,20 +68,11 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
     "return ActivatePaperlessActivatedResponse if it is successful, and user is Government GateWay" in {
 
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
@@ -104,26 +97,16 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       await(result) shouldBe ActivatePaperlessActivatedResponse
 
-//      verify(mockMetricRegistry, times(1)).timer(any()).time
-//      verify(mockMetricRegistry, times(1)).counter(any()).inc()
-//      verify(mockContext, times(1)).stop
     }
 
     "return ActivatePaperlessNotAllowedResponse if user is not Government Gateway" in {
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
@@ -131,26 +114,16 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse
 
-      /*      verify(met, times(0)).startTimer(metricId)
-      verify(met, times(0)).incrementSuccessCounter(metricId)
-      verify(timer, times(0)).stop()*/
     }
 
     "return ActivatePaperlessNotAllowedResponse if any upstream exceptions are thrown" in {
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
@@ -167,27 +140,16 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse
-
-      /*      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()*/
     }
 
     "return ActivatePaperlessNotAllowedResponse if BadRequestException is thrown" in {
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
@@ -204,27 +166,14 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse
-
-      /*      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()*/
     }
 
     "return ActivatePaperlessRequiresUserActionResponse if Precondition failed with 412 response" in {
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
@@ -248,27 +197,16 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
-
-      /*      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()*/
     }
 
     "return ActivatePaperlessNotAllowedResponse when called and service is down" in {
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "Verify"),
-        ConfidenceLevel.L500,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
@@ -285,9 +223,6 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
       val result = service.getPaperlessPreference()
 
       await(result) shouldBe ActivatePaperlessNotAllowedResponse
-      /*      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()*/
     }
   }
 }

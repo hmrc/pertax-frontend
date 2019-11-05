@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import models.WrongCredentialsSelfAssessmentUser
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -32,9 +31,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
+import util.{BaseSpec, CitizenDetailsFixtures}
+import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
@@ -68,20 +67,8 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "GovernmentGateway"),
-              ConfidenceLevel.L200,
-              Some(buildPersonDetails),
-              None,
-              None,
-              None,
-              None,
-              request
-            ))
+            buildUserRequest(request = request)
+          )
       })
 
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
@@ -93,19 +80,10 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(
-              Some(Fixtures.fakeNino),
-              None,
-              None,
-              WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
-              Credentials("", "Verify"),
-              ConfidenceLevel.L500,
-              Some(buildPersonDetails),
-              None,
-              None,
-              None,
-              None,
-              request
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
             ))
       })
 
