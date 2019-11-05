@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@(title: String, heading: Option[String] = None, body: Option[String] = None)(implicit request: UserRequest[_],
+@(title: String, heading: Option[String] = None, body: List[String] = Nil)(implicit request: UserRequest[_],
         configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(title = messages(title),
@@ -32,9 +32,7 @@
             <header class="page-header">
                 <h1>@messages(heading.getOrElse(title))</h1>
             </header>
-            @body.map { body =>
-                <p>@Html(messages(body))</p>
-            }
+            @body.map(body => <p>{messages(body)}</p>)
         </div>
     </div>
 
