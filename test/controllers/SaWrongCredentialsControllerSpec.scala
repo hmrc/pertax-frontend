@@ -25,12 +25,10 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.buildFakeRequestWithAuth
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, LocalPartialRetriever, UserRequestFixture}
 
 import scala.concurrent.Future
 
@@ -41,20 +39,9 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
   when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
       block(
-        UserRequest(
-          Some(Fixtures.fakeNino),
-          None,
-          None,
-          WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
-          Credentials("", "GovernmentGateway"),
-          ConfidenceLevel.L200,
-          None,
-          None,
-          None,
-          None,
-          None,
-          None,
-          request
+        buildUserRequest(
+          saUser = WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
+          request = request
         ))
   })
 
