@@ -110,7 +110,8 @@ class CorrespondenceAddressLockRepositoryISpec extends UnitSpec
     "there isn't an existing record" should {
       "return true" in {
         import CorrespondenceAddressLockRepository._
-        val midnight = toBSONDateTime(getNextMidnight)
+        val offsetTime = getNextMidnight(OffsetDateTime.now())
+        val midnight = toBSONDateTime(offsetTime)
         val result = await(mongo.insert(testNino.withoutSuffix))
         result shouldBe true
 
