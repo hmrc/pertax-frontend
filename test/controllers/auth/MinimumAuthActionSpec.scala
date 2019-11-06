@@ -34,11 +34,12 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import util.Fixtures
+import util.RetrievalOps._
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -88,30 +89,27 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
     }
   }
 
+  type AuthRetrievals =
+    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
+      TrustedHelper] ~ Option[String]
+
+  val fakeCredentials = Credentials("foo", "bar")
+  val fakeConfidenceLevel = ConfidenceLevel.L200
+  val fakeLoginTimes = LoginTimes(DateTime.now(), None)
+
+  def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+
   "A user with nino and no SA enrolment must" - {
     "create an authenticated request" in {
 
       val nino = Fixtures.fakeNino.nino
-      val retrievalResult: Future[
-        Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-          TrustedHelper]] =
+      val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          new ~(
-            new ~(
-              new ~(
-                new ~(
-                  new ~(new ~(Some(nino), Enrolments(Set.empty)), Some(Credentials("foo", "bar"))),
-                  ConfidenceLevel.L200),
-                None),
-              LoginTimes(DateTime.now(), None)
-            ),
-            None
-          ))
+          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None)
 
-      when(mockAuthConnector
-        .authorise[
-          Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-            TrustedHelper]](any(), any())(any(), any()))
+      when(
+        mockAuthConnector
+          .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
@@ -127,30 +125,15 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
     "create an authenticated request" in {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
-      val retrievalResult: Future[
-        Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-          TrustedHelper]] =
-        Future.successful(
-          new ~(
-            new ~(
-              new ~(
-                new ~(
-                  new ~(
-                    new ~(None, Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated")))),
-                    Some(Credentials("foo", "bar"))),
-                  ConfidenceLevel.L200
-                ),
-                None
-              ),
-              LoginTimes(DateTime.now(), None)
-            ),
-            None
-          ))
 
-      when(mockAuthConnector
-        .authorise[
-          Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-            TrustedHelper]](any(), any())(any(), any()))
+      val retrievalResult: Future[AuthRetrievals] =
+        Future.successful(
+          None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None
+        )
+
+      when(
+        mockAuthConnector
+          .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
@@ -167,32 +150,15 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
 
       val nino = Fixtures.fakeNino.nino
       val utr = new SaUtrGenerator().nextSaUtr.utr
-      val retrievalResult: Future[
-        Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-          TrustedHelper]] =
-        Future.successful(
-          new ~(
-            new ~(
-              new ~(
-                new ~(
-                  new ~(
-                    new ~(
-                      Some(nino),
-                      Enrolments(Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated")))),
-                    Some(Credentials("foo", "bar"))),
-                  ConfidenceLevel.L200
-                ),
-                None
-              ),
-              LoginTimes(DateTime.now(), None)
-            ),
-            None
-          ))
 
-      when(mockAuthConnector
-        .authorise[
-          Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-            TrustedHelper]](any(), any())(any(), any()))
+      val retrievalResult: Future[AuthRetrievals] =
+        Future.successful(
+          Some(nino) ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None
+        )
+
+      when(
+        mockAuthConnector
+          .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
@@ -209,28 +175,14 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
     "create an authenticated request containing the trustedHelper" in {
 
       val fakePrincipalNino = Fixtures.fakeNino.toString()
-      val retrievalResult: Future[
-        Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-          TrustedHelper]] =
+      val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          new ~(
-            new ~(
-              new ~(
-                new ~(
-                  new ~(
-                    new ~(Some(Fixtures.fakeNino.toString()), Enrolments(Set.empty)),
-                    Some(Credentials("foo", "bar"))),
-                  ConfidenceLevel.L200),
-                None),
-              LoginTimes(DateTime.now(), None)
-            ),
-            Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino))
-          ))
+          Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ Some(
+            TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)) ~ None)
 
-      when(mockAuthConnector
-        .authorise[
-          Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-            TrustedHelper]](any(), any())(any(), any()))
+      when(
+        mockAuthConnector
+          .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
       val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)

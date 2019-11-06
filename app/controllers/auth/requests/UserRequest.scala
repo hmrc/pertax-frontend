@@ -34,6 +34,7 @@ case class UserRequest[+A](
   confidenceLevel: ConfidenceLevel,
   personDetails: Option[PersonDetails],
   trustedHelper: Option[TrustedHelper],
+  profile: Option[String],
   unreadMessageCount: Option[Int] = None,
   activeTab: Option[ActiveTab] = None,
   breadcrumb: Option[Breadcrumb] = None,

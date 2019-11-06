@@ -20,14 +20,14 @@ import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.DateTime
 import play.api.mvc.Request
-import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 object UserRequestFixture {
 
-  def buildUserRequest(
+  def buildUserRequest[A](
     nino: Option[Nino] = Some(Fixtures.fakeNino),
     userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     lastLoginTime: Option[DateTime] = Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
@@ -35,8 +35,10 @@ object UserRequestFixture {
     credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
     personDetails: Option[PersonDetails] = Some(Fixtures.buildPersonDetails),
+    trustedHelper: Option[TrustedHelper] = None,
+    profile: Option[String] = None,
     messageCount: Option[Int] = None,
-    request: Request[_] = FakeRequest()) =
+    request: Request[A]): UserRequest[A] =
     UserRequest(
       nino,
       userName,
@@ -45,7 +47,8 @@ object UserRequestFixture {
       credentials,
       confidenceLevel,
       personDetails,
-      None,
+      trustedHelper,
+      profile,
       messageCount,
       None,
       None,

@@ -52,6 +52,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
       val document = Jsoup.parse(
@@ -74,7 +75,9 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         None,
         None,
         None,
-        FakeRequest())
+        None,
+        FakeRequest()
+      )
       val document = Jsoup.parse(
         views.html.interstitial
           .viewNationalInsuranceInterstitialHome(Html(""), "aas")

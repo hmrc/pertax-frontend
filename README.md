@@ -1,7 +1,7 @@
 pertax-frontend
 ===============
 
-Personal Tax Account front end project. 
+Personal Tax Account front-end project. 
 
 
 
