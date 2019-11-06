@@ -27,18 +27,40 @@ class CorrespondenceAddressLockRepositorySpec extends BaseSpec {
 
   "AddressJourneyMongoHelper.getNextMidnight" when {
     import CorrespondenceAddressLockRepository._
-    "the public function is called without a parameter" should {
-      "return midnight of today" in {
-        val now = OffsetDateTime.now()
+    "called with the date parameter" should {
+      "return midnight of a day during GMT" in {
+
+        val now = OffsetDateTime.of(
+          LocalDateTime.of(2019, 1, 14, 14, 30),
+          GMT_OFFSET
+        )
+
         val tomorrow = now.plusDays(1)
         val london: TimeZone = TimeZone.getTimeZone("Europe/London")
         val instantInUK = tomorrow.toInstant.atZone(london.toZoneId)
 
         val expected = instantInUK.toLocalDate.atStartOfDay().atZone(london.toZoneId).toOffsetDateTime
 
-        getNextMidnight shouldBe expected
+        getNextMidnight(now) shouldBe expected
+      }
+
+      "return midnight of a day during BST" in {
+
+        val now = OffsetDateTime.of(
+          LocalDateTime.of(2019, 6, 14, 14, 30),
+          BST_OFFSET
+        )
+
+        val tomorrow = now.plusDays(1)
+        val london: TimeZone = TimeZone.getTimeZone("Europe/London")
+        val instantInUK = tomorrow.toInstant.atZone(london.toZoneId)
+
+        val expected = instantInUK.toLocalDate.atStartOfDay().plusHours(1).atZone(london.toZoneId).toOffsetDateTime
+
+        getNextMidnight(now) shouldBe expected
       }
     }
+
     "the private function is called with a parameter" when {
       "the current timezone is GMT" should {
         "return the next UK midnight for that day" when {

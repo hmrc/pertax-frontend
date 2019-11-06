@@ -48,9 +48,10 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
+import util.UserRequestFixture.buildUserRequest
 import util.fixtures.AddressFixture._
 import util.fixtures.PersonFixture._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
+import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.Future
 
@@ -93,7 +94,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     def updateAddressResponse: UpdateAddressResponse
 
-    lazy val personDetails = Fixtures.buildPersonDetails
+    lazy val fakePersonDetails = Fixtures.buildPersonDetails
 
     def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
 
@@ -159,7 +160,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(
-          UserRequestFixture.buildUserRequest().asInstanceOf[UserRequest[A]]
+          buildUserRequest(request = request).asInstanceOf[UserRequest[A]]
         )
     })
   }
@@ -169,19 +170,19 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
 
-    "call citizenDetailsService.personDetails and return 200" in new LocalSetup {
+    "call citizenDetailsService.fakePersonDetails and return 200" in new LocalSetup {
       lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequest(Some(Fixtures.fakeNino), None, None, NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, request)
+            buildUserRequest(request = request)
           )
       })
 
@@ -210,7 +211,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
@@ -229,7 +230,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(personDetails = None).asInstanceOf[UserRequest[A]]
+            buildUserRequest(request = request, personDetails = None).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -244,7 +245,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
@@ -276,7 +277,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -288,8 +289,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
                   .asInstanceOf[Request[A]]
@@ -310,8 +310,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
                   .asInstanceOf[Request[A]]
@@ -331,8 +330,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .asInstanceOf[Request[A]]
               )
@@ -351,7 +349,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
 
@@ -394,7 +392,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -406,8 +404,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("residencyChoice" -> "primary")
                   .asInstanceOf[Request[A]]
@@ -427,8 +424,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("residencyChoice" -> "sole")
                   .asInstanceOf[Request[A]]
@@ -448,8 +444,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("residencyChoice" -> "bad")
                   .asInstanceOf[Request[A]]
@@ -468,8 +463,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .asInstanceOf[Request[A]]
               )
@@ -488,7 +482,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
@@ -520,7 +514,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -532,8 +526,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
                   .asInstanceOf[Request[A]]
@@ -575,8 +568,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
                   .asInstanceOf[Request[A]]
@@ -595,8 +587,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .asInstanceOf[Request[A]]
               )
@@ -615,7 +606,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
@@ -700,7 +691,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("postalAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -726,7 +717,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(
+            buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
@@ -753,7 +744,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(
+            buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
@@ -786,7 +777,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(
+            buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
@@ -816,7 +807,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(
+            buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
@@ -849,7 +840,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(
+            buildUserRequest(
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
                 .asInstanceOf[Request[A]])
@@ -871,7 +862,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(
+            buildUserRequest(
               request = FakeRequest("POST", "/test")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
                 .asInstanceOf[Request[A]]
@@ -893,7 +884,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture.buildUserRequest(
+            buildUserRequest(
               request = FakeRequest("POST", "")
                 .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
                 .asInstanceOf[Request[A]]
@@ -914,7 +905,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(false)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -929,8 +920,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              UserRequestFixture
-                .buildUserRequest(
+              buildUserRequest(
                   request = FakeRequest("POST", "")
                     .withFormUrlEncodedBody(
                       "postcode" -> "AA1 1AA")
@@ -955,8 +945,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              UserRequestFixture
-                .buildUserRequest(
+              buildUserRequest(
                   request = FakeRequest("POST", "")
                     .withFormUrlEncodedBody(
                       "postcode" -> "AA1 1AA",
@@ -985,8 +974,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("addressId" -> "GB990091234514", "postcode" -> "AA1 1AA")
                   .asInstanceOf[Request[A]]
@@ -1013,8 +1001,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "")
                   .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
                   .asInstanceOf[Request[A]]
@@ -1042,8 +1029,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = form
               )
               .asInstanceOf[UserRequest[A]]
@@ -1068,8 +1054,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = form
               )
               .asInstanceOf[UserRequest[A]]
@@ -1094,7 +1079,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
@@ -1301,7 +1286,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -1325,8 +1310,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = form
               )
               .asInstanceOf[UserRequest[A]]
@@ -1350,8 +1334,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = form
               )
               .asInstanceOf[UserRequest[A]]
@@ -1376,7 +1359,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
 
@@ -1574,7 +1557,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -1596,7 +1579,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -1617,8 +1600,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
+            buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1636,8 +1618,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
+            buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1654,7 +1635,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -1674,7 +1655,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -1695,8 +1676,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1718,8 +1698,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1740,7 +1719,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
@@ -1796,7 +1775,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -1811,8 +1790,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1833,8 +1811,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1854,8 +1831,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1873,8 +1849,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1892,8 +1867,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1910,8 +1884,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1929,8 +1902,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1947,8 +1919,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1965,8 +1936,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm,
+            buildUserRequest(request = requestWithForm,
                 personDetails = Some(PersonDetails("", emptyPerson, Some(address(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
               .asInstanceOf[UserRequest[A]]
           )
@@ -1984,8 +1954,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2003,8 +1972,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2022,8 +1990,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2040,8 +2007,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2058,8 +2024,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2077,8 +2042,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2091,7 +2055,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect to success page when no startDate is on record" in new LocalSetup {
       lazy val personDetailsNoStartDate =
-        personDetails.copy(address = personDetails.address.map(_.copy(startDate = None)))
+        fakePersonDetails.copy(address = fakePersonDetails.address.map(_.copy(startDate = None)))
       override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoStartDate)
 
       val requestWithForm = FakeRequest("POST", "")
@@ -2100,8 +2064,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2113,7 +2076,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to success page when no address is on record" in new LocalSetup {
-      lazy val personDetailsNoAddress = personDetails.copy(address = None)
+      lazy val personDetailsNoAddress = fakePersonDetails.copy(address = None)
       override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoAddress)
 
       val requestWithForm = FakeRequest("POST", "")
@@ -2122,8 +2085,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(request = requestWithForm)
+            buildUserRequest(request = requestWithForm)
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2140,7 +2102,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
     }
@@ -2309,7 +2271,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
       override lazy val sessionCacheResponse = None
@@ -2329,7 +2291,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -2344,8 +2306,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = requestWithForm
                   .asInstanceOf[Request[A]]
               )
@@ -2367,8 +2328,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = requestWithForm
                   .asInstanceOf[Request[A]]
               )
@@ -2393,7 +2353,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
       override lazy val sessionCacheResponse = None
@@ -2441,8 +2401,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
                 personDetails = Some(buildPersonDetailsCorrespondenceAddress),
                 request = FakeRequest("POST", "/test")
@@ -2471,8 +2430,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(personDetails = Some(buildPersonDetailsCorrespondenceAddress))
+            buildUserRequest(request = request, personDetails = Some(buildPersonDetailsCorrespondenceAddress))
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2493,8 +2451,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(personDetails = Some(buildPersonDetailsCorrespondenceAddress))
+            buildUserRequest(request = request, personDetails = Some(buildPersonDetailsCorrespondenceAddress))
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2512,8 +2469,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(personDetails = Some(buildPersonDetailsCorrespondenceAddress))
+            buildUserRequest(request = request, personDetails = Some(buildPersonDetailsCorrespondenceAddress))
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2532,8 +2488,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(personDetails = Some(buildPersonDetailsCorrespondenceAddress))
+            buildUserRequest(request = request, personDetails = Some(buildPersonDetailsCorrespondenceAddress))
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2551,8 +2506,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
                 personDetails = Some(buildPersonDetailsCorrespondenceAddress),
                 request = FakeRequest("POST", "/test")
@@ -2580,7 +2534,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
 
@@ -2629,8 +2583,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
@@ -2657,8 +2610,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
               )
@@ -2688,8 +2640,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
               )
@@ -2715,8 +2666,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
               )
@@ -2747,8 +2697,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
@@ -2791,8 +2740,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
                 request = requestWithForm
                   .asInstanceOf[Request[A]])
@@ -2829,8 +2777,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
@@ -2865,8 +2812,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
@@ -2897,7 +2843,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     trait LocalSetup extends WithAddressControllerSpecSetup {
       override lazy val fakeAddress = buildFakeAddress
       override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
@@ -2909,8 +2855,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
-            UserRequestFixture
-              .buildUserRequest(
+            buildUserRequest(
                 request = FakeRequest("POST", "/test")
                   .asInstanceOf[Request[A]]
               )
@@ -2928,13 +2873,13 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     trait LookingUpAddressLocalSetup extends WithAddressControllerSpecSetup {
 
-      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, FakeRequest())
+      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, None, FakeRequest())
 
       def addressLookupResponse: AddressLookupResponse
 
       override lazy val fakeAddress: Address = buildFakeAddress
       override lazy val nino: Nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetails)
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse

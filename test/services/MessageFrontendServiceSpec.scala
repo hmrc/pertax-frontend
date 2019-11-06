@@ -26,6 +26,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import services.http.WsAllMethods
@@ -37,25 +38,16 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
+import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
 class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
 
-  lazy val userRequest = UserRequest(
-    None,
-    None,
-    None,
-    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-    Credentials("", "GovernmentGateway"),
-    ConfidenceLevel.L200,
-    None,
-    None,
-    None,
-    None,
-    None,
-    FakeRequest("", "")
-  )
+  lazy val userRequest: UserRequest[AnyContentAsEmpty.type] =
+    buildUserRequest(
+      request = FakeRequest("", "")
+    )
 
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]

@@ -74,6 +74,7 @@ class SelfAssessmentStatusActionSpec
         None,
         None,
         None,
+        None,
         FakeRequest()
       )
       val result = harness()(request)
@@ -88,6 +89,7 @@ class SelfAssessmentStatusActionSpec
         Some(SelfAssessmentEnrolment(SaUtr("1111111111"), NotYetActivated)),
         Credentials("", "Verify"),
         ConfidenceLevel.L200,
+        None,
         None,
         None,
         None,
@@ -108,6 +110,7 @@ class SelfAssessmentStatusActionSpec
             None,
             Credentials("", "Verify"),
             ConfidenceLevel.L200,
+            None,
             None,
             None,
             None,
@@ -132,6 +135,7 @@ class SelfAssessmentStatusActionSpec
             None,
             None,
             None,
+            None,
             FakeRequest())
 
         when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
@@ -150,6 +154,7 @@ class SelfAssessmentStatusActionSpec
             None,
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
+            None,
             None,
             None,
             None,

@@ -34,6 +34,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
+import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -68,20 +69,8 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              UserRequest(
-                Some(Fixtures.fakeNino),
-                None,
-                None,
-                NonFilerSelfAssessmentUser,
-                Credentials("", "GovernmentGateway"),
-                ConfidenceLevel.L200,
-                None,
-                None,
-                None,
-                None,
-                None,
-                request
-              ))
+              buildUserRequest(request = request)
+            )
         })
 
         val r = controller.managePreferences(FakeRequest())
@@ -94,19 +83,10 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              UserRequest(
-                Some(Fixtures.fakeNino),
-                None,
-                None,
-                ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
-                Credentials("", "Verify"),
-                ConfidenceLevel.L500,
-                None,
-                None,
-                None,
-                None,
-                None,
-                request
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
               ))
         })
 
