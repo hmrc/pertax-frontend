@@ -38,11 +38,9 @@
             </p>
 
             @saUtr.map { utr =>
-                <div class="form-group panel">
                     <p>
-                        @messages("labels.it_is", utr)
+                        @messages("labels.your_utr_is") <span class="bold-small">@utr</span>.
                     </p>
-                </div>
             }
 
             <a href="@configDecorator.lostUserIdWithSa" class="button" id="continue">@messages("global.label.continue_button")</a>
