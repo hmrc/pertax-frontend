@@ -515,7 +515,8 @@ title.do_you_know_user_id.h1=Do you know the user ID?
 
 title.reset_your_password.h1=You need to reset your password
 labels.need_utr=You will need your Unique Taxpayer Reference.
-labels.it_is=It is {0}
+labels.your_utr_is=Your UTR is
 
-title.find_your_user_id.h1=You need to find your user ID
+title.find_your_user_id.h1=Get help finding your user ID
+
 
