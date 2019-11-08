@@ -38,7 +38,7 @@ object GenericErrors {
       views.html.error(
         "global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),
-        Some("global.error.BadRequest.message")))
+        List("global.error.BadRequest.message1", "global.error.BadRequest.message2")))
 
   def internalServerError(
     implicit request: UserRequest[_],
@@ -49,5 +49,5 @@ object GenericErrors {
       views.html.error(
         "global.error.InternalServerError500.title",
         Some("global.error.InternalServerError500.title"),
-        Some("global.error.InternalServerError500.message")))
+        List("global.error.InternalServerError500.message")))
 }

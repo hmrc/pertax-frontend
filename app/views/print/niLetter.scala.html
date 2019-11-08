@@ -17,14 +17,20 @@
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
+@import controllers.helpers.WelshWarningHelper._
 
 @(personDetails: models.PersonDetails, dateString: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@welshPostcode = @{"LL49 9BF"}
 
 <div class="print-document">
     <div class="grid-row print-header">
         <div class="column-one-third">
             <img class="print-header__hmrc-logo" src="data:image/jpeg;base64,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" alt="@messages("label.hm_revenue_and_customs")">
-            <h2>@Html(messages("label.hm_revenue_customs_ni_print"))</h2>
+            <h2>
+                <span>@Html(messages("label.hm_revenue_customs_ni_print.revenue"))</span>
+                @Html(messages("label.hm_revenue_customs_ni_print.customs"))
+            </h2>
         </div>
         <div class="column-two-thirds">
             <h3 class="heading-medium margin-top-small no-margin-bottom print-header__heading">
@@ -48,7 +54,17 @@
         <div class="column-half document-address__sender">
             <div class="sender-details">
                 <address>
-                @Html(messages("label.nic_eo_hmrc_address"))
+                    @Html(messages("label.nic_eo_hmrc_address.line1"))
+                    <br>
+                    @messages("label.nic_eo_hmrc_address.line2")
+                    <br>
+                    @messages("label.nic_eo_hmrc_address.line3")
+
+                    @if(usingWelsh) {
+                        <br>
+                        @welshPostcode
+                    }
+
                 </address>
                 <p class="phone">@messages("label.phone_text") <span class="phone-number">
                 @messages("label.contact_number")
