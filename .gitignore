@@ -33,3 +33,4 @@ test-result
 tmp
 .idea_modules
 bin
+node_modules
