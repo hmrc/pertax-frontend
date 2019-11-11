@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import connectors.EnrolmentsConnector
 import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
 import models._
+import play.api.Logger
 import play.api.mvc.{ActionFunction, ActionRefiner, Result}
 import services.{CitizenDetailsService, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
@@ -42,12 +43,21 @@ class SelfAssessmentStatusAction @Inject()(
   private def enrolledOnDifferentCredentials(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] =
     enrolmentsConnector
       .getUserIdsWithEnrolments(saUtr.utr)
-      .map(x =>
-        if (x.nonEmpty) {
-          WrongCredentialsSelfAssessmentUser(saUtr)
-        } else {
-          NotEnrolledSelfAssessmentUser(saUtr)
-      })
+      .map(
+        (response: Either[String, Seq[String]]) =>
+          response.fold(
+            error => {
+              Logger.warn(error)
+              NonFilerSelfAssessmentUser
+            },
+            ids =>
+              if (ids.nonEmpty) {
+                WrongCredentialsSelfAssessmentUser(saUtr)
+              } else {
+                NotEnrolledSelfAssessmentUser(saUtr)
+            }
+        )
+      )
 
   private def getSelfAssessmentUserType[A](
     implicit hc: HeaderCarrier,

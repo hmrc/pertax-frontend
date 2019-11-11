@@ -20,6 +20,7 @@ import models._
 import org.joda.time.DateTime
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
+import org.scalatest.EitherValues
 import org.scalatest.Inspectors.forAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
@@ -32,7 +33,7 @@ import util.BaseSpec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures with EitherValues {
 
   val http = mock[WsAllMethods]
   val connector = new EnrolmentsConnector(http, config)
@@ -42,14 +43,11 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users?type=principal"
 
-    "throw a return no enrolments for a BAD_REQUEST response" in {
+    "Return the error message for a BAD_REQUEST response" in {
       when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
-      val f = connector.getUserIdsWithEnrolments(utr)
-      whenReady(f.failed) { e =>
-        e shouldBe a[HttpException]
-      }
+      connector.getUserIdsWithEnrolments(utr).futureValue.left.value should include(BAD_REQUEST.toString)
     }
 
     "throws a JsResultException when given bad json" in {
@@ -68,7 +66,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
       when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue shouldBe Seq.empty
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
     }
 
     "query users with no principal enrolment returns empty enrolments" in {
@@ -80,7 +78,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
       when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue shouldBe Seq.empty
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
     }
 
     "query users with assigned enrolment return two principleIds" in {
@@ -97,7 +95,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
-      connector.getUserIdsWithEnrolments(utr).futureValue shouldBe expected
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe expected
     }
   }
 }

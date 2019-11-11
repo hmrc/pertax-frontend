@@ -18,7 +18,7 @@ package controllers.auth
 
 import connectors.EnrolmentsConnector
 import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
-import models.MatchingDetails
+import models.{MatchingDetails, NonFilerSelfAssessmentUser}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -116,24 +116,38 @@ class SelfAssessmentStatusActionSpec
           when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
             .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
           when(enrolmentsConnector.getUserIdsWithEnrolments(meq(saUtr.utr))(any(), any()))
-            .thenReturn(Future.successful(Seq("some cred id")))
+            .thenReturn(Future.successful(Right(Seq("some cred id"))))
 
           val result = harness()(request)
           contentAsString(result) must include(s"WrongCredentialsSelfAssessmentUser(${saUtr.utr})")
         }
       }
 
-      "and they have no SA enrolment" - {
+      "and they have no active SA enrolment" - {
         "return NotEnrolledSelfAssessmentUser" in {
           implicit val request = createAuthenticatedRequest(None)
 
           when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
             .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
           when(enrolmentsConnector.getUserIdsWithEnrolments(meq(saUtr.utr))(any(), any()))
-            .thenReturn(Future.successful(Seq.empty))
+            .thenReturn(Future.successful(Right(Seq.empty)))
 
           val result = harness()(request)
           contentAsString(result) must include(s"NotEnrolledSelfAssessmentUser(${saUtr.utr})")
+        }
+      }
+
+      "and enrolment store returns a bad response" - {
+        "return NonFilerSelfAssessmentUser" in {
+          implicit val request = createAuthenticatedRequest(None)
+
+          when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+            .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
+          when(enrolmentsConnector.getUserIdsWithEnrolments(meq(saUtr.utr))(any(), any()))
+            .thenReturn(Future.successful(Left("some error occured")))
+
+          val result = harness()(request)
+          contentAsString(result) must include("NonFilerSelfAssessmentUser")
         }
       }
     }
