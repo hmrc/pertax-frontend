@@ -24,6 +24,7 @@ import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, when}
+import org.scalatest.exceptions.TestFailedException
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.MessagesApi
@@ -167,8 +168,9 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
     "return bad request when continueUrl is not relative" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
 
-      val result = routeWrapper(
-        buildFakeRequestWithAuth("GET", "/personal-account/sa-continue?continueUrl=http://example.com")).get
+      val result: Future[Result] =
+        routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/sa-continue?continueUrl=http://example.com"))
+          .getOrElse(new TestFailedException("Failed to route", 0))
 
       status(result) shouldBe BAD_REQUEST
     }
