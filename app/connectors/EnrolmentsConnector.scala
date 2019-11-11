@@ -18,7 +18,9 @@ package connectors
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import play.api.Logger
 import play.api.http.Status._
+import play.api.mvc.Result
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse}
 
@@ -28,14 +30,15 @@ class EnrolmentsConnector @Inject()(http: WsAllMethods, configDecorator: ConfigD
 
   val baseUrl = configDecorator.enrolmentStoreProxyUrl
 
-  def getUserIdsWithEnrolments(saUtr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Seq[String]] = {
+  def getUserIdsWithEnrolments(
+    saUtr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Seq[String]]] = {
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users?type=principal"
 
     http.GET[HttpResponse](url) map { response =>
       response.status match {
-        case OK         => (response.json \ "principalUserIds").as[Seq[String]]
-        case NO_CONTENT => Seq.empty
-        case errorCode  => throw new HttpException(s"Invalid call for getUserIdsWithEnrolments: $response", errorCode)
+        case OK         => Right((response.json \ "principalUserIds").as[Seq[String]])
+        case NO_CONTENT => Right(Seq.empty)
+        case errorCode  => Left(s"HttpError: $errorCode. Invalid call for getUserIdsWithEnrolments: $response")
       }
     }
   }
