@@ -170,7 +170,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       val result: Future[Result] =
         routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/sa-continue?continueUrl=http://example.com"))
-          .getOrElse(new TestFailedException("Failed to route", 0))
+          .getOrElse(throw new TestFailedException("Failed to route", 0))
 
       status(result) shouldBe BAD_REQUEST
     }
