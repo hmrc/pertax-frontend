@@ -44,18 +44,18 @@
         }
         case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
             <li>
-                <a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@messages("label.activate_your_self_assessment")</a>
+                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@messages("label.activate_your_self_assessment")</a>
             </li>
 
         }
         case WrongCredentialsSelfAssessmentUser(saUtr) => {
             <li>
-                <a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
+                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
             </li>
         }
         case NotEnrolledSelfAssessmentUser(saUtr) => {
             <li>
-                <a class="ga-track-anchor-click" href="@controllers.routes.ApplicationController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
+                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
             </li>
         }
         case _ => {}
@@ -65,7 +65,7 @@
     @cardLink = @{
         saActionNeeded match {
             case _: ActivatedOnlineFilerSelfAssessmentUser => controllers.routes.InterstitialController.displaySelfAssessment()
-            case _ => controllers.routes.ApplicationController.handleSelfAssessment()
+            case _ => controllers.routes.SelfAssessmentController.handleSelfAssessment()
         }
     }
 

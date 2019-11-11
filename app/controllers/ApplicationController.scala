@@ -16,36 +16,28 @@
 
 package controllers
 
-import config.ConfigDecorator
-import connectors.PertaxAuditConnector
-import controllers.auth._
-import controllers.auth.requests.UserRequest
-import error.RendersErrors
 import com.google.inject.Inject
-import models._
+import config.ConfigDecorator
+import controllers.auth._
+import error.RendersErrors
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.AuditServiceTools._
-import util.{DateTimeTools, LocalPartialRetriever}
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 class ApplicationController @Inject()(
   val messagesApi: MessagesApi,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: PertaxAuditConnector)(
+  authJourney: AuthJourney)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer)
@@ -70,7 +62,7 @@ class ApplicationController @Inject()(
             case IdentityVerificationSuccessResponse(Success) =>
               Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
             case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-              Redirect(controllers.routes.ApplicationController.ivExemptLandingPage(continueUrl))
+              Redirect(controllers.routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
             case IdentityVerificationSuccessResponse(UserAborted) =>
               Logger.warn(s"Unable to confirm user identity: $UserAborted")
               Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
@@ -115,53 +107,4 @@ class ApplicationController @Inject()(
           }
         }
     }
-
-  def handleSelfAssessment: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {
-      implicit request =>
-        if (request.isGovernmentGateway) {
-          request.saUserType match {
-            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-              Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-            case WrongCredentialsSelfAssessmentUser(_) =>
-              Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
-            case NotEnrolledSelfAssessmentUser(saUtr) =>
-              Ok(views.html.selfAssessmentNotShown(saUtr))
-            case _ => Redirect(routes.HomeController.index())
-          }
-        } else {
-          error(INTERNAL_SERVER_ERROR)
-        }
-    }
-
-  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
-    authJourney.minimumAuthWithSelfAssessment { implicit request =>
-      val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
-
-      request.saUserType match {
-        case ActivatedOnlineFilerSelfAssessmentUser(x) =>
-          handleIvExemptAuditing("Activated online SA filer")
-          Ok(views.html.activatedSaFilerIntermediate(x.toString, DateTimeTools.previousAndCurrentTaxYear))
-        case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-          handleIvExemptAuditing("Not yet activated SA filer")
-          Ok(views.html.iv.failure.failedIvContinueToActivateSa())
-        case wrongCredentialsUser: WrongCredentialsSelfAssessmentUser =>
-          handleIvExemptAuditing("Wrong credentials SA filer")
-          Ok(views.html.selfAssessmentNotShown(wrongCredentialsUser.saUtr))
-        case NotEnrolledSelfAssessmentUser(saUtr) =>
-          handleIvExemptAuditing("Never enrolled SA filer")
-          Ok(views.html.selfAssessmentNotShown(saUtr))
-        case NonFilerSelfAssessmentUser =>
-          Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl))
-      }
-    }
-
-  private def handleIvExemptAuditing(
-    saUserType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =
-    auditConnector.sendEvent(
-      buildEvent(
-        "saIdentityVerificationBypass",
-        "sa17_exceptions_or_insufficient_evidence",
-        Map("saUserType" -> Some(saUserType))))
-
 }
