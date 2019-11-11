@@ -26,16 +26,7 @@
         <div class="column-two-thirds">
 
             @selfAssessmentHeading("title.find_your_user_id.h1")
-
-            <p>
-                @messages("labels.need_utr")
-            </p>
-
-            @saUtr.map { utr =>
-                    <p>
-                        @messages("labels.your_utr_is") <span class="bold-small">@utr</span>.
-                    </p>
-            }
+            @selfAssessmentUtr(saUtr)
 
             <a href="@configDecorator.lostUserIdWithSa" class="button" id="continue">@messages("global.label.continue_button")</a>
         </div>
