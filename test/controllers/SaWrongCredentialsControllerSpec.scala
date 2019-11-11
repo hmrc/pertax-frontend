@@ -38,58 +38,6 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
       config,
       injected[TemplateRenderer])
 
-  "landingPage" should {
-    "render the signed-in-wrong-account page" in {
-      val result = controller.landingPage(FakeRequest())
-      contentAsString(result) should include(messagesApi("title.signed_in_wrong_account.h1"))
-      status(result) shouldBe OK
-    }
-  }
-
-  "doYouKnowOtherCredentials" should {
-    "render the do-you-know-your-credentials page" in {
-      val result = controller.doYouKnowOtherCredentials(FakeRequest())
-      contentAsString(result) should include(messagesApi("title.do_you_know_other_credentials.h1"))
-      status(result) shouldBe OK
-    }
-  }
-
-  "doYouKnowUserId" should {
-    "render the do-you-know-your-user-id page" in {
-      val result = controller.doYouKnowUserId(FakeRequest())
-      contentAsString(result) should include(messagesApi("title.do_you_know_user_id.h1"))
-      status(result) shouldBe OK
-    }
-  }
-
-  "signInAgain" should {
-    "render the sign-in-again page" in {
-      val result = controller.signInAgain(FakeRequest())
-      contentAsString(result) should include(messagesApi("title.sign_in_again.h1"))
-      status(result) shouldBe OK
-    }
-  }
-
-  "needToResetPassword" should {
-    "render the need-to-reset-password page" in {
-      val result = controller.needToResetPassword(FakeRequest())
-      val content = contentAsString(result)
-      content should include("1111111111")
-      content should include(messagesApi("title.reset_your_password.h1"))
-      status(result) shouldBe OK
-    }
-  }
-
-  "findYourUserId" should {
-    "render the find-your-user-id page" in {
-      val result = controller.findYourUserId(FakeRequest())
-      val content = contentAsString(result)
-      content should include("1111111111")
-      content should include(messagesApi("title.find_your_user_id.h1"))
-      status(result) shouldBe OK
-    }
-  }
-
   "processDoYouKnowOtherCredentials" should {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
       val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")

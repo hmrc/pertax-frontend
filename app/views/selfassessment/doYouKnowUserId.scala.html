@@ -21,6 +21,7 @@
 @import tags._
 @import uk.gov.hmrc.play.views.html.helpers._
 
+@import views.html.selfassessment.selfAssessmentHeading
 @(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(messages("title.do_you_know_user_id.h1"),
@@ -30,13 +31,7 @@
     <div class="grid-row">
         <div class="column-two-thirds">
 
-            <header class="page-heading">
-                <h1 class="heading-xlarge">
-                @messages("title.do_you_know_user_id.h1")
-                </h1>
-                <p class="heading-secondary"><span class="visuallyhidden">
-                    This section is </span>@messages("label.access_your_self_assessment")</p>
-            </header>
+            @selfAssessmentHeading("title.do_you_know_user_id.h1")
 
             @errors(wrongCredentialsUserForm)
 
