@@ -16,39 +16,24 @@
 
 package controllers
 
-import controllers.auth.AuthJourney
-import controllers.auth.requests.UserRequest
+import controllers.auth.FakeAuthJourney
 import models.WrongCredentialsSelfAssessmentUser
-import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, LocalPartialRetriever, UserRequestFixture}
-
-import scala.concurrent.Future
+import util.{BaseSpec, LocalPartialRetriever}
 
 class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
-  val authJourney = mock[AuthJourney]
-
-  when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-      block(
-        buildUserRequest(
-          saUser = WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
-          request = request
-        ))
-  })
+  val fakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")))
 
   val messagesApi = injected[MessagesApi]
 
   def controller =
-    new SaWrongCredentialsController(messagesApi, authJourney)(
+    new SaWrongCredentialsController(messagesApi, fakeAuthJourney)(
       injected[LocalPartialRetriever],
       config,
       injected[TemplateRenderer])
@@ -107,116 +92,50 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
   "processDoYouKnowOtherCredentials" should {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
-      when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequestFixture
-              .buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
-                  .asInstanceOf[Request[A]]
-              )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
 
-      val result = controller.processDoYouKnowOtherCredentials(FakeRequest())
+      val result = controller.processDoYouKnowOtherCredentials(request)
       status(result) shouldBe SEE_OTHER
       redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.signInAgain().url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
-      when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequestFixture
-              .buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
-                  .asInstanceOf[Request[A]]
-              )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
 
-      val result = controller.processDoYouKnowOtherCredentials(FakeRequest())
+      val result = controller.processDoYouKnowOtherCredentials(request)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.doYouKnowUserId().url)
     }
 
     "return a bad request when supplied no value" in {
-      when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequestFixture
-              .buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .asInstanceOf[Request[A]]
-              )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
+      val request = FakeRequest("POST", "")
 
-      val result = controller.processDoYouKnowOtherCredentials(FakeRequest())
+      val result = controller.processDoYouKnowOtherCredentials(request)
       status(result) shouldBe BAD_REQUEST
     }
   }
 
   "processDoYouKnowUserId" should {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
-      when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequestFixture
-              .buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
-                  .asInstanceOf[Request[A]]
-              )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
 
-      val result = controller.processDoYouKnowUserId(FakeRequest())
+      val result = controller.processDoYouKnowUserId(request)
       status(result) shouldBe SEE_OTHER
       redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.needToResetPassword().url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
-      when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequestFixture
-              .buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
-                  .asInstanceOf[Request[A]]
-              )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processDoYouKnowUserId(FakeRequest())
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
+      val result = controller.processDoYouKnowUserId(request)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.findYourUserId().url)
     }
 
     "return a bad request when supplied no value" in {
-      when(authJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            UserRequestFixture
-              .buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .asInstanceOf[Request[A]]
-              )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processDoYouKnowUserId(FakeRequest())
+      val request = FakeRequest("POST", "")
+      val result = controller.processDoYouKnowUserId(request)
       status(result) shouldBe BAD_REQUEST
     }
   }
