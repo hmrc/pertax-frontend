@@ -332,21 +332,43 @@ class AddressController @Inject()(
                                "addressLookupResults",
                                "find_address",
                                Map("postcode" -> Some(addressFinderDto.postcode), "filter" -> addressFinderDto.filter)))
-                           Future.successful(
-                             Ok(
-                               views.html.personaldetails.addressSelector(
-                                 AddressSelectorDto.form,
-                                 recordSet,
-                                 typ,
-                                 addressFinderDto.postcode,
-                                 addressFinderDto.filter
-                               )
-                             )
-                           )
+
+                           cacheSelectedRecordSet(typ, recordSet) map { _ =>
+                             Redirect(routes.AddressController.showAddressSelectorForm(typ))
+                               .addingToSession(
+                                 ("postcode", addressFinderDto.postcode),
+                                 ("filter", addressFinderDto.filter.getOrElse("")))
+                           }
                        }
             } yield result
           }
         )
+      }
+    }
+
+  def showAddressSelectorForm(typ: AddrType) =
+    authenticate.async { implicit request =>
+      val postcode =
+        request.body.asFormUrlEncoded.flatMap(_.get("postcode").flatMap(_.headOption)).getOrElse("")
+      val filter =
+        request.body.asFormUrlEncoded.flatMap(_.get("filter").flatMap(_.headOption))
+
+      gettingCachedJourneyData(typ) { journeyData =>
+        journeyData.recordSet match {
+          case Some(set) =>
+            Future.successful(
+              Ok(
+                views.html.personaldetails.addressSelector(
+                  AddressSelectorDto.form,
+                  set,
+                  typ,
+                  postcode,
+                  filter
+                )
+              )
+            )
+          case _ => Future.successful(Redirect(routes.AddressController.showPostcodeLookupForm(typ)))
+        }
       }
     }
 
@@ -357,54 +379,63 @@ class AddressController @Inject()(
       val filter =
         request.body.asFormUrlEncoded.flatMap(_.get("filter").flatMap(_.headOption))
 
+      val errorPage = Future.successful(
+        InternalServerError(
+          views.html.error(
+            "global.error.InternalServerError500.title",
+            Some("global.error.InternalServerError500.title"),
+            List("global.error.InternalServerError500.message")
+          )
+        )
+      )
+
       addressJourneyEnforcer { _ => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors => {
-              lookingUpAddress(typ, postcode, journeyData.addressLookupServiceDown, filter) {
-                case AddressLookupSuccessResponse(recordSet) =>
-                  Future.successful(BadRequest(
-                    views.html.personaldetails.addressSelector(formWithErrors, recordSet, typ, postcode, filter)))
+              journeyData.recordSet match {
+                case Some(set) =>
+                  Future.successful(
+                    BadRequest(
+                      views.html.personaldetails.addressSelector(
+                        formWithErrors,
+                        set,
+                        typ,
+                        postcode,
+                        filter
+                      )
+                    ))
+                case _ =>
+                  Logger.warn("Failed to retrieve Address Record Set from cache")
+                  errorPage
               }
             },
             addressSelectorDto => {
-              lookingUpAddress(typ, postcode, journeyData.addressLookupServiceDown) {
-                case AddressLookupSuccessResponse(recordSet) =>
-                  recordSet.addresses.find(_.id == addressSelectorDto.addressId.getOrElse("")) map {
-                    addressRecord =>
-                      val addressDto = AddressDto.fromAddressRecord(addressRecord)
-                      cacheSelectedAddressRecord(typ, addressRecord) flatMap {
+              journeyData.recordSet
+                .flatMap(_.addresses.find(_.id == addressSelectorDto.addressId.getOrElse(""))) match {
+                case Some(addressRecord) =>
+                  val addressDto = AddressDto.fromAddressRecord(addressRecord)
+                  cacheSelectedAddressRecord(typ, addressRecord) flatMap {
+                    _ =>
+                      cacheSubmittedAddressDto(typ, addressDto) map {
                         _ =>
-                          cacheSubmittedAddressDto(typ, addressDto) map {
-                            _ =>
-                              val postCodeHasChanged = !postcode
-                                .replace(" ", "")
-                                .equalsIgnoreCase(
-                                  personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
-                              (typ, postCodeHasChanged) match {
-                                case (PostalAddrType, true) => Redirect(routes.AddressController.enterStartDate(typ))
-                                case (PostalAddrType, false) =>
-                                  Redirect(routes.AddressController.showUpdateAddressForm(typ))
-                                case (_, true) => Redirect(routes.AddressController.enterStartDate(typ))
-                                case (_, false) =>
-                                  cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
-                                  Redirect(routes.AddressController.reviewChanges(typ))
-                              }
+                          val postCodeHasChanged = !postcode
+                            .replace(" ", "")
+                            .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
+                          (typ, postCodeHasChanged) match {
+                            case (PostalAddrType, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (PostalAddrType, false) =>
+                              Redirect(routes.AddressController.showUpdateAddressForm(typ))
+                            case (_, true) => Redirect(routes.AddressController.enterStartDate(typ))
+                            case (_, false) =>
+                              cacheSubmittedStartDate(typ, DateDto(LocalDate.now()))
+                              Redirect(routes.AddressController.reviewChanges(typ))
                           }
                       }
-                  } getOrElse {
-                    Logger.warn(
-                      "Address selector was unable to find address using the id returned by a previous request")
-                    Future.successful(
-                      InternalServerError(
-                        views.html.error(
-                          "global.error.InternalServerError500.title",
-                          Some("global.error.InternalServerError500.title"),
-                          List("global.error.InternalServerError500.message")
-                        )
-                      )
-                    )
                   }
+                case _ =>
+                  Logger.warn("Address selector was unable to find address using the id returned by a previous request")
+                  errorPage
               }
             }
           )

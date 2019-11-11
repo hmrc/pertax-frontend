@@ -19,7 +19,7 @@ package controllers.helpers
 import controllers.bindable.AddrType
 import controllers.{AddressController, routes}
 import models.AddressJourneyData
-import models.addresslookup.AddressRecord
+import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
 import play.api.mvc.Result
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -36,6 +36,9 @@ trait AddressJourneyCachingHelper { this: AddressController =>
   def cacheSelectedAddressRecord(typ: AddrType, addressRecord: AddressRecord)(
     implicit hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache(s"${typ}SelectedAddressRecord", addressRecord)
+
+  def cacheSelectedRecordSet(typ: AddrType, recordSet: RecordSet)(implicit hc: HeaderCarrier): Future[CacheMap] =
+    sessionCache.cache(s"${typ}SelectedRecordSet", recordSet)
 
   def cacheSubmittedAddressDto(typ: AddrType, addressDto: AddressDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
     sessionCache.cache(s"${typ}SubmittedAddressDto", addressDto)
@@ -96,6 +99,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
           AddressJourneyData(
             cacheMap.getEntry[AddressPageVisitedDto]("addressPageVisitedDto"),
             cacheMap.getEntry[ResidencyChoiceDto](s"${typ}ResidencyChoiceDto"),
+            cacheMap.getEntry[RecordSet](s"${typ}SelectedRecordSet"),
             cacheMap.getEntry[AddressFinderDto](s"${typ}AddressFinderDto"),
             cacheMap.getEntry[AddressRecord](s"${typ}SelectedAddressRecord"),
             cacheMap.getEntry[AddressDto](s"${typ}SubmittedAddressDto"),
@@ -105,7 +109,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
           )
         )
       case None =>
-        block(AddressJourneyData(None, None, None, None, None, None, None, addressLookupServiceDown = false))
+        block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
     }
 
   def enforceDisplayAddressPageVisited(addressPageVisitedDto: Option[AddressPageVisitedDto])(block: => Future[Result])(
@@ -120,9 +124,9 @@ trait AddressJourneyCachingHelper { this: AddressController =>
   def enforceResidencyChoiceSubmitted(journeyData: AddressJourneyData)(
     block: AddressJourneyData => Future[Result]): Future[Result] =
     journeyData match {
-      case AddressJourneyData(_, Some(_), _, _, _, _, _, _) =>
+      case AddressJourneyData(_, Some(_), _, _, _, _, _, _, _) =>
         block(journeyData)
-      case AddressJourneyData(_, None, _, _, _, _, _, _) =>
+      case AddressJourneyData(_, None, _, _, _, _, _, _, _) =>
         Future.successful(Redirect(routes.AddressController.personalDetails()))
     }
 
