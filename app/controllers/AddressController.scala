@@ -39,7 +39,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
-import util.SessionKeys.{FILTER, POSTCODE}
+import util.PertaxSessionKeys.{FILTER, POSTCODE}
 import util.{LanguageHelper, LocalPartialRetriever}
 
 import scala.concurrent.Future
