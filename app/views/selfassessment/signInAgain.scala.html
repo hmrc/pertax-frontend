@@ -21,7 +21,7 @@
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("title.sign_in_again.h1"), Some(messages("title.sign_in_again.h1")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
+@main(messages("title.sign_in_again.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
     <div class="grid-row">
         <div class="column-two-thirds">
 
