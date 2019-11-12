@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package models.addresslookup
+package util
 
-import play.api.libs.json._
+object SessionKeys {
 
-case class RecordSet(addresses: Seq[AddressRecord])
-
-object RecordSet {
-  def fromJsonAddressLookupService(addressListAsJson: JsValue): RecordSet = {
-    val addresses = addressListAsJson.as[Seq[AddressRecord]]
-    RecordSet(addresses)
-  }
-
-  implicit val formats = Json.format[RecordSet]
-
+  val POSTCODE = "postcode"
+  val FILTER = "filter"
 }
