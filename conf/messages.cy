@@ -509,14 +509,14 @@ label.access_your_self_assessment=Cyrchwch eich Hunanasesiad
 title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
 label.signed_in_wrong_account=Fe wnaethoch chi ddefnyddio cyfrif gwahanol pan wnaethoch chi arwyddo gyntaf i weld neu anfon eich ffurflenni treth ar-lein.
 
-title.sign_in_again.h1=Mae angen i chi fewngofnodi yn ôl i Borth y Llywodraeth
-label.sign_in_again=Gofynnir i chi fewngofnodi eto gyda’r ID defnyddiwr a’r cyfrinair cywir.
+title.sign_in_again.h1=Mae angen i chi fewngofnodi yn ôl i Borth y Llywodraeth gan ddefnyddio gwahanol fanylion
+label.sign_in_again=Gofynnir i chi fewngofnodi eto gyda’r ID defnyddiwr a’r cyfrinair ar gyfer y cyfrif rydych chi’n ei ddefnyddio ar gyfer Hunanasesu.
 
 title.do_you_know_other_credentials.h1=Ydych chi’n gwybod ID defnyddiwr a chyfrinair y cyfrif rydych chi’n ei ddefnyddio ar gyfer Hunanasesu?
 title.do_you_know_user_id.h1=Ydych chi’n gwybod yr ID defnyddiwr?
 
 title.reset_your_password.h1=Mae angen i chi ailosod eich cyfrinair
-labels.need_utr=Bydd angen eich Cyfeirnod Trethdalwr Unigryw arnoch chi.
+labels.need_utr=Bydd angen eich Cyfeirnod Trethdalwr Unigryw (UTR) arnoch chi.
 labels.your_utr_is=Mae eich UTR yn
 
 title.find_your_user_id.h1=Mae angen ichi ddod o hyd i’ch ID defnyddiwr
