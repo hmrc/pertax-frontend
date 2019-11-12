@@ -16,7 +16,7 @@
 
 package models.addresslookup
 
-import play.api.libs.json._
+import play.api.libs.json.JsValue
 
 case class RecordSet(addresses: Seq[AddressRecord])
 
@@ -25,7 +25,4 @@ object RecordSet {
     val addresses = addressListAsJson.as[Seq[AddressRecord]]
     RecordSet(addresses)
   }
-
-  implicit val formats = Json.format[RecordSet]
-
 }
