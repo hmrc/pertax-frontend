@@ -27,7 +27,8 @@ title.type=Math
 #
 label.beta=BETA
 label.hm_revenue_customs=Cyllid a Thollau EM
-label.hm_revenue_customs_ni_print=<span>Cyllid &amp;<br>Thollau EM</span>
+label.hm_revenue_customs_ni_print.revenue=Cyllid &amp;
+label.hm_revenue_customs_ni_print.customs=Thollau EM
 label.continue=Parhau
 label.your_personal_tax_account=Cyfrif treth personol
 label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
@@ -40,7 +41,9 @@ label.hm_revenue_and_customs=Cyllid a Thollau EM
 label.print_proof_of_your_national_insurance_number=Argraffu cadarnhad o’ch rhif Yswiriant Gwladol
 label.your_national_insurance_letter=Eich llythyr Yswiriant Gwladol
 label.print_your_national_insurance_summary=Argraffu’ch crynodeb Yswiriant Gwladol
-label.nic_eo_hmrc_address=Cyllid a Thollau EM<br>Tŷ Thedford<br>Porthmadog<br>LL49 9BF
+label.nic_eo_hmrc_address.line1=Cyllid a Thollau EM
+label.nic_eo_hmrc_address.line2=Tŷ Thedford
+label.nic_eo_hmrc_address.line3=Porthmadog
 label.print=Argraffu’r llythyr hwn
 label.save_as_a_PDF=ACadw fel PDF
 label.date=Dyddiad
@@ -382,7 +385,8 @@ global.error.InternalServerError500.heading = Mae’n ddrwg gennym, mae problem 
 global.error.InternalServerError500.message = Rhowch gynnig arall arni yn nes ymlaen.
 global.error.BadRequest.title=Mae problem wedi codi
 global.error.BadRequest.heading=Mae problem wedi codi
-global.error.BadRequest.message=Mae’n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>
+global.error.BadRequest.message1=Mae’n ddrwg gennym. Mae problemau technegol wedi codi.
+global.error.BadRequest.message2=Rhowch gynnig arall arni yn nes ymlaen.
 
 
 #

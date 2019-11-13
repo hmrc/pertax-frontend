@@ -21,6 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import com.google.inject.Inject
+import error.GenericErrors
 import models._
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi

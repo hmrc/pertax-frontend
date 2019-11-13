@@ -49,7 +49,7 @@ class PaperlessPreferencesController @Inject()(
               views.html.error(
                 "global.error.BadRequest.title",
                 Some("global.error.BadRequest.heading"),
-                Some("global.error.BadRequest.message"))))
+                List("global.error.BadRequest.message"))))
         } else {
           for {
             managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(

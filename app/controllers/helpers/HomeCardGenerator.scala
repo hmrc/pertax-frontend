@@ -60,7 +60,7 @@ class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
     request.nino.flatMap { _ =>
       taxComponentsState match {
         case TaxComponentsNotAvailableState => None
-        case _                              => Some(views.html.cards.home.payAsYouEarn())
+        case _                              => Some(views.html.cards.home.payAsYouEarn(configDecorator))
       }
     }
 
