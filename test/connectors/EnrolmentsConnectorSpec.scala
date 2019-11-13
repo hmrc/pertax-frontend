@@ -50,18 +50,6 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
       connector.getUserIdsWithEnrolments(utr).futureValue.left.value should include(BAD_REQUEST.toString)
     }
 
-    "throws a JsResultException when given bad json" in {
-      val badJson = Json.obj("abc" -> "invalidData")
-
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(badJson))))
-
-      val f = connector.getUserIdsWithEnrolments(utr)
-      whenReady(f.failed) { e =>
-        e shouldBe a[JsResultException]
-      }
-    }
-
     "NO_CONTENT response should return no enrolments" in {
       when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
