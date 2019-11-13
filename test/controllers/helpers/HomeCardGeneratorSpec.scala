@@ -34,9 +34,9 @@ import views.html.cards.home._
 class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar {
 
   override def messagesApi: MessagesApi = injected[MessagesApi]
-  implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
+  implicit val configDecorator = config
 
-  val homeCardGenerator = new HomeCardGenerator()(mock[ConfigDecorator])
+  val homeCardGenerator = new HomeCardGenerator()
 
   "Calling getPayAsYouEarnCard" should {
     "return nothing when called with no Pertax user" in {
@@ -79,7 +79,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
-      cardBody shouldBe Some(payAsYouEarn())
+      cardBody shouldBe Some(payAsYouEarn(config))
     }
 
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in {
@@ -93,7 +93,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
 
       lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
 
-      cardBody shouldBe Some(payAsYouEarn())
+      cardBody shouldBe Some(payAsYouEarn(config))
     }
 
     "return correct markup when called with with a Pertax user that is PAYE" in {
@@ -108,7 +108,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
       lazy val cardBody =
         homeCardGenerator.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
 
-      cardBody shouldBe Some(payAsYouEarn())
+      cardBody shouldBe Some(payAsYouEarn(config))
     }
   }
 

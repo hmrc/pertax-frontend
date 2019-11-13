@@ -99,7 +99,7 @@ class NiLetterController @Inject()(
               views.html.error(
                 "global.error.InternalServerError500.title",
                 Some("global.error.InternalServerError500.title"),
-                Some("global.error.InternalServerError500.message"))))
+                List("global.error.InternalServerError500.message"))))
         }
     }
 }
