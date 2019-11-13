@@ -21,6 +21,7 @@ import controllers.{AddressController, routes}
 import models.AddressJourneyData
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
+import play.api.libs.json.Writes
 import play.api.mvc.Result
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -29,40 +30,47 @@ import scala.concurrent.Future
 
 trait AddressJourneyCachingHelper { this: AddressController =>
 
-  def cacheAddressFinderDto(typ: AddrType, addressFinderDto: AddressFinderDto)(
-    implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache(s"${typ}AddressFinderDto", addressFinderDto)
+  trait CacheIdentifier[A] {
+    val id: String
+  }
 
-  def cacheSelectedAddressRecord(typ: AddrType, addressRecord: AddressRecord)(
-    implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache(s"${typ}SelectedAddressRecord", addressRecord)
+  case object AddressPageVisitedDtoId extends CacheIdentifier[AddressPageVisitedDto] {
+    override val id: String = "addressPageVisitedDto"
+  }
 
-  def cacheSelectedRecordSet(typ: AddrType, recordSet: RecordSet)(implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache(s"${typ}SelectedRecordSet", recordSet)
+  case object SubmittedTaxCreditsChoiceId extends CacheIdentifier[TaxCreditsChoiceDto] {
+    override val id: String = "taxCreditsChoiceDto"
+  }
 
-  def cacheSubmittedAddressDto(typ: AddrType, addressDto: AddressDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache(s"${typ}SubmittedAddressDto", addressDto)
+  case object SubmittedInternationalAddressChoiceId extends CacheIdentifier[InternationalAddressChoiceDto] {
+    override val id: String = "internationalAddressChoiceDto"
+  }
 
-  def cacheSubmittedStartDate(typ: AddrType, startDate: DateDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache(s"${typ}SubmittedStartDateDto", startDate)
+  abstract class AddressIdentifier[A](partialId: String) extends CacheIdentifier[A] {
+    val typ: AddrType
+    val id: String = s"$typ$partialId"
+  }
 
-  def cacheSubmitedResidencyChoiceDto(residencyChoiceDto: ResidencyChoiceDto)(
-    implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache(s"${residencyChoiceDto.residencyChoice}ResidencyChoiceDto", residencyChoiceDto)
+  case class AddressFinderDtoId(typ: AddrType) extends AddressIdentifier[AddressFinderDto]("AddressFinderDto")
 
-  def cacheAddressPageVisited(hasVisited: AddressPageVisitedDto)(implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache("addressPageVisitedDto", hasVisited)
+  case class SelectedAddressRecordId(typ: AddrType) extends AddressIdentifier[AddressRecord]("SelectedAddressRecord")
 
-  def cacheSubmitedTaxCreditsChoiceDto(taxCreditsChoice: TaxCreditsChoiceDto)(
-    implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache("taxCreditsChoiceDto", taxCreditsChoice)
+  case class SelectedRecordSetId(typ: AddrType) extends AddressIdentifier[RecordSet]("SelectedRecordSet")
 
-  def cacheSubmittedInternationalAddressChoiceDto(internationalAddressChoiceDto: InternationalAddressChoiceDto)(
-    implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache("internationalAddressChoiceDto", internationalAddressChoiceDto)
+  case class SubmittedAddressDtoId(typ: AddrType) extends AddressIdentifier[AddressDto]("SubmittedAddressDto")
+
+  case class SubmittedStartDateId(typ: AddrType) extends AddressIdentifier[DateDto]("SubmittedStartDateDto")
+
+  case class SubmittedResidencyChoiceDtoId(typ: AddrType)
+      extends AddressIdentifier[ResidencyChoiceDto]("ResidencyChoiceDto")
+
+  val addressLookupServiceDownKey = "addressLookupServiceDown"
+
+  def addToCache[A: Writes](id: CacheIdentifier[A], record: A)(implicit hc: HeaderCarrier): Future[CacheMap] =
+    sessionCache.cache(id.id, record)
 
   def cacheAddressLookupServiceDown()(implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache("addressLookupServiceDown", true)
+    sessionCache.cache(addressLookupServiceDownKey, true)
 
   def clearCache()(implicit hc: HeaderCarrier): Future[HttpResponse] =
     sessionCache.remove()
@@ -71,7 +79,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
     implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() flatMap {
       case Some(cacheMap) =>
-        block(cacheMap.getEntry[AddressPageVisitedDto]("addressPageVisitedDto"))
+        block(cacheMap.getEntry[AddressPageVisitedDto](AddressPageVisitedDtoId.id))
       case None =>
         block(None)
     }
@@ -79,7 +87,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
   def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
       {
-        block(cacheMap.flatMap(_.getEntry[Boolean]("addressLookupServiceDown")))
+        block(cacheMap.flatMap(_.getEntry[Boolean](addressLookupServiceDownKey)))
       }
     }
 
@@ -87,7 +95,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
     implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
       {
-        block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto]("taxCreditsChoiceDto")))
+        block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](SubmittedTaxCreditsChoiceId.id)))
       }
     }
 
@@ -97,15 +105,15 @@ trait AddressJourneyCachingHelper { this: AddressController =>
       case Some(cacheMap) =>
         block(
           AddressJourneyData(
-            cacheMap.getEntry[AddressPageVisitedDto]("addressPageVisitedDto"),
-            cacheMap.getEntry[ResidencyChoiceDto](s"${typ}ResidencyChoiceDto"),
-            cacheMap.getEntry[RecordSet](s"${typ}SelectedRecordSet"),
-            cacheMap.getEntry[AddressFinderDto](s"${typ}AddressFinderDto"),
-            cacheMap.getEntry[AddressRecord](s"${typ}SelectedAddressRecord"),
-            cacheMap.getEntry[AddressDto](s"${typ}SubmittedAddressDto"),
-            cacheMap.getEntry[InternationalAddressChoiceDto]("internationalAddressChoiceDto"),
-            cacheMap.getEntry[DateDto](s"${typ}SubmittedStartDateDto"),
-            cacheMap.getEntry[Boolean]("addressLookupServiceDown").getOrElse(false)
+            cacheMap.getEntry[AddressPageVisitedDto](AddressPageVisitedDtoId.id),
+            cacheMap.getEntry[ResidencyChoiceDto](SubmittedResidencyChoiceDtoId(typ).id),
+            cacheMap.getEntry[RecordSet](SelectedRecordSetId(typ).id),
+            cacheMap.getEntry[AddressFinderDto](AddressFinderDtoId(typ).id),
+            cacheMap.getEntry[AddressRecord](SelectedAddressRecordId(typ).id),
+            cacheMap.getEntry[AddressDto](SubmittedAddressDtoId(typ).id),
+            cacheMap.getEntry[InternationalAddressChoiceDto](SubmittedInternationalAddressChoiceId.id),
+            cacheMap.getEntry[DateDto](SubmittedStartDateId(typ).id),
+            cacheMap.getEntry[Boolean](addressLookupServiceDownKey).getOrElse(false)
           )
         )
       case None =>
