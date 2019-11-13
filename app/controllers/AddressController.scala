@@ -400,7 +400,7 @@ class AddressController @Inject()(
                         views.html.error(
                           "global.error.InternalServerError500.title",
                           Some("global.error.InternalServerError500.title"),
-                          Some("global.error.InternalServerError500.message")
+                          List("global.error.InternalServerError500.message")
                         )
                       )
                     )
@@ -670,7 +670,8 @@ class AddressController @Inject()(
         views.html.error(
           "global.error.InternalServerError500.title",
           Some("global.error.InternalServerError500.title"),
-          Some("global.error.InternalServerError500.message")))
+          List("global.error.InternalServerError500.message")
+        ))
 
     val address = getAddress(personDetails.correspondenceAddress)
     val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
@@ -684,7 +685,7 @@ class AddressController @Inject()(
                        views.html.error(
                          "global.error.BadRequest.title",
                          Some("global.error.BadRequest.title"),
-                         Some("global.error.BadRequest.message")
+                         List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
                        )
                      )
                    )
