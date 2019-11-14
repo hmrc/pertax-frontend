@@ -10,6 +10,13 @@
         </encoder>
     </appender>
 
+    <appender name="FILE_TEMP" class="ch.qos.logback.core.FileAppender">
+        <file>logs/pertax-frontend-temp.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%date{ISO8601} level=[%level] logger=[%logger] thread=[%thread] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
@@ -48,6 +55,10 @@
     <logger name="uk.gov" level="WARN" additivity="false">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="services.AddressLookupService" level="INFO" additivity="false">
+        <appender-ref ref="FILE_TEMP"/>
     </logger>
 
     <logger name="application" level="WARN" additivity="false">

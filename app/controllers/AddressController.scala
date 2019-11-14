@@ -60,6 +60,8 @@ class AddressController @Inject()(
   templateRenderer: TemplateRenderer)
     extends PertaxBaseController with AddressJourneyCachingHelper {
 
+  val logger = Logger(this.getClass)
+
   def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
   def currentAddressType(personDetails: PersonDetails): String =
@@ -107,6 +109,8 @@ class AddressController @Inject()(
             Redirect(routes.AddressController.showUpdateAddressForm(typ))
           }
       }
+
+      logger.info(s"postcode: $postcode")
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
