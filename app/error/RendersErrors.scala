@@ -48,13 +48,15 @@ trait RendersErrors extends Results {
       case NOT_FOUND   => "pageNotFound404"
       case _           => "InternalServerError500"
     }
-
-    Status(statusCode)(
-      views.html.error(
-        s"global.error.$errorKey.title",
-        Some(s"global.error.$errorKey.heading"),
-        List(s"global.error.$errorKey.message")))
-
+    if (statusCode == NOT_FOUND) {
+      NotFound(views.html.page_not_found_template())
+    } else {
+      Status(statusCode)(
+        views.html.error(
+          s"global.error.$errorKey.title",
+          Some(s"global.error.$errorKey.heading"),
+          List(s"global.error.$errorKey.message")))
+    }
   }
 
   def unauthenticatedFutureError(statusCode: Int)(
