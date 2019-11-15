@@ -505,3 +505,13 @@ label.message=Message
 label.personal_details=Personal details
 label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings
+
+#
+# Page not found
+#
+global.page.not.found.error.title=Page not found
+global.page.not.found.error.check.web.address.correct=If you typed the web address, check it is correct.
+global.page.not.found.error.check.web.address.full=If you pasted the web address, check you copied the entire address.
+global.page.not.found.error.contact=If the web address is correct or you selected a link or button, {0} if you need to speak to someone about your taxes.
+global.page.not.found.error.contact.link.text=contact the Income Tax helpline
+global.page.not.found.error.contact.link=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/income-tax-enquiries-for-individuals-pensioners-and-employees

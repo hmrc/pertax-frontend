@@ -507,3 +507,13 @@ label.child.trust.fund=Cronfa Ymddiriedolaeth Plant
 label.child.trust.fund.details=Pan fyddwch yn cyrraedd 16 oed, cymerwch reolaeth o’ch Cronfa Ymddiriedolaeth Plant. Gofynnwch i’ch rhieni neu’ch gofalwr - am ragor o wybodaeth, ewch i www.gov.uk/child-trust-funds
 label.hmrc_date=CThEM {0}
 label.page=Tudalen
+
+#
+# Page not found
+#
+global.page.not.found.error.title=Heb ddod o hyd i’r dudalen
+global.page.not.found.error.check.web.address.correct=Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.
+global.page.not.found.error.check.web.address.full=Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad yn llawn.
+global.page.not.found.error.contact=Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, {0} os oes angen i chi siarad â rhywun am eich trethi.
+global.page.not.found.error.contact.link.text=cysylltwch â Gwasanaeth Cwsmeriaid Cymraeg CThEM
+global.page.not.found.error.contact.link=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment
