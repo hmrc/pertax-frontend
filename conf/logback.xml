@@ -59,6 +59,8 @@
 
     <logger name="services.AddressLookupService" level="INFO" additivity="false">
         <appender-ref ref="FILE_TEMP"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
 
     <logger name="application" level="WARN" additivity="false">
