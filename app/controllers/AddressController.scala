@@ -110,7 +110,7 @@ class AddressController @Inject()(
           }
       }
 
-      logger.info(s"postcode: $postcode")
+      if(postcode.isEmpty)logger.warn(s"post code is empty")
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
