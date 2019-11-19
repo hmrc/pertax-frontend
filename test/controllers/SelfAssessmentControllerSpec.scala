@@ -107,8 +107,8 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NotEnrolledSelfAssessmentUser(saUtr))
 
       val result = controller.handleSelfAssessment()(FakeRequest())
-      status(result) shouldBe OK
-      contentAsString(result) should include(messagesApi("label.find_out_how_to_access_your_self_assessment"))
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some(routes.SelfAssessmentController.requestAccess().url)
     }
   }
 
@@ -148,13 +148,8 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NotEnrolledSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      val doc = Jsoup.parse(contentAsString(result))
-      status(result) shouldBe OK
-
-      doc
-        .getElementsByClass("heading-xlarge")
-        .toString()
-        .contains(messagesApi("label.find_out_how_to_access_your_self_assessment")) shouldBe true
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(await(result)) shouldBe Some(routes.SelfAssessmentController.requestAccess().url)
     }
 
     "redirect to 'We cannot confirm your identity' page for a user who has no SAUTR" in new LocalSetup {

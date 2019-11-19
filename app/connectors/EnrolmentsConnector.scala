@@ -18,11 +18,9 @@ package connectors
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import play.api.Logger
 import play.api.http.Status._
-import play.api.mvc.Result
 import services.http.WsAllMethods
-import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,7 +30,7 @@ class EnrolmentsConnector @Inject()(http: WsAllMethods, configDecorator: ConfigD
 
   def getUserIdsWithEnrolments(
     saUtr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Seq[String]]] = {
-    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users?type=principal"
+    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users"
 
     http.GET[HttpResponse](url) map { response =>
       response.status match {
