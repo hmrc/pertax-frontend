@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package models
+package models.dto
 
-import uk.gov.hmrc.domain.SaUtr
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.Json
 
-sealed trait SelfAssessmentUserType
-sealed trait SelfAssessmentUser extends SelfAssessmentUserType {
-  def saUtr: SaUtr
+final case class SAWrongCredentialsDto(value: Boolean)
 
+object SAWrongCredentialsDto {
+
+  implicit val formats = Json.format[SAWrongCredentialsDto]
+
+  val form = Form(
+    mapping(
+      "wrongCredentialsFormChoice" -> optional(boolean)
+        .verifying("error.you_must_select_an_answer", _.isDefined)
+        .transform[Boolean](_.getOrElse(false), Some(_))
+    )(SAWrongCredentialsDto.apply)(SAWrongCredentialsDto.unapply)
+  )
 }
-case class ActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
-case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
-case class WrongCredentialsSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
-case class NotEnrolledSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
-case object NonFilerSelfAssessmentUser extends SelfAssessmentUserType
