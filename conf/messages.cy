@@ -525,3 +525,8 @@ labels.your_utr_is=Your UTR is
 
 title.find_your_user_id.h1=Get help finding your user ID
 
+title.request_sa_access.h1=You need to request access to Self Assessment
+label.request_sa_access.p1=This may be because you have deregistered from Self Assessment online.
+label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
+label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
+label.request_sa_access.button=Request access to Self Assessment
