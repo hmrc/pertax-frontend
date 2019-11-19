@@ -41,7 +41,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
   "getAssignedEnrolments" should {
     val utr = "1234500000"
-    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users?type=principal"
+    val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "Return the error message for a BAD_REQUEST response" in {
       when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
@@ -60,7 +60,8 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
     "query users with no principal enrolment returns empty enrolments" in {
       val json = Json.parse("""
                               |{
-                              |    "principalUserIds": []
+                              |    "principalUserIds": [],
+                              |     "delegatedUserIds": []
                               |}""".stripMargin)
 
       when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
@@ -75,6 +76,9 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
                               |    "principalUserIds": [
                               |       "ABCEDEFGI1234567",
                               |       "ABCEDEFGI1234568"
+                              |    ],
+                              |    "delegatedUserIds": [
+                              |     "dont care"
                               |    ]
                               |}""".stripMargin)
 
