@@ -58,7 +58,7 @@ class SelfAssessmentController @Inject()(
             case WrongCredentialsSelfAssessmentUser(_) =>
               Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
             case NotEnrolledSelfAssessmentUser(saUtr) =>
-              Ok(views.html.selfAssessmentNotShown(saUtr))
+              Redirect(controllers.routes.SelfAssessmentController.requestAccess())
             case _ => Redirect(routes.HomeController.index())
           }
         } else {
@@ -82,7 +82,7 @@ class SelfAssessmentController @Inject()(
           Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
         case NotEnrolledSelfAssessmentUser(saUtr) =>
           handleIvExemptAuditing("Never enrolled SA filer")
-          Ok(views.html.selfAssessmentNotShown(saUtr))
+          Redirect(controllers.routes.SelfAssessmentController.requestAccess())
         case NonFilerSelfAssessmentUser =>
           Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl))
       }
@@ -95,5 +95,15 @@ class SelfAssessmentController @Inject()(
         "saIdentityVerificationBypass",
         "sa17_exceptions_or_insufficient_evidence",
         Map("saUserType" -> Some(saUserType))))
+
+  def requestAccess: Action[AnyContent] =
+    authJourney.minimumAuthWithSelfAssessment { implicit request =>
+      request.saUserType match {
+        case NotEnrolledSelfAssessmentUser(saUtr) =>
+          val deadlineYear = current.finishYear.toString
+          Ok(views.html.selfassessment.requestAccessToSelfAssessment(saUtr.utr, deadlineYear))
+        case _ => Redirect(routes.HomeController.index())
+      }
+    }
 
 }
