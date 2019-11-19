@@ -58,7 +58,7 @@ class AddressLookupService @Inject()(
       val pc = postcode.replaceAll(" ", "")
       val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
 
-      if(pc.isEmpty)logger.warn(s"post code is empty")
+      if (pc.isEmpty) logger.warn(s"post code is empty")
 
       simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v1/gb/addresses.json?postcode=$pc&filter=$hn")(
         onComplete = {

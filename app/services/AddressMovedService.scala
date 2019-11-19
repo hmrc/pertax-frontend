@@ -32,8 +32,8 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
     ec: ExecutionContext): Future[AddressChanged] =
     withAddressExists(fromAddressId, toAddressId) {
 
-      if(fromAddressId.isEmpty) logger.warn(s"from address is empty")
-      if(toAddressId.isEmpty) logger.warn(s"to address is empty")
+      if (fromAddressId.isEmpty) logger.warn(s"from address is empty")
+      if (toAddressId.isEmpty) logger.warn(s"to address is empty")
 
       for {
         fromResponse <- addressLookupService.lookup(fromAddressId)

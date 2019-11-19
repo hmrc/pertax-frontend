@@ -110,7 +110,7 @@ class AddressController @Inject()(
           }
       }
 
-      if(postcode.isEmpty)logger.warn(s"post code is empty")
+      if (postcode.isEmpty) logger.warn(s"post code is empty")
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
@@ -291,11 +291,12 @@ class AddressController @Inject()(
             Future.successful(BadRequest(views.html.personaldetails.postcodeLookup(formWithErrors, typ)))
           },
           addressFinderDto => {
+
+            if(addressFinderDto.postcode.isEmpty) logger.warn("AddressController:processPostcodeLookupForm: post code is empty")
+
             for {
               _ <- cacheAddressFinderDto(typ, addressFinderDto)
-              lookupDown <- gettingCachedAddressLookupServiceDown { lookup =>
-                             lookup
-                           }
+              lookupDown <- gettingCachedAddressLookupServiceDown { lookup =>lookup}
               result <- lookingUpAddress(
                          typ,
                          addressFinderDto.postcode,
@@ -365,6 +366,9 @@ class AddressController @Inject()(
         gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors => {
+
+              if(postcode.isEmpty) logger.warn("AddressController: FORM WITH ERRORS processAddressSelectorForm: post code is empty")
+
               lookingUpAddress(typ, postcode, journeyData.addressLookupServiceDown, filter) {
                 case AddressLookupSuccessResponse(recordSet) =>
                   Future.successful(BadRequest(
@@ -372,6 +376,9 @@ class AddressController @Inject()(
               }
             },
             addressSelectorDto => {
+
+              if(postcode.isEmpty) logger.warn("AddressController: HAPPY PATH processAddressSelectorForm: post code is empty")
+
               lookingUpAddress(typ, postcode, journeyData.addressLookupServiceDown) {
                 case AddressLookupSuccessResponse(recordSet) =>
                   recordSet.addresses.find(_.id == addressSelectorDto.addressId.getOrElse("")) map {
