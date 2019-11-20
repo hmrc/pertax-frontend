@@ -18,22 +18,16 @@ package services
 
 import com.google.inject.Inject
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
-import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressMovedService @Inject()(addressLookupService: AddressLookupService) {
 
-  val logger = Logger(this.getClass)
-
   def moved(fromAddressId: String, toAddressId: String)(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext): Future[AddressChanged] =
     withAddressExists(fromAddressId, toAddressId) {
-
-      if (fromAddressId.isEmpty) logger.warn(s"from address is empty")
-      if (toAddressId.isEmpty) logger.warn(s"to address is empty")
 
       for {
         fromResponse <- addressLookupService.lookup(fromAddressId)
