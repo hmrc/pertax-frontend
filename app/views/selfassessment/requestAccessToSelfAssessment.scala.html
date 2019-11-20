@@ -21,7 +21,7 @@
 
 @(utr: String, deadlineYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("title.request_sa_access.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
+@main(messages("title.request_sa_access.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.HomeController.index().url)) {
     <div class="grid-row">
         <div class="column-two-thirds">
             <header class="page-heading">
