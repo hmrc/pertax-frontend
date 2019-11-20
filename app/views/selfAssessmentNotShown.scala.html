@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@(utr: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(saUtr: Option[SaUtr])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(messages("label.find_out_how_to_access_your_self_assessment"), Some(messages("label.your_personal_tax_account"))) {
 
@@ -33,9 +33,9 @@
             </header>
 
             <p>@messages("label.you_already_have_a_utr")</p>
-            @utr.map { value =>
+            @saUtr.map { utr =>
                 <div class="panel panel-border-wide">
-                    <p>@Html(messages("label.your_utr_is_", value))</p>
+                    <p>@Html(messages("label.your_utr_is_", utr.value))</p>
                 </div>
             }
             <p>@messages("label.we_need_to_ask_you_some_questions_")</p>
