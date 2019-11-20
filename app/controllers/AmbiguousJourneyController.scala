@@ -25,6 +25,7 @@ import models.dto.AmbiguousUserFlowDto
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent}
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.{DateTimeTools, LocalPartialRetriever, TaxYearRetriever}
@@ -46,9 +47,9 @@ class AmbiguousJourneyController @Inject()(
 
   private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails
 
-  private def getSaUtr(implicit request: UserRequest[AnyContent]): Option[String] =
+  private def getSaUtr(implicit request: UserRequest[AnyContent]): Option[SaUtr] =
     request.saUserType match {
-      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr)
       case _                          => None
     }
 
@@ -233,7 +234,7 @@ class AmbiguousJourneyController @Inject()(
               Ok(
                 views.html.ambiguousjourney
                   .wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
-            case _ => Ok(views.html.selfAssessmentNotShown(Some(saUtr.utr)))
+            case _ => Ok(views.html.selfAssessmentNotShown(Some(saUtr)))
           }
         case _ => Redirect(routes.HomeController.index())
       }
