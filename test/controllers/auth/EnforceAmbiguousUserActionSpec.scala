@@ -53,26 +53,27 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
   }
 
   "EnforceAmbiguousUserAction must" - {
-    "when a user is ambiguous" - {
 
-      "return the request it was passed" in {
-        Seq(NotEnrolledSelfAssessmentUser(SaUtr("1111111111")), WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")))
-          .map { selfAssessmentType: SelfAssessmentUserType =>
+    Seq(NotEnrolledSelfAssessmentUser(SaUtr("1111111111")), WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")))
+      .map { selfAssessmentType: SelfAssessmentUserType =>
+        s"when a user is a $selfAssessmentType" - {
+          "return the request it was passed" in {
+
             val userRequest = buildUserRequest(saUser = selfAssessmentType, request = FakeRequest())
 
             val result = harness()(userRequest)
             status(result) mustBe OK
           }
+        }
       }
 
-      "when a user is not ambiguous" - {
-        "redirect to the landing page" in {
-          val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+    "when a user is not ambiguous" - {
+      "redirect to the landing page" in {
+        val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
 
-          val result = harness()(userRequest)
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result).get must endWith("/personal-account")
-        }
+        val result = harness()(userRequest)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must endWith("/personal-account")
       }
     }
   }
