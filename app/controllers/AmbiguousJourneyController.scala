@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, EnforceAmbiguousUserAction}
 import com.google.inject.Inject
-import models.NotEnrolledSelfAssessmentUser
+import models.{NotEnrolledSelfAssessmentUser, SelfAssessmentUser}
 import models.dto.AmbiguousUserFlowDto
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
@@ -45,6 +45,16 @@ class AmbiguousJourneyController @Inject()(
   override def now: () => DateTime = () => DateTime.now()
 
   private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails
+
+  private def getSaUtr(implicit request: UserRequest[AnyContent]): Option[String] =
+    request.saUserType match {
+      case saUser: SelfAssessmentUser => Some(saUser.saUtr.utr)
+      case _                          => None
+    }
+
+  def landingPage: Action[AnyContent] = (authenticate andThen enforceAmbiguousUserAction).async { implicit request =>
+    Future.successful(Ok(views.html.selfAssessmentNotShown(getSaUtr)))
+  }
 
   def filedReturnOnlineChoice: Action[AnyContent] = (authenticate andThen enforceAmbiguousUserAction).async {
     implicit request =>
@@ -223,7 +233,7 @@ class AmbiguousJourneyController @Inject()(
               Ok(
                 views.html.ambiguousjourney
                   .wrongAccount(saUtr, continueUrl, routes.AmbiguousJourneyController.usedUtrToRegisterChoice()))
-            case _ => Ok(views.html.selfAssessmentNotShown(saUtr))
+            case _ => Ok(views.html.selfAssessmentNotShown(Some(saUtr.utr)))
           }
         case _ => Redirect(routes.HomeController.index())
       }
