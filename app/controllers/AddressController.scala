@@ -110,7 +110,6 @@ class AddressController @Inject()(
           }
       }
 
-      if (postcode.isEmpty) logger.warn(s"post code is empty")
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
@@ -292,11 +291,14 @@ class AddressController @Inject()(
           },
           addressFinderDto => {
 
-            if(addressFinderDto.postcode.isEmpty) logger.warn("AddressController:processPostcodeLookupForm: post code is empty")
+            if (addressFinderDto.postcode.isEmpty)
+              logger.warn("post code is empty for processPostCodeLookupForm")
 
             for {
               _ <- cacheAddressFinderDto(typ, addressFinderDto)
-              lookupDown <- gettingCachedAddressLookupServiceDown { lookup =>lookup}
+              lookupDown <- gettingCachedAddressLookupServiceDown { lookup =>
+                             lookup
+                           }
               result <- lookingUpAddress(
                          typ,
                          addressFinderDto.postcode,
@@ -367,7 +369,8 @@ class AddressController @Inject()(
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors => {
 
-              if(postcode.isEmpty) logger.warn("AddressController: FORM WITH ERRORS processAddressSelectorForm: post code is empty")
+              if (postcode.isEmpty)
+                logger.warn("post code is empty for processAddressSelectorForm with errors")
 
               lookingUpAddress(typ, postcode, journeyData.addressLookupServiceDown, filter) {
                 case AddressLookupSuccessResponse(recordSet) =>
@@ -377,7 +380,8 @@ class AddressController @Inject()(
             },
             addressSelectorDto => {
 
-              if(postcode.isEmpty) logger.warn("AddressController: HAPPY PATH processAddressSelectorForm: post code is empty")
+              if (postcode.isEmpty)
+                logger.warn("post code is empty for processAddressSelectorForm")
 
               lookingUpAddress(typ, postcode, journeyData.addressLookupServiceDown) {
                 case AddressLookupSuccessResponse(recordSet) =>
