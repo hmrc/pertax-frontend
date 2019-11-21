@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import models._
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalDate}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,6 +33,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.{DateTimeTools, LocalPartialRetriever}
+import viewmodels.SelfAssessmentPayment
 
 import scala.concurrent.Future
 
@@ -57,7 +58,7 @@ class SelfAssessmentController @Inject()(
               Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
             case WrongCredentialsSelfAssessmentUser(_) =>
               Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
-            case NotEnrolledSelfAssessmentUser(saUtr) =>
+            case NotEnrolledSelfAssessmentUser(_) =>
               Redirect(controllers.routes.SelfAssessmentController.requestAccess())
             case _ => Redirect(routes.HomeController.index())
           }
@@ -80,7 +81,7 @@ class SelfAssessmentController @Inject()(
         case WrongCredentialsSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Wrong credentials SA filer")
           Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
-        case NotEnrolledSelfAssessmentUser(saUtr) =>
+        case NotEnrolledSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Never enrolled SA filer")
           Redirect(controllers.routes.SelfAssessmentController.requestAccess())
         case NonFilerSelfAssessmentUser =>
@@ -106,4 +107,25 @@ class SelfAssessmentController @Inject()(
       }
     }
 
+  def viewPayments: Action[AnyContent] =
+    authJourney.authWithSelfAssessment { implicit request =>
+      request.saUserType match {
+        case ActivatedOnlineFilerSelfAssessmentUser(_) =>
+          implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+          val x = List(
+            SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123458", 361.85),
+            SelfAssessmentPayment(LocalDate.now().minusDays(24), "KT123457", 21.74),
+            SelfAssessmentPayment(LocalDate.now().minusDays(61), "KT123459", 7.00),
+            SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123456", 103.05)
+          )
+
+          Ok(views.html.selfassessment.viewPayments(filterAndSortPayments(x)))
+        case _ =>
+          Redirect(routes.HomeController.index())
+      }
+    }
+
+  def filterAndSortPayments(payments: List[SelfAssessmentPayment])(
+    implicit order: Ordering[LocalDate]): List[SelfAssessmentPayment] =
+    payments.filter(_.date isAfter LocalDate.now.minusDays(60)).sortBy(_.date)
 }

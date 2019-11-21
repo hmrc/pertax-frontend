@@ -46,4 +46,6 @@ class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecor
       }
     }
   }
+
+  //TODO new function for getting payments
 }

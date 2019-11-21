@@ -77,6 +77,7 @@ GET         /personal-account/your-address/thanks                               
 GET         /personal-account/self-assessment-summary                                  @controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              @controllers.InterstitialController.displaySa302Interrupt(year: Int)
 
+GET         /personal-account/self-assessment-payments                                 @controllers.SelfAssessmentController.viewPayments
 GET         /personal-account/national-insurance-summary                               @controllers.InterstitialController.displayNationalInsurance
 GET         /personal-account/national-insurance-summary/print-letter                  @controllers.NiLetterController.printNationalInsuranceNumber
 GET         /personal-account/national-insurance-summary/save-letter-as-pdf            @controllers.NiLetterController.saveNationalInsuranceNumberAsPdf

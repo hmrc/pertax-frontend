@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import connectors.PertaxAuditConnector
 import controllers.auth._
 import models._
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalDate}
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, when}
@@ -38,6 +38,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
+import viewmodels.SelfAssessmentPayment
 
 import scala.concurrent.Future
 
@@ -86,7 +87,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
     }
   }
 
-  "Calling ApplicationController.handleSelfAssessment" should {
+  "Calling SelfAssessmentController.handleSelfAssessment" should {
 
     "return 303 when called with a GG user that needs to activate their SA enrolment." in new LocalSetup {
       val result = controller.handleSelfAssessment()(FakeRequest())
@@ -112,7 +113,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
     }
   }
 
-  "Calling ApplicationController.ivExemptLandingPage" should {
+  "Calling SelfAssessmentController.ivExemptLandingPage" should {
     "return 200 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
@@ -168,6 +169,87 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
           .getOrElse(throw new TestFailedException("Failed to route", 0))
 
       status(result) shouldBe BAD_REQUEST
+    }
+  }
+
+  "Calling SelfAssessmentController.viewPayments" should {
+
+    "return 200 and render viewPayments page" when {
+
+      "a user is an Activated SA user" in new LocalSetup {
+
+        override def fakeAuthJourney: FakeAuthJourney =
+          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+
+        val result: Future[Result] = controller.viewPayments()(FakeRequest())
+
+        status(result) shouldBe OK
+
+        Jsoup.parse(contentAsString(result)).text() should include(
+          messagesApi("title.selfAssessment.viewPayments.h1")
+        )
+
+      }
+    }
+
+    "redirect to the home page" when {
+
+      "a user is not an Activated SA user" in new LocalSetup {
+
+        override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
+
+        val result =
+          routeWrapper(buildFakeRequestWithAuth("GET", routes.SelfAssessmentController.viewPayments().url))
+            .getOrElse(throw new TestFailedException("Failed to route", 0))
+
+        val doc = Jsoup.parse(contentAsString(result))
+
+        status(result) shouldBe SEE_OTHER
+
+        redirectLocation(result) shouldBe Some(routes.HomeController.index().url)
+      }
+    }
+
+    "Calling SelfAssessmentController.filterAndSortPayments" should {
+
+      "filter payments to only include payments in the past 60 days" in new LocalSetup {
+
+        override def fakeAuthJourney: FakeAuthJourney =
+          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+
+        implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+
+        val outlier = SelfAssessmentPayment(LocalDate.now().minusDays(61), "KT123459", 7.00)
+
+        val list = List(
+          SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123458", 361.85),
+          SelfAssessmentPayment(LocalDate.now().minusDays(24), "KT123457", 21.74),
+          outlier,
+          SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123456", 103.05)
+        )
+
+        controller.filterAndSortPayments(list) should not contain (outlier)
+
+      }
+
+      "order payments from latest payment descending" in new LocalSetup {
+
+        override def fakeAuthJourney: FakeAuthJourney =
+          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+
+        implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+
+        val latest = SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123456", 103.05)
+
+        val middle = SelfAssessmentPayment(LocalDate.now().minusDays(24), "KT123457", 21.74)
+
+        val earliest = SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123458", 361.85)
+
+        val list = List(middle, earliest, latest)
+
+        controller.filterAndSortPayments(list) shouldBe List(latest, middle, earliest)
+
+      }
     }
   }
 }
