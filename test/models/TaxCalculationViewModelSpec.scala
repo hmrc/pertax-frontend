@@ -32,7 +32,7 @@ class TaxCalculationViewModelSpec extends ViewSpec {
   def view(reconciliation: Reconciliation): Option[Document] =
     TaxCalculationViewModel.fromTaxYearReconciliation(TaxYearReconciliation(2017, reconciliation))(config).map {
       taxRec =>
-        asDocument(taxCalculation(taxRec)(messages, pertaxContext, config).toString)
+        asDocument(taxCalculation(taxRec)(messages, config).toString)
     }
 
   def formatDate(date: LocalDate) = LanguageHelper.langUtils.Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)

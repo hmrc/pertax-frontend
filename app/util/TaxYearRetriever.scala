@@ -18,7 +18,7 @@ package util
 
 import com.google.inject.ImplementedBy
 import org.joda.time.DateTime
-import uk.gov.hmrc.time.{CurrentTaxYear, TaxYear}
+import uk.gov.hmrc.time.CurrentTaxYear
 
 @ImplementedBy(classOf[TaxYearRetrieverImpl])
 trait TaxYearRetriever {

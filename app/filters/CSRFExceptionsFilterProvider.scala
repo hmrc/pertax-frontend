@@ -16,14 +16,14 @@
 
 package filters
 
-import javax.inject.{Inject, Provider, Singleton}
-
-import play.api.{Application, Configuration}
+import com.google.inject.{Inject, Provider, Singleton}
 import play.api.mvc.Request
+import play.api.{Application, Configuration}
 import play.twirl.api.Html
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
 import uk.gov.hmrc.play.frontend.filters.{CSRFExceptionsFilter, FrontendAuditFilter, FrontendLoggingFilter}
+
 @Singleton
 class CSRFExceptionsFilterProvider @Inject()(configuration: Configuration) extends Provider[CSRFExceptionsFilter] {
 

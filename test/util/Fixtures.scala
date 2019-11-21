@@ -18,13 +18,11 @@ package util
 
 import java.util.UUID
 
-import akka.stream.Materializer
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
@@ -35,20 +33,15 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, RequestHeader, Result}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.frontend.auth.connectors.domain._
-import uk.gov.hmrc.play.frontend.auth.{AuthContext, AuthenticationProviderIds}
-import uk.gov.hmrc.play.frontend.filters.CookieCryptoFilter
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
-import scala.concurrent.Future
-import scala.io.Source
 import scala.reflect.ClassTag
 import scala.util.Random
 
@@ -104,6 +97,7 @@ trait TaiFixtures {
 
 trait TaxCalculationFixtures {
   def buildTaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
+
   def buildTaxYearReconciliations: List[TaxYearReconciliation] =
     List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
 }
@@ -268,8 +262,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
       SessionKeys.userId               -> "/auth/oid/flastname",
-      SessionKeys.token                -> "FAKEGGTOKEN", //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-      SessionKeys.authProvider         -> AuthenticationProviderIds.GovernmentGatewayId //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.token                -> "FAKEGGTOKEN" //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
@@ -282,51 +275,13 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
       SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
       SessionKeys.userId               -> "/auth/oid/flastname",
-      SessionKeys.token                -> "FAKEVERIFYTOKEN", //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-      SessionKeys.authProvider         -> AuthenticationProviderIds.VerifyProviderId //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
+      SessionKeys.token                -> "FAKEVERIFYTOKEN" //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
     )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
   }
 
   def buildUnusedAllowance = UnusedAllowance(BigDecimal(4000.00))
-
-  def buildFakeAuthContext(withPaye: Boolean = true, withSa: Boolean = false) =
-    AuthContext(buildFakeAuthority(withPaye, withSa), None)
-
-  def buildFakePertaxUser(
-    withPaye: Boolean = true,
-    withSa: Boolean = false,
-    isGovernmentGateway: Boolean = false,
-    isHighGG: Boolean = false) =
-    new PertaxUser(
-      authContext = buildFakeAuthContext(withPaye, withSa),
-      if (isGovernmentGateway) UserDetails(UserDetails.GovernmentGatewayAuthProvider)
-      else UserDetails(UserDetails.VerifyAuthProvider),
-      personDetails = None,
-      isHighGG
-    )
-
-  def buildFakeAuthority(
-    withPaye: Boolean = true,
-    withSa: Boolean = false,
-    confidenceLevel: ConfidenceLevel = ConfidenceLevel.L0,
-    nino: Nino = Fixtures.fakeNino,
-    userDetailsLink: Option[String] = Some("/userDetailsLink")) = Authority(
-    uri = "/auth/oid/flastname",
-    accounts = Accounts(
-      paye = if (withPaye) Some(PayeAccount("/paye/" + nino.nino, nino)) else None,
-      sa = if (withSa) Some(SaAccount("/sa/1111111111", SaUtr("1111111111"))) else None
-    ),
-    loggedInAt = None,
-    previouslyLoggedInAt = Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
-    credentialStrength = CredentialStrength.Strong,
-    confidenceLevel = confidenceLevel,
-    userDetailsLink = userDetailsLink,
-    enrolments = Some("/userEnrolmentsLink"),
-    ids = None,
-    legacyOid = ""
-  )
 
   def buildFakeHeaderCarrier = MockitoSugar.mock[HeaderCarrier]
 
@@ -347,45 +302,38 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
 }
 
-@Singleton
-class FakeCookieCryptoFilter @Inject()(override val mat: Materializer) extends CookieCryptoFilter {
-
-  override protected val encrypter: (String) => String = x => x
-  override protected val decrypter: (String) => String = x => x
-
-  override def apply(next: (RequestHeader) => Future[Result])(rh: RequestHeader) =
-    next(rh)
-}
-
 trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()
 
-  val encryptionConfig =
+  val configValues =
     Map(
       "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ=="
+      "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+      "metrics.enabled"               -> false
     )
 
-  lazy val localGuiceApplicationBuilder = GuiceApplicationBuilder()
-    .overrides(bind[TemplateRenderer].toInstance(MockTemplateRenderer))
-    .overrides(bind[CookieCryptoFilter].to(classOf[FakeCookieCryptoFilter]))
-    .configure(encryptionConfig)
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+    GuiceApplicationBuilder()
+      .overrides(
+        bind[TemplateRenderer].toInstance(MockTemplateRenderer)
+      )
+      .configure(configValues)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder.build()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
   lazy val config = app.injector.instanceOf[ConfigDecorator]
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
+
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
-  val mockLocalPartialRetreiver: LocalPartialRetriever = {
+  implicit val mockLocalPartialRetriever: LocalPartialRetriever = {
     val pr = MockitoSugar.mock[LocalPartialRetriever]
     when(pr.getPartialContent(any(), any(), any())(any())) thenReturn Html("")
     pr
   }
-
 }

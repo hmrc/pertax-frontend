@@ -17,9 +17,9 @@
 @(address: models.Address)
 
 <address>
-  @address.lines.map { line =>
-    @upperCaseToTitleCase(line)<br>
-  }
+    @address.lines.map { line =>
+        @upperCaseToTitleCase(line) <br>
+    }
 
-  @address.postcode.map(_.toUpperCase)
+    @address.postcode.map(_.toUpperCase)
 </address>

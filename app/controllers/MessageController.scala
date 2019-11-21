@@ -16,64 +16,68 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, PertaxRegime}
-import error.LocalErrorHandler
+import controllers.auth._
+import error.RendersErrors
+import com.google.inject.Inject
 import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.{Action, AnyContent}
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, UserDetailsService}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.ActiveTabMessages
+import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
 
 class MessageController @Inject()(
   val messagesApi: MessagesApi,
   val messageFrontendService: MessageFrontendService,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler
-) extends PertaxBaseController with AuthorisedActions {
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction,
+  withBreadcrumbAction: WithBreadcrumbAction)(
+  implicit val partialRetriever: LocalPartialRetriever,
+  val configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
+    extends PertaxBaseController with RendersErrors {
 
   def messageBreadcrumb: Breadcrumb =
-    "label.all_messages" -> routes.MessageController.messageList.url ::
+    "label.all_messages" -> routes.MessageController.messageList().url ::
       baseBreadcrumb
 
-  def messageList = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabMessages)) { implicit pertaxContext =>
-    enforceGovernmentGatewayUser {
-      enforcePayeOrSaUser {
+  def messageList: Action[AnyContent] =
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
+      if (request.isGovernmentGateway) {
         messageFrontendService.getMessageListPartial map { p =>
           Ok(
             views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
-              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages"))))
+              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")))
+          )
         }
+      } else {
+        futureError(UNAUTHORIZED)
       }
     }
-  }
 
-  def messageDetail(messageToken: String) = VerifiedAction(messageBreadcrumb, activeTab = Some(ActiveTabMessages)) {
-    implicit pertaxContext =>
-      enforceGovernmentGatewayUser {
-        enforcePayeOrSaUser {
-          messageFrontendService.getMessageDetailPartial(messageToken).map {
-            case HtmlPartial.Success(Some(title), content) =>
-              Ok(views.html.message.messageDetail(message = content, title = title))
-            case HtmlPartial.Success(None, content) =>
-              Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
-            case HtmlPartial.Failure(_, _) =>
-              Ok(
-                views.html.message.messageDetail(
-                  message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
-                  title = Messages("label.message")))
-          }
+  def messageDetail(messageToken: String): Action[AnyContent] =
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+      .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
+      if (request.isGovernmentGateway) {
+        messageFrontendService.getMessageDetailPartial(messageToken).map {
+          case HtmlPartial.Success(Some(title), content) =>
+            Ok(views.html.message.messageDetail(message = content, title = title))
+          case HtmlPartial.Success(None, content) =>
+            Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
+          case HtmlPartial.Failure(_, _) =>
+            Ok(
+              views.html.message.messageDetail(
+                message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
+                title = Messages("label.message")
+              )
+            )
         }
+      } else {
+        futureError(UNAUTHORIZED)
       }
-  }
+    }
 }

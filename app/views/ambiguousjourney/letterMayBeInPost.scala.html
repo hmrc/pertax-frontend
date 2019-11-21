@@ -14,45 +14,51 @@
  * limitations under the License.
  *@
 
-@(utr: SaUtr, continueUrl: String)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@main(title = Messages("label.you_need_to_register_for_self_assessment_online"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.receivedUtrLetterChoice().url)
+@(utr: SaUtr, continueUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@main(title = messages("label.you_need_to_register_for_self_assessment_online"),
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.receivedUtrLetterChoice().url)
 ) {
-  <div class="personal-details">
+    <div class="personal-details">
 
-    <div class="grid-row">
-      <div class="column-full">
-        <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_register_for_self_assessment_online")</h1>
-      </div>
+        <div class="grid-row">
+            <div class="column-full">
+                <p class="pre-heading no-margin-bottom lede">@messages("label.how_to_access_your_self_assessment")</p>
+                <h1 class="heading-xlarge no-margin-top">@messages("label.you_need_to_register_for_self_assessment_online")</h1>
+            </div>
+        </div>
+
+        <div class="column-two-thirds">
+            <div class="grid-row pertax-panel">
+                <p>@messages("label.use_your_utr_to_register_for_self_assessment_online_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.registerForSelfAssessmentUrl(continueUrl)" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register for Self Assessment online">@messages("label.use_your_utr_to_register_for_self_assessment_online_link_text")</a>.</p>
+            </div>
+        </div>
+
+        <div class="column-two-thirds">
+            <div class="grid-row pertax-panel">
+                <p>@Html(messages("label.your_utr_is_", utr))</p>
+            </div>
+        </div>
+
+        <div class="column-two-thirds">
+            <div class="grid-row pertax-panel">
+                <p>@messages("label.registration_can_take_up_to_ten_days_")</p>
+            </div>
+        </div>
+
+        <div class="column-two-thirds">
+            <div class="grid-row pertax-panel">
+                <h2>@messages("label.your_utr_letter_may_still_be_in_the_post")</h2>
+                <p>@messages("label.we_sent_your_utr_to_you_by_post_")</p>
+            </div>
+        </div>
+
     </div>
-
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p>@Messages("label.use_your_utr_to_register_for_self_assessment_online_text_before_link") <a class="ga-track-anchor-click" href="@pertaxContext.configDecorator.registerForSelfAssessmentUrl(continueUrl)" data-ga-event-category="link - click" data-ga-event-action="self assessment registration" data-ga-event-label="register for Self Assessment online">@Messages("label.use_your_utr_to_register_for_self_assessment_online_link_text")</a>.</p>
-      </div>
-    </div>
-
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p>@Html(Messages("label.your_utr_is_", utr))</p>
-      </div>
-    </div>
-
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <p>@Messages("label.registration_can_take_up_to_ten_days_")</p>
-      </div>
-    </div>
-
-    <div class="column-two-thirds">
-      <div class="grid-row pertax-panel">
-        <h2>@Messages("label.your_utr_letter_may_still_be_in_the_post")</h2>
-        <p>@Messages("label.we_sent_your_utr_to_you_by_post_")</p>
-      </div>
-    </div>
-
-  </div>
 }

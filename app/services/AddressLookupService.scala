@@ -17,8 +17,8 @@
 package services
 
 import com.kenshoo.play.metrics.Metrics
-import controllers.auth.PertaxAuthenticationProvider
-import javax.inject.{Inject, Singleton}
+import config.ConfigDecorator
+import com.google.inject.{Inject, Singleton}
 import metrics._
 import models.addresslookup.RecordSet
 import play.api.Mode.Mode
@@ -40,9 +40,9 @@ final case class AddressLookupErrorResponse(cause: Exception) extends AddressLoo
 class AddressLookupService @Inject()(
   environment: Environment,
   configuration: Configuration,
+  configDecorator: ConfigDecorator,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
-  val pertaxAuthenticationProvider: PertaxAuthenticationProvider,
   val tools: Tools)
     extends ServicesConfig with HasMetrics {
 
@@ -55,7 +55,7 @@ class AddressLookupService @Inject()(
     withMetricsTimer("address-lookup") { t =>
       val hn = tools.urlEncode(filter.getOrElse(""))
       val pc = postcode.replaceAll(" ", "")
-      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> pertaxAuthenticationProvider.defaultOrigin)
+      val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
 
       simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v1/gb/addresses.json?postcode=$pc&filter=$hn")(
         onComplete = {

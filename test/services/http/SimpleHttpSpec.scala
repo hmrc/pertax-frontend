@@ -23,10 +23,11 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Writes
+import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import util.BaseSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SimpleHttpSpec extends BaseSpec {
 

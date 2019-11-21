@@ -16,9 +16,7 @@
 
 package filters
 
-import javax.inject.{Inject, Provider, Singleton}
-
-import org.joda.time.Duration
+import com.google.inject.{Inject, Provider, Singleton}
 import play.api.mvc.Request
 import play.api.{Application, Configuration}
 import play.twirl.api.Html

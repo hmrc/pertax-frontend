@@ -16,11 +16,10 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
+import com.google.inject.Inject
 import models.Breadcrumb
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
@@ -31,10 +30,12 @@ import scala.concurrent.Future
 
 class PartialsController @Inject()(
   val messagesApi: MessagesApi,
-  val pertaxDependencies: PertaxDependencies,
-  val delegationConnector: FrontEndDelegationConnector,
-  val localErrorHandler: LocalErrorHandler
-) extends PertaxBaseController {
+  val localErrorHandler: LocalErrorHandler,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController {
 
   def mainContentHeader(
     name: Option[String],
@@ -57,9 +58,9 @@ class PartialsController @Inject()(
           breadcrumb,
           showBetaBanner.getOrElse(false),
           deskProToken,
-          langReturnUrl.filter(x => configDecorator.welshLangEnabled),
-          configDecorator
-        ))
+          langReturnUrl.filter(x => configDecorator.welshLangEnabled)
+        )
+      )
     }
   }
 }

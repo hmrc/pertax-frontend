@@ -16,8 +16,8 @@
 
 package filters
 
-import javax.inject.{Inject, Provider, Singleton}
 import connectors.PertaxAuditConnector
+import com.google.inject.{Inject, Provider, Singleton}
 import play.api.Configuration
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.frontend.filters.DeviceIdCookieFilter

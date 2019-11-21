@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package models.addresslookup
 
-import javax.inject.Inject
+import play.api.libs.json.Json
 
-import uk.gov.hmrc.play.frontend.auth.TaxRegime
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
+/**
+  * Represents one address record. Arrays of these are returned from the address-lookup microservice.
+  */
+case class AddressRecord(id: String, address: Address, language: String) {
 
-class PertaxRegime @Inject()(val pertaxAuthenticationProvider: PertaxAuthenticationProvider) extends TaxRegime {
-  def isAuthorised(accounts: Accounts) = true
-  def authenticationType = pertaxAuthenticationProvider
+  def isValid: Boolean = address.isValid && language.length == 2
+}
+
+object AddressRecord {
+  implicit val formats = Json.format[AddressRecord]
 }

@@ -27,7 +27,8 @@ title.type=Math
 #
 label.beta=BETA
 label.hm_revenue_customs=Cyllid a Thollau EM
-label.hm_revenue_customs_ni_print=<span>Cyllid &amp;<br>Thollau EM</span>
+label.hm_revenue_customs_ni_print.revenue=Cyllid &amp;
+label.hm_revenue_customs_ni_print.customs=Thollau EM
 label.continue=Parhau
 label.your_personal_tax_account=Cyfrif treth personol
 label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
@@ -40,7 +41,9 @@ label.hm_revenue_and_customs=Cyllid a Thollau EM
 label.print_proof_of_your_national_insurance_number=Argraffu cadarnhad o’ch rhif Yswiriant Gwladol
 label.your_national_insurance_letter=Eich llythyr Yswiriant Gwladol
 label.print_your_national_insurance_summary=Argraffu’ch crynodeb Yswiriant Gwladol
-label.nic_eo_hmrc_address=Cyllid a Thollau EM<br>Tŷ Thedford<br>Porthmadog<br>LL49 9BF
+label.nic_eo_hmrc_address.line1=Cyllid a Thollau EM
+label.nic_eo_hmrc_address.line2=Tŷ Thedford
+label.nic_eo_hmrc_address.line3=Porthmadog
 label.print=Argraffu’r llythyr hwn
 label.save_as_a_PDF=ACadw fel PDF
 label.date=Dyddiad
@@ -382,7 +385,8 @@ global.error.InternalServerError500.heading = Mae’n ddrwg gennym, mae problem 
 global.error.InternalServerError500.message = Rhowch gynnig arall arni yn nes ymlaen.
 global.error.BadRequest.title=Mae problem wedi codi
 global.error.BadRequest.heading=Mae problem wedi codi
-global.error.BadRequest.message=Mae’n ddrwg gennym. Mae problemau technegol wedi codi. <p>Rhowch gynnig arall arni yn nes ymlaen.</p>
+global.error.BadRequest.message1=Mae’n ddrwg gennym. Mae problemau technegol wedi codi.
+global.error.BadRequest.message2=Rhowch gynnig arall arni yn nes ymlaen.
 
 
 #
@@ -503,3 +507,26 @@ label.child.trust.fund=Cronfa Ymddiriedolaeth Plant
 label.child.trust.fund.details=Pan fyddwch yn cyrraedd 16 oed, cymerwch reolaeth o’ch Cronfa Ymddiriedolaeth Plant. Gofynnwch i’ch rhieni neu’ch gofalwr - am ragor o wybodaeth, ewch i www.gov.uk/child-trust-funds
 label.hmrc_date=CThEM {0}
 label.page=Tudalen
+
+label.access_your_self_assessment=Access your Self Assessment
+
+title.signed_in_wrong_account.h1=You are not signed in to the right account
+label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
+
+title.sign_in_again.h1=You need to sign back in to Government Gateway using different details
+label.sign_in_again=You will be asked to sign in again with the user ID and password for the account you use for Self Assessment.
+
+title.do_you_know_other_credentials.h1=Do you know the user ID and password for the account you use for Self Assessment?
+title.do_you_know_user_id.h1=Do you know the user ID?
+
+title.reset_your_password.h1=You need to reset your password
+labels.need_utr=You will need your Unique Taxpayer Reference (UTR).
+labels.your_utr_is=Your UTR is
+
+title.find_your_user_id.h1=Get help finding your user ID
+
+title.request_sa_access.h1=You need to request access to Self Assessment
+label.request_sa_access.p1=This may be because you have deregistered from Self Assessment online.
+label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
+label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
+label.request_sa_access.button=Request access to Self Assessment

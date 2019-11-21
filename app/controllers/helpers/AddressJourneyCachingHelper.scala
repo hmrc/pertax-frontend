@@ -18,12 +18,12 @@ package controllers.helpers
 
 import controllers.bindable.AddrType
 import controllers.{AddressController, routes}
+import models.AddressJourneyData
 import models.addresslookup.AddressRecord
 import models.dto._
-import models.{AddressJourneyData, PertaxContext}
 import play.api.mvc.Result
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
 
@@ -64,9 +64,8 @@ trait AddressJourneyCachingHelper { this: AddressController =>
   def clearCache()(implicit hc: HeaderCarrier): Future[HttpResponse] =
     sessionCache.remove()
 
-  //This is needed beacuse there is no AddrType available to call gettingCachedJourneyData
-  def gettingCachedAddressPageVisitedDto[T](
-    block: Option[AddressPageVisitedDto] => Future[T])(implicit hc: HeaderCarrier, context: PertaxContext): Future[T] =
+  def gettingCachedAddressPageVisitedDto[T](block: Option[AddressPageVisitedDto] => Future[T])(
+    implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() flatMap {
       case Some(cacheMap) =>
         block(cacheMap.getEntry[AddressPageVisitedDto]("addressPageVisitedDto"))
@@ -74,24 +73,23 @@ trait AddressJourneyCachingHelper { this: AddressController =>
         block(None)
     }
 
-  def gettingCachedAddressLookupServiceDown[T](
-    block: Option[Boolean] => T)(implicit hc: HeaderCarrier, context: PertaxContext): Future[T] =
+  def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
       {
         block(cacheMap.flatMap(_.getEntry[Boolean]("addressLookupServiceDown")))
       }
     }
 
-  def gettingCachedTaxCreditsChoiceDto[T](
-    block: Option[TaxCreditsChoiceDto] => T)(implicit hc: HeaderCarrier, context: PertaxContext): Future[T] =
+  def gettingCachedTaxCreditsChoiceDto[T](block: Option[TaxCreditsChoiceDto] => T)(
+    implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
       {
         block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto]("taxCreditsChoiceDto")))
       }
     }
 
-  def gettingCachedJourneyData[T](typ: AddrType)(
-    block: AddressJourneyData => Future[T])(implicit hc: HeaderCarrier, context: PertaxContext): Future[T] =
+  def gettingCachedJourneyData[T](typ: AddrType)(block: AddressJourneyData => Future[T])(
+    implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() flatMap {
       case Some(cacheMap) =>
         block(
@@ -104,13 +102,14 @@ trait AddressJourneyCachingHelper { this: AddressController =>
             cacheMap.getEntry[InternationalAddressChoiceDto]("internationalAddressChoiceDto"),
             cacheMap.getEntry[DateDto](s"${typ}SubmittedStartDateDto"),
             cacheMap.getEntry[Boolean]("addressLookupServiceDown").getOrElse(false)
-          ))
+          )
+        )
       case None =>
-        block(AddressJourneyData(None, None, None, None, None, None, None, false))
+        block(AddressJourneyData(None, None, None, None, None, None, None, addressLookupServiceDown = false))
     }
 
-  def enforceDisplayAddressPageVisited(addressPageVisitedDto: Option[AddressPageVisitedDto])(
-    block: => Future[Result])(implicit hc: HeaderCarrier, context: PertaxContext): Future[Result] =
+  def enforceDisplayAddressPageVisited(addressPageVisitedDto: Option[AddressPageVisitedDto])(block: => Future[Result])(
+    implicit hc: HeaderCarrier): Future[Result] =
     addressPageVisitedDto match {
       case Some(_) =>
         block
@@ -124,7 +123,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
       case AddressJourneyData(_, Some(_), _, _, _, _, _, _) =>
         block(journeyData)
       case AddressJourneyData(_, None, _, _, _, _, _, _) =>
-        Future.successful(Redirect(routes.AddressController.personalDetails))
+        Future.successful(Redirect(routes.AddressController.personalDetails()))
     }
 
 }

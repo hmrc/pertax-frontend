@@ -16,19 +16,32 @@
 
 package error
 
-import models.PertaxContext
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import play.api.i18n.Messages
 import play.api.mvc._
+import uk.gov.hmrc.renderer.TemplateRenderer
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 trait RendersErrors extends Results {
 
-  def futureError(statusCode: Int)(implicit context: PertaxContext, messages: Messages): Future[Result] =
+  implicit def templateRenderer: TemplateRenderer
+
+  def futureError(statusCode: Int)(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Future[Result] =
     Future.successful(error(statusCode))
 
-  def error(statusCode: Int)(implicit context: PertaxContext, messages: Messages): Result = {
+  def error(statusCode: Int)(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"
@@ -38,6 +51,33 @@ trait RendersErrors extends Results {
 
     Status(statusCode)(
       views.html.error(
+        s"global.error.$errorKey.title",
+        Some(s"global.error.$errorKey.heading"),
+        List(s"global.error.$errorKey.message")))
+
+  }
+
+  def unauthenticatedFutureError(statusCode: Int)(
+    implicit request: Request[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Future[Result] =
+    Future.successful(unauthenticatedError(statusCode))
+
+  def unauthenticatedError(statusCode: Int)(
+    implicit request: Request[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result = {
+
+    val errorKey = statusCode match {
+      case BAD_REQUEST => "badRequest400"
+      case NOT_FOUND   => "pageNotFound404"
+      case _           => "InternalServerError500"
+    }
+
+    Status(statusCode)(
+      views.html.unauthenticatedError(
         s"global.error.$errorKey.title",
         Some(s"global.error.$errorKey.heading"),
         Some(s"global.error.$errorKey.message")))

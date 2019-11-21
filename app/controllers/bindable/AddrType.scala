@@ -27,9 +27,9 @@ object AddrType {
 sealed trait AddrType {
   override def toString = ifIs("primary", "sole", "postal")
 
-  def ifIsPrimary[T](value: T) = ifIs(Some(value), None, None)
-  def ifIsSole[T](value: T) = ifIs(None, Some(value), None)
-  def ifIsPostal[T](value: T) = ifIs(None, None, Some(value))
+  def ifIsPrimary[T](value: T): Option[T] = ifIs(Some(value), None, None)
+  def ifIsSole[T](value: T): Option[T] = ifIs(None, Some(value), None)
+  def ifIsPostal[T](value: T): Option[T] = ifIs(None, None, Some(value))
 
   def ifIs[T](primary: => T, sole: => T, postal: => T): T = this match {
     case PrimaryAddrType => primary
