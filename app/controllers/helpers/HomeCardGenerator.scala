@@ -17,10 +17,11 @@
 package controllers.helpers
 
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
+import controllers.auth.requests.UserRequest
+import com.google.inject.{Inject, Singleton}
+import models._
 import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
-import models.{NonFilerSelfAssessmentUser, Overpaid, PertaxContext, PertaxUser, SelfAssessmentUserType, TaxComponents, TaxComponentsNotAvailableState, TaxComponentsState, TaxYearReconciliation, Underpaid}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
 
@@ -28,62 +29,57 @@ import viewmodels.TaxCalculationViewModel
 class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
-    pertaxUser: Option[PertaxUser],
     taxComponentsState: TaxComponentsState,
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
     saActionNeeded: SelfAssessmentUserType,
-    currentTaxYear: Int)(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] =
+    currentTaxYear: Int)(implicit request: UserRequest[_], messages: Messages): Seq[Html] =
     List(
-      getPayAsYouEarnCard(pertaxUser, taxComponentsState),
+      getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
       getNationalInsuranceCard()
     ).flatten
 
-  def getBenefitCards(
-    taxComponents: Option[TaxComponents])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] =
+  def getBenefitCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
     List(
       getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
       getChildBenefitCard(),
       getMarriageAllowanceCard(taxComponents)
     ).flatten
 
-  def getPensionCards(
-    pertaxUser: Option[PertaxUser])(implicit pertaxContext: PertaxContext, messages: Messages): Seq[Html] =
+  def getPensionCards()(implicit messages: Messages): Seq[Html] =
     List(
       getStatePensionCard()
     ).flatten
 
-  def getPayAsYouEarnCard(pertaxUser: Option[PertaxUser], taxComponentsState: TaxComponentsState)(
-    implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    pertaxUser match {
-      case Some(u) if u.isPaye =>
-        taxComponentsState match {
-          case TaxComponentsNotAvailableState => None
-          case _                              => Some(views.html.cards.home.payAsYouEarn())
-        }
-      case _ => None
+  def getPayAsYouEarnCard(taxComponentsState: TaxComponentsState)(
+    implicit request: UserRequest[_],
+    messages: Messages): Option[HtmlFormat.Appendable] =
+    request.nino.flatMap { _ =>
+      taxComponentsState match {
+        case TaxComponentsNotAvailableState => None
+        case _                              => Some(views.html.cards.home.payAsYouEarn(configDecorator))
+      }
     }
 
   def getTaxCalculationCard(taxYearReconciliations: Option[TaxYearReconciliation])(
-    implicit pertaxContext: PertaxContext,
-    messages: Messages): Option[HtmlFormat.Appendable] =
+    implicit messages: Messages): Option[HtmlFormat.Appendable] =
     taxYearReconciliations
       .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
       .map(views.html.cards.home.taxCalculation(_))
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
     messages: Messages): Option[HtmlFormat.Appendable] =
-    if (!pertaxContext.user.fold(false)(_.isVerify)) {
+    if (!request.isVerify) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
-        case saActionNeeded =>
+        case saWithActionNeeded =>
           Some(
             views.html.cards.home
-              .selfAssessment(saActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
+              .selfAssessment(saWithActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
       }
     } else {
       None

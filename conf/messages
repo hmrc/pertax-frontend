@@ -28,7 +28,8 @@ title.type=Type
 #
 label.beta=BETA
 label.hm_revenue_customs=HM Revenue & Customs
-label.hm_revenue_customs_ni_print=<span>HM Revenue </span>&amp; Customs
+label.hm_revenue_customs_ni_print.revenue=HM Revenue
+label.hm_revenue_customs_ni_print.customs=&amp; Customs
 label.continue=Continue
 label.continue_to_your_sa302=Continue to your SA302
 label.we_are_processing_your-details=We are processing your details
@@ -79,7 +80,9 @@ label.page=Page
 label.your_national_insurance_number=Your National Insurance number
 label.your_national_insurance_letter=Your National Insurance letter
 label.print_your_national_insurance_summary=Print your National Insurance summary
-label.nic_eo_hmrc_address=NIC&amp;EO<br>HMRC<br>BX9 1AN<br>
+label.nic_eo_hmrc_address.line1=NIC&amp;EO
+label.nic_eo_hmrc_address.line2=HMRC
+label.nic_eo_hmrc_address.line3=BX9 1AN
 label.www_gov_uk_hmrc=www.gov.uk/hmrc
 label.phone_text=Phone
 label.contact_number=0300 200 3500
@@ -217,7 +220,7 @@ label.the_deadline_to_do_your_tax_return_by_post_was_=The deadline to do your ta
 label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is midnight on 31 January {0}.
 label.did_you_get_your_utr_letter=Did you get your UTR letter?
 label.your_utr_is_a_ten_digit_number_=Your Unique Taxpayer Reference (UTR) is a 10 digit number you need to register for Self Assessment online.
-label.your_utr_is_a_ten_digit_number_we_sent_by_post=This is also known as enrolling for <span class="no-wrap">Self Assessment</span> online. If you have enrolled you will be sent an activation code in the post.
+label.your_utr_is_a_ten_digit_number_we_sent_by_post=This is also known as enrolling for Self Assessment online. If you have enrolled you will be sent an activation code in the post.
 label.you_need_to_register_for_self_assessment_online=You need to register for Self Assessment online
 label.you_need_to_sign_up_to_send_your_tax_returns_online=You need to sign up to send your tax returns online
 label.you_need_to_sign_in_with_the_government_gateway_user_id_text_before_link=You need to sign in with the Government Gateway user ID and password you used when you enrolled for Self Assessment online.
@@ -417,7 +420,8 @@ global.error.InternalServerError500.heading=Sorry, there is a problem with the s
 global.error.InternalServerError500.message=Please try again later.
 global.error.BadRequest.title=There is a problem
 global.error.BadRequest.heading=There is a problem
-global.error.BadRequest.message=Sorry, we are experiencing technical difficulties. <p>Please try again later.</p>
+global.error.BadRequest.message1=Sorry, we are experiencing technical difficulties.
+global.error.BadRequest.message2=Please try again later.
 
 #
 # New Homepage design
@@ -501,3 +505,29 @@ label.message=Message
 label.personal_details=Personal details
 label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings
+
+label.access_your_self_assessment=Access your Self Assessment
+
+title.signed_in_wrong_account.h1=You are not signed in to the right account
+label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
+
+title.sign_in_again.h1=You need to sign back in to Government Gateway using different details
+label.sign_in_again=You will be asked to sign in again with the user ID and password for the account you use for Self Assessment.
+
+title.do_you_know_other_credentials.h1=Do you know the user ID and password for the account you use for Self Assessment?
+title.do_you_know_user_id.h1=Do you know the user ID?
+
+title.reset_your_password.h1=You need to reset your password
+labels.need_utr=You will need your Unique Taxpayer Reference (UTR).
+labels.your_utr_is=Your UTR is
+
+title.find_your_user_id.h1=Get help finding your user ID
+
+title.request_sa_access.h1=You need to request access to Self Assessment
+label.request_sa_access.p1=This may be because you have deregistered from Self Assessment online.
+label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
+label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
+label.request_sa_access.button=Request access to Self Assessment
+
+
+

@@ -16,62 +16,60 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
+import com.google.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.auth.AuthenticationProviderIds
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
-class PublicController @Inject()(
-  val messagesApi: MessagesApi,
-  val pertaxDependencies: PertaxDependencies,
-  val delegationConnector: FrontEndDelegationConnector
-) extends PertaxBaseController {
+class PublicController @Inject()(val messagesApi: MessagesApi)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
+    extends PertaxBaseController {
 
-  def verifyEntryPoint = PublicAction { implicit pertaxContext =>
+  def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        SessionKeys.authProvider -> AuthenticationProviderIds.VerifyProviderId
+        SessionKeys.authProvider -> configDecorator.authProviderVerify
       )
     }
   }
 
-  def governmentGatewayEntryPoint = PublicAction { implicit pertaxContext =>
+  def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        SessionKeys.authProvider -> AuthenticationProviderIds.GovernmentGatewayId
+        SessionKeys.authProvider -> configDecorator.authProviderGG
       )
     }
   }
 
-  def sessionTimeout = PublicAction { implicit pertaxContext =>
+  def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Ok(views.html.public.sessionTimeout())
     }
   }
 
-  def redirectToExitSurvey(origin: Origin) = PublicAction { implicit pertaxContext =>
+  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(configDecorator.getFeedbackSurveyUrl(origin))
     }
   }
 
-  def redirectToTaxCreditsService(): Action[AnyContent] = PublicAction { implicit pertaxContext =>
+  def redirectToTaxCreditsService(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(configDecorator.tcsServiceRouterUrl, MOVED_PERMANENTLY)
     }
   }
 
-  def redirectToPersonalDetails(): Action[AnyContent] = PublicAction { implicit pertaxContext =>
+  def redirectToPersonalDetails(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
-      Redirect(routes.AddressController.personalDetails)
+      Redirect(routes.AddressController.personalDetails())
     }
   }
 }

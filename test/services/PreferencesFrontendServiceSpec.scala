@@ -16,131 +16,213 @@
 
 package services
 
-import com.codahale.metrics.Timer
+import com.codahale.metrics.Timer.Context
+import com.codahale.metrics.{Counter, MetricRegistry, Timer}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.kenshoo.play.metrics.Metrics
-import config.ConfigDecorator
-import models.{PertaxUser, UserDetails}
+import controllers.auth.requests.UserRequest
+import models._
+import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.http.ContentTypes
 import play.api.http.Status._
-import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import services.http.FakeSimpleHttp
-import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.http._
-import util.{BaseSpec, Tools}
-import util.Fixtures._
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
+import play.api.test.Helpers.CONTENT_TYPE
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, UserRequestFixture, WireMockHelper}
 
-class PreferencesFrontendServiceSpec extends BaseSpec {
+class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with WireMockHelper {
 
-  trait SpecSetup {
-    def httpResponse: HttpResponse
-    def simulatePreferencesFrontendServiceIsDown: Boolean
+  val mockMetrics = mock[Metrics]
+  val mockMetricRegistry = mock[MetricRegistry]
+  val mockTimer = mock[Timer]
+  val mockContext = mock[Context]
+  val mockCounter = mock[Counter]
 
-    val anException = new RuntimeException("Any")
+  override lazy val app: Application = GuiceApplicationBuilder()
+    .overrides(bind[Metrics].toInstance(mockMetrics))
+    .configure("microservice.services.preferences-frontend.port" -> server.port)
+    .build()
 
-    implicit val request = FakeRequest()
+  when(mockMetrics.defaultRegistry).thenReturn(mockMetricRegistry)
 
-    lazy val (service, met, timer) = {
+  when(mockMetricRegistry.timer(anyString())).thenReturn(mockTimer)
 
-      val fakeSimpleHttp = {
-        if (simulatePreferencesFrontendServiceIsDown) new FakeSimpleHttp(Right(anException))
-        else new FakeSimpleHttp(Left(httpResponse))
-      }
+  when(mockMetricRegistry.counter(anyString())).thenReturn(mockCounter)
 
-      val timer = MockitoSugar.mock[Timer.Context]
-      val preferencesFrontendService: PreferencesFrontendService = new PreferencesFrontendService(
-        injected[Environment],
-        injected[Configuration],
-        fakeSimpleHttp,
-        injected[MessagesApi],
-        MockitoSugar.mock[Metrics],
-        injected[ConfigDecorator],
-        injected[ApplicationCrypto],
-        injected[Tools]
-      ) {
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
-        when(metricsOperator.startTimer(any())) thenReturn timer
-      }
+  when(mockTimer.time()).thenReturn(mockContext)
 
-      (preferencesFrontendService, preferencesFrontendService.metricsOperator, timer)
-    }
-  }
+  when(mockContext.stop()).thenReturn(1L)
 
+  //TODO: Find a way to mock metrics in a testable way
   "PreferencesFrontend" should {
 
-    trait LocalSetup extends SpecSetup {
-      val metricId = "get-activate-paperless"
-      lazy val r = service.getPaperlessPreference(
-        PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
-      lazy val httpResponse = HttpResponse(OK, Some(Json.obj()))
-      lazy val simulatePreferencesFrontendServiceIsDown = false
+    "return ActivatePaperlessActivatedResponse if it is successful, and user is Government GateWay" in {
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
+
+      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+
+      val url = "/paperless/activate"
+
+      val jsonBody =
+        """{
+          | "redirectUserTo": "/foo"
+          |}
+          |""".stripMargin
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(200)
+              .withBody(jsonBody)
+          ))
+
+      val result = service.getPaperlessPreference()
+
+      await(result) shouldBe ActivatePaperlessActivatedResponse
+
     }
 
-    "return ActivatePaperlessActivatedResponse if it is successful, and user is Government GateWay" in new LocalSetup {
-      await(r) shouldBe ActivatePaperlessActivatedResponse
+    "return ActivatePaperlessNotAllowedResponse if user is not Government Gateway" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
+
+      val result = service.getPaperlessPreference()
+
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
+
     }
 
-    "return ActivatePaperlessNotAllowedResponse if user is not Government Gateway" in new LocalSetup {
-      override lazy val r = service.getPaperlessPreference(
-        PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.VerifyAuthProvider), None, true))
+    "return ActivatePaperlessNotAllowedResponse if any upstream exceptions are thrown" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
+      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      verify(met, times(0)).startTimer(metricId)
-      verify(met, times(0)).incrementSuccessCounter(metricId)
-      verify(timer, times(0)).stop()
+      val url = "/paperless/activate"
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(303)
+          ))
+
+      val result = service.getPaperlessPreference()
+
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
     }
 
-    "return ActivatePaperlessNotAllowedResponse if any upstream exceptions are thrown" in new LocalSetup {
-      override lazy val httpResponse = HttpResponse(SEE_OTHER)
+    "return ActivatePaperlessNotAllowedResponse if BadRequestException is thrown" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
+      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val url = "/paperless/activate"
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(400)
+          ))
+
+      val result = service.getPaperlessPreference()
+
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
     }
 
-    "return ActivatePaperlessNotAllowedResponse if BadRequestException is thrown" in new LocalSetup {
-      override lazy val httpResponse = HttpResponse(BAD_REQUEST, Some(Json.obj()))
+    "return ActivatePaperlessRequiresUserActionResponse if Precondition failed with 412 response" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          request = FakeRequest()
+        )
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
+      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val url = "/paperless/activate"
+
+      val jsonBody =
+        """{
+          | "redirectUserTo": "http://www.testurl.com"
+          |}
+          |""".stripMargin
+
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(PRECONDITION_FAILED)
+              .withBody(jsonBody)
+          ))
+
+      val result = service.getPaperlessPreference()
+
+      await(result) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
     }
 
-    "return ActivatePaperlessRequiresUserActionResponse if Precondition failed with 412 response" in new LocalSetup {
-      override lazy val httpResponse =
-        HttpResponse(PRECONDITION_FAILED, Some(Json.obj("redirectUserTo" -> "http://www.testurl.com")))
+    "return ActivatePaperlessNotAllowedResponse when called and service is down" in {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      await(r) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
+      implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
-    }
+      val url = "/paperless/activate"
 
-    "return ActivatePaperlessNotAllowedResponse when called and service is down" in new LocalSetup {
-      override lazy val simulatePreferencesFrontendServiceIsDown = true
-      override lazy val httpResponse = ???
+      server.stubFor(
+        put(urlMatching(s"$url.*"))
+          .withHeader(CONTENT_TYPE, matching(ContentTypes.JSON))
+          .willReturn(
+            aResponse()
+              .withStatus(500)
+          ))
 
-      await(r) shouldBe ActivatePaperlessNotAllowedResponse
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      val result = service.getPaperlessPreference()
+
+      await(result) shouldBe ActivatePaperlessNotAllowedResponse
     }
   }
 }

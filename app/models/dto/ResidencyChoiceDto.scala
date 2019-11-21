@@ -22,6 +22,8 @@ import play.api.data.Forms._
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
 
+case class ResidencyChoiceDto(residencyChoice: AddrType)
+
 object ResidencyChoiceDto {
 
   implicit val formats = {
@@ -52,5 +54,3 @@ object ResidencyChoiceDto {
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)
   )
 }
-
-case class ResidencyChoiceDto(residencyChoice: AddrType)

@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Json}
+import play.api.libs.json.Json
 
 object LtaProtections {
   implicit val formats = Json.format[LtaProtections]

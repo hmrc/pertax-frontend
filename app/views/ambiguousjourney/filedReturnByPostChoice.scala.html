@@ -14,47 +14,52 @@
  * limitations under the License.
  *@
 
-@(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
-@import uk.gov.hmrc.play.views.html.helpers._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 @import tags._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@main(title = Messages("label.have_you_ever_done_your_tax_return_by_post"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.filedReturnOnlineChoice().url)
+@(AmbiguousUserForm: Form[dto.AmbiguousUserFlowDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@main(title = messages("label.have_you_ever_done_your_tax_return_by_post"),
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.filedReturnOnlineChoice().url)
 ) {
-  <div class="personal-details">
+    <div class="personal-details">
 
-    @errors(AmbiguousUserForm)
+        @errors(AmbiguousUserForm)
 
-    <div class="grid-row">
-      <div class="column-full">
-        <p class="pre-heading no-margin-bottom lede">@Messages("label.how_to_access_your_self_assessment")</p>
-        <h1 class="heading-xlarge no-margin-top">@Messages("label.have_you_ever_done_your_tax_return_by_post")</h1>
-      </div>
+        <div class="grid-row">
+            <div class="column-full">
+                <p class="pre-heading no-margin-bottom lede">@messages("label.how_to_access_your_self_assessment")</p>
+                <h1 class="heading-xlarge no-margin-top">@messages("label.have_you_ever_done_your_tax_return_by_post")</h1>
+            </div>
+        </div>
+
+        <div class="grid-row">
+            <div class="column-two-thirds">
+            @form(action = controllers.routes.AmbiguousJourneyController.processFiledReturnByPostChoice) {
+                <div class="form-group inline">
+                @input_radio_group(
+                    AmbiguousUserForm("ambiguousUserFormChoice"),
+                    Seq("true" -> messages("label.yes"), "false" -> messages("label.no")),
+                    '_labelClass -> "block-label",
+                    '_error -> AmbiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({
+                        messages("label.select_an_answer")
+                    })),
+                    '_legendClass -> "visuallyhidden",
+                    '_legend -> messages("label.have_you_ever_done_your_tax_return_by_post")
+                )
+                </div>
+                <div class="form-group inline">
+                    <input type="submit" class="button" value="@messages("global.label.continue_button")" />
+                </div>
+            }
+            </div>
+        </div>
+
     </div>
-
-    <div class="grid-row">
-      <div class="column-two-thirds">
-        @form(action = controllers.routes.AmbiguousJourneyController.processFiledReturnByPostChoice) {
-          <div class="form-group inline">
-            @input_radio_group(
-              AmbiguousUserForm("ambiguousUserFormChoice"),
-              Seq("true" -> Messages("label.yes"), "false" -> Messages("label.no")),
-              '_labelClass -> "block-label",
-              '_error -> AmbiguousUserForm("ambiguousUserFormChoice").error.map(_.withMessage({
-                Messages("label.select_an_answer")
-              })),
-              '_legendClass -> "visuallyhidden",
-              '_legend -> Messages("label.have_you_ever_done_your_tax_return_by_post")
-            )
-          </div>
-          <div class="form-group inline">
-            <input type="submit" class="button" value="@Messages("global.label.continue_button")" />
-          </div>
-        }
-      </div>
-    </div>
-
-  </div>
 }

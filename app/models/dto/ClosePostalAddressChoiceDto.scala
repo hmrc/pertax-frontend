@@ -20,6 +20,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
+case class ClosePostalAddressChoiceDto(value: Boolean)
+
 object ClosePostalAddressChoiceDto {
 
   implicit val formats = Json.format[ClosePostalAddressChoiceDto]
@@ -32,5 +34,3 @@ object ClosePostalAddressChoiceDto {
     )(ClosePostalAddressChoiceDto.apply)(ClosePostalAddressChoiceDto.unapply)
   )
 }
-
-case class ClosePostalAddressChoiceDto(value: Boolean)

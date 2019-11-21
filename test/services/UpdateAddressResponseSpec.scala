@@ -17,19 +17,31 @@
 package services
 
 import config.ConfigDecorator
-import models.PertaxContext
+import models.NonFilerSelfAssessmentUser
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HttpResponse
+import util.UserRequestFixture.buildUserRequest
 import util.BaseSpec
 
-class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
-  implicit lazy val pertaxContext =
-    PertaxContext(FakeRequest(), mockLocalPartialRetreiver, injected[ConfigDecorator])
+class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSugar {
+
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+
   override def messagesApi: MessagesApi = injected[MessagesApi]
+
+  implicit val userRequest = buildUserRequest(
+    saUser = NonFilerSelfAssessmentUser,
+    credentials = Credentials("", "Verify"),
+    confidenceLevel = ConfidenceLevel.L500,
+    request = FakeRequest()
+  )
 
   def genericFunc(): Result =
     Ok
@@ -46,13 +58,13 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
-      val updateAddressResponse = new UpdateAddressUnexpectedResponse(HttpResponse(123))
+      val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123))
       val result = updateAddressResponse.response(genericFunc)
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
-      val updateAddressResponse = new UpdateAddressErrorResponse(new RuntimeException("not used"))
+      val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
       val result = updateAddressResponse.response(genericFunc)
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }

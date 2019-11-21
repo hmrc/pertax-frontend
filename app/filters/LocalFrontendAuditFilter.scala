@@ -16,12 +16,12 @@
 
 package filters
 
-import javax.inject._
 import com.typesafe.config.Config
 import connectors.PertaxAuditConnector
+import com.google.inject._
 import net.ceedubs.ficus.Ficus._
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, MicroserviceFilterSupport}
 @Singleton

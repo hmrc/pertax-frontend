@@ -17,8 +17,8 @@
 package models.dto
 import play.api.libs.json.Json
 
+case class AddressPageVisitedDto(hasVisitedPage: Boolean)
+
 object AddressPageVisitedDto {
   implicit val formats = Json.format[AddressPageVisitedDto]
 }
-
-case class AddressPageVisitedDto(hasVisitedPage: Boolean)

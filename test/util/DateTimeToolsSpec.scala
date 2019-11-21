@@ -16,8 +16,6 @@
 
 package util
 
-import org.joda.time.DateTime
-
 class DateTimeToolsSpec extends BaseSpec {
 
   "Calling asHumanDateFromUnixDate" should {

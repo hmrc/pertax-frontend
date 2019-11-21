@@ -15,6 +15,7 @@
  */
 
 package util
+
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
@@ -26,6 +27,7 @@ import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
 import uk.gov.hmrc.play.partials.HtmlPartial
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnhancedPartialRetrieverSpec extends BaseSpec {

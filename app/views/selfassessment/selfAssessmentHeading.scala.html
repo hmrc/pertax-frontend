@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models
+@(title: String)(implicit messages: play.api.i18n.Messages)
 
-import play.api.libs.json.Json
-
-object TaxCalculation {
-  implicit val formats = Json.format[TaxCalculation]
-}
-
-case class TaxCalculation(
-  p800_status: String,
-  amount: BigDecimal,
-  taxYear: Int,
-  paymentStatus: Option[String],
-  datePaid: Option[String],
-  businessReason: Option[String],
-  dueDate: Option[String]
-)
+<header class="page-heading">
+    <h1 class="heading-xlarge">
+        @messages(title)
+    </h1>
+    <p class="heading-secondary"><span class="visuallyhidden">
+        This section is </span>@messages("label.access_your_self_assessment")</p>
+</header>

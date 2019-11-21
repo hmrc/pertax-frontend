@@ -14,29 +14,36 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails, dateString:String, saveNiLetterAsPdfLinkEnabled: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@main(Messages("label.print_your_national_insurance_summary"), Some(Messages("label.national_insurance")), printableDocument = true) {
+@(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean)(implicit request: UserRequest[_],
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@main(messages("label.print_your_national_insurance_summary"), Some(messages("label.national_insurance")), printableDocument = true) {
 
     <div class="grid-row">
         <div class="column-full">
-            <a class="link-back" href="@controllers.routes.InterstitialController.displayNationalInsurance()" data-journey-click="link - click:Your National Insurance letter:Back">@Messages("label.back")</a>
+            <a class="link-back" href="@controllers.routes.InterstitialController.displayNationalInsurance()" data-journey-click="link - click:Your National Insurance letter:Back">@messages("label.back")</a>
 
             <header class="page-heading">
                 <h1 id="page-title" class="heading-xlarge">
-                    @Messages("label.your_national_insurance_letter")
+                @messages("label.your_national_insurance_letter")
                 </h1>
-                <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.personal_details")</p>
+                <p class="heading-secondary"><span class="visuallyhidden">
+                    This section is </span>@messages("label.personal_details")</p>
             </header>
 
             <div class="print-this">
-                <img class="print-this__icon" src="@pertaxContext.configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
-                <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@Messages("label.print")">@Messages("label.print")</a>
+                <img class="print-this__icon" src="@configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
+                <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
             </div>
             @if(saveNiLetterAsPdfLinkEnabled) {
-            <div class="save-this">
-                <a class="save-this__link" href="/personal-account/national-insurance-summary/save-letter-as-pdf" data-journey-click="save - click:Your National Insurance letter:@Messages("label.save_as_a_PDF")">@Messages("label.save_as_a_PDF")</a>
-            </div>
+                <div class="save-this">
+                    <a class="save-this__link" href="/personal-account/national-insurance-summary/save-letter-as-pdf" data-journey-click="save - click:Your National Insurance letter:@messages("label.save_as_a_PDF")">@messages("label.save_as_a_PDF")</a>
+                </div>
             }
 
             @views.html.print.niLetter(personDetails, dateString)

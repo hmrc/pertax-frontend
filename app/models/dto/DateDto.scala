@@ -16,11 +16,15 @@
 
 package models.dto
 
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.mappers.DateTuple._
+
+case class DateDto(
+  startDate: LocalDate
+)
 
 object DateDto {
 
@@ -36,7 +40,3 @@ object DateDto {
     )(DateDto.apply)(DateDto.unapply)
   )
 }
-
-case class DateDto(
-  startDate: LocalDate
-)

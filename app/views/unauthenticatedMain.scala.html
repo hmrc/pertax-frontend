@@ -1,0 +1,169 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.play.views.html.layouts
+@import uk.gov.hmrc.play.views.helpers.AttorneyRegime
+@import util.LanguageHelper
+@import uk.gov.hmrc.renderer._
+@import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import controllers.helpers.WelshWarningHelper
+@import util.LocalPartialRetriever
+
+@(title: String,
+        pageName: Option[String] = None,
+        showUserResearchBanner: Boolean = false,
+        sidebarLinks: Option[Html] = None,
+        sidebarClass: Option[String] = None,
+        supportLinkEnabled: Boolean = true,
+        headScripts: Option[Html] = None,
+        scriptElement: Option[Html] = None,
+        articleClasses: Option[String] = None,
+        includeGridWrapper: Boolean = false,
+        backlinkUrl: Option[String] = None,
+        additionalGaCalls: Option[Html] = None,
+        printableDocument: Boolean = false,
+        displayTimeoutDialog: Boolean = true
+)(mainContent: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+    @inlineScript = {
+
+    @scriptElement
+
+    @if(configDecorator.analyticsToken == Some("N/A")) {
+        <script type="text/javascript">
+                var ga = function (send, event, category, action, label, args) {
+                    console.log(JSON.stringify({
+                        call: 'ga',
+                        send: send,
+                        event: event,
+                        category: category,
+                        action: action,
+                        label: label
+                    }));
+
+                    if (args && typeof args !== 'undefined' && typeof args['hitCallback'] === 'function') {
+                        var hitCallback = args['hitCallback'];
+                        hitCallback();
+                    }
+
+                };
+                window._gaq.push = function (args) {
+                    console.log(JSON.stringify({
+                        call: '_gaq.push',
+                        args: args
+                    }));
+                };
+        </script>
+    }
+
+    @if(displayTimeoutDialog) {
+        <script>
+                window.GOVUK.timeoutDialog({
+                    timeout: @configDecorator.sessionTimeoutInSeconds,
+                    countdown: @configDecorator.sessionCountdownInSeconds,
+                    keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
+                    signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
+                });
+        </script>
+    }
+
+    }
+
+    @printable = @{
+        if(printableDocument) {
+            "printable"
+        }
+    }
+
+    @mainContentHeader = {
+
+    @if(WelshWarningHelper.usingWelsh) {
+        @tags.welshContentWarning()
+    }
+    }
+
+    @{
+
+        val name = ""
+        val arguments = TemplateArgumentsBuilder(
+
+            Some(AccountMenuStyleComponent(
+                langUrls = Some((
+                        controllers.routes.LanguageSwitchController.enGb().url,
+                        controllers.routes.LanguageSwitchController.cyGb().url
+                )),
+                signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
+                activeTab = None,
+                hideAccountMenu = true
+            )),
+            Some(CssLinksComponent(
+                CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie.css").url, ieVersionCondition = Some("IE")),
+                CssLinkElement(controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css").url)
+            )),
+            Some(ScriptsComponent(
+                controllers.routes.AssetsController.versioned("javascripts/pertax.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/gaTracking.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/webChat.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/card.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js").url
+            )),
+            Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
+            Some(InlineScriptComponent(inlineScript.toString)),
+            configDecorator.ssoUrl.map(SsoUrlComponent),
+            configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
+                GoogleAnalyticsComponent(
+                    trackingId,
+                    cookieDomain = configDecorator.analyticsHost,
+                    "confidenceLevel" -> None,
+                    "authProvider" -> None
+                )
+            },
+            Some(OptimizelyComponent(
+                None,
+                projectId = "8386635457"
+            )),
+            Some(FullWidthBannerComponent(
+                Messages("label.help_improve_gov_uk"),
+                Messages("label.please_take_part_in_our_short_survey"),
+                configDecorator.urLinkUrl,
+                Some(Messages("label.no_thanks")),
+                Some("homepage UR banner")
+            )).filter(x => showUserResearchBanner),
+            Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
+            Some(MainContentHeaderComponent(mainContentHeader)),
+            backlinkUrl.map(BackLinkUrlComponent(_)),
+            Some(UserPropertiesComponent(
+                isGovernmentGateway = false,
+                isVerify = false,
+                isSa = false
+            )),
+            None,
+            pageName.map(NavTitleComponent),
+            Some(BetaBannerComponent(configDecorator.deskproToken)),
+            None
+        ) ++ Map[String, Any](
+            "bodyClass" -> printable
+        )
+
+        templateRenderer.renderDefaultTemplate(
+            configDecorator.frontendTemplatePath,
+            layouts.article(mainContent, includeGridWrapper, articleClasses),
+            arguments
+        )
+    }

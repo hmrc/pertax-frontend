@@ -16,70 +16,68 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
-import javax.inject.Inject
-import models.{SelfAssessmentUserType, TaxCalculationStateFactory, TaxComponentsAvailableState, TaxComponentsDisabledState, TaxComponentsNotAvailableState, TaxComponentsState, TaxComponentsUnreachableState, TaxYearReconciliation}
+import com.google.inject.Inject
+import error.GenericErrors
+import models._
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import play.twirl.api.Html
-import services.{CitizenDetailsService, IdentityVerificationFrontendService, PreferencesFrontendService, SelfAssessmentService, TaiService, TaxCalculationService, TaxComponentsSuccessResponse, TaxComponentsUnavailableResponse, UserDetailsService}
-import services.partials.{CspPartialService, MessageFrontendService}
+import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.renderer.ActiveTabHome
+import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 class HomeController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
   val preferencesFrontendService: PreferencesFrontendService,
   val taiService: TaiService,
-  val identityVerificationFrontendService: IdentityVerificationFrontendService,
   val taxCalculationService: TaxCalculationService,
-  val selfAssessmentService: SelfAssessmentService,
-  val cspPartialService: CspPartialService,
-  val userDetailsService: UserDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
-  val taxCalculationStateFactory: TaxCalculationStateFactory
-) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
+    extends PertaxBaseController with PaperlessInterruptHelper with CurrentTaxYear {
 
-  def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) { implicit pertaxContext =>
-    val saUserType: Future[SelfAssessmentUserType] =
-      selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
+  override def now: () => DateTime = () => DateTime.now()
 
+  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
+    .addActiveTab(ActiveTabHome)
+
+  def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
       configDecorator.urLinkUrl.fold(Future.successful(false))(_ =>
         homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
 
-    val responses = serviceCallResponses(pertaxContext.user.flatMap(_.nino), current.currentYear)
+    val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
+      serviceCallResponses(request.nino, current.currentYear)
 
     showUserResearchBanner flatMap { showUserResearchBanner =>
       enforcePaperlessPreference {
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-          saUserType                                                                      <- saUserType
         } yield {
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-            pertaxContext.user,
             taxSummaryState,
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
-            saUserType,
+            request.saUserType,
             current.currentYear)
 
           val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
-          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(pertaxContext.user)
+          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
           Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner))
         }
@@ -122,5 +120,4 @@ class HomeController @Inject()(
         (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
       }
     }
-
 }

@@ -23,7 +23,6 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
 import play.twirl.api.Html
 import services.http.WsAllMethods
 import services.partials.FormPartialService

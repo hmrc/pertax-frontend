@@ -16,8 +16,7 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import error.LocalErrorHandler
+import com.google.inject.Inject
 
 class AssetsController @Inject()(localErrorHandler: LocalErrorHandler) extends AssetsBuilder(localErrorHandler)

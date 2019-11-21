@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.auth
+package models
 
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength}
+import uk.gov.hmrc.auth.core.retrieve.Name
 
-trait ConfidenceLevelChecker {
-  def userHasHighConfidenceLevel(implicit authContext: AuthContext) =
-    authContext.user.confidenceLevel >= ConfidenceLevel.L200
+case class UserName(name: Name) {
+
+  override def toString: String =
+    s"${name.name.getOrElse("")} ${name.lastName.getOrElse("")}".trim
+
+  def getOrElse(defaultName: String): String =
+    name match {
+      case Name(None, None) => defaultName
+      case _                => this.toString
+    }
 }

@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package util
+package models.dto
 
-import config.ConfigDecorator
-import connectors.{PertaxAuditConnector, PertaxAuthConnector}
-import controllers.PertaxDependencies
-import org.scalatest.mockito.MockitoSugar
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.Json
 
-object MockPertaxDependencies
-    extends PertaxDependencies(
-      MockitoSugar.mock[PertaxAuditConnector],
-      MockitoSugar.mock[PertaxAuthConnector],
-      MockitoSugar.mock[LocalPartialRetriever],
-      MockitoSugar.mock[ConfigDecorator]
-    )
+final case class SAWrongCredentialsDto(value: Boolean)
+
+object SAWrongCredentialsDto {
+
+  implicit val formats = Json.format[SAWrongCredentialsDto]
+
+  val form = Form(
+    mapping(
+      "wrongCredentialsFormChoice" -> optional(boolean)
+        .verifying("error.you_must_select_an_answer", _.isDefined)
+        .transform[Boolean](_.getOrElse(false), Some(_))
+    )(SAWrongCredentialsDto.apply)(SAWrongCredentialsDto.unapply)
+  )
+}
