@@ -26,7 +26,6 @@ import play.api.Configuration
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.authorise.CompositePredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
@@ -45,12 +44,9 @@ class AuthActionImpl @Inject()(
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
-    val compositePredicate =
-      CompositePredicate(ConfidenceLevel.L200, CredentialStrength(CredentialStrength.strong))
-
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised(compositePredicate)
+    authorised(ConfidenceLevel.L200)
       .retrieve(
         Retrievals.nino and
           Retrievals.allEnrolments and
@@ -162,15 +158,6 @@ class AuthActionImpl @Inject()(
           "failureURL" -> Seq(
             configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(
               Some(SafeRedirectUrl(request.uri))))
-        )
-      )
-
-    case _: IncorrectCredentialStrength =>
-      Redirect(
-        configDecorator.multiFactorAuthenticationUpliftUrl,
-        Map(
-          "origin"      -> Seq(configDecorator.origin),
-          "continueUrl" -> Seq(configDecorator.pertaxFrontendHost + configDecorator.personalAccount)
         )
       )
 
