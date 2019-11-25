@@ -76,7 +76,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
   "A user without a L200 confidence level must" - {
-    "be redirected to the IV uplift endpoint" in {
+    "be redirected to the uplift endpoint" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientConfidenceLevel()))
       val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
@@ -85,36 +85,6 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith(
         "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
-    }
-  }
-
-  "A user without a credential strength of Strong must" - {
-    "be redirected to the MFA uplift endpoint" in {
-
-      val fakeHost = "http://localhost:1234/bas-gateway/uplift-mfa"
-      val mockConfigDecorator = mock[ConfigDecorator]
-
-      when(mockConfigDecorator.multiFactorAuthenticationUpliftUrl)
-        .thenReturn(fakeHost)
-
-      when(mockConfigDecorator.origin)
-        .thenReturn("PERTAX")
-
-      when(mockConfigDecorator.pertaxFrontendHost)
-        .thenReturn("http://localhost:9232")
-
-      when(mockConfigDecorator.personalAccount)
-        .thenReturn("/personal-account")
-
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(IncorrectCredentialStrength()))
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, mockConfigDecorator)
-      val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe
-        Some(s"$fakeHost?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
     }
   }
 
