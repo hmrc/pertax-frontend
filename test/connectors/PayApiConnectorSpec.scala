@@ -16,6 +16,8 @@
 
 package connectors
 
+import java.time.{LocalDate, LocalDateTime, LocalTime}
+
 import models.PaymentRequest
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
@@ -68,6 +70,90 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
         .thenReturn(Future.successful(HttpResponse(CREATED, Some(badJson))))
 
       val f = connector.createPayment(paymentRequest)
+      whenReady(f.failed) { e =>
+        e shouldBe a[JsResultException]
+      }
+    }
+  }
+
+  "findPayments" should {
+
+    "parse the json load for a successful OK response" in {
+
+      val json = Json.parse("""
+                              |{
+                              |   "searchScope":"PTA",
+                              |   "searchTag":"1097172564",
+                              |   "payments":[
+                              |      {
+                              |         "id":"5ddbd2847a0000c7f0d845a4",
+                              |         "reference":"1097172564K",
+                              |         "amountInPence":10623,
+                              |         "status":"Created",
+                              |         "createdOn":"2019-11-25T13:09:24.188",
+                              |         "taxType":"self-assessment"
+                              |      }
+                              |   ]
+                              |}
+                              |
+                              |""".stripMargin)
+
+      when(http.GET[HttpResponse](any())(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+
+      connector.findPayments("111111111").futureValue shouldBe Some(json.as[PaymentSearchResult])
+    }
+
+    "parse json payload for multiple payments" in {
+
+      val json = Json.parse("""
+                              |{
+                              |   "searchScope":"PTA",
+                              |   "searchTag":"1097172564",
+                              |   "payments":[
+                              |      {
+                              |         "id":"5ddbd2847a0000c7f0d845a4",
+                              |         "reference":"1097172564K",
+                              |         "amountInPence":10623,
+                              |         "status":"Created",
+                              |         "createdOn":"2019-11-25T13:09:24.188",
+                              |         "taxType":"self-assessment"
+                              |      },
+                              |      {
+                              |         "id":"5ddbd38f7a0000c7f0d845a5",
+                              |         "reference":"1097172564K",
+                              |         "amountInPence":20000,
+                              |         "status":"Created",
+                              |         "createdOn":"2019-11-25T13:13:51.755",
+                              |         "taxType":"self-assessment"
+                              |      }
+                              |   ]
+                              |}
+                              |
+                              |""".stripMargin)
+
+      when(http.GET[HttpResponse](any())(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+
+      connector.findPayments("111111111").futureValue shouldBe Some(json.as[PaymentSearchResult])
+    }
+
+    "Returns a None when the status code is not OK" in {
+
+      when(http.GET[HttpResponse](any())(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
+
+      connector.findPayments("111111111").futureValue shouldBe None
+    }
+
+    "Throws a JsResultException when bad json is returned by pay-api" in {
+
+      val json = Json.parse("""{"testKey": "testValue"}""")
+
+      when(http.GET[HttpResponse](any())(any(), any(), any()))
+        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+
+      val f = connector.findPayments("111111111")
       whenReady(f.failed) { e =>
         e shouldBe a[JsResultException]
       }

@@ -16,6 +16,8 @@
 
 package connectors
 
+import java.time.LocalDateTime
+
 import com.google.inject.Inject
 import config.ConfigDecorator
 import models.PaymentRequest
@@ -32,7 +34,7 @@ object CreatePayment {
   implicit val format = Json.format[CreatePayment]
 }
 
-final case class PayApiPayment(status: String, amountInPence: Int, reference: String, createdOn: String)
+final case class PayApiPayment(status: String, amountInPence: Int, reference: String, createdOn: LocalDateTime)
 
 object PayApiPayment {
   implicit val format = Json.format[PayApiPayment]

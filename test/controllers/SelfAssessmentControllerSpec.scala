@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.PertaxAuditConnector
+import connectors.{PayApiConnector, PertaxAuditConnector}
 import controllers.auth._
 import models._
 import org.joda.time.{DateTime, LocalDate}
@@ -72,6 +72,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
     def controller =
       new SelfAssessmentController(
         messagesApi,
+        injected[PayApiConnector],
         fakeAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector

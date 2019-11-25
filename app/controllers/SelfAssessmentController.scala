@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
+import util.DateTimeTools.toPaymentDate
 import util.{DateTimeTools, LocalPartialRetriever}
 import viewmodels.SelfAssessmentPayment
 
@@ -114,19 +115,16 @@ class SelfAssessmentController @Inject()(
         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
           implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
-          val x = List(
-            SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123458", 361.85),
-            SelfAssessmentPayment(LocalDate.now().minusDays(24), "KT123457", 21.74),
-            SelfAssessmentPayment(LocalDate.now().minusDays(61), "KT123459", 7.00),
-            SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123456", 103.05)
-          )
-
           for {
             payResult <- payApiConnector.findPayments(saUtr.utr)
           } yield {
             val selfAssessmentPayments = payResult.fold(List[SelfAssessmentPayment]()) { res =>
               res.payments.map { p =>
-                SelfAssessmentPayment(LocalDate.parse(p.createdOn), p.reference, (p.amountInPence.toDouble / 100.00))
+                SelfAssessmentPayment(
+                  toPaymentDate(p.createdOn),
+                  p.reference,
+                  p.amountInPence.toDouble / 100.00
+                )
               }
             }
 
