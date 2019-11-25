@@ -32,6 +32,18 @@ object CreatePayment {
   implicit val format = Json.format[CreatePayment]
 }
 
+final case class PayApiPayment(status: String, amountInPence: Int, reference: String, createdOn: String)
+
+object PayApiPayment {
+  implicit val format = Json.format[PayApiPayment]
+}
+
+final case class PaymentSearchResult(searchScope: String, searchTag: String, payments: List[PayApiPayment])
+
+object PaymentSearchResult {
+  implicit val format = Json.format[PaymentSearchResult]
+}
+
 class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecorator) {
 
   def createPayment(
@@ -47,5 +59,16 @@ class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecor
     }
   }
 
-  //TODO new function for getting payments
+  def findPayments(
+    utr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[PaymentSearchResult]] = {
+    val url = s"${configDecorator.getPaymentsUrl}/PTA/$utr"
+
+    http.GET(url) flatMap { response =>
+      response.status match {
+        case OK =>
+          Future.successful(Some(response.json.as[PaymentSearchResult]))
+        case _ => Future.successful(None)
+      }
+    }
+  }
 }

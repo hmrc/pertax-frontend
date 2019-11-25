@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.PertaxAuditConnector
+import connectors.{PayApiConnector, PertaxAuditConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
@@ -39,6 +39,7 @@ import scala.concurrent.Future
 
 class SelfAssessmentController @Inject()(
   val messagesApi: MessagesApi,
+  payApiConnector: PayApiConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: PertaxAuditConnector)(
@@ -108,10 +109,11 @@ class SelfAssessmentController @Inject()(
     }
 
   def viewPayments: Action[AnyContent] =
-    authJourney.authWithSelfAssessment { implicit request =>
+    authJourney.authWithSelfAssessment.async { implicit request =>
       request.saUserType match {
-        case ActivatedOnlineFilerSelfAssessmentUser(_) =>
+        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
           implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+
           val x = List(
             SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123458", 361.85),
             SelfAssessmentPayment(LocalDate.now().minusDays(24), "KT123457", 21.74),
@@ -119,9 +121,20 @@ class SelfAssessmentController @Inject()(
             SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123456", 103.05)
           )
 
-          Ok(views.html.selfassessment.viewPayments(filterAndSortPayments(x)))
+          for {
+            payResult <- payApiConnector.findPayments(saUtr.utr)
+          } yield {
+            val selfAssessmentPayments = payResult.fold(List[SelfAssessmentPayment]()) { res =>
+              res.payments.map { p =>
+                SelfAssessmentPayment(LocalDate.parse(p.createdOn), p.reference, (p.amountInPence.toDouble / 100.00))
+              }
+            }
+
+            Ok(views.html.selfassessment.viewPayments(filterAndSortPayments(selfAssessmentPayments)))
+          }
+
         case _ =>
-          Redirect(routes.HomeController.index())
+          Future.successful(Redirect(routes.HomeController.index()))
       }
     }
 
