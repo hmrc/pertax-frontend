@@ -25,15 +25,16 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, AnyContentAsEmpty, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, LocalPartialRetriever, TaxYearRetriever}
-import util.{BaseSpec, DateTimeTools, Fixtures, LocalPartialRetriever, TaxYearRetriever}
+import util.{BaseSpec, DateTimeTools, LocalPartialRetriever, TaxYearRetriever}
 
 import scala.concurrent.Future
 
@@ -67,7 +68,7 @@ class AmbiguousJourneyControllerSpec extends BaseSpec with MockitoSugar {
     when(mockDateTimeTools.showSendTaxReturnByPost).thenReturn(true)
   }
 
-  val ambiguousUser = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+  val ambiguousUser = NotEnrolledSelfAssessmentUser(SaUtr("1111111111"))
 
   "Calling AmbiguousJourneyController.processFileReturnOnlineChoice" should {
 
