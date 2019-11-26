@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import models.AmbiguousFilerSelfAssessmentUser
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -32,10 +31,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
+import util.{BaseSpec, CitizenDetailsFixtures}
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 
 import scala.concurrent.Future
 

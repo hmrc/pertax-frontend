@@ -1,91 +1,100 @@
-GET    /personal-account/start-verify                                        @controllers.PublicController.verifyEntryPoint
-GET    /personal-account/start-government-gateway                            @controllers.PublicController.governmentGatewayEntryPoint
-GET    /personal-account/signin                                              @controllers.PublicController.sessionTimeout
-GET    /personal-account/signed-out                                          @controllers.PublicController.redirectToExitSurvey(origin: Origin)
-GET    /personal-account/tax-credits-summary                                 @controllers.PublicController.redirectToTaxCreditsService()
-GET    /personal-account/your-address                                        @controllers.PublicController.redirectToPersonalDetails
 
-GET    /personal-account/do-uplift                                           @controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
-GET    /personal-account                                                     @controllers.HomeController.index
+GET         /personal-account/start-verify                                             @controllers.PublicController.verifyEntryPoint
+GET         /personal-account/start-government-gateway                                 @controllers.PublicController.governmentGatewayEntryPoint
+GET         /personal-account/signin                                                   @controllers.PublicController.sessionTimeout
+GET         /personal-account/signed-out                                               @controllers.PublicController.redirectToExitSurvey(origin: Origin)
+GET         /personal-account/tax-credits-summary                                      @controllers.PublicController.redirectToTaxCreditsService()
+GET         /personal-account/your-address                                             @controllers.PublicController.redirectToPersonalDetails
 
-
-GET    /personal-account/full                                                @controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
-GET    /personal-account/identity-check-complete                             @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
-GET    /personal-account/identity-check-failed                               @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
-
-GET    /personal-account/signout                                             @controllers.ApplicationController.signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin])
-
-GET    /personal-account/dismiss-ur-banner                                   @controllers.UserResearchDismissalController.dismissUrBanner
-
-GET    /personal-account/self-assessment                                     @controllers.ApplicationController.handleSelfAssessment
-GET    /personal-account/sa-continue                                         @controllers.ApplicationController.ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl])
-GET    /personal-account/self-assessment/make-payment                        @controllers.PaymentsController.makePayment
-
-GET    /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
-POST   /personal-account/self-assessment/sa-filed-online                     @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice
-GET    /personal-account/self-assessment/sa-filed-post                       @controllers.AmbiguousJourneyController.filedReturnByPostChoice
-POST   /personal-account/self-assessment/sa-filed-post                       @controllers.AmbiguousJourneyController.processFiledReturnByPostChoice
-GET    /personal-account/self-assessment/de-enrolled-sa                      @controllers.AmbiguousJourneyController.deEnrolledFromSaChoice
-POST   /personal-account/self-assessment/de-enrolled-sa                      @controllers.AmbiguousJourneyController.processDeEnroledFromSaChoice
-GET    /personal-account/self-assessment/received-utr-letter                 @controllers.AmbiguousJourneyController.receivedUtrLetterChoice
-POST   /personal-account/self-assessment/received-utr-letter                 @controllers.AmbiguousJourneyController.processReceivedUtrLetterChoice
-GET    /personal-account/self-assessment/have-you-enrolled                   @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
-POST   /personal-account/self-assessment/have-you-enrolled                   @controllers.AmbiguousJourneyController.processUsedUtrToEnrolChoice
-GET    /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.usedUtrToRegisterChoice
-POST   /personal-account/self-assessment/used-utr-to-register                @controllers.AmbiguousJourneyController.processUsedUtrToRegisterChoice
-GET    /personal-account/self-assessment/result/:page                        @controllers.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages(page: String)
-
-GET    /personal-account/lang/enGb                                           @controllers.LanguageSwitchController.enGb()
-GET    /personal-account/lang/cyGb                                           @controllers.LanguageSwitchController.cyGb()
-
-GET    /personal-account/personal-details                                    @controllers.AddressController.personalDetails
-GET    /personal-account/your-address/tax-credits-choice                     @controllers.AddressController.taxCreditsChoice
-POST   /personal-account/your-address/tax-credits-choice                     @controllers.AddressController.processTaxCreditsChoice
-GET    /personal-account/your-address/residency-choice                       @controllers.AddressController.residencyChoice
-POST   /personal-account/your-address/residency-choice                       @controllers.AddressController.processResidencyChoice
-GET    /personal-account/your-address/:typ/do-you-live-in-the-uk             @controllers.AddressController.internationalAddressChoice(typ: AddrType)
-POST   /personal-account/your-address/:typ/do-you-live-in-the-uk             @controllers.AddressController.processInternationalAddressChoice(typ: AddrType)
-GET    /personal-account/your-address/:typ/cannot-use-the-service            @controllers.AddressController.cannotUseThisService(typ: AddrType)
-GET    /personal-account/your-address/:typ/find-address                      @controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
-POST   /personal-account/your-address/:typ/find-address                      @controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
-GET    /personal-account/your-address/:typ/select-address                    @controllers.AddressController.showAddressSelectorForm(typ: AddrType)
-POST   /personal-account/your-address/:typ/select-address                    @controllers.AddressController.processAddressSelectorForm(typ: AddrType)
-GET    /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.showUpdateAddressForm(typ: AddrType)
-POST   /personal-account/your-address/:typ/edit-address                      @controllers.AddressController.processUpdateAddressForm(typ: AddrType)
-GET    /personal-account/your-address/:typ/enter-international-address       @controllers.AddressController.showUpdateInternationalAddressForm(typ: AddrType)
-POST   /personal-account/your-address/:typ/enter-international-address       @controllers.AddressController.processUpdateInternationalAddressForm(typ: AddrType)
-GET    /personal-account/your-address/:typ/enter-start-date                  @controllers.AddressController.enterStartDate(typ: AddrType)
-POST   /personal-account/your-address/:typ/enter-start-date                  @controllers.AddressController.processEnterStartDate(typ: AddrType)
-GET    /personal-account/your-address/:typ/changes                           @controllers.AddressController.reviewChanges(typ: AddrType)
-POST   /personal-account/your-address/:typ/thank-you                         @controllers.AddressController.submitChanges(typ: AddrType)
-GET    /personal-account/your-address/:typ/thank-you                         @controllers.AddressController.showAddressAlreadyUpdated(typ: AddrType)
-GET    /personal-account/your-address/close-correspondence-address           @controllers.AddressController.closePostalAddressChoice
-POST   /personal-account/your-address/close-correspondence-address           @controllers.AddressController.processClosePostalAddressChoice
-GET    /personal-account/your-address/close-correspondence-address-confirm   @controllers.AddressController.confirmClosePostalAddress
-POST   /personal-account/your-address/thanks                                 @controllers.AddressController.submitConfirmClosePostalAddress
-GET    /personal-account/your-address/thanks                                 @controllers.AddressController.personalDetails
-
-GET    /personal-account/self-assessment-summary                             @controllers.InterstitialController.displaySelfAssessment
-GET    /personal-account/self-assessment/sa302/:year                         @controllers.InterstitialController.displaySa302Interrupt(year: Int)
-
-GET    /personal-account/national-insurance-summary                          @controllers.InterstitialController.displayNationalInsurance
-GET    /personal-account/national-insurance-summary/print-letter             @controllers.NiLetterController.printNationalInsuranceNumber
-GET    /personal-account/national-insurance-summary/save-letter-as-pdf       @controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
-GET    /personal-account/child-benefit-forms                                 @controllers.InterstitialController.displayChildBenefits
-GET    /personal-account/integration/main-content-header                     @controllers.PartialsController.mainContentHeader(name: Option[String], lastLogin: Option[Long], item_text: List[String], item_url: List[String], showBetaBanner: Option[Boolean], deskProToken: Option[String], langReturnUrl: Option[String], lang: Option[String], showLastItem: Boolean ?= false)
-
-GET    /personal-account/messages                                            @controllers.MessageController.messageList
-GET    /personal-account/messages/:url                                       @controllers.MessageController.messageDetail(url: String)
-
-GET    /personal-account/keep-alive                                          @controllers.SessionManagementController.keepAlive
-GET    /personal-account/timeout                                             @controllers.SessionManagementController.timeOut
+GET         /personal-account/do-uplift                                                @controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
+GET         /personal-account                                                          @controllers.HomeController.index
 
 
-GET    /personal-account/preferences                                         @controllers.PaperlessPreferencesController.managePreferences
+GET         /personal-account/full                                                     @controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
+GET         /personal-account/identity-check-complete                                  @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
+GET         /personal-account/identity-check-failed                                    @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
 
+GET         /personal-account/signout                                                  @controllers.ApplicationController.signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin])
 
-GET    /personal-account/assets/*file                                        @controllers.AssetsController.versioned(path="/public", file: Asset)
+GET         /personal-account/dismiss-ur-banner                                        @controllers.UserResearchDismissalController.dismissUrBanner
 
-GET    /admin/metrics                                                        @com.kenshoo.play.metrics.MetricsController.metrics
+GET         /personal-account/self-assessment                                          @controllers.SelfAssessmentController.handleSelfAssessment
+GET         /personal-account/self-assessment/request-access                           @controllers.SelfAssessmentController.requestAccess
+GET         /personal-account/sa-continue                                              @controllers.SelfAssessmentController.ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl])
+GET         /personal-account/self-assessment/make-payment                             @controllers.PaymentsController.makePayment
 
-->     /                          health.Routes
+GET         /personal-account/self-assessment/signed-in-wrong-account                  @controllers.SaWrongCredentialsController.landingPage
+GET         /personal-account/self-assessment/do-you-know-other-credentials            @controllers.SaWrongCredentialsController.doYouKnowOtherCredentials
+POST        /personal-account/self-assessment/do-you-know-other-credentials            @controllers.SaWrongCredentialsController.processDoYouKnowOtherCredentials
+GET         /personal-account/self-assessment/do-you-know-user-id                      @controllers.SaWrongCredentialsController.doYouKnowUserId
+POST        /personal-account/self-assessment/do-you-know-user-id                      @controllers.SaWrongCredentialsController.processDoYouKnowUserId
+GET         /personal-account/self-assessment/sign-in-again                            @controllers.SaWrongCredentialsController.signInAgain
+GET         /personal-account/self-assessment/need-to-reset-password                   @controllers.SaWrongCredentialsController.needToResetPassword
+GET         /personal-account/self-assessment/find-your-user-id                        @controllers.SaWrongCredentialsController.findYourUserId
+
+GET         /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
+POST        /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice
+GET         /personal-account/self-assessment/sa-filed-post                            @controllers.AmbiguousJourneyController.filedReturnByPostChoice
+POST        /personal-account/self-assessment/sa-filed-post                            @controllers.AmbiguousJourneyController.processFiledReturnByPostChoice
+GET         /personal-account/self-assessment/de-enrolled-sa                           @controllers.AmbiguousJourneyController.deEnrolledFromSaChoice
+POST        /personal-account/self-assessment/de-enrolled-sa                           @controllers.AmbiguousJourneyController.processDeEnroledFromSaChoice
+GET         /personal-account/self-assessment/received-utr-letter                      @controllers.AmbiguousJourneyController.receivedUtrLetterChoice
+POST        /personal-account/self-assessment/received-utr-letter                      @controllers.AmbiguousJourneyController.processReceivedUtrLetterChoice
+GET         /personal-account/self-assessment/have-you-enrolled                        @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
+POST        /personal-account/self-assessment/have-you-enrolled                        @controllers.AmbiguousJourneyController.processUsedUtrToEnrolChoice
+GET         /personal-account/self-assessment/used-utr-to-register                     @controllers.AmbiguousJourneyController.usedUtrToRegisterChoice
+POST        /personal-account/self-assessment/used-utr-to-register                     @controllers.AmbiguousJourneyController.processUsedUtrToRegisterChoice
+GET         /personal-account/self-assessment/result/:page                             @controllers.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages(page: String)
+
+GET         /personal-account/lang/enGb                                                @controllers.LanguageSwitchController.enGb()
+GET         /personal-account/lang/cyGb                                                @controllers.LanguageSwitchController.cyGb()
+
+GET         /personal-account/personal-details                                         @controllers.AddressController.personalDetails
+GET         /personal-account/your-address/tax-credits-choice                          @controllers.AddressController.taxCreditsChoice
+POST        /personal-account/your-address/tax-credits-choice                          @controllers.AddressController.processTaxCreditsChoice
+GET         /personal-account/your-address/residency-choice                            @controllers.AddressController.residencyChoice
+POST        /personal-account/your-address/residency-choice                            @controllers.AddressController.processResidencyChoice
+GET         /personal-account/your-address/:typ/do-you-live-in-the-uk                  @controllers.AddressController.internationalAddressChoice(typ: AddrType)
+POST        /personal-account/your-address/:typ/do-you-live-in-the-uk                  @controllers.AddressController.processInternationalAddressChoice(typ: AddrType)
+GET         /personal-account/your-address/:typ/cannot-use-the-service                 @controllers.AddressController.cannotUseThisService(typ: AddrType)
+GET         /personal-account/your-address/:typ/find-address                           @controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
+POST        /personal-account/your-address/:typ/find-address                           @controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
+GET         /personal-account/your-address/:typ/select-address                         @controllers.AddressController.showAddressSelectorForm(typ: AddrType)
+POST        /personal-account/your-address/:typ/select-address                         @controllers.AddressController.processAddressSelectorForm(typ: AddrType)
+GET         /personal-account/your-address/:typ/edit-address                           @controllers.AddressController.showUpdateAddressForm(typ: AddrType)
+POST        /personal-account/your-address/:typ/edit-address                           @controllers.AddressController.processUpdateAddressForm(typ: AddrType)
+GET         /personal-account/your-address/:typ/enter-international-address            @controllers.AddressController.showUpdateInternationalAddressForm(typ: AddrType)
+POST        /personal-account/your-address/:typ/enter-international-address            @controllers.AddressController.processUpdateInternationalAddressForm(typ: AddrType)
+GET         /personal-account/your-address/:typ/enter-start-date                       @controllers.AddressController.enterStartDate(typ: AddrType)
+POST        /personal-account/your-address/:typ/enter-start-date                       @controllers.AddressController.processEnterStartDate(typ: AddrType)
+GET         /personal-account/your-address/:typ/changes                                @controllers.AddressController.reviewChanges(typ: AddrType)
+POST        /personal-account/your-address/:typ/thank-you                              @controllers.AddressController.submitChanges(typ: AddrType)
+GET         /personal-account/your-address/:typ/thank-you                              @controllers.AddressController.showAddressAlreadyUpdated(typ: AddrType)
+GET         /personal-account/your-address/close-correspondence-address                @controllers.AddressController.closePostalAddressChoice
+POST        /personal-account/your-address/close-correspondence-address                @controllers.AddressController.processClosePostalAddressChoice
+GET         /personal-account/your-address/close-correspondence-address-confirm        @controllers.AddressController.confirmClosePostalAddress
+POST        /personal-account/your-address/thanks                                      @controllers.AddressController.submitConfirmClosePostalAddress
+GET         /personal-account/your-address/thanks                                      @controllers.AddressController.personalDetails
+
+GET         /personal-account/self-assessment-summary                                  @controllers.InterstitialController.displaySelfAssessment
+GET         /personal-account/self-assessment/sa302/:year                              @controllers.InterstitialController.displaySa302Interrupt(year: Int)
+
+GET         /personal-account/national-insurance-summary                               @controllers.InterstitialController.displayNationalInsurance
+GET         /personal-account/national-insurance-summary/print-letter                  @controllers.NiLetterController.printNationalInsuranceNumber
+GET         /personal-account/national-insurance-summary/save-letter-as-pdf            @controllers.NiLetterController.saveNationalInsuranceNumberAsPdf
+GET         /personal-account/child-benefit-forms                                      @controllers.InterstitialController.displayChildBenefits
+GET         /personal-account/integration/main-content-header                          @controllers.PartialsController.mainContentHeader(name: Option[String], lastLogin: Option[Long], item_text: List[String], item_url: List[String], showBetaBanner: Option[Boolean], deskProToken: Option[String], langReturnUrl: Option[String], lang: Option[String], showLastItem: Boolean ?= false)
+
+GET         /personal-account/messages                                                 @controllers.MessageController.messageList
+GET         /personal-account/messages/:url                                            @controllers.MessageController.messageDetail(url: String)
+
+GET         /personal-account/keep-alive                                               @controllers.SessionManagementController.keepAlive
+GET         /personal-account/timeout                                                  @controllers.SessionManagementController.timeOut
+
+GET         /personal-account/preferences                                              @controllers.PaperlessPreferencesController.managePreferences
+
+GET         /personal-account/assets/*file                                             @controllers.AssetsController.versioned(path="/public", file: Asset)
+
+GET         /admin/metrics                                                             @com.kenshoo.play.metrics.MetricsController.metrics
+
+->          /                                                                          health.Routes

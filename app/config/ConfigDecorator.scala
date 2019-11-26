@@ -56,6 +56,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
   private lazy val payApiUrl = baseUrl("pay-api")
   lazy val authLoginApiService = baseUrl("auth-login-api")
+  private lazy val enrolmentStoreProxyService = baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
     configuration.getString(s"external-url.$key").filter(_ => env == "Dev")
@@ -145,6 +146,11 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
   lazy val origin =
     configuration.getString("sosOrigin").orElse(configuration.getString("appName")).getOrElse("undefined")
+
+  lazy val signinGGUrl = "https://www.tax.service.gov.uk/account"
+  lazy val lostUserIdWithSa =
+    "https://www.tax.service.gov.uk/account-recovery/disabled-user-id/check-email/IndividualWithSA"
+
   lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
   lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
   lazy val problemsSigningInUrl = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
@@ -190,6 +196,8 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
   lazy val myStatePensionAccount = s"$nispFrontendHost/check-your-state-pension/account/pta"
   lazy val lifetimeProtectionAllowance = s"$dfsFrontendHost/protect-your-lifetime-allowance/existing-protections"
+
+  lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
 
   lazy val marriageAllowanceSalaryAmount = "£11,500"
 
