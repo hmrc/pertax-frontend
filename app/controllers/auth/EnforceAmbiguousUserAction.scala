@@ -17,7 +17,7 @@
 package controllers.auth
 import controllers.auth.requests.UserRequest
 import controllers.routes
-import models.NotEnrolledSelfAssessmentUser
+import models.{NotEnrolledSelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
 import play.api.mvc.Results._
 import play.api.mvc.{ActionFunction, ActionRefiner, Result}
 
@@ -28,8 +28,8 @@ class EnforceAmbiguousUserAction
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     request.saUserType match {
-      case _: NotEnrolledSelfAssessmentUser => Future.successful(Right(request))
-      case _                                => Future.successful(Left(Redirect(routes.HomeController.index())))
+      case _: NotEnrolledSelfAssessmentUser | _: WrongCredentialsSelfAssessmentUser => Future.successful(Right(request))
+      case _                                                                        => Future.successful(Left(Redirect(routes.HomeController.index())))
     }
 
 }
