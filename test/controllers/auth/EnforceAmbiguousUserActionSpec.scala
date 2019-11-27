@@ -17,7 +17,7 @@
 package controllers.auth
 
 import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
+import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser}
 import org.scalatest.{FreeSpec, MustMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -29,7 +29,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
-import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
@@ -53,27 +52,51 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
   }
 
   "EnforceAmbiguousUserAction must" - {
+    "when a user is ambiguous" - {
 
-    Seq(NotEnrolledSelfAssessmentUser(SaUtr("1111111111")), WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")))
-      .map { selfAssessmentType: SelfAssessmentUserType =>
-        s"when a user is a $selfAssessmentType" - {
-          "return the request it was passed" in {
-
-            val userRequest = buildUserRequest(saUser = selfAssessmentType, request = FakeRequest())
-
-            val result = harness()(userRequest)
-            status(result) mustBe OK
-          }
-        }
+      "return the request it was passed" in {
+        val userRequest =
+          UserRequest(
+            None,
+            None,
+            None,
+            NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
+            Credentials("", "Verify"),
+            ConfidenceLevel.L50,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            FakeRequest()
+          )
+        val result = harness()(userRequest)
+        status(result) mustBe OK
       }
 
-    "when a user is not ambiguous" - {
-      "redirect to the landing page" in {
-        val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+      "when a user is not ambiguous" - {
 
-        val result = harness()(userRequest)
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith("/personal-account")
+        "redirect to the landing page" in {
+          val userRequest =
+            UserRequest(
+              None,
+              None,
+              None,
+              NonFilerSelfAssessmentUser,
+              Credentials("", "Verify"),
+              ConfidenceLevel.L50,
+              None,
+              None,
+              None,
+              None,
+              None,
+              None,
+              FakeRequest())
+          val result = harness()(userRequest)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get must endWith("/personal-account")
+        }
       }
     }
   }
