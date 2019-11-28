@@ -1,3 +1,4 @@
+
 GET         /personal-account/start-verify                                             @controllers.PublicController.verifyEntryPoint
 GET         /personal-account/start-government-gateway                                 @controllers.PublicController.governmentGatewayEntryPoint
 GET         /personal-account/signin                                                   @controllers.PublicController.sessionTimeout
@@ -58,6 +59,7 @@ POST        /personal-account/your-address/:typ/do-you-live-in-the-uk           
 GET         /personal-account/your-address/:typ/cannot-use-the-service                 @controllers.AddressController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           @controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
 POST        /personal-account/your-address/:typ/find-address                           @controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
+GET         /personal-account/your-address/:typ/select-address                         @controllers.AddressController.showAddressSelectorForm(typ: AddrType)
 POST        /personal-account/your-address/:typ/select-address                         @controllers.AddressController.processAddressSelectorForm(typ: AddrType)
 GET         /personal-account/your-address/:typ/edit-address                           @controllers.AddressController.showUpdateAddressForm(typ: AddrType)
 POST        /personal-account/your-address/:typ/edit-address                           @controllers.AddressController.processUpdateAddressForm(typ: AddrType)
