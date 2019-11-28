@@ -32,6 +32,7 @@ GET         /personal-account/self-assessment/sign-in-again                     
 GET         /personal-account/self-assessment/need-to-reset-password                   @controllers.SaWrongCredentialsController.needToResetPassword
 GET         /personal-account/self-assessment/find-your-user-id                        @controllers.SaWrongCredentialsController.findYourUserId
 
+GET         /personal-account/self-assessment/ambiguous-sa-user                        @controllers.AmbiguousJourneyController.landingPage
 GET         /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
 POST        /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice
 GET         /personal-account/self-assessment/sa-filed-post                            @controllers.AmbiguousJourneyController.filedReturnByPostChoice
