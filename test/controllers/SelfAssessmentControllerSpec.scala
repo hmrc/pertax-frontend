@@ -16,8 +16,10 @@
 
 package controllers
 
+import java.time.LocalDateTime
+
 import config.ConfigDecorator
-import connectors.{PayApiConnector, PertaxAuditConnector}
+import connectors.{PayApiConnector, PayApiPayment, PaymentSearchResult, PertaxAuditConnector}
 import controllers.auth._
 import models._
 import org.joda.time.{DateTime, LocalDate}
@@ -210,47 +212,98 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         redirectLocation(result) shouldBe Some(routes.HomeController.index().url)
       }
     }
+  }
 
-    "Calling SelfAssessmentController.filterAndSortPayments" should {
+  "Calling SelfAssessmentController.filterAndSortPayments" should {
 
-      "filter payments to only include payments in the past 60 days" in new LocalSetup {
+    "return an empty list if no payments are present" in new LocalSetup {
 
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+      override def fakeAuthJourney: FakeAuthJourney =
+        new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
-        implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+      implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
-        val outlier = SelfAssessmentPayment(LocalDate.now().minusDays(61), "KT123459", 7.00)
+      val list = Some(PaymentSearchResult("PTA", "111111111", List.empty))
 
-        val list = List(
-          SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123458", 361.85),
-          SelfAssessmentPayment(LocalDate.now().minusDays(24), "KT123457", 21.74),
-          outlier,
-          SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123456", 103.05)
-        )
+      val result = controller.filterAndSortPayments(list)
 
-        controller.filterAndSortPayments(list) should not contain (outlier)
+      result.isEmpty shouldBe true
+    }
 
-      }
+    "filter payments to only include payments in the past 60 days" in new LocalSetup {
 
-      "order payments from latest payment descending" in new LocalSetup {
+      override def fakeAuthJourney: FakeAuthJourney =
+        new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+      implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
 
-        implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+      val outlier = SelfAssessmentPayment(LocalDate.now().minusDays(61), "KT123459", 7.00)
 
-        val latest = SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123456", 103.05)
+      val payments = List(
+        PayApiPayment("Successful", 14587, "KT123457", LocalDateTime.now().minusDays(11.toLong)),
+        PayApiPayment("Successful", 6354, "KT123458", LocalDateTime.now().minusDays(27.toLong)),
+        PayApiPayment("Successful", 700, "KT123459", LocalDateTime.now().minusDays(61.toLong)),
+        PayApiPayment("Successful", 1231, "KT123460", LocalDateTime.now().minusDays(58.toLong))
+      )
 
-        val middle = SelfAssessmentPayment(LocalDate.now().minusDays(24), "KT123457", 21.74)
+      val list = Some(PaymentSearchResult("PTA", "111111111", payments))
 
-        val earliest = SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123458", 361.85)
+      val result = controller.filterAndSortPayments(list)
 
-        val list = List(middle, earliest, latest)
+      result should not contain (outlier)
+      result.length shouldBe 3
 
-        controller.filterAndSortPayments(list) shouldBe List(latest, middle, earliest)
+    }
 
-      }
+    "filter payments to only include Successful payments" in new LocalSetup {
+
+      override def fakeAuthJourney: FakeAuthJourney =
+        new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+
+      implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+
+      val payments = List(
+        PayApiPayment("Successful", 25601, "KT123456", LocalDateTime.now()),
+        PayApiPayment("Successful", 1300, "KT123457", LocalDateTime.now().minusDays(12.toLong)),
+        PayApiPayment("Cancelled", 14021, "KT123458", LocalDateTime.now().minusDays(47.toLong)),
+        PayApiPayment("Failed", 17030, "KT123459", LocalDateTime.now().minusDays(59.toLong))
+      )
+
+      val list = Some(PaymentSearchResult("PTA", "111111111", payments))
+
+      val cancelled = SelfAssessmentPayment(LocalDate.now().minusDays(47), "KT123458", 140.21)
+
+      val failed = SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123459", 170.30)
+
+      val result = controller.filterAndSortPayments(list)
+
+      result should contain noneOf (cancelled, failed)
+      result.length shouldBe 2
+    }
+
+    "order payments from latest payment descending" in new LocalSetup {
+
+      override def fakeAuthJourney: FakeAuthJourney =
+        new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+
+      implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
+
+      val apiPayments = List(
+        PayApiPayment("Successful", 25601, "KT123456", LocalDateTime.now()),
+        PayApiPayment("Successful", 1300, "KT123457", LocalDateTime.now().minusDays(12.toLong)),
+        PayApiPayment("Successful", 17030, "KT123459", LocalDateTime.now().minusDays(59.toLong))
+      )
+
+      val list = Some(PaymentSearchResult("PTA", "111111111", apiPayments))
+
+      val selfAssessmentPayments = List(
+        SelfAssessmentPayment(LocalDate.now(), "KT123456", 256.01),
+        SelfAssessmentPayment(LocalDate.now().minusDays(12), "KT123457", 13.0),
+        SelfAssessmentPayment(LocalDate.now().minusDays(59), "KT123459", 170.3)
+      )
+
+      controller.filterAndSortPayments(list) shouldBe selfAssessmentPayments
+
     }
   }
 }

@@ -18,12 +18,13 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{PayApiConnector, PertaxAuditConnector}
+import connectors.{PayApiConnector, PaymentSearchResult, PertaxAuditConnector}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import models._
 import org.joda.time.{DateTime, LocalDate}
+import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -118,17 +119,7 @@ class SelfAssessmentController @Inject()(
           for {
             payResult <- payApiConnector.findPayments(saUtr.utr)
           } yield {
-            val selfAssessmentPayments = payResult.fold(List[SelfAssessmentPayment]()) { res =>
-              res.payments.map { p =>
-                SelfAssessmentPayment(
-                  toPaymentDate(p.createdOn),
-                  p.reference,
-                  p.amountInPence.toDouble / 100.00
-                )
-              }
-            }
-
-            Ok(views.html.selfassessment.viewPayments(filterAndSortPayments(selfAssessmentPayments)))
+            Ok(views.html.selfassessment.viewPayments(filterAndSortPayments(payResult)))
           }
 
         case _ =>
@@ -136,7 +127,24 @@ class SelfAssessmentController @Inject()(
       }
     }
 
-  def filterAndSortPayments(payments: List[SelfAssessmentPayment])(
-    implicit order: Ordering[LocalDate]): List[SelfAssessmentPayment] =
-    payments.filter(_.date isAfter LocalDate.now.minusDays(60)).sortBy(_.date)
+  def filterAndSortPayments(payments: Option[PaymentSearchResult])(
+    implicit order: Ordering[LocalDate]): List[SelfAssessmentPayment] = {
+
+    val successful = "Successful"
+
+    val selfAssessmentPayments =
+      payments.fold(List[SelfAssessmentPayment]()) { res =>
+        res.payments.filter(payment => payment.status == successful).map { p =>
+          SelfAssessmentPayment(
+            toPaymentDate(p.createdOn),
+            p.reference,
+            p.amountInPence.toDouble / 100.00
+          )
+        }
+      }
+
+    if (selfAssessmentPayments.nonEmpty) {
+      selfAssessmentPayments.filter(_.date isAfter LocalDate.now.minusDays(60)).sortBy(_.date)
+    } else selfAssessmentPayments
+  }
 }

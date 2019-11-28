@@ -89,7 +89,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
                               |         "id":"5ddbd2847a0000c7f0d845a4",
                               |         "reference":"1097172564K",
                               |         "amountInPence":10623,
-                              |         "status":"Created",
+                              |         "status":"Successful",
                               |         "createdOn":"2019-11-25T13:09:24.188",
                               |         "taxType":"self-assessment"
                               |      }
@@ -115,7 +115,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
                               |         "id":"5ddbd2847a0000c7f0d845a4",
                               |         "reference":"1097172564K",
                               |         "amountInPence":10623,
-                              |         "status":"Created",
+                              |         "status":"Successful",
                               |         "createdOn":"2019-11-25T13:09:24.188",
                               |         "taxType":"self-assessment"
                               |      },
@@ -123,7 +123,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
                               |         "id":"5ddbd38f7a0000c7f0d845a5",
                               |         "reference":"1097172564K",
                               |         "amountInPence":20000,
-                              |         "status":"Created",
+                              |         "status":"Successful",
                               |         "createdOn":"2019-11-25T13:13:51.755",
                               |         "taxType":"self-assessment"
                               |      }
