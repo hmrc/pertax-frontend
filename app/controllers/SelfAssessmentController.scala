@@ -27,7 +27,8 @@ import org.joda.time.{DateTime, LocalDate}
 import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.http.HeaderCarrier
+import services.SelfAssessmentPaymentsService
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -41,7 +42,7 @@ import scala.concurrent.Future
 
 class SelfAssessmentController @Inject()(
   val messagesApi: MessagesApi,
-  payApiConnector: PayApiConnector,
+  selfAssessmentPaymentsService: SelfAssessmentPaymentsService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: PertaxAuditConnector)(
@@ -114,37 +115,16 @@ class SelfAssessmentController @Inject()(
     authJourney.authWithSelfAssessment.async { implicit request =>
       request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
-          implicit val localDateOrdering: Ordering[LocalDate] = Ordering.fromLessThan(_ isAfter _)
-
-          for {
-            payResult <- payApiConnector.findPayments(saUtr.utr)
+          (for {
+            payments <- selfAssessmentPaymentsService.getPayments(saUtr.value)
           } yield {
-            Ok(views.html.selfassessment.viewPayments(filterAndSortPayments(payResult)))
+            Ok(views.html.selfassessment.viewPayments(payments))
+          }) recover {
+            case ex: Upstream5xxResponse => error(ex.reportAs)
           }
 
         case _ =>
           Future.successful(Redirect(routes.HomeController.index()))
       }
     }
-
-  def filterAndSortPayments(payments: Option[PaymentSearchResult])(
-    implicit order: Ordering[LocalDate]): List[SelfAssessmentPayment] = {
-
-    val successful = "Successful"
-
-    val selfAssessmentPayments =
-      payments.fold(List[SelfAssessmentPayment]()) { res =>
-        res.payments.filter(payment => payment.status == successful).map { p =>
-          SelfAssessmentPayment(
-            toPaymentDate(p.createdOn),
-            p.reference,
-            p.amountInPence.toDouble / 100.00
-          )
-        }
-      }
-
-    if (selfAssessmentPayments.nonEmpty) {
-      selfAssessmentPayments.filter(_.date isAfter LocalDate.now.minusDays(60)).sortBy(_.date)
-    } else selfAssessmentPayments
-  }
 }

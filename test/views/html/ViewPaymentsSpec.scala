@@ -54,41 +54,50 @@ class ViewPaymentsSpec extends ViewSpec with BaseSpec {
     SelfAssessmentPayment(LocalDate.now().minusDays(61), "KT123458", 7.00)
   )
 
-  "viewPayments" must {
-    "render the correct h1" in {
-      assertContainsText(doc(noPayments), messages("title.selfAssessment.viewPayments.h1"))
-      assertContainsText(doc(payments), messages("title.selfAssessment.viewPayments.h1"))
+  "viewPayments" when {
+
+    "the page is rendered" should {
+
+      "render the correct h1" in {
+        assertContainsText(doc(noPayments), messages("title.selfAssessment.viewPayments.h1"))
+        assertContainsText(doc(payments), messages("title.selfAssessment.viewPayments.h1"))
+      }
+
+      "render the correct title" in {
+        assertContainsText(doc(noPayments), request.retrievedName.get.toString)
+        assertContainsText(doc(payments), request.retrievedName.get.toString)
+      }
+
+      "render the correct name" in {
+        val unnamedRequest = buildUserRequest(
+          saUser = user,
+          request = request,
+          userName = None
+        )
+        assertContainsText(doc(noPayments, unnamedRequest), messages("label.your_account"))
+        assertContainsText(doc(payments, unnamedRequest), messages("label.your_account"))
+      }
+    }
+    "no payments are present" should {
+
+      "not render the payments table if no payments have been made in the last 60 days" in {
+        doc(noPayments).getElementsByTag("table") shouldBe empty
+      }
+
+      "show no payments content if no payments have been made in the last 60 days" in {
+        assertContainsText(doc(noPayments), messages("label.selfAssessment.noPaymentsIn60"))
+      }
     }
 
-    "render the correct title" in {
-      assertContainsText(doc(noPayments), request.retrievedName.get.toString)
-      assertContainsText(doc(payments), request.retrievedName.get.toString)
-    }
+    "payments are present" should {
 
-    "render the correct name" in {
-      val unnamedRequest = buildUserRequest(
-        saUser = user,
-        request = request,
-        userName = None
-      )
-      assertContainsText(doc(noPayments, unnamedRequest), messages("label.your_account"))
-      assertContainsText(doc(payments, unnamedRequest), messages("label.your_account"))
-    }
+      "show correct advisory if payments exist" in {
+        assertContainsText(doc(payments), messages("label.selfAssessment.balanceUpdateAdvisory"))
+      }
 
-    "not render the payments table if no payments have been made in the last 60 days" in {
-      doc(noPayments).getElementsByTag("table") shouldBe empty
-    }
-
-    "show no payments content if no payments have been made in the last 60 days" in {
-      assertContainsText(doc(noPayments), messages("label.selfAssessment.noPaymentsIn60"))
-    }
-
-    "show correct advisory if payments exist" in {
-      assertContainsText(doc(payments), messages("label.selfAssessment.balanceUpdateAdvisory"))
-    }
-
-    "show correct number of payments in the payment table" in {
-      assert(doc(payments).select("tr td.payment_date").size == payments.length)
+      "show correct number of payments in the payment table" in {
+        assert(doc(payments).select("tr td.payment_date").size == payments.length)
+      }
     }
   }
 }

@@ -24,7 +24,7 @@ import models.PaymentRequest
 import play.api.http.Status._
 import play.api.libs.json.Json
 import services.http.WsAllMethods
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, Upstream5xxResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -63,13 +63,16 @@ class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecor
 
   def findPayments(
     utr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[PaymentSearchResult]] = {
-    val url = s"${configDecorator.getPaymentsUrl}/PTA/$utr"
+    val url = s"${configDecorator.getPaymentsUrl}/$utr"
 
     http.GET(url) flatMap { response =>
       response.status match {
         case OK =>
           Future.successful(Some(response.json.as[PaymentSearchResult]))
-        case _ => Future.successful(None)
+        case NOT_FOUND =>
+          Future.successful(None)
+        case error =>
+          Future.failed(Upstream5xxResponse(s"findPayments returned $error", error, INTERNAL_SERVER_ERROR))
       }
     }
   }
