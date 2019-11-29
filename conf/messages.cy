@@ -292,7 +292,7 @@ label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyfl
 label.call_us_if_you_filed_your_return_by_post_link_text=ffoniwch ni
 label.call_us_if_you_filed_your_return_by_post_text_after_link=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
 label.help_improve_gov_uk=Helpwch i wella gwasanaethau CThEM
-label.please_take_part_in_our_short_survey=Cymerwch ran yn ein harolwg byr (yn agor ffenestr neu dab newydd)
+label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwasanaethau’r Llywodraeth yn well (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
@@ -507,3 +507,26 @@ label.child.trust.fund=Cronfa Ymddiriedolaeth Plant
 label.child.trust.fund.details=Pan fyddwch yn cyrraedd 16 oed, cymerwch reolaeth o’ch Cronfa Ymddiriedolaeth Plant. Gofynnwch i’ch rhieni neu’ch gofalwr - am ragor o wybodaeth, ewch i www.gov.uk/child-trust-funds
 label.hmrc_date=CThEM {0}
 label.page=Tudalen
+
+label.access_your_self_assessment=Access your Self Assessment
+
+title.signed_in_wrong_account.h1=You are not signed in to the right account
+label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
+
+title.sign_in_again.h1=You need to sign back in to Government Gateway using different details
+label.sign_in_again=You will be asked to sign in again with the user ID and password for the account you use for Self Assessment.
+
+title.do_you_know_other_credentials.h1=Do you know the user ID and password for the account you use for Self Assessment?
+title.do_you_know_user_id.h1=Do you know the user ID?
+
+title.reset_your_password.h1=You need to reset your password
+labels.need_utr=You will need your Unique Taxpayer Reference (UTR).
+labels.your_utr_is=Your UTR is
+
+title.find_your_user_id.h1=Get help finding your user ID
+
+title.request_sa_access.h1=You need to request access to Self Assessment
+label.request_sa_access.p1=This may be because you have deregistered from Self Assessment online.
+label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
+label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
+label.request_sa_access.button=Request access to Self Assessment

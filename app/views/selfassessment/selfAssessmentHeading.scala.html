@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package util
+@(title: String)(implicit messages: play.api.i18n.Messages)
 
-object PertaxSessionKeys {
-  val dontUplift = "dontUplift"
-
-  val postcode = "postcode"
-  val filter = "filter"
-}
+<header class="page-heading">
+    <h1 class="heading-xlarge">
+        @messages(title)
+    </h1>
+    <p class="heading-secondary"><span class="visuallyhidden">
+        This section is </span>@messages("label.access_your_self_assessment")</p>
+</header>
