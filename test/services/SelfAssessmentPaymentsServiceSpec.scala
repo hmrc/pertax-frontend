@@ -18,7 +18,8 @@ package services
 
 import java.time.LocalDateTime
 
-import connectors.{PayApiConnector, PayApiPayment, PaymentSearchResult}
+import connectors.PayApiConnector
+import models.{PayApiPayment, PaymentSearchResult}
 import org.joda.time.LocalDate
 import org.scalatest.mockito.MockitoSugar
 import org.mockito.Matchers.any
@@ -37,12 +38,6 @@ import scala.concurrent.Future
 class SelfAssessmentPaymentsServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   val mockPayApiConnector = mock[PayApiConnector]
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(
-      bind[PayApiConnector].toInstance(mockPayApiConnector)
-    )
-    .build()
 
   def sut = new SelfAssessmentPaymentsService(mockPayApiConnector)
 
@@ -114,13 +109,14 @@ class SelfAssessmentPaymentsServiceSpec extends BaseSpec with MockitoSugar with 
         PayApiPayment("Successful", 14587, "111111111K", LocalDateTime.now().minusDays(11.toLong)),
         PayApiPayment("Successful", 6354, "111111111K", LocalDateTime.now().minusDays(27.toLong)),
         PayApiPayment("Successful", 700, "111111111K", LocalDateTime.now().minusDays(61.toLong)),
-        PayApiPayment("Successful", 1231, "111111111K", LocalDateTime.now().minusDays(58.toLong))
+        PayApiPayment("Successful", 1231, "111111111K", LocalDateTime.now().minusDays(60.toLong))
       )
 
       val list = Some(PaymentSearchResult("PTA", "111111111", payments))
 
       val result = sut.filterAndSortPayments(list)
 
+      println(result)
       result should not contain (outlier)
       result.length shouldBe 3
 

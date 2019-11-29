@@ -17,10 +17,15 @@
 package viewmodels
 
 import org.joda.time.LocalDate
+import play.api.i18n.Messages
+import util.LanguageHelper
 
 case class SelfAssessmentPayment(date: LocalDate, referenceNumber: String, amount: Double) {
 
-  def getDisplayDate: String = date.toString("d MMMM")
+  def getDisplayDate()(implicit messages: Messages): String = {
+    val dateWithLang = LanguageHelper.langUtils.Dates.formatDate(date)
+    dateWithLang.substring(0, dateWithLang.lastIndexOf(" "))
+  }
 
   def getDisplayAmount: String = f"£$amount%.2f"
 }

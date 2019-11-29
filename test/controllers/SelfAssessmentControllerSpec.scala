@@ -194,7 +194,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
         status(result) shouldBe OK
 
-        Jsoup.parse(contentAsString(result)).text() should include(
+        contentAsString(result) should include(
           messagesApi("title.selfAssessment.viewPayments.h1")
         )
 
@@ -210,8 +210,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         val result =
           routeWrapper(buildFakeRequestWithAuth("GET", routes.SelfAssessmentController.viewPayments().url))
             .getOrElse(throw new TestFailedException("Failed to route", 0))
-
-        val doc = Jsoup.parse(contentAsString(result))
 
         status(result) shouldBe SEE_OTHER
 
@@ -234,7 +232,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
 
-        Jsoup.parse(contentAsString(result)).text() should include(
+        contentAsString(result) should include(
           messagesApi("global.error.InternalServerError500.heading")
         )
 

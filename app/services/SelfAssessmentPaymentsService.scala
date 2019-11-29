@@ -17,7 +17,8 @@
 package services
 
 import com.google.inject.Inject
-import connectors.{PayApiConnector, PaymentSearchResult}
+import connectors.PayApiConnector
+import models.PaymentSearchResult
 import org.joda.time.LocalDate
 import uk.gov.hmrc.http.HeaderCarrier
 import util.DateTimeTools.toPaymentDate
@@ -50,7 +51,7 @@ class SelfAssessmentPaymentsService @Inject()(payApiConnector: PayApiConnector) 
       }
 
     if (selfAssessmentPayments.nonEmpty) {
-      selfAssessmentPayments.filter(_.date isAfter LocalDate.now.minusDays(60)).sortBy(_.date)
+      selfAssessmentPayments.filter(_.date isAfter LocalDate.now.minusDays(61)).sortBy(_.date)
     } else selfAssessmentPayments
   }
 }

@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.{PayApiConnector, PaymentSearchResult, PertaxAuditConnector}
+import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
@@ -115,11 +115,9 @@ class SelfAssessmentController @Inject()(
     authJourney.authWithSelfAssessment.async { implicit request =>
       request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
-          (for {
-            payments <- selfAssessmentPaymentsService.getPayments(saUtr.value)
-          } yield {
+          selfAssessmentPaymentsService.getPayments(saUtr.value).map { payments =>
             Ok(views.html.selfassessment.viewPayments(payments))
-          }) recover {
+          } recover {
             case ex: Upstream5xxResponse => error(ex.reportAs)
           }
 

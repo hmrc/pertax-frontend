@@ -16,7 +16,7 @@
 
 package connectors
 
-import models.PaymentRequest
+import models.{CreatePayment, InvalidJsonException, PaymentRequest, PaymentSearchResult}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
@@ -97,10 +97,12 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
                               |
                               |""".stripMargin)
 
-      when(http.GET[HttpResponse](any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+      val searchResult = json.as[PaymentSearchResult]
 
-      connector.findPayments("111111111").futureValue shouldBe Some(json.as[PaymentSearchResult])
+      when(http.GET[Option[PaymentSearchResult]](any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(searchResult)))
+
+      connector.findPayments("111111111").futureValue shouldBe Some(searchResult)
     }
 
     "parse json payload for multiple payments" in {
@@ -131,41 +133,42 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
                               |
                               |""".stripMargin)
 
-      when(http.GET[HttpResponse](any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+      val searchResult = json.as[PaymentSearchResult]
 
-      connector.findPayments("111111111").futureValue shouldBe Some(json.as[PaymentSearchResult])
+      when(http.GET[Option[PaymentSearchResult]](any())(any(), any(), any()))
+        .thenReturn(Future.successful(Some(searchResult)))
+
+      connector.findPayments("111111111").futureValue shouldBe Some(searchResult)
     }
 
     "return a None when the status code is NOT_FOUND" in {
 
-      when(http.GET[HttpResponse](any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(NOT_FOUND)))
+      when(http.GET[Option[PaymentSearchResult]](any())(any(), any(), any()))
+        .thenReturn(Future.successful(None))
 
       connector.findPayments("111111111").futureValue shouldBe None
     }
 
-    "throw an Upstream5xxResponse exception when the status code is anything else" in {
+    "return an Upstream5xxResponse when the status code is anything else" in {
 
-      when(http.GET[HttpResponse](any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_GATEWAY)))
+      val response = Upstream5xxResponse("Oh no", BAD_GATEWAY, INTERNAL_SERVER_ERROR)
+
+      when(http.GET[Option[PaymentSearchResult]](any())(any(), any(), any()))
+        .thenReturn(Future.failed(response))
 
       connector.findPayments("111111111").failed.futureValue shouldBe
-        Upstream5xxResponse(s"findPayments returned $BAD_GATEWAY", BAD_GATEWAY, INTERNAL_SERVER_ERROR)
-
+        response
     }
 
-    "Throws a JsResultException when bad json is returned by pay-api" in {
+    "return an InvalidJsonException when json is invalid format" in {
 
-      val json = Json.parse("""{"testKey": "testValue"}""")
+      val response = InvalidJsonException("Oh no")
 
-      when(http.GET[HttpResponse](any())(any(), any(), any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+      when(http.GET[Option[PaymentSearchResult]](any())(any(), any(), any()))
+        .thenReturn(Future.failed(response))
 
-      val f = connector.findPayments("111111111")
-      whenReady(f.failed) { e =>
-        e shouldBe a[JsResultException]
-      }
+      connector.findPayments("111111111").failed.futureValue shouldBe
+        response
     }
   }
 }
