@@ -16,21 +16,30 @@
 
 package controllers.auth
 
-import com.google.inject.Inject
+import com.google.inject.{ImplementedBy, Inject}
 import controllers.auth.requests.UserRequest
 import play.api.mvc.ActionBuilder
 
-class AuthJourney @Inject()(
+@ImplementedBy(classOf[AuthJourneyImpl])
+trait AuthJourney {
+  val authWithPersonalDetails: ActionBuilder[UserRequest]
+  val authWithSelfAssessment: ActionBuilder[UserRequest]
+  val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest]
+}
+
+class AuthJourneyImpl @Inject()(
   authAction: AuthAction,
   minimumAuthAction: MinimumAuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
-  getPersonDetailsAction: GetPersonDetailsAction) {
+  getPersonDetailsAction: GetPersonDetailsAction)
+    extends AuthJourney {
 
-  val authWithPersonalDetails
+  override val authWithPersonalDetails
     : ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
 
-  val authWithSelfAssessment: ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction
+  override val authWithSelfAssessment: ActionBuilder[UserRequest] = authAction andThen selfAssessmentStatusAction
 
-  val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest] = minimumAuthAction andThen selfAssessmentStatusAction
+  override val minimumAuthWithSelfAssessment
+    : ActionBuilder[UserRequest] = minimumAuthAction andThen selfAssessmentStatusAction
 
 }
