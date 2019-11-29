@@ -294,6 +294,10 @@ class AddressController @Inject()(
             Future.successful(BadRequest(views.html.personaldetails.postcodeLookup(formWithErrors, typ)))
           },
           addressFinderDto => {
+
+            if (addressFinderDto.postcode.isEmpty)
+              Logger.warn("post code is empty for processPostCodeLookupForm")
+
             for {
               _ <- addToCache(AddressFinderDtoId(typ), addressFinderDto)
               lookupDown <- gettingCachedAddressLookupServiceDown { lookup =>
@@ -390,6 +394,7 @@ class AddressController @Inject()(
         gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors => {
+
               journeyData.recordSet match {
                 case Some(set) =>
                   Future.successful(

@@ -36,6 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
 
   private val collectionName: String = "correspondenceAddressLock"
+  private val duplicateKeyErrorCode = "E11000"
 
   private def collection: Future[JSONCollection] =
     mongo.database.map(_.collection[JSONCollection](collectionName))
@@ -45,7 +46,7 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, imp
   def insert(nino: String): Future[Boolean] = {
     val date = getNextMidnight(OffsetDateTime.now())
     insertCore(nino, date).map(_.ok) recover {
-      case e: DatabaseException if e.getMessage().contains("E11000 duplicate key error collection") => false
+      case e: DatabaseException if e.getMessage().contains(duplicateKeyErrorCode) => false
     }
   }
 
