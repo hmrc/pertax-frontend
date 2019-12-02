@@ -16,34 +16,33 @@
 
 package controllers.auth
 
+import java.net.URLEncoder
+
 import controllers.auth.requests.UserRequest
 import controllers.routes
-import play.api.mvc.{ActionRefiner, Result}
+import play.api.mvc.{ActionRefiner, ActionTransformer, Result}
 
 import scala.concurrent.Future
 
-class WithGovernmentGatewayRouteAction {
+class WithGovernmentGatewayRouteAction extends ActionTransformer[UserRequest, UserRequest] {
 
-  def addGovernmentGatewayRedirectableRoute: ActionRefiner[UserRequest, UserRequest] =
-    new ActionRefiner[UserRequest, UserRequest] {
-      override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
-        Future.successful(
-          Right(
-            UserRequest(
-              request.nino,
-              request.retrievedName,
-              request.previousLoginTime,
-              request.saUserType,
-              request.credentials,
-              request.confidenceLevel,
-              request.personDetails,
-              request.trustedHelper,
-              request.profile.fold(Option.empty[String])(v =>
-                Some(v + "?redirect_uri=" + routes.HomeController.index().absoluteURL()(request) )),
-              request.unreadMessageCount,
-              request.activeTab,
-              request.breadcrumb,
-              request.request
-            )))
-    }
+  override def transform[A](request: UserRequest[A]): Future[UserRequest[A]] =
+    Future.successful(
+      UserRequest(
+        request.nino,
+        request.retrievedName,
+        request.previousLoginTime,
+        request.saUserType,
+        request.credentials,
+        request.confidenceLevel,
+        request.personDetails,
+        request.trustedHelper,
+        request.profile.fold(Option.empty[String])(v =>
+          Some(v + "?redirect_uri=" + URLEncoder
+            .encode(routes.HomeController.index().absoluteURL()(request), "UTF-8"))),
+        request.unreadMessageCount,
+        request.activeTab,
+        request.breadcrumb,
+        request.request
+      ))
 }
