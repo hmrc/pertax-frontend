@@ -17,21 +17,50 @@
 package services
 
 import com.google.inject.Inject
-import models.SelfAssessmentUserType
+import connectors.EnrolmentsConnector
+import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
+import play.api.Logger
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentStoreCachingService @Inject()(val sessionCache: LocalSessionCache) {
+class EnrolmentStoreCachingService @Inject()(
+  val sessionCache: LocalSessionCache,
+  enrolmentsConnector: EnrolmentsConnector) {
 
   def addSaUserTypeToCache(
     user: SelfAssessmentUserType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CacheMap] =
     sessionCache.cache[SelfAssessmentUserType](SelfAssessmentUserType.cacheId, user)
 
-  def getSaUserTypeFromCache()(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Option[SelfAssessmentUserType]] =
-    sessionCache.fetchAndGetEntry[SelfAssessmentUserType](SelfAssessmentUserType.cacheId)
+  def getSaUserTypeFromCache(
+    saUtr: SaUtr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
+    sessionCache.fetchAndGetEntry[SelfAssessmentUserType](SelfAssessmentUserType.cacheId).flatMap {
+
+      case Some(user) => Future.successful(user)
+
+      case _ =>
+        enrolmentsConnector
+          .getUserIdsWithEnrolments(saUtr.utr)
+          .map[SelfAssessmentUserType](
+            (response: Either[String, Seq[String]]) =>
+              response.fold(
+                error => {
+                  Logger.warn(error)
+                  addSaUserTypeToCache(NonFilerSelfAssessmentUser)
+                  NonFilerSelfAssessmentUser
+                },
+                ids =>
+                  if (ids.nonEmpty) {
+                    addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
+                    WrongCredentialsSelfAssessmentUser(saUtr)
+                  } else {
+                    addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
+                    NotEnrolledSelfAssessmentUser(saUtr)
+                }
+            )
+          )
+    }
 
 }

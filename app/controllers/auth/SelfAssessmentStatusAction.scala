@@ -31,7 +31,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentStatusAction @Inject()(
   citizenDetailsService: CitizenDetailsService,
-  enrolmentsConnector: EnrolmentsConnector,
   enrolmentsCachingService: EnrolmentStoreCachingService)(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
@@ -42,36 +41,7 @@ class SelfAssessmentStatusAction @Inject()(
     }
 
   private def enrolledOnDifferentCredentials(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] =
-    enrolmentsCachingService.getSaUserTypeFromCache.flatMap {
-
-      case Some(user) => Future.successful(user)
-
-      case _ =>
-        val saUserType = enrolmentsConnector
-          .getUserIdsWithEnrolments(saUtr.utr)
-          .map[SelfAssessmentUserType](
-            (response: Either[String, Seq[String]]) =>
-              response.fold(
-                error => {
-                  Logger.warn(error)
-                  NonFilerSelfAssessmentUser
-                },
-                ids =>
-                  if (ids.nonEmpty) {
-                    WrongCredentialsSelfAssessmentUser(saUtr)
-                  } else {
-                    NotEnrolledSelfAssessmentUser(saUtr)
-                }
-            )
-          )
-
-        for {
-          user <- saUserType
-          _    <- enrolmentsCachingService.addSaUserTypeToCache(user)
-        } yield {
-          user
-        }
-    }
+    enrolmentsCachingService.getSaUserTypeFromCache(saUtr)
 
   private def getSelfAssessmentUserType[A](
     implicit hc: HeaderCarrier,

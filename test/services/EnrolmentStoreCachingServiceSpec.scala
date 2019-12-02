@@ -16,6 +16,7 @@
 
 package services
 
+import connectors.EnrolmentsConnector
 import models._
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
@@ -34,13 +35,15 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
   trait LocalSetup {
 
     val mockSessionCache: LocalSessionCache = mock[LocalSessionCache]
+    val mockEnrolmentsConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
 
     val cacheResult: CacheMap = CacheMap("", Map.empty)
     val fetchResult: Option[SelfAssessmentUserType] = None
+    val connectorResult: Either[String, Seq[String]] = Right(Seq[String]())
 
     lazy val sut: EnrolmentStoreCachingService = {
 
-      val c = new EnrolmentStoreCachingService(mockSessionCache)
+      val c = new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
 
       when(
         mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())
@@ -50,43 +53,39 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
         mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
       ) thenReturn Future.successful(fetchResult)
 
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any()))
+        .thenReturn(Future.successful(connectorResult))
+
       c
     }
   }
 
-  val userTypeList: List[(SelfAssessmentUserType, String)] = List(
-    (ActivatedOnlineFilerSelfAssessmentUser(SaUtr("111111111")), "an Activated SA user"),
-    (NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("111111111")), "a Not Yet Activated SA user"),
-    (WrongCredentialsSelfAssessmentUser(SaUtr("111111111")), "a Wrong credentials SA user"),
-    (NotEnrolledSelfAssessmentUser(SaUtr("111111111")), "a Not Enrolled SA user"),
-    (NonFilerSelfAssessmentUser, "a Non Filer SA user")
-  )
+  "EnrolmentStoreCachingHelper" when {
 
-  "EnrolmentStoreCachingHelper" should {
+    "when the cache is empty and the connector is called" should {
 
-    userTypeList.foreach {
-      case (userType, key) =>
-        s"add $key to the cache" in new LocalSetup {
+      val saUtr = SaUtr("111111111")
 
-          override val cacheResult: CacheMap =
-            CacheMap("id", Map(SelfAssessmentUserType.cacheId -> Json.toJson(userType)))
+      "return NonFilerSelfAssessmentUser when the connector returns a Left" in new LocalSetup {
 
-          sut.addSaUserTypeToCache(userType).futureValue shouldBe cacheResult
-        }
+        override val connectorResult: Either[String, Seq[String]] = Left("An error has occurred")
 
-        s"fetch $key from the cache" in new LocalSetup {
+        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe NonFilerSelfAssessmentUser
+      }
 
-          override val fetchResult: Option[SelfAssessmentUserType] = Some(userType)
+      "return NotEnrolledSelfAssessmentUser when the connector returns a Right with an empty sequence" in new LocalSetup {
 
-          sut.getSaUserTypeFromCache().futureValue shouldBe fetchResult
-        }
+        override val connectorResult: Either[String, Seq[String]] = Right(Seq[String]())
+
+        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe NotEnrolledSelfAssessmentUser(saUtr)
+      }
+
+      "return WrongCredentialsSelfAssessmentUser when the connector returns a Right with a non-empty sequence" in new LocalSetup {
+
+        override val connectorResult: Either[String, Seq[String]] = Right(Seq[String]("Hello there"))
+
+        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe WrongCredentialsSelfAssessmentUser(saUtr)
+      }
     }
-
-    "return None when the cache is empty" in new LocalSetup {
-
-      sut.getSaUserTypeFromCache().futureValue shouldBe None
-    }
-
   }
-
 }
