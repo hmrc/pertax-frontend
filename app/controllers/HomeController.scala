@@ -18,7 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.{AuthJourney, WithActiveTabAction, WithGovernmentGatewayRouteAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import com.google.inject.Inject
 import error.GenericErrors
@@ -44,7 +44,8 @@ class HomeController @Inject()(
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction)(
+  withActiveTabAction: WithActiveTabAction,
+  withGovernmentGatewayRouteAction: WithGovernmentGatewayRouteAction)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer)
@@ -53,7 +54,7 @@ class HomeController @Inject()(
   override def now: () => DateTime = () => DateTime.now()
 
   private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
-    .addActiveTab(ActiveTabHome)
+    .addActiveTab(ActiveTabHome) andThen withGovernmentGatewayRouteAction.addGovernmentGatewayRedirectableRoute
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
