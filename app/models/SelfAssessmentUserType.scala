@@ -28,36 +28,43 @@ sealed trait SelfAssessmentUser extends SelfAssessmentUserType {
 object SelfAssessmentUserType {
   val cacheId = "SelfAssessmentUser"
 
+  val activatedSa = ActivatedOnlineFilerSelfAssessmentUser.toString
+  val notActivatedSa = NotYetActivatedOnlineFilerSelfAssessmentUser.toString
+  val wrongCredsSa = WrongCredentialsSelfAssessmentUser.toString
+  val notEnrolledSa = NotEnrolledSelfAssessmentUser.toString
+  val nonFilerSa = NonFilerSelfAssessmentUser.toString
+
   implicit val writes = new Writes[SelfAssessmentUserType] {
     override def writes(o: SelfAssessmentUserType): JsValue = o match {
       case ActivatedOnlineFilerSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString("ActivatedOnlineFilerSelfAssessmentUser"), "utr" -> JsString(utr.toString))
+        Json.obj("_type" -> JsString(activatedSa), "utr" -> JsString(utr.toString))
       case NotYetActivatedOnlineFilerSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString("NotYetActivatedOnlineFilerSelfAssessmentUser"), "utr" -> JsString(utr.toString))
+        Json.obj("_type" -> JsString(notActivatedSa), "utr" -> JsString(utr.toString))
       case WrongCredentialsSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString("WrongCredentialsSelfAssessmentUser"), "utr" -> JsString(utr.toString))
+        Json.obj("_type" -> JsString(wrongCredsSa), "utr" -> JsString(utr.toString))
       case NotEnrolledSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString("NotEnrolledSelfAssessmentUser"), "utr" -> JsString(utr.toString))
+        Json.obj("_type" -> JsString(notEnrolledSa), "utr" -> JsString(utr.toString))
       case NonFilerSelfAssessmentUser =>
-        Json.obj("_type" -> JsString("NonFilerSelfAssessmentUser"))
+        Json.obj("_type" -> JsString(nonFilerSa))
     }
   }
 
   implicit val reads = new Reads[SelfAssessmentUserType] {
-    override def reads(json: JsValue): JsResult[SelfAssessmentUserType] = (json \ "_type", json \ "utr") match {
+    override def reads(json: JsValue): JsResult[SelfAssessmentUserType] =
+      (json \ "_type", json \ "utr") match {
 
-      case (JsDefined(JsString("ActivatedOnlineFilerSelfAssessmentUser")), JsDefined(JsString(utr))) =>
-        JsSuccess(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
-      case (JsDefined(JsString("NotYetActivatedOnlineFilerSelfAssessmentUser")), JsDefined(JsString(utr))) =>
-        JsSuccess(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
-      case (JsDefined(JsString("WrongCredentialsSelfAssessmentUser")), JsDefined(JsString(utr))) =>
-        JsSuccess(WrongCredentialsSelfAssessmentUser(SaUtr(utr)))
-      case (JsDefined(JsString("NotEnrolledSelfAssessmentUser")), JsDefined(JsString(utr))) =>
-        JsSuccess(NotEnrolledSelfAssessmentUser(SaUtr(utr)))
-      case (JsDefined(JsString("NonFilerSelfAssessmentUser")), _) =>
-        JsSuccess(NonFilerSelfAssessmentUser)
-      case _ => JsError("Could not read SelfAssessmentUserType")
-    }
+        case (JsDefined(JsString(`activatedSa`)), JsDefined(JsString(utr))) =>
+          JsSuccess(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
+        case (JsDefined(JsString(`notActivatedSa`)), JsDefined(JsString(utr))) =>
+          JsSuccess(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
+        case (JsDefined(JsString(`wrongCredsSa`)), JsDefined(JsString(utr))) =>
+          JsSuccess(WrongCredentialsSelfAssessmentUser(SaUtr(utr)))
+        case (JsDefined(JsString(`notEnrolledSa`)), JsDefined(JsString(utr))) =>
+          JsSuccess(NotEnrolledSelfAssessmentUser(SaUtr(utr)))
+        case (JsDefined(JsString(`nonFilerSa`)), _) =>
+          JsSuccess(NonFilerSelfAssessmentUser)
+        case _ => JsError("Could not read SelfAssessmentUserType")
+      }
   }
 }
 
@@ -66,5 +73,3 @@ case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends Se
 case class WrongCredentialsSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
 case class NotEnrolledSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
 case object NonFilerSelfAssessmentUser extends SelfAssessmentUserType
-
-case class JsonParseException(str: String) extends Exception
