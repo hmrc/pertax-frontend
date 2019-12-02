@@ -252,6 +252,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val mongoUrl = configuration.getString("mongodb.uri").getOrElse("")
 
   lazy val sessionTimeoutInSeconds = configuration.getInt("session.timeout").getOrElse(1800)
+  lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = configuration.getInt("session.countdown").getOrElse(120)
 
   def getFeedbackSurveyUrl(origin: Origin): String =
