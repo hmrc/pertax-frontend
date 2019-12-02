@@ -22,7 +22,7 @@ import models.{CreatePayment, PaymentRequest, PaymentSearchResult}
 import play.api.Logger
 import play.api.http.Status._
 import services.http.WsAllMethods
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 

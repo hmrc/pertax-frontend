@@ -46,8 +46,8 @@ object PaymentSearchResult {
         case OK =>
           response.json.validate[PaymentSearchResult] match {
             case JsSuccess(value, _) => Some(value)
-            case JsError(_) =>
-              val message = s"Unable to parse json as PaymentSearchResult: ${response.json}"
+            case JsError(error) =>
+              val message = s"Unable to parse json as PaymentSearchResult: $error"
               Logger.error(message)
               throw InvalidJsonException(message)
           }
@@ -61,4 +61,4 @@ object PaymentSearchResult {
   }
 }
 
-case class InvalidJsonException(message: String) extends Exception
+case class InvalidJsonException(message: String) extends Exception(message)

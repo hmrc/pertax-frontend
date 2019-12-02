@@ -116,7 +116,6 @@ class SelfAssessmentPaymentsServiceSpec extends BaseSpec with MockitoSugar with 
 
       val result = sut.filterAndSortPayments(list)
 
-      println(result)
       result should not contain (outlier)
       result.length shouldBe 3
 
