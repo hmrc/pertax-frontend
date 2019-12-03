@@ -237,6 +237,25 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         )
 
       }
+
+      "pay-api connector returns an InvalidJsonException" in new LocalSetup {
+
+        override def fakeAuthJourney: FakeAuthJourney =
+          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+
+        when(
+          mockSelfAssessmentPaymentsService.getPayments(any())(any(), any())
+        ) thenReturn Future.failed(InvalidJsonException("failed"))
+
+        val result: Future[Result] = controller.viewPayments()(FakeRequest())
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+
+        contentAsString(result) should include(
+          messagesApi("global.error.InternalServerError500.heading")
+        )
+
+      }
     }
   }
 }

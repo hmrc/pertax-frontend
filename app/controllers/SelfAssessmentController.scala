@@ -119,6 +119,7 @@ class SelfAssessmentController @Inject()(
             Ok(views.html.selfassessment.viewPayments(payments))
           } recover {
             case ex: Upstream5xxResponse => error(ex.reportAs)
+            case _: InvalidJsonException => error(INTERNAL_SERVER_ERROR)
           }
 
         case _ =>
