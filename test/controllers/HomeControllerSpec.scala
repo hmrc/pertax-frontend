@@ -18,7 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.{AuthJourney, WithActiveTabAction, WithGovernmentGatewayRouteAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper}
 import models._
 import org.joda.time.DateTime
@@ -96,7 +96,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
         injected[HomeCardGenerator],
         injected[HomePageCachingHelper],
         mockAuthJourney,
-        injected[WithActiveTabAction]
+        injected[WithActiveTabAction],
+        injected[WithGovernmentGatewayRouteAction]
       )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {

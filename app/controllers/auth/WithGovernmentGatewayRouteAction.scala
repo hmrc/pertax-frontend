@@ -38,8 +38,13 @@ class WithGovernmentGatewayRouteAction extends ActionTransformer[UserRequest, Us
         request.personDetails,
         request.trustedHelper,
         request.profile.fold(Option.empty[String])(v =>
-          Some(v + "?redirect_uri=" + URLEncoder
-            .encode(routes.HomeController.index().absoluteURL()(request), "UTF-8"))),
+          if (!v.contains("redirect_uri")) {
+            Some(
+              v + "?redirect_uri=" + URLEncoder
+                .encode(routes.HomeController.index().absoluteURL()(request), "UTF-8"))
+          } else {
+            Some(v)
+        }),
         request.unreadMessageCount,
         request.activeTab,
         request.breadcrumb,
