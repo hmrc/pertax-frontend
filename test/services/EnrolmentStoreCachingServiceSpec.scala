@@ -19,10 +19,9 @@ package services
 import connectors.EnrolmentsConnector
 import models._
 import org.mockito.Matchers._
-import org.mockito.Mockito.when
+import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
-import play.api.libs.json.Json
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.BaseSpec
@@ -53,18 +52,18 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
         mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
       ) thenReturn Future.successful(fetchResult)
 
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any()))
-        .thenReturn(Future.successful(connectorResult))
+      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())) thenReturn Future.successful(
+        connectorResult)
 
       c
     }
   }
 
-  "EnrolmentStoreCachingHelper" when {
+  val saUtr = SaUtr("111111111")
 
-    "when the cache is empty and the connector is called" should {
+  "EnrolmentStoreCachingService" when {
 
-      val saUtr = SaUtr("111111111")
+    "the cache is empty and the connector is called" should {
 
       "return NonFilerSelfAssessmentUser when the connector returns a Left" in new LocalSetup {
 
@@ -74,8 +73,6 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
       }
 
       "return NotEnrolledSelfAssessmentUser when the connector returns a Right with an empty sequence" in new LocalSetup {
-
-        override val connectorResult: Either[String, Seq[String]] = Right(Seq[String]())
 
         sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe NotEnrolledSelfAssessmentUser(saUtr)
       }

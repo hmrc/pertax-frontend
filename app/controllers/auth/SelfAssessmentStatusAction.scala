@@ -40,9 +40,6 @@ class SelfAssessmentStatusAction @Inject()(
       case _                                               => None
     }
 
-  private def enrolledOnDifferentCredentials(saUtr: SaUtr)(implicit hc: HeaderCarrier): Future[SelfAssessmentUserType] =
-    enrolmentsCachingService.getSaUserTypeFromCache(saUtr)
-
   private def getSelfAssessmentUserType[A](
     implicit hc: HeaderCarrier,
     request: AuthenticatedRequest[A]): Future[SelfAssessmentUserType] =
@@ -52,13 +49,12 @@ class SelfAssessmentStatusAction @Inject()(
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>
           Future.successful(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
-        case None => {
+        case None =>
           getSaUtrFromCitizenDetailsService(nino).flatMap {
             case Some(saUtr) =>
-              enrolledOnDifferentCredentials(saUtr)
+              enrolmentsCachingService.getSaUserTypeFromCache(saUtr)
             case None => Future.successful(NonFilerSelfAssessmentUser)
           }
-        }
       }
     }
 

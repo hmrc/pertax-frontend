@@ -22,7 +22,6 @@ import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAs
 import play.api.Logger
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -30,9 +29,9 @@ class EnrolmentStoreCachingService @Inject()(
   val sessionCache: LocalSessionCache,
   enrolmentsConnector: EnrolmentsConnector) {
 
-  def addSaUserTypeToCache(
-    user: SelfAssessmentUserType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CacheMap] =
-    sessionCache.cache[SelfAssessmentUserType](SelfAssessmentUserType.cacheId, user)
+  private def addSaUserTypeToCache(
+    user: SelfAssessmentUserType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
+    sessionCache.cache[SelfAssessmentUserType](SelfAssessmentUserType.cacheId, user).map(_ => user)
 
   def getSaUserTypeFromCache(
     saUtr: SaUtr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
@@ -43,21 +42,18 @@ class EnrolmentStoreCachingService @Inject()(
       case _ =>
         enrolmentsConnector
           .getUserIdsWithEnrolments(saUtr.utr)
-          .map[SelfAssessmentUserType](
+          .flatMap[SelfAssessmentUserType](
             (response: Either[String, Seq[String]]) =>
               response.fold(
                 error => {
                   Logger.warn(error)
                   addSaUserTypeToCache(NonFilerSelfAssessmentUser)
-                  NonFilerSelfAssessmentUser
                 },
                 ids =>
                   if (ids.nonEmpty) {
                     addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
-                    WrongCredentialsSelfAssessmentUser(saUtr)
                   } else {
                     addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
-                    NotEnrolledSelfAssessmentUser(saUtr)
                 }
             )
           )
