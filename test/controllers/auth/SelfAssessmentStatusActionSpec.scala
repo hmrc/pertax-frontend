@@ -122,7 +122,7 @@ class SelfAssessmentStatusActionSpec
 
       userTypeList.foreach {
         case (userType, key) =>
-          s"return $key when the enrolments caching service returns $key" in {
+          s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
             when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
               .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
