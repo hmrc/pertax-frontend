@@ -18,18 +18,21 @@ package repositories
 
 import java.time.OffsetDateTime
 
+import connectors.EnrolmentsConnector
+import helpers.IntegrationHelpers
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatest.mockito.MockitoSugar.mock
+import org.mockito.Mockito._
+import org.mockito.Matchers.any
 import reactivemongo.bson.BSONDocument
-import uk.gov.hmrc.domain.{Generator, Nino}
-import uk.gov.hmrc.play.test.UnitSpec
+import services.{EnrolmentStoreCachingService, LocalSessionCache}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class CachingItSpec extends UnitSpec
-  with GuiceOneAppPerSuite
+class CachingItSpec extends IntegrationHelpers
   with PatienceConfiguration
   with BeforeAndAfterEach {
 
@@ -39,6 +42,7 @@ class CachingItSpec extends UnitSpec
 
   override def beforeEach(): Unit = {
     super.beforeEach()
+    await(cache.remove())
     await(mongo.drop)
   }
 
@@ -137,4 +141,28 @@ class CachingItSpec extends UnitSpec
     }
   }
 
+  val cache: LocalSessionCache = app.injector.instanceOf[LocalSessionCache]
+  val mockConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
+
+  val service = new EnrolmentStoreCachingService(cache, mockConnector)
+
+  val saUtr = SaUtr("789456123")
+
+  "EnrolmentStoreCachingService" when {
+
+    "getSaUserTypeFromCache is called" should {
+
+      "only call the connector once" in {
+
+        when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
+        ) thenReturn Future.successful(Right(Seq[String]()))
+
+        await(service.getSaUserTypeFromCache(saUtr))
+
+        await(service.getSaUserTypeFromCache(saUtr))
+
+        verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
+      }
+    }
+  }
 }
