@@ -27,7 +27,7 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
   def moved(fromAddressId: String, toAddressId: String)(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext): Future[AddressChanged] =
-    if (toAddressId.trim.nonEmpty) {
+    withAddressExists(fromAddressId, toAddressId) {
 
       for {
         fromResponse <- addressLookupService.lookup(fromAddressId)
@@ -44,13 +44,10 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
               MovedToScotland
             else
               AnyOtherMove
-
           case _ =>
             AnyOtherMove
         }
       }
-    } else {
-      Future.successful(AnyOtherMove)
     }
 
   def toMessageKey(addressChanged: AddressChanged): Option[String] =
@@ -68,4 +65,7 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
   private def hasMovedToScotland(fromSubdivision: Option[String], toSubdivision: Option[String]): Boolean =
     !fromSubdivision.contains(scottishSubdivision) && toSubdivision.contains(scottishSubdivision)
 
+  private def withAddressExists(fromAddressId: String, toAddressId: String)(
+    f: => Future[AddressChanged]): Future[AddressChanged] =
+    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) Future.successful(AnyOtherMove) else f
 }
