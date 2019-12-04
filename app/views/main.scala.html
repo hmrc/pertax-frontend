@@ -91,7 +91,8 @@
 @gaCustomEvent
                     </script>
 
-<script>
+@if(displayTimeoutDialog) {
+        <script>
                 window.GOVUK.timeoutDialog({
                     timeout: @configDecorator.sessionTimeoutInSeconds,
                     countdown: @configDecorator.sessionCountdownInSeconds,
@@ -99,9 +100,6 @@
                     signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
                 });
         </script>
-@if(displayTimeoutDialog) {
-    }
-
 }
 
     @printable = @{
