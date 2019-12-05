@@ -456,6 +456,7 @@ label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
 label.self_assessment=Self Assessment
 label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
+label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
@@ -507,6 +508,13 @@ label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings
 
 label.access_your_self_assessment=Access your Self Assessment
+
+title.selfAssessment.viewPayments.h1=Self Assessment payments for the last 60 days
+label.selfAssessment.noPaymentsIn60=There have been no payments in the last 60 days
+label.selfAssessment.balanceUpdateAdvisory=It can take up to 7 days to update your balance after each payment.
+label.selfAssessment.paymentsTable.date=Date
+label.selfAssessment.paymentsTable.reference=Reference number
+label.selfAssessment.paymentsTable.amount=Amount
 
 title.signed_in_wrong_account.h1=You are not signed in to the right account
 label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.

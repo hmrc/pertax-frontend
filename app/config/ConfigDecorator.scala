@@ -120,6 +120,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val ssoUrl = configuration.getString(s"portal.ssoUrl")
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
+  lazy val getPaymentsUrl = s"$payApiUrl/pay-api/payment/search/PTA"
   lazy val deskproToken = "PTA"
   lazy val citizenSwitchOffUrl = s"$citizenAuthHost/attorney/switch-off-act"
   lazy val taxEstimateServiceUrl = s"$taiHost/check-income-tax/paye"
