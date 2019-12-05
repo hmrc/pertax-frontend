@@ -91,8 +91,17 @@ class ViewPaymentsSpec extends ViewSpec with BaseSpec {
 
     "payments are present" should {
 
-      "show correct advisory if payments exist" in {
+      "show correct advisory" in {
         assertContainsText(doc(payments), messages("label.selfAssessment.balanceUpdateAdvisory"))
+      }
+
+      "show correct table headings" in {
+
+        val docWithPayments = doc(payments)
+
+        assertContainsText(docWithPayments, messages("label.selfAssessment.paymentsTable.date"))
+        assertContainsText(docWithPayments, messages("label.selfAssessment.paymentsTable.reference"))
+        assertContainsText(docWithPayments, messages("label.selfAssessment.paymentsTable.amount"))
       }
 
       "show correct number of payments in the payment table" in {

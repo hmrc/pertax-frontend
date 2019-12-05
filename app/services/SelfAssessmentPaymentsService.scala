@@ -45,7 +45,7 @@ class SelfAssessmentPaymentsService @Inject()(payApiConnector: PayApiConnector) 
           SelfAssessmentPayment(
             toPaymentDate(p.createdOn),
             p.reference,
-            p.amountInPence.toDouble / 100.00
+            p.amountInPence.fold(0.0)(_.toDouble / 100.00)
           )
         }
       }

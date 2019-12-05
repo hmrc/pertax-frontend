@@ -55,9 +55,9 @@ class SelfAssessmentPaymentsServiceSpec extends BaseSpec with MockitoSugar with 
     "return a list of payments if payments are retrieved from connector" in {
 
       val payments = List(
-        PayApiPayment("Successful", 2000, "111111111K", LocalDateTime.now().minusDays(34.toLong)),
-        PayApiPayment("Successful", 3000, "111111111K", LocalDateTime.now().minusDays(47.toLong)),
-        PayApiPayment("Successful", 4000, "111111111K", LocalDateTime.now().minusDays(59.toLong))
+        PayApiPayment("Successful", Some(2000), "111111111K", LocalDateTime.now().minusDays(34.toLong)),
+        PayApiPayment("Successful", Some(3000), "111111111K", LocalDateTime.now().minusDays(47.toLong)),
+        PayApiPayment("Successful", Some(4000), "111111111K", LocalDateTime.now().minusDays(59.toLong))
       )
 
       val response = Some(
@@ -106,10 +106,10 @@ class SelfAssessmentPaymentsServiceSpec extends BaseSpec with MockitoSugar with 
       val outlier = SelfAssessmentPayment(LocalDate.now().minusDays(61), "KT123459", 7.00)
 
       val payments = List(
-        PayApiPayment("Successful", 14587, "111111111K", LocalDateTime.now().minusDays(11.toLong)),
-        PayApiPayment("Successful", 6354, "111111111K", LocalDateTime.now().minusDays(27.toLong)),
-        PayApiPayment("Successful", 700, "111111111K", LocalDateTime.now().minusDays(61.toLong)),
-        PayApiPayment("Successful", 1231, "111111111K", LocalDateTime.now().minusDays(60.toLong))
+        PayApiPayment("Successful", Some(14587), "111111111K", LocalDateTime.now().minusDays(11.toLong)),
+        PayApiPayment("Successful", Some(6354), "111111111K", LocalDateTime.now().minusDays(27.toLong)),
+        PayApiPayment("Successful", Some(700), "111111111K", LocalDateTime.now().minusDays(61.toLong)),
+        PayApiPayment("Successful", Some(1231), "111111111K", LocalDateTime.now().minusDays(60.toLong))
       )
 
       val list = Some(PaymentSearchResult("PTA", "111111111", payments))
@@ -124,10 +124,10 @@ class SelfAssessmentPaymentsServiceSpec extends BaseSpec with MockitoSugar with 
     "filter payments to only include Successful payments" in {
 
       val payments = List(
-        PayApiPayment("Successful", 25601, "111111111K", LocalDateTime.now()),
-        PayApiPayment("Successful", 1300, "111111111K", LocalDateTime.now().minusDays(12.toLong)),
-        PayApiPayment("Cancelled", 14021, "111111111K", LocalDateTime.now().minusDays(47.toLong)),
-        PayApiPayment("Failed", 17030, "111111111K", LocalDateTime.now().minusDays(59.toLong))
+        PayApiPayment("Successful", Some(25601), "111111111K", LocalDateTime.now()),
+        PayApiPayment("Successful", Some(1300), "111111111K", LocalDateTime.now().minusDays(12.toLong)),
+        PayApiPayment("Cancelled", Some(14021), "111111111K", LocalDateTime.now().minusDays(47.toLong)),
+        PayApiPayment("Failed", Some(17030), "111111111K", LocalDateTime.now().minusDays(59.toLong))
       )
 
       val list = Some(PaymentSearchResult("PTA", "111111111", payments))
@@ -145,9 +145,9 @@ class SelfAssessmentPaymentsServiceSpec extends BaseSpec with MockitoSugar with 
     "order payments from latest payment descending" in {
 
       val apiPayments = List(
-        PayApiPayment("Successful", 25601, "111111111K", LocalDateTime.now()),
-        PayApiPayment("Successful", 1300, "111111111K", LocalDateTime.now().minusDays(12.toLong)),
-        PayApiPayment("Successful", 17030, "111111111K", LocalDateTime.now().minusDays(59.toLong))
+        PayApiPayment("Successful", Some(25601), "111111111K", LocalDateTime.now()),
+        PayApiPayment("Successful", Some(1300), "111111111K", LocalDateTime.now().minusDays(12.toLong)),
+        PayApiPayment("Successful", Some(17030), "111111111K", LocalDateTime.now().minusDays(59.toLong))
       )
 
       val list = Some(PaymentSearchResult("PTA", "111111111", apiPayments))

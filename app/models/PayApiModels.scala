@@ -20,8 +20,9 @@ import java.time.LocalDateTime
 
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.{JsError, JsPath, JsSuccess, Json, Reads}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse, Upstream5xxResponse}
+import play.api.libs.functional.syntax._
 
 final case class CreatePayment(journeyId: String, nextUrl: String)
 
@@ -29,10 +30,17 @@ object CreatePayment {
   implicit val format = Json.format[CreatePayment]
 }
 
-final case class PayApiPayment(status: String, amountInPence: Int, reference: String, createdOn: LocalDateTime)
+final case class PayApiPayment(status: String, amountInPence: Option[Int], reference: String, createdOn: LocalDateTime)
 
 object PayApiPayment {
-  implicit val format = Json.format[PayApiPayment]
+  implicit val writes = Json.writes[PayApiPayment]
+
+  implicit val reads: Reads[PayApiPayment] = (
+    (JsPath \ "status").read[String] and
+      (JsPath \ "amountInPence").readNullable[Int] and
+      (JsPath \ "reference").read[String] and
+      (JsPath \ "createdOn").read[LocalDateTime]
+  )(PayApiPayment.apply _)
 }
 
 final case class PaymentSearchResult(searchScope: String, searchTag: String, payments: List[PayApiPayment])

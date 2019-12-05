@@ -112,7 +112,7 @@ class SelfAssessmentController @Inject()(
     }
 
   def viewPayments: Action[AnyContent] =
-    authJourney.authWithSelfAssessment.async { implicit request =>
+    authJourney.authWithPersonalDetails.async { implicit request =>
       request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
           selfAssessmentPaymentsService.getPayments(saUtr.value).map { payments =>
