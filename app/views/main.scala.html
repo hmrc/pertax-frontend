@@ -23,7 +23,6 @@
 @import controllers.auth.requests.UserRequest
 @import controllers.helpers.WelshWarningHelper
 @import util.LocalPartialRetriever
-@import java.net.URLEncoder
 
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @(title: String,
@@ -137,15 +136,11 @@
                 )),
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,
-                profileUrl  = request.profile match {
-                    case Some(a) => {
-                        if (!a.contains("redirect_uri"))
-                            Some(a + "?redirect_uri=" + URLEncoder.encode(routes.HomeController.index().absoluteURL()))
-                        else
-                            Some(a)
-                        }
-                    case None => None
-                },
+                profileUrl  = request.profile.map { url => if(!url.contains("redirect_uri")) {
+                    url + "?redirect_url=" + configDecorator.pertaxFrontendService + routes.HomeController.index()
+                } else {
+                    url
+                }},
                 hideAccountMenu = request.personDetails.isEmpty
             )),
             Some(CssLinksComponent(
