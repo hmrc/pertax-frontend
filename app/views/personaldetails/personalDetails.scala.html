@@ -31,7 +31,7 @@
         <h1 class="heading-xlarge">
             @request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account"))
         </h1>
-        <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@messages("label.personal_details")</p>
+        <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.personal_details")</p>
       </header>
 
     </div>
