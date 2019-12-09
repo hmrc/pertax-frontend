@@ -25,8 +25,9 @@ import models.UserName
 import play.api.Configuration
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.authorise.CompositePredicate
+import uk.gov.hmrc.auth.core.authorise.{AlternatePredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
@@ -45,22 +46,22 @@ class AuthActionImpl @Inject()(
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
-    val compositePredicate = CredentialStrength(CredentialStrength.strong) and ConfidenceLevel.L200
-
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised(compositePredicate)
+    authorised()
       .retrieve(
         Retrievals.nino and
+          Retrievals.affinityGroup and
           Retrievals.allEnrolments and
           Retrievals.credentials and
+          Retrievals.credentialStrength and
           Retrievals.confidenceLevel and
           Retrievals.name and
           Retrievals.loginTimes and
           Retrievals.trustedHelper and
           Retrievals.profile) {
 
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ Some(trustedHelper) ~ profile =>
+        case nino ~ Some(affinityGroup) ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(credentialStrength) ~ confidenceLevel ~ name ~ logins ~ optionalHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
@@ -71,56 +72,60 @@ class AuthActionImpl @Inject()(
             }
             .asInstanceOf[Request[A]]
 
-          block(
-            AuthenticatedRequest[A](
-              Some(domain.Nino(trustedHelper.principalNino)),
-              None,
-              credentials,
-              confidenceLevel,
-              Some(UserName(Name(Some(trustedHelper.principalName), None))),
-              logins.previousLogin,
-              Some(trustedHelper),
-              profile,
-              trimmedRequest
-            )
-          )
+          (
+            affinityGroup,
+            credentialStrength == CredentialStrength.strong,
+            confidenceLevel >= ConfidenceLevel.L200,
+            optionalHelper
+          ) match {
+            case (Individual, false, _, _) =>
+              upliftCredentialStrength
+            case (Individual, _, false, _) =>
+              upliftConfidenceLevel()(request)
+            case (Organisation | Agent, _, false, _) =>
+              upliftConfidenceLevel()(request)
+            case (Organisation | Agent, false, _, _) =>
+              upliftCredentialStrength
+            case (Individual, true, true, trustedHelper @ Some(helper)) =>
+              block(
+                AuthenticatedRequest[A](
+                  Some(domain.Nino(helper.principalNino)),
+                  None,
+                  credentials,
+                  confidenceLevel,
+                  Some(UserName(Name(Some(helper.principalName), None))),
+                  logins.previousLogin,
+                  trustedHelper,
+                  profile,
+                  trimmedRequest
+                )
+              )
 
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ None ~ profile =>
-          val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
-            enrolment.identifiers
-              .find(id => id.key == "UTR")
-              .map(key => SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
+            case _ =>
+              val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
+                enrolment.identifiers
+                  .find(id => id.key == "UTR")
+                  .map(key =>
+                    SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
+              }
+              block(
+                AuthenticatedRequest[A](
+                  nino.map(domain.Nino),
+                  saEnrolment,
+                  credentials,
+                  confidenceLevel,
+                  Some(UserName(name.getOrElse(Name(None, None)))),
+                  logins.previousLogin,
+                  None,
+                  profile,
+                  trimmedRequest
+                )
+              )
           }
-
-          val trimmedRequest: Request[A] = request
-            .map {
-              case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map {
-                  case (key, vals) => (key, vals.map(_.trim))
-                })
-              case b => b
-            }
-            .asInstanceOf[Request[A]]
-
-          block(
-            AuthenticatedRequest[A](
-              nino.map(domain.Nino),
-              saEnrolment,
-              credentials,
-              confidenceLevel,
-              Some(UserName(name.getOrElse(Name(None, None)))),
-              logins.previousLogin,
-              None,
-              profile,
-              trimmedRequest
-            )
-          )
-
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession => {
-
+    case _: NoActiveSession =>
       def postSignInRedirectUrl(implicit request: Request[_]) =
         configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
           .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
@@ -147,34 +152,33 @@ class AuthActionImpl @Inject()(
         }
         case _ => Redirect(configDecorator.authProviderChoice)
       }
-    }
 
-    case _: IncorrectCredentialStrength =>
+    case _: InsufficientEnrolments => throw InsufficientEnrolments("")
+  }
+
+  private def upliftCredentialStrength: Future[Result] =
+    Future.successful(
       Redirect(
         configDecorator.multiFactorAuthenticationUpliftUrl,
         Map(
           "origin"      -> Seq(configDecorator.origin),
           "continueUrl" -> Seq(configDecorator.pertaxFrontendHost + configDecorator.personalAccount)
         )
-      )
+      ))
 
-    case _: InsufficientConfidenceLevel =>
+  private def upliftConfidenceLevel()(implicit request: Request[_]): Future[Result] =
+    Future.successful(
       Redirect(
         configDecorator.identityVerificationUpliftUrl,
         Map(
           "origin"          -> Seq(configDecorator.origin),
           "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-          "completionURL" -> Seq(
-            configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(
-              Some(SafeRedirectUrl(request.uri)))),
-          "failureURL" -> Seq(
-            configDecorator.pertaxFrontendHost + routes.ApplicationController.showUpliftJourneyOutcome(
-              Some(SafeRedirectUrl(request.uri))))
+          "completionURL" -> Seq(configDecorator.pertaxFrontendHost + routes.ApplicationController
+            .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))),
+          "failureURL" -> Seq(configDecorator.pertaxFrontendHost + routes.ApplicationController
+            .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri))))
         )
-      )
-
-    case _: InsufficientEnrolments => throw InsufficientEnrolments("")
-  }
+      ))
 }
 
 @ImplementedBy(classOf[AuthActionImpl])
