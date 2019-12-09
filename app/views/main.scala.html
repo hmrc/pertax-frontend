@@ -137,7 +137,7 @@
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,
                 profileUrl  = request.profile.map { url => if(!url.contains("redirect_uri")) {
-                    url + "?redirect_url=" + configDecorator.pertaxFrontendService + routes.HomeController.index()
+                    url + "?redirect_uri=" + configDecorator.pertaxFrontendService + routes.HomeController.index()
                 } else {
                     url
                 }},
