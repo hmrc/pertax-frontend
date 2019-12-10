@@ -56,7 +56,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     .build()
 
   val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
-  val configDecorator = app.injector.instanceOf[ConfigDecorator]
+  def configDecorator = app.injector.instanceOf[ConfigDecorator]
 
   class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -78,55 +78,50 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
-  def retrievalResult(
+  def retrievals(
     nino: Option[String] = Some(nino.toString),
     affinityGroup: AffinityGroup = Individual,
     saEnrolments: Enrolments = Enrolments(Set.empty),
     credentialStrength: String = CredentialStrength.strong,
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-    trustedHelper: Option[TrustedHelper] = None): Future[AuthRetrievals] =
-    Future.successful(
+    trustedHelper: Option[TrustedHelper] = None): Harness = {
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
       nino ~ Some(affinityGroup) ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ fakeLoginTimes ~ trustedHelper ~ None
     )
+
+    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+
+    new Harness(authAction)
+  }
+
+  val ivRedirectUrl =
+    "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
 
   "A user without a L200 confidence level must" - {
     "be redirected to the IV uplift endpoint when" - {
       "the user is an Individual" in {
-        when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-          confidenceLevel = ConfidenceLevel.L100)
 
-        val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-        val controller = new Harness(authAction)
+        val controller = retrievals(confidenceLevel = ConfidenceLevel.L100)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith(
-          "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
+        redirectLocation(result).get must endWith(ivRedirectUrl)
       }
 
       "the user is an Organisation" in {
-        when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-          affinityGroup = Organisation,
-          confidenceLevel = ConfidenceLevel.L100)
 
-        val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-        val controller = new Harness(authAction)
+        val controller = retrievals(affinityGroup = Organisation, confidenceLevel = ConfidenceLevel.L100)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith(
-          "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
+        redirectLocation(result).get must endWith(ivRedirectUrl)
       }
 
       "the user is an Agent" in {
-        when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-          affinityGroup = Agent,
-          confidenceLevel = ConfidenceLevel.L100)
 
-        val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-        val controller = new Harness(authAction)
+        val controller = retrievals(affinityGroup = Agent, confidenceLevel = ConfidenceLevel.L100)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith(
-          "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
+        redirectLocation(result).get must endWith(ivRedirectUrl)
       }
     }
   }
@@ -134,60 +129,32 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user without a credential strength of Strong must" - {
     "be redirected to the MFA uplift endpoint when" - {
 
-      val fakeHost = "http://localhost:1234/bas-gateway/uplift-mfa"
-      val mockConfigDecorator = mock[ConfigDecorator]
-
-      when(mockConfigDecorator.multiFactorAuthenticationUpliftUrl)
-        .thenReturn(fakeHost)
-
-      when(mockConfigDecorator.origin)
-        .thenReturn("PERTAX")
-
-      when(mockConfigDecorator.pertaxFrontendHost)
-        .thenReturn("http://localhost:9232")
-
-      when(mockConfigDecorator.personalAccount)
-        .thenReturn("/personal-account")
+      def mfaRedirectUrl = "/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=%2Fpersonal-account"
 
       "the user in an Individual" in {
 
-        when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-          credentialStrength = CredentialStrength.weak)
-
-        val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, mockConfigDecorator)
-        val controller = new Harness(authAction)
+        val controller = retrievals(credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe
-          Some(s"$fakeHost?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
+        redirectLocation(result) mustBe Some(mfaRedirectUrl)
       }
 
       "the user in an Organisation" in {
 
-        when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-          affinityGroup = Organisation,
-          credentialStrength = CredentialStrength.weak)
-
-        val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, mockConfigDecorator)
-        val controller = new Harness(authAction)
+        val controller = retrievals(affinityGroup = Organisation, credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
-          Some(s"$fakeHost?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
+          Some(mfaRedirectUrl)
       }
 
       "the user in an Agent" in {
 
-        when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-          affinityGroup = Agent,
-          credentialStrength = CredentialStrength.weak)
-
-        val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, mockConfigDecorator)
-        val controller = new Harness(authAction)
+        val controller = retrievals(affinityGroup = Agent, credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
-          Some(s"$fakeHost?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
+          Some(mfaRedirectUrl)
       }
     }
   }
@@ -251,10 +218,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user with nino and no SA enrolment must" - {
     "create an authenticated request" in {
 
-      when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult()
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller = retrievals()
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -267,12 +231,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-        nino = None,
-        saEnrolments = Enrolments(fakeSaEnrolments(utr)))
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolments(utr)))
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -285,11 +244,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-        saEnrolments = Enrolments(fakeSaEnrolments(utr)))
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -303,11 +258,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       val fakePrincipalNino = Fixtures.fakeNino.toString()
 
-      when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn retrievalResult(
-        trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller =
+        retrievals(trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK

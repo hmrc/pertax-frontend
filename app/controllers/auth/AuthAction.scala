@@ -44,6 +44,19 @@ class AuthActionImpl @Inject()(
   configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
+  object GT100 {
+    def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
+      if (confLevel.level > ConfidenceLevel.L100.level) Some(confLevel) else None
+  }
+
+  object LT200 {
+    def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
+      if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
+  }
+
+  val weak = CredentialStrength.weak
+  val strong = CredentialStrength.strong
+
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
@@ -61,7 +74,19 @@ class AuthActionImpl @Inject()(
           Retrievals.trustedHelper and
           Retrievals.profile) {
 
-        case nino ~ Some(affinityGroup) ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(credentialStrength) ~ confidenceLevel ~ name ~ logins ~ optionalHelper ~ profile =>
+        case _ ~ Some(Individual) ~ _ ~ _ ~ Some(`weak`) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+          upliftCredentialStrength
+
+        case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+          upliftConfidenceLevel(request)
+
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+          upliftConfidenceLevel(request)
+
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ Some(`weak`) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+          upliftCredentialStrength
+
+        case nino ~ Some(_) ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(`strong`) ~ GT100(confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
@@ -72,56 +97,29 @@ class AuthActionImpl @Inject()(
             }
             .asInstanceOf[Request[A]]
 
-          (
-            affinityGroup,
-            credentialStrength == CredentialStrength.strong,
-            confidenceLevel >= ConfidenceLevel.L200,
-            optionalHelper
-          ) match {
-            case (Individual, false, _, _) =>
-              upliftCredentialStrength
-            case (Individual, _, false, _) =>
-              upliftConfidenceLevel()(request)
-            case (Organisation | Agent, _, false, _) =>
-              upliftConfidenceLevel()(request)
-            case (Organisation | Agent, false, _, _) =>
-              upliftCredentialStrength
-            case (Individual, true, true, trustedHelper @ Some(helper)) =>
-              block(
-                AuthenticatedRequest[A](
-                  Some(domain.Nino(helper.principalNino)),
-                  None,
-                  credentials,
-                  confidenceLevel,
-                  Some(UserName(Name(Some(helper.principalName), None))),
-                  logins.previousLogin,
-                  trustedHelper,
-                  profile,
-                  trimmedRequest
-                )
-              )
-
-            case _ =>
-              val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
+          val saEnrolment =
+            enrolments
+              .find(_.key == "IR-SA" && trustedHelper.isEmpty)
+              .flatMap { enrolment =>
                 enrolment.identifiers
                   .find(id => id.key == "UTR")
                   .map(key =>
                     SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
               }
-              block(
-                AuthenticatedRequest[A](
-                  nino.map(domain.Nino),
-                  saEnrolment,
-                  credentials,
-                  confidenceLevel,
-                  Some(UserName(name.getOrElse(Name(None, None)))),
-                  logins.previousLogin,
-                  None,
-                  profile,
-                  trimmedRequest
-                )
-              )
-          }
+
+          block(
+            AuthenticatedRequest[A](
+              nino.map(domain.Nino),
+              saEnrolment,
+              credentials,
+              confidenceLevel,
+              Some(UserName(name.getOrElse(Name(None, None)))),
+              logins.previousLogin,
+              trustedHelper,
+              profile,
+              trimmedRequest
+            )
+          )
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
@@ -166,7 +164,7 @@ class AuthActionImpl @Inject()(
         )
       ))
 
-  private def upliftConfidenceLevel()(implicit request: Request[_]): Future[Result] =
+  private def upliftConfidenceLevel(request: Request[_]): Future[Result] =
     Future.successful(
       Redirect(
         configDecorator.identityVerificationUpliftUrl,
