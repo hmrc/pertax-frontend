@@ -24,6 +24,8 @@ import uk.gov.hmrc.time.CurrentTaxYear
 
 import scala.util.{Failure, Success, Try}
 
+import java.time.{LocalDateTime => JavaLDT}
+
 object DateTimeTools extends CurrentTaxYear {
 
   //Timezone causing problem on dev server
@@ -53,6 +55,9 @@ object DateTimeTools extends CurrentTaxYear {
         unixDate
       }
     }
+
+  def toPaymentDate(dateTime: JavaLDT): LocalDate =
+    new LocalDate(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
 
   override def now: () => DateTime = DateTime.now
 }

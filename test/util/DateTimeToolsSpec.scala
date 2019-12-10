@@ -16,6 +16,9 @@
 
 package util
 
+import java.time.LocalDateTime
+import org.joda.time.{LocalDate => JodaLocalDate}
+
 class DateTimeToolsSpec extends BaseSpec {
 
   "Calling asHumanDateFromUnixDate" should {
@@ -26,6 +29,15 @@ class DateTimeToolsSpec extends BaseSpec {
 
     "return passed date when provided with an invalid date" in {
       DateTimeTools.asHumanDateFromUnixDate("INVALID DATE FORMAT") shouldBe "INVALID DATE FORMAT"
+    }
+  }
+
+  "Calling toPaymentDate" should {
+
+    "return a correctly formatted date" in {
+
+      DateTimeTools.toPaymentDate(LocalDateTime.parse("2019-11-25T13:13:51.755")) shouldBe
+        new JodaLocalDate(2019, 11, 25)
     }
   }
 }

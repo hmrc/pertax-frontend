@@ -17,7 +17,7 @@
 package controllers.auth
 
 import controllers.auth.requests.UserRequest
-import models.{AmbiguousFilerSelfAssessmentUser, Person, PersonDetails}
+import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -76,7 +76,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             Some(Nino("AB123456C")),
             None,
             None,
-            AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+            WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,
@@ -105,7 +105,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
             Some(Nino("AB123456C")),
             None,
             None,
-            AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111")),
+            WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,

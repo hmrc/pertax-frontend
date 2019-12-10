@@ -25,7 +25,7 @@
     <header class="page-heading">
         <h1 class="heading-xlarge">@messages("label.youve_been_signed_out")</h1>
     </header>
-    <p>@messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
+    <p>@messages("label.timeout_message", configDecorator.sessionTimeoutInMinutes.toString)</p>
     <p>@messages("label.please_sign_in_again")</p>
     <a class="button" href="@controllers.routes.HomeController.index" role="button">@messages("label.sign_in")</a>
 }
