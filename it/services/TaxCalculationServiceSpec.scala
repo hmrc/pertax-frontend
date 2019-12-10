@@ -1,61 +1,17 @@
 package services
 
-import config.ConfigDecorator
+import helpers.IntegrationHelpers
 import models.OverpaidStatus.Refund
 import models.UnderpaidStatus.{PartPaid, PaymentDue}
 import models._
 import org.joda.time.{DateTime, LocalDate}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.Json
-import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.CurrentTaxYear
 
-import scala.util.Random
 
-class TaxCalculationServiceSpec extends UnitSpec with GuiceOneAppPerSuite with CurrentTaxYear {
+class TaxCalculationServiceSpec extends IntegrationHelpers with CurrentTaxYear {
 
   lazy val serviceUnderTest = app.injector.instanceOf[TaxCalculationService]
-  lazy val config = app.injector.instanceOf[ConfigDecorator]
-  lazy val http = app.injector.instanceOf[SimpleHttp]
-
-  implicit val hc = HeaderCarrier()
-
-  def credId = Random.alphanumeric.take(8).mkString
-
-  def jsonPayload(nino: String) = Json.parse(s"""{
-                      |  "credId": "$credId",
-                      |  "affinityGroup": "Individual",
-                      |  "confidenceLevel": 200,
-                      |  "credentialStrength": "strong",
-                      |  "enrolments": [
-                      |  {
-                      |      "key": "IR-SA",
-                      |      "identifiers": [
-                      |        {
-                      |          "key": "UTR",
-                      |          "value": "123456789"
-                      |        }
-                      |      ],
-                      |      "state": "Activated"
-                      |    }
-                      |  ],
-                      |  "gatewayToken": "SomeToken",
-                      |  "groupIdentifier": "SomeGroupIdentifier",
-                      |  "nino": "$nino"
-                      |}""".stripMargin)
-
-  def getBearerToken(nino: String): String =
-    await(
-      http.post(s"${config.authLoginApiService}/government-gateway/session/login", jsonPayload(nino))(
-        response => response.header("AUTHORIZATION").getOrElse(""),
-        e => fail(e.getMessage)
-      )
-    )
-
-  def hcWithBearer(nino: String): HeaderCarrier = hc.withExtraHeaders(("AUTHORIZATION", getBearerToken(nino)))
 
   val cyMinusOne = current.currentYear-1
   val cyMinusTwo = current.currentYear-2

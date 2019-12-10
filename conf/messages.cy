@@ -73,7 +73,7 @@ label.enter_your_address_if_it_is_not_shown=Nodi’ch cyfeiriad os nad yw’n ca
 label.enter_your_address_yourself=Nodi’ch cyfeiriad eich hun
 label.sign_in=Mewngofnodi
 label.youve_been_signed_out=Mae’r system wedi’ch allgofnodi
-label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info=Nid ydych wedi gwneud unrhyw beth am 15 munud, felly rydym wedi’ch allgofnodi er mwyn cadw’ch cyfrif yn ddiogel.
+label.timeout_message=Nid ydych wedi gwneud unrhyw beth am {0} munud, felly rydym wedi’ch allgofnodi er mwyn cadw’ch cyfrif yn ddiogel.
 label.please_sign_in_again=Mewngofnodwch eto.
 label.theres_a_problem=Mae problem wedi codi
 label.first_line_of_your_address=Llinell gyntaf eich cyfeiriad
@@ -292,7 +292,7 @@ label.if_your_accountant_filed_check_with_them=os mai eich cyfrifydd wnaeth gyfl
 label.call_us_if_you_filed_your_return_by_post_link_text=ffoniwch ni
 label.call_us_if_you_filed_your_return_by_post_text_after_link=os gwnaethoch gyflwyno’ch Ffurflen Dreth drwy’r post
 label.help_improve_gov_uk=Helpwch i wella gwasanaethau CThEM
-label.please_take_part_in_our_short_survey=Cymerwch ran yn ein harolwg byr (yn agor ffenestr neu dab newydd)
+label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwasanaethau’r Llywodraeth yn well (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
@@ -426,6 +426,7 @@ label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 label.self_assessment=Hunanasesiad
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
+label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
@@ -508,6 +509,7 @@ label.child.trust.fund.details=Pan fyddwch yn cyrraedd 16 oed, cymerwch reolaeth
 label.hmrc_date=CThEM {0}
 label.page=Tudalen
 
+
 #
 # Page not found
 #
@@ -517,3 +519,35 @@ global.page.not.found.error.check.web.address.full=Os gwnaethoch ludo’r cyfeir
 global.page.not.found.error.contact=Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, {0} os oes angen i chi siarad â rhywun am eich trethi.
 global.page.not.found.error.contact.link.text=cysylltwch â Gwasanaeth Cwsmeriaid Cymraeg CThEM
 global.page.not.found.error.contact.link=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/welsh-language-helplines
+
+
+label.access_your_self_assessment=Access your Self Assessment
+
+title.selfAssessment.viewPayments.h1=Self Assessment payments for the last 60 days
+label.selfAssessment.noPaymentsIn60=There have been no payments in the last 60 days
+label.selfAssessment.balanceUpdateAdvisory=It can take up to 7 days to update your balance after each payment.
+label.selfAssessment.paymentsTable.date=Date
+label.selfAssessment.paymentsTable.reference=Reference number
+label.selfAssessment.paymentsTable.amount=Amount
+
+title.signed_in_wrong_account.h1=You are not signed in to the right account
+label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
+
+title.sign_in_again.h1=You need to sign back in to Government Gateway using different details
+label.sign_in_again=You will be asked to sign in again with the user ID and password for the account you use for Self Assessment.
+
+title.do_you_know_other_credentials.h1=Do you know the user ID and password for the account you use for Self Assessment?
+title.do_you_know_user_id.h1=Do you know the user ID?
+
+title.reset_your_password.h1=You need to reset your password
+labels.need_utr=You will need your Unique Taxpayer Reference (UTR).
+labels.your_utr_is=Your UTR is
+
+title.find_your_user_id.h1=Get help finding your user ID
+
+title.request_sa_access.h1=You need to request access to Self Assessment
+label.request_sa_access.p1=This may be because you have deregistered from Self Assessment online.
+label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
+label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
+label.request_sa_access.button=Request access to Self Assessment
+
