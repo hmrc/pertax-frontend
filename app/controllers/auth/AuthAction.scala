@@ -27,7 +27,6 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.authorise.{AlternatePredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
@@ -54,9 +53,6 @@ class AuthActionImpl @Inject()(
       if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
   }
 
-  val weak = CredentialStrength.weak
-  val strong = CredentialStrength.strong
-
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
@@ -74,7 +70,7 @@ class AuthActionImpl @Inject()(
           Retrievals.trustedHelper and
           Retrievals.profile) {
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(`weak`) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
@@ -83,10 +79,11 @@ class AuthActionImpl @Inject()(
         case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(`weak`) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case nino ~ Some(_) ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(`strong`) ~ GT100(confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
+        case nino ~ Some(_) ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
+              confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
