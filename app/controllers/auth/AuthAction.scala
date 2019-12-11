@@ -74,7 +74,7 @@ class AuthActionImpl @Inject()(
           Retrievals.trustedHelper and
           Retrievals.profile) {
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ Some(`weak`) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(`weak`) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
@@ -83,7 +83,7 @@ class AuthActionImpl @Inject()(
         case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ Some(`weak`) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(`weak`) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
         case nino ~ Some(_) ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(`strong`) ~ GT100(confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
@@ -109,11 +109,12 @@ class AuthActionImpl @Inject()(
 
           block(
             AuthenticatedRequest[A](
-              nino.map(domain.Nino),
+              trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
               saEnrolment,
               credentials,
               confidenceLevel,
-              Some(UserName(name.getOrElse(Name(None, None)))),
+              Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
+                Name(Some(helper.principalName), None)))),
               logins.previousLogin,
               trustedHelper,
               profile,
