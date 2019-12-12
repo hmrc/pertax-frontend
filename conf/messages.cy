@@ -296,6 +296,7 @@ label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwa
 label.no_thanks=Dim diolch
 label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
+label.this.section.is=Dyma’r adran ynghylch
 
 #
 # Error messages
