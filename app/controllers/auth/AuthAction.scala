@@ -26,7 +26,6 @@ import play.api.Configuration
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.authorise.CompositePredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
@@ -35,6 +34,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
+import io.lemonlabs.uri.Url
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(
@@ -42,6 +43,14 @@ class AuthActionImpl @Inject()(
   configuration: Configuration,
   configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
+
+  def addRedirect(profileUrl: Option[String]): Option[String] =
+    profileUrl.map { url =>
+      Url
+        .parse(url)
+        .replaceParams("redirect_uri", configDecorator.pertaxFrontendHomeUrl)
+        .toString()
+    }
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
@@ -80,7 +89,7 @@ class AuthActionImpl @Inject()(
               Some(UserName(Name(Some(trustedHelper.principalName), None))),
               logins.previousLogin,
               Some(trustedHelper),
-              profile,
+              addRedirect(profile),
               trimmedRequest
             )
           )
@@ -111,7 +120,7 @@ class AuthActionImpl @Inject()(
               Some(UserName(name.getOrElse(Name(None, None)))),
               logins.previousLogin,
               None,
-              profile,
+              addRedirect(profile),
               trimmedRequest
             )
           )
