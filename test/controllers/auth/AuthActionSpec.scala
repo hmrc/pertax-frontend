@@ -61,7 +61,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
-          s"trustedHelper: ${request.trustedHelper}")
+          s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}")
     }
   }
 
@@ -265,5 +265,46 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       contentAsString(result) must include(
         s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
     }
+  }
+
+  "A user with a SCP Profile Url must include a redirect uri back to the home controller" in {
+    val fakePrincipalNino = Fixtures.fakeNino.toString()
+    val retrievalResult: Future[AuthRetrievals] =
+      Future.successful(
+        Some(fakePrincipalNino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ Some(
+          "http://www.google.com/")
+      )
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
+      .thenReturn(retrievalResult)
+
+    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+    val controller = new Harness(authAction)
+
+    val result = controller.onPageLoad()(FakeRequest("", ""))
+    status(result) mustBe OK
+    println(contentAsString(result))
+    contentAsString(result) must include(
+      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendHomeUrl}")
+  }
+
+  "A user without a SCP Profile Url must continue to not have one" in {
+    val fakePrincipalNino = Fixtures.fakeNino.toString()
+    val retrievalResult: Future[AuthRetrievals] =
+      Future.successful(
+        Some(fakePrincipalNino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ Some(
+          "http://www.google.com/")
+      )
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
+      .thenReturn(retrievalResult)
+
+    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+    val controller = new Harness(authAction)
+
+    val result = controller.onPageLoad()(FakeRequest("", ""))
+    status(result) mustBe OK
+    contentAsString(result) mustNot include(
+      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendHomeUrl}")
   }
 }
