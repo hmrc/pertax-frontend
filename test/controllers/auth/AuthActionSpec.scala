@@ -283,7 +283,6 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
-    println(contentAsString(result))
     contentAsString(result) must include(
       s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendHomeUrl}")
   }
