@@ -25,8 +25,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
 @anchor(text: String, url: String) = {<a href="@url" target="_blank">@text</a>}
 
 @main(title = messages("global.page.not.found.error.title"),
-pageName = Some(messages("label.your_personal_tax_account")),
-backlinkUrl = Some("javascript:window.history.back();")
+pageName = Some(messages("label.your_personal_tax_account"))
 ) {
 
 <h1>@Messages("global.page.not.found.error.title")</h1>
