@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package models
+package viewModels
 
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
+import models._
 import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
 import util.{BetterOptionValues, LanguageHelper}

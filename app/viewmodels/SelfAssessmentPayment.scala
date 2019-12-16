@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@(title: String)(implicit messages: play.api.i18n.Messages)
+package viewmodels
 
-<header class="page-heading">
-    <h1 class="heading-xlarge">
-        @messages(title)
-    </h1>
-    <p class="heading-secondary"><span class="visuallyhidden">
-        @messages("label.this.section.is") </span>@messages("label.access_your_self_assessment")</p>
-</header>
+import org.joda.time.LocalDate
+import play.api.i18n.Messages
+import util.LanguageHelper
+
+case class SelfAssessmentPayment(date: LocalDate, referenceNumber: String, amount: Double) {
+
+  def getDisplayDate()(implicit messages: Messages): String = {
+    val dateWithLang = LanguageHelper.langUtils.Dates.formatDate(date)
+    dateWithLang.substring(0, dateWithLang.lastIndexOf(" "))
+  }
+
+  def getDisplayAmount: String = f"£$amount%.2f"
+}

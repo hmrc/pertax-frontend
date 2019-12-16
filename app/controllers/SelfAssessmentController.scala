@@ -23,21 +23,26 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import models._
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalDate}
+import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.http.HeaderCarrier
+import services.SelfAssessmentPaymentsService
+import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
+import util.DateTimeTools.toPaymentDate
 import util.{DateTimeTools, LocalPartialRetriever}
+import viewmodels.SelfAssessmentPayment
 
 import scala.concurrent.Future
 
 class SelfAssessmentController @Inject()(
   val messagesApi: MessagesApi,
+  selfAssessmentPaymentsService: SelfAssessmentPaymentsService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: PertaxAuditConnector)(
@@ -57,7 +62,7 @@ class SelfAssessmentController @Inject()(
               Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
             case WrongCredentialsSelfAssessmentUser(_) =>
               Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
-            case NotEnrolledSelfAssessmentUser(saUtr) =>
+            case NotEnrolledSelfAssessmentUser(_) =>
               Redirect(controllers.routes.SelfAssessmentController.requestAccess())
             case _ => Redirect(routes.HomeController.index())
           }
@@ -80,7 +85,7 @@ class SelfAssessmentController @Inject()(
         case WrongCredentialsSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Wrong credentials SA filer")
           Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
-        case NotEnrolledSelfAssessmentUser(saUtr) =>
+        case NotEnrolledSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Never enrolled SA filer")
           Redirect(controllers.routes.SelfAssessmentController.requestAccess())
         case NonFilerSelfAssessmentUser =>
@@ -106,4 +111,19 @@ class SelfAssessmentController @Inject()(
       }
     }
 
+  def viewPayments: Action[AnyContent] =
+    authJourney.authWithPersonalDetails.async { implicit request =>
+      request.saUserType match {
+        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
+          selfAssessmentPaymentsService.getPayments(saUtr.value).map { payments =>
+            Ok(views.html.selfassessment.viewPayments(payments))
+          } recover {
+            case ex: Upstream5xxResponse => error(ex.reportAs)
+            case _: InvalidJsonException => error(INTERNAL_SERVER_ERROR)
+          }
+
+        case _ =>
+          Future.successful(Redirect(routes.HomeController.index()))
+      }
+    }
 }
