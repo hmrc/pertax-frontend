@@ -21,12 +21,12 @@ import java.util.TimeZone
 
 import util.BaseSpec
 
-class CorrespondenceAddressLockRepositorySpec extends BaseSpec {
+class EditAddressLockRepositorySpec extends BaseSpec {
 
   val MAX_NANO_SECONDS = 999999
 
   "AddressJourneyMongoHelper.getNextMidnight" when {
-    import CorrespondenceAddressLockRepository._
+    import EditAddressLockRepository._
     "called with the date parameter" should {
       "return midnight of a day during GMT" in {
 

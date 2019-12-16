@@ -19,13 +19,15 @@ package repositories
 import java.time.OffsetDateTime
 
 import connectors.EnrolmentsConnector
+import controllers.bindable.{PostalAddrType, SoleAddrType}
 import helpers.IntegrationHelpers
+import models.{EditCorrespondenceAddress, EditSoleAddress}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar.mock
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
-import reactivemongo.bson.BSONDocument
+import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
 
@@ -38,7 +40,7 @@ class CachingItSpec extends IntegrationHelpers
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
-  def mongo: CorrespondenceAddressLockRepository = app.injector.instanceOf[CorrespondenceAddressLockRepository]
+  def mongo: EditAddressLockRepository = app.injector.instanceOf[EditAddressLockRepository]
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -59,7 +61,10 @@ class CachingItSpec extends IntegrationHelpers
     next()
   }
 
-  "CorrespondenceAddressLockRepository" when {
+  def editedAddress(dateTime: OffsetDateTime) = EditSoleAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
+  def editedOtherAddress(dateTime: OffsetDateTime) = EditCorrespondenceAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
+
+  "editAddressLockRepository" when {
 
     "setIndex is called" should {
       "ensure the index is set" in {
@@ -72,29 +77,33 @@ class CachingItSpec extends IntegrationHelpers
     }
 
     "get is called" should {
-      "return None" when {
+      "return an empty list" when {
         "there isn't an existing record" in {
           val fGet = mongo.get(testNino.withoutSuffix)
 
-          await(fGet) shouldBe None
+          await(fGet) shouldBe List.empty
         }
 
         "there isn't an existing record that matches the requested nino" in {
           val timeOffSet = 10L
-          await(mongo.insertCore(differentNino.withoutSuffix, OffsetDateTime.now().plusSeconds(timeOffSet)))
 
-          val fGet = mongo.get(testNino.withoutSuffix)
+          await(mongo.insertCore(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
 
-          await(fGet) shouldBe None
+          val fGet = mongo.get(differentNino.withoutSuffix)
+
+          await(fGet) shouldBe List.empty
 
         }
 
         "there is an existing record but has expired" in {
-          await(mongo.insertCore(testNino.withoutSuffix, OffsetDateTime.now()))
 
-          val fGet = mongo.get(testNino.withoutSuffix)
+          val nino = testNino.withoutSuffix
 
-          await(fGet) shouldBe None
+          await(mongo.insertCore(nino, editedAddress(OffsetDateTime.now())))
+
+          val fGet = mongo.get(nino)
+
+          await(fGet) shouldBe List.empty
         }
       }
 
@@ -103,12 +112,29 @@ class CachingItSpec extends IntegrationHelpers
           val currentTime = System.currentTimeMillis()
           val timeOffSet = 10L
 
-          await(mongo.insertCore(testNino.withoutSuffix, OffsetDateTime.now().plusSeconds(timeOffSet)))
+          val nino = testNino.withoutSuffix
 
-          val fGet = mongo.get(testNino.withoutSuffix)
+          await(mongo.insertCore(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
+
+          val fGet = mongo.get(nino)
           val inserted = await(mongo.getCore(BSONDocument()))
-          currentTime should be < inserted.get.expireAt.value
+          currentTime should be < inserted.head.editedAddress.expireAt.value
           await(fGet) shouldBe inserted
+        }
+      }
+
+      "return multiple records" when {
+        "multiple existing records are present" in {
+          val timeOffSet = 10L
+
+          val nino = testNino.withoutSuffix
+
+          await(mongo.insertCore(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
+          await(mongo.insertCore(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
+
+          val result = await(mongo.get(nino))
+
+          result.length shouldBe 2
         }
       }
     }
@@ -116,24 +142,27 @@ class CachingItSpec extends IntegrationHelpers
     "insert is called" should {
       "return true" when {
         "there isn't an existing record" in {
-          import CorrespondenceAddressLockRepository._
+          import EditAddressLockRepository._
           val offsetTime = getNextMidnight(OffsetDateTime.now())
           val midnight = toBSONDateTime(offsetTime)
-          val result = await(mongo.insert(testNino.withoutSuffix))
+
+          val nino = testNino.withoutSuffix
+
+          val result = await(mongo.insert(nino, SoleAddrType))
           result shouldBe true
 
-          val inserted = await(mongo.get(testNino.withoutSuffix))
+          val inserted = await(mongo.get(nino))
 
-          inserted shouldBe defined
-          inserted.get.nino shouldBe testNino.withoutSuffix
-          inserted.get.expireAt shouldBe midnight
+          inserted.head.nino shouldBe nino
+          inserted.head.editedAddress.expireAt shouldBe midnight
         }
       }
+
       "return false" when {
         "there is an existing record" in {
-          await(mongo.insert(testNino.withoutSuffix))
+          await(mongo.insert(testNino.withoutSuffix, PostalAddrType))
 
-          val result = await(mongo.insert(testNino.withoutSuffix))
+          val result = await(mongo.insert(testNino.withoutSuffix, PostalAddrType))
 
           result shouldBe false
         }

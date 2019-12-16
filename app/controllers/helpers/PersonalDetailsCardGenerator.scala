@@ -19,7 +19,7 @@ package controllers.helpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
-import org.joda.time.LocalDate
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
 import play.twirl.api.{Html, HtmlFormat}
 
 @Singleton
@@ -28,16 +28,28 @@ class PersonalDetailsCardGenerator @Inject()(
   val countryHelper: CountryHelper
 ) {
 
-  def getPersonalDetailsCards(hasCorrespondenceAddressLock: Boolean)(
+  def getPersonalDetailsCards(changedAddressIndicator: List[AddressJourneyTTLModel])(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,
-    messages: play.api.i18n.Messages): Seq[Html] =
+    messages: play.api.i18n.Messages): Seq[Html] = {
+
+    val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
+
+    val mainAddressChangeIndicator = optionalEditAddress.exists(_.isInstanceOf[EditSoleAddress]) || optionalEditAddress
+      .exists(_.isInstanceOf[EditPrimaryAddress])
+    val correspondenceAddressChangeIndicator =
+      optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
+
+    println(s"Main Indicator: $mainAddressChangeIndicator")
+    println(s"Corr Indicator: $correspondenceAddressChangeIndicator")
+
     List(
       getChangeNameCard(),
-      getMainAddressCard(hasCorrespondenceAddressLock),
-      getPostalAddressCard(),
+      getMainAddressCard(mainAddressChangeIndicator),
+      getPostalAddressCard(correspondenceAddressChangeIndicator),
       getNationalInsuranceCard()
     ).flatten
+  }
 
   private def getPersonDetails()(implicit request: UserRequest[_]) =
     request.personDetails
@@ -47,7 +59,7 @@ class PersonalDetailsCardGenerator @Inject()(
     cAdd.isDefined
   }
 
-  def getMainAddressCard(hasCorrespondenceAddressLock: Boolean)(
+  def getMainAddressCard(isLocked: Boolean)(
     implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
@@ -57,25 +69,23 @@ class PersonalDetailsCardGenerator @Inject()(
             personDetails = personDetails,
             taxCreditsEnabled = configDecorator.taxCreditsEnabled,
             hasCorrespondenceAddress = hasCorrespondenceAddress,
-            hasCorrespondenceAddressLock = hasCorrespondenceAddressLock,
+            isLocked = isLocked,
             countryHelper.excludedCountries
           ))
       case _ => None
     }
 
-  def getPostalAddressCard()(
+  def getPostalAddressCard(isLocked: Boolean)(
     implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
         hasCorrespondenceAddress match {
           case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) =>
-            val canUpdatePostalAddress =
-              personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
             Some(
               views.html.cards.personaldetails.postalAddress(
                 personDetails = personDetails,
-                canUpdatePostalAddress = canUpdatePostalAddress,
+                isLocked = isLocked,
                 countryHelper.excludedCountries,
                 configDecorator.closePostalAddressEnabled))
           case _ => None
