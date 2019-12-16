@@ -87,6 +87,14 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
       "there is no postcode for the moving to address" in {
         await(service.moved(fromPostcode, "")) shouldBe AnyOtherMove
       }
+
+      "there is no postcode for the moving from address" in {
+        await(service.moved("", toPostcode)) shouldBe AnyOtherMove
+      }
+
+      "there is no postcode for both the moving to and moving from address" in {
+        await(service.moved("", "")) shouldBe AnyOtherMove
+      }
     }
 
     "be MovedToScotland when they have moved to Scotland" in {

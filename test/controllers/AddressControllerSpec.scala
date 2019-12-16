@@ -82,7 +82,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
   trait WithAddressControllerSpecSetup {
 
-    def fakeAddress: models.Address
+    def fakeAddress: Address
 
     def nino: Nino
 
@@ -290,10 +290,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -311,10 +311,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -331,9 +331,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -405,10 +405,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("residencyChoice" -> "primary")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("residencyChoice" -> "primary")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -425,10 +425,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("residencyChoice" -> "sole")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("residencyChoice" -> "sole")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -445,10 +445,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("residencyChoice" -> "bad")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("residencyChoice" -> "bad")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -464,9 +464,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -527,10 +527,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -569,10 +569,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -588,9 +588,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -801,7 +801,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         "AA1 1AA")
     }
 
-    "return 200 and log a addressLookupResults audit event when multiple records are returned by the address lookup service" in new LocalSetup {
+    "redirect to showAddressSelectorForm and log a addressLookupResults audit event when multiple records are returned by the address lookup service" in new LocalSetup {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
@@ -818,7 +818,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = controller.processPostcodeLookupForm(PostalAddrType, None)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result).getOrElse("") should include("/select-address")
+
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -878,7 +880,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 200 and display the select-address page when multiple records are returned by the address lookup service back=true" in new LocalSetup {
+    "redirect to showAddressSelectorForm and display the select-address page when multiple records are returned by the address lookup service back=true" in new LocalSetup {
       override lazy val addressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
@@ -894,9 +896,73 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = controller.processPostcodeLookupForm(PostalAddrType, None)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result).getOrElse("") should include("/select-address")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(2)).cache(any(), any())(any(), any(), any())
+    }
+  }
+
+  "Calling AddressController.showAddressSelectorForm" should {
+
+    trait LocalSetup extends WithAddressControllerSpecSetup {
+      override lazy val fakeAddress = buildFakeAddress
+      override lazy val nino = Fixtures.fakeNino
+      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
+      override lazy val sessionCacheResponse =
+        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(false)), "soleSelectedRecordSet" -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+      override lazy val thisYearStr = "2015"
+
+      val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+      val addressLookupResponseDifferentPostcode = AddressLookupSuccessResponse(newPostcodePlacePafRecordSet)
+    }
+
+    "render the page with the results of the address lookup" when {
+      "RecordSet can be retrieved from the cache" in new LocalSetup {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody(
+                    "postcode" -> "AA1 1AA")
+                  .asInstanceOf[Request[A]]
+              )
+                .asInstanceOf[UserRequest[A]]
+            )
+        })
+
+        val result = controller.showAddressSelectorForm(SoleAddrType)(FakeRequest())
+
+        status(result) shouldBe OK
+        verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      }
+    }
+
+    "redirect to postcode lookup form" when {
+      "RecordSet can not be retrieved from the cache" in new LocalSetup {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody(
+                    "postcode" -> "AA1 1AA")
+                  .asInstanceOf[Request[A]]
+              )
+                .asInstanceOf[UserRequest[A]]
+            )
+        })
+
+        override lazy val sessionCacheResponse: Some[CacheMap] = Some(CacheMap("id", Map.empty))
+
+        val result = controller.showAddressSelectorForm(SoleAddrType)(FakeRequest())
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(routes.AddressController.showPostcodeLookupForm(SoleAddrType).url)
+        verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+      }
     }
   }
 
@@ -907,7 +973,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       override lazy val nino = Fixtures.fakeNino
       override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
       override lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(false)))))
+        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(false)), "postalSelectedRecordSet" -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
       override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
       override lazy val thisYearStr = "2015"
 
@@ -921,11 +987,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(
-                  request = FakeRequest("POST", "")
-                    .withFormUrlEncodedBody(
-                      "postcode" -> "AA1 1AA")
-                    .asInstanceOf[Request[A]]
-                )
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody(
+                    "postcode" -> "AA1 1AA")
+                  .asInstanceOf[Request[A]]
+              )
                 .asInstanceOf[UserRequest[A]]
             )
         })
@@ -946,12 +1012,12 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(
-                  request = FakeRequest("POST", "")
-                    .withFormUrlEncodedBody(
-                      "postcode" -> "AA1 1AA",
-                      "filter" -> "7")
-                    .asInstanceOf[Request[A]]
-                )
+                request = FakeRequest("POST", "")
+                  .withFormUrlEncodedBody(
+                    "postcode" -> "AA1 1AA",
+                    "filter" -> "7")
+                  .asInstanceOf[Request[A]]
+              )
                 .asInstanceOf[UserRequest[A]]
             )
         })
@@ -964,7 +1030,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockAddressLookupService).lookup(any(), any())(any())
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
     }
@@ -975,10 +1040,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("addressId" -> "GB990091234514", "postcode" -> "AA1 1AA")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("addressId" -> "GB990091234514", "postcode" -> "AA1 1AA")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1002,10 +1067,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "")
-                  .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "")
+                .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1022,23 +1087,22 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to enter start date page if postcode is different to currently held postcode" in new LocalSetup {
+      override lazy val sessionCacheResponse =
+        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(false)), "soleSelectedRecordSet" -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+
       val cacheAddress = AddressDto.fromAddressRecord(otherPlacePafDifferentPostcodeAddressRecord)
       val form =
-        FakeRequest("POST", "").withFormUrlEncodedBody("addressId" -> "GB990091234516", "postcode" -> "AA1 2AA")
+        FakeRequest("POST", "").withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 2AA")
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = form
-              )
+              request = form
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
-
-      when(mockAddressLookupService.lookup(meq("AA1 2AA"), any())(any())) thenReturn {
-        Future.successful(addressLookupResponseDifferentPostcode)
-      }
 
       val result = controller.processAddressSelectorForm(SoleAddrType)(form)
 
@@ -1051,19 +1115,19 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val form =
         FakeRequest("POST", "").withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 1AA")
 
+      override lazy val sessionCacheResponse =
+        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(false)), "soleSelectedRecordSet" -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = form
-              )
+              request = form
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
 
-      when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-        Future.successful(addressLookupResponseFirstPostcode)
-      }
 
       val result = controller.processAddressSelectorForm(SoleAddrType)(form)
 
@@ -1311,8 +1375,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = form
-              )
+              request = form
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1335,8 +1399,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = form
-              )
+              request = form
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -1937,7 +2001,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = requestWithForm,
-                personDetails = Some(PersonDetails("", emptyPerson, Some(address(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
+              personDetails = Some(PersonDetails("", emptyPerson, Some(address(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2307,9 +2371,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = requestWithForm
-                  .asInstanceOf[Request[A]]
-              )
+              request = requestWithForm
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2329,9 +2393,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = requestWithForm
-                  .asInstanceOf[Request[A]]
-              )
+              request = requestWithForm
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2402,10 +2466,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                personDetails = Some(buildPersonDetailsCorrespondenceAddress),
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]])
+              saUser = NonFilerSelfAssessmentUser,
+              personDetails = Some(buildPersonDetailsCorrespondenceAddress),
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2507,10 +2571,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                personDetails = Some(buildPersonDetailsCorrespondenceAddress),
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]])
+              saUser = NonFilerSelfAssessmentUser,
+              personDetails = Some(buildPersonDetailsCorrespondenceAddress),
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2584,8 +2648,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]])
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2611,9 +2675,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2641,9 +2705,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2667,9 +2731,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2698,10 +2762,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]]
-              )
+              saUser = NonFilerSelfAssessmentUser,
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2741,9 +2805,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                request = requestWithForm
-                  .asInstanceOf[Request[A]])
+              saUser = NonFilerSelfAssessmentUser,
+              request = requestWithForm
+                .asInstanceOf[Request[A]])
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2778,10 +2842,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]]
-              )
+              saUser = NonFilerSelfAssessmentUser,
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2813,10 +2877,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]]
-              )
+              saUser = NonFilerSelfAssessmentUser,
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2856,9 +2920,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-                request = FakeRequest("POST", "/test")
-                  .asInstanceOf[Request[A]]
-              )
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
               .asInstanceOf[UserRequest[A]]
           )
       })

@@ -16,12 +16,13 @@
 
 package models
 
-import models.addresslookup.AddressRecord
+import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
 
 case class AddressJourneyData(
   addressPageVisitedDto: Option[AddressPageVisitedDto],
   residencyChoiceDto: Option[ResidencyChoiceDto],
+  recordSet: Option[RecordSet],
   addressFinderDto: Option[AddressFinderDto],
   selectedAddressRecord: Option[AddressRecord],
   submittedAddressDto: Option[AddressDto],
