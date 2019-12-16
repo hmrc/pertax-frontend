@@ -291,8 +291,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     val fakePrincipalNino = Fixtures.fakeNino.toString()
     val retrievalResult: Future[AuthRetrievals] =
       Future.successful(
-        Some(fakePrincipalNino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ Some(
-          "http://www.google.com/")
+        Some(fakePrincipalNino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None
       )
 
     when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
