@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views.html
+package views.html.cards
 
 import config.ConfigDecorator
 import org.jsoup.Jsoup
