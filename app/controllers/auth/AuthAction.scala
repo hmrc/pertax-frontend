@@ -45,11 +45,11 @@ class AuthActionImpl @Inject()(
     extends AuthAction with AuthorisedFunctions {
 
   def addRedirect(profileUrl: Option[String]): Option[String] =
-    profileUrl.map { url =>
-      Url
-        .parse(url)
-        .replaceParams("redirect_uri", configDecorator.pertaxFrontendHomeUrl)
-        .toString()
+    for {
+      url <- profileUrl
+      res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
+    } yield {
+      res.replaceParams("redirect_uri", configDecorator.pertaxFrontendHomeUrl).toString()
     }
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {

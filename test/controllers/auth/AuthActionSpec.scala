@@ -305,4 +305,23 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     contentAsString(result) mustNot include(
       s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendHomeUrl}")
   }
+
+  "A user with a SCP Profile Url that is not valid must strip out the SCP Profile Url" in {
+    val fakePrincipalNino = Fixtures.fakeNino.toString()
+    val retrievalResult: Future[AuthRetrievals] =
+      Future.successful(
+        Some(fakePrincipalNino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ Some(
+          "notAUrl")
+      )
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any()))
+      .thenReturn(retrievalResult)
+
+    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+    val controller = new Harness(authAction)
+
+    val result = controller.onPageLoad()(FakeRequest("", ""))
+    status(result) mustBe OK
+    contentAsString(result) mustNot include(configDecorator.pertaxFrontendHomeUrl)
+  }
 }
