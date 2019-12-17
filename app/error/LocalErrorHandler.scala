@@ -41,10 +41,17 @@ class LocalErrorHandler @Inject()(
     extends HttpErrorHandler with I18nSupport with RendersErrors {
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
-    if (statusCode == BAD_REQUEST || statusCode == NOT_FOUND) {
+    if (statusCode == BAD_REQUEST) {
       authJourney.authWithPersonalDetails
         .async { implicit request =>
           futureError(statusCode)
+        }
+        .apply(request)
+        .run()(materializer)
+    } else if (statusCode == NOT_FOUND) {
+      authJourney.authWithPersonalDetails
+        .async { implicit request =>
+          notFoundFutureError
         }
         .apply(request)
         .run()(materializer)
