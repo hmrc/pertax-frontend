@@ -29,7 +29,7 @@ import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
-import reactivemongo.core.errors.DatabaseException
+import reactivemongo.core.errors.{DatabaseException, GenericDatabaseException}
 import reactivemongo.play.json.BSONDocumentWrites
 import reactivemongo.play.json.collection.JSONCollection
 
@@ -51,11 +51,8 @@ class EditAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val 
     val record: EditedAddress =
       AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
 
-    println("\n\n\n\n" + record.expireAt)
-    insertCore(
-      AddressJourneyTTLModel(nino, record)
-    ).map(_.ok) recover {
-      case e: DatabaseException if e.getMessage().contains(duplicateKeyErrorCode) => false
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover {
+      case e: DatabaseException => false
     }
   }
 
@@ -89,11 +86,18 @@ class EditAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val 
           List[AddressJourneyTTLModel]()
       }
 
-  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] =
-    this.collection.flatMap(
-      _.insert(ordered = false).one(
-        record
-      ))
+  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] = {
+    val index = Index(Seq((record.createIndex, IndexType.Ascending)), unique = false)
+
+    this.collection.flatMap(coll =>
+      coll.indexesManager.ensure(index).flatMap { result =>
+        if (result) {
+          coll.insert(ordered = false).one(record)
+        } else {
+          Future.failed(GenericDatabaseException(s"Failed to insert record: $record", None))
+        }
+    })
+  }
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
     for {

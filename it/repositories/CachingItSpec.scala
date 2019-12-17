@@ -170,8 +170,6 @@ class CachingItSpec extends IntegrationHelpers
 
           val result = await(mongo.insert(nino, PostalAddrType))
 
-          println(await(mongo.get(nino)))
-
           result shouldBe false
         }
       }

@@ -40,9 +40,6 @@ class PersonalDetailsCardGenerator @Inject()(
     val correspondenceAddressChangeIndicator =
       optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
 
-    println(s"Main Indicator: $mainAddressChangeIndicator")
-    println(s"Corr Indicator: $correspondenceAddressChangeIndicator")
-
     List(
       getChangeNameCard(),
       getMainAddressCard(mainAddressChangeIndicator),
