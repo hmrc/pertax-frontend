@@ -53,8 +53,7 @@ class EditAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val 
 
     println("\n\n\n\n" + record.expireAt)
     insertCore(
-      nino,
-      record
+      AddressJourneyTTLModel(nino, record)
     ).map(_.ok) recover {
       case e: DatabaseException if e.getMessage().contains(duplicateKeyErrorCode) => false
     }
@@ -90,10 +89,10 @@ class EditAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val 
           List[AddressJourneyTTLModel]()
       }
 
-  private[repositories] def insertCore(nino: String, editedAddress: EditedAddress): Future[WriteResult] =
+  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] =
     this.collection.flatMap(
       _.insert(ordered = false).one(
-        AddressJourneyTTLModel(nino, editedAddress)
+        record
       ))
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =

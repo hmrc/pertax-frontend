@@ -21,7 +21,7 @@ import java.time.OffsetDateTime
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import helpers.IntegrationHelpers
-import models.{EditCorrespondenceAddress, EditSoleAddress}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar.mock
@@ -87,7 +87,7 @@ class CachingItSpec extends IntegrationHelpers
         "there isn't an existing record that matches the requested nino" in {
           val timeOffSet = 10L
 
-          await(mongo.insertCore(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
+          await(mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
 
           val fGet = mongo.get(differentNino.withoutSuffix)
 
@@ -99,7 +99,7 @@ class CachingItSpec extends IntegrationHelpers
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(nino, editedAddress(OffsetDateTime.now())))
+          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now()))))
 
           val fGet = mongo.get(nino)
 
@@ -114,7 +114,7 @@ class CachingItSpec extends IntegrationHelpers
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
+          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
 
           val fGet = mongo.get(nino)
           val inserted = await(mongo.getCore(BSONDocument()))
@@ -129,12 +129,15 @@ class CachingItSpec extends IntegrationHelpers
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
-          await(mongo.insertCore(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
+          val address1 = AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))
+          val address2 = AddressJourneyTTLModel(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(200)))
+
+          await(mongo.insertCore(address1))
+          await(mongo.insertCore(address2))
 
           val result = await(mongo.get(nino))
 
-          result.length shouldBe 2
+          result shouldBe List(address1, address2)
         }
       }
     }
@@ -160,9 +163,14 @@ class CachingItSpec extends IntegrationHelpers
 
       "return false" when {
         "there is an existing record" in {
-          await(mongo.insert(testNino.withoutSuffix, PostalAddrType))
 
-          val result = await(mongo.insert(testNino.withoutSuffix, PostalAddrType))
+          val nino = testNino.withoutSuffix
+
+          await(mongo.insert(nino, PostalAddrType))
+
+          val result = await(mongo.insert(nino, PostalAddrType))
+
+          println(await(mongo.get(nino)))
 
           result shouldBe false
         }
