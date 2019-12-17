@@ -136,7 +136,7 @@
                 )),
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,
-                profileUrl  = request.profile,
+                profileUrl = request.profile,
                 hideAccountMenu = request.personDetails.isEmpty
             )),
             Some(CssLinksComponent(
