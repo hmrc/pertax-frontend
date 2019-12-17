@@ -80,14 +80,14 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
   def retrievals(
     nino: Option[String] = Some(nino.toString),
-    affinityGroup: AffinityGroup = Individual,
+    affinityGroup: Option[AffinityGroup] = Some(Individual),
     saEnrolments: Enrolments = Enrolments(Set.empty),
     credentialStrength: String = CredentialStrength.strong,
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
     trustedHelper: Option[TrustedHelper] = None): Harness = {
 
     when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
-      nino ~ Some(affinityGroup) ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ fakeLoginTimes ~ trustedHelper ~ None
+      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ fakeLoginTimes ~ trustedHelper ~ None
     )
 
     val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
@@ -110,7 +110,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       "the user is an Organisation" in {
 
-        val controller = retrievals(affinityGroup = Organisation, confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L100)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -118,7 +118,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       "the user is an Agent" in {
 
-        val controller = retrievals(affinityGroup = Agent, confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L100)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -141,7 +141,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       "the user in an Organisation" in {
 
-        val controller = retrievals(affinityGroup = Organisation, credentialStrength = CredentialStrength.weak)
+        val controller = retrievals(affinityGroup = Some(Organisation), credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
@@ -150,7 +150,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       "the user in an Agent" in {
 
-        val controller = retrievals(affinityGroup = Agent, credentialStrength = CredentialStrength.weak)
+        val controller = retrievals(affinityGroup = Some(Agent), credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
@@ -265,6 +265,21 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       status(result) mustBe OK
       contentAsString(result) must include(
         s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
+    }
+  }
+
+  "A user that has logged in with Verify must" - {
+    "create an authenticated request" in {
+
+      val controller = retrievals(
+        credentialStrength = CredentialStrength.strong,
+        confidenceLevel = ConfidenceLevel.L500,
+        affinityGroup = None
+      )
+
+      val result = controller.onPageLoad()(FakeRequest("", ""))
+      status(result) mustBe OK
+      contentAsString(result) must include(nino)
     }
   }
 }
