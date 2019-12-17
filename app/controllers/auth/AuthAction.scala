@@ -82,7 +82,7 @@ class AuthActionImpl @Inject()(
         case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case nino ~ Some(_) ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
+        case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
               confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
