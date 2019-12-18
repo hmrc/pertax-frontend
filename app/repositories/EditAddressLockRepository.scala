@@ -21,6 +21,7 @@ import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
 import com.google.inject.{Inject, Singleton}
+import config.ConfigDecorator
 import controllers.bindable.AddrType
 import models.{AddressJourneyTTLModel, EditedAddress}
 import play.api.Logger
@@ -36,7 +37,9 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EditAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
+class EditAddressLockRepository @Inject()(
+  configDecorator: ConfigDecorator
+)(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
 
   private val collectionName: String = "EditAddressLock"
   private val duplicateKeyErrorCode = "E11000"
@@ -105,7 +108,7 @@ class EditAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val 
       _      <- setIndex()
     } yield result
 
-  private val ttl = 86400
+  private val ttl = configDecorator.editAddressTtl
 
   private[repositories] lazy val ttlIndex = Index(
     Seq((EXPIRE_AT, IndexType.Ascending)),
