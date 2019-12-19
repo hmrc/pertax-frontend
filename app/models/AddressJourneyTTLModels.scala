@@ -20,10 +20,7 @@ import play.api.libs.json._
 import reactivemongo.bson.BSONDateTime
 import reactivemongo.play.json._
 
-case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress) {
-  def createIndex: String =
-    s"$nino-${editedAddress.getIndex}"
-}
+case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress)
 
 sealed trait EditedAddress {
   val expireAt: BSONDateTime
@@ -51,7 +48,7 @@ object EditedAddress {
 
   implicit val writes = new OWrites[EditedAddress] {
     def writes(model: EditedAddress): JsObject = Json.obj(
-      addressType -> model.getClass.getSimpleName,
+      addressType -> model.getIndex,
       expireAt    -> model.expireAt
     )
   }
@@ -67,11 +64,6 @@ object EditedAddress {
           case `editPrimaryAddress`        => EditPrimaryAddress(expireAt)
           case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
         }
-
-    def read(model: EditedAddress): JsObject = Json.obj(
-      addressType -> model.getClass.getSimpleName,
-      expireAt    -> model.expireAt
-    )
   }
 }
 

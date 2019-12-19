@@ -61,7 +61,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
   val mockAuthJourney = mock[AuthJourney]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockCitizenDetailsService = mock[CitizenDetailsService]
-  val mockeditAddressLockRepository = mock[EditAddressLockRepository]
+  val mockEditAddressLockRepository = mock[EditAddressLockRepository]
   val mockPersonalDetailsCardGenerator: PersonalDetailsCardGenerator = mock[PersonalDetailsCardGenerator]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
@@ -70,7 +70,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     reset(
       mockLocalSessionCache,
       mockAuditConnector,
-      mockeditAddressLockRepository,
+      mockEditAddressLockRepository,
       mockAuthJourney,
       mockCitizenDetailsService,
       mockPersonalDetailsCardGenerator,
@@ -115,7 +115,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockAddressMovedService,
         mockPersonalDetailsCardGenerator,
         injected[CountryHelper],
-        mockeditAddressLockRepository,
+        mockEditAddressLockRepository,
         mockAuthJourney,
         mockLocalSessionCache,
         injected[WithActiveTabAction],
@@ -143,10 +143,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         when(mockPersonalDetailsCardGenerator.getPersonalDetailsCards(any())(any(), any(), any())) thenReturn {
           Seq.empty
         }
-        when(mockeditAddressLockRepository.insert(any(), any())) thenReturn {
+        when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
           Future.successful(isInsertCorrespondenceAddressLockSuccessful)
         }
-        when(mockeditAddressLockRepository.get(any())) thenReturn {
+        when(mockEditAddressLockRepository.get(any())) thenReturn {
           Future.successful(getEditedAddressIndicators)
         }
         when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
@@ -191,7 +191,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe OK
       verify(mockLocalSessionCache, times(1))
         .cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
-      verify(mockeditAddressLockRepository, times(1)).get(any())
+      verify(mockEditAddressLockRepository, times(1)).get(any())
     }
 
     "send an audit event when user arrives on personal details page" in new LocalSetup {
@@ -553,7 +553,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           mock[AddressMovedService],
           mockPersonalDetailsCardGenerator,
           mock[CountryHelper],
-          mockeditAddressLockRepository,
+          mockEditAddressLockRepository,
           mockAuthJourney,
           mockLocalSessionCache,
           injected[WithActiveTabAction],

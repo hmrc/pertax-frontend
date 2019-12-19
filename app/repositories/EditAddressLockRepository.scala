@@ -73,7 +73,7 @@ class EditAddressLockRepository @Inject()(
     )
   }
 
-  private[repositories] def getCore[S](selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
+  private[repositories] def getCore(selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
     this.collection
       .flatMap {
         _.find(selector, None)
@@ -89,18 +89,8 @@ class EditAddressLockRepository @Inject()(
           List[AddressJourneyTTLModel]()
       }
 
-  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] = {
-    val index = Index(Seq((record.createIndex, IndexType.Ascending)), unique = false)
-
-    this.collection.flatMap(coll =>
-      coll.indexesManager.ensure(index).flatMap { result =>
-        if (result) {
-          coll.insert(ordered = false).one(record)
-        } else {
-          Future.failed(GenericDatabaseException(s"Failed to insert record: $record", None))
-        }
-    })
-  }
+  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] =
+    this.collection.flatMap(coll => coll.insert(ordered = false).one(record))
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
     for {
@@ -120,6 +110,9 @@ class EditAddressLockRepository @Inject()(
     options = BSONDocument("expireAfterSeconds" -> ttl)
   )
 
+  private[repositories] lazy val editAddressIndex =
+    Index(Seq(("nino", IndexType.Ascending), ("editedAddress.addressType", IndexType.Ascending)), unique = true)
+
   private[repositories] def removeIndex(): Future[Int] =
     for {
       list <- collection.flatMap(_.indexesManager.list())
@@ -133,9 +126,10 @@ class EditAddressLockRepository @Inject()(
 
   private[repositories] def setIndex(): Future[Boolean] =
     for {
-      _      <- removeIndex()
-      result <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
-    } yield result
+      _          <- removeIndex()
+      ttlResult  <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
+      editResult <- collection.flatMap(_.indexesManager.ensure(editAddressIndex))
+    } yield ttlResult && editResult
 
   private[repositories] def isTtlSet: Future[Boolean] =
     for {

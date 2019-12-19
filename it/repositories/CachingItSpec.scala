@@ -137,7 +137,7 @@ class CachingItSpec extends IntegrationHelpers
 
           val result = await(mongo.get(nino))
 
-          result shouldBe List(address1, address2)
+          result shouldBe List(address2, address1)
         }
       }
     }
