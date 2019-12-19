@@ -24,17 +24,17 @@ case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress)
 
 sealed trait EditedAddress {
   val expireAt: BSONDateTime
-  def getIndex: String
+  def addressType: String
 }
 
 case class EditSoleAddress(expireAt: BSONDateTime) extends EditedAddress {
-  override def getIndex: String = EditedAddress.editSoleAddress
+  override def addressType: String = EditedAddress.editSoleAddress
 }
 case class EditPrimaryAddress(expireAt: BSONDateTime) extends EditedAddress {
-  override def getIndex: String = EditedAddress.editPrimaryAddress
+  override def addressType: String = EditedAddress.editPrimaryAddress
 }
 case class EditCorrespondenceAddress(expireAt: BSONDateTime) extends EditedAddress {
-  override def getIndex: String = EditedAddress.editCorrespondenceAddress
+  override def addressType: String = EditedAddress.editCorrespondenceAddress
 }
 
 object EditedAddress {
@@ -48,7 +48,7 @@ object EditedAddress {
 
   implicit val writes = new OWrites[EditedAddress] {
     def writes(model: EditedAddress): JsObject = Json.obj(
-      addressType -> model.getIndex,
+      addressType -> model.addressType,
       expireAt    -> model.expireAt
     )
   }
