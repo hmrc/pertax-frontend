@@ -34,6 +34,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Action, AnyContent, Controller, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
@@ -55,7 +56,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     .build()
 
   val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
-  val configDecorator = app.injector.instanceOf[ConfigDecorator]
+  def configDecorator = app.injector.instanceOf[ConfigDecorator]
 
   class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -66,55 +67,95 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   }
 
   type AuthRetrievals =
-    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-      TrustedHelper] ~ Option[String]
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[String] ~ ConfidenceLevel ~ Option[
+      UserName] ~ LoginTimes ~ Option[TrustedHelper] ~ Option[String]
 
+  val nino = Fixtures.fakeNino.nino
   val fakeCredentials = Credentials("foo", "bar")
+  val fakeCredentialStrength = CredentialStrength.strong
   val fakeConfidenceLevel = ConfidenceLevel.L200
   val fakeLoginTimes = LoginTimes(DateTime.now(), None)
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
+  def retrievals(
+    nino: Option[String] = Some(nino.toString),
+    affinityGroup: Option[AffinityGroup] = Some(Individual),
+    saEnrolments: Enrolments = Enrolments(Set.empty),
+    credentialStrength: String = CredentialStrength.strong,
+    confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+    trustedHelper: Option[TrustedHelper] = None): Harness = {
+
+    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
+      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ fakeLoginTimes ~ trustedHelper ~ None
+    )
+
+    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+
+    new Harness(authAction)
+  }
+
+  val ivRedirectUrl =
+    "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
+
   "A user without a L200 confidence level must" - {
-    "be redirected to the IV uplift endpoint" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(InsufficientConfidenceLevel()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).get must endWith(
-        "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account")
+    "be redirected to the IV uplift endpoint when" - {
+      "the user is an Individual" in {
+
+        val controller = retrievals(confidenceLevel = ConfidenceLevel.L100)
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must endWith(ivRedirectUrl)
+      }
+
+      "the user is an Organisation" in {
+
+        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L100)
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must endWith(ivRedirectUrl)
+      }
+
+      "the user is an Agent" in {
+
+        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L100)
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must endWith(ivRedirectUrl)
+      }
     }
   }
 
   "A user without a credential strength of Strong must" - {
-    "be redirected to the MFA uplift endpoint" in {
+    "be redirected to the MFA uplift endpoint when" - {
 
-      val fakeHost = "http://localhost:1234/bas-gateway/uplift-mfa"
-      val mockConfigDecorator = mock[ConfigDecorator]
+      def mfaRedirectUrl = "/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=%2Fpersonal-account"
 
-      when(mockConfigDecorator.multiFactorAuthenticationUpliftUrl)
-        .thenReturn(fakeHost)
+      "the user in an Individual" in {
 
-      when(mockConfigDecorator.origin)
-        .thenReturn("PERTAX")
+        val controller = retrievals(credentialStrength = CredentialStrength.weak)
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(mfaRedirectUrl)
+      }
 
-      when(mockConfigDecorator.pertaxFrontendHost)
-        .thenReturn("http://localhost:9232")
+      "the user in an Organisation" in {
 
-      when(mockConfigDecorator.personalAccount)
-        .thenReturn("/personal-account")
+        val controller = retrievals(affinityGroup = Some(Organisation), credentialStrength = CredentialStrength.weak)
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe
+          Some(mfaRedirectUrl)
+      }
 
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(IncorrectCredentialStrength()))
+      "the user in an Agent" in {
 
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, mockConfigDecorator)
-      val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe
-        Some(s"$fakeHost?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
+        val controller = retrievals(affinityGroup = Some(Agent), credentialStrength = CredentialStrength.weak)
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe
+          Some(mfaRedirectUrl)
+      }
     }
   }
 
@@ -128,6 +169,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/auth-login-stub")
     }
+
     "be redirected to the IDA login page if Verify provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
@@ -143,6 +185,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
           "login_redirect" -> "/personal-account/do-uplift?redirectUrl=%2Ffoo"))
       redirectLocation(result).get must endWith("/ida/login")
     }
+
     "be redirected to the GG login page if GG provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
@@ -175,19 +218,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user with nino and no SA enrolment must" - {
     "create an authenticated request" in {
 
-      val nino = Fixtures.fakeNino.nino
-      val retrievalResult: Future[AuthRetrievals] =
-        Future.successful(
-          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None
-        )
-
-      when(
-        mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller = retrievals()
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -199,17 +230,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "create an authenticated request" in {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
-      val retrievalResult: Future[AuthRetrievals] =
-        Future.successful(
-          None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None)
 
-      when(
-        mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolments(utr)))
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -220,20 +242,9 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   "A user with a nino and an SA enrolment must" - {
     "create an authenticated request" in {
 
-      val nino = Fixtures.fakeNino.nino
       val utr = new SaUtrGenerator().nextSaUtr.utr
-      val retrievalResult: Future[AuthRetrievals] =
-        Future.successful(
-          Some(nino) ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None
-        )
 
-      when(
-        mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -246,24 +257,29 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "create an authenticated request containing the trustedHelper" in {
 
       val fakePrincipalNino = Fixtures.fakeNino.toString()
-      val retrievalResult: Future[AuthRetrievals] =
-        Future.successful(
-          Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ Some(
-            TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)) ~ None
-        )
 
-      when(
-        mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
-        .thenReturn(retrievalResult)
-
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
+      val controller =
+        retrievals(trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
         s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
+    }
+  }
+
+  "A user that has logged in with Verify must" - {
+    "create an authenticated request" in {
+
+      val controller = retrievals(
+        credentialStrength = CredentialStrength.strong,
+        confidenceLevel = ConfidenceLevel.L500,
+        affinityGroup = None
+      )
+
+      val result = controller.onPageLoad()(FakeRequest("", ""))
+      status(result) mustBe OK
+      contentAsString(result) must include(nino)
     }
   }
 }
