@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(sessionId: String, langCode: String, url: String)
+@(langCode: String, url: String)
 
 ga('set', 'dimension5', '@langCode');
 ga(function(tracker) {
@@ -22,5 +22,3 @@ var clientId = tracker.get('clientId');
 ga('set', 'dimension66', clientId);
 });
 ga('set', 'page', '@url');
-
-ga('set', 'dimension67', '@sessionId')

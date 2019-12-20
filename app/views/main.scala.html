@@ -55,12 +55,11 @@
         seq
     }
 
-@gaCustomEvent = @{
-    val sessionId = request.session.get("sessionId").getOrElse("NO_SESSION_ID")
-    val langCode = messages.lang.code
+    @gaCustomEvent = @{
+        val langCode = messages.lang.code
 
-    views.html.google_analytics(sessionId, langCode, request.uri)
-}
+        views.html.google_analytics(langCode, request.uri)
+    }
 
 
     @actingAttorneyBanner = {
