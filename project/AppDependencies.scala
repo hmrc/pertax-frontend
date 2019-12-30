@@ -17,7 +17,7 @@ object AppDependencies {
     "uk.gov.hmrc"         %% "tax-year"                 % "0.6.0",
     "org.reactivemongo"   %% "play2-reactivemongo"      % "0.16.2-play25",
     "uk.gov.hmrc"         %% "domain"                   % "5.6.0-play-25",
-    "uk.gov.hmrc"         %% "auth-client"              % "2.30.0-play-25",
+    "uk.gov.hmrc"         %% "auth-client"              % "2.32.0-play-25",
     "io.lemonlabs"        %% "scala-uri"                % "1.4.10"
   )
 
