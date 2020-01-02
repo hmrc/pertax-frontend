@@ -50,7 +50,7 @@ class AuthActionImpl @Inject()(
       url <- profileUrl
       res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
     } yield {
-      res.replaceParams("redirect_uri", configDecorator.pertaxFrontendHomeUrl).toString()
+      res.replaceParams("redirect_uri", configDecorator.pertaxFrontendHomeUrlAbsolute).toString()
     }
 
   object GT100 {
