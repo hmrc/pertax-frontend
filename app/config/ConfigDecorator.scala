@@ -206,7 +206,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
-  lazy val payApiBackLinks = configuration
+  lazy val pertaxFrontendBackLink = configuration
     .getString("external-url.pertax-frontend.host")
     .getOrElse("") + routes.HomeController.index().url
 

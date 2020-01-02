@@ -275,7 +275,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) must include(
-      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendHomeUrl}")
+      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendBackLink}")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
@@ -284,7 +284,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
     contentAsString(result) mustNot include(
-      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendHomeUrl}")
+      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendBackLink}")
   }
 
   "A user with a SCP Profile Url that is not valid must strip out the SCP Profile Url" in {
@@ -292,7 +292,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
-    contentAsString(result) mustNot include(configDecorator.pertaxFrontendHomeUrl)
+    contentAsString(result) mustNot include(configDecorator.pertaxFrontendBackLink)
   }
 
   "A user that has logged in with Verify must" - {
