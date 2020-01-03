@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@
             <header class="page-heading">
                 <h1 class="heading-xlarge no-margin-top">@messages("label.did_you_deregister_from_sa_online")</h1>
                 <p class="heading-secondary"><span class="visuallyhidden">
-                    This section is </span>@messages("label.how_to_access_your_self_assessment")</p>
+                    @messages("label.this.section.is") </span>@messages("label.how_to_access_your_self_assessment")</p>
             </header>
 
             @form(action = controllers.routes.AmbiguousJourneyController.processDeEnroledFromSaChoice) {

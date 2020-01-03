@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val ssoUrl = configuration.getString(s"portal.ssoUrl")
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
+  lazy val getPaymentsUrl = s"$payApiUrl/pay-api/payment/search/PTA"
   lazy val deskproToken = "PTA"
   lazy val citizenSwitchOffUrl = s"$citizenAuthHost/attorney/switch-off-act"
   lazy val taxEstimateServiceUrl = s"$taiHost/check-income-tax/paye"
@@ -205,7 +206,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
-  lazy val payApiBackLinks = configuration
+  lazy val pertaxFrontendBackLink = configuration
     .getString("external-url.pertax-frontend.host")
     .getOrElse("") + routes.HomeController.index().url
 
