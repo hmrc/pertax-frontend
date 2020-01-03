@@ -35,6 +35,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 
+import io.lemonlabs.uri.Url
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(
@@ -42,6 +44,14 @@ class AuthActionImpl @Inject()(
   configuration: Configuration,
   configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
+
+  def addRedirect(profileUrl: Option[String]): Option[String] =
+    for {
+      url <- profileUrl
+      res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
+    } yield {
+      res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
+    }
 
   object GT100 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
@@ -114,7 +124,7 @@ class AuthActionImpl @Inject()(
                 Name(Some(helper.principalName), None)))),
               logins.previousLogin,
               trustedHelper,
-              profile,
+              addRedirect(profile),
               trimmedRequest
             )
           )

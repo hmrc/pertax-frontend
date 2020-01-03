@@ -62,7 +62,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
-          s"trustedHelper: ${request.trustedHelper}")
+          s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}")
     }
   }
 
@@ -84,10 +84,11 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     saEnrolments: Enrolments = Enrolments(Set.empty),
     credentialStrength: String = CredentialStrength.strong,
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-    trustedHelper: Option[TrustedHelper] = None): Harness = {
+    trustedHelper: Option[TrustedHelper] = None,
+    profileUrl: Option[String] = None): Harness = {
 
     when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
-      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ fakeLoginTimes ~ trustedHelper ~ None
+      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ fakeLoginTimes ~ trustedHelper ~ profileUrl
     )
 
     val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
@@ -266,6 +267,32 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       contentAsString(result) must include(
         s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
     }
+  }
+
+  "A user with a SCP Profile Url must include a redirect uri back to the home controller" in {
+    val controller = retrievals(profileUrl = Some("http://www.google.com/"))
+
+    val result = controller.onPageLoad()(FakeRequest("", ""))
+    status(result) mustBe OK
+    contentAsString(result) must include(
+      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendBackLink}")
+  }
+
+  "A user without a SCP Profile Url must continue to not have one" in {
+    val controller = retrievals(profileUrl = None)
+
+    val result = controller.onPageLoad()(FakeRequest("", ""))
+    status(result) mustBe OK
+    contentAsString(result) mustNot include(
+      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendBackLink}")
+  }
+
+  "A user with a SCP Profile Url that is not valid must strip out the SCP Profile Url" in {
+    val controller = retrievals(profileUrl = Some("notAUrl"))
+
+    val result = controller.onPageLoad()(FakeRequest("", ""))
+    status(result) mustBe OK
+    contentAsString(result) mustNot include(configDecorator.pertaxFrontendBackLink)
   }
 
   "A user that has logged in with Verify must" - {
