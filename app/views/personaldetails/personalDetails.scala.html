@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
         <h1 class="heading-xlarge">
             @request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account"))
         </h1>
-        <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@messages("label.personal_details")</p>
+        <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.personal_details")</p>
       </header>
 
     </div>

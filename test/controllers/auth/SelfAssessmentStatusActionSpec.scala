@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package controllers.auth
 
 import connectors.EnrolmentsConnector
 import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
-import models.{MatchingDetails, NonFilerSelfAssessmentUser}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, MatchingDetails, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -31,10 +31,11 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{CitizenDetailsService, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
+import services.{CitizenDetailsService, EnrolmentStoreCachingService, LocalSessionCache, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.Future
 
@@ -44,11 +45,11 @@ class SelfAssessmentStatusActionSpec
   val saUtr = SaUtr("1111111111")
 
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-  val enrolmentsConnector = mock[EnrolmentsConnector]
+  val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-    .overrides(bind[EnrolmentsConnector].toInstance(enrolmentsConnector))
+    .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
@@ -66,6 +67,7 @@ class SelfAssessmentStatusActionSpec
         )
       }
     )
+
   }
 
   def createAuthenticatedRequest(
@@ -107,73 +109,53 @@ class SelfAssessmentStatusActionSpec
 
   "A user without an SA enrolment must" - {
     "when CitizenDetails has a matching SA account" - {
-      "and they have an enrolment on another credential" - {
-        "return WrongCredentialsSelfAssessmentUser" in {
-          implicit val request = createAuthenticatedRequest(None)
 
-          val saUtr = SaUtr("1111111111")
+      val saUtr = SaUtr("1111111111")
 
-          when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
-            .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
-          when(enrolmentsConnector.getUserIdsWithEnrolments(meq(saUtr.utr))(any(), any()))
-            .thenReturn(Future.successful(Right(Seq("some cred id"))))
+      val userTypeList: List[(SelfAssessmentUserType, String)] = List(
+        (WrongCredentialsSelfAssessmentUser(saUtr), "a Wrong credentials SA user"),
+        (NotEnrolledSelfAssessmentUser(saUtr), "a Not Enrolled SA user"),
+        (NonFilerSelfAssessmentUser, "a Non Filer SA user")
+      )
 
-          val result = harness()(request)
-          contentAsString(result) must include(s"WrongCredentialsSelfAssessmentUser(${saUtr.utr})")
-        }
-      }
+      implicit val request = createAuthenticatedRequest(None)
 
-      "and they have no active SA enrolment" - {
-        "return NotEnrolledSelfAssessmentUser" in {
-          implicit val request = createAuthenticatedRequest(None)
+      userTypeList.foreach {
+        case (userType, key) =>
+          s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
-          when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
-            .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
-          when(enrolmentsConnector.getUserIdsWithEnrolments(meq(saUtr.utr))(any(), any()))
-            .thenReturn(Future.successful(Right(Seq.empty)))
+            when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+              .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
 
-          val result = harness()(request)
-          contentAsString(result) must include(s"NotEnrolledSelfAssessmentUser(${saUtr.utr})")
-        }
-      }
+            when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
+              .thenReturn(Future.successful(userType))
 
-      "and enrolment store returns a bad response" - {
-        "return NonFilerSelfAssessmentUser" in {
-          implicit val request = createAuthenticatedRequest(None)
-
-          when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
-            .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
-          when(enrolmentsConnector.getUserIdsWithEnrolments(meq(saUtr.utr))(any(), any()))
-            .thenReturn(Future.successful(Left("some error occured")))
-
-          val result = harness()(request)
-          contentAsString(result) must include("NonFilerSelfAssessmentUser")
-        }
+            val result = harness()(request)
+            contentAsString(result) must include(s"${userType.toString}")
+          }
       }
     }
-
-    "when CitizenDetails has no matching SA account" - {
-      "return NonFilerSelfAssessmentUser" in {
-        implicit val request = createAuthenticatedRequest(None)
-
-        when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
-          .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
-        val result = harness()(request)
-        contentAsString(result) must include("NonFilerSelfAssessmentUser")
-        verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any())
-      }
-    }
-
-    "when user has no Nino" - {
-      "return NonFilerSelfAssessmentUser" in {
-        implicit val request = createAuthenticatedRequest(None, None)
-
-        val result = harness()(request)
-        contentAsString(result) must include("NonFilerSelfAssessmentUser")
-        verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
-      }
-    }
-
   }
 
+  "when CitizenDetails has no matching SA account" - {
+    "return NonFilerSelfAssessmentUser" in {
+      implicit val request = createAuthenticatedRequest(None)
+
+      when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+        .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
+      val result = harness()(request)
+      contentAsString(result) must include("NonFilerSelfAssessmentUser")
+      verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any())
+    }
+  }
+
+  "when user has no Nino" - {
+    "return NonFilerSelfAssessmentUser" in {
+      implicit val request = createAuthenticatedRequest(None, None)
+
+      val result = harness()(request)
+      contentAsString(result) must include("NonFilerSelfAssessmentUser")
+      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+    }
+  }
 }

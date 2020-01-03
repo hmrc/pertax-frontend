@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ case class PaymentRequest(utr: String, returnUrl: String, backUrl: String)
 
 object PaymentRequest {
   def apply(configDecorator: ConfigDecorator, utr: String): PaymentRequest = {
-    val homePageUrl = configDecorator.payApiBackLinks
+    val homePageUrl = configDecorator.pertaxFrontendBackLink
     PaymentRequest(utr, homePageUrl, homePageUrl)
   }
 

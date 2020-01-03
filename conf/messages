@@ -217,7 +217,7 @@ label.have_you_ever_done_your_tax_return_by_post=Have you ever done your tax ret
 label.you_need_to_register_to_do__your_tax_return_online=You need to register to do your tax return online
 label.do_your_tax_return_before_the_deadline=Do your tax return before the deadline
 label.the_deadline_to_do_your_tax_return_by_post_was_=The deadline to do your tax return by post is 31 October 2018. You can do your tax return online before midnight on 31 January 2019.
-label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is midnight on 31 January {0}.
+label.the_deadline_to_do_your_tax_return_online_is_=The deadline to do your tax return online is 11:59pm on 31 January {0}.
 label.did_you_get_your_utr_letter=Did you get your UTR letter?
 label.your_utr_is_a_ten_digit_number_=Your Unique Taxpayer Reference (UTR) is a 10 digit number you need to register for Self Assessment online.
 label.your_utr_is_a_ten_digit_number_we_sent_by_post=This is also known as enrolling for Self Assessment online. If you have enrolled you will be sent an activation code in the post.
@@ -332,6 +332,7 @@ label.get.involved.in.making.gov.services.better=Get involved in making governme
 label.no_thanks=No thanks
 label.moved_from_scotland=You have moved from Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
 label.moved_to_scotland=You have moved to Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
+label.this.section.is=This section is
 
 #
 # Error messages
@@ -456,6 +457,7 @@ label.you_have_no_payments_to_make_to_hmrc=You have no payments to make to HMRC.
 label.self_assessment=Self Assessment
 label.complete_your_tax_return=Complete your tax return
 label.make_a_payment=Make a payment
+label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
@@ -507,6 +509,13 @@ label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings
 
 label.access_your_self_assessment=Access your Self Assessment
+
+title.selfAssessment.viewPayments.h1=Self Assessment payments for the last 60 days
+label.selfAssessment.noPaymentsIn60=There have been no payments in the last 60 days
+label.selfAssessment.balanceUpdateAdvisory=It can take up to 7 days to update your balance after each payment.
+label.selfAssessment.paymentsTable.date=Date
+label.selfAssessment.paymentsTable.reference=Reference number
+label.selfAssessment.paymentsTable.amount=Amount
 
 title.signed_in_wrong_account.h1=You are not signed in to the right account
 label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.

@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
             <header class="page-heading">
                 <h1 class="heading-xlarge no-margin-top">@messages("label.sign_in_with_different_account_details")</h1>
                 <p class="heading-secondary"><span class="visuallyhidden">
-                    This section is </span>@messages("label.how_to_access_your_self_assessment")</p>
+                    @messages("label.this.section.is") </span>@messages("label.how_to_access_your_self_assessment")</p>
             </header>
 
             <p>@messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.ggLoginUrl" data-ga-event-category="link - click" data-ga-event-action="sign in with different account details" data-ga-event-label="sign out then sign back in with the right details">@messages("label.you_need_to_sign_in_with_the_government_gateway_user_id_link_text")</a>.</p>

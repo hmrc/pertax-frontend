@@ -296,6 +296,7 @@ label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwa
 label.no_thanks=Dim diolch
 label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
+label.this.section.is=Dyma’r adran ynghylch
 
 #
 # Error messages
@@ -426,6 +427,7 @@ label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 label.self_assessment=Hunanasesiad
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
+label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
@@ -509,6 +511,13 @@ label.hmrc_date=CThEM {0}
 label.page=Tudalen
 
 label.access_your_self_assessment=Access your Self Assessment
+
+title.selfAssessment.viewPayments.h1=Self Assessment payments for the last 60 days
+label.selfAssessment.noPaymentsIn60=There have been no payments in the last 60 days
+label.selfAssessment.balanceUpdateAdvisory=It can take up to 7 days to update your balance after each payment.
+label.selfAssessment.paymentsTable.date=Date
+label.selfAssessment.paymentsTable.reference=Reference number
+label.selfAssessment.paymentsTable.amount=Amount
 
 title.signed_in_wrong_account.h1=You are not signed in to the right account
 label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import util.BaseSpec
 trait ViewSpec extends BaseSpec {
 
   val messages: Messages = Messages(Lang("en"), app.injector.instanceOf[MessagesApi])
+
+  val welshMessages: Messages = Messages(Lang("cy"), app.injector.instanceOf[MessagesApi])
 
   def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")

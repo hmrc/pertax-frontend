@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import play.api.Logger
 import uk.gov.hmrc.time.CurrentTaxYear
 
 import scala.util.{Failure, Success, Try}
+
+import java.time.{LocalDateTime => JavaLDT}
 
 object DateTimeTools extends CurrentTaxYear {
 
@@ -53,6 +55,9 @@ object DateTimeTools extends CurrentTaxYear {
         unixDate
       }
     }
+
+  def toPaymentDate(dateTime: JavaLDT): LocalDate =
+    new LocalDate(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
 
   override def now: () => DateTime = DateTime.now
 }
