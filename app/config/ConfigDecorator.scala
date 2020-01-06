@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,7 +206,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
-  lazy val payApiBackLinks = configuration
+  lazy val pertaxFrontendBackLink = configuration
     .getString("external-url.pertax-frontend.host")
     .getOrElse("") + routes.HomeController.index().url
 
