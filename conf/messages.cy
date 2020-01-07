@@ -510,6 +510,18 @@ label.child.trust.fund.details=Pan fyddwch yn cyrraedd 16 oed, cymerwch reolaeth
 label.hmrc_date=CThEM {0}
 label.page=Tudalen
 
+
+#
+# Page not found
+#
+global.page.not.found.error.title=Heb ddod o hyd i’r dudalen
+global.page.not.found.error.check.web.address.correct=Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.
+global.page.not.found.error.check.web.address.full=Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad yn llawn.
+global.page.not.found.error.contact=Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, {0} os oes angen i chi siarad â rhywun am eich trethi.
+global.page.not.found.error.contact.link.text=cysylltwch â Gwasanaeth Cwsmeriaid Cymraeg CThEM
+global.page.not.found.error.contact.link=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/welsh-language-helplines
+
+
 label.access_your_self_assessment=Access your Self Assessment
 
 title.selfAssessment.viewPayments.h1=Self Assessment payments for the last 60 days
@@ -539,3 +551,4 @@ label.request_sa_access.p1=This may be because you have deregistered from Self A
 label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
 label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
 label.request_sa_access.button=Request access to Self Assessment
+
