@@ -33,7 +33,7 @@ import play.api.data.{Form, FormError}
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
-import repositories.CorrespondenceAddressLockRepository
+import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -51,7 +51,7 @@ class AddressController @Inject()(
   val addressMovedService: AddressMovedService,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val countryHelper: CountryHelper,
-  val correspondenceAddressLockRepository: CorrespondenceAddressLockRepository,
+  val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
   val sessionCache: LocalSessionCache,
   withActiveTabAction: WithActiveTabAction,
@@ -122,23 +122,24 @@ class AddressController @Inject()(
 
   def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>
     import models.dto.AddressPageVisitedDto
-    def optNino: Option[Nino] = request.nino
 
     for {
-      hasCorrespondenceAddressLock <- optNino
-                                       .map { nino =>
-                                         correspondenceAddressLockRepository.get(nino.withoutSuffix) map (_.isDefined)
-                                       }
-                                       .getOrElse(Future.successful(false))
-      personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(
-        hasCorrespondenceAddressLock)
+      addressModel <- request.nino
+                       .map { nino =>
+                         editAddressLockRepository.get(nino.withoutSuffix)
+                       }
+                       .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
+
+      personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(addressModel)
       personDetails: Option[PersonDetails] = request.personDetails
+
       _ <- personDetails
             .map { details =>
               auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
             }
             .getOrElse(Future.successful(Unit))
       _ <- addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+
     } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
   }
 
@@ -731,7 +732,7 @@ class AddressController @Inject()(
                              "closure_of_correspondence",
                              auditForClosingPostalAddress(closingAddress, personDetails.etag, "correspondence")))
                      _        <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                     inserted <- correspondenceAddressLockRepository.insert(nino.withoutSuffix)
+                     inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
                      _        <- addressMovedService.moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
                    } yield
                      if (inserted) {
@@ -754,13 +755,11 @@ class AddressController @Inject()(
     authenticate.async { implicit request =>
       addressJourneyEnforcer { nino => personDetails =>
         for {
-          optLock <- correspondenceAddressLockRepository.get(nino.withoutSuffix)
-          result <- optLock match {
-                     case Some(_) =>
-                       Future.successful(Redirect(routes.AddressController.personalDetails()))
-                     case None =>
-                       submitConfirmClosePostalAddress(nino, personDetails)
-                   }
+          addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
+          result <- if (addressChanges.nonEmpty) {
+                     Future.successful(Redirect(routes.AddressController.personalDetails()))
+                   } else submitConfirmClosePostalAddress(nino, personDetails)
+
         } yield result
       }
     }
@@ -904,8 +903,11 @@ class AddressController @Inject()(
                   )
                 }
 
-                citizenDetailsService.updateAddress(nino, personDetails.etag, address) map {
-                  _.response(successResponseBlock)
+                for {
+                  _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
+                  result <- citizenDetailsService.updateAddress(nino, personDetails.etag, address)
+                } yield {
+                  result.response(successResponseBlock)
                 }
               }
             }
