@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,38 @@
 
 package error
 
-import models.PertaxContext
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import play.api.Play
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
+import uk.gov.hmrc.renderer.TemplateRenderer
+import util.LocalPartialRetriever
 
 object GenericErrors {
-  def badRequest(implicit pertaxContext: PertaxContext, messages: Messages): Result =
+
+  implicit val templateRenderer: TemplateRenderer = Play.current.injector.instanceOf[TemplateRenderer]
+
+  def badRequest(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result =
     BadRequest(
       views.html.error(
         "global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),
-        Some("global.error.BadRequest.message")))
+        List("global.error.BadRequest.message1", "global.error.BadRequest.message2")))
 
-  def internalServerError(implicit pertaxContext: PertaxContext, messages: Messages): Result =
+  def internalServerError(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Result =
     InternalServerError(
       views.html.error(
         "global.error.InternalServerError500.title",
         Some("global.error.InternalServerError500.title"),
-        Some("global.error.InternalServerError500.message")))
+        List("global.error.InternalServerError500.message")))
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,56 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PayApiConnector}
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import config.ConfigDecorator
+import connectors.PayApiConnector
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
-import javax.inject.Inject
-import models.PaymentRequest
+import com.google.inject.Inject
+import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
+import org.joda.time.DateTime
+import play.api.Logger
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
-import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, UserDetailsService}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.LocalPartialRetriever
 
 class PaymentsController @Inject()(
   val messagesApi: MessagesApi,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val citizenDetailsService: CitizenDetailsService,
-  val pertaxRegime: PertaxRegime,
-  val userDetailsService: UserDetailsService,
-  val pertaxDependencies: PertaxDependencies,
-  val payApiConnector: PayApiConnector)
-    extends PertaxBaseController with AuthorisedActions with CurrentTaxYear with RendersErrors {
+  val payApiConnector: PayApiConnector,
+  authJourney: AuthJourney,
+  withBreadcrumbAction: WithBreadcrumbAction)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer)
+    extends PertaxBaseController with CurrentTaxYear with RendersErrors {
 
-  def makePayment: Action[AnyContent] = VerifiedAction(baseBreadcrumb) { implicit pertaxContext =>
-    enforceSaAccount { saAccount =>
-      val paymentRequest = PaymentRequest(configDecorator, saAccount.utr.toString())
-      for {
-        response <- payApiConnector.createPayment(paymentRequest)
-      } yield {
-        response match {
-          case Some(createPayment) => Redirect(createPayment.nextUrl)
-          case None                => error(BAD_REQUEST)
+  override def now: () => DateTime = () => DateTime.now()
+
+  def makePayment: Action[AnyContent] =
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+      implicit request =>
+        if (request.isSa) {
+          request.saUserType match {
+            case saUser: SelfAssessmentUser => {
+              val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
+              for {
+                response <- payApiConnector.createPayment(paymentRequest)
+              } yield {
+                response match {
+                  case Some(createPayment) => Redirect(createPayment.nextUrl)
+                  case None                => error(BAD_REQUEST)
+                }
+              }
+            }
+            case NonFilerSelfAssessmentUser => {
+              Logger.warn("User had no sa account when one was required")
+              futureError(INTERNAL_SERVER_ERROR)
+            }
+          }
+        } else {
+          Logger.warn("User had no sa account when one was required")
+          futureError(INTERNAL_SERVER_ERROR)
         }
-      }
     }
-
-  }
 }

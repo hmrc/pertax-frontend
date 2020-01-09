@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package models.dto
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Messages
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.validators.Validators
 import util.PertaxValidators._
+case class AddressFinderDto(postcode: String, filter: Option[String])
+
 object AddressFinderDto {
 
   implicit val formats = Json.format[AddressFinderDto]
@@ -41,5 +41,3 @@ object AddressFinderDto {
     )(AddressFinderDto.apply)(AddressFinderDto.unapply)
   )
 }
-
-case class AddressFinderDto(postcode: String, filter: Option[String])

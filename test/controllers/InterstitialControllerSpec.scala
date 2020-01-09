@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,131 +17,123 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.PertaxRegime
-import error.LocalErrorHandler
-import models.UserDetails
-import org.mockito.Matchers.{eq => meq, _}
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
+import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
-import services.partials.{FormPartialService, MessageFrontendService, SaPartialService}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
+import services.partials.{FormPartialService, SaPartialService}
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.Fixtures._
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, MockPertaxDependencies}
+import uk.gov.hmrc.renderer.TemplateRenderer
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
 
 import scala.concurrent.Future
 
-class InterstitialControllerSpec extends BaseSpec {
+class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
+
+  override lazy val app = localGuiceApplicationBuilder().build()
 
   trait LocalSetup {
 
-    lazy val request = buildFakeRequestWithAuth("GET")
-
-    def authProviderType: String
-    def withPaye: Boolean
-    def withSa: Boolean
-    def confidenceLevel: ConfidenceLevel
     def simulateFormPartialServiceFailure: Boolean
     def simulateSaPartialServiceFailure: Boolean
     def paperlessResponse: ActivatePaperlessResponse
 
-    lazy val authority = buildFakeAuthority(withPaye, withSa, confidenceLevel)
+    lazy val fakeRequest = FakeRequest("", "")
 
-    lazy val c = new InterstitialController(
-      injected[MessagesApi],
-      MockitoSugar.mock[FormPartialService],
-      MockitoSugar.mock[SaPartialService],
-      MockitoSugar.mock[CitizenDetailsService],
-      MockitoSugar.mock[UserDetailsService],
-      MockitoSugar.mock[FrontEndDelegationConnector],
-      MockitoSugar.mock[PreferencesFrontendService],
-      MockitoSugar.mock[MessageFrontendService],
-      MockPertaxDependencies,
-      injected[PertaxRegime],
-      injected[LocalErrorHandler]
-    ) {
-      private def formPartialServiceResponse = Future.successful {
-        if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
-        else HtmlPartial.Success(Some("Success"), Html("any"))
-      }
-      when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
-      when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
+    val mockAuthJourney = mock[AuthJourney]
 
-      when(saPartialService.getSaAccountSummary(any())) thenReturn {
-        Future.successful {
-          if (simulateSaPartialServiceFailure) HtmlPartial.Failure()
+    def controller: InterstitialController =
+      new InterstitialController(
+        injected[MessagesApi],
+        mock[FormPartialService],
+        mock[SaPartialService],
+        mock[PreferencesFrontendService],
+        mockAuthJourney,
+        injected[WithBreadcrumbAction]
+      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
+        private def formPartialServiceResponse = Future.successful {
+          if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
         }
-      }
+        when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
+        when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
 
-      when(citizenDetailsService.personDetails(meq(Fixtures.fakeNino))(any())) thenReturn {
-        Future.successful(PersonDetailsSuccessResponse(Fixtures.buildPersonDetails))
-      }
-      when(authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
-      when(userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(authProviderType)))
-      }
-      when(preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
-        Future.successful(paperlessResponse)
-      }
-      when(messageFrontendService.getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
-      when(configDecorator.taxCreditsEnabled) thenReturn true
-      when(configDecorator.ssoUrl) thenReturn Some("ssoUrl")
-      when(configDecorator.getFeedbackSurveyUrl(any())) thenReturn "/test"
-      when(configDecorator.analyticsToken) thenReturn Some("N/A")
+        when(saPartialService.getSaAccountSummary(any())) thenReturn {
+          Future.successful {
+            if (simulateSaPartialServiceFailure) HtmlPartial.Failure()
+            else HtmlPartial.Success(Some("Success"), Html("any"))
+          }
+        }
 
-    }
+        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+          Future.successful(paperlessResponse)
+        }
+      }
   }
 
   "Calling displayNationalInsurance" should {
 
-    "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user who is high gg" in new LocalSetup {
+    "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user " in new LocalSetup {
 
-      lazy val withPaye = true
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request))
+      })
+
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displayNationalInsurance(request)
-      status(r) shouldBe OK
+      val testController = controller
 
-      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(c.formPartialService, times(1)).getNationalInsurancePartial(any())
-      verify(c.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
+      val result = testController.displayNationalInsurance(fakeRequest)
+
+      status(result) shouldBe OK
+
+      verify(testController.formPartialService, times(1)).getNationalInsurancePartial(any())
 
     }
   }
 
   "Calling displayChildBenefits" should {
 
-    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user who is high gg" in new LocalSetup {
+    "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in new LocalSetup {
 
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displayChildBenefits(request)
-      status(r) shouldBe OK
+      val fakeRequestWithPath = FakeRequest("GET", "/foo")
 
-      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(c.citizenDetailsService, times(0)).personDetails(meq(Fixtures.fakeNino))(any())
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request))
+      })
+
+      val result = controller.displayChildBenefits(fakeRequestWithPath)
+
+      status(result) shouldBe OK
+
     }
   }
 
@@ -149,88 +141,115 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getSelfAssessmentPartial and return 200 when called by a high GG user" in new LocalSetup {
 
-      lazy val withPaye = false
-      lazy val withSa = true
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displaySelfAssessment(request)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      val testController = controller
+      val r = testController.displaySelfAssessment(fakeRequest)
+
       status(r) shouldBe OK
 
-      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(c.formPartialService, times(1)).getSelfAssessmentPartial(any()) //Not called at the min due to DFS bug
-      verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
+      verify(testController.formPartialService, times(1))
+        .getSelfAssessmentPartial(any()) //Not called at the min due to DFS bug
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in new LocalSetup {
 
-      lazy val withPaye = false
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L200
-      lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
       lazy val simulateFormPartialServiceFailure = true
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displaySelfAssessment(request)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
+            ))
+      })
+
+      val testController = controller
+
+      val r = testController.displaySelfAssessment(fakeRequest)
       status(r) shouldBe UNAUTHORIZED
 
-      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(c.formPartialService, times(1)).getSelfAssessmentPartial(any())
-      verify(c.citizenDetailsService, times(0)).personDetails(any())(any())
+      verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
 
-      lazy val withPaye = true
-      lazy val withSa = false
-      lazy val confidenceLevel = ConfidenceLevel.L0
-      lazy val authProviderType = UserDetails.VerifyAuthProvider
       lazy val simulateFormPartialServiceFailure = true
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      val r = c.displaySelfAssessment(request)
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request))
+      })
+
+      val testController = controller
+
+      val r = testController.displaySelfAssessment(fakeRequest)
       status(r) shouldBe UNAUTHORIZED
 
-      verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
-      verify(c.formPartialService, times(1)).getSelfAssessmentPartial(any())
-      verify(c.citizenDetailsService, times(1)).personDetails(meq(Fixtures.fakeNino))(any())
+      verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
     }
 
     "Calling getSa302" should {
 
       "should return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
-        lazy val withPaye = true
-        lazy val withSa = true
-        lazy val confidenceLevel = ConfidenceLevel.L200
-        lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        val r = c.displaySa302Interrupt(2014)(request)
-        status(r) shouldBe OK
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-        verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
+        val testController = controller
+
+        val r = testController.displaySa302Interrupt(2018)(fakeRequest)
+
+        status(r) shouldBe OK
+        contentAsString(r) should include("1111111111")
       }
 
-      "should return UNAUTHORIZED response when accessing with a none SA user with a valid tax year" in new LocalSetup {
-        lazy val withPaye = true
-        lazy val withSa = false
-        lazy val confidenceLevel = ConfidenceLevel.L200
-        lazy val authProviderType = UserDetails.GovernmentGatewayAuthProvider
+      "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
+
         lazy val simulateFormPartialServiceFailure = false
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        val r = c.displaySa302Interrupt(2014)(request)
-        status(r) shouldBe UNAUTHORIZED
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
+                request = request
+              ))
+        })
 
-        verify(c.messageFrontendService, times(1)).getUnreadMessageCount(any())
+        val testController = controller
+        val r = testController.displaySa302Interrupt(2018)(fakeRequest)
+
+        status(r) shouldBe UNAUTHORIZED
       }
     }
   }

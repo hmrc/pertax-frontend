@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,19 @@
 @(form: Form[_])(implicit messages: play.api.i18n.Messages)
 
 @if(form.hasErrors) {
-  <div class="grid-row">
-    <div class="column-two-thirds">
-      <div id="errors" tabindex="-1" role="group" aria-labelledby="error-heading" class="error-summary">
-        <h2 class="heading-medium error-summary-heading">
-          @Messages("label.theres_a_problem")
-        </h2>
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            <div id="errors" tabindex="-1" role="group" aria-labelledby="error-heading" class="error-summary">
+                <h2 class="heading-medium error-summary-heading">
+                @Messages("label.theres_a_problem")
+                </h2>
 
-        <ul class="error-summary-list">
-          @form.errors.map { error =>
-            <li><a href="#@error.key">@Messages(s"head.${error.message}")</a></li>
-          }
-        </ul>
-      </div>
+                <ul class="error-summary-list">
+                @form.errors.map { error =>
+                    <li><a href="#@error.key">@Messages(s"head.${error.message}")</a></li>
+                }
+                </ul>
+            </div>
+        </div>
     </div>
-  </div>
 }

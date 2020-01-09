@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,13 @@ package connectors
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import models.PaymentRequest
+import models.{CreatePayment, PaymentRequest, PaymentSearchResult}
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{Json, Reads}
 import services.http.WsAllMethods
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
-
-final case class CreatePayment(journeyId: String, nextUrl: String)
-
-object CreatePayment {
-  implicit val format = Json.format[CreatePayment]
-}
 
 class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecorator) {
 
@@ -46,5 +39,11 @@ class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecor
         case _ => Future.successful(None)
       }
     }
+  }
+
+  def findPayments(
+    utr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[PaymentSearchResult]] = {
+    val url = s"${configDecorator.getPaymentsUrl}/$utr"
+    http.GET[Option[PaymentSearchResult]](url)
   }
 }

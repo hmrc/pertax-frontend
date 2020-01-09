@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 package models
 
+import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
-import models.addresslookup.AddressRecord
 
 case class AddressJourneyData(
   addressPageVisitedDto: Option[AddressPageVisitedDto],
   residencyChoiceDto: Option[ResidencyChoiceDto],
+  recordSet: Option[RecordSet],
   addressFinderDto: Option[AddressFinderDto],
   selectedAddressRecord: Option[AddressRecord],
   submittedAddressDto: Option[AddressDto],
-  subbmittedInternationalAddressChoiceDto: Option[InternationalAddressChoiceDto],
+  submittedInternationalAddressChoiceDto: Option[InternationalAddressChoiceDto],
   submittedStartDateDto: Option[DateDto],
   addressLookupServiceDown: Boolean
 ) {

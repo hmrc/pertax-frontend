@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ class TaxYearReconciliationSpec extends UnitSpec {
       ("overpaid_tolerance", OverpaidTolerance),
       ("balanced_sa", BalancedSa),
       ("balanced_no_employment", BalancedNoEmployment),
-      ("not_reconciled", NotReconciled)
+      ("not_reconciled", NotReconciled),
+      ("missing", Missing)
     )
 
     testList.foreach {

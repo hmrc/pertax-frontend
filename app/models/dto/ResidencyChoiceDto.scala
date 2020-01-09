@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
+
+case class ResidencyChoiceDto(residencyChoice: AddrType)
 
 object ResidencyChoiceDto {
 
@@ -52,5 +54,3 @@ object ResidencyChoiceDto {
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)
   )
 }
-
-case class ResidencyChoiceDto(residencyChoice: AddrType)

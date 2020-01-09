@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import play.api.{Configuration, Environment}
+import com.google.inject.{Inject, Singleton}
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.config.{AppName, ServicesConfig}

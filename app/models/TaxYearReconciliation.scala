@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package models
 
 import config.ConfigDecorator
+import models.SaDeadlineStatusCalculator._
 import org.joda.time.LocalDate
 import play.api.libs.json._
-import models.SaDeadlineStatusCalculator._
 
 case class TaxYearReconciliation(taxYear: Int, reconciliation: Reconciliation)
 
@@ -43,6 +43,7 @@ object Reconciliation {
       case JsDefined(JsString("balanced_sa"))            => JsSuccess(BalancedSa)
       case JsDefined(JsString("balanced_no_employment")) => JsSuccess(BalancedNoEmployment)
       case JsDefined(JsString("not_reconciled"))         => JsSuccess(NotReconciled)
+      case JsDefined(JsString("missing"))                => JsSuccess(Missing)
       case _                                             => JsError("Could not parse Reconciliation")
     }
   }
@@ -90,6 +91,8 @@ case object BalancedSa extends Reconciliation
 case object BalancedNoEmployment extends Reconciliation
 
 case object NotReconciled extends Reconciliation
+
+case object Missing extends Reconciliation
 
 sealed trait UnderpaidStatus
 

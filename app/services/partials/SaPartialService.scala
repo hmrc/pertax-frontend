@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,21 @@
 
 package services.partials
 
+import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import javax.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SaPartialService @Inject()(
   environment: Environment,
@@ -40,7 +40,7 @@ class SaPartialService @Inject()(
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   applicationCrypto: ApplicationCrypto,
-  val tools: Tools)
+  val tools: Tools)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig with I18nSupport {
 
   val mode: Mode = environment.mode

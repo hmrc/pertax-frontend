@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,40 +16,35 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import com.google.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import models.PertaxUser
-import play.api.{Configuration, Environment, Logger}
+import models.{ActivatePaperlessActivatedResponse, ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, ActivatePaperlessResponse}
 import play.api.Mode.Mode
-import play.api.http.Status._
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{AnyContent, Request}
-import services.http.SimpleHttp
+import play.api.{Configuration, Environment, Logger}
+import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait ActivatePaperlessResponse
-case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
-case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
-case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse
 @Singleton
 class PreferencesFrontendService @Inject()(
   environment: Environment,
   configuration: Configuration,
-  val simpleHttp: SimpleHttp,
+  val simpleHttp: WsAllMethods,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val applicationCrypto: ApplicationCrypto,
-  val tools: Tools)
+  val tools: Tools)(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
 
   val mode: Mode = environment.mode
@@ -59,46 +54,37 @@ class PreferencesFrontendService @Inject()(
   val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
   override def crypto = sessionCookieCryptoFilter.encrypt
 
-  def getPaperlessPreference(pertaxUser: PertaxUser)(
-    implicit request: Request[AnyContent]): Future[ActivatePaperlessResponse] = {
+  def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
     def activatePaperless: Future[ActivatePaperlessResponse] =
-      withMetricsTimer("get-activate-paperless") { t =>
+      withMetricsTimer("get-activate-paperless") { timer =>
         val url =
           s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
             .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
+        simpleHttp.PUT[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true)) map {
 
-        simpleHttp.put[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true))(
-          onComplete = {
-            case r if r.status >= 200 && r.status < 300 =>
-              t.completeTimerAndIncrementSuccessCounter()
-              ActivatePaperlessActivatedResponse
+          case ActivatePaperlessActivatedResponse =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            ActivatePaperlessActivatedResponse
 
-            case r if r.status == PRECONDITION_FAILED =>
-              t.completeTimerAndIncrementSuccessCounter()
-              val redirectUrl = (r.json \ "redirectUserTo")
-              Logger.warn(
-                "Precondition failed when getting paperless preference record from preferences-frontend-service")
-              ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
+          case response: ActivatePaperlessRequiresUserActionResponse =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            response
 
-            case r =>
-              t.completeTimerAndIncrementFailedCounter()
-              Logger.warn(
-                s"Unexpected ${r.status} response getting paperless preference record from preferences-frontend-service")
-              ActivatePaperlessNotAllowedResponse
-          },
-          onError = {
-            case e =>
-              t.completeTimerAndIncrementFailedCounter()
-              Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
-              ActivatePaperlessNotAllowedResponse
-          }
-        )
+          case ActivatePaperlessNotAllowedResponse =>
+            timer.completeTimerAndIncrementFailedCounter()
+            ActivatePaperlessNotAllowedResponse
+        } recover {
+          case e =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
+            ActivatePaperlessNotAllowedResponse
+        }
       }
 
-    if (pertaxUser.isGovernmentGateway) {
+    if (request.isGovernmentGateway) {
       activatePaperless
     } else {
       Future.successful(ActivatePaperlessNotAllowedResponse)

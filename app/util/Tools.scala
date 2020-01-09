@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package util
 
-import java.net.{URI, URL, URLEncoder}
+import java.net.{URI, URLEncoder}
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 
 class Tools @Inject()(val applicationCrypto: ApplicationCrypto) {

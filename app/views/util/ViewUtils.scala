@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@
 package views.util
 
 import config.ConfigDecorator
-import models._
 import play.api.i18n.Messages
 import util.LanguageHelper
-import viewmodels.{Date, Empty, Literal, MakePaymentUrl, Message, NotCalculatedUrl, NotEmployedUrl, OverpaidReasonsUrl, OverpaidUrl, RightAmountUrl, TaxPaidUrl, Text, UnderpaidReasonsUrl, UnderpaidUrl, Url}
+import viewmodels._
 
 object ViewUtils {
 

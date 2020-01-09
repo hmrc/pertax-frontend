@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 package filters
 
-import javax.inject.{Inject, Singleton}
-
 import com.typesafe.config.Config
-import play.api.{Configuration, Play}
-import uk.gov.hmrc.play.config.ControllerConfig
+import com.google.inject.{Inject, Singleton}
 import net.ceedubs.ficus.Ficus._
+import play.api.Configuration
+import uk.gov.hmrc.play.config.ControllerConfig
 import uk.gov.hmrc.play.frontend.filters.{FrontendLoggingFilter, MicroserviceFilterSupport}
 @Singleton
 class LocalLoggingFilter @Inject()(val config: Configuration)

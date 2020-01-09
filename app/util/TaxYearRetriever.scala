@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package util
 
 import com.google.inject.ImplementedBy
 import org.joda.time.DateTime
-import uk.gov.hmrc.time.{CurrentTaxYear, TaxYear}
+import uk.gov.hmrc.time.CurrentTaxYear
 
 @ImplementedBy(classOf[TaxYearRetrieverImpl])
 trait TaxYearRetriever {

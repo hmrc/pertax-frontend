@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,116 +16,81 @@
 
 package controllers
 
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import models.UserDetails
-import org.mockito.Matchers.{eq => meq, _}
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
+import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.Application
-import play.api.inject._
+import play.api.i18n.MessagesApi
+import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
-import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel
-import uk.gov.hmrc.play.frontend.filters.{CookieCryptoFilter, SessionCookieCryptoFilter}
+import services.partials.PreferencesFrontendPartialService
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.Fixtures._
-import util.{BaseSpec, LocalPartialRetriever}
+import uk.gov.hmrc.renderer.TemplateRenderer
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PaperlessPreferencesControllerSpec extends BaseSpec {
+class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[CitizenDetailsService].toInstance(MockitoSugar.mock[CitizenDetailsService]))
-    .overrides(bind[PertaxAuthConnector].toInstance(MockitoSugar.mock[PertaxAuthConnector]))
-    .overrides(bind[PertaxAuditConnector].toInstance(MockitoSugar.mock[PertaxAuditConnector]))
-    .overrides(bind[FrontEndDelegationConnector].toInstance(MockitoSugar.mock[FrontEndDelegationConnector]))
-    .overrides(bind[PreferencesFrontendService].toInstance(MockitoSugar.mock[PreferencesFrontendService]))
-    .overrides(bind[PreferencesFrontendPartialService].toInstance(MockitoSugar.mock[PreferencesFrontendPartialService]))
-    .overrides(bind[UserDetailsService].toInstance(MockitoSugar.mock[UserDetailsService]))
-    .overrides(bind[LocalPartialRetriever].toInstance(MockitoSugar.mock[LocalPartialRetriever]))
-    .overrides(bind[MessageFrontendService].toInstance(MockitoSugar.mock[MessageFrontendService]))
-    .build()
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  override def beforeEach: Unit =
-    reset(injected[PreferencesFrontendPartialService])
+  val mockPreferencesFrontendPartialService = mock[PreferencesFrontendPartialService]
+  val mockAuthJourney = mock[AuthJourney]
 
-  trait LocalSetup {
+  def controller: PaperlessPreferencesController =
+    new PaperlessPreferencesController(
+      injected[MessagesApi],
+      mockPreferencesFrontendPartialService,
+      mockAuthJourney,
+      injected[WithActiveTabAction],
+      injected[WithBreadcrumbAction]
+    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
 
-    def withPaye: Boolean
-    def withSa: Boolean
-    def confidenceLevel: ConfidenceLevel
-
-    lazy val request = buildFakeRequestWithAuth("GET")
-    lazy val verifyRequest = buildFakeRequestWithVerify("GET")
-    lazy val authority = buildFakeAuthority(withPaye, withSa, confidenceLevel)
-
-    lazy val controller = {
-
-      val c = injected[PaperlessPreferencesController]
-
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
-      when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
+      when(mockPreferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(UserDetails.GovernmentGatewayAuthProvider)))
-      }
-      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
 
-      c
     }
-
-    lazy val verifyController = {
-
-      val c = injected[PaperlessPreferencesController]
-
-      when(c.authConnector.currentAuthority(any(), any())) thenReturn {
-        Future.successful(Some(authority))
-      }
-      when(c.preferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
-      }
-      when(c.userDetailsService.getUserDetails(any())(any())) thenReturn {
-        Future.successful(Some(UserDetails(UserDetails.VerifyAuthProvider)))
-      }
-      when(injected[MessageFrontendService].getUnreadMessageCount(any())) thenReturn {
-        Future.successful(None)
-      }
-
-      c
-    }
-  }
 
   "Calling PaperlessPreferencesController.managePreferences" should {
-
     "call getManagePreferences" should {
+      "Return 200 and show messages when a user is logged in using GG" in {
 
-      "Return 200 and show messages when a user is logged in using GG" in new LocalSetup {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-        lazy val withPaye = false
-        lazy val withSa = false
-        lazy val confidenceLevel = ConfidenceLevel.L200
-
-        val r = controller.managePreferences(request)
+        val r = controller.managePreferences(FakeRequest())
         status(r) shouldBe OK
         verify(controller.preferencesFrontendPartialService, times(1)).getManagePreferencesPartial(any(), any())(any())
       }
 
-      "Return 400 for Verify users" in new LocalSetup {
+      "Return 400 for Verify users" in {
 
-        lazy val withPaye = false
-        lazy val withSa = true
-        lazy val confidenceLevel = ConfidenceLevel.L500
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              ))
+        })
 
-        val r = verifyController.managePreferences(verifyRequest)
+        val r = controller.managePreferences(FakeRequest())
         status(r) shouldBe BAD_REQUEST
       }
     }

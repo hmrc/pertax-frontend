@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package services
 
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import metrics._
 import models._
 import play.api.Mode.Mode
@@ -55,37 +55,33 @@ class CitizenDetailsService @Inject()(
   val runModeConfiguration: Configuration = configuration
   lazy val citizenDetailsUrl = baseUrl("citizen-details")
 
-  /**
-    * Gets the person details
-    */
   def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
-    withMetricsTimer("get-person-details") { t =>
+    withMetricsTimer("get-person-details") { timer =>
       simpleHttp.get[PersonDetailsResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details")(
         onComplete = {
-          case r if r.status >= 200 && r.status < 300 =>
-            t.completeTimerAndIncrementSuccessCounter()
-            PersonDetailsSuccessResponse(r.json.as[PersonDetails])
+          case response if response.status >= 200 && response.status < 300 =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            PersonDetailsSuccessResponse(response.json.as[PersonDetails])
 
-          case r if r.status == LOCKED =>
-            t.completeTimerAndIncrementFailedCounter() //TODO - check this
+          case response if response.status == LOCKED =>
+            timer.completeTimerAndIncrementFailedCounter()
             Logger.warn("Personal details record in citizen-details was hidden")
             PersonDetailsHiddenResponse
 
-          case r if r.status == NOT_FOUND =>
-            t.completeTimerAndIncrementFailedCounter()
+          case response if response.status == NOT_FOUND =>
+            timer.completeTimerAndIncrementFailedCounter()
             Logger.warn("Unable to find personal details record in citizen-details")
             PersonDetailsNotFoundResponse
 
-          case r =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting personal details record from citizen-details")
-            PersonDetailsUnexpectedResponse(r)
+          case response =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Logger.warn(s"Unexpected ${response.status} response getting personal details record from citizen-details")
+            PersonDetailsUnexpectedResponse(response)
         },
-        onError = {
-          case e =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting personal details record from citizen-details", e)
-            PersonDetailsErrorResponse(e)
+        onError = { e =>
+          timer.completeTimerAndIncrementFailedCounter()
+          Logger.warn("Error getting personal details record from citizen-details", e)
+          PersonDetailsErrorResponse(e)
         }
       )
     }
@@ -93,56 +89,54 @@ class CitizenDetailsService @Inject()(
   def updateAddress(nino: Nino, etag: String, address: Address)(
     implicit headerCarrier: HeaderCarrier): Future[UpdateAddressResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
-    withMetricsTimer("update-address") { t =>
+    withMetricsTimer("update-address") { timer =>
       simpleHttp.post[JsObject, UpdateAddressResponse](
         s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
         body)(
         onComplete = {
-          case r if r.status >= 200 && r.status < 300 =>
-            t.completeTimerAndIncrementSuccessCounter()
+          case response if response.status >= 200 && response.status < 300 =>
+            timer.completeTimerAndIncrementSuccessCounter()
             UpdateAddressSuccessResponse
 
-          case r if r.status == BAD_REQUEST =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Bad Request ${r.status} response updating address record in citizen-details")
+          case response if response.status == BAD_REQUEST =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Logger.warn(s"Bad Request ${response.status} response updating address record in citizen-details")
             UpdateAddressBadRequestResponse
 
-          case r =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response updating address record in citizen-details")
-            UpdateAddressUnexpectedResponse(r)
+          case response =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Logger.warn(s"Unexpected ${response.status} response updating address record in citizen-details")
+            UpdateAddressUnexpectedResponse(response)
         },
-        onError = {
-          case e =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error updating address record in citizen-details", e)
-            UpdateAddressErrorResponse(e)
+        onError = { e =>
+          timer.completeTimerAndIncrementFailedCounter()
+          Logger.warn("Error updating address record in citizen-details", e)
+          UpdateAddressErrorResponse(e)
         }
       )
     }
   }
 
   def getMatchingDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[MatchingDetailsResponse] =
-    withMetricsTimer("get-matching-details") { t =>
+    withMetricsTimer("get-matching-details") { timer =>
       simpleHttp.get[MatchingDetailsResponse](s"$citizenDetailsUrl/citizen-details/nino/$nino")(
         onComplete = {
-          case r if r.status >= 200 && r.status < 300 =>
-            t.completeTimerAndIncrementSuccessCounter()
-            MatchingDetailsSuccessResponse(MatchingDetails.fromJsonMatchingDetails(r.json))
-          case r if r.status == NOT_FOUND =>
-            t.completeTimerAndIncrementFailedCounter()
+          case response if response.status >= 200 && response.status < 300 =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            MatchingDetailsSuccessResponse(MatchingDetails.fromJsonMatchingDetails(response.json))
+          case response if response.status == NOT_FOUND =>
+            timer.completeTimerAndIncrementFailedCounter()
             Logger.warn("Unable to find matching details in citizen-details")
             MatchingDetailsNotFoundResponse
-          case r =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting matching details from citizen-details")
-            MatchingDetailsUnexpectedResponse(r)
+          case response =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Logger.warn(s"Unexpected ${response.status} response getting matching details from citizen-details")
+            MatchingDetailsUnexpectedResponse(response)
         },
-        onError = {
-          case e =>
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting matching details from citizen-details", e)
-            MatchingDetailsErrorResponse(e)
+        onError = { e =>
+          timer.completeTimerAndIncrementFailedCounter()
+          Logger.warn("Error getting matching details from citizen-details", e)
+          MatchingDetailsErrorResponse(e)
         }
       )
     }

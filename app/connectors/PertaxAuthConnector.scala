@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,18 @@
 
 package connectors
 
-import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Environment}
+import com.google.inject.{Inject, Singleton}
 import play.api.Mode.Mode
-import services.http.WsAllMethods
+import play.api.{Configuration, Environment}
+import services.http.WSHttp
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+
 @Singleton
-class PertaxAuthConnector @Inject()(
-  environment: Environment,
-  configuration: Configuration,
-  override val http: WsAllMethods)
-    extends AuthConnector with ServicesConfig {
-  val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
-  override lazy val serviceUrl = baseUrl("auth")
+class PertaxAuthConnector @Inject()(val http: WSHttp, environment: Environment, val runModeConfiguration: Configuration)
+    extends PlayAuthConnector with ServicesConfig {
+
+  val serviceUrl: String = baseUrl("auth")
+
+  override protected def mode: Mode = environment.mode
 }

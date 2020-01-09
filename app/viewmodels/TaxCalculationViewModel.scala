@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package viewmodels
 import config.ConfigDecorator
 import models.OverpaidStatus._
 import models.UnderpaidStatus._
-import models.{Balanced, BalancedNoEmployment, NotReconciled, Overpaid, Reconciliation, TaxYearReconciliation, Underpaid}
+import models._
 import viewmodels.Message.text
 
 case class TaxCalculationViewModel(
@@ -216,7 +216,7 @@ object TaxCalculationViewModel {
 
   private val otherViewModels: PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
-    case (Balanced, taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (Balanced | OverpaidTolerance | UnderpaidTolerance, taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(

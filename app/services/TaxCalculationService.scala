@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
+import com.google.inject.{Inject, Singleton}
 import metrics._
-import models.{NotReconciled, TaxCalculation, TaxYearReconciliation}
-import play.api.{Configuration, Environment, Logger}
+import models.{TaxCalculation, TaxYearReconciliation}
 import play.api.Mode.Mode
 import play.api.http.Status._
+import play.api.{Configuration, Environment, Logger}
 import services.http.{SimpleHttp, WsAllMethods}
 import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-
 import scala.util.control.NonFatal
 
 sealed trait TaxCalculationResponse
@@ -45,7 +44,6 @@ class TaxCalculationService @Inject()(
   val metrics: Metrics,
   val http: WsAllMethods)(implicit ec: ExecutionContext)
     extends ServicesConfig with HasMetrics {
-
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   lazy val taxCalcUrl = baseUrl("taxcalc")
@@ -83,15 +81,13 @@ class TaxCalculationService @Inject()(
       )
     }
 
-  def getTaxYearReconciliations(nino: Nino, startYear: Int, endYear: Int)(
+  def getTaxYearReconciliations(nino: Nino)(
     implicit headerCarrier: HeaderCarrier): Future[List[TaxYearReconciliation]] =
     http
-      .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/$startYear/$endYear/reconciliations")
+      .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/reconciliations")
       .recover {
         case NonFatal(e) =>
           Logger.debug(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
-          (startYear to endYear).toList map {
-            TaxYearReconciliation(_, NotReconciled)
-          }
+          Nil
       }
 }

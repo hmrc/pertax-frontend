@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,259 +17,274 @@
 package controllers.helpers
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models._
-import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
-import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
-import org.joda.time.LocalDate
+import org.joda.time.DateTime
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.SaUtr
-import util.{BaseSpec, DateTimeTools, Fixtures}
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import viewmodels.TaxCalculationViewModel
+import util.UserRequestFixture.buildUserRequest
+import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.home._
 
-class HomeCardGeneratorSpec extends BaseSpec {
+class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar {
 
-  trait SpecSetup extends I18nSupport {
+  override def messagesApi: MessagesApi = injected[MessagesApi]
+  implicit val configDecorator = config
 
-    override def messagesApi: MessagesApi = injected[MessagesApi]
-
-    val serviceUnderTest = new HomeCardGenerator()(configDecorator = injected[ConfigDecorator])
-  }
+  val homeCardGenerator = new HomeCardGenerator()
 
   "Calling getPayAsYouEarnCard" should {
+    "return nothing when called with no Pertax user" in {
 
-    trait LocalSetup extends SpecSetup {
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        nino = None,
+        saUser = NonFilerSelfAssessmentUser,
+        confidenceLevel = ConfidenceLevel.L50,
+        personDetails = None,
+        request = FakeRequest()
+      )
 
-      def hasPertaxUser: Boolean
-      def isPayeUser: Boolean
-      def taxComponentsState: TaxComponentsState
-
-      lazy val pertaxUser: Option[PertaxUser] =
-        if (hasPertaxUser)
-          Some(
-            PertaxUser(
-              Fixtures.buildFakeAuthContext(withPaye = isPayeUser),
-              UserDetails(UserDetails.GovernmentGatewayAuthProvider),
-              None,
-              true))
-        else
-          None
-
-      lazy val cardBody = serviceUnderTest.getPayAsYouEarnCard(pertaxUser, taxComponentsState)
-    }
-
-    "return nothing when called with no Pertax user" in new LocalSetup {
-      val hasPertaxUser = false
-      val isPayeUser = false
-      val taxComponentsState = TaxComponentsUnreachableState
-
-      cardBody shouldBe None
-
-    }
-
-    "return nothing when called with a Pertax user that is not PAYE" in new LocalSetup {
-      val hasPertaxUser = true
-      val isPayeUser = false
-      val taxComponentsState = TaxComponentsUnreachableState
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody shouldBe None
     }
 
-    "return no content when called with with a Pertax user that is PAYE but has no tax summary" in new LocalSetup {
-      val hasPertaxUser = true
-      val isPayeUser = true
-      val taxComponentsState = TaxComponentsNotAvailableState
+    "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
 
       cardBody shouldBe None
     }
 
-    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but there was an error calling the endpoint" in new LocalSetup {
-      val hasPertaxUser = true
-      val isPayeUser = true
-      val taxComponentsState = TaxComponentsUnreachableState
+    "return the static version of the markup (no card actions) when called with with a user that is PAYE but there was an error calling the endpoint" in {
 
-      cardBody shouldBe Some(payAsYouEarn())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
+
+      cardBody shouldBe Some(payAsYouEarn(config))
     }
 
-    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in new LocalSetup {
-      val hasPertaxUser = true
-      val isPayeUser = true
-      val taxComponentsState = TaxComponentsDisabledState
+    "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in {
 
-      cardBody shouldBe Some(payAsYouEarn())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
+
+      cardBody shouldBe Some(payAsYouEarn(config))
     }
 
-    "return correct markup when called with with a Pertax user that is PAYE" in new LocalSetup {
-      val hasPertaxUser = true
-      val isPayeUser = true
-      val taxComponentsState = TaxComponentsAvailableState(Fixtures.buildTaxComponents)
+    "return correct markup when called with with a Pertax user that is PAYE" in {
 
-      cardBody shouldBe Some(payAsYouEarn())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody =
+        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
+
+      cardBody shouldBe Some(payAsYouEarn(config))
     }
   }
 
   "Calling getSelfAssessmentCard" should {
+    val taxYear = "1819"
+    val nextDeadlineTaxYear = 2019
 
-    trait LocalSetup extends SpecSetup {
-
-      lazy val configDecorator = {
-        val cd = MockitoSugar.mock[ConfigDecorator]
-        when(cd.completeYourTaxReturnUrl(any(), any(), any())).thenReturn("/submit/your/return/url")
-
-        cd
-      }
-
-      implicit lazy val pertaxContext =
-        PertaxContext(FakeRequest(), mockLocalPartialRetreiver, configDecorator, pertaxUser)
-
-      def saUserType: SelfAssessmentUserType
-      val taxYear = "1718"
-      val nextDeadlineTaxYear = 2019
-
-      lazy val pertaxUser = Some(
-        PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.GovernmentGatewayAuthProvider), None, true))
-
-      lazy val cardBody = serviceUnderTest.getSelfAssessmentCard(saUserType, nextDeadlineTaxYear)
-    }
-
-    "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
-
+    "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
-    "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in new LocalSetup {
-
+    "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
-    "return correct markup when called with AmbiguousFilerSelfAssessmentUser" in new LocalSetup {
+    "return correct markup when called with WrongCredentialsSelfAssessmentUser" in {
+      val saUserType = WrongCredentialsSelfAssessmentUser(SaUtr("1111111111"))
 
-      val saUserType = AmbiguousFilerSelfAssessmentUser(SaUtr("1111111111"))
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
-    "return nothing when called with NonFilerSelfAssessmentUser" in new LocalSetup {
+    "return correct markup when called with NotEnrolledSelfAssessmentUser" in {
+      val saUserType = NotEnrolledSelfAssessmentUser(SaUtr("1111111111"))
 
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+
+      cardBody shouldBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
+    }
+
+    "return nothing when called with NonFilerSelfAssessmentUser" in {
       val saUserType = NonFilerSelfAssessmentUser
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe None
     }
 
-    "return nothing for a verify user" in new LocalSetup {
+    "return nothing for a verify user" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
-      override lazy val pertaxUser =
-        Some(PertaxUser(Fixtures.buildFakeAuthContext(), UserDetails(UserDetails.VerifyAuthProvider), None, true))
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+        saUser = saUserType,
+        credentials = Credentials("", "Verify"),
+        confidenceLevel = ConfidenceLevel.L500,
+        request = FakeRequest()
+      )
+
+      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody shouldBe None
     }
   }
 
   "Calling getNationalInsuranceCard" should {
+    "always return the same markup" in {
 
-    trait LocalSetup extends SpecSetup {
-
-      lazy val cardBody = serviceUnderTest.getNationalInsuranceCard()
-    }
-
-    "always return the same markup" in new LocalSetup {
+      lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
 
       cardBody shouldBe Some(nationalInsurance())
     }
   }
 
   "Calling getTaxCreditsCard" should {
+    "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in {
+      lazy val showTaxCreditsPaymentLink = true
 
-    trait LocalSetup extends SpecSetup {
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
 
-      def showTaxCreditsPaymentLink: Boolean
-      lazy val cardBody = serviceUnderTest.getTaxCreditsCard(showTaxCreditsPaymentLink)
-    }
-
-    "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in new LocalSetup {
-      override lazy val showTaxCreditsPaymentLink = true
       cardBody shouldBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
 
-    "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in new LocalSetup {
-      override lazy val showTaxCreditsPaymentLink = false
+    "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
+      lazy val showTaxCreditsPaymentLink = false
+
+      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
+
       cardBody shouldBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
   }
 
   "Calling getChildBenefitCard" should {
+    "always return the same markup" in {
 
-    trait LocalSetup extends SpecSetup {
-
-      lazy val cardBody = serviceUnderTest.getChildBenefitCard()
-    }
-
-    "always return the same markup" in new LocalSetup {
+      lazy val cardBody = homeCardGenerator.getChildBenefitCard()
 
       cardBody shouldBe Some(childBenefit())
     }
   }
 
   "Calling getMarriageAllowanceCard" should {
-
-    trait LocalSetup extends SpecSetup {
-
-      def hasTaxComponents: Boolean
-      def taxComponents: Seq[String]
+    "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in {
+      val hasTaxComponents: Boolean = true
+      val taxComponents = Seq("MarriageAllowanceReceived")
 
       lazy val tc =
         if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
 
-      lazy val cardBody = serviceUnderTest.getMarriageAllowanceCard(tc)
-    }
-
-    "return correct markup when called with a user who has tax summary and receives Marriage Allowance" in new LocalSetup {
-      override val hasTaxComponents: Boolean = true
-      override val taxComponents = Seq("MarriageAllowanceReceived")
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
 
-    "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in new LocalSetup {
-      override val hasTaxComponents: Boolean = true
-      override val taxComponents = Seq("MarriageAllowanceTransferred")
+    "return nothing when called with a user who has tax summary and transfers Marriage Allowance" in {
+      val hasTaxComponents: Boolean = true
+      val taxComponents = Seq("MarriageAllowanceTransferred")
+
+      lazy val tc =
+        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
 
-    "return correct markup when called with a user who has no tax summary" in new LocalSetup {
+    "return correct markup when called with a user who has no tax summary" in {
+      val hasTaxComponents = false
+      val taxComponents = Seq()
 
-      override val hasTaxComponents = false
-      override val taxComponents = Seq()
+      lazy val tc =
+        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
 
-    "return correct markup when called with a user who has tax summary but no marriage allowance" in new LocalSetup {
+    "return correct markup when called with a user who has tax summary but no marriage allowance" in {
+      val hasTaxComponents = true
+      val taxComponents = Seq("MedicalInsurance")
 
-      override val hasTaxComponents = true
-      override val taxComponents = Seq("MedicalInsurance")
+      lazy val tc =
+        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+
+      lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
       cardBody shouldBe Some(marriageAllowance(tc))
     }
   }
 
   "Calling getStatePensionCard" should {
+    "always return the same markup" in {
 
-    trait LocalSetup extends SpecSetup {
-
-      lazy val cardBody = serviceUnderTest.getStatePensionCard()
-    }
-
-    "always return the same markup" in new LocalSetup {
+      lazy val cardBody = homeCardGenerator.getStatePensionCard()
 
       cardBody shouldBe Some(statePension())
     }

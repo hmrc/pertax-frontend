@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,9 @@ import org.joda.time.LocalDate
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, Json}
+import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HttpResponse
@@ -93,7 +92,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
     }
   }
 
-  "Calling CitizenDetailsService.personDetails" should {
+  "Calling CitizenDetailsService.fakePersonDetails" should {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-person-details"
@@ -120,6 +119,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       val r = service.personDetails(nino)
 
       await(r) shouldBe PersonDetailsNotFoundResponse
+
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()

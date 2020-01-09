@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
+import com.google.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import play.api.{Configuration, Environment, Logger}
 import play.api.Mode.Mode
 import play.api.http.Status._
+import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 trait IdentityVerificationResponse
 case class IdentityVerificationSuccessResponse(result: String) extends IdentityVerificationResponse
@@ -55,7 +55,7 @@ class IdentityVerificationFrontendService @Inject()(
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  lazy val identityVerificationFrontendUrl = baseUrl("identity-verification-frontend")
+  lazy val identityVerificationFrontendUrl: String = baseUrl("identity-verification-frontend")
 
   def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
     withMetricsTimer("get-iv-journey-status") { t =>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,17 @@
 
 package views.html
 
-import config.ConfigDecorator
-import models.PertaxContext
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import play.api.i18n.{Lang, Messages}
-import play.api.i18n.MessagesApi
-import play.api.test.FakeRequest
+import play.api.i18n.{Lang, Messages, MessagesApi}
 import util.BaseSpec
 
 trait ViewSpec extends BaseSpec {
 
   val messages: Messages = Messages(Lang("en"), app.injector.instanceOf[MessagesApi])
 
-  val pertaxContext = PertaxContext(FakeRequest("", ""), mockLocalPartialRetreiver, injected[ConfigDecorator])
+  val welshMessages: Messages = Messages(Lang("cy"), app.injector.instanceOf[MessagesApi])
 
   def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")

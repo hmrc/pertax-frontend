@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 
 package util
 
-import java.io
-
-import play.api.Logger
-import play.api.data.{FieldMapping, FormError}
 import play.api.data.Forms._
 import play.api.data.format.Formatter
-import play.api.i18n.Messages
-import uk.gov.hmrc.play.validators._
+import play.api.data.{FieldMapping, FormError}
 
 object PertaxValidators {
 
@@ -36,7 +31,7 @@ object PertaxValidators {
         val anyCheckedFieldContainsData =
           fieldsToCheck.foldLeft[Boolean](false)((dataFound, rf) => dataFound || !formData.getOrElse(rf, "").isEmpty)
         if (anyCheckedFieldContainsData) Seq(FormError(key, s"error.${key}_required")) else Nil
-      case v =>
+      case _ =>
         Nil
     }
 

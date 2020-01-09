@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,12 @@ import com.kenshoo.play.metrics.Metrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.Json
+import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
-import uk.gov.hmrc.domain.Nino
-import util.{BaseSpec, Fixtures}
 import uk.gov.hmrc.http.HttpResponse
+import util.{BaseSpec, Fixtures}
 
 class LifetimeAllowanceServiceSpec extends BaseSpec {
 

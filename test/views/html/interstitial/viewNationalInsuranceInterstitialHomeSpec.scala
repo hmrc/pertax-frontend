@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,45 +17,70 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
-import models.PertaxContext
+import controllers.auth.requests.UserRequest
+import models.NonFilerSelfAssessmentUser
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 
-class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec {
+class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSugar {
 
-  val messages = Messages.Implicits.applicationMessages
+  override implicit lazy val app = localGuiceApplicationBuilder().build()
+
+  implicit val messages = Messages.Implicits.applicationMessages
+  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   "Rendering viewNationalInsuranceInterstitialHome.scala.html" should {
 
     "show NINO section when user is High GG and with Paye" in {
-      val pertaxUser = Fixtures.buildFakePertaxUser(withPaye = true, isGovernmentGateway = true, isHighGG = true)
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        None,
+        None,
+        NonFilerSelfAssessmentUser,
+        Credentials("", "GovernmentGateway"),
+        ConfidenceLevel.L200,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest()
+      )
       val document = Jsoup.parse(
         views.html.interstitial
-          .viewNationalInsuranceInterstitialHome(Html(""), "asfa")(
-            PertaxContext(
-              FakeRequest("GET", "/test"),
-              mockLocalPartialRetreiver,
-              injected[ConfigDecorator],
-              Some(pertaxUser)),
-            messages)
+          .viewNationalInsuranceInterstitialHome(Html(""), "asfa")
           .toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 
     "show NINO section when user is Verify (not GG) and not SA" in {
-      val pertaxUser = Fixtures.buildFakePertaxUser(withSa = false, isGovernmentGateway = false)
+      implicit val userRequest = UserRequest(
+        Some(Fixtures.fakeNino),
+        None,
+        None,
+        NonFilerSelfAssessmentUser,
+        Credentials("", "Verify"),
+        ConfidenceLevel.L500,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest()
+      )
       val document = Jsoup.parse(
         views.html.interstitial
-          .viewNationalInsuranceInterstitialHome(Html(""), "aas")(
-            PertaxContext(
-              FakeRequest("GET", "/test"),
-              mockLocalPartialRetreiver,
-              injected[ConfigDecorator],
-              Some(pertaxUser)),
-            messages)
+          .viewNationalInsuranceInterstitialHome(Html(""), "aas")
           .toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }

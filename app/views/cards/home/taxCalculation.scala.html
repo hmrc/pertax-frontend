@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,32 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.language.LanguageUtils
+@import config.ConfigDecorator
 @import tags._
-@import util.LanguageHelper
+@import viewmodels.{Link, TaxCalculationViewModel}
 @import views.util.ViewUtils._
 
-@import config.ConfigDecorator
-@import viewmodels.Link
-@import viewmodels.TaxCalculationViewModel
-@(viewModel: TaxCalculationViewModel)(
-implicit messages: play.api.i18n.Messages,
-pertaxContext: PertaxContext,
-configDecorator: ConfigDecorator)
+@(viewModel: TaxCalculationViewModel)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
-@card(
-    id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),
-    url = Some(fromUrl(viewModel.heading.url)),
-    gaAction = Some("Income"),
-    gaLabel = Some(fromMessage(viewModel.heading.label)),
-    heading = fromMessage(viewModel.heading.label),
-    headingTag = "h3",
-    bodyContent = Some(Html(viewModel.content.map(content => s"<p>${fromMessage(content)}</p>").mkString))
-) {
-    @if(viewModel.links.nonEmpty) {
-      <ul>
-      @viewModel.links.map { case Link(label, url, trackingLabel) =>
-      <li>
-          <a class="ga-track-anchor-click" href="@fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
-            @fromMessage(label)
-        </a>
-      </li>
-      }
-      </ul>
+    @card(
+        id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),
+        url = Some(fromUrl(viewModel.heading.url)),
+        gaAction = Some("Income"),
+        gaLabel = Some(fromMessage(viewModel.heading.label)),
+        heading = fromMessage(viewModel.heading.label),
+        headingTag = "h3",
+        bodyContent = Some(Html(viewModel.content.map(content => s"<p>${fromMessage(content)}</p>").mkString))
+    ) {
+        @if(viewModel.links.nonEmpty) {
+            <ul>
+            @viewModel.links.map { case Link(label, url, trackingLabel) =>
+            <li>
+                <a class="ga-track-anchor-click" href="@fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
+                @fromMessage(label)
+            </a>
+            </li>
+            }
+            </ul>
+        }
     }
-}
 

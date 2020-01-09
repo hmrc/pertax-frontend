@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,42 +14,51 @@
  * limitations under the License.
  *@
 
-@(field: play.api.data.Field, elementOptions: Seq[(String, String)], displayEmptyValue: Boolean, args: (Symbol,Any)*)(implicit messages: Messages)
-
-@import play.api.i18n._
 @import views.html.helper._
 
-@elements = @{ new FieldElements(field.id, field, null, args.toMap, messages) }
+@(field: play.api.data.Field, elementOptions: Seq[(String, String)], displayEmptyValue: Boolean, args: (Symbol, Any)*)(implicit messages: Messages)
 
-@value = @{ field.value match { case Some(x) => x case None => "" case x => x }}
+@elements = @{
+    new FieldElements(field.id, field, null, args.toMap, messages)
+}
 
+@value = @{
+    field.value match {
+        case Some(x) => x
+        case None => ""
+        case x => x
+    }
+}
 
-<div class="@if(elements.hasErrors){ form-group-error }">
+<div class="@if(elements.hasErrors) { form-group-error }">
 
     <label for="@elements.field.name" class="@elements.args.get('_labelClass) @elements.args.get('_groupClass)">
-    <span class="label__text">
+        <span class="label__text">
         @elements.label
-    </span>
+        </span>
     </label>
 
-    @if(elements.args.contains('_additionalTitleText)){<p>@elements.args.get('_additionalTitleText)</p>}
-    @if(elements.args.contains('_errorsAboveInput)){
-    @elements.errors.map { error => <span style="display: block" class="error-message">@Messages(error)</span>}
+    @if(elements.args.contains('_additionalTitleText)) {
+        <p>@elements.args.get('_additionalTitleText)</p>
+    }
+    @if(elements.args.contains('_errorsAboveInput)) {
+        @elements.errors.map { error => <span style="display: block" class="error-message">@messages(error)</span> }
     }
     <select id="@elements.field.name" name="@elements.field.name" class="@elements.args.get('_selectClass)">
         @if(displayEmptyValue) {
-        <option value="">@elements.args.get('_emptyValueText)</option>
+            <option value="">@elements.args.get('_emptyValueText)</option>
         }
         @for(option <- elementOptions) {
-        <option
-                id="@elements.field.name-@option._1"
-                value="@option._1"
-                @if(value==option._1){selected="selected"}
-        >@option._2</option>
+            <option
+            id="@elements.field.name-@option._1"
+            value="@option._1"
+                @if(value == option._1) {
+                    selected="selected"}
+            >@option._2</option>
         }
     </select>
-    @if(!elements.args.contains('_errorsAboveInput)){
-    @elements.errors.map { error => <span style="display: block" class="error-notification">@Messages(error)</span>}
+    @if(!elements.args.contains('_errorsAboveInput)) {
+        @elements.errors.map { error => <span style="display: block" class="error-notification">@messages(error)</span> }
     }
 
 </div>

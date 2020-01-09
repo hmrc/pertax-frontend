@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,42 +18,53 @@ package error
 
 import akka.stream.Materializer
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, PertaxRegime}
-import javax.inject.{Inject, Singleton}
+import controllers.auth.AuthJourney
+import com.google.inject.{Inject, Singleton}
 import play.api.http.HttpErrorHandler
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
-import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, UserDetailsService}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+
+import scala.concurrent.Future
+
 @Singleton
 class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
-  val userDetailsService: UserDetailsService,
-  val citizenDetailsService: CitizenDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val partialRetriever: LocalPartialRetriever,
+  val materializer: Materializer,
+  authJourney: AuthJourney
+)(
+  implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val pertaxRegime: PertaxRegime,
-  val delegationConnector: FrontEndDelegationConnector,
-  val authConnector: PertaxAuthConnector,
-  val materializer: Materializer
-) extends HttpErrorHandler with AuthorisedActions with I18nSupport {
+  val templateRenderer: TemplateRenderer)
+    extends HttpErrorHandler with I18nSupport with RendersErrors {
 
-  def onClientError(request: RequestHeader, statusCode: Int, message: String) =
-    if (statusCode == BAD_REQUEST || statusCode == NOT_FOUND) {
-      AuthorisedAction() { implicit pertaxContext =>
-        futureError(statusCode)
-      }.apply(request).run()(materializer)
+  def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
+    if (statusCode == BAD_REQUEST) {
+      authJourney.authWithPersonalDetails
+        .async { implicit request =>
+          futureError(statusCode)
+        }
+        .apply(request)
+        .run()(materializer)
+    } else if (statusCode == NOT_FOUND) {
+      authJourney.authWithPersonalDetails
+        .async { implicit request =>
+          notFoundFutureError
+        }
+        .apply(request)
+        .run()(materializer)
     } else {
-      PublicAction { implicit pertaxContext =>
-        futureError(statusCode)
-      }.apply(request).run()(materializer)
+      Action
+        .async { implicit request =>
+          unauthenticatedFutureError(statusCode)
+        }
+        .apply(request)
+        .run()(materializer)
     }
 
-  def onServerError(request: RequestHeader, exception: Throwable) =
+  def onServerError(request: RequestHeader, exception: Throwable): Future[Result] =
     onClientError(request, INTERNAL_SERVER_ERROR, "")
 
 }

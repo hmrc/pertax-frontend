@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 
+case class TaxCreditsChoiceDto(value: Boolean)
+
 object TaxCreditsChoiceDto {
 
   implicit val formats = Json.format[TaxCreditsChoiceDto]
@@ -32,5 +34,3 @@ object TaxCreditsChoiceDto {
     )(TaxCreditsChoiceDto.apply)(TaxCreditsChoiceDto.unapply)
   )
 }
-
-case class TaxCreditsChoiceDto(value: Boolean)

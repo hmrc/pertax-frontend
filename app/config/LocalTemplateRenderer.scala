@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,19 @@
 
 package config
 
-import javax.inject.Inject
-import play.api.{Configuration, Environment}
+import com.google.inject.Inject
 import play.api.Mode.Mode
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.renderer.TemplateRenderer
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
-class LocalTemplateRenderer @Inject()(environment: Environment, configuration: Configuration, wsHttp: WsAllMethods)
+class LocalTemplateRenderer @Inject()(environment: Environment, configuration: Configuration, wsHttp: WsAllMethods)(
+  implicit executionContext: ExecutionContext)
     extends TemplateRenderer with ServicesConfig {
 
   val mode: Mode = environment.mode
@@ -37,7 +38,6 @@ class LocalTemplateRenderer @Inject()(environment: Environment, configuration: C
     runModeConfiguration.getInt("template.refreshInterval").getOrElse(600) seconds
 
   private implicit val hc = HeaderCarrier()
-  import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
   override def fetchTemplate(path: String): Future[String] =
     wsHttp.GET(path).map(_.body)

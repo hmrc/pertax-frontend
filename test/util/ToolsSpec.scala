@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 package util
 
-import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.crypto.ApplicationCrypto
 
-class ToolsSpec extends BaseSpec with OneAppPerSuite {
+class ToolsSpec extends BaseSpec {
 
   val tools = new Tools(injected[ApplicationCrypto])
 

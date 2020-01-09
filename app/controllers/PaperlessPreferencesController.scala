@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,52 +17,47 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, PertaxRegime}
-import error.LocalErrorHandler
-import javax.inject.Inject
+import controllers.auth._
+import controllers.auth.requests.UserRequest
+import com.google.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.partials.{MessageFrontendService, PreferencesFrontendPartialService}
-import services.{CitizenDetailsService, PreferencesFrontendService, UserDetailsService}
-import uk.gov.hmrc.renderer.ActiveTabYourAccount
+import services.partials.PreferencesFrontendPartialService
+import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 class PaperlessPreferencesController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
-  val preferencesFrontendService: PreferencesFrontendService,
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
-  val localErrorHandler: LocalErrorHandler
-) extends PertaxBaseController with AuthorisedActions {
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction,
+  withBreadcrumbAction: WithBreadcrumbAction)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
+    extends PertaxBaseController {
 
-  def managePreferences: Action[AnyContent] = VerifiedAction(baseBreadcrumb, activeTab = Some(ActiveTabYourAccount)) {
-    implicit pertaxContext =>
-      pertaxContext.authProvider match {
-        case Some("IDA") =>
+  def managePreferences: Action[AnyContent] =
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction
+      .addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+      implicit request: UserRequest[_] =>
+        if (request.isVerify) {
           Future.successful(
             BadRequest(
               views.html.error(
                 "global.error.BadRequest.title",
                 Some("global.error.BadRequest.heading"),
-                Some("global.error.BadRequest.message"))))
-        case _ =>
-          showingWarningIfWelsh { implicit pertaxContext =>
-            for {
-              managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(
-                                     configDecorator.pertaxFrontendHomeUrl,
-                                     Messages("label.back_to_account_home"))
-            } yield {
-              Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
-            }
+                List("global.error.BadRequest.message"))))
+        } else {
+          for {
+            managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(
+                                   configDecorator.pertaxFrontendHomeUrl,
+                                   Messages("label.back_to_account_home"))
+          } yield {
+            Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
           }
-      }
-  }
+        }
+    }
 }

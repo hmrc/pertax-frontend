@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,48 +14,53 @@
  * limitations under the License.
  *@
 
-@(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto], displayDateAddressChanged: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
-
 @import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 @import scala.util.Try
 @import util.LanguageHelper
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
+@import uk.gov.hmrc.renderer.TemplateRenderer
 
+@(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
+displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(title = Messages("label.check_your_details"),
-  pageName = Some(Messages("label.your_personal_tax_account"))
+@main(title = messages("label.check_your_details"),
+  pageName = Some(messages("label.your_personal_tax_account"))
 ) {
     @back_link()
 
   <div class="grid-row">
     <div class="column-two-thirds">
       <header class="page-heading">
-        <h1 class="heading-xlarge">@Messages("label.check_your_details")</h1>
+        <h1 class="heading-xlarge">@messages("label.check_your_details")</h1>
       </header>
 
       <dl class="govuk-check-your-answers cya-questions-short form-group">
         <div>
           <dt class="cya-question">
-            @Messages("label.do_you_live_in_the_uk")
+            @messages("label.do_you_live_in_the_uk")
           </dt>
-          <dd class="cya-answer">@Messages(doYouLiveInTheUK)</dd>
-          <dd class="cya-change"><a href="@controllers.routes.AddressController.internationalAddressChoice(typ)">@Messages("label.change")</a></dd>
+          <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
+          <dd class="cya-change"><a href="@controllers.routes.AddressController.internationalAddressChoice(typ)">@messages("label.change")</a></dd>
         </div>
         <div>
           <dt class="cya-question">
             @typ.ifIs(
               primary = {
-                {Messages("label.your_main_home")}
+                {messages("label.your_main_home")}
               },
               sole = {
               if(displayDateAddressChanged) {
-                {Messages("label.your_new_address")}
+                {messages("label.your_new_address")}
               } else {
-                {Messages("label.your_address")}
+                {messages("label.your_address")}
               }},
               postal = {
-                {Messages("label.your_new_postal_address")}
+                {messages("label.your_new_postal_address")}
               }
             )
           </dt>
@@ -64,12 +69,12 @@
 
             <dd class="cya-answer">@Html(addressDto.toList.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@Messages("label.change_address")</a></dd>
+            <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.change_address")</a></dd>
             } else {
 
             <dd class="cya-answer">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateInternationalAddressForm(typ)">@Messages("label.change")</a></dd>
+            <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateInternationalAddressForm(typ)">@messages("label.change")</a></dd>
             }
 
         </div>
@@ -77,17 +82,17 @@
             <div>
               @startDateDto.map { startDateDto =>
                 <dt class="cya-question">
-                  @typ.ifIs(primary = Messages("label.when_this_became_your_main_home"), sole = Messages("label.when_you_started_living_here"), postal = "")
+                  @typ.ifIs(primary = messages("label.when_this_became_your_main_home"), sole = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
                 <dd class="cya-answer">@LanguageHelper.langUtils.Dates.formatDate(startDateDto.startDate)</dd>
-                <dd class="cya-change"><a href="@controllers.routes.AddressController.enterStartDate(typ)">@Messages("label.change")</a></dd>
+                <dd class="cya-change"><a href="@controllers.routes.AddressController.enterStartDate(typ)">@messages("label.change")</a></dd>
               }
             </div>
           }
       </dl>
 
       @form(controllers.routes.AddressController.submitChanges(typ)) {
-        <button type="submit">@Messages("label.confirm_and_save")</button>
+        <button type="submit">@messages("label.confirm_and_save")</button>
       }
     </div>
   </div>

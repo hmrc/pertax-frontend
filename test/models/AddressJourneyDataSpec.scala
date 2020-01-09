@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,14 @@ class AddressJourneyDataSpec extends BaseSpec {
   "Calling getAddressToDisplay " should {
 
     "return none when there is no address journey data" in {
-      val journeyData = AddressJourneyData(None, None, None, None, None, None, None, false)
+      val journeyData = AddressJourneyData(None, None, None, None, None, None, None, None, false)
       val result = journeyData.getAddressToDisplay
       result shouldBe None
     }
 
     "return selected Address record when there is only a selected Address in the journey data" in {
-      val journeyData = AddressJourneyData(None, None, None, Some(fakeStreetPafAddressRecord), None, None, None, false)
+      val journeyData =
+        AddressJourneyData(None, None, None, None, Some(fakeStreetPafAddressRecord), None, None, None, false)
       val result = journeyData.getAddressToDisplay
       val selectedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result shouldBe Some(selectedAddress)
@@ -40,6 +41,7 @@ class AddressJourneyDataSpec extends BaseSpec {
     "return submitted Address record when there is only a submitted Address in the journey data" in {
 
       val journeyData = AddressJourneyData(
+        None,
         None,
         None,
         None,
@@ -56,6 +58,7 @@ class AddressJourneyDataSpec extends BaseSpec {
     "return submitted Address record when there is a selected and submitted Address in the journey data" in {
 
       val journeyData = AddressJourneyData(
+        None,
         None,
         None,
         None,

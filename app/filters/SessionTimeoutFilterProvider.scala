@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package filters
 
-import javax.inject.{Inject, Provider, Singleton}
-
-import org.joda.time.Duration
+import com.google.inject.{Inject, Provider, Singleton}
 import play.api.mvc.Request
 import play.api.{Application, Configuration}
 import play.twirl.api.Html

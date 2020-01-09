@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package filters
 
-import javax.inject.Inject
-
 import com.kenshoo.play.metrics.MetricsFilter
+import com.google.inject.Inject
 import play.api.http.DefaultHttpFilters
 import play.filters.csrf.CSRFFilter
 import play.filters.headers.SecurityHeadersFilter
-import uk.gov.hmrc.play.frontend.filters.{CSRFExceptionsFilter, CacheControlFilter, CookieCryptoFilter, DeviceIdFilter, HeadersFilter, SessionTimeoutFilter}
+import uk.gov.hmrc.play.frontend.filters._
 
 class LocalFilters @Inject()(
   securityHeadersFilter: SecurityHeadersFilter,

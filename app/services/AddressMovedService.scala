@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +16,37 @@
 
 package services
 
-import javax.inject.Inject
+import com.google.inject.Inject
+import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-
-sealed trait AddressChanged
-object MovedToScotland extends AddressChanged
-object MovedFromScotland extends AddressChanged
-object AnyOtherMove extends AddressChanged
 
 class AddressMovedService @Inject()(addressLookupService: AddressLookupService) {
 
   def moved(fromAddressId: String, toAddressId: String)(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext): Future[AddressChanged] =
-    for {
-      fromResponse <- addressLookupService.lookup(fromAddressId)
-      toResponse   <- addressLookupService.lookup(toAddressId)
-    } yield {
-      (fromResponse, toResponse) match {
-        case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
-          val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
-          val toSubdivision = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+    withAddressExists(fromAddressId, toAddressId) {
 
-          if (hasMovedFromScotland(fromSubdivision, toSubdivision))
-            MovedFromScotland
-          else if (hasMovedToScotland(fromSubdivision, toSubdivision))
-            MovedToScotland
-          else
+      for {
+        fromResponse <- addressLookupService.lookup(fromAddressId)
+        toResponse   <- addressLookupService.lookup(toAddressId)
+      } yield {
+        (fromResponse, toResponse) match {
+          case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
+            val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+            val toSubdivision = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+
+            if (hasMovedFromScotland(fromSubdivision, toSubdivision))
+              MovedFromScotland
+            else if (hasMovedToScotland(fromSubdivision, toSubdivision))
+              MovedToScotland
+            else
+              AnyOtherMove
+          case _ =>
             AnyOtherMove
-
-        case _ =>
-          AnyOtherMove
+        }
       }
     }
 
@@ -67,4 +65,7 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
   private def hasMovedToScotland(fromSubdivision: Option[String], toSubdivision: Option[String]): Boolean =
     !fromSubdivision.contains(scottishSubdivision) && toSubdivision.contains(scottishSubdivision)
 
+  private def withAddressExists(fromAddressId: String, toAddressId: String)(
+    f: => Future[AddressChanged]): Future[AddressChanged] =
+    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) Future.successful(AnyOtherMove) else f
 }

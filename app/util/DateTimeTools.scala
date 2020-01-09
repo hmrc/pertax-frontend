@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,15 @@
 
 package util
 
-import org.joda.time.{DateTime, _}
+import com.google.inject.{Inject, Singleton}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
+import org.joda.time.{DateTime, _}
 import play.api.Logger
 import uk.gov.hmrc.time.CurrentTaxYear
 
 import scala.util.{Failure, Success, Try}
+
+import java.time.{LocalDateTime => JavaLDT}
 
 object DateTimeTools extends CurrentTaxYear {
 
@@ -36,19 +39,13 @@ object DateTimeTools extends CurrentTaxYear {
 
   def previousAndCurrentTaxYearFromGivenYear(year: Int) = {
     def y = year
+
     (y - 1).toString.takeRight(2) + (y).toString.takeRight(2)
-  }
-
-  def showSendTaxReturnByPost = {
-
-    val start = new DateTime(s"${DateTime.now().getYear}-11-01T00:00:00Z")
-    val end = new DateTime(s"${DateTime.now().getYear + 1}-01-31T23:59:59Z")
-    !DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
   }
 
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
 
-  def short(dateTime: DateTime) = formatter("dd/MM/yyy").print(dateTime) //FIXME - remove and use LocalDate instead
+  def short(dateTime: LocalDate) = formatter("dd/MM/yyy").print(dateTime)
 
   def asHumanDateFromUnixDate(unixDate: String): String =
     Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
@@ -59,5 +56,19 @@ object DateTimeTools extends CurrentTaxYear {
       }
     }
 
+  def toPaymentDate(dateTime: JavaLDT): LocalDate =
+    new LocalDate(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+
   override def now: () => DateTime = DateTime.now
+}
+
+@Singleton
+class DateTimeTools @Inject()() {
+
+  def showSendTaxReturnByPost = {
+
+    val start = new DateTime(s"${DateTime.now().getYear}-11-01T00:00:00Z")
+    val end = new DateTime(s"${DateTime.now().getYear + 1}-01-31T23:59:59Z")
+    !DateTime.now().isAfter(start) && DateTime.now().isBefore(end)
+  }
 }

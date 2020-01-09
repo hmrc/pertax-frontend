@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
 
 package services.http
 
-import javax.inject.{Inject, Singleton}
-
+import com.google.inject.{Inject, Singleton}
 import play.api.libs.json.Writes
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-
-import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+
+import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
-class SimpleHttp @Inject()(http: WsAllMethods) {
+class SimpleHttp @Inject()(http: WsAllMethods)(implicit executionContext: ExecutionContext) {
 
   implicit val r = new HttpReads[HttpResponse] {
     override def read(method: String, url: String, response: HttpResponse): HttpResponse = response

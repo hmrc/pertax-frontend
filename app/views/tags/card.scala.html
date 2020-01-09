@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,34 +15,35 @@
  *@
 
 @(id: Option[String] = None,
-  url: Option[String] = None,
-  gaAction: Option[String] = None,
-  gaLabel: Option[String] = None,
-  heading: String,
-  headingTag: String = "h2",
-  bodyContent: Option[Html] = None
-  )(actionContent: Html)(implicit messages: play.api.i18n.Messages)
+        url: Option[String] = None,
+        gaAction: Option[String] = None,
+        gaLabel: Option[String] = None,
+        heading: String,
+        headingTag: String = "h2",
+        bodyContent: Option[Html] = None
+)(actionContent: Html)(implicit messages: play.api.i18n.Messages)
 
-<div class="card" @id.map{ i => id="@i" }>
+<div class="card" @id.map { i => id="@i" }>
 
-  <div class="card-body @if(url){active}" @if(url){data-journey-click="link - click:@gaAction:@gaLabel"}>
+<div class="card-body @if(url) {active}" @if(url) {
+    data-journey-click="link - click:@gaAction:@gaLabel"}>
 
     <@headingTag class="heading-small card-heading">
-      @if(url){
+    @if(url) {
         <a class="card-link" href="@url">
-          @heading
-        </a>
-      } else {
         @heading
-      }
-    </@headingTag>
-    @bodyContent
-  </div>
+        </a>
+    } else {
+        @heading
+    }
+</@headingTag>
+@bodyContent
+</div>
 
 @if(actionContent.body.trim.nonEmpty) {
-  <div class="card-action">
+    <div class="card-action">
     @actionContent
-  </div>
+    </div>
 }
 
 </div>

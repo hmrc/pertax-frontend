@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,67 @@
 package models.dto
 
 import controllers.helpers.CountryHelper
-import models.{Address, Country, addresslookup}
-import org.joda.time.{DateTime, LocalDate}
-import play.api.data.{Form, FormError}
-import play.api.data.Forms._
-import play.api.i18n.Messages
-import play.api.libs.json.Json
 import models.addresslookup.AddressRecord
-import play.api.mvc.Request
-import play.mvc.BodyParser.AnyContent
-import uk.gov.hmrc.play.validators._
+import models.{Address, Country}
+import org.joda.time.LocalDate
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.json.Json
 import util.PertaxValidators._
+
+case class AddressDto(
+  line1: String,
+  line2: String,
+  line3: Option[String],
+  line4: Option[String],
+  line5: Option[String],
+  postcode: Option[String],
+  country: Option[String],
+  propertyRefNo: Option[String]
+) {
+  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) =
+    Address(
+      Some(line1),
+      Some(line2),
+      line3,
+      line4,
+      line5,
+      postcode.map(formatMandatoryPostCode),
+      country,
+      Some(startDate),
+      Some(endDate),
+      Some(`type`))
+  def toAddress(`type`: String, startDate: LocalDate) = postcode match {
+    case Some(postcode) =>
+      Address(
+        Some(line1),
+        Some(line2),
+        line3,
+        line4,
+        line5,
+        Some(formatMandatoryPostCode(postcode)),
+        None,
+        Some(startDate),
+        None,
+        Some(`type`))
+    case None =>
+      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
+  }
+
+  def toList: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
+  def toListWithCountry: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
+  def formatMandatoryPostCode(postCode: String): String = {
+    val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
+    val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
+    postCodeSplit._1 + " " + postCodeSplit._2
+  }
+}
 
 object AddressDto extends CountryHelper {
 
   implicit val formats = Json.format[AddressDto]
 
-  def fromAddressRecord(addressRecord: AddressRecord) = {
+  def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
     val address = addressRecord.address
     val List(line1, line2, line3, line4, line5) =
       (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
@@ -51,11 +95,11 @@ object AddressDto extends CountryHelper {
   val ukForm = Form(
     mapping(
       "line1" -> text
-        .verifying("error.line1_required", _.size > 0)
+        .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line2" -> text
-        .verifying("error.line2_required", _.size > 0)
+        .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
@@ -83,11 +127,11 @@ object AddressDto extends CountryHelper {
   val internationalForm = Form(
     mapping(
       "line1" -> text
-        .verifying("error.line1_required", _.size > 0)
+        .verifying("error.line1_required", _.nonEmpty)
         .verifying("error.line1_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line1_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line2" -> text
-        .verifying("error.line2_required", _.size > 0)
+        .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
@@ -105,52 +149,4 @@ object AddressDto extends CountryHelper {
       "propertyRefNo" -> optional(nonEmptyText)
     )(AddressDto.apply)(AddressDto.unapply)
   )
-}
-
-case class AddressDto(
-  line1: String,
-  line2: String,
-  line3: Option[String],
-  line4: Option[String],
-  line5: Option[String],
-  postcode: Option[String],
-  country: Option[String],
-  propertyRefNo: Option[String]
-) {
-  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) =
-    Address(
-      Some(line1),
-      Some(line2),
-      line3,
-      line4,
-      line5,
-      postcode.map(formatMandatoryPostCode(_)),
-      country,
-      Some(startDate),
-      Some(endDate),
-      Some(`type`))
-  def toAddress(`type`: String, startDate: LocalDate) = postcode match {
-    case Some(postcode) =>
-      Address(
-        Some(line1),
-        Some(line2),
-        line3,
-        line4,
-        line5,
-        Some(formatMandatoryPostCode(postcode)),
-        None,
-        Some(startDate),
-        None,
-        Some(`type`))
-    case None =>
-      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
-  }
-
-  def toList = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
-  def toListWithCountry = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
-  def formatMandatoryPostCode(postCode: String) = {
-    val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
-    val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
-    postCodeSplit._1 + " " + postCodeSplit._2
-  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,22 @@
 
 package util
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import metrics.HasMetrics
 import play.api.Logger
 import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpGet}
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.play.partials.HtmlPartial._
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
-import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpGet}
+import scala.concurrent.{ExecutionContext, Future}
 
 /*
  * This is a PartialRetriever with a HeaderCarrierForPartialsConverter to forward request headers on
  */
-abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: ApplicationCrypto)
+abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: ApplicationCrypto)(
+  implicit executionContext: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with HasMetrics {
 
   def http: HttpGet
@@ -41,22 +41,22 @@ abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: Application
   override def crypto = sessionCookieCryptoFilter.encrypt
 
   def loadPartial(url: String)(implicit hc: HeaderCarrier): Future[HtmlPartial] =
-    withMetricsTimer("load-partial") { t =>
+    withMetricsTimer("load-partial") { timer =>
       http.GET[HtmlPartial](url) map {
-        case p: HtmlPartial.Success =>
-          t.completeTimerAndIncrementSuccessCounter()
-          p
-        case p: HtmlPartial.Failure =>
-          t.completeTimerAndIncrementFailedCounter()
-          p
+        case partial: HtmlPartial.Success =>
+          timer.completeTimerAndIncrementSuccessCounter()
+          partial
+        case partial: HtmlPartial.Failure =>
+          timer.completeTimerAndIncrementFailedCounter()
+          partial
       } recover {
         case e =>
-          t.completeTimerAndIncrementFailedCounter()
+          timer.completeTimerAndIncrementFailedCounter()
           Logger.warn(s"Failed to load partial", e)
           e match {
             case ex: HttpException =>
               HtmlPartial.Failure(Some(ex.responseCode))
-            case ex =>
+            case _ =>
               HtmlPartial.Failure(None)
           }
       }

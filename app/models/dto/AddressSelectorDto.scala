@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ package models.dto
 import play.api.data.Form
 import play.api.data.Forms._
 
+case class AddressSelectorDto(addressId: Option[String])
+
 object AddressSelectorDto {
   val form = Form(
     mapping(
       "addressId" -> optional(text)
-        .verifying("error.address_not_selected", !_.isEmpty)
+        .verifying("error.address_not_selected", _.isDefined)
     )(AddressSelectorDto.apply)(AddressSelectorDto.unapply)
   )
 }
-
-case class AddressSelectorDto(addressId: Option[String])

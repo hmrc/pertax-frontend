@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import play.api.Mode.Mode
 import play.api._
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.frontend.bootstrap.Routing.RemovingOfTrailingSlashes
-import uk.gov.hmrc.play.graphite.GraphiteConfig
 import uk.gov.hmrc.play.frontend.config.ErrorAuditingSettings
+import uk.gov.hmrc.play.graphite.GraphiteConfig
 
 object ApplicationGlobal
     extends GlobalSettings with GraphiteConfig with RemovingOfTrailingSlashes with ErrorAuditingSettings with RunMode {

@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,44 +14,48 @@
  * limitations under the License.
  *@
 
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
+
 @(utr: SaUtr,
-  continueUrl: String,
-  deadlineYear: String,
-  currentTaxYear: String,
-  showPostLink: Boolean)(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+        continueUrl: String,
+        deadlineYear: String,
+        currentTaxYear: String,
+        showPostLink: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@import pertaxContext.configDecorator._
-
-@main(title = Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again"),
-  pageName = Some(Messages("label.your_personal_tax_account")),
-  backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
+@main(title = messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again"),
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some(controllers.routes.AmbiguousJourneyController.deEnrolledFromSaChoice().url)
 ) {
 
 
     <div class="grid-row">
-      <div class="column-two-thirds">
+        <div class="column-two-thirds">
 
-        <header class="page-heading">
-          <h1 class="heading-xlarge no-margin-top">@Messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again")</h1>
-          <p class="heading-secondary"><span class="visuallyhidden">This section is </span>@Messages("label.how_to_access_your_self_assessment")</p>
-        </header>
-
-
-        <p>@Html(Messages("label.use_your_unique_taxpayer_reference_utr_to_", pertaxContext.configDecorator.selfAssessmentEnrolUrl))</p>
-        <p>@Html(Messages("label.your_utr_is_", utr))</p>
+            <header class="page-heading">
+                <h1 class="heading-xlarge no-margin-top">@messages("label.you_need_to_sign_up_to_send_your_tax_returns_online_again")</h1>
+                <p class="heading-secondary"><span class="visuallyhidden">
+                    @messages("label.this.section.is") </span>@messages("label.how_to_access_your_self_assessment")</p>
+            </header>
 
 
-        <div class="panel panel-border-wide">
-          <p>@Messages("label.you_will_get_an_activation_code_in_the_post_")</p>
+            <p>@messages("label.use_your_unique_taxpayer_reference_utr_to_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="enrol for Self Assessment online">@messages("label.use_your_unique_taxpayer_reference_utr_to_link_text")</a>.</p>
+            <p>@Html(messages("label.your_utr_is_", utr))</p>
+
+
+            <div class="panel panel-border-wide">
+                <p>@messages("label.you_will_get_an_activation_code_in_the_post_")</p>
+            </div>
+
+            <h2 class="heading-medium">@messages("label.do_your_tax_return_before_the_deadline")</h2>
+            <p>@messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
+            @if(showPostLink) {
+                    <p id="returnTaxReturnByPost">@messages("label.you_can_send_your_tax_return_by_post_text_before_link") <a class="ga-track-anchor-click" href="@configDecorator.selfAssessmentEnrolUrl" data-ga-event-category="link - click" data-ga-event-action="You need to sign up to send your tax returns online" data-ga-event-label="send your tax return by post">@messages("label.you_can_send_your_tax_return_by_post_link_text")</a> @messages("label.you_can_send_your_tax_return_by_post_text_after_link", currentTaxYear).</p>
+            }
+
         </div>
-
-        <h2 class="heading-medium">@Messages("label.do_your_tax_return_before_the_deadline")</h2>
-        <p>@Messages("label.the_deadline_to_do_your_tax_return_online_is_", deadlineYear)</p>
-        @if(showPostLink) {
-          <p>@Html(Messages("label.you_can_send_your_tax_return_by_post_", pertaxContext.configDecorator.selfAssessmentEnrolUrl, currentTaxYear))</p>
-        }
-
-      </div>
     </div>
 
 }

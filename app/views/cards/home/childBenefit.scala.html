@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,21 @@
  * limitations under the License.
  *@
 
-@()(implicit messages: play.api.i18n.Messages)
-
 @import tags._
 
+@()(implicit messages: play.api.i18n.Messages)
+
 @card(
-  url = Some(routes.InterstitialController.displayChildBenefits().url),
-  gaAction = Some("Benefits"),
-  gaLabel = Some("Child Benefit"),
-  heading = Messages("label.child_benefit"),
-  headingTag = "h3",
-  bodyContent = Some(Html("<p>" + Messages("label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children") + "</p>"))
+    url = Some(routes.InterstitialController.displayChildBenefits().url),
+    gaAction = Some("Benefits"),
+    gaLabel = Some("Child Benefit"),
+    heading = messages("label.child_benefit"),
+    headingTag = "h3",
+    bodyContent = Some(Html("<p>" + messages("label.a_tax_free_payment_to_help_parents_with_the_cost_of_bringing_up_children") + "</p>"))
 ) {
     <ul>
-      <li><a class="ga-track-anchor-click" href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your child is staying in full-time education">@Messages("label.tell_us_if_your_child_is_staying_in_full_time_education")</a></li>
-      <li><a class="ga-track-anchor-click" href="/forms/form/child-benefit-child-change-of-circumstances/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your child’s circumstances change">@Messages("label.tell_us_if_your_childs_circumstances_change")</a></li>
-      <li><a class="ga-track-anchor-click" href="/forms/form/Child-Benefit-Claimant-Change-of-Circumstances/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your circumstances change">@Messages("label.tell_us_if_your_circumstances_change")</a></li>
+        <li><a class="ga-track-anchor-click" href="/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your child is staying in full-time education">@messages("label.tell_us_if_your_child_is_staying_in_full_time_education")</a></li>
+        <li><a class="ga-track-anchor-click" href="/forms/form/child-benefit-child-change-of-circumstances/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your child’s circumstances change">@messages("label.tell_us_if_your_childs_circumstances_change")</a></li>
+        <li><a class="ga-track-anchor-click" href="/forms/form/Child-Benefit-Claimant-Change-of-Circumstances/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your circumstances change">@messages("label.tell_us_if_your_circumstances_change")</a></li>
     </ul>
-  }
+}

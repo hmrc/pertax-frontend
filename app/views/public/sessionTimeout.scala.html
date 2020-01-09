@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,18 @@
  * limitations under the License.
  *@
 
-@()(implicit pertaxContext: PertaxContext, messages: play.api.i18n.Messages)
+@import config.ConfigDecorator
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
-@main(Messages("label.sign_in"), displayTimeoutDialog = false) {
-  <h1 class="heading-large">@Messages("label.youve_been_signed_out")</h1>
-  <p>@Messages("label.you_havent_entered_any_details_for_15_minutes_weve_cleared_your_info")</p>
-  <p>@Messages("label.please_sign_in_again")</p><br>
-  <a class="button" href="@controllers.routes.HomeController.index" role="button">@Messages("label.sign_in")</a>
+@()(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@unauthenticatedMain(messages("label.sign_in"), displayTimeoutDialog = false) {
+
+    <header class="page-heading">
+        <h1 class="heading-xlarge">@messages("label.youve_been_signed_out")</h1>
+    </header>
+    <p>@messages("label.timeout_message", configDecorator.sessionTimeoutInMinutes.toString)</p>
+    <p>@messages("label.please_sign_in_again")</p>
+    <a class="button" href="@controllers.routes.HomeController.index" role="button">@messages("label.sign_in")</a>
 }

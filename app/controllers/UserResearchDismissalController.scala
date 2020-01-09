@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,33 @@
 
 package controllers
 
-import javax.inject.Inject
-
 import config.ConfigDecorator
-import connectors.{FrontEndDelegationConnector, PertaxAuditConnector, PertaxAuthConnector}
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import connectors.{PertaxAuditConnector, PertaxAuthConnector}
+import controllers.auth.AuthJourney
 import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
+import com.google.inject.Inject
 import play.api.i18n.MessagesApi
+import play.api.mvc.{Action, AnyContent}
 import services._
 import services.partials.MessageFrontendService
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
-
 class UserResearchDismissalController @Inject()(
   val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
-  val userDetailsService: UserDetailsService,
   val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val localErrorHandler: LocalErrorHandler,
-  val homePageCachingHelper: HomePageCachingHelper
-) extends PertaxBaseController with AuthorisedActions {
+  val homePageCachingHelper: HomePageCachingHelper,
+  authJourney: AuthJourney,
+  auditConnector: PertaxAuditConnector,
+  authConnector: PertaxAuthConnector)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator)
+    extends PertaxBaseController {
 
-  def dismissUrBanner = VerifiedAction(Nil) { implicit request =>
+  def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
     homePageCachingHelper.storeUserUrDismissal()
-    Future.successful(NoContent)
+    NoContent
   }
 }

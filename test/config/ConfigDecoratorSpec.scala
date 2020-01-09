@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@ package config
 
 import java.net.{MalformedURLException, URL}
 
-import org.mockito.Matchers.{eq => meq}
-import play.api.{Configuration, Environment}
-import play.api.Mode.Mode
 import play.api.i18n.Langs
+import play.api.{Configuration, Environment}
 import util.BaseSpec
 
 class ConfigDecoratorSpec extends BaseSpec {

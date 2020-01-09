@@ -1,0 +1,40 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
+
+@(title: String, heading: Option[String] = None, body: Option[String] = None)(implicit request: Request[_],
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@unauthenticatedMain(title = messages(title),
+    pageName = Some(messages("label.your_personal_tax_account")),
+    backlinkUrl = Some("javascript:window.history.back();")
+) {
+
+    <div class="grid-row pertax-error">
+        <div class="column-two-thirds">
+            <header class="page-header">
+                <h1>@messages(heading.getOrElse(title))</h1>
+            </header>
+            @body.map { body =>
+                <p>@Html(messages(body))</p>
+            }
+        </div>
+    </div>
+
+}

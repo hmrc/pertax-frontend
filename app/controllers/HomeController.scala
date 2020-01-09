@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,118 +16,108 @@
 
 package controllers
 
-import connectors.FrontEndDelegationConnector
-import controllers.auth.{AuthorisedActions, PertaxRegime}
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
-import javax.inject.Inject
+import com.google.inject.Inject
+import error.GenericErrors
 import models._
+import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import play.twirl.api.Html
-import services.partials.{CspPartialService, MessageFrontendService}
 import services._
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.renderer.ActiveTabHome
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
+import util.LocalPartialRetriever
 
 import scala.concurrent.Future
 
 class HomeController @Inject()(
   val messagesApi: MessagesApi,
-  val citizenDetailsService: CitizenDetailsService,
   val preferencesFrontendService: PreferencesFrontendService,
   val taiService: TaiService,
-  val identityVerificationFrontendService: IdentityVerificationFrontendService,
   val taxCalculationService: TaxCalculationService,
-  val selfAssessmentService: SelfAssessmentService,
-  val cspPartialService: CspPartialService,
-  val userDetailsService: UserDetailsService,
-  val messageFrontendService: MessageFrontendService,
-  val delegationConnector: FrontEndDelegationConnector,
-  val pertaxDependencies: PertaxDependencies,
-  val pertaxRegime: PertaxRegime,
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
-  val taxCalculationStateFactory: TaxCalculationStateFactory
-) extends PertaxBaseController with AuthorisedActions with PaperlessInterruptHelper with CurrentTaxYear {
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
+    extends PertaxBaseController with PaperlessInterruptHelper with CurrentTaxYear {
 
-  def index: Action[AnyContent] = VerifiedAction(Nil, activeTab = Some(ActiveTabHome)) { implicit pertaxContext =>
-    def getTaxCalculationState(
-      nino: Nino,
-      year: Int,
-      includeOverPaidPayments: Boolean): Future[Option[TaxYearReconciliation]] =
-      if (configDecorator.taxcalcEnabled) {
-        taxCalculationService.getTaxYearReconciliations(nino, year, year) map (_.headOption)
-      } else {
-        Future.successful(None)
-      }
+  override def now: () => DateTime = () => DateTime.now()
 
-    val year = current.currentYear
+  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
+    .addActiveTab(ActiveTabHome)
 
-    val userAndNino = for {
-      u <- pertaxContext.user
-      n <- u.nino
-    } yield (u, n)
-
-    val serviceCallResponses =
-      userAndNino.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
-        Future.successful((TaxComponentsDisabledState, None, None))) { userAndNino =>
-        val (user, nino) = userAndNino
-
-        val taxCalculationStateCyMinusOne = getTaxCalculationState(nino, year - 1, includeOverPaidPayments = true)
-        val taxCalculationStateCyMinusTwo = if (configDecorator.taxCalcShowCyMinusTwo) {
-          getTaxCalculationState(nino, year - 2, includeOverPaidPayments = true)
-        } else
-          Future.successful(None)
-
-        val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
-          taiService.taxComponents(nino, year) map {
-            case TaxComponentsSuccessResponse(ts) =>
-              TaxComponentsAvailableState(ts)
-            case TaxComponentsUnavailableResponse =>
-              TaxComponentsNotAvailableState
-            case _ =>
-              TaxComponentsUnreachableState
-          }
-        } else {
-          Future.successful(TaxComponentsDisabledState)
-        }
-
-        for {
-          taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
-          taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
-          taxSummaryState               <- taxSummaryState
-        } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
-      }
-
-    val saUserType: Future[SelfAssessmentUserType] =
-      selfAssessmentService.getSelfAssessmentUserType(pertaxContext.authContext)
-
+  def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
       configDecorator.urLinkUrl.fold(Future.successful(false))(_ =>
         homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
 
+    val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
+      serviceCallResponses(request.nino, current.currentYear)
+
     showUserResearchBanner flatMap { showUserResearchBanner =>
       enforcePaperlessPreference {
         for {
-          (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- serviceCallResponses
-          saUserType                                                                      <- saUserType
+          (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
         } yield {
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-            pertaxContext.user,
             taxSummaryState,
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
-            saUserType,
+            request.saUserType,
             current.currentYear)
 
           val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
-          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards(pertaxContext.user)
+          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
           Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner))
         }
       }
     }
   }
+
+  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int)(implicit hc: HeaderCarrier)
+    : Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
+    ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
+      Future.successful((TaxComponentsDisabledState, None, None))) { nino =>
+      val taxYr = if (configDecorator.taxcalcEnabled) {
+        taxCalculationService.getTaxYearReconciliations(nino)
+      } else {
+        Future.successful(Nil)
+      }
+
+      val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
+      val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
+
+      val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
+        taiService.taxComponents(nino, year) map {
+          case TaxComponentsSuccessResponse(ts) =>
+            TaxComponentsAvailableState(ts)
+          case TaxComponentsUnavailableResponse =>
+            TaxComponentsNotAvailableState
+          case _ =>
+            TaxComponentsUnreachableState
+        }
+      } else {
+        Future.successful(TaxComponentsDisabledState)
+      }
+
+      for {
+        taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
+        taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
+        taxSummaryState               <- taxSummaryState
+      } yield {
+
+        (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
+      }
+    }
 }

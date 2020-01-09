@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package controllers.helpers
 
-import config.ConfigDecorator
-import models.{PertaxContext, PertaxUser, UserDetails}
+import controllers.auth.requests.UserRequest
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -25,8 +25,9 @@ import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
-import util.BaseSpec
-import util.Fixtures._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
@@ -34,38 +35,46 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
 
   "Calling PaperlessInterruptHelper.enforcePaperlessPreference" should {
 
-    trait LocalSetup {
+    implicit val userRequest = UserRequest(
+      Some(Fixtures.fakeNino),
+      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+      None,
+      NonFilerSelfAssessmentUser,
+      Credentials("", "GovernmentGateway"),
+      ConfidenceLevel.L200,
+      None,
+      None,
+      None,
+      None,
+      None,
+      None,
+      FakeRequest()
+    )
 
-      def activatePaperlessResponse: ActivatePaperlessResponse
-
-      val context = PertaxContext(
-        FakeRequest("GET", "/personal-account"),
-        mockLocalPartialRetreiver,
-        injected[ConfigDecorator],
-        Some(PertaxUser(buildFakeAuthContext(), UserDetails(UserDetails.VerifyAuthProvider), None, false))
-      )
-
+    "Redirect to paperless interupt page for a user who has no enrolments" in {
       lazy val paperlessInterruptHelper = new PaperlessInterruptHelper {
         override val preferencesFrontendService: PreferencesFrontendService =
           MockitoSugar.mock[PreferencesFrontendService]
-        when(preferencesFrontendService.getPaperlessPreference(any())(any())) thenReturn {
-          Future.successful(activatePaperlessResponse)
+        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+          Future.successful(ActivatePaperlessRequiresUserActionResponse("/activate-paperless"))
         }
       }
-    }
 
-    "Redirect to paperless interupt page for a user who has no enrolments" in new LocalSetup {
-      override lazy val activatePaperlessResponse = ActivatePaperlessRequiresUserActionResponse("/activate-paperless")
-
-      val r = paperlessInterruptHelper.enforcePaperlessPreference(Ok)(context, hc)
+      val r = paperlessInterruptHelper.enforcePaperlessPreference(Ok)
       status(r) shouldBe SEE_OTHER
       redirectLocation(await(r)) shouldBe Some("/activate-paperless")
     }
 
-    "Return the result of the block when getPaperlessPreference does not return ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
-      override lazy val activatePaperlessResponse = ActivatePaperlessNotAllowedResponse
+    "Return the result of the block when getPaperlessPreference does not return ActivatePaperlessRequiresUserActionResponse" in {
+      lazy val paperlessInterruptHelper = new PaperlessInterruptHelper {
+        override val preferencesFrontendService: PreferencesFrontendService =
+          MockitoSugar.mock[PreferencesFrontendService]
+        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+          Future.successful(ActivatePaperlessNotAllowedResponse)
+        }
+      }
 
-      val r = paperlessInterruptHelper.enforcePaperlessPreference(Ok)(context, hc)
+      val r = paperlessInterruptHelper.enforcePaperlessPreference(Ok)
       status(r) shouldBe OK
     }
   }

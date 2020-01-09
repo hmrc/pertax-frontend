@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,25 +17,25 @@
 package services.partials
 
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import metrics.HasMetrics
-import play.api.{Configuration, Environment}
 import play.api.Mode.Mode
 import play.api.mvc.Request
+import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class CspPartialService @Inject()(
   environment: Environment,
   configuration: Configuration,
   val http: WsAllMethods,
   val metrics: Metrics,
-  applicationCrypto: ApplicationCrypto)
+  applicationCrypto: ApplicationCrypto)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode

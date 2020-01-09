@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package modules
 import com.google.inject.AbstractModule
 import config.{ApplicationCryptoProvider, LocalTemplateRenderer, SessionCookieCryptoFilterProvider}
 import filters._
+import services.http.{WSHttp, WsAllMethods}
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.frontend.filters._
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -33,5 +34,6 @@ class LocalGuiceModule extends AbstractModule {
     bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
     bind(classOf[ApplicationCrypto]).toProvider(classOf[ApplicationCryptoProvider])
     bind(classOf[CookieCryptoFilter]).toProvider(classOf[SessionCookieCryptoFilterProvider])
+    bind(classOf[WSHttp]).to(classOf[WsAllMethods])
   }
 }

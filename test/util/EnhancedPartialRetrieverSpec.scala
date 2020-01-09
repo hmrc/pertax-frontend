@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 
 package util
+
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
@@ -26,6 +27,7 @@ import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
 import uk.gov.hmrc.play.partials.HtmlPartial
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnhancedPartialRetrieverSpec extends BaseSpec {

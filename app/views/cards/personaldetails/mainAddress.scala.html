@@ -1,5 +1,5 @@
 @*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,41 +14,49 @@
  * limitations under the License.
  *@
 
-@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, hasCorrespondenceAddressLock: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
-
 @import tags._
 
-@updateAddressLink = @{
-  if(taxCreditsEnabled) controllers.routes.AddressController.taxCreditsChoice else controllers.routes.AddressController.residencyChoice
-}
+@(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, isLocked: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
 
-@cardContent = {
-  <p>
-    @personDetails.address.map { address =>
-      @address.lines.map { line =>
-        <div class="address-line">@upperCaseToTitleCase(line)</div>
-      }
-      <div class ="address-line">@address.postcode.map(_.toUpperCase)</div>
-    @if(!countries.contains(Country(address.country.map(_.toUpperCase).getOrElse("")))) {@address.country.map(_.toUpperCase)}
-  }
-  </p>
-}
-
-@card(
-  url = Some(updateAddressLink.url),
-  gaAction = Some("Main address"),
-  gaLabel = Some("Main address"),
-  heading = Messages("label.main_address"),
-  bodyContent = Some(cardContent)
-){
-  <ul>
-    <li>
-      <a class="ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@Messages("label.change_your_main_address")</a>
-    </li>
-    @if(!hasCorrespondenceAddress && !hasCorrespondenceAddressLock) {
-    <li>
-      <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@Messages("label.change_where_we_send_your_letters")</a>
-    </li>
+    @updateAddressLink() = @{
+        if(taxCreditsEnabled) controllers.routes.AddressController.taxCreditsChoice else controllers.routes.AddressController.residencyChoice
     }
-  </ul>
-}
+
+    @cardContent = {
+        <p>
+    @personDetails.address.map { address =>
+        @address.lines.map { line =>
+            <div class="address-line">@upperCaseToTitleCase(line)</div>
+        }
+        <div class ="address-line">@address.postcode.map(_.toUpperCase)</div>
+        @if(!countries.contains(Country(address.country.map(_.toUpperCase).getOrElse("")))) {@address.country.map(_.toUpperCase)}
+    }
+        </p>
+    }
+    @if(isLocked) {
+        @card(
+            heading = messages("label.main_address"),
+            bodyContent = Some(cardContent)
+        ) {
+            <p>@messages("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow")</p>
+        }
+    } else {
+        @card(
+            url = Some(updateAddressLink.url),
+            gaAction = Some("Main address"),
+            gaLabel = Some("Main address"),
+            heading = messages("label.main_address"),
+            bodyContent = Some(cardContent)
+        ) {
+            <ul>
+                <li>
+                    <a class="ga-track-anchor-click" href="@updateAddressLink" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change your main address">@messages("label.change_your_main_address")</a>
+                </li>
+                @if(!hasCorrespondenceAddress) {
+                    <li>
+                        <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@messages("label.change_where_we_send_your_letters")</a>
+                    </li>
+                }
+            </ul>
+        }
+    }

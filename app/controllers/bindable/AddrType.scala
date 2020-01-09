@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package controllers.bindable
 
+import models.{EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, EditedAddress}
+import reactivemongo.bson.BSONDateTime
+
 object AddrType {
   def apply(value: String): Option[AddrType] = value match {
     case "sole"    => Some(SoleAddrType)
@@ -23,13 +26,19 @@ object AddrType {
     case "postal"  => Some(PostalAddrType)
     case _         => None
   }
+
+  def toEditedAddress(addrType: AddrType, date: BSONDateTime): EditedAddress = addrType match {
+    case PostalAddrType  => EditCorrespondenceAddress(date)
+    case SoleAddrType    => EditSoleAddress(date)
+    case PrimaryAddrType => EditPrimaryAddress(date)
+  }
 }
 sealed trait AddrType {
   override def toString = ifIs("primary", "sole", "postal")
 
-  def ifIsPrimary[T](value: T) = ifIs(Some(value), None, None)
-  def ifIsSole[T](value: T) = ifIs(None, Some(value), None)
-  def ifIsPostal[T](value: T) = ifIs(None, None, Some(value))
+  def ifIsPrimary[T](value: T): Option[T] = ifIs(Some(value), None, None)
+  def ifIsSole[T](value: T): Option[T] = ifIs(None, Some(value), None)
+  def ifIsPostal[T](value: T): Option[T] = ifIs(None, None, Some(value))
 
   def ifIs[T](primary: => T, sole: => T, postal: => T): T = this match {
     case PrimaryAddrType => primary

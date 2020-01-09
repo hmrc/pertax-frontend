@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,36 @@
 package models
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormat
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
-import util.{BaseSpec, DateTimeTools}
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.domain.SaUtr
+import util.BaseSpec
 
 class TaxCalculationStateSpec extends BaseSpec {
+
+  lazy val fakeRequest = FakeRequest("", "")
+  lazy val userRequest = UserRequest(
+    None,
+    None,
+    None,
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    Credentials("", "GovernmentGateway"),
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    fakeRequest
+  )
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))

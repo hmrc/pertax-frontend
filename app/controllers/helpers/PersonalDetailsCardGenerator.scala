@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 
 package controllers.helpers
 
-import javax.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import models.{Address, PertaxContext, PertaxUser}
+import controllers.auth.requests.UserRequest
+import com.google.inject.{Inject, Singleton}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
 import play.twirl.api.{Html, HtmlFormat}
-import org.joda.time.LocalDate
-import play.api.Logger
-import util.LanguageHelper
 
 @Singleton
 class PersonalDetailsCardGenerator @Inject()(
@@ -30,31 +28,36 @@ class PersonalDetailsCardGenerator @Inject()(
   val countryHelper: CountryHelper
 ) {
 
-  def getPersonalDetailsCards(hasCorrespondenceAddressLock: Boolean)(
-    implicit pertaxContext: PertaxContext,
-    messages: play.api.i18n.Messages): Seq[Html] =
+  def getPersonalDetailsCards(changedAddressIndicator: List[AddressJourneyTTLModel])(
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    messages: play.api.i18n.Messages): Seq[Html] = {
+
+    val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
+
+    val mainAddressChangeIndicator = optionalEditAddress.exists(_.isInstanceOf[EditSoleAddress]) || optionalEditAddress
+      .exists(_.isInstanceOf[EditPrimaryAddress])
+    val correspondenceAddressChangeIndicator =
+      optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
+
     List(
       getChangeNameCard(),
-      getMainAddressCard(hasCorrespondenceAddressLock),
-      getPostalAddressCard(),
+      getMainAddressCard(mainAddressChangeIndicator),
+      getPostalAddressCard(correspondenceAddressChangeIndicator),
       getNationalInsuranceCard()
     ).flatten
+  }
 
-  private def getPersonDetails()(implicit pertaxContext: PertaxContext) =
-    for {
-      u  <- pertaxContext.user
-      pd <- u.personDetails
-    } yield {
-      pd
-    }
+  private def getPersonDetails()(implicit request: UserRequest[_]) =
+    request.personDetails
 
-  def hasCorrespondenceAddress()(implicit pertaxContext: PertaxContext): Boolean = {
+  def hasCorrespondenceAddress()(implicit request: UserRequest[_]): Boolean = {
     val cAdd = getPersonDetails.flatMap(_.correspondenceAddress)
     cAdd.isDefined
   }
 
-  def getMainAddressCard(hasCorrespondenceAddressLock: Boolean)(
-    implicit pertaxContext: PertaxContext,
+  def getMainAddressCard(isLocked: Boolean)(
+    implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
@@ -63,47 +66,42 @@ class PersonalDetailsCardGenerator @Inject()(
             personDetails = personDetails,
             taxCreditsEnabled = configDecorator.taxCreditsEnabled,
             hasCorrespondenceAddress = hasCorrespondenceAddress,
-            hasCorrespondenceAddressLock = hasCorrespondenceAddressLock,
+            isLocked = isLocked,
             countryHelper.excludedCountries
           ))
       case _ => None
     }
 
-  def getPostalAddressCard()(
-    implicit pertaxContext: PertaxContext,
+  def getPostalAddressCard(isLocked: Boolean)(
+    implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
-      case Some(personDetails) => {
+      case Some(personDetails) =>
         hasCorrespondenceAddress match {
-          case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) => {
-            val canUpdatePostalAddress =
-              personDetails.correspondenceAddress.flatMap(_.startDate).fold(true) { _ != LocalDate.now }
+          case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) =>
             Some(
               views.html.cards.personaldetails.postalAddress(
                 personDetails = personDetails,
-                canUpdatePostalAddress = canUpdatePostalAddress,
+                isLocked = isLocked,
                 countryHelper.excludedCountries,
                 configDecorator.closePostalAddressEnabled))
-          }
           case _ => None
         }
-      }
       case _ => None
     }
 
   def getNationalInsuranceCard()(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
-    pertaxContext.user match {
-      case Some(u) if (u.isHighGovernmentGatewayOrVerify && (u.isPaye || u.isSa)) =>
-        u.nino.map(n => views.html.cards.personaldetails.nationalInsurance(n))
-      case _ => None
+    request.nino.map { n =>
+      views.html.cards.personaldetails.nationalInsurance(n)
     }
 
   def getChangeNameCard()(
-    implicit pertaxContext: PertaxContext,
+    implicit request: UserRequest[_],
+    configDecorator: ConfigDecorator,
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
-    PertaxUser.ifNameAvailable {
+    request.name.map { _ =>
       views.html.cards.personaldetails.changeName()
     }
 }
