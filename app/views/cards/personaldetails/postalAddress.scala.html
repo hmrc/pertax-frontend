@@ -17,7 +17,7 @@
 @import tags._
 @import controllers.bindable.PostalAddrType
 
-@(personDetails: models.PersonDetails, canUpdatePostalAddress: Boolean, countries: List[Country], closePostalAddressEnabled: Boolean)(implicit messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, isLocked: Boolean, countries: List[Country], closePostalAddressEnabled: Boolean)(implicit messages: play.api.i18n.Messages)
 
     @cardContent = {
         <p>
@@ -32,7 +32,14 @@
         <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
     }
 
-    @if(canUpdatePostalAddress) {
+    @if(isLocked) {
+        @card(
+            heading = messages("label.postal_address"),
+            bodyContent = Some(cardContent)
+        ) {
+            <p>@messages("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow")</p>
+        }
+    } else {
         @card(
             url = Some(controllers.routes.AddressController.internationalAddressChoice(PostalAddrType).url),
             gaAction = Some("Postal address"),
@@ -50,12 +57,5 @@
                     </li>
                 }
             </ul>
-        }
-    } else {
-        @card(
-            heading = messages("label.postal_address"),
-            bodyContent = Some(cardContent)
-        ) {
-            <p>@messages("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow")</p>
         }
     }

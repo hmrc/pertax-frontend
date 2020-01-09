@@ -21,53 +21,84 @@ import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
 import com.google.inject.{Inject, Singleton}
-import models.AddressJourneyTTLModel
+import config.ConfigDecorator
+import controllers.bindable.AddrType
+import models.{AddressJourneyTTLModel, EditedAddress}
+import play.api.Logger
 import play.modules.reactivemongo.ReactiveMongoApi
+import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
-import reactivemongo.core.errors.DatabaseException
+import reactivemongo.core.errors.{DatabaseException, GenericDatabaseException}
 import reactivemongo.play.json.BSONDocumentWrites
 import reactivemongo.play.json.collection.JSONCollection
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
+class EditAddressLockRepository @Inject()(
+  configDecorator: ConfigDecorator
+)(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
 
-  private val collectionName: String = "correspondenceAddressLock"
+  private val collectionName: String = "EditAddressLock"
   private val duplicateKeyErrorCode = "E11000"
 
   private def collection: Future[JSONCollection] =
     mongo.database.map(_.collection[JSONCollection](collectionName))
 
-  import CorrespondenceAddressLockRepository._
+  import EditAddressLockRepository._
 
-  def insert(nino: String): Future[Boolean] = {
-    val date = getNextMidnight(OffsetDateTime.now())
-    insertCore(nino, date).map(_.ok) recover {
-      case e: DatabaseException if e.getMessage().contains(duplicateKeyErrorCode) => false
+  def insert(nino: String, addressType: AddrType): Future[Boolean] = {
+
+    val record: EditedAddress =
+      AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
+
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover {
+      case e: DatabaseException => false
     }
   }
 
-  def get(nino: String): Future[Option[AddressJourneyTTLModel]] =
+  def get(nino: String): Future[List[AddressJourneyTTLModel]] = {
+
+    val getExpiredAt = "editedAddress.expireAt"
+
     getCore(
       BSONDocument(
-        BSONDocument("_id"     -> nino),
-        BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now()))))
+        BSONDocument("nino" -> nino),
+        BSONDocument(
+          BSONDocument(getExpiredAt -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
+        )
+      )
     )
+  }
 
-  private[repositories] def getCore[S](selector: BSONDocument): Future[Option[AddressJourneyTTLModel]] =
-    this.collection.flatMap(_.find(selector, None).one[AddressJourneyTTLModel])
+  private[repositories] def getCore(selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
+    this.collection
+      .flatMap {
+        _.find(selector, None)
+          .cursor[AddressJourneyTTLModel]()
+          .collect[List](
+            5,
+            Cursor.FailOnError[List[AddressJourneyTTLModel]]()
+          )
+      }
+      .recover {
+        case e: Exception =>
+          Logger.error(s"Unable to find document: ${e.getMessage}")
+          List[AddressJourneyTTLModel]()
+      }
 
-  private[repositories] def insertCore(nino: String, date: OffsetDateTime): Future[WriteResult] =
-    this.collection.flatMap(_.insert(ordered = false).one(AddressJourneyTTLModel(nino, toBSONDateTime(date))))
+  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] =
+    this.collection.flatMap(coll => coll.insert(ordered = false).one(record))
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
     for {
       result <- this.collection.flatMap(_.drop(failIfNotFound = false))
       _      <- setIndex()
     } yield result
+
+  private val ttl = configDecorator.editAddressTtl
 
   private[repositories] lazy val ttlIndex = Index(
     Seq((EXPIRE_AT, IndexType.Ascending)),
@@ -76,8 +107,11 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, imp
     background = false,
     dropDups = false,
     sparse = false,
-    options = BSONDocument("expireAfterSeconds" -> 0)
+    options = BSONDocument("expireAfterSeconds" -> ttl)
   )
+
+  private[repositories] lazy val editAddressIndex =
+    Index(Seq(("nino", IndexType.Ascending), ("editedAddress.addressType", IndexType.Ascending)), unique = true)
 
   private[repositories] def removeIndex(): Future[Int] =
     for {
@@ -92,9 +126,10 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, imp
 
   private[repositories] def setIndex(): Future[Boolean] =
     for {
-      _      <- removeIndex()
-      result <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
-    } yield result
+      _          <- removeIndex()
+      ttlResult  <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
+      editResult <- collection.flatMap(_.indexesManager.ensure(editAddressIndex))
+    } yield ttlResult && editResult
 
   private[repositories] def isTtlSet: Future[Boolean] =
     for {
@@ -105,7 +140,7 @@ class CorrespondenceAddressLockRepository @Inject()(mongo: ReactiveMongoApi, imp
 
 }
 
-object CorrespondenceAddressLockRepository {
+object EditAddressLockRepository {
   val EXPIRE_AT = "expireAt"
   val UK_TIME_ZONE: ZoneId = TimeZone.getTimeZone("Europe/London").toZoneId
   val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules

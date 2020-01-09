@@ -262,6 +262,8 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
 
+  lazy val editAddressTtl: Int = configuration.getInt("mongodb.editAddressTtl").getOrElse(86400)
+
 }
 
 trait TaxcalcUrls {

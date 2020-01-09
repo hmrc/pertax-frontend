@@ -37,7 +37,7 @@ import play.api.mvc.Results._
 import play.api.mvc.{ActionBuilder, AnyContentAsFormUrlEncoded, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.CorrespondenceAddressLockRepository
+import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
@@ -61,7 +61,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
   val mockAuthJourney = mock[AuthJourney]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockCitizenDetailsService = mock[CitizenDetailsService]
-  val mockCorrespondenceAddressLockRepository = mock[CorrespondenceAddressLockRepository]
+  val mockEditAddressLockRepository = mock[EditAddressLockRepository]
   val mockPersonalDetailsCardGenerator: PersonalDetailsCardGenerator = mock[PersonalDetailsCardGenerator]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
@@ -70,7 +70,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     reset(
       mockLocalSessionCache,
       mockAuditConnector,
-      mockCorrespondenceAddressLockRepository,
+      mockEditAddressLockRepository,
       mockAuthJourney,
       mockCitizenDetailsService,
       mockPersonalDetailsCardGenerator,
@@ -105,7 +105,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
 
-    def getCorrespondenceAddressLock: Option[AddressJourneyTTLModel] = None
+    def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
 
     def controller =
       new AddressController(
@@ -115,7 +115,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockAddressMovedService,
         mockPersonalDetailsCardGenerator,
         injected[CountryHelper],
-        mockCorrespondenceAddressLockRepository,
+        mockEditAddressLockRepository,
         mockAuthJourney,
         mockLocalSessionCache,
         injected[WithActiveTabAction],
@@ -143,11 +143,11 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         when(mockPersonalDetailsCardGenerator.getPersonalDetailsCards(any())(any(), any(), any())) thenReturn {
           Seq.empty
         }
-        when(mockCorrespondenceAddressLockRepository.insert(any())) thenReturn {
+        when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
           Future.successful(isInsertCorrespondenceAddressLockSuccessful)
         }
-        when(mockCorrespondenceAddressLockRepository.get(any())) thenReturn {
-          Future.successful(getCorrespondenceAddressLock)
+        when(mockEditAddressLockRepository.get(any())) thenReturn {
+          Future.successful(getEditedAddressIndicators)
         }
         when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
           Future.successful(MovedToScotland)
@@ -191,7 +191,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe OK
       verify(mockLocalSessionCache, times(1))
         .cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
-      verify(mockCorrespondenceAddressLockRepository, times(1)).get(any())
+      verify(mockEditAddressLockRepository, times(1)).get(any())
     }
 
     "send an audit event when user arrives on personal details page" in new LocalSetup {
@@ -553,7 +553,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           mock[AddressMovedService],
           mockPersonalDetailsCardGenerator,
           mock[CountryHelper],
-          mockCorrespondenceAddressLockRepository,
+          mockEditAddressLockRepository,
           mockAuthJourney,
           mockLocalSessionCache,
           injected[WithActiveTabAction],
@@ -2484,12 +2484,12 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix))
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
-      override def getCorrespondenceAddressLock: Option[AddressJourneyTTLModel] =
-        Some(mock[AddressJourneyTTLModel])
+      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+        List(mock[AddressJourneyTTLModel])
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -2506,7 +2506,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix))
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
@@ -2524,7 +2524,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe BAD_REQUEST
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix))
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
@@ -2543,7 +2543,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1))
         .updateAddress(meq(Fixtures.fakeNino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix))
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
@@ -2561,7 +2561,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix))
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 500 if insert address lock fails" in new LocalSetup {
@@ -2589,7 +2589,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
-      verify(controller.correspondenceAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix))
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
   }
 
@@ -2661,6 +2661,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(SoleAddrType))
+
     }
 
     "redirect to start of journey if soleSubmittedStartDateDto is missing from the cache, and the journey type is SoleAddrType" in new LocalSetup {
