@@ -64,7 +64,7 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
       val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe MOVED_PERMANENTLY
-      redirectLocation(r) shouldBe Some("/tax-credits-service/renewals/service-router")
+      redirectLocation(r) shouldBe Some("http://localhost:9362/tax-credits-service/renewals/service-router")
     }
   }
 
