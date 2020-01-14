@@ -54,19 +54,4 @@ class deEnrolledFromSaChoiceSpec extends BaseSpec with MockitoSugar {
     None,
     FakeRequest()
   )
-
-  "deEnrolledFromSaChoice view" should {
-    "check page contents" in {
-      val formWithErrors =
-        AmbiguousUserFlowDto.form.withError("ambiguousUserFormChoice", Messages("error.enrolled.to.send.tax.required"))
-      val document = Jsoup.parse(
-        views.html.ambiguousjourney
-          .deEnrolledFromSaChoice(formWithErrors)
-          .toString)
-      document.getElementsByTag("h1").text shouldBe Messages("label.did_you_deregister_from_sa_online")
-      document.getElementsByClass("error-summary-list").text shouldBe Messages(
-        "head.error.enrolled.to.send.tax.required")
-    }
-  }
-
 }
