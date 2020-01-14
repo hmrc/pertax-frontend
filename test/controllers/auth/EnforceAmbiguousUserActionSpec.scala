@@ -29,6 +29,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
+import util.UserRequestFixture
 
 import scala.concurrent.Future
 
@@ -55,22 +56,12 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
     "when a user is ambiguous" - {
 
       "return the request it was passed" in {
-        val userRequest =
-          UserRequest(
-            None,
-            None,
-            None,
-            NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
-            Credentials("", "Verify"),
-            ConfidenceLevel.L50,
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            FakeRequest()
-          )
+        val userRequest = UserRequestFixture.buildUserRequest(
+          saUser = NotEnrolledSelfAssessmentUser(SaUtr("1111111111")),
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L50,
+          request = FakeRequest()
+        )
         val result = harness()(userRequest)
         status(result) mustBe OK
       }
@@ -78,21 +69,12 @@ class EnforceAmbiguousUserActionSpec extends FreeSpec with MustMatchers with Gui
       "when a user is not ambiguous" - {
 
         "redirect to the landing page" in {
-          val userRequest =
-            UserRequest(
-              None,
-              None,
-              None,
-              NonFilerSelfAssessmentUser,
-              Credentials("", "Verify"),
-              ConfidenceLevel.L50,
-              None,
-              None,
-              None,
-              None,
-              None,
-              None,
-              FakeRequest())
+          val userRequest = UserRequestFixture.buildUserRequest(
+            saUser = NonFilerSelfAssessmentUser,
+            credentials = Credentials("", "Verify"),
+            confidenceLevel = ConfidenceLevel.L50,
+            request = FakeRequest())
+
           val result = harness()(userRequest)
           status(result) mustBe SEE_OTHER
           redirectLocation(result).get must endWith("/personal-account")
