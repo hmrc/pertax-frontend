@@ -18,8 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import models.{CreatePayment, PaymentRequest, PaymentSearchResult}
-import play.api.Logger
+import models.{CreatePayment, PaymentRequest}
 import play.api.http.Status._
 import services.http.WsAllMethods
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -39,11 +38,5 @@ class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecor
         case _ => Future.successful(None)
       }
     }
-  }
-
-  def findPayments(
-    utr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[PaymentSearchResult]] = {
-    val url = s"${configDecorator.getPaymentsUrl}/$utr"
-    http.GET[Option[PaymentSearchResult]](url)
   }
 }

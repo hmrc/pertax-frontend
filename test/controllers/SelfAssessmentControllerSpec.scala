@@ -32,9 +32,7 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
-import services.SelfAssessmentPaymentsService
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.Upstream5xxResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -50,7 +48,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
   val mockAuthAction = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockPayApiConnector = mock[PayApiConnector]
-  val mockSelfAssessmentPaymentsService = mock[SelfAssessmentPaymentsService]
 
   val saUtr = SaUtr("1111111111")
   val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
@@ -60,8 +57,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
       bind[PertaxAuditConnector].toInstance(mockAuditConnector),
       bind[AuthAction].toInstance(mockAuthAction),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
-      bind[AuthJourney].toInstance(defaultFakeAuthJourney),
-      bind[SelfAssessmentPaymentsService].toInstance(mockSelfAssessmentPaymentsService)
+      bind[AuthJourney].toInstance(defaultFakeAuthJourney)
     )
     .build()
 
@@ -76,7 +72,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
     def controller =
       new SelfAssessmentController(
         messagesApi,
-        mockSelfAssessmentPaymentsService,
         fakeAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector
@@ -174,88 +169,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
           .getOrElse(throw new TestFailedException("Failed to route", 0))
 
       status(result) shouldBe BAD_REQUEST
-    }
-  }
-
-  "Calling SelfAssessmentController.viewPayments" should {
-
-    "return 200 and render viewPayments page" when {
-
-      "a user is an Activated SA user" in new LocalSetup {
-
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
-
-        when(
-          mockSelfAssessmentPaymentsService.getPayments(any())(any(), any())
-        ) thenReturn Future.successful(List.empty)
-
-        val result: Future[Result] = controller.viewPayments()(FakeRequest())
-
-        status(result) shouldBe OK
-
-        contentAsString(result) should include(
-          messagesApi("title.selfAssessment.viewPayments.h1")
-        )
-
-      }
-    }
-
-    "redirect to the home page" when {
-
-      "a user is not an Activated SA user" in new LocalSetup {
-
-        override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
-
-        val result =
-          routeWrapper(buildFakeRequestWithAuth("GET", routes.SelfAssessmentController.viewPayments().url))
-            .getOrElse(throw new TestFailedException("Failed to route", 0))
-
-        status(result) shouldBe SEE_OTHER
-
-        redirectLocation(result) shouldBe Some(routes.HomeController.index().url)
-      }
-    }
-
-    "return 500 and render technical difficulties page" when {
-
-      "pay-api connector returns an Upstream5xxResponse" in new LocalSetup {
-
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
-
-        when(
-          mockSelfAssessmentPaymentsService.getPayments(any())(any(), any())
-        ) thenReturn Future.failed(Upstream5xxResponse("failed", BAD_GATEWAY, INTERNAL_SERVER_ERROR))
-
-        val result: Future[Result] = controller.viewPayments()(FakeRequest())
-
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-
-        contentAsString(result) should include(
-          messagesApi("global.error.InternalServerError500.heading")
-        )
-
-      }
-
-      "pay-api connector returns an InvalidJsonException" in new LocalSetup {
-
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
-
-        when(
-          mockSelfAssessmentPaymentsService.getPayments(any())(any(), any())
-        ) thenReturn Future.failed(InvalidJsonException("failed"))
-
-        val result: Future[Result] = controller.viewPayments()(FakeRequest())
-
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-
-        contentAsString(result) should include(
-          messagesApi("global.error.InternalServerError500.heading")
-        )
-
-      }
     }
   }
 }

@@ -16,6 +16,8 @@
 
 package views.html.cards
 
+import java.net.URLDecoder
+
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
@@ -36,8 +38,15 @@ class SelfAssessmentViewSpec extends BaseSpec {
   implicit val messages = Messages(lang, Messages.Implicits.applicationMessagesApi)
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).eachAttr("href").asScala should contain(href)
+  def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion = {
+    val link = document
+      .getElementsMatchingText(content)
+      .eachAttr("href")
+      .asScala
+      .head
+
+    URLDecoder.decode(link, "UTF-8") should include(href)
+  }
 
   val saUtr = SaUtr("123456789")
 
@@ -110,7 +119,7 @@ class SelfAssessmentViewSpec extends BaseSpec {
         hasLink(
           doc,
           messages("label.view_your_payments"),
-          "/personal-account/self-assessment-payments"
+          s"/self-assessment/ind/${user.saUtr}/account/payments"
         )
 
         hasLink(
