@@ -17,28 +17,33 @@
 package repositories
 
 import java.time.OffsetDateTime
+import java.util.UUID
 
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, SoleAddrType}
-import helpers.IntegrationHelpers
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.mockito.MockitoSugar.mock
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class CachingItSpec extends IntegrationHelpers
+class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
   with PatienceConfiguration
   with BeforeAndAfterEach {
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
   def mongo: EditAddressLockRepository = app.injector.instanceOf[EditAddressLockRepository]
 
