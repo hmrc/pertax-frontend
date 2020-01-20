@@ -131,7 +131,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
     s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account-access?origin=${enc(defaultOrigin.toString)}"
   lazy val tamcTransferAllowanceUrl = s"$tamcHost/marriage-allowance-application/history"
   lazy val incomeTaxFormsUrl = "https://www.gov.uk/government/collections/hmrc-forms"
-  lazy val selfAssessmentFormsAndHelpsheetsUrl = "https://www.gov.uk/self-assessment-forms-and-helpsheets"
   lazy val onlineServicesHelpdeskUrl =
     "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
   lazy val contactHrmcUrl = "https://www.gov.uk/contact-hmrc"
@@ -139,9 +138,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/request-access-tax-scheme?continue=/personal-account"
   lazy val selfAssessmentContactUrl =
     "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-  def registerForSelfAssessmentUrl(continueUrl: String) =
-    s"$governmentGatewayRegistrationFrontendHost/government-gateway-registration-frontend/are-you-trying-to-file-for-sa?continue=${enc(
-      continueUrl)}&origin=${enc(defaultOrigin.toString)}"
   lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
   lazy val origin =
     configuration.getString("sosOrigin").orElse(configuration.getString("appName")).getOrElse("undefined")
@@ -229,10 +225,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
     configuration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
   lazy val saveNiLetterAsPdfLinkEnabled =
     configuration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
-  lazy val saAmbigSkipUTRLetterEnabled =
-    configuration.getString("feature.sa-skip-utr-letter.enabled").getOrElse("true").toBoolean
-  lazy val saAmbigSimplifiedJourneyEnabled =
-    configuration.getString("feature.sa-simplified-journey.enabled").getOrElse("true").toBoolean
   lazy val updateInternationalAddressInPta =
     configuration.getString("feature.update-international-address-form.enabled").getOrElse("false").toBoolean
   lazy val closePostalAddressEnabled =
