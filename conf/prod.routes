@@ -32,21 +32,6 @@ GET         /personal-account/self-assessment/sign-in-again                     
 GET         /personal-account/self-assessment/need-to-reset-password                   @controllers.SaWrongCredentialsController.needToResetPassword
 GET         /personal-account/self-assessment/find-your-user-id                        @controllers.SaWrongCredentialsController.findYourUserId
 
-GET         /personal-account/self-assessment/ambiguous-sa-user                        @controllers.AmbiguousJourneyController.landingPage
-GET         /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.filedReturnOnlineChoice
-POST        /personal-account/self-assessment/sa-filed-online                          @controllers.AmbiguousJourneyController.processFileReturnOnlineChoice
-GET         /personal-account/self-assessment/sa-filed-post                            @controllers.AmbiguousJourneyController.filedReturnByPostChoice
-POST        /personal-account/self-assessment/sa-filed-post                            @controllers.AmbiguousJourneyController.processFiledReturnByPostChoice
-GET         /personal-account/self-assessment/de-enrolled-sa                           @controllers.AmbiguousJourneyController.deEnrolledFromSaChoice
-POST        /personal-account/self-assessment/de-enrolled-sa                           @controllers.AmbiguousJourneyController.processDeEnroledFromSaChoice
-GET         /personal-account/self-assessment/received-utr-letter                      @controllers.AmbiguousJourneyController.receivedUtrLetterChoice
-POST        /personal-account/self-assessment/received-utr-letter                      @controllers.AmbiguousJourneyController.processReceivedUtrLetterChoice
-GET         /personal-account/self-assessment/have-you-enrolled                        @controllers.AmbiguousJourneyController.usedUtrToEnrolChoice
-POST        /personal-account/self-assessment/have-you-enrolled                        @controllers.AmbiguousJourneyController.processUsedUtrToEnrolChoice
-GET         /personal-account/self-assessment/used-utr-to-register                     @controllers.AmbiguousJourneyController.usedUtrToRegisterChoice
-POST        /personal-account/self-assessment/used-utr-to-register                     @controllers.AmbiguousJourneyController.processUsedUtrToRegisterChoice
-GET         /personal-account/self-assessment/result/:page                             @controllers.AmbiguousJourneyController.handleAmbiguousJourneyLandingPages(page: String)
-
 GET         /personal-account/lang/enGb                                                @controllers.LanguageSwitchController.enGb()
 GET         /personal-account/lang/cyGb                                                @controllers.LanguageSwitchController.cyGb()
 
