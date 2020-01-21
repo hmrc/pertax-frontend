@@ -50,7 +50,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   private lazy val contactFrontendService = baseUrl("contact-frontend")
   private lazy val messageFrontendService = baseUrl("message-frontend")
-  private lazy val formFrontendService = baseUrl("dfs-frontend")
   lazy val pertaxFrontendService = baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = baseUrl("business-tax-account")
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
@@ -62,6 +61,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
     configuration.getString(s"external-url.$key").filter(_ => env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
+  private lazy val formFrontendService = decorateUrlForLocalDev("dfs-frontend").getOrElse("")
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
   lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
