@@ -113,17 +113,6 @@ class SelfAssessmentController @Inject()(
 
   def viewPayments: Action[AnyContent] =
     authJourney.authWithPersonalDetails.async { implicit request =>
-      request.saUserType match {
-        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
-          selfAssessmentPaymentsService.getPayments(saUtr.value).map { payments =>
-            Ok(views.html.selfassessment.viewPayments(payments))
-          } recover {
-            case ex: Upstream5xxResponse => error(ex.reportAs)
-            case _: InvalidJsonException => error(INTERNAL_SERVER_ERROR)
-          }
-
-        case _ =>
-          Future.successful(Redirect(routes.HomeController.index()))
-      }
+      Future.successful(Redirect(routes.HomeController.index()))
     }
 }

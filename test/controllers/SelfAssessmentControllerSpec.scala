@@ -179,83 +179,17 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
   "Calling SelfAssessmentController.viewPayments" should {
 
-    "return 200 and render viewPayments page" when {
+    "redirect to the home page" in new LocalSetup {
 
-      "a user is an Activated SA user" in new LocalSetup {
+      override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
 
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
+      val result =
+        routeWrapper(buildFakeRequestWithAuth("GET", routes.SelfAssessmentController.viewPayments().url))
+          .getOrElse(throw new TestFailedException("Failed to route", 0))
 
-        when(
-          mockSelfAssessmentPaymentsService.getPayments(any())(any(), any())
-        ) thenReturn Future.successful(List.empty)
+      status(result) shouldBe SEE_OTHER
 
-        val result: Future[Result] = controller.viewPayments()(FakeRequest())
-
-        status(result) shouldBe OK
-
-        contentAsString(result) should include(
-          messagesApi("title.selfAssessment.viewPayments.h1")
-        )
-
-      }
-    }
-
-    "redirect to the home page" when {
-
-      "a user is not an Activated SA user" in new LocalSetup {
-
-        override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
-
-        val result =
-          routeWrapper(buildFakeRequestWithAuth("GET", routes.SelfAssessmentController.viewPayments().url))
-            .getOrElse(throw new TestFailedException("Failed to route", 0))
-
-        status(result) shouldBe SEE_OTHER
-
-        redirectLocation(result) shouldBe Some(routes.HomeController.index().url)
-      }
-    }
-
-    "return 500 and render technical difficulties page" when {
-
-      "pay-api connector returns an Upstream5xxResponse" in new LocalSetup {
-
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
-
-        when(
-          mockSelfAssessmentPaymentsService.getPayments(any())(any(), any())
-        ) thenReturn Future.failed(Upstream5xxResponse("failed", BAD_GATEWAY, INTERNAL_SERVER_ERROR))
-
-        val result: Future[Result] = controller.viewPayments()(FakeRequest())
-
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-
-        contentAsString(result) should include(
-          messagesApi("global.error.InternalServerError500.heading")
-        )
-
-      }
-
-      "pay-api connector returns an InvalidJsonException" in new LocalSetup {
-
-        override def fakeAuthJourney: FakeAuthJourney =
-          new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
-
-        when(
-          mockSelfAssessmentPaymentsService.getPayments(any())(any(), any())
-        ) thenReturn Future.failed(InvalidJsonException("failed"))
-
-        val result: Future[Result] = controller.viewPayments()(FakeRequest())
-
-        status(result) shouldBe INTERNAL_SERVER_ERROR
-
-        contentAsString(result) should include(
-          messagesApi("global.error.InternalServerError500.heading")
-        )
-
-      }
+      redirectLocation(result) shouldBe Some(routes.HomeController.index().url)
     }
   }
 }
