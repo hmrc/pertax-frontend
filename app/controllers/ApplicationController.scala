@@ -23,6 +23,7 @@ import error.RendersErrors
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.i18n.MessagesApi
+import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
@@ -74,7 +75,12 @@ class ApplicationController @Inject()(
               Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
             case IdentityVerificationSuccessResponse(PrecondFailed) =>
               Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
-              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+              Redirect(
+                configDecorator.multiFactorAuthenticationUpliftUrl,
+                Map(
+                  "origin"      -> Seq(configDecorator.origin),
+                  "continueUrl" -> Seq(configDecorator.pertaxFrontendHost + configDecorator.personalAccount)
+                ))
             case IdentityVerificationSuccessResponse(LockedOut) =>
               Logger.warn(s"Unable to confirm user identity: $LockedOut")
               Unauthorized(views.html.iv.failure.lockedOut(allowContinue = false))
