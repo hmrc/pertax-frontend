@@ -109,12 +109,6 @@ class SelfAssessmentViewSpec extends BaseSpec {
 
         hasLink(
           doc,
-          messages("label.view_your_payments"),
-          "/personal-account/self-assessment-payments"
-        )
-
-        hasLink(
-          doc,
           messages("label.check_if_you_need_to_fill_in_a_tax_return"),
           "https://www.gov.uk/check-if-you-need-a-tax-return"
         )
