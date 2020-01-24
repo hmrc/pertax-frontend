@@ -34,7 +34,6 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
-
 import io.lemonlabs.uri.Url
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,6 +62,8 @@ class AuthActionImpl @Inject()(
       if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
   }
 
+  private val saEnrolmentKey = "IR-SA"
+
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
@@ -80,17 +81,20 @@ class AuthActionImpl @Inject()(
           Retrievals.trustedHelper and
           Retrievals.profile) {
 
+        case _ ~ Some(Agent) ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ =>
+          failAuthentication
+
         case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
+
+        case _ ~ Some(Organisation) ~ enrolments ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+          validateEnrolments(enrolments, upliftCredentialStrength)
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
-          upliftConfidenceLevel(request)
-
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
-          upliftCredentialStrength
+        case _ ~ Some(Organisation) ~ enrolments ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+          validateEnrolments(enrolments, upliftConfidenceLevel(request))
 
         case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
               confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
@@ -104,30 +108,35 @@ class AuthActionImpl @Inject()(
             }
             .asInstanceOf[Request[A]]
 
-          val saEnrolment =
-            enrolments
-              .find(_.key == "IR-SA" && trustedHelper.isEmpty)
-              .flatMap { enrolment =>
-                enrolment.identifiers
-                  .find(id => id.key == "UTR")
-                  .map(key =>
-                    SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
-              }
+          val enrolmentKeys = enrolments.map(_.key)
 
-          block(
-            AuthenticatedRequest[A](
-              trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
-              saEnrolment,
-              credentials,
-              confidenceLevel,
-              Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
-                Name(Some(helper.principalName), None)))),
-              logins.previousLogin,
-              trustedHelper,
-              addRedirect(profile),
-              trimmedRequest
+          if (enrolmentKeys == Set(saEnrolmentKey) || enrolmentKeys == Set.empty) {
+
+            val saEnrolment =
+              enrolments
+                .find(_.key == "IR-SA" && trustedHelper.isEmpty)
+                .flatMap { enrolment =>
+                  enrolment.identifiers
+                    .find(id => id.key == "UTR")
+                    .map(key =>
+                      SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
+                }
+
+            block(
+              AuthenticatedRequest[A](
+                trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
+                saEnrolment,
+                credentials,
+                confidenceLevel,
+                Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
+                  Name(Some(helper.principalName), None)))),
+                logins.previousLogin,
+                trustedHelper,
+                addRedirect(profile),
+                trimmedRequest
+              )
             )
-          )
+          } else failAuthentication
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
@@ -185,6 +194,15 @@ class AuthActionImpl @Inject()(
             .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri))))
         )
       ))
+
+  private def failAuthentication: Future[Result] =
+    Future.successful(Redirect(routes.ApplicationController.handleFailedAuthentication))
+
+  private def validateEnrolments(enrolments: Enrolments, default: Future[Result]): Future[Result] =
+    enrolments.enrolments.map(_.key) match {
+      case set if set == Set(saEnrolmentKey) || set == Set.empty => default
+      case _                                                     => failAuthentication
+    }
 }
 
 @ImplementedBy(classOf[AuthActionImpl])

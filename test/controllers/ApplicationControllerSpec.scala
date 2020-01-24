@@ -372,5 +372,13 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     }
   }
 
+  "calling ApplicationController.handleFailedAuthentication" should {
+    "return 500 and render the technical difficulties page" in new LocalSetup {
+      val result = controller.handleFailedAuthentication()(buildFakeRequestWithAuth("GET"))
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
   override def now: () => DateTime = DateTime.now
 }

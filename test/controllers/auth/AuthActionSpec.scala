@@ -58,7 +58,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
   def configDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  class Harness(authAction: AuthAction) extends Controller {
+  class Harness(val authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
@@ -77,6 +77,11 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   val fakeLoginTimes = LoginTimes(DateTime.now(), None)
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  def fakeMultipleEnrolments(utr: String) =
+    Set(
+      Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
+      Enrolment("VAT", Seq(EnrolmentIdentifier("HMCE-VATDEC-ORG", utr)), "Activated")
+    )
 
   def retrievals(
     nino: Option[String] = Some(nino.toString),
@@ -116,14 +121,6 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
-
-      "the user is an Agent" in {
-
-        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L100)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must endWith(ivRedirectUrl)
-      }
     }
   }
 
@@ -143,15 +140,6 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       "the user in an Organisation" in {
 
         val controller = retrievals(affinityGroup = Some(Organisation), credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe
-          Some(mfaRedirectUrl)
-      }
-
-      "the user in an Agent" in {
-
-        val controller = retrievals(affinityGroup = Some(Agent), credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
@@ -202,22 +190,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     }
   }
 
-  "A user with insufficient enrolments must" - {
-    "be redirected to the Sorry there is a problem page" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
-
-      whenReady(result.failed) { ex =>
-        ex mustBe an[InsufficientEnrolments]
-      }
-    }
-  }
-
-  "A user with nino and no SA enrolment must" - {
-    "create an authenticated request" in {
+  "An authenticated request must be created when" - {
+    "A user has a nino and no SA enrolment" in {
 
       val controller = retrievals()
 
@@ -225,10 +199,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       status(result) mustBe OK
       contentAsString(result) must include(nino)
     }
-  }
 
-  "A user with no nino but an SA enrolment must" - {
-    "create an authenticated request" in {
+    "A user has no nino and only an SA enrolment" in {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
@@ -238,10 +210,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       status(result) mustBe OK
       contentAsString(result) must include(utr)
     }
-  }
 
-  "A user with a nino and an SA enrolment must" - {
-    "create an authenticated request" in {
+    "A user has a nino and and only SA enrolment" in {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
@@ -252,20 +222,49 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       contentAsString(result) must include(nino)
       contentAsString(result) must include(utr)
     }
+
+    "A user has a trustedHelper and" - {
+      "the trusted helper should be present in the request" in {
+        val fakePrincipalNino = Fixtures.fakeNino.toString()
+
+        val controller =
+          retrievals(
+            trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
+
+        val result = controller.onPageLoad()(FakeRequest("", ""))
+        status(result) mustBe OK
+        contentAsString(result) must include(
+          s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
+      }
+    }
   }
 
-  "A user with trustedHelper must" - {
-    "create an authenticated request containing the trustedHelper" in {
+  "A user must be redirected to the Technical difficulties page when" - {
+    "A user has insufficient enrolments" in {
+      when(mockAuthConnector.authorise(any(), any())(any(), any()))
+        .thenReturn(Future.failed(InsufficientEnrolments()))
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val controller = new Harness(authAction)
+      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
-      val fakePrincipalNino = Fixtures.fakeNino.toString()
+      whenReady(result.failed) { ex =>
+        ex mustBe an[InsufficientEnrolments]
+      }
+    }
 
+    "A user has an Agent affinity group" in {
+      val controller = retrievals(affinityGroup = Some(Agent))
+      val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
+    }
+
+    "An Organisation has multiple enrolments" in {
       val controller =
-        retrievals(trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
-
-      val result = controller.onPageLoad()(FakeRequest("", ""))
-      status(result) mustBe OK
-      contentAsString(result) must include(
-        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
+        retrievals(affinityGroup = Some(Organisation), saEnrolments = Enrolments(fakeMultipleEnrolments("utr")))
+      val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
     }
   }
 
