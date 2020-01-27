@@ -24,8 +24,7 @@ import io.lemonlabs.uri.{QueryString, Url}
 import models.SelfAssessmentUser
 import models.dto.SAWrongCredentialsDto
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, ActionBuilder, AnyContent, Request}
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import play.api.mvc.{Action, ActionBuilder, AnyContent}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
