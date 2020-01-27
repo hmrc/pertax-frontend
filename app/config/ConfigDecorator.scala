@@ -145,7 +145,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val origin =
     configuration.getString("sosOrigin").orElse(configuration.getString("appName")).getOrElse("undefined")
 
-  lazy val signinGGUrl = "https://www.tax.service.gov.uk/account"
   lazy val lostUserIdWithSa =
     "https://www.tax.service.gov.uk/account-recovery/disabled-user-id/check-email/IndividualWithSA"
 

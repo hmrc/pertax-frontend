@@ -20,10 +20,12 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import models.{SelfAssessmentUser, SelfAssessmentUserType}
+import io.lemonlabs.uri.{QueryString, Url}
+import models.SelfAssessmentUser
 import models.dto.SAWrongCredentialsDto
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, ActionBuilder, AnyContent}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, Request}
+import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
@@ -43,7 +45,19 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
   }
 
   def signInAgain: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.signInAgain())
+    lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+
+    val continueUrl = configDecorator.pertaxFrontendHost + configDecorator.personalAccount
+
+    val url = Url(
+      path = ggSignIn,
+      query = QueryString.fromPairs(
+        "continue"    -> continueUrl,
+        "accountType" -> "individual",
+        "origin"      -> configDecorator.defaultOrigin.origin)
+    )
+
+    Ok(views.html.selfassessment.signInAgain(url.toString()))
   }
 
   def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
