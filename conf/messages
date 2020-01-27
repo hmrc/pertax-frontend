@@ -514,4 +514,8 @@ label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
 label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
 label.request_sa_access.button=Request access to Self Assessment
 
+label.next_page_forgotten_password=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my password’.
+label.next_page_forgotten_userid=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my Government Gateway user ID’.
+
+
 

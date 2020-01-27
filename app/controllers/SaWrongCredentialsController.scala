@@ -35,6 +35,20 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
     extends PertaxBaseController {
   private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithSelfAssessment
 
+  def ggSignInUrl: String = {
+    lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+
+    val continueUrl = configDecorator.pertaxFrontendHost + configDecorator.personalAccount
+
+    Url(
+      path = ggSignIn,
+      query = QueryString.fromPairs(
+        "continue"    -> continueUrl,
+        "accountType" -> "individual",
+        "origin"      -> configDecorator.defaultOrigin.origin)
+    ).toString()
+  }
+
   def landingPage: Action[AnyContent] = authenticate { implicit request =>
     Ok(views.html.selfassessment.signedInWrongAccount())
   }
@@ -44,19 +58,7 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
   }
 
   def signInAgain: Action[AnyContent] = authenticate { implicit request =>
-    lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
-
-    val continueUrl = configDecorator.pertaxFrontendHost + configDecorator.personalAccount
-
-    val url = Url(
-      path = ggSignIn,
-      query = QueryString.fromPairs(
-        "continue"    -> continueUrl,
-        "accountType" -> "individual",
-        "origin"      -> configDecorator.defaultOrigin.origin)
-    )
-
-    Ok(views.html.selfassessment.signInAgain(url.toString()))
+    Ok(views.html.selfassessment.signInAgain(ggSignInUrl))
   }
 
   def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
@@ -70,11 +72,11 @@ class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJ
     }
 
   def needToResetPassword: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.needToResetPassword(getSaUtr))
+    Ok(views.html.selfassessment.needToResetPassword(getSaUtr, ggSignInUrl))
   }
 
   def findYourUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.findYourUserId(getSaUtr))
+    Ok(views.html.selfassessment.findYourUserId(getSaUtr, ggSignInUrl))
   }
 
   def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
