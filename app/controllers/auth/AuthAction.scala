@@ -84,17 +84,21 @@ class AuthActionImpl @Inject()(
         case _ ~ Some(Agent) ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ =>
           failAuthentication
 
+        case _ ~ Some(Organisation) ~ Enrolments(enrolments) ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _
+            if !hasCorrectEnrolments(enrolments) =>
+          failAuthentication
+
         case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case _ ~ Some(Organisation) ~ enrolments ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
-          validateEnrolments(enrolments, upliftCredentialStrength)
+        case _ ~ Some(Organisation) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+          upliftCredentialStrength
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation) ~ enrolments ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
-          validateEnrolments(enrolments, upliftConfidenceLevel(request))
+        case _ ~ Some(Organisation) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+          upliftConfidenceLevel(request)
 
         case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
               confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
@@ -108,35 +112,30 @@ class AuthActionImpl @Inject()(
             }
             .asInstanceOf[Request[A]]
 
-          val enrolmentKeys = enrolments.map(_.key)
+          val saEnrolment =
+            enrolments
+              .find(_.key == "IR-SA" && trustedHelper.isEmpty)
+              .flatMap { enrolment =>
+                enrolment.identifiers
+                  .find(id => id.key == "UTR")
+                  .map(key =>
+                    SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
+              }
 
-          if (enrolmentKeys == Set(saEnrolmentKey) || enrolmentKeys == Set.empty) {
-
-            val saEnrolment =
-              enrolments
-                .find(_.key == "IR-SA" && trustedHelper.isEmpty)
-                .flatMap { enrolment =>
-                  enrolment.identifiers
-                    .find(id => id.key == "UTR")
-                    .map(key =>
-                      SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
-                }
-
-            block(
-              AuthenticatedRequest[A](
-                trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
-                saEnrolment,
-                credentials,
-                confidenceLevel,
-                Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
-                  Name(Some(helper.principalName), None)))),
-                logins.previousLogin,
-                trustedHelper,
-                addRedirect(profile),
-                trimmedRequest
-              )
+          block(
+            AuthenticatedRequest[A](
+              trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
+              saEnrolment,
+              credentials,
+              confidenceLevel,
+              Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
+                Name(Some(helper.principalName), None)))),
+              logins.previousLogin,
+              trustedHelper,
+              addRedirect(profile),
+              trimmedRequest
             )
-          } else failAuthentication
+          )
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
@@ -198,11 +197,11 @@ class AuthActionImpl @Inject()(
   private def failAuthentication: Future[Result] =
     Future.successful(Redirect(routes.ApplicationController.handleFailedAuthentication))
 
-  private def validateEnrolments(enrolments: Enrolments, default: Future[Result]): Future[Result] =
-    enrolments.enrolments.map(_.key) match {
-      case set if set == Set(saEnrolmentKey) || set == Set.empty => default
-      case _                                                     => failAuthentication
-    }
+  private def hasCorrectEnrolments(enrolments: Set[Enrolment]): Boolean = {
+    val keys = enrolments.map(_.key)
+
+    keys.equals(Set(saEnrolmentKey)) || keys.isEmpty
+  }
 }
 
 @ImplementedBy(classOf[AuthActionImpl])
