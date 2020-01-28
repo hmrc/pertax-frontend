@@ -87,4 +87,10 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe BAD_REQUEST
     }
   }
+
+  "ggSignInUrl" should {
+    "be the gg-sign in url" in {
+      controller.ggSignInUrl shouldBe "/gg/sign-in?continue=/personal-account&accountType=individual&origin=PERTAX"
+    }
+  }
 }

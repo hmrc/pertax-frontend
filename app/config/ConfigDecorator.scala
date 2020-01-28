@@ -145,12 +145,6 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val origin =
     configuration.getString("sosOrigin").orElse(configuration.getString("appName")).getOrElse("undefined")
 
-  lazy val signinGGUrl = "https://www.tax.service.gov.uk/account"
-  lazy val lostUserIdWithSa =
-    "https://www.tax.service.gov.uk/account-recovery/disabled-user-id/check-email/IndividualWithSA"
-
-  lazy val lostUserIdUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-userid"
-  lazy val lostPasswordUrl = "https://www.tax.service.gov.uk/account-recovery/choose-account-type/lost-password"
   lazy val problemsSigningInUrl = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val taxReturnByPostUrl = "https://www.gov.uk/government/publications/self-assessment-tax-return-sa100"
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
