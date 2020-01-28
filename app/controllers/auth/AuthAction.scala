@@ -192,9 +192,8 @@ class AuthActionImpl @Inject()(
 
   private def hasIncorrectEnrolments(enrolments: Set[Enrolment]): Boolean = {
     val saEnrolmentKey = "IR-SA"
-    val keys = enrolments.map(_.key)
 
-    if (keys.equals(Set(saEnrolmentKey)) || keys.isEmpty) false else true
+    if (enrolments.map(_.key).equals(Set(saEnrolmentKey))) false else true
   }
 }
 

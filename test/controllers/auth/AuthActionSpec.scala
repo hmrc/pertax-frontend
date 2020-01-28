@@ -248,15 +248,6 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
         status(result) mustBe OK
         contentAsString(result) must include(utr)
       }
-
-      "no enrolments" in {
-
-        val controller =
-          retrievals(nino = None, affinityGroup = Some(Organisation), saEnrolments = Enrolments(Set.empty))
-
-        val result = controller.onPageLoad()(FakeRequest("", ""))
-        status(result) mustBe OK
-      }
     }
 
     "A user has a trustedHelper and" - {
@@ -276,31 +267,44 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   }
 
   "A user must be redirected to the Technical difficulties page when" - {
-    "A user has insufficient enrolments" in {
-      when(mockAuthConnector.authorise(any(), any())(any(), any()))
-        .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
-      val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+    "A user has" - {
+      "insufficient enrolments" in {
+        when(mockAuthConnector.authorise(any(), any())(any(), any()))
+          .thenReturn(Future.failed(InsufficientEnrolments()))
+        val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+        val controller = new Harness(authAction)
+        val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
-      whenReady(result.failed) { ex =>
-        ex mustBe an[InsufficientEnrolments]
+        whenReady(result.failed) { ex =>
+          ex mustBe an[InsufficientEnrolments]
+        }
+      }
+
+      "an Agent affinity group" in {
+        val controller = retrievals(affinityGroup = Some(Agent))
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
       }
     }
 
-    "A user has an Agent affinity group" in {
-      val controller = retrievals(affinityGroup = Some(Agent))
-      val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
-    }
+    "An Organisation has" - {
+      "multiple enrolments containing non IR-SA" in {
+        val controller =
+          retrievals(affinityGroup = Some(Organisation), saEnrolments = Enrolments(fakeMultipleEnrolments))
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
+      }
 
-    "An Organisation has multiple enrolments containing non IR-SA" in {
-      val controller =
-        retrievals(affinityGroup = Some(Organisation), saEnrolments = Enrolments(fakeMultipleEnrolments))
-      val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
+      "no enrolments" in {
+        val controller =
+          retrievals(nino = None, affinityGroup = Some(Organisation), saEnrolments = Enrolments(Set.empty))
+
+        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
+      }
     }
   }
 
