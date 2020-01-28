@@ -13,6 +13,7 @@ GET         /personal-account                                                   
 GET         /personal-account/full                                                     @controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-complete                                  @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-failed                                    @controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
+GET         /personal-account/invalid-enrolments                                       @controllers.ApplicationController.handleFailedAuthentication
 
 GET         /personal-account/signout                                                  @controllers.ApplicationController.signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin])
 

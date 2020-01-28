@@ -34,7 +34,6 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
-
 import io.lemonlabs.uri.Url
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -80,17 +79,19 @@ class AuthActionImpl @Inject()(
           Retrievals.trustedHelper and
           Retrievals.profile) {
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Agent) ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ =>
+          failAuthentication
+
+        case _ ~ Some(Organisation) ~ Enrolments(enrolments) ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _
+            if hasIncorrectEnrolments(enrolments) =>
+          failAuthentication
+
+        case _ ~ (Some(Individual) | Some(Organisation)) ~ _ ~ _ ~ (Some(CredentialStrength.weak) |
+            None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ (Some(Individual) | Some(Organisation)) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
-
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
-          upliftConfidenceLevel(request)
-
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
-          upliftCredentialStrength
 
         case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
               confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
@@ -185,6 +186,15 @@ class AuthActionImpl @Inject()(
             .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri))))
         )
       ))
+
+  private def failAuthentication: Future[Result] =
+    Future.successful(Redirect(routes.ApplicationController.handleFailedAuthentication))
+
+  private def hasIncorrectEnrolments(enrolments: Set[Enrolment]): Boolean = {
+    val saEnrolmentKey = "IR-SA"
+
+    if (enrolments.map(_.key).equals(Set(saEnrolmentKey))) false else true
+  }
 }
 
 @ImplementedBy(classOf[AuthActionImpl])

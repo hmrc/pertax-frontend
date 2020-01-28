@@ -107,4 +107,10 @@ class ApplicationController @Inject()(
           }
         }
     }
+
+  def handleFailedAuthentication: Action[AnyContent] =
+    Action.async { implicit request =>
+      Logger.error(s"Organisation/Agent has incorrect enrolments")
+      unauthenticatedFutureError(INTERNAL_SERVER_ERROR)
+    }
 }
