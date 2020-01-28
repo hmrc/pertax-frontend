@@ -62,8 +62,6 @@ class AuthActionImpl @Inject()(
       if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
   }
 
-  private val saEnrolmentKey = "IR-SA"
-
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
@@ -85,19 +83,14 @@ class AuthActionImpl @Inject()(
           failAuthentication
 
         case _ ~ Some(Organisation) ~ Enrolments(enrolments) ~ _ ~ _ ~ _ ~ _ ~ _ ~ _ ~ _
-            if !hasCorrectEnrolments(enrolments) =>
+            if hasIncorrectEnrolments(enrolments) =>
           failAuthentication
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ (Some(Individual) | Some(Organisation)) ~ _ ~ _ ~ (Some(CredentialStrength.weak) |
+            None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case _ ~ Some(Organisation) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
-          upliftCredentialStrength
-
-        case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
-          upliftConfidenceLevel(request)
-
-        case _ ~ Some(Organisation) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ (Some(Individual) | Some(Organisation)) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
         case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
@@ -197,10 +190,11 @@ class AuthActionImpl @Inject()(
   private def failAuthentication: Future[Result] =
     Future.successful(Redirect(routes.ApplicationController.handleFailedAuthentication))
 
-  private def hasCorrectEnrolments(enrolments: Set[Enrolment]): Boolean = {
+  private def hasIncorrectEnrolments(enrolments: Set[Enrolment]): Boolean = {
+    val saEnrolmentKey = "IR-SA"
     val keys = enrolments.map(_.key)
 
-    keys.equals(Set(saEnrolmentKey)) || keys.isEmpty
+    if (keys.equals(Set(saEnrolmentKey)) || keys.isEmpty) false else true
   }
 }
 

@@ -58,7 +58,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
   def configDecorator = app.injector.instanceOf[ConfigDecorator]
 
-  class Harness(val authAction: AuthAction) extends Controller {
+  class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
@@ -76,12 +76,16 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
   val fakeConfidenceLevel = ConfidenceLevel.L200
   val fakeLoginTimes = LoginTimes(DateTime.now(), None)
 
-  def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
-  def fakeMultipleEnrolments(utr: String) =
+  def utr: String = new SaUtrGenerator().nextSaUtr.utr
+
+  def fakeSaEnrolments =
+    Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  def fakeMultipleEnrolments: Set[Enrolment] =
     Set(
       Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"),
       Enrolment("VAT", Seq(EnrolmentIdentifier("HMCE-VATDEC-ORG", utr)), "Activated")
     )
+  def fakeSaEnrolmentsWithUtr(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
   def retrievals(
     nino: Option[String] = Some(nino.toString),
@@ -116,12 +120,11 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       }
 
       "the user is an Organisation" in {
-        val utr = new SaUtrGenerator().nextSaUtr.utr
 
         val controller = retrievals(
           affinityGroup = Some(Organisation),
           confidenceLevel = ConfidenceLevel.L100,
-          saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+          saEnrolments = Enrolments(fakeSaEnrolments))
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -143,12 +146,11 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       }
 
       "the user in an Organisation" in {
-        val utr = new SaUtrGenerator().nextSaUtr.utr
 
         val controller = retrievals(
           affinityGroup = Some(Organisation),
           credentialStrength = CredentialStrength.weak,
-          saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+          saEnrolments = Enrolments(fakeSaEnrolments))
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
@@ -215,7 +217,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       "no nino and an SA enrolment" in {
 
-        val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+        val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolmentsWithUtr(utr)))
 
         val result = controller.onPageLoad()(FakeRequest("", ""))
         status(result) mustBe OK
@@ -224,7 +226,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
       "a nino and an SA enrolment" in {
 
-        val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+        val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolmentsWithUtr(utr)))
 
         val result = controller.onPageLoad()(FakeRequest("", ""))
         status(result) mustBe OK
@@ -237,7 +239,10 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       "an SA enrolment only" in {
 
         val controller =
-          retrievals(nino = None, affinityGroup = Some(Organisation), saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+          retrievals(
+            nino = None,
+            affinityGroup = Some(Organisation),
+            saEnrolments = Enrolments(fakeSaEnrolmentsWithUtr(utr)))
 
         val result = controller.onPageLoad()(FakeRequest("", ""))
         status(result) mustBe OK
@@ -291,10 +296,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     }
 
     "An Organisation has multiple enrolments containing non IR-SA" in {
-      val utr = new SaUtrGenerator().nextSaUtr.utr
-
       val controller =
-        retrievals(affinityGroup = Some(Organisation), saEnrolments = Enrolments(fakeMultipleEnrolments(utr)))
+        retrievals(affinityGroup = Some(Organisation), saEnrolments = Enrolments(fakeMultipleEnrolments))
       val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/personal-account/invalid-enrolments")
