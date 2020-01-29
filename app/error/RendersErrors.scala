@@ -18,9 +18,10 @@ package error
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, UNAUTHORIZED}
 import play.api.i18n.Messages
 import play.api.mvc._
+import play.twirl.api.Html
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
@@ -89,4 +90,19 @@ trait RendersErrors extends Results {
     messages: Messages): Future[Result] =
     Future.successful(NotFound(views.html.page_not_found_template()))
 
+  def unauthorizedFutureError(signOutUrl: String)(
+    implicit request: Request[_],
+    configDecorator: ConfigDecorator,
+    partialRetriever: LocalPartialRetriever,
+    messages: Messages): Future[Result] = {
+
+    val title = messages("global.error.unauthorized.title")
+    val usePersonalGGMessage = s"<p>${messages("global.error.unauthorized.usePersonalGG")}</p>"
+    val forgottenMessage = s"<p>${messages("global.error.unauthorized.forgotten")}</p>"
+    val button = s"""<a href="$signOutUrl" class="button" id="sign-out">${messages("global.label.sign_out")}</a>"""
+
+    Future.successful(
+      Unauthorized(
+        views.html.unauthenticatedError(title, None, Some(usePersonalGGMessage + forgottenMessage + button))))
+  }
 }

@@ -389,6 +389,10 @@ global.error.BadRequest.heading=There is a problem
 global.error.BadRequest.message1=Sorry, we are experiencing technical difficulties.
 global.error.BadRequest.message2=Please try again later.
 
+global.error.unauthorized.title=You cannot sign in to your Personal Tax Account using these details
+global.error.unauthorized.usePersonalGG=You must use the Government Gateway user ID and password for your Personal Tax Account.
+global.error.unauthorized.forgotten=If you have forgotten these details, you can find your Government Gateway user ID or reset your password after you sign out.
+
 #
 # New Homepage design
 #

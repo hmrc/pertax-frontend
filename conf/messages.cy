@@ -520,3 +520,6 @@ label.request_sa_access.button=Request access to Self Assessment
 label.next_page_forgotten_password=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my password’.
 label.next_page_forgotten_userid=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my Government Gateway user ID’.
 
+global.error.unauthorized.title=You cannot sign in to your Personal Tax Account using these details
+global.error.unauthorized.usePersonalGG=You must use the Government Gateway user ID and password for your Personal Tax Account.
+global.error.unauthorized.forgotten=If you have forgotten these details, you can find your Government Gateway user ID or reset your password after you sign out.

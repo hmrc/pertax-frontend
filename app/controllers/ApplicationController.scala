@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import error.RendersErrors
+import io.lemonlabs.uri.{QueryString, Url}
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.i18n.MessagesApi
@@ -111,6 +112,20 @@ class ApplicationController @Inject()(
   def handleFailedAuthentication: Action[AnyContent] =
     Action.async { implicit request =>
       Logger.error(s"Organisation/Agent has incorrect enrolments")
-      unauthenticatedFutureError(UNAUTHORIZED)
+      unauthorizedFutureError(ggSignInUrl)
     }
+
+  def ggSignInUrl: String = {
+    lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+
+    val continueUrl = configDecorator.pertaxFrontendHost + configDecorator.personalAccount
+
+    Url(
+      path = ggSignIn,
+      query = QueryString.fromPairs(
+        "continue"    -> continueUrl,
+        "accountType" -> "individual",
+        "origin"      -> configDecorator.defaultOrigin.origin)
+    ).toString()
+  }
 }

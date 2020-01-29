@@ -373,7 +373,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
   }
 
   "calling ApplicationController.handleFailedAuthentication" should {
-    "return 500 and render the technical difficulties page" in new LocalSetup {
+    "return 401 and render the unauthorized error page" in new LocalSetup {
       val result = controller.handleFailedAuthentication()(buildFakeRequestWithAuth("GET"))
 
       status(result) shouldBe UNAUTHORIZED
