@@ -1,7 +1,7 @@
 pertax-frontend
 ===============
 
-This repository holds the Personal Tax Account front end project. 
+This is the repository for the Personal Tax Account front end project. 
 
 
 
