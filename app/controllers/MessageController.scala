@@ -47,37 +47,29 @@ class MessageController @Inject()(
   def messageList: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
-      if (request.isGovernmentGateway) {
-        messageFrontendService.getMessageListPartial map { p =>
-          Ok(
-            views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
-              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")))
-          )
-        }
-      } else {
-        futureError(UNAUTHORIZED)
+      messageFrontendService.getMessageListPartial map { p =>
+        Ok(
+          views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
+            Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")))
+        )
       }
     }
 
   def messageDetail(messageToken: String): Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
       .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
-      if (request.isGovernmentGateway) {
-        messageFrontendService.getMessageDetailPartial(messageToken).map {
-          case HtmlPartial.Success(Some(title), content) =>
-            Ok(views.html.message.messageDetail(message = content, title = title))
-          case HtmlPartial.Success(None, content) =>
-            Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
-          case HtmlPartial.Failure(_, _) =>
-            Ok(
-              views.html.message.messageDetail(
-                message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
-                title = Messages("label.message")
-              )
+      messageFrontendService.getMessageDetailPartial(messageToken).map {
+        case HtmlPartial.Success(Some(title), content) =>
+          Ok(views.html.message.messageDetail(message = content, title = title))
+        case HtmlPartial.Success(None, content) =>
+          Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
+        case HtmlPartial.Failure(_, _) =>
+          Ok(
+            views.html.message.messageDetail(
+              message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
+              title = Messages("label.message")
             )
-        }
-      } else {
-        futureError(UNAUTHORIZED)
+          )
       }
     }
 }
