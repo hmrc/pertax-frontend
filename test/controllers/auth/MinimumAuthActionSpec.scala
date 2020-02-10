@@ -17,7 +17,7 @@
 package controllers.auth
 
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
+import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.joda.time.DateTime
@@ -34,9 +34,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import util.Fixtures
 import util.RetrievalOps._
@@ -54,6 +54,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
 
   val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
   val configDecorator = app.injector.instanceOf[ConfigDecorator]
+  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[PertaxAuditConnector])
 
   class Harness(authAction: MinimumAuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -67,7 +68,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
     "be redirected to the session timeout page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -79,7 +80,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -112,7 +113,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -136,7 +137,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -161,7 +162,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -185,7 +186,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
