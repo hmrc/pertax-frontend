@@ -22,7 +22,7 @@ import controllers.auth.SessionAuditor._
 import controllers.auth.requests.AuthenticatedRequest
 import org.joda.time.DateTime
 import play.api.Logger
-import play.api.libs.json.{Format, Json, OFormat}
+import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
@@ -34,7 +34,8 @@ import util.AuditServiceTools
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject()(auditConnector: PertaxAuditConnector)(implicit ec: ExecutionContext) {
+private[auth] class SessionAuditor @Inject()(auditConnector: PertaxAuditConnector)(implicit ec: ExecutionContext)
+    extends AuditTags {
 
   def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit hc: HeaderCarrier): Future[Result] =
     request.session.get(sessionKey) match {
@@ -46,7 +47,8 @@ private[auth] class SessionAuditor @Inject()(auditConnector: PertaxAuditConnecto
             ExtendedDataEvent(
               auditSource = AuditServiceTools.auditSource,
               auditType = auditType,
-              detail = Json.toJson(eventDetail))
+              detail = Json.toJson(eventDetail),
+              tags = buildTags(request))
           )
           .recover {
             case e: Exception =>

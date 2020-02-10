@@ -42,7 +42,8 @@ import util.{AuditServiceTools, Fixtures}
 import scala.concurrent.{ExecutionContext, Future}
 
 class SessionAuditorSpec
-    extends PlaySpec with MustMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures with BeforeAndAfterEach {
+    extends PlaySpec with MustMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures with BeforeAndAfterEach
+    with AuditTags {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -77,10 +78,12 @@ class SessionAuditorSpec
 
   def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {
     val detailsJson = Json.toJson(UserSessionAuditEvent(authenticatedRequest))
+    val tags = buildTags(authenticatedRequest)
     argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
       override def matches(o: Any): Boolean = o match {
-        case ExtendedDataEvent(AuditServiceTools.auditSource, SessionAuditor.auditType, _, _, `detailsJson`, _) => true
-        case _                                                                                                  => false
+        case ExtendedDataEvent(AuditServiceTools.auditSource, SessionAuditor.auditType, _, `tags`, `detailsJson`, _) =>
+          true
+        case _ => false
       }
     })
   }
