@@ -33,7 +33,7 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 import io.lemonlabs.uri.Url
 

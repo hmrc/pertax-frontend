@@ -38,11 +38,10 @@ trait PdfGeneratorConnector {
 @Singleton
 class FrontendPdfGeneratorConnector @Inject()(
   environment: Environment,
-  configuration: Configuration,
+  override val runModeConfiguration: Configuration,
   wsHttp: WsAllMethods)
     extends PdfGeneratorConnector with ServicesConfig {
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   val pdfServiceUrl: String = baseUrl("pdf-generator-service")
   val serviceURL = pdfServiceUrl + "/pdf-generator-service/generate"
   def getWsClient: WSClient = wsHttp.wsClient

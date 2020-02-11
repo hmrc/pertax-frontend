@@ -23,7 +23,7 @@ import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
@@ -33,15 +33,14 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PreferencesFrontendPartialService @Inject()(
   environment: Environment,
-  configuration: Configuration,
+  override val runModeConfiguration: Configuration,
   val http: WsAllMethods,
   val metrics: Metrics,
-  applicationCrypto: ApplicationCrypto,
+  sessionCookieCrypto: SessionCookieCrypto,
   val tools: Tools)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
+    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
   def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(

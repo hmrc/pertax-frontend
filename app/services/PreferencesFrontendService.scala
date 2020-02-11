@@ -27,9 +27,9 @@ import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Environment, Logger}
 import services.http.WsAllMethods
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.crypto.PlainText
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 
@@ -38,21 +38,19 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PreferencesFrontendService @Inject()(
   environment: Environment,
-  configuration: Configuration,
+  override val runModeConfiguration: Configuration,
   val simpleHttp: WsAllMethods,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
-  val applicationCrypto: ApplicationCrypto,
+  val sessionCookieCrypto: SessionCookieCrypto,
   val tools: Tools)(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
-  val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
-  override def crypto = sessionCookieCryptoFilter.encrypt
+  override def crypto: String => String = cookie => sessionCookieCrypto.crypto.encrypt(PlainText(cookie)).value
 
   def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
 

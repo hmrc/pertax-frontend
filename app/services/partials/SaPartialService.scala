@@ -21,11 +21,10 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
 import play.api.Mode.Mode
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment}
 import services.http.WsAllMethods
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
@@ -34,19 +33,17 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SaPartialService @Inject()(
   environment: Environment,
-  configuration: Configuration,
+  override val runModeConfiguration: Configuration,
   override val http: WsAllMethods,
-  override val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
-  applicationCrypto: ApplicationCrypto,
+  sessionCookieCrypto: SessionCookieCrypto,
   val tools: Tools)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig with I18nSupport {
+    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   private val returnUrl = configDecorator.pertaxFrontendHomeUrl
-  private val returnLinkText = Messages("label.back_to_account_home") //TODO remove ref to Messages as this is the service layer
+  private val returnLinkText = configDecorator.saPartialReturnLinkText
 
   def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(

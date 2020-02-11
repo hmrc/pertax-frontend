@@ -23,20 +23,17 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import models._
-import org.joda.time.{DateTime, LocalDate}
-import play.api.Logger
+import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import services.SelfAssessmentPaymentsService
-import uk.gov.hmrc.http.{HeaderCarrier, Upstream5xxResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
-import util.DateTimeTools.toPaymentDate
 import util.{DateTimeTools, LocalPartialRetriever}
-import viewmodels.SelfAssessmentPayment
 
 import scala.concurrent.Future
 

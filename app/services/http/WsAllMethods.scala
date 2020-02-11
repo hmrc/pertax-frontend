@@ -34,16 +34,15 @@ trait WSHttp
 @Singleton
 class WsAllMethods @Inject()(
   environment: Environment,
-  config: Configuration,
+  override val runModeConfiguration: Configuration,
   val actorSystem: ActorSystem,
   val auditConnector: PertaxAuditConnector)
     extends WSHttp with HttpAuditing with AppName with RunMode {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = config
-  val appNameConfiguration: Configuration = config
+  val appNameConfiguration: Configuration = runModeConfiguration
 
   override val hooks = Seq(AuditingHook)
 
-  override protected def configuration: Option[Config] = Some(config.underlying)
+  override protected def configuration: Option[Config] = Some(runModeConfiguration.underlying)
 }

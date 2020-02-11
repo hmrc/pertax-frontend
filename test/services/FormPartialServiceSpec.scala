@@ -27,6 +27,7 @@ import play.twirl.api.Html
 import services.http.WsAllMethods
 import services.partials.FormPartialService
 import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
@@ -45,7 +46,7 @@ class FormPartialServiceSpec extends BaseSpec {
       MockitoSugar.mock[WsAllMethods],
       MockitoSugar.mock[Metrics],
       MockitoSugar.mock[ConfigDecorator],
-      injected[ApplicationCrypto]
+      injected[SessionCookieCrypto]
     ) {
       override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer

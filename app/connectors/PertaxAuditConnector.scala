@@ -20,13 +20,13 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.LoadAuditingConfig
 import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
+
 @Singleton
-class PertaxAuditConnector @Inject()(environment: Environment, configuration: Configuration)
+class PertaxAuditConnector @Inject()(environment: Environment, override val runModeConfiguration: Configuration)
     extends AuditConnector with AppName with RunMode {
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
-  val appNameConfiguration: Configuration = configuration
-  override lazy val auditingConfig = LoadAuditingConfig("auditing")
+  val appNameConfiguration: Configuration = runModeConfiguration
+  override lazy val auditingConfig = LoadAuditingConfig(runModeConfiguration, mode, "auditing")
 }

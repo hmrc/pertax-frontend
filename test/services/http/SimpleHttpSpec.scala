@@ -118,7 +118,7 @@ class SimpleHttpSpec extends BaseSpec {
 
       override lazy val http = {
         val h = MockitoSugar.mock[WsAllMethods]
-        when(h.PUT[String, HttpResponse](any(), any())(any(), any(), any(), any())) thenReturn httpResponse
+        when(h.PUT[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
         h
       }
 

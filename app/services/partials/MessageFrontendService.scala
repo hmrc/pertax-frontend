@@ -24,8 +24,8 @@ import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment, Logger}
 import services.http.WsAllMethods
-import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
@@ -35,14 +35,13 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class MessageFrontendService @Inject()(
   environment: Environment,
-  configuration: Configuration,
+  override val runModeConfiguration: Configuration,
   override val http: WsAllMethods,
   val metrics: Metrics,
-  val applicationCrypto: ApplicationCrypto)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
+  val sessionCookieCrypto: SessionCookieCrypto)(implicit executionContext: ExecutionContext)
+    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
 
   lazy val messageFrontendUrl: String = baseUrl("message-frontend")
 
