@@ -22,8 +22,8 @@ import metrics.HasMetrics
 import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment}
-import services.http.WsAllMethods
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
@@ -34,7 +34,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class PreferencesFrontendPartialService @Inject()(
   environment: Environment,
   override val runModeConfiguration: Configuration,
-  val http: WsAllMethods,
+  val http: HttpClient,
   val metrics: Metrics,
   sessionCookieCrypto: SessionCookieCrypto,
   val tools: Tools)(implicit executionContext: ExecutionContext)

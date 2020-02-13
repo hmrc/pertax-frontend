@@ -24,10 +24,10 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.{Configuration, Environment}
 import play.twirl.api.Html
-import services.http.WsAllMethods
 import services.partials.FormPartialService
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
@@ -43,7 +43,7 @@ class FormPartialServiceSpec extends BaseSpec {
     val formPartialService: FormPartialService = new FormPartialService(
       injected[Environment],
       injected[Configuration],
-      MockitoSugar.mock[WsAllMethods],
+      MockitoSugar.mock[DefaultHttpClient],
       MockitoSugar.mock[Metrics],
       MockitoSugar.mock[ConfigDecorator],
       injected[SessionCookieCrypto]

@@ -18,7 +18,6 @@ package controllers.auth
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
 import controllers.routes
 import models.UserName
@@ -35,7 +34,7 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 import scala.concurrent.{ExecutionContext, Future}
 
 class MinimumAuthAction @Inject()(
-  val authConnector: PertaxAuthConnector,
+  val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {

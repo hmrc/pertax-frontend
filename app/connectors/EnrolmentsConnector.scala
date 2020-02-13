@@ -19,12 +19,12 @@ package connectors
 import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.http.Status._
-import services.http.WsAllMethods
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentsConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecorator) {
+class EnrolmentsConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator) {
 
   val baseUrl = configDecorator.enrolmentStoreProxyUrl
 

@@ -23,9 +23,9 @@ import models.MessageCount
 import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment, Logger}
-import services.http.WsAllMethods
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class MessageFrontendService @Inject()(
   environment: Environment,
   override val runModeConfiguration: Configuration,
-  override val http: WsAllMethods,
+  override val http: HttpClient,
   val metrics: Metrics,
   val sessionCookieCrypto: SessionCookieCrypto)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics with ServicesConfig {

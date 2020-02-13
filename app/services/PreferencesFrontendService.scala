@@ -26,7 +26,7 @@ import play.api.Mode.Mode
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Environment, Logger}
-import services.http.WsAllMethods
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -39,7 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class PreferencesFrontendService @Inject()(
   environment: Environment,
   override val runModeConfiguration: Configuration,
-  val simpleHttp: WsAllMethods,
+  val simpleHttp: DefaultHttpClient,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,

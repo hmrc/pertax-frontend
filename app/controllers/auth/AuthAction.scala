@@ -18,7 +18,6 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
 import controllers.routes
 import models.UserName
@@ -40,7 +39,7 @@ import io.lemonlabs.uri.Url
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(
-  val authConnector: PertaxAuthConnector,
+  val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {

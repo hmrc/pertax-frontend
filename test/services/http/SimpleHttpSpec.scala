@@ -24,6 +24,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.BaseSpec
 
 import scala.concurrent.Future
@@ -48,7 +49,7 @@ class SimpleHttpSpec extends BaseSpec {
 
     lazy val dummyCallbacks = MockitoSugar.mock[DummyCallbacks]
     lazy val http = {
-      val h = MockitoSugar.mock[WsAllMethods]
+      val h = MockitoSugar.mock[DefaultHttpClient]
       when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
       h
     }
@@ -61,7 +62,7 @@ class SimpleHttpSpec extends BaseSpec {
     trait LocalSetup extends Setup {
 
       override lazy val http = {
-        val h = MockitoSugar.mock[WsAllMethods]
+        val h = MockitoSugar.mock[DefaultHttpClient]
         when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
         h
       }
@@ -89,7 +90,7 @@ class SimpleHttpSpec extends BaseSpec {
     trait LocalSetup extends Setup {
 
       override lazy val http = {
-        val h = MockitoSugar.mock[WsAllMethods]
+        val h = MockitoSugar.mock[DefaultHttpClient]
         when(h.POST[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
         h
       }
@@ -117,7 +118,7 @@ class SimpleHttpSpec extends BaseSpec {
     trait LocalSetup extends Setup {
 
       override lazy val http = {
-        val h = MockitoSugar.mock[WsAllMethods]
+        val h = MockitoSugar.mock[DefaultHttpClient]
         when(h.PUT[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
         h
       }
@@ -142,7 +143,8 @@ class SimpleHttpSpec extends BaseSpec {
 }
 
 //Mock client for use in other tests
-class FakeSimpleHttp(response: Either[HttpResponse, Exception]) extends SimpleHttp(MockitoSugar.mock[WsAllMethods]) {
+class FakeSimpleHttp(response: Either[HttpResponse, Exception])
+    extends SimpleHttp(MockitoSugar.mock[DefaultHttpClient]) {
 
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
   def getLastHeaderCarrier = headerCarrierQueue.take

@@ -16,12 +16,10 @@
 
 package connectors
 
-import com.google.inject.ImplementedBy
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.{ImplementedBy, Inject, Singleton}
 import play.api.Mode.Mode
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.{Configuration, Environment}
-import services.http.WsAllMethods
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.Future
@@ -39,10 +37,11 @@ trait PdfGeneratorConnector {
 class FrontendPdfGeneratorConnector @Inject()(
   environment: Environment,
   override val runModeConfiguration: Configuration,
-  wsHttp: WsAllMethods)
+  wsClient: WSClient)
     extends PdfGeneratorConnector with ServicesConfig {
   val mode: Mode = environment.mode
   val pdfServiceUrl: String = baseUrl("pdf-generator-service")
   val serviceURL = pdfServiceUrl + "/pdf-generator-service/generate"
-  def getWsClient: WSClient = wsHttp.wsClient
+
+  override def getWsClient: WSClient = wsClient
 }
