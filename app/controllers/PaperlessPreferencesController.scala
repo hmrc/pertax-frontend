@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import com.google.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.partials.PreferencesFrontendPartialService
+import services.partials.PreferencesFrontendService
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
 
@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 class PaperlessPreferencesController @Inject()(
   val messagesApi: MessagesApi,
-  val preferencesFrontendPartialService: PreferencesFrontendPartialService,
+  val preferencesFrontendService: PreferencesFrontendService,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction)(
@@ -51,13 +51,9 @@ class PaperlessPreferencesController @Inject()(
                 Some("global.error.BadRequest.heading"),
                 List("global.error.BadRequest.message"))))
         } else {
-          for {
-            managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(
-                                   configDecorator.pertaxFrontendHomeUrl,
-                                   Messages("label.back_to_account_home"))
-          } yield {
-            Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
-          }
+          Future.successful(
+            Redirect(preferencesFrontendService
+              .getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))))
         }
     }
 }

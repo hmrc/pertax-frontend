@@ -31,22 +31,18 @@ import util.{EnhancedPartialRetriever, Tools}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PreferencesFrontendPartialService @Inject()(
+class PreferencesFrontendService @Inject()(
   environment: Environment,
   configuration: Configuration,
-  val http: WsAllMethods,
-  val metrics: Metrics,
   applicationCrypto: ApplicationCrypto,
-  val tools: Tools)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
+  val tools: Tools)
+    extends ServicesConfig {
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
   val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
-  def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(
-    implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools
-      .encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}")
+  def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
+    s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}"
 
 }

@@ -28,7 +28,7 @@ import play.api.mvc.{ActionBuilder, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.partials.PreferencesFrontendPartialService
+import services.partials.PreferencesFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
@@ -44,27 +44,25 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  val mockPreferencesFrontendPartialService = mock[PreferencesFrontendPartialService]
+  val mockPreferencesFrontendService = mock[PreferencesFrontendService]
   val mockAuthJourney = mock[AuthJourney]
 
   def controller: PaperlessPreferencesController =
     new PaperlessPreferencesController(
       injected[MessagesApi],
-      mockPreferencesFrontendPartialService,
+      mockPreferencesFrontendService,
       mockAuthJourney,
       injected[WithActiveTabAction],
       injected[WithBreadcrumbAction]
     )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
-
-      when(mockPreferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
+      when(mockPreferencesFrontendService.getManagePreferencesUrl(any(), any())) thenReturn {
+        "http://localhost:9024/paperless/manage?returnUrl=DO8MisXKpizAWqbqizwb%2FNmVXB7xoygTAvj2HM8Iu90XhrFw6OE70jvs6fuWogIj&returnLinkText=CP5Qa3DF4qZ8AGSU%2B7zGVBATUewskDxkipJFg%2Bml5hY%3D"
       }
-
     }
 
   "Calling PaperlessPreferencesController.managePreferences" should {
     "call getManagePreferences" should {
-      "Return 200 and show messages when a user is logged in using GG" in {
+      "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {
 
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -74,8 +72,8 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
         })
 
         val r = controller.managePreferences(FakeRequest())
-        status(r) shouldBe OK
-        verify(controller.preferencesFrontendPartialService, times(1)).getManagePreferencesPartial(any(), any())(any())
+        status(r) shouldBe SEE_OTHER
+        verify(controller.preferencesFrontendService, times(1)).getManagePreferencesUrl(any(), any())
       }
 
       "Return 400 for Verify users" in {
