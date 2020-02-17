@@ -18,7 +18,6 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
 import controllers.routes
 import models.UserName
@@ -33,14 +32,14 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 import io.lemonlabs.uri.Url
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(
-  val authConnector: PertaxAuthConnector,
+  val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {

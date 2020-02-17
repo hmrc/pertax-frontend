@@ -19,14 +19,13 @@ package connectors
 import com.google.inject.Inject
 import config.ConfigDecorator
 import models.{CreatePayment, PaymentRequest, PaymentSearchResult}
-import play.api.Logger
 import play.api.http.Status._
-import services.http.WsAllMethods
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayApiConnector @Inject()(http: WsAllMethods, configDecorator: ConfigDecorator) {
+class PayApiConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator) {
 
   def createPayment(
     request: PaymentRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CreatePayment]] = {

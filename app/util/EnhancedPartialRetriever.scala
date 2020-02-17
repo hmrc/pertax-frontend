@@ -19,9 +19,9 @@ package util
 import com.google.inject.Inject
 import metrics.HasMetrics
 import play.api.Logger
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpGet}
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.partials.HtmlPartial._
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
@@ -30,15 +30,13 @@ import scala.concurrent.{ExecutionContext, Future}
 /*
  * This is a PartialRetriever with a HeaderCarrierForPartialsConverter to forward request headers on
  */
-abstract class EnhancedPartialRetriever @Inject()(applicationCrypto: ApplicationCrypto)(
+abstract class EnhancedPartialRetriever @Inject()(sessionCookieCrypto: SessionCookieCrypto)(
   implicit executionContext: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with HasMetrics {
 
   def http: HttpGet
 
-  val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
-
-  override def crypto = sessionCookieCryptoFilter.encrypt
+  override def crypto: String => String = cookie => sessionCookieCrypto.crypto.encrypt(PlainText(cookie)).value
 
   def loadPartial(url: String)(implicit hc: HeaderCarrier): Future[HtmlPartial] =
     withMetricsTimer("load-partial") { timer =>

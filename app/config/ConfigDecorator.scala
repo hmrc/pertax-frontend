@@ -28,18 +28,20 @@ import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
-class ConfigDecorator @Inject()(environment: Environment, configuration: Configuration, langs: Langs)
+class ConfigDecorator @Inject()(
+  environment: Environment,
+  override val runModeConfiguration: Configuration,
+  langs: Langs)
     extends ServicesConfig with TaxcalcUrls {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
 
   // Define the web contexts to access the IV-FE and AUTH frontend applications.
   lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")
   lazy val ida_web_context = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
   lazy val gg_web_context = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
 
-  lazy val authProviderChoice = configuration.getString(s"external-url.auth-provider-choice.host").getOrElse("")
+  lazy val authProviderChoice = runModeConfiguration.getString(s"external-url.auth-provider-choice.host").getOrElse("")
 
   val defaultOrigin = Origin("PERTAX")
 
@@ -59,7 +61,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   private lazy val enrolmentStoreProxyService = baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
-    configuration.getString(s"external-url.$key").filter(_ => env == "Dev")
+    runModeConfiguration.getString(s"external-url.$key").filter(_ => env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
@@ -89,15 +91,18 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val enrolmentManagementFrontendHost = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
   lazy val ssoUrl = decorateUrlForLocalDev("sso-portal.host")
 
-  lazy val portalBaseUrl = configuration.getString("external-url.sso-portal.host").getOrElse("")
+  lazy val portalBaseUrl = runModeConfiguration.getString("external-url.sso-portal.host").getOrElse("")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
   lazy val frontendTemplatePath: String =
-    configuration.getString("microservice.services.frontend-template-provider.path").getOrElse("/template/mustache")
-  lazy val frontendPath: String = configuration
+    runModeConfiguration
+      .getString("microservice.services.frontend-template-provider.path")
+      .getOrElse("/template/mustache")
+  lazy val frontendPath: String = runModeConfiguration
     .getString("microservice.services.frontend-template-provider.protocol")
     .getOrElse("")
-    .concat("://" + configuration.getString("microservice.services.frontend-template-provider.host").getOrElse(""))
-    .concat(":" + configuration.getString("microservice.services.frontend-template-provider.port").getOrElse(""))
+    .concat(
+      "://" + runModeConfiguration.getString("microservice.services.frontend-template-provider.host").getOrElse(""))
+    .concat(":" + runModeConfiguration.getString("microservice.services.frontend-template-provider.port").getOrElse(""))
   def ssoifyUrl(url: URL) =
     s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
@@ -116,8 +121,8 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
-  lazy val analyticsToken = configuration.getString(s"google-analytics.token")
-  lazy val analyticsHost = Some(configuration.getString(s"google-analytics.host").getOrElse("service.gov.uk"))
+  lazy val analyticsToken = runModeConfiguration.getString(s"google-analytics.token")
+  lazy val analyticsHost = Some(runModeConfiguration.getString(s"google-analytics.host").getOrElse("service.gov.uk"))
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val getPaymentsUrl = s"$payApiUrl/pay-api/payment/search/PTA"
@@ -141,9 +146,9 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/request-access-tax-scheme?continue=/personal-account"
   lazy val selfAssessmentContactUrl =
     "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-  lazy val ggLoginUrl = configuration.getString(s"ggLogin.url").getOrElse("")
+  lazy val ggLoginUrl = runModeConfiguration.getString(s"ggLogin.url").getOrElse("")
   lazy val origin =
-    configuration.getString("sosOrigin").orElse(configuration.getString("appName")).getOrElse("undefined")
+    runModeConfiguration.getString("sosOrigin").orElse(runModeConfiguration.getString("appName")).getOrElse("undefined")
 
   lazy val problemsSigningInUrl = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val taxReturnByPostUrl = "https://www.gov.uk/government/publications/self-assessment-tax-return-sa100"
@@ -196,7 +201,7 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
-  lazy val pertaxFrontendBackLink = configuration
+  lazy val pertaxFrontendBackLink = runModeConfiguration
     .getString("external-url.pertax-frontend.host")
     .getOrElse("") + routes.HomeController.index().url
 
@@ -204,43 +209,46 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   lazy val citizenAuthFrontendSignOut = citizenAuthHost + "/ida/signout"
 
   lazy val welshLangEnabled = langs.availables.exists(l => l.code == "cy")
-  lazy val taxCreditsEnabled = configuration.getString("feature.tax-credits.enabled").getOrElse("true").toBoolean
+  lazy val taxCreditsEnabled = runModeConfiguration.getString("feature.tax-credits.enabled").getOrElse("true").toBoolean
   lazy val activateSALinkEnabled =
-    configuration.getString("feature.activate-sa-link.enabled").getOrElse("true").toBoolean
+    runModeConfiguration.getString("feature.activate-sa-link.enabled").getOrElse("true").toBoolean
   lazy val allowLowConfidenceSAEnabled =
-    configuration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
-  lazy val ltaEnabled = configuration.getString("feature.lta.enabled").getOrElse("true").toBoolean
-  lazy val urLinkUrl = configuration.getString("feature.ur-link.url")
-  lazy val platformFrontendHost = configuration.getString("platform.frontend.host").getOrElse("")
+    runModeConfiguration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
+  lazy val ltaEnabled = runModeConfiguration.getString("feature.lta.enabled").getOrElse("true").toBoolean
+  lazy val urLinkUrl = runModeConfiguration.getString("feature.ur-link.url")
+  lazy val platformFrontendHost = runModeConfiguration.getString("platform.frontend.host").getOrElse("")
 
-  lazy val taxcalcEnabled = configuration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
-  lazy val taxComponentsEnabled = configuration.getString("feature.tax-components.enabled").getOrElse("true").toBoolean
-  lazy val saReminderBannerEnabled = configuration.getString("feature.sa-banner.enabled").getOrElse("true").toBoolean
-  lazy val nispEnabled = configuration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
-  lazy val allowSaPreview = configuration.getString("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
+  lazy val taxcalcEnabled = runModeConfiguration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
+  lazy val taxComponentsEnabled =
+    runModeConfiguration.getString("feature.tax-components.enabled").getOrElse("true").toBoolean
+  lazy val saReminderBannerEnabled =
+    runModeConfiguration.getString("feature.sa-banner.enabled").getOrElse("true").toBoolean
+  lazy val nispEnabled = runModeConfiguration.getString("feature.nisp.enabled").getOrElse("true").toBoolean
+  lazy val allowSaPreview =
+    runModeConfiguration.getString("feature.allow-sa-preview.enabled").getOrElse("false").toBoolean
   lazy val taxCreditsPaymentLinkEnabled =
-    configuration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
+    runModeConfiguration.getString("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
   lazy val saveNiLetterAsPdfLinkEnabled =
-    configuration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
+    runModeConfiguration.getString("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
   lazy val updateInternationalAddressInPta =
-    configuration.getString("feature.update-international-address-form.enabled").getOrElse("false").toBoolean
+    runModeConfiguration.getString("feature.update-international-address-form.enabled").getOrElse("false").toBoolean
   lazy val closePostalAddressEnabled =
-    configuration.getString("feature.close-postal-address.enabled").getOrElse("false").toBoolean
+    runModeConfiguration.getString("feature.close-postal-address.enabled").getOrElse("false").toBoolean
 
-  lazy val egainWebchatPertaxId = configuration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
+  lazy val egainWebchatPertaxId = runModeConfiguration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
-  lazy val assetsPrefix = configuration.getString(s"assets.url").getOrElse("") + configuration
+  lazy val assetsPrefix = runModeConfiguration.getString(s"assets.url").getOrElse("") + runModeConfiguration
     .getString(s"assets.version")
     .getOrElse("") + '/'
-  lazy val assetsUrl = configuration.getString(s"assets.url").getOrElse("")
-  lazy val assetsVersion = configuration.getString(s"assets.version").getOrElse("")
-  lazy val mongoUrl = configuration.getString("mongodb.uri").getOrElse("")
+  lazy val assetsUrl = runModeConfiguration.getString(s"assets.url").getOrElse("")
+  lazy val assetsVersion = runModeConfiguration.getString(s"assets.version").getOrElse("")
+  lazy val mongoUrl = runModeConfiguration.getString("mongodb.uri").getOrElse("")
 
-  lazy val sessionTimeoutInSeconds = configuration.getInt("session.timeout").getOrElse(1800)
+  lazy val sessionTimeoutInSeconds = runModeConfiguration.getInt("session.timeout").getOrElse(1800)
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
-  lazy val sessionCountdownInSeconds = configuration.getInt("session.countdown").getOrElse(120)
+  lazy val sessionCountdownInSeconds = runModeConfiguration.getInt("session.countdown").getOrElse(120)
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
@@ -248,8 +256,9 @@ class ConfigDecorator @Inject()(environment: Environment, configuration: Configu
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
 
-  lazy val editAddressTtl: Int = configuration.getInt("mongodb.editAddressTtl").getOrElse(86400)
+  lazy val editAddressTtl: Int = runModeConfiguration.getInt("mongodb.editAddressTtl").getOrElse(86400)
 
+  lazy val saPartialReturnLinkText = "Back to account home"
 }
 
 trait TaxcalcUrls {

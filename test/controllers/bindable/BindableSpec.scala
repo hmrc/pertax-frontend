@@ -16,7 +16,7 @@
 
 package controllers.bindable
 
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import util.BaseSpec
 
 class BindableSpec extends BaseSpec {

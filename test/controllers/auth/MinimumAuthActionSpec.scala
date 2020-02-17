@@ -17,7 +17,6 @@
 package controllers.auth
 
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.joda.time.DateTime
@@ -52,7 +51,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
+  val mockAuthConnector = mock[AuthConnector]
   val configDecorator = app.injector.instanceOf[ConfigDecorator]
 
   class Harness(authAction: MinimumAuthAction) extends Controller {

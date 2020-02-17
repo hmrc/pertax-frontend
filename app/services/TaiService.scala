@@ -38,13 +38,12 @@ case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsRes
 @Singleton
 class TaiService @Inject()(
   environment: Environment,
-  configuration: Configuration,
+  override val runModeConfiguration: Configuration,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics)
     extends ServicesConfig with HasMetrics {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   lazy val taiUrl = baseUrl("tai")
 
   /**
