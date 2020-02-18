@@ -16,28 +16,36 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import controllers.auth.requests.UserRequest
-import com.google.inject.Inject
+import play.api.Mode.Mode
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.partials.PreferencesFrontendService
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
-import util.LocalPartialRetriever
+import util.{LocalPartialRetriever, Tools}
 
 import scala.concurrent.Future
 
 class PaperlessPreferencesController @Inject()(
   val messagesApi: MessagesApi,
-  val preferencesFrontendService: PreferencesFrontendService,
+  environment: Environment,
+  configuration: Configuration,
+  tools: Tools,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer)
-    extends PertaxBaseController {
+    extends PertaxBaseController with ServicesConfig {
+
+  val mode: Mode = environment.mode
+  val runModeConfiguration: Configuration = configuration
+  val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
   def managePreferences: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withActiveTabAction
@@ -52,8 +60,11 @@ class PaperlessPreferencesController @Inject()(
                 List("global.error.BadRequest.message"))))
         } else {
           Future.successful(
-            Redirect(preferencesFrontendService
-              .getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))))
+            Redirect(
+              getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))))
         }
     }
+
+  private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
+    s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}"
 }
