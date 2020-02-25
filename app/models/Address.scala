@@ -19,6 +19,8 @@ package models
 import org.joda.time.{Instant, LocalDate}
 import play.api.libs.json._
 import _root_.util.DateTimeTools
+import play.api.libs.json.JodaWrites._
+import play.api.libs.json.JodaReads._
 
 case class Address(
   line1: Option[String],
