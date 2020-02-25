@@ -117,7 +117,8 @@ class AddressController @Inject()(
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
-  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
+  private val authenticate
+    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
     .addActiveTab(ActiveTabYourAccount)
 
   def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>

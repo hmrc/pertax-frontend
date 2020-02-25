@@ -41,7 +41,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthActionImpl @Inject()(
   val authConnector: AuthConnector,
   configuration: Configuration,
-  configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
+  configDecorator: ConfigDecorator,
+  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   def addRedirect(profileUrl: Option[String]): Option[String] =
@@ -184,8 +185,12 @@ class AuthActionImpl @Inject()(
             .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri))))
         )
       ))
+
+  override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+
+  override protected def executionContext: ExecutionContext = cc.executionContext
 }
 
 @ImplementedBy(classOf[AuthActionImpl])
 trait AuthAction
-    extends ActionBuilder[AuthenticatedRequest] with ActionFunction[Request, AuthenticatedRequest]
+    extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]

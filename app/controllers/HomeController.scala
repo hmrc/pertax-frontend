@@ -52,7 +52,8 @@ class HomeController @Inject()(
 
   override def now: () => DateTime = () => DateTime.now()
 
-  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
+  private val authenticate
+    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
     .addActiveTab(ActiveTabHome)
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
