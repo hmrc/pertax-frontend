@@ -18,7 +18,7 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import controllers.auth.requests.UserRequest
-import play.api.mvc.ActionBuilder
+import play.api.mvc.{ActionBuilder, AnyContent}
 
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {

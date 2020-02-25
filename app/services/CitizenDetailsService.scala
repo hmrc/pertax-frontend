@@ -27,7 +27,7 @@ import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Future
 
@@ -48,12 +48,13 @@ class CitizenDetailsService @Inject()(
   environment: Environment,
   configuration: Configuration,
   val simpleHttp: SimpleHttp,
-  val metrics: Metrics)
-    extends ServicesConfig with HasMetrics {
+  val metrics: Metrics,
+  servicesConfig: ServicesConfig)
+    extends HasMetrics {
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  lazy val citizenDetailsUrl = baseUrl("citizen-details")
+  lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 
   def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
     withMetricsTimer("get-person-details") { timer =>

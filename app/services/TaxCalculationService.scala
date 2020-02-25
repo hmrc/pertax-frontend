@@ -26,8 +26,8 @@ import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -43,11 +43,12 @@ class TaxCalculationService @Inject()(
   configuration: Configuration,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
-  val http: HttpClient)(implicit ec: ExecutionContext)
-    extends ServicesConfig with HasMetrics {
+  val http: HttpClient,
+  servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
+    extends HasMetrics {
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  lazy val taxCalcUrl = baseUrl("taxcalc")
+  lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
 
   /**
     * Gets a tax calc summary

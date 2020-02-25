@@ -28,8 +28,8 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.crypto.PlainText
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
-import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
 
@@ -38,17 +38,18 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PreferencesFrontendService @Inject()(
   environment: Environment,
-  override val runModeConfiguration: Configuration,
+  runModeConfiguration: Configuration,
   val simpleHttp: DefaultHttpClient,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val sessionCookieCrypto: SessionCookieCrypto,
-  val tools: Tools)(implicit ec: ExecutionContext)
-    extends HeaderCarrierForPartialsConverter with ServicesConfig with HasMetrics with I18nSupport {
+  val tools: Tools,
+  servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
+    extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport {
 
   val mode: Mode = environment.mode
-  val preferencesFrontendUrl = baseUrl("preferences-frontend")
+  val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
   override def crypto: String => String = cookie => sessionCookieCrypto.crypto.encrypt(PlainText(cookie)).value
 

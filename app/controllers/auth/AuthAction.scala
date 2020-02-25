@@ -187,4 +187,5 @@ class AuthActionImpl @Inject()(
 }
 
 @ImplementedBy(classOf[AuthActionImpl])
-trait AuthAction extends ActionBuilder[AuthenticatedRequest] with ActionFunction[Request, AuthenticatedRequest]
+trait AuthAction
+    extends ActionBuilder[AuthenticatedRequest] with ActionFunction[Request, AuthenticatedRequest]
