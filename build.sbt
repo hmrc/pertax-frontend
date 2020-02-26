@@ -55,7 +55,6 @@ lazy val microservice = Project(appName, file("."))
     publishingSettings,
     defaultSettings(),
     libraryDependencies ++= AppDependencies.all,
-    routesGenerator := StaticRoutesGenerator,
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
     resolvers += Resolver.bintrayRepo("hmrc", "releases"),
