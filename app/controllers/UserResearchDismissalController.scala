@@ -18,7 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
-import controllers.helpers.HomePageCachingHelper
+import controllers.controllershelpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import com.google.inject.Inject
 import play.api.i18n.MessagesApi

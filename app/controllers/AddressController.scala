@@ -20,8 +20,8 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
-import controllers.helpers.AddressJourneyAuditingHelper._
-import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
+import controllers.controllershelpers.AddressJourneyAuditingHelper._
+import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import com.google.inject.Inject
 import models._
 import models.addresslookup.RecordSet

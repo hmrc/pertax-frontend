@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
 import controllers.auth.requests.UserRequest
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}

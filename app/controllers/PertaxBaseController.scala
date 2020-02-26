@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.helpers.ControllerLikeHelpers
+import controllers.controllershelpers.ControllerLikeHelpers
 import models.Breadcrumb
 import play.api.i18n.I18nSupport
 import play.api.mvc._

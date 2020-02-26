@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
 import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier

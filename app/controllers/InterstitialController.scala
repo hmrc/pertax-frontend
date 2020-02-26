@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import controllers.helpers.PaperlessInterruptHelper
+import controllers.controllershelpers.PaperlessInterruptHelper
 import error.RendersErrors
 import com.google.inject.Inject
 import models._

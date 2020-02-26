@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
-import controllers.auth.requests.UserRequest
-import models.ActivatePaperlessRequiresUserActionResponse
-import play.api.mvc.Result
-import play.api.mvc.Results._
-import services.PreferencesFrontendService
+import com.google.inject.Inject
+import services.LocalSessionCache
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait PaperlessInterruptHelper {
+class HomePageCachingHelper @Inject()(
+  val sessionCache: LocalSessionCache
+) {
 
-  def preferencesFrontendService: PreferencesFrontendService
-
-  def enforcePaperlessPreference(
-    block: => Future[Result])(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Result] =
-    preferencesFrontendService.getPaperlessPreference().flatMap {
-      case ActivatePaperlessRequiresUserActionResponse(redirectUrl) => Future.successful(Redirect(redirectUrl))
-      case _                                                        => block
+  def hasUserDismissedUrInvitation[T](implicit hc: HeaderCarrier): Future[Boolean] =
+    sessionCache.fetch() map {
+      case Some(cacheMap) => cacheMap.getEntry[Boolean]("urBannerDismissed").getOrElse(false)
+      case None           => false
     }
+
+  def storeUserUrDismissal()(implicit hc: HeaderCarrier): Future[CacheMap] =
+    sessionCache.cache("urBannerDismissed", true)
 }
