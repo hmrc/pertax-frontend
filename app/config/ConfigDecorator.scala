@@ -25,12 +25,13 @@ import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
 @Singleton
 class ConfigDecorator @Inject()(
   environment: Environment,
   runModeConfiguration: Configuration,
+  runMode: RunMode,
   langs: Langs,
   servicesConfig: ServicesConfig
 ) extends TaxcalcUrls {
@@ -62,7 +63,7 @@ class ConfigDecorator @Inject()(
   private lazy val enrolmentStoreProxyService = servicesConfig.baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
-    runModeConfiguration.getString(s"external-url.$key").filter(_ => env == "Dev")
+    runModeConfiguration.getString(s"external-url.$key").filter(_ => runMode.env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
