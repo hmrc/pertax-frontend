@@ -15,10 +15,10 @@
  */
 
 package controllers
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-class SessionManagementController extends FrontendController {
+class SessionManagementController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   def keepAlive: Action[AnyContent] = Action {
     Ok("")
