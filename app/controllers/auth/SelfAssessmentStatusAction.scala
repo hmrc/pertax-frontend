@@ -82,4 +82,5 @@ class SelfAssessmentStatusAction @Inject()(
     }
   }
 
+  override protected def executionContext: ExecutionContext = ec
 }

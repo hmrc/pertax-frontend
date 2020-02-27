@@ -111,4 +111,5 @@ class GetPersonDetailsAction @Inject()(
     }
   }
 
+  override protected def executionContext: ExecutionContext = ec
 }

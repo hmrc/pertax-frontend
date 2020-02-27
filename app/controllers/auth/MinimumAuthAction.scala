@@ -36,7 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class MinimumAuthAction @Inject()(
   val authConnector: AuthConnector,
   configuration: Configuration,
-  configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
+  configDecorator: ConfigDecorator,
+  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -90,4 +91,8 @@ class MinimumAuthAction @Inject()(
 
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }
+
+  override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+
+  override protected def executionContext: ExecutionContext = ec
 }
