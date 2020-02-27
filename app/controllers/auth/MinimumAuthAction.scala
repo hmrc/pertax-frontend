@@ -94,5 +94,5 @@ class MinimumAuthAction @Inject()(
 
   override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
 
-  override protected def executionContext: ExecutionContext = ec
+  override protected def executionContext: ExecutionContext = cc.executionContext
 }
