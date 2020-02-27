@@ -44,14 +44,6 @@ case class Person(
 }
 
 object Person {
-  implicit val formats = {
-    implicit val localDateReads =
-      new Reads[LocalDate] { //FIXME - Temporary compatibility fix, remove when citizen-details >= 2.23.0
-        override def reads(json: JsValue): JsResult[LocalDate] = json match {
-          case JsNumber(num) => JsSuccess((new Instant(num.toLong)).toDateTime(DateTimeTools.defaultTZ).toLocalDate)
-          case other         => implicitly[Reads[LocalDate]].reads(other)
-        }
-      }
-    Json.format[Person]
-  }
+  implicit val formats = Json.format[Person]
+
 }
