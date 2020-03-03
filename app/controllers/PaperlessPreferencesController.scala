@@ -66,5 +66,6 @@ class PaperlessPreferencesController @Inject()(
     }
 
   private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
-    s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}"
+    s"$preferencesFrontendUrl/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
+      .encryptAndEncode(returnLinkText)}"
 }
