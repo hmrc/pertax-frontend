@@ -34,7 +34,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import io.lemonlabs.uri.Url
-import uk.gov.hmrc.auth.core.authorise.CompositePredicate
 
 import scala.concurrent.{ExecutionContext, Future}
 
