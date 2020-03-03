@@ -50,10 +50,9 @@ class MinimumAuthAction @Inject()(
           Retrievals.credentials and
           Retrievals.confidenceLevel and
           Retrievals.name and
-          Retrievals.loginTimes and
           Retrievals.trustedHelper and
           Retrievals.profile) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper ~ profile =>
+        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ trustedHelper ~ profile =>
           val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers
               .find(id => id.key == "UTR")
@@ -77,7 +76,6 @@ class MinimumAuthAction @Inject()(
               credentials,
               confidenceLevel,
               Some(UserName(name.getOrElse(Name(None, None)))),
-              logins.previousLogin,
               trustedHelper,
               profile,
               trimmedRequest
