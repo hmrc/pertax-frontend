@@ -33,8 +33,8 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-
 import io.lemonlabs.uri.Url
+import uk.gov.hmrc.auth.core.authorise.CompositePredicate
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -66,7 +66,7 @@ class AuthActionImpl @Inject()(
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised()
+    authorised(CredentialStrength(CredentialStrength.weak))
       .retrieve(
         Retrievals.nino and
           Retrievals.affinityGroup and
@@ -130,7 +130,7 @@ class AuthActionImpl @Inject()(
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession =>
+    case _: NoActiveSession | _: IncorrectCredentialStrength =>
       def postSignInRedirectUrl(implicit request: Request[_]) =
         configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
           .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))

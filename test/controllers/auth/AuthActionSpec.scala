@@ -159,6 +159,48 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     }
   }
 
+  "A user with a Credential Strength of 'none' must" - {
+    "be redirected to the auth provider choice page if unknown provider" in {
+      when(mockAuthConnector.authorise(any(), any())(any(), any()))
+        .thenReturn(Future.failed(IncorrectCredentialStrength()))
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val controller = new Harness(authAction)
+      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).get must endWith("/auth-login-stub")
+    }
+
+    "be redirected to the IDA login page if Verify provider" in {
+      when(mockAuthConnector.authorise(any(), any())(any(), any()))
+        .thenReturn(Future.failed(IncorrectCredentialStrength()))
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val controller = new Harness(authAction)
+      val request =
+        FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderVerify)
+      val result = controller.onPageLoad()(request)
+      status(result) mustBe SEE_OTHER
+      session(result) mustBe new Session(
+        Map(
+          "loginOrigin"    -> Origin("PERTAX").origin,
+          "login_redirect" -> "/personal-account/do-uplift?redirectUrl=%2Ffoo"))
+      redirectLocation(result).get must endWith("/ida/login")
+    }
+
+    "be redirected to the GG login page if GG provider" in {
+      when(mockAuthConnector.authorise(any(), any())(any(), any()))
+        .thenReturn(Future.failed(IncorrectCredentialStrength()))
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val controller = new Harness(authAction)
+      val request =
+        FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderGG)
+      val result = controller.onPageLoad()(request)
+      status(result) mustBe SEE_OTHER
+
+      redirectLocation(result).get must endWith(
+        "/gg/sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Ffoo&accountType=individual&origin=PERTAX")
+    }
+  }
+
   "A user with no active session must" - {
     "be redirected to the auth provider choice page if unknown provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
