@@ -21,7 +21,7 @@ import connectors.EnrolmentsConnector
 import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
 import models._
 import play.api.Logger
-import play.api.mvc.{ActionFunction, ActionRefiner, MessagesControllerComponents, Result}
+import play.api.mvc.{ActionFunction, ActionRefiner, MessagesControllerComponents, Result, ControllerComponents}
 import services.{CitizenDetailsService, EnrolmentStoreCachingService, LocalSessionCache, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SelfAssessmentStatusAction @Inject()(
   citizenDetailsService: CitizenDetailsService,
   enrolmentsCachingService: EnrolmentStoreCachingService,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =

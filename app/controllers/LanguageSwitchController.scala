@@ -20,15 +20,14 @@ import config.ConfigDecorator
 import com.google.inject.Inject
 import play.api.Configuration
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, MessagesControllerComponents}
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
 class LanguageSwitchController @Inject()(
   configDecorator: ConfigDecorator,
   configuration: Configuration,
   languageUtils: LanguageUtils,
-  val messagesApi: MessagesApi
-) extends LanguageController(configuration, languageUtils) {
+  cc: ControllerComponents) extends LanguageController(configuration, languageUtils, cc) {
 
   def enGb(): Action[AnyContent] = switchToLanguage(language = "english")
   def cyGb(): Action[AnyContent] = switchToLanguage(language = "cymraeg")

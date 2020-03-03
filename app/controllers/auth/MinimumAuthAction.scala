@@ -37,7 +37,7 @@ class MinimumAuthAction @Inject()(
   val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {

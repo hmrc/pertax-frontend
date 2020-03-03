@@ -42,7 +42,7 @@ class AuthActionImpl @Inject()(
   val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator,
-  cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
+  cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   def addRedirect(profileUrl: Option[String]): Option[String] =

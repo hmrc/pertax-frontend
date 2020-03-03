@@ -22,7 +22,7 @@ import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
-import play.api.mvc.{ActionFunction, ActionRefiner, MessagesControllerComponents, Result}
+import play.api.mvc.{ActionFunction, ActionRefiner, MessagesControllerComponents, Result, ControllerComponents}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class GetPersonDetailsAction @Inject()(
   citizenDetailsService: CitizenDetailsService,
   messageFrontendService: MessageFrontendService,
-  cc: MessagesControllerComponents,
+  cc: ControllerComponents,
   val messagesApi: MessagesApi)(
   implicit configDecorator: ConfigDecorator,
   partialRetriever: LocalPartialRetriever,
