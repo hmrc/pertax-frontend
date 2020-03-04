@@ -63,9 +63,13 @@ class AuthActionImpl @Inject()(
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
+    val compositePredicate =
+      CredentialStrength(CredentialStrength.weak) or
+        CredentialStrength(CredentialStrength.strong)
+
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised(CredentialStrength(CredentialStrength.weak))
+    authorised(compositePredicate)
       .retrieve(
         Retrievals.nino and
           Retrievals.affinityGroup and
