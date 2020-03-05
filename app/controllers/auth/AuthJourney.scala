@@ -19,8 +19,6 @@ package controllers.auth
 import com.google.inject.{ImplementedBy, Inject}
 import controllers.auth.requests.UserRequest
 import play.api.mvc.{ActionBuilder, AnyContent, ControllerComponents}
-
-
 @ImplementedBy(classOf[AuthJourneyImpl])
 trait AuthJourney {
   val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent]

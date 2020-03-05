@@ -21,7 +21,7 @@ import connectors.EnrolmentsConnector
 import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
 import models._
 import play.api.Logger
-import play.api.mvc.{ActionFunction, ActionRefiner, MessagesControllerComponents, Result, ControllerComponents}
+import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, MessagesControllerComponents, Result}
 import services.{CitizenDetailsService, EnrolmentStoreCachingService, LocalSessionCache, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier

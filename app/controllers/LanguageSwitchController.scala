@@ -27,7 +27,8 @@ class LanguageSwitchController @Inject()(
   configDecorator: ConfigDecorator,
   configuration: Configuration,
   languageUtils: LanguageUtils,
-  cc: ControllerComponents) extends LanguageController(configuration, languageUtils, cc) {
+  cc: ControllerComponents)
+    extends LanguageController(configuration, languageUtils, cc) {
 
   def enGb(): Action[AnyContent] = switchToLanguage(language = "english")
   def cyGb(): Action[AnyContent] = switchToLanguage(language = "cymraeg")
