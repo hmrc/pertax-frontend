@@ -19,6 +19,7 @@ package util
 import java.util.UUID
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
@@ -33,8 +34,8 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
+import play.api.mvc._
+import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
@@ -42,6 +43,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 import scala.util.Random
 
@@ -336,4 +338,10 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
     when(pr.getPartialContent(any(), any(), any())(any())) thenReturn Html("")
     pr
   }
+
+}
+trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {
+  override def invokeBlock[A](a: Request[A], block: UserRequest[A] => Future[Result]): Future[Result]
+  override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser().asInstanceOf[BodyParser[AnyContent]]
+  override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 }

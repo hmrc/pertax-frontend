@@ -32,7 +32,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{BaseSpec, CitizenDetailsFixtures}
+import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
@@ -64,7 +64,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   "Calling NiLetterController.printNationalInsuranceNumber" should {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -77,7 +77,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
     }
 
     "call printNationalInsuranceNumber should return OK when called by a verify user" in {
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(

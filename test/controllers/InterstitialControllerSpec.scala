@@ -36,7 +36,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
+import util._
 
 import scala.concurrent.Future
 
@@ -87,7 +87,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
     "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user " in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -121,7 +121,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       val fakeRequestWithPath = FakeRequest("GET", "/foo")
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -145,7 +145,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -167,7 +167,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -190,7 +190,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -216,7 +216,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(request = request)
@@ -237,7 +237,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(

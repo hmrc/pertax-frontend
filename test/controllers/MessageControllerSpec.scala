@@ -37,7 +37,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
+import util._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -72,7 +72,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   "Calling MessageController.messageList" should {
     "call messages and return 200 when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -96,7 +96,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   "Calling MessageController.messageDetail" should {
     "call messages and return 200 when called by a GovernmentGateway user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -116,7 +116,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
     "call messages and return 200 with no page title when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -137,7 +137,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
     "call messages and return 200 with default messages when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)

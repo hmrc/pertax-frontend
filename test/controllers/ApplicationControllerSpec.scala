@@ -41,7 +41,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures}
+import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
@@ -105,7 +105,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -127,7 +127,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 200 when IV journey outcome was Success" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -144,7 +144,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 401 when IV journey outcome was LockedOut" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -160,7 +160,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to the IV exempt landing page when IV journey outcome was InsufficientEvidence" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -176,7 +176,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 401 when IV journey outcome was UserAborted" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -192,7 +192,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 500 when IV journey outcome was TechnicalIssues" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -208,7 +208,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 500 when IV journey outcome was Timeout" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -224,7 +224,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return bad request when continueUrl is not relative" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -248,7 +248,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with a continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -262,7 +262,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -280,7 +280,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with no continue URL but an origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -294,7 +294,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -310,7 +310,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to verify sign-out link with correct continue url when signed in with verify, with no continue URL and but an origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -328,7 +328,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 'Bad Request' when signed in with verify and supplied no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -345,7 +345,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return bad request when supplied with a none relative url" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -355,7 +355,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
             ))
       })
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(

@@ -35,7 +35,7 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -66,7 +66,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
     "call getManagePreferences" should {
       "Return 200 and show messages when a user is logged in using GG" in {
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(request = request)
@@ -80,7 +80,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
       "Return 400 for Verify users" in {
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(

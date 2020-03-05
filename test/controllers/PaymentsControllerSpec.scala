@@ -34,7 +34,7 @@ import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
-import util.BaseSpec
+import util.{ActionBuilderFixture, BaseSpec}
 
 import scala.concurrent.Future
 
@@ -62,7 +62,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       injected[WithBreadcrumbAction]
     )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer])
 
-  when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+  when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
       block(
         buildUserRequest(
