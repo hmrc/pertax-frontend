@@ -19,12 +19,13 @@ package controllers.auth
 import controllers.auth.requests.UserRequest
 import models.SelfAssessmentUserType
 import play.api.mvc.{ActionBuilder, Request, Result}
+import util.ActionBuilderFixture
 import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
 class FakeAuthJourney(saUser: SelfAssessmentUserType) extends AuthJourney {
-  private val actionBuilder = new ActionBuilder[UserRequest] {
+  private val actionBuilder = new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
       block(
         buildUserRequest(
@@ -33,7 +34,7 @@ class FakeAuthJourney(saUser: SelfAssessmentUserType) extends AuthJourney {
         ))
   }
 
-  override val authWithPersonalDetails: ActionBuilder[UserRequest] = actionBuilder
-  override val authWithSelfAssessment: ActionBuilder[UserRequest] = actionBuilder
-  override val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest] = actionBuilder
+  override val authWithPersonalDetails: ActionBuilderFixture = actionBuilder
+  override val authWithSelfAssessment: ActionBuilderFixture = actionBuilder
+  override val minimumAuthWithSelfAssessment: ActionBuilderFixture = actionBuilder
 }
