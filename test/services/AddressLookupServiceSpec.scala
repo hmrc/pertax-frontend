@@ -29,6 +29,7 @@ import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.Fixtures._
 import util.{BaseSpec, Tools}
 
@@ -60,6 +61,7 @@ class AddressLookupServiceSpec extends BaseSpec {
       val timer = MockitoSugar.mock[Timer.Context]
 
       val fakeTools = new Tools(injected[ApplicationCrypto])
+      val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val addressLookupService: AddressLookupService = new AddressLookupService(
         injected[Environment],
@@ -67,7 +69,8 @@ class AddressLookupServiceSpec extends BaseSpec {
         injected[ConfigDecorator],
         fakeSimpleHttp,
         MockitoSugar.mock[Metrics],
-        fakeTools) {
+        fakeTools,
+        serviceConfig) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }

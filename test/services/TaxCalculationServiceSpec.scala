@@ -28,6 +28,7 @@ import play.api.libs.json.Json
 import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.{BaseSpec, Fixtures}
 
@@ -53,6 +54,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
         if (simulateTaxCalculationServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
+      val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val timer = MockitoSugar.mock[Timer.Context]
       val taxCalculationService: TaxCalculationService = new TaxCalculationService(
@@ -60,7 +62,8 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
         injected[Configuration],
         fakeSimpleHttp,
         MockitoSugar.mock[Metrics],
-        mockHttp) {
+        mockHttp,
+        serviceConfig) {
 
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer

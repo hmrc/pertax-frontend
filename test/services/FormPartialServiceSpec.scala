@@ -26,6 +26,7 @@ import play.api.{Configuration, Environment}
 import play.twirl.api.Html
 import services.partials.FormPartialService
 import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.partials.HtmlPartial
@@ -38,7 +39,7 @@ import scala.concurrent.Future
 class FormPartialServiceSpec extends BaseSpec {
 
   trait LocalSetup {
-
+    val servicesConfig = app.injector.instanceOf[ServicesConfig]
     val timer = MockitoSugar.mock[Timer.Context]
     val formPartialService: FormPartialService = new FormPartialService(
       injected[Environment],
@@ -46,7 +47,8 @@ class FormPartialServiceSpec extends BaseSpec {
       MockitoSugar.mock[DefaultHttpClient],
       MockitoSugar.mock[Metrics],
       MockitoSugar.mock[ConfigDecorator],
-      injected[SessionCookieCrypto]
+      injected[SessionCookieCrypto],
+      servicesConfig
     ) {
       override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer

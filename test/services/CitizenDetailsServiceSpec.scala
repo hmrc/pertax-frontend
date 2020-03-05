@@ -29,6 +29,7 @@ import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{BaseSpec, Fixtures}
 
 class CitizenDetailsServiceSpec extends BaseSpec {
@@ -77,13 +78,15 @@ class CitizenDetailsServiceSpec extends BaseSpec {
         if (simulateCitizenDetailsServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
+      val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val timer = MockitoSugar.mock[Timer.Context]
       val citizenDetailsService: CitizenDetailsService = new CitizenDetailsService(
         injected[Environment],
         injected[Configuration],
         fakeSimpleHttp,
-        MockitoSugar.mock[Metrics]) {
+        MockitoSugar.mock[Metrics],
+        serviceConfig) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }
