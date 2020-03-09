@@ -24,8 +24,7 @@ import error.RendersErrors
 import com.google.inject.Inject
 import models._
 import play.api.Logger
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, ActionBuilder, AnyContent, Request}
+import play.api.mvc._
 import play.twirl.api.Html
 import services.PreferencesFrontendService
 import services.partials.{FormPartialService, SaPartialService}
@@ -34,19 +33,20 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class InterstitialController @Inject()(
-  val messagesApi: MessagesApi,
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
   val preferencesFrontendService: PreferencesFrontendService,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction)(
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with PaperlessInterruptHelper with RendersErrors {
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with PaperlessInterruptHelper with RendersErrors {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::

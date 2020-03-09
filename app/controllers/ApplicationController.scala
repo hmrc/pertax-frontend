@@ -22,26 +22,27 @@ import controllers.auth._
 import error.RendersErrors
 import org.joda.time.DateTime
 import play.api.Logger
-import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationController @Inject()(
-  val messagesApi: MessagesApi,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  authJourney: AuthJourney)(
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with CurrentTaxYear with RendersErrors {
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -51,6 +52,7 @@ class ApplicationController @Inject()(
 
   def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
     Action.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       val journeyId =
         List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
 

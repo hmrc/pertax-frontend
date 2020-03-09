@@ -24,9 +24,10 @@ import error.RendersErrors
 import models._
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SelfAssessmentPaymentsService
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -34,18 +35,19 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.{DateTimeTools, LocalPartialRetriever}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentController @Inject()(
-  val messagesApi: MessagesApi,
   selfAssessmentPaymentsService: SelfAssessmentPaymentsService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
-  auditConnector: AuditConnector)(
+  auditConnector: AuditConnector,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with CurrentTaxYear with RendersErrors {
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -69,6 +71,7 @@ class SelfAssessmentController @Inject()(
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {

@@ -22,25 +22,32 @@ import controllers.controllershelpers.HomePageCachingHelper
 import error.LocalErrorHandler
 import com.google.inject.Inject
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.LocalPartialRetriever
 
+import scala.concurrent.ExecutionContext
+
 class UserResearchDismissalController @Inject()(
-  val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val messageFrontendService: MessageFrontendService,
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
   auditConnector: AuditConnector,
-  authConnector: AuthConnector)(implicit partialRetriever: LocalPartialRetriever, configDecorator: ConfigDecorator)
-    extends PertaxBaseController {
+  authConnector: AuthConnector,
+  cc: MessagesControllerComponents)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     homePageCachingHelper.storeUserUrDismissal()
     NoContent
   }

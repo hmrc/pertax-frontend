@@ -31,7 +31,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.{Langs, Messages, MessagesApi}
+import play.api.i18n.{Lang, Langs, Messages, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
@@ -53,7 +53,7 @@ import util.fixtures.AddressFixture._
 import util.fixtures.PersonFixture._
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -65,6 +65,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
   val mockPersonalDetailsCardGenerator: PersonalDetailsCardGenerator = mock[PersonalDetailsCardGenerator]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
+
+  implicit val lang: Lang = Lang("en-gb")
 
   override def beforeEach: Unit =
     reset(
@@ -109,7 +111,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     def controller =
       new AddressController(
-        injected[MessagesApi],
         mockCitizenDetailsService,
         mockAddressLookupService,
         mockAddressMovedService,
@@ -119,8 +120,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockAuthJourney,
         mockLocalSessionCache,
         injected[WithActiveTabAction],
-        mockAuditConnector
-      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
+        mockAuditConnector,
+        injected[MessagesControllerComponents]
+      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
 
         when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
           Future.successful(AuditResult.Success)
@@ -547,7 +549,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       def newController =
         new AddressController(
-          injected[MessagesApi],
           mockCitizenDetailsService,
           mockAddressLookupService,
           mock[AddressMovedService],
@@ -557,8 +558,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           mockAuthJourney,
           mockLocalSessionCache,
           injected[WithActiveTabAction],
-          mockAuditConnector
-        )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer])
+          mockAuditConnector,
+          injected[MessagesControllerComponents]
+        )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer], injected[ExecutionContext])
 
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
       when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
@@ -2242,9 +2244,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         ))
 
       val result = controller.reviewChanges(PrimaryAddrType)(FakeRequest())
-      implicit val messages: Messages = Messages.Implicits.applicationMessages
+    //  implicit val messages: Messages = Messages.Implicits.applicationMessages
 
-      contentAsString(result) shouldNot include(Messages("label.when_this_became_your_main_home"))
+      contentAsString(result) shouldNot include(controller.messagesApi("label.when_this_became_your_main_home"))
     }
 
     "display no message relating to the date the address started when the primary address has not changed when the postcode is in lower case" in new LocalSetup {

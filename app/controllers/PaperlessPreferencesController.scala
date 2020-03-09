@@ -21,23 +21,24 @@ import controllers.auth._
 import controllers.auth.requests.UserRequest
 import com.google.inject.Inject
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.PreferencesFrontendPartialService
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PaperlessPreferencesController @Inject()(
-  val messagesApi: MessagesApi,
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
-  withBreadcrumbAction: WithBreadcrumbAction)(
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer)
-    extends PertaxBaseController {
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) {
 
   def managePreferences: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withActiveTabAction

@@ -24,31 +24,32 @@ import com.google.inject.Inject
 import error.GenericErrors
 import models._
 import org.joda.time.DateTime
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, ActionBuilder, AnyContent}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject()(
-  val messagesApi: MessagesApi,
   val preferencesFrontendService: PreferencesFrontendService,
   val taiService: TaiService,
   val taxCalculationService: TaxCalculationService,
   val homeCardGenerator: HomeCardGenerator,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction)(
+  withActiveTabAction: WithActiveTabAction,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with PaperlessInterruptHelper with CurrentTaxYear {
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -57,6 +58,7 @@ class HomeController @Inject()(
     .addActiveTab(ActiveTabHome)
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     val showUserResearchBanner: Future[Boolean] =
       configDecorator.urLinkUrl.fold(Future.successful(false))(_ =>
         homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))

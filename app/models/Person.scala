@@ -16,12 +16,13 @@
 
 package models
 
-import org.joda.time.{Instant, LocalDate}
+import org.joda.time.{DateTime, Instant, LocalDate}
 import play.api.libs.json._
 import uk.gov.hmrc.domain.Nino
 import _root_.util.DateTimeTools
 import play.api.libs.json.JodaWrites._
 import play.api.libs.json.JodaReads._
+import play.api.libs.functional.syntax._
 
 case class Person(
   firstName: Option[String],
@@ -44,6 +45,12 @@ case class Person(
 }
 
 object Person {
+
+  implicit val localdateFormatDefault = new Format[LocalDate] {
+    override def reads(json: JsValue): JsResult[LocalDate] = JodaReads.DefaultJodaLocalDateReads.reads(json)
+    override def writes(o: LocalDate): JsValue = JodaWrites.DefaultJodaLocalDateWrites.writes(o)
+  }
+
   implicit val formats = Json.format[Person]
 
 }

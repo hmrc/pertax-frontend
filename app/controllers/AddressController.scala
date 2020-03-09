@@ -36,16 +36,16 @@ import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
 import util.PertaxSessionKeys.{filter, postcode}
 import util.{LanguageHelper, LocalPartialRetriever}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressController @Inject()(
-  val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val addressLookupService: AddressLookupService,
   val addressMovedService: AddressMovedService,
@@ -55,11 +55,13 @@ class AddressController @Inject()(
   authJourney: AuthJourney,
   val sessionCache: LocalSessionCache,
   withActiveTabAction: WithActiveTabAction,
-  auditConnector: AuditConnector)(
+  auditConnector: AuditConnector,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with AddressJourneyCachingHelper {
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with AddressJourneyCachingHelper {
 
   def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
@@ -104,7 +106,8 @@ class AddressController @Inject()(
     lookupServiceDown: Boolean,
     filter: Option[String] = None,
     forceLookup: Boolean = false)(f: PartialFunction[AddressLookupResponse, Future[Result]])(
-    implicit request: UserRequest[_]): Future[Result] =
+    implicit request: UserRequest[_]): Future[Result] = {
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     if (!forceLookup && lookupServiceDown) {
       Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
     } else {
@@ -116,6 +119,7 @@ class AddressController @Inject()(
       }
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
+  }
 
   private val authenticate
     : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
@@ -123,6 +127,7 @@ class AddressController @Inject()(
 
   def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>
     import models.dto.AddressPageVisitedDto
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
 
     for {
       addressModel <- request.nino
@@ -145,6 +150,7 @@ class AddressController @Inject()(
   }
 
   def taxCreditsChoice: Action[AnyContent] = authenticate.async { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     addressJourneyEnforcer { _ => _ =>
       gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         enforceDisplayAddressPageVisited(addressPageVisitedDto) {
@@ -160,6 +166,7 @@ class AddressController @Inject()(
 
   def processTaxCreditsChoice: Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => _ =>
         TaxCreditsChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
@@ -182,6 +189,7 @@ class AddressController @Inject()(
     }
 
   def residencyChoice: Action[AnyContent] = authenticate.async { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     addressJourneyEnforcer { _ => _ =>
       gettingCachedTaxCreditsChoiceDto {
         case Some(TaxCreditsChoiceDto(false)) =>
@@ -198,6 +206,7 @@ class AddressController @Inject()(
 
   def processResidencyChoice: Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => _ =>
         ResidencyChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
@@ -215,6 +224,7 @@ class AddressController @Inject()(
 
   def internationalAddressChoice(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => _ =>
         gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           enforceDisplayAddressPageVisited(addressPageVisitedDto) {
@@ -228,6 +238,7 @@ class AddressController @Inject()(
 
   def processInternationalAddressChoice(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
@@ -253,6 +264,7 @@ class AddressController @Inject()(
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => _ =>
         gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           enforceDisplayAddressPageVisited(addressPageVisitedDto) {
@@ -264,6 +276,7 @@ class AddressController @Inject()(
 
   def showPostcodeLookupForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
           addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(true))
@@ -290,6 +303,7 @@ class AddressController @Inject()(
 
   def processPostcodeLookupForm(typ: AddrType, back: Option[Boolean] = None): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => _ =>
         AddressFinderDto.form.bindFromRequest.fold(
           formWithErrors => {
@@ -361,6 +375,7 @@ class AddressController @Inject()(
 
   def showAddressSelectorForm(typ: AddrType) =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       gettingCachedJourneyData(typ) { journeyData =>
         journeyData.recordSet match {
           case Some(set) =>
@@ -382,6 +397,7 @@ class AddressController @Inject()(
 
   def processAddressSelectorForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       val errorPage = Future.successful(
         InternalServerError(
           views.html.error(
@@ -448,6 +464,7 @@ class AddressController @Inject()(
 
   def showUpdateAddressForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => _ =>
@@ -486,6 +503,7 @@ class AddressController @Inject()(
 
   def processUpdateAddressForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => personDetails =>
@@ -531,6 +549,7 @@ class AddressController @Inject()(
 
   def showUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       gettingCachedJourneyData[Result](typ) { journeyData =>
         addressJourneyEnforcer { _ => personDetails =>
           typ match {
@@ -568,6 +587,7 @@ class AddressController @Inject()(
 
   def processUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       gettingCachedJourneyData[Result](typ) { _ =>
         addressJourneyEnforcer { _ => _ =>
           {
@@ -601,6 +621,7 @@ class AddressController @Inject()(
 
   def enterStartDate(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           gettingCachedJourneyData(typ) { journeyData =>
@@ -623,6 +644,7 @@ class AddressController @Inject()(
 
   def processEnterStartDate(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm.bindFromRequest.fold(
@@ -699,6 +721,7 @@ class AddressController @Inject()(
 
   private def submitConfirmClosePostalAddress(nino: Nino, personDetails: PersonDetails)(
     implicit request: UserRequest[_]): Future[Result] = {
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     def internalServerError =
       InternalServerError(
         views.html.error(
@@ -767,6 +790,7 @@ class AddressController @Inject()(
 
   def reviewChanges(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       addressJourneyEnforcer { _ => personDetails =>
         gettingCachedJourneyData(typ) { journeyData =>
           val isUkAddress: Boolean = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
@@ -866,6 +890,7 @@ class AddressController @Inject()(
 
   def submitChanges(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
       val addressType = mapAddressType(typ)
 
       addressJourneyEnforcer { nino => personDetails =>

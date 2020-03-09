@@ -24,15 +24,18 @@ import io.lemonlabs.uri.{QueryString, Url}
 import models.SelfAssessmentUser
 import models.dto.SAWrongCredentialsDto
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, ActionBuilder, AnyContent}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 
-class SaWrongCredentialsController @Inject()(val messagesApi: MessagesApi, authJourney: AuthJourney)(
+import scala.concurrent.ExecutionContext
+
+class SaWrongCredentialsController @Inject()(authJourney: AuthJourney, cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer)
-    extends PertaxBaseController {
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) {
   private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithSelfAssessment
 
   def ggSignInUrl: String = {

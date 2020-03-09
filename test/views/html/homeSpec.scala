@@ -33,13 +33,12 @@ import util.{BaseSpec, Fixtures}
 
 import scala.collection.JavaConversions._
 
-class homeSpec extends BaseSpec with MockitoSugar {
+class homeSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  implicit val messages = Messages.Implicits.applicationMessages
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
   val messageInboxPartial = Html("")
@@ -63,7 +62,7 @@ class homeSpec extends BaseSpec with MockitoSugar {
         FakeRequest()
       )
 
-      lazy val document: Document = Jsoup.parse(
+      lazy val document: Document = asDocument(
         views.html
           .home(Nil, Nil, Nil, true)
           .toString)
@@ -90,7 +89,7 @@ class homeSpec extends BaseSpec with MockitoSugar {
         FakeRequest()
       )
 
-      lazy val document: Document = Jsoup.parse(
+      lazy val document: Document = asDocument(
         views.html
           .home(Nil, Nil, Nil, true)
           .toString)
@@ -116,7 +115,7 @@ class homeSpec extends BaseSpec with MockitoSugar {
         FakeRequest()
       )
 
-      lazy val document: Document = Jsoup.parse(
+      lazy val document: Document = asDocument(
         views.html
           .home(Nil, Nil, Nil, true)
           .toString)

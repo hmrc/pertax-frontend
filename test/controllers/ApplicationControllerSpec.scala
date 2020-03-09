@@ -43,7 +43,7 @@ import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
@@ -82,14 +82,12 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
       SaUtr("1111111111"))
 
-    val messagesApi = injected[MessagesApi]
-
     def controller: ApplicationController =
       new ApplicationController(
-        messagesApi,
         mockIdentityVerificationFrontendService,
-        mockAuthJourney
-      )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer])
+        mockAuthJourney,
+        injected[MessagesControllerComponents]
+      )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
       Future.successful(getIVJourneyStatusResponse)

@@ -24,7 +24,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -38,7 +38,7 @@ import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -49,12 +49,12 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
   def controller: PaperlessPreferencesController =
     new PaperlessPreferencesController(
-      injected[MessagesApi],
       mockPreferencesFrontendPartialService,
       mockAuthJourney,
       injected[WithActiveTabAction],
-      injected[WithBreadcrumbAction]
-    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
+      injected[WithBreadcrumbAction],
+      injected[MessagesControllerComponents]
+    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
 
       when(mockPreferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))

@@ -16,7 +16,7 @@
 
 package models
 
-import org.joda.time.{Instant, LocalDate}
+import org.joda.time.{DateTime, Instant, LocalDate}
 import play.api.libs.json._
 import _root_.util.DateTimeTools
 import play.api.libs.json.JodaWrites._
@@ -59,5 +59,9 @@ case class Address(
 }
 
 object Address {
+  implicit val localdateFormatDefault = new Format[LocalDate] {
+    override def reads(json: JsValue): JsResult[LocalDate] = JodaReads.DefaultJodaLocalDateReads.reads(json)
+    override def writes(o: LocalDate): JsValue = JodaWrites.DefaultJodaLocalDateWrites.writes(o)
+  }
   implicit val formats = Json.format[Address]
 }

@@ -24,7 +24,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -38,7 +38,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -56,13 +56,13 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
     def controller: InterstitialController =
       new InterstitialController(
-        injected[MessagesApi],
         mock[FormPartialService],
         mock[SaPartialService],
         mock[PreferencesFrontendService],
         mockAuthJourney,
-        injected[WithBreadcrumbAction]
-      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
+        injected[WithBreadcrumbAction],
+        injected[MessagesControllerComponents]
+      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))

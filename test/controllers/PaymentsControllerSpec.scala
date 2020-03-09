@@ -28,7 +28,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -36,7 +36,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
@@ -56,11 +56,11 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
 
   def controller =
     new PaymentsController(
-      injected[MessagesApi],
       mockPayConnector,
       mockAuthJourney,
-      injected[WithBreadcrumbAction]
-    )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer])
+      injected[WithBreadcrumbAction],
+      injected[MessagesControllerComponents]
+    )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer], injected[ExecutionContext])
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

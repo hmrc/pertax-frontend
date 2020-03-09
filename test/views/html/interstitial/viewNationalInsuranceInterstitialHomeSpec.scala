@@ -19,21 +19,19 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.NonFilerSelfAssessmentUser
-import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
+import views.html.ViewSpec
 
-class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSugar {
+class viewNationalInsuranceInterstitialHomeSpec extends ViewSpec with MockitoSugar {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  implicit val messages = Messages.Implicits.applicationMessages
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
@@ -55,7 +53,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         None,
         FakeRequest()
       )
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.interstitial
           .viewNationalInsuranceInterstitialHome(Html(""), "asfa")
           .toString)
@@ -78,7 +76,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
         None,
         FakeRequest()
       )
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.interstitial
           .viewNationalInsuranceInterstitialHome(Html(""), "aas")
           .toString)

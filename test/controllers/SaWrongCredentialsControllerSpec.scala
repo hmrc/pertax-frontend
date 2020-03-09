@@ -20,23 +20,25 @@ import controllers.auth.FakeAuthJourney
 import models.WrongCredentialsSelfAssessmentUser
 import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, LocalPartialRetriever}
 
+import scala.concurrent.ExecutionContext
+
 class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
   val fakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")))
 
-  val messagesApi = injected[MessagesApi]
-
   def controller =
-    new SaWrongCredentialsController(messagesApi, fakeAuthJourney)(
+    new SaWrongCredentialsController(fakeAuthJourney, injected[MessagesControllerComponents])(
       injected[LocalPartialRetriever],
       config,
-      injected[TemplateRenderer])
+      injected[TemplateRenderer],
+      injected[ExecutionContext])
 
   "processDoYouKnowOtherCredentials" should {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {

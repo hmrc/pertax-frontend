@@ -44,7 +44,7 @@ import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, UserRequestFixture}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
@@ -89,15 +89,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     def controller =
       new HomeController(
-        injected[MessagesApi],
         mockPreferencesFrontendService,
         mockTaiService,
         mockTaxCalculationService,
         injected[HomeCardGenerator],
         injected[HomePageCachingHelper],
         mockAuthJourney,
-        injected[WithActiveTabAction]
-      )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer)
+        injected[WithActiveTabAction],
+        injected[MessagesControllerComponents]
+      )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))

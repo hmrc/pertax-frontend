@@ -26,7 +26,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject._
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -35,7 +35,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import util.UserRequestFixture.buildUserRequest
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
 
@@ -52,13 +52,14 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
 
   def controller: NiLetterController =
     new NiLetterController(
-      injected[MessagesApi],
       mockPdfGeneratorConnector,
       mockAuthJourney,
-      injected[WithBreadcrumbAction])(
+      injected[WithBreadcrumbAction],
+      injected[MessagesControllerComponents])(
       mockLocalPartialRetriever,
       injected[ConfigDecorator],
-      injected[TemplateRenderer]
+      injected[TemplateRenderer],
+      injected[ExecutionContext]
     )
 
   "Calling NiLetterController.printNationalInsuranceNumber" should {

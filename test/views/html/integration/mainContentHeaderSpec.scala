@@ -18,21 +18,19 @@ package views.html.integration
 
 import config.ConfigDecorator
 import org.joda.time.DateTime
-import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.Messages
 import util.BaseSpec
+import views.html.ViewSpec
 
-class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
+class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
 
-  implicit val messages = Messages.Implicits.applicationMessages
   implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   "Rendering mainContentHeader.scala.html" should {
 
     "show last logged in details with name when a name is present and a lastLogin is supplied" in {
       val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.integration
           .mainContentHeader(Some("Firstname"), Some(millis), Nil, false, None, None)
           .toString)
@@ -41,7 +39,7 @@ class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
 
     "show last logged in details without name when no name is present and a lastLogin is supplied" in {
       val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.integration
           .mainContentHeader(None, Some(millis), Nil, false, None, None)
           .toString)
@@ -49,7 +47,7 @@ class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
     }
 
     "not show last logged in details when lastLogin is not supplied" in {
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.integration
           .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
@@ -57,28 +55,28 @@ class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
     }
 
     "show breadcrumb when one is passed" in {
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.integration
           .mainContentHeader(None, None, List(("/url", "Link Text"), ("/url2", "Link Text 2")), true, None, None)
           .toString)
-      val doc = Jsoup.parse(document.select("#global-breadcrumb").toString)
+      val doc = asDocument(document.select("#global-breadcrumb").toString)
 
       doc.select("a").size() shouldBe 2
       document.select("#global-breadcrumb").isEmpty shouldBe false
     }
 
     "hide breadcrumb when none is passed" in {
-      val document = Jsoup.parse(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
+      val document = asDocument(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
       document.select("#global-breadcrumb").isEmpty shouldBe true
     }
 
     "show BETA banner showBetaBanner is true" in {
-      val document = Jsoup.parse(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
+      val document = asDocument(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
       document.select(".beta-banner .phase-tag").text shouldBe "BETA"
     }
 
     "hide BETA banner showBetaBanner is false" in {
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.integration
           .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
@@ -86,7 +84,7 @@ class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
     }
 
     "show feedback link in BETA banner when passed deskProToken with PTA" in {
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.integration
           .mainContentHeader(None, None, Nil, true, Some("PTA"), None)
           .toString)
@@ -96,7 +94,7 @@ class mainContentHeaderSpec extends BaseSpec with MockitoSugar {
     }
 
     "hide feedback link in BETA banner when not passed any deskProToken" in {
-      val document = Jsoup.parse(
+      val document = asDocument(
         views.html.integration
           .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
