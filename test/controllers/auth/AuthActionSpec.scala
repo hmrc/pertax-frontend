@@ -163,7 +163,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     "be redirected to the auth provider choice page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
