@@ -39,7 +39,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EditAddressLockRepository @Inject()(
-  system: ActorSystem,
   configDecorator: ConfigDecorator
 )(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
 
