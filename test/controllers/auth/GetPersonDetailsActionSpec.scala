@@ -75,7 +75,6 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
           UserRequest(
             Some(Nino("AB123456C")),
             None,
-            None,
             WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
@@ -103,7 +102,6 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
         val refinedRequest =
           UserRequest(
             Some(Nino("AB123456C")),
-            None,
             None,
             WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
             Credentials("", "Verify"),

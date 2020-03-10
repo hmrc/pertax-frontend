@@ -81,7 +81,6 @@ class SelfAssessmentStatusActionSpec
       None,
       None,
       None,
-      None,
       FakeRequest()
     )
 

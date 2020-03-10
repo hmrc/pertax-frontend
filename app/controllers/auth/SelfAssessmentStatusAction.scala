@@ -67,7 +67,6 @@ class SelfAssessmentStatusAction @Inject()(
         UserRequest(
           request.nino,
           request.name,
-          request.previousLoginTime,
           saType,
           request.credentials,
           request.confidenceLevel,

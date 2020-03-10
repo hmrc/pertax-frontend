@@ -49,7 +49,6 @@ class homeSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest = UserRequest(
         Some(Fixtures.fakeNino),
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
         Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
@@ -76,7 +75,6 @@ class homeSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest = UserRequest(
         Some(Fixtures.fakeNino),
         Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
         Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
@@ -102,7 +100,6 @@ class homeSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest = UserRequest(
         Some(Fixtures.fakeNino),
         None,
-        Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
         NonFilerSelfAssessmentUser,
         Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,

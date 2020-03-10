@@ -33,7 +33,6 @@ class WithBreadcrumbAction @Inject()(implicit ec: ExecutionContext) {
             UserRequest(
               request.nino,
               request.retrievedName,
-              request.previousLoginTime,
               request.saUserType,
               request.credentials,
               request.confidenceLevel,

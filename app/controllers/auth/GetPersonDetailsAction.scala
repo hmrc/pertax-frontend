@@ -54,7 +54,6 @@ class GetPersonDetailsAction @Inject()(
                 UserRequest(
                   request.nino,
                   request.retrievedName,
-                  request.previousLoginTime,
                   request.saUserType,
                   request.credentials,
                   request.confidenceLevel,
@@ -75,7 +74,6 @@ class GetPersonDetailsAction @Inject()(
             UserRequest(
               request.nino,
               request.retrievedName,
-              request.previousLoginTime,
               request.saUserType,
               request.credentials,
               request.confidenceLevel,
