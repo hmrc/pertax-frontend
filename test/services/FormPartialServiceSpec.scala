@@ -21,7 +21,7 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.{Configuration, Environment}
 import play.twirl.api.Html
 import services.partials.FormPartialService

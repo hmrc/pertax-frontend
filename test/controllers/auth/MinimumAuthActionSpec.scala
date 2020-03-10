@@ -23,9 +23,9 @@ import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, MustMatchers}
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
@@ -44,7 +44,8 @@ import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.language.postfixOps
 
-class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures {
+class MinimumAuthActionSpec
+    extends FreeSpec with MustMatchers with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))

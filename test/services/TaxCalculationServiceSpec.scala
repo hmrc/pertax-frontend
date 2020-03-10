@@ -22,7 +22,7 @@ import models.{OverpaidStatus, Reconciliation, TaxYearReconciliation}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.{Configuration, Environment}

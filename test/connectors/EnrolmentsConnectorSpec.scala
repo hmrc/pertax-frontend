@@ -23,7 +23,7 @@ import org.mockito.Mockito.when
 import org.scalatest.EitherValues
 import org.scalatest.Inspectors.forAll
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsResultException, Json}
 import uk.gov.hmrc.http.{HttpException, HttpResponse}

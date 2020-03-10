@@ -19,7 +19,7 @@ package views.html.interstitial
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.NonFilerSelfAssessmentUser
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.ConfidenceLevel

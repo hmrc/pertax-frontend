@@ -18,7 +18,7 @@ package views.html.integration
 
 import config.ConfigDecorator
 import org.joda.time.DateTime
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import util.BaseSpec
 import views.html.ViewSpec
 

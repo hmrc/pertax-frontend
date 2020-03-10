@@ -20,7 +20,7 @@ import controllers.auth.requests.UserRequest
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, MustMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
