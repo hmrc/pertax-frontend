@@ -48,7 +48,7 @@ class PaymentsController @Inject()(
   def makePayment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
-        implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+        implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
         if (request.isSa) {
           request.saUserType match {
             case saUser: SelfAssessmentUser => {

@@ -47,7 +47,7 @@ class UserResearchDismissalController @Inject()(
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
     homePageCachingHelper.storeUserUrDismissal()
     NoContent
   }

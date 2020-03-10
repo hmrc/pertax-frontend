@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class WithActiveTabAction @Inject()(cc: MessagesControllerComponents) {
+class WithActiveTabAction @Inject()(implicit ec: ExecutionContext) {
 
   def addActiveTab(currentActiveTab: ActiveTab): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {
@@ -48,6 +48,6 @@ class WithActiveTabAction @Inject()(cc: MessagesControllerComponents) {
           )
         )
 
-      override protected def executionContext: ExecutionContext = cc.executionContext
+      override protected def executionContext: ExecutionContext = ec
     }
 }

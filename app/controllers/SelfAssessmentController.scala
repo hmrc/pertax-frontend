@@ -71,7 +71,7 @@ class SelfAssessmentController @Inject()(
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
-      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
+      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {
