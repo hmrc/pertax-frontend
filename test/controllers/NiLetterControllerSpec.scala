@@ -41,11 +41,17 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
 
   val mockPdfGeneratorConnector = mock[PdfGeneratorConnector]
   val mockAuthJourney = mock[AuthJourney]
+  val mockInterstitialController = mock[InterstitialController]
+  val mockAddressController = mock[AddressController]
+  val mockHomeController = mock[HomeController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
+      bind[InterstitialController].toInstance(mockInterstitialController),
       bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
-      bind[AuthJourney].toInstance(mockAuthJourney)
+      bind[AuthJourney].toInstance(mockAuthJourney),
+      bind[AddressController].toInstance(mockAddressController),
+      bind[HomeController].toInstance(mockHomeController)
     )
     .configure(configValues)
     .build()
