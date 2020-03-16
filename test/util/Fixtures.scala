@@ -342,6 +342,6 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
 }
 trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {
   override def invokeBlock[A](a: Request[A], block: UserRequest[A] => Future[Result]): Future[Result]
-  override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser().asInstanceOf[BodyParser[AnyContent]]
+  override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser()
   override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 }
