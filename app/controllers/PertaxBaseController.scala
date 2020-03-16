@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.controller.{FrontendController, Utf8MimeTypes}
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(cc) with Utf8MimeTypes with I18nSupport with ControllerLikeHelpers {
+    extends FrontendController(cc) with I18nSupport with ControllerLikeHelpers {
 
   implicit class SessionKeyRemover(result: Future[Result]) {
     def removeSessionKey(key: String)(implicit request: Request[_]): Future[Result] = result.map {
