@@ -17,23 +17,19 @@
 package modules
 
 import com.google.inject.AbstractModule
-import config.{ApplicationCryptoProvider, LocalTemplateRenderer, SessionCookieCryptoFilterProvider}
-import filters._
-import services.http.{WSHttp, WsAllMethods}
-import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.frontend.filters._
+import config.LocalTemplateRenderer
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
+import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
+import uk.gov.hmrc.play.bootstrap.http.{DefaultHttpClient, HttpClient}
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 class LocalGuiceModule extends AbstractModule {
   override def configure() = {
-    bind(classOf[HeadersFilter]).toInstance(HeadersFilter)
-    bind(classOf[DeviceIdFilter]).toProvider(classOf[DeviceIdCookieFilterProvider])
-    bind(classOf[CSRFExceptionsFilter]).toProvider(classOf[CSRFExceptionsFilterProvider])
-    bind(classOf[SessionTimeoutFilter]).toProvider(classOf[SessionTimeoutFilterProvider])
-    bind(classOf[CacheControlFilter]).toInstance(CacheControlFilter.fromConfig("caching.allowedContentTypes"))
     bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
-    bind(classOf[ApplicationCrypto]).toProvider(classOf[ApplicationCryptoProvider])
-    bind(classOf[CookieCryptoFilter]).toProvider(classOf[SessionCookieCryptoFilterProvider])
-    bind(classOf[WSHttp]).to(classOf[WsAllMethods])
+    bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
+    bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])
+    bind(classOf[AuditConnector]).to(classOf[DefaultAuditConnector])
   }
 }

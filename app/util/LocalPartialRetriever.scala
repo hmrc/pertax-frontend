@@ -17,14 +17,13 @@
 package util
 
 import com.google.inject.{Inject, Singleton}
-import services.http.WsAllMethods
-import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
+import uk.gov.hmrc.crypto.PlainText
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.partials.FormPartialRetriever
 @Singleton
-class LocalPartialRetriever @Inject()(override val httpGet: WsAllMethods, val applicationCrypto: ApplicationCrypto)
+class LocalPartialRetriever @Inject()(override val httpGet: HttpClient, val sessionCookieCrypto: SessionCookieCrypto)
     extends FormPartialRetriever {
 
-  val sessionCookieCryptoFilter: SessionCookieCryptoFilter = new SessionCookieCryptoFilter(applicationCrypto)
-  override def crypto = sessionCookieCryptoFilter.encrypt
+  override def crypto: String => String = cookie => sessionCookieCrypto.crypto.encrypt(PlainText(cookie)).value
 }

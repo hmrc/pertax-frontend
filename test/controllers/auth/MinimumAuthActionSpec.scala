@@ -17,7 +17,6 @@
 package controllers.auth
 
 import config.ConfigDecorator
-import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.joda.time.DateTime
@@ -34,10 +33,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Action, AnyContent, Controller}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.domain.SaUtrGenerator
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.Fixtures
 import util.RetrievalOps._
 
@@ -52,9 +52,9 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
+  val mockAuthConnector = mock[AuthConnector]
   val configDecorator = app.injector.instanceOf[ConfigDecorator]
-  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[PertaxAuditConnector])
+  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
   class Harness(authAction: MinimumAuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -91,12 +91,11 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
   }
 
   type AuthRetrievals =
-    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ LoginTimes ~ Option[
-      TrustedHelper] ~ Option[String]
+    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[
+      String]
 
   val fakeCredentials = Credentials("foo", "bar")
   val fakeConfidenceLevel = ConfidenceLevel.L200
-  val fakeLoginTimes = LoginTimes(DateTime.now(), None)
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
@@ -106,7 +105,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
       val nino = Fixtures.fakeNino.nino
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None)
+          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None)
 
       when(
         mockAuthConnector
@@ -129,7 +128,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
 
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None
+          None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
 
       when(
@@ -154,7 +153,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
 
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(nino) ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ None ~ None
+          Some(nino) ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
 
       when(
@@ -178,7 +177,7 @@ class MinimumAuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar
       val fakePrincipalNino = Fixtures.fakeNino.toString()
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ fakeLoginTimes ~ Some(
+          Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ Some(
             TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)) ~ None)
 
       when(

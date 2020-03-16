@@ -23,8 +23,8 @@ import metrics.HasMetrics
 import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment}
-import services.http.WsAllMethods
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
@@ -34,15 +34,14 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class FormPartialService @Inject()(
   environment: Environment,
-  configuration: Configuration,
-  override val http: WsAllMethods,
+  override val runModeConfiguration: Configuration,
+  override val http: HttpClient,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
-  applicationCrypto: ApplicationCrypto)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(applicationCrypto) with HasMetrics with ServicesConfig {
+  sessionCookieCrypto: SessionCookieCrypto)(implicit executionContext: ExecutionContext)
+    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
 

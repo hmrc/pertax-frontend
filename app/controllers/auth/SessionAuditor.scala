@@ -17,7 +17,6 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import connectors.PertaxAuditConnector
 import controllers.auth.SessionAuditor._
 import controllers.auth.requests.AuthenticatedRequest
 import org.joda.time.DateTime
@@ -28,13 +27,14 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Failure, Success}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import util.AuditServiceTools
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject()(auditConnector: PertaxAuditConnector)(implicit ec: ExecutionContext)
+private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext)
     extends AuditTags {
 
   def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit hc: HeaderCarrier): Future[Result] =
@@ -75,7 +75,6 @@ object SessionAuditor {
     credentials: Credentials,
     confidenceLevel: ConfidenceLevel,
     name: Option[String],
-    previousLoginTime: Option[DateTime],
     saUtr: Option[SaUtr],
     allEnrolments: Set[Enrolment])
 
@@ -86,11 +85,10 @@ object SessionAuditor {
       val credentials = request.credentials
       val confidenceLevel = request.confidenceLevel
       val name = request.name map (_.toString)
-      val previousLoginTime = request.previousLoginTime
       val saUtr = request.saEnrolment map (_.saUtr)
       val enrolments = request.enrolments
 
-      UserSessionAuditEvent(nino, credentials, confidenceLevel, name, previousLoginTime, saUtr, enrolments)
+      UserSessionAuditEvent(nino, credentials, confidenceLevel, name, saUtr, enrolments)
     }
 
     implicit val credentialsFormats = Json.format[Credentials]

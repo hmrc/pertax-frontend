@@ -25,6 +25,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.twirl.api.Html
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
+import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.partials.HtmlPartial
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -44,7 +45,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      val epr = new EnhancedPartialRetriever(injected[ApplicationCrypto]) with HasMetrics {
+      val epr = new EnhancedPartialRetriever(injected[SessionCookieCrypto]) with HasMetrics {
 
         override val http: HttpGet = MockitoSugar.mock[HttpGet]
         if (simulateCallFailed)

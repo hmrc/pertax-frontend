@@ -30,7 +30,6 @@ object UserRequestFixture {
   def buildUserRequest[A](
     nino: Option[Nino] = Some(Fixtures.fakeNino),
     userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-    lastLoginTime: Option[DateTime] = Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")),
     saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
     credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
@@ -42,7 +41,6 @@ object UserRequestFixture {
     UserRequest(
       nino,
       userName,
-      lastLoginTime,
       saUser,
       credentials,
       confidenceLevel,

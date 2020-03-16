@@ -45,7 +45,6 @@ case class AuthenticatedRequest[A](
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   name: Option[UserName],
-  previousLoginTime: Option[DateTime],
   trustedHelper: Option[TrustedHelper],
   profile: Option[String],
   enrolments: Set[Enrolment],

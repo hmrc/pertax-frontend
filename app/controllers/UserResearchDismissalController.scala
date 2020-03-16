@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import controllers.auth.AuthJourney
 import controllers.helpers.HomePageCachingHelper
 import error.LocalErrorHandler
@@ -26,6 +25,8 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import services._
 import services.partials.MessageFrontendService
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.LocalPartialRetriever
 
 class UserResearchDismissalController @Inject()(
@@ -35,10 +36,8 @@ class UserResearchDismissalController @Inject()(
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  auditConnector: AuditConnector,
+  authConnector: AuthConnector)(implicit partialRetriever: LocalPartialRetriever, configDecorator: ConfigDecorator)
     extends PertaxBaseController {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>

@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
@@ -44,7 +43,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
@@ -57,7 +56,7 @@ import scala.concurrent.Future
 
 class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
-  val mockAuditConnector = mock[PertaxAuditConnector]
+  val mockAuditConnector = mock[AuditConnector]
   val mockAuthJourney = mock[AuthJourney]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockCitizenDetailsService = mock[CitizenDetailsService]
@@ -2939,7 +2938,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     trait LookingUpAddressLocalSetup extends WithAddressControllerSpecSetup {
 
-      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), Some(DateTime.parse("1982-04-30T00:00:00.000+01:00")), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, None, FakeRequest())
+      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, None, FakeRequest())
 
       def addressLookupResponse: AddressLookupResponse
 

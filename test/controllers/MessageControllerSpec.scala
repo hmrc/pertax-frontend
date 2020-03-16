@@ -91,24 +91,6 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
       body should include("Message List")
     }
-
-    "return 401 for a verify user" in {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request))
-      })
-
-      val r = controller.messageList(FakeRequest("GET", "/foo"))
-      status(r) shouldBe UNAUTHORIZED
-
-      verify(mockMessageFrontendService, times(0)).getMessageListPartial(any())
-    }
   }
 
   "Calling MessageController.messageDetail" should {
@@ -175,23 +157,6 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
       status(r) shouldBe OK
       verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
-    }
-
-    "return 401 for a Verify user" in {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
-            ))
-      })
-
-      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
-      status(r) shouldBe UNAUTHORIZED
-      verify(mockMessageFrontendService, times(0)).getMessageDetailPartial(any())(any())
     }
   }
 }

@@ -38,7 +38,6 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
     implicit val userRequest = UserRequest(
       Some(Fixtures.fakeNino),
       Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-      None,
       NonFilerSelfAssessmentUser,
       Credentials("", "GovernmentGateway"),
       ConfidenceLevel.L200,

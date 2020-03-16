@@ -16,7 +16,7 @@
 
 package controllers
 import play.api.mvc.{Action, AnyContent}
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 class SessionManagementController extends FrontendController {
 

@@ -17,15 +17,15 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import connectors.PertaxAuditConnector
 import controllers.auth.SessionAuditor.sessionKey
 import controllers.auth.requests.AuthenticatedRequest
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionAuditorFake @Inject()(auditConnector: PertaxAuditConnector)(implicit ec: ExecutionContext)
+class SessionAuditorFake @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext)
     extends SessionAuditor(auditConnector) {
   override def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(
     implicit hc: HeaderCarrier): Future[Result] =

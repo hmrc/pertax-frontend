@@ -19,11 +19,12 @@ package services.http
 import com.google.inject.{Inject, Singleton}
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SimpleHttp @Inject()(http: WsAllMethods)(implicit executionContext: ExecutionContext) {
+class SimpleHttp @Inject()(http: HttpClient)(implicit executionContext: ExecutionContext) {
 
   implicit val r = new HttpReads[HttpResponse] {
     override def read(method: String, url: String, response: HttpResponse): HttpResponse = response

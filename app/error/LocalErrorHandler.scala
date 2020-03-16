@@ -20,14 +20,12 @@ import akka.stream.Materializer
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import com.google.inject.{Inject, Singleton}
-import play.api.http.HttpErrorHandler
-import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
+import play.twirl.api.Html
+import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
-
-import scala.concurrent.Future
 
 @Singleton
 class LocalErrorHandler @Inject()(
@@ -38,33 +36,13 @@ class LocalErrorHandler @Inject()(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer)
-    extends HttpErrorHandler with I18nSupport with RendersErrors {
+    extends FrontendErrorHandler with I18nSupport with RendersErrors {
 
-  def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
-    if (statusCode == BAD_REQUEST) {
-      authJourney.authWithPersonalDetails
-        .async { implicit request =>
-          futureError(statusCode)
-        }
-        .apply(request)
-        .run()(materializer)
-    } else if (statusCode == NOT_FOUND) {
-      authJourney.authWithPersonalDetails
-        .async { implicit request =>
-          notFoundFutureError
-        }
-        .apply(request)
-        .run()(materializer)
-    } else {
-      Action
-        .async { implicit request =>
-          unauthenticatedFutureError(statusCode)
-        }
-        .apply(request)
-        .run()(materializer)
-    }
-
-  def onServerError(request: RequestHeader, exception: Throwable): Future[Result] =
-    onClientError(request, INTERNAL_SERVER_ERROR, "")
+  override def standardErrorTemplate(
+    pageTitle: String,
+    heading: String,
+    message: String
+  )(implicit request: Request[_]): Html =
+    views.html.unauthenticatedError(pageTitle, Some(heading), Some(message))
 
 }

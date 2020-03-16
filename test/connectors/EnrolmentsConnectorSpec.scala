@@ -26,8 +26,8 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsResultException, Json}
-import services.http.WsAllMethods
 import uk.gov.hmrc.http.{HttpException, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures with EitherValues {
 
-  val http = mock[WsAllMethods]
+  val http = mock[DefaultHttpClient]
   val connector = new EnrolmentsConnector(http, config)
   val baseUrl = config.enrolmentStoreProxyUrl
 

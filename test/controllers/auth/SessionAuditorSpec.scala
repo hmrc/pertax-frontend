@@ -16,7 +16,6 @@
 
 package controllers.auth
 
-import connectors.PertaxAuditConnector
 import controllers.auth.SessionAuditor.UserSessionAuditEvent
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
@@ -34,7 +33,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Failure, Success}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import util.{AuditServiceTools, Fixtures}
@@ -53,7 +52,7 @@ class SessionAuditorSpec
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
   implicit val hc = HeaderCarrier()
 
-  val auditConnector = mock[PertaxAuditConnector]
+  val auditConnector = mock[AuditConnector]
   val sessionAuditor = new SessionAuditor(auditConnector)
 
   def originalResult[A]: Result = Ok
@@ -69,7 +68,6 @@ class SessionAuditorSpec
     Credentials("foo", "bar"),
     ConfidenceLevel.L200,
     None,
-    Some(new DateTime("2015-10-21T07:28")),
     None,
     None,
     Set.empty,

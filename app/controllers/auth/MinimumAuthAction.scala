@@ -18,7 +18,6 @@ package controllers.auth
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
 import controllers.routes
 import models.UserName
@@ -35,7 +34,7 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 import scala.concurrent.{ExecutionContext, Future}
 
 class MinimumAuthAction @Inject()(
-  val authConnector: PertaxAuthConnector,
+  val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor)(implicit ec: ExecutionContext)
@@ -52,10 +51,9 @@ class MinimumAuthAction @Inject()(
           Retrievals.credentials and
           Retrievals.confidenceLevel and
           Retrievals.name and
-          Retrievals.loginTimes and
           Retrievals.trustedHelper and
           Retrievals.profile) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ logins ~ trustedHelper ~ profile =>
+        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ trustedHelper ~ profile =>
           val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers
               .find(id => id.key == "UTR")
@@ -79,7 +77,6 @@ class MinimumAuthAction @Inject()(
               credentials,
               confidenceLevel,
               Some(UserName(name.getOrElse(Name(None, None)))),
-              logins.previousLogin,
               trustedHelper,
               profile,
               enrolments,

@@ -26,8 +26,9 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.{Configuration, Environment}
-import services.http.{FakeSimpleHttp, WsAllMethods}
+import services.http.FakeSimpleHttp
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,7 +44,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
     val jsonTaxCalcDetails = Json.toJson(taxCalcDetails)
     val anException = new RuntimeException("Any")
     val metricId = "get-taxcalc-summary"
-    val mockHttp = mock[WsAllMethods]
+    val mockHttp = mock[DefaultHttpClient]
 
     lazy val r = service.getTaxCalculation(Fixtures.fakeNino, 2015)
 

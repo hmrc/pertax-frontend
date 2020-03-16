@@ -28,7 +28,6 @@ import uk.gov.hmrc.renderer.ActiveTab
 case class UserRequest[+A](
   nino: Option[Nino],
   retrievedName: Option[UserName],
-  previousLoginTime: Option[DateTime],
   saUserType: SelfAssessmentUserType,
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,

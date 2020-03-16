@@ -43,7 +43,6 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
       implicit val userRequest = UserRequest(
         Some(Fixtures.fakeNino),
         None,
-        None,
         NonFilerSelfAssessmentUser,
         Credentials("", "GovernmentGateway"),
         ConfidenceLevel.L200,
@@ -65,7 +64,6 @@ class viewNationalInsuranceInterstitialHomeSpec extends BaseSpec with MockitoSug
     "show NINO section when user is Verify (not GG) and not SA" in {
       implicit val userRequest = UserRequest(
         Some(Fixtures.fakeNino),
-        None,
         None,
         NonFilerSelfAssessmentUser,
         Credentials("", "Verify"),
