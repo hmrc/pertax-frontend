@@ -26,7 +26,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.LocalPartialRetriever
 
@@ -47,7 +46,6 @@ class UserResearchDismissalController @Inject()(
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
     homePageCachingHelper.storeUserUrDismissal()
     NoContent
   }

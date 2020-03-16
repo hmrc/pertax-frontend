@@ -23,11 +23,9 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
 import models._
 import org.joda.time.DateTime
-import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SelfAssessmentPaymentsService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -71,7 +69,6 @@ class SelfAssessmentController @Inject()(
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
-      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
       val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {

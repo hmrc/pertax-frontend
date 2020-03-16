@@ -25,7 +25,6 @@ import play.api.Logger
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -52,7 +51,6 @@ class ApplicationController @Inject()(
 
   def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
     Action.async { implicit request =>
-      implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
       val journeyId =
         List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
 

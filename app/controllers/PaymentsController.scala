@@ -25,7 +25,6 @@ import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
@@ -48,7 +47,6 @@ class PaymentsController @Inject()(
   def makePayment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
-        implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
         if (request.isSa) {
           request.saUserType match {
             case saUser: SelfAssessmentUser => {
