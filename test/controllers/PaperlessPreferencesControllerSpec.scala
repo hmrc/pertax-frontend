@@ -30,11 +30,13 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, LocalPartialRetriever, Tools}
+import util.{BaseSpec, BetterOptionValues, LocalPartialRetriever, Tools}
 
 import scala.concurrent.Future
 
 class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
+
+  import BetterOptionValues._
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
@@ -64,6 +66,10 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
         val r = controller.managePreferences(FakeRequest())
         status(r) shouldBe SEE_OTHER
+
+        val redirectUrl = redirectLocation(r).getValue
+        val configDecorator = app.injector.instanceOf[ConfigDecorator]
+        redirectUrl should include regex s"${configDecorator.preferencesFrontendService}/paperless/check-settings\\?returnUrl=.*\\&returnLinkText=.*"
       }
 
       "Return 400 for Verify users" in {

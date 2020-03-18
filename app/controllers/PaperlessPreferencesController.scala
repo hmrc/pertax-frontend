@@ -41,11 +41,7 @@ class PaperlessPreferencesController @Inject()(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with ServicesConfig {
-
-  val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
-  val preferencesFrontendUrl = baseUrl("preferences-frontend")
+    extends PertaxBaseController {
 
   def managePreferences: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withActiveTabAction
@@ -66,6 +62,6 @@ class PaperlessPreferencesController @Inject()(
     }
 
   private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
-    s"$preferencesFrontendUrl/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
+    s"${configDecorator.preferencesFrontendService}/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
       .encryptAndEncode(returnLinkText)}"
 }
