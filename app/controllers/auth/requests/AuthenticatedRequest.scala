@@ -19,9 +19,9 @@ package controllers.auth.requests
 import models.UserName
 import org.joda.time.DateTime
 import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 sealed trait SelfAssessmentStatus
@@ -47,5 +47,6 @@ case class AuthenticatedRequest[A](
   name: Option[UserName],
   trustedHelper: Option[TrustedHelper],
   profile: Option[String],
+  enrolments: Set[Enrolment],
   request: Request[A])
     extends WrappedRequest[A](request)

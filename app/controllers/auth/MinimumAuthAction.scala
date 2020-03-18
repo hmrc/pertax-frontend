@@ -36,7 +36,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class MinimumAuthAction @Inject()(
   val authConnector: AuthConnector,
   configuration: Configuration,
-  configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
+  configDecorator: ConfigDecorator,
+  sessionAuditor: SessionAuditor)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -69,7 +70,7 @@ class MinimumAuthAction @Inject()(
             }
             .asInstanceOf[Request[A]]
 
-          block(
+          val authenticatedRequest =
             AuthenticatedRequest[A](
               nino.map(domain.Nino),
               saEnrolment,
@@ -78,9 +79,15 @@ class MinimumAuthAction @Inject()(
               Some(UserName(name.getOrElse(Name(None, None)))),
               trustedHelper,
               profile,
+              enrolments,
               trimmedRequest
             )
-          )
+
+          for {
+            result        <- block(authenticatedRequest)
+            updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
+          } yield updatedResult
+
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
