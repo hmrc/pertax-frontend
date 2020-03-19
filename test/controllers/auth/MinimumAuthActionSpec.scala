@@ -37,6 +37,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.Fixtures
 import util.RetrievalOps._
 
@@ -55,6 +56,7 @@ class MinimumAuthActionSpec
   val mockAuthConnector = mock[AuthConnector]
   val configDecorator = app.injector.instanceOf[ConfigDecorator]
   val controllerComponents = app.injector.instanceOf[ControllerComponents]
+  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
   class Harness(authAction: MinimumAuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -68,8 +70,7 @@ class MinimumAuthActionSpec
     "be redirected to the session timeout page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents, sessionAuditor)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -81,8 +82,7 @@ class MinimumAuthActionSpec
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents, sessionAuditor)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -114,8 +114,7 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator,controllerComponents, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -139,8 +138,7 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator,controllerComponents, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -165,8 +163,7 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator,controllerComponents, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -190,8 +187,7 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents)
+      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents, sessionAuditor)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))

@@ -37,6 +37,7 @@ class MinimumAuthAction @Inject()(
   val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator,
+  sessionAuditor: SessionAuditor,
   cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
@@ -70,7 +71,7 @@ class MinimumAuthAction @Inject()(
             }
             .asInstanceOf[Request[A]]
 
-          block(
+          val authenticatedRequest =
             AuthenticatedRequest[A](
               nino.map(domain.Nino),
               saEnrolment,
@@ -79,9 +80,15 @@ class MinimumAuthAction @Inject()(
               Some(UserName(name.getOrElse(Name(None, None)))),
               trustedHelper,
               profile,
+              enrolments,
               trimmedRequest
             )
-          )
+
+          for {
+            result        <- block(authenticatedRequest)
+            updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
+          } yield updatedResult
+
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {

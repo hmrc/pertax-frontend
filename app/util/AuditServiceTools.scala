@@ -23,6 +23,8 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 
 object AuditServiceTools {
 
+  val auditSource = "pertax-frontend"
+
   def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(
     implicit hc: HeaderCarrier,
     request: UserRequest[_]): DataEvent = {
@@ -47,7 +49,7 @@ object AuditServiceTools {
     val customAuditData = detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
 
     DataEvent(
-      auditSource = "pertax-frontend",
+      auditSource = auditSource,
       auditType = auditType,
       tags = hc.headers.toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
       detail = standardAuditData ++ customAuditData
