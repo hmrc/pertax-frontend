@@ -16,9 +16,10 @@
 
 package config
 
-import connectors.PertaxAuditConnector
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Play}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 /**
@@ -26,7 +27,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
   */
 @Singleton
 class GlobalDependencies @Inject()(
-  val pertaxAuditConnector: PertaxAuditConnector,
+  val pertaxAuditConnector: DefaultAuditConnector,
   val configuration: Configuration,
   val templateRenderer: TemplateRenderer
 )

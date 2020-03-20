@@ -32,7 +32,6 @@ class WithBreadcrumbAction {
             UserRequest(
               request.nino,
               request.retrievedName,
-              request.previousLoginTime,
               request.saUserType,
               request.credentials,
               request.confidenceLevel,

@@ -18,7 +18,6 @@ package services.partials
 
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
-import config.ConfigDecorator
 import metrics.HasMetrics
 import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
@@ -27,25 +26,26 @@ import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
-import util.EnhancedPartialRetriever
+import util.{EnhancedPartialRetriever, Tools}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class FormPartialService @Inject()(
+class PreferencesFrontendPartialService @Inject()(
   environment: Environment,
   override val runModeConfiguration: Configuration,
-  override val http: HttpClient,
+  val http: HttpClient,
   val metrics: Metrics,
-  val configDecorator: ConfigDecorator,
-  sessionCookieCrypto: SessionCookieCrypto)(implicit executionContext: ExecutionContext)
+  sessionCookieCrypto: SessionCookieCrypto,
+  val tools: Tools)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics with ServicesConfig {
 
   val mode: Mode = environment.mode
-  def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
+  val preferencesFrontendUrl = baseUrl("preferences-frontend")
 
-  def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
+  def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(
+    implicit request: RequestHeader): Future[HtmlPartial] =
+    loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools
+      .encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}")
 
 }

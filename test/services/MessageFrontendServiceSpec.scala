@@ -20,7 +20,7 @@ import com.codahale.metrics.Timer.Context
 import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, MessageCount}
+import models.MessageCount
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -29,12 +29,9 @@ import play.api.inject._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import services.http.WsAllMethods
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
@@ -56,14 +53,14 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
   val mockContext = mock[Context]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(bind[WsAllMethods].toInstance(MockitoSugar.mock[WsAllMethods]))
+    .overrides(bind[DefaultHttpClient].toInstance(MockitoSugar.mock[DefaultHttpClient]))
     .overrides(bind[Metrics].toInstance(mockMetrics))
     .build()
 
   val messageFrontendService: MessageFrontendService = injected[MessageFrontendService]
 
   override def beforeEach: Unit = reset(
-    injected[WsAllMethods]
+    injected[DefaultHttpClient]
   )
 
   when(mockMetrics.defaultRegistry).thenReturn(mockMetricRegistry)

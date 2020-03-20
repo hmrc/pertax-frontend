@@ -17,13 +17,14 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{PertaxAuditConnector, PertaxAuthConnector}
 import error.LocalErrorHandler
 import com.google.inject.Inject
 import models.Breadcrumb
 import org.joda.time.DateTime
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.LocalPartialRetriever
 
 import scala.concurrent.Future
@@ -31,10 +32,8 @@ import scala.concurrent.Future
 class PartialsController @Inject()(
   val messagesApi: MessagesApi,
   val localErrorHandler: LocalErrorHandler,
-  auditConnector: PertaxAuditConnector,
-  authConnector: PertaxAuthConnector)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator)
+  auditConnector: AuditConnector,
+  authConnector: AuthConnector)(implicit partialRetriever: LocalPartialRetriever, configDecorator: ConfigDecorator)
     extends PertaxBaseController {
 
   def mainContentHeader(

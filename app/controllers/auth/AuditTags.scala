@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package filters
+package controllers.auth
 
-import connectors.PertaxAuditConnector
-import com.google.inject.{Inject, Provider, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.frontend.filters.DeviceIdCookieFilter
-@Singleton
-class DeviceIdCookieFilterProvider @Inject()(
-  auditConnector: PertaxAuditConnector,
-  val appNameConfiguration: Configuration)
-    extends Provider[DeviceIdCookieFilter] with AppName {
-  override def get(): DeviceIdCookieFilter = new DeviceIdCookieFilter(appName, auditConnector)
+import play.api.mvc.Request
+import uk.gov.hmrc.http.HeaderCarrier
+
+private[auth] trait AuditTags {
+  def buildTags(request: Request[_])(implicit hc: HeaderCarrier): Map[String, String] =
+    Map(
+      "X-Request-Id" -> hc.requestId.map(_.value).getOrElse(""),
+      "X-Session-Id" -> hc.sessionId.map(_.value).getOrElse(""),
+      "path"         -> request.path,
+      "clientIP"     -> hc.trueClientIp.getOrElse(""),
+      "clientPort"   -> hc.trueClientPort.getOrElse(""),
+      "type"         -> "Audit"
+    )
 }

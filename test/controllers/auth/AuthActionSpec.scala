@@ -17,7 +17,6 @@
 package controllers.auth
 
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.joda.time.DateTime
@@ -40,6 +39,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, LoginTimes, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import util.Fixtures
 import util.RetrievalOps._
@@ -55,8 +55,9 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     .configure(Map("metrics.enabled" -> false))
     .build()
 
-  val mockAuthConnector: PertaxAuthConnector = mock[PertaxAuthConnector]
+  val mockAuthConnector = mock[AuthConnector]
   def configDecorator = app.injector.instanceOf[ConfigDecorator]
+  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
   class Harness(authAction: AuthAction) extends Controller {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
@@ -68,13 +69,12 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
   type AuthRetrievals =
     Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[String] ~ ConfidenceLevel ~ Option[
-      UserName] ~ LoginTimes ~ Option[TrustedHelper] ~ Option[String]
+      UserName] ~ Option[TrustedHelper] ~ Option[String]
 
   val nino = Fixtures.fakeNino.nino
   val fakeCredentials = Credentials("foo", "bar")
   val fakeCredentialStrength = CredentialStrength.strong
   val fakeConfidenceLevel = ConfidenceLevel.L200
-  val fakeLoginTimes = LoginTimes(DateTime.now(), None)
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
@@ -88,10 +88,10 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     profileUrl: Option[String] = None): Harness = {
 
     when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
-      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ fakeLoginTimes ~ trustedHelper ~ profileUrl
+      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ trustedHelper ~ profileUrl
     )
 
-    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
 
     new Harness(authAction)
   }
@@ -160,11 +160,23 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     }
   }
 
+  "A user with a Credential Strength of 'none' must" - {
+    "be redirected to the auth provider choice page" in {
+      when(mockAuthConnector.authorise(any(), any())(any(), any()))
+        .thenReturn(Future.failed(IncorrectCredentialStrength()))
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
+      val controller = new Harness(authAction)
+      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result).get must endWith("/auth-login-stub")
+    }
+  }
+
   "A user with no active session must" - {
     "be redirected to the auth provider choice page if unknown provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -174,7 +186,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the IDA login page if Verify provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderVerify)
@@ -190,7 +202,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the GG login page if GG provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderGG)
@@ -206,7 +218,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator)
+      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 

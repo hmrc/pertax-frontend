@@ -24,8 +24,8 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.enablers.Messaging.messagingNatureOfThrowable
 import play.api.http.Status._
 import play.api.libs.json.{JsResultException, Json}
-import services.http.WsAllMethods
 import uk.gov.hmrc.http.{HttpResponse, Upstream5xxResponse}
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.BaseSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
-  val http = mock[WsAllMethods]
+  val http = mock[DefaultHttpClient]
   val connector = new PayApiConnector(http, config)
   val paymentRequest = PaymentRequest(config, "some utr")
   val postUrl = config.makeAPaymentUrl

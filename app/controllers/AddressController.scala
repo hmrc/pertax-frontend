@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
@@ -37,6 +36,7 @@ import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
 import util.PertaxSessionKeys.{filter, postcode}
@@ -55,7 +55,7 @@ class AddressController @Inject()(
   authJourney: AuthJourney,
   val sessionCache: LocalSessionCache,
   withActiveTabAction: WithActiveTabAction,
-  auditConnector: PertaxAuditConnector)(
+  auditConnector: AuditConnector)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer)

@@ -17,7 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.{PayApiConnector, PertaxAuditConnector}
+import connectors.PayApiConnector
 import controllers.auth._
 import models._
 import org.joda.time.DateTime
@@ -35,7 +35,7 @@ import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentPaymentsService
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.Upstream5xxResponse
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
@@ -46,7 +46,7 @@ import scala.concurrent.Future
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
   override def now: () => DateTime = DateTime.now
 
-  val mockAuditConnector = mock[PertaxAuditConnector]
+  val mockAuditConnector = mock[AuditConnector]
   val mockAuthAction = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockPayApiConnector = mock[PayApiConnector]
@@ -57,7 +57,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[PertaxAuditConnector].toInstance(mockAuditConnector),
+      bind[AuditConnector].toInstance(mockAuditConnector),
       bind[AuthAction].toInstance(mockAuthAction),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(defaultFakeAuthJourney),

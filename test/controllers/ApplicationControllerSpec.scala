@@ -17,7 +17,6 @@
 package controllers
 
 import config.ConfigDecorator
-import connectors.PertaxAuditConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
@@ -35,8 +34,9 @@ import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
@@ -47,7 +47,7 @@ import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
-  val mockAuditConnector = mock[PertaxAuditConnector]
+  val mockAuditConnector = mock[AuditConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockAuthAction = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]

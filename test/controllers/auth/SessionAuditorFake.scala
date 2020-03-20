@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package connectors
+package controllers.auth
 
-import com.google.inject.{Inject, Singleton}
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
+import com.google.inject.Inject
+import controllers.auth.SessionAuditor.sessionKey
+import controllers.auth.requests.AuthenticatedRequest
+import play.api.mvc.Result
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
-@Singleton
-class PertaxAuditConnector @Inject()(environment: Environment, configuration: Configuration)
-    extends AuditConnector with AppName with RunMode {
-  val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
-  val appNameConfiguration: Configuration = configuration
-  override lazy val auditingConfig = LoadAuditingConfig("auditing")
+
+import scala.concurrent.{ExecutionContext, Future}
+
+class SessionAuditorFake @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext)
+    extends SessionAuditor(auditConnector) {
+  override def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(
+    implicit hc: HeaderCarrier): Future[Result] =
+    Future.successful(result.addingToSession(sessionKey -> "true")(request))
 }

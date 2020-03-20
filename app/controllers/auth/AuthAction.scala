@@ -18,7 +18,6 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
-import connectors.PertaxAuthConnector
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
 import controllers.routes
 import models.UserName
@@ -33,16 +32,16 @@ import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.frontend.binders.SafeRedirectUrl
-
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import io.lemonlabs.uri.Url
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(
-  val authConnector: PertaxAuthConnector,
+  val authConnector: AuthConnector,
   configuration: Configuration,
-  configDecorator: ConfigDecorator)(implicit ec: ExecutionContext)
+  configDecorator: ConfigDecorator,
+  sessionAuditor: SessionAuditor)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   def addRedirect(profileUrl: Option[String]): Option[String] =
@@ -65,9 +64,13 @@ class AuthActionImpl @Inject()(
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
+    val compositePredicate =
+      CredentialStrength(CredentialStrength.weak) or
+        CredentialStrength(CredentialStrength.strong)
+
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-    authorised()
+    authorised(compositePredicate)
       .retrieve(
         Retrievals.nino and
           Retrievals.affinityGroup and
@@ -76,24 +79,23 @@ class AuthActionImpl @Inject()(
           Retrievals.credentialStrength and
           Retrievals.confidenceLevel and
           Retrievals.name and
-          Retrievals.loginTimes and
           Retrievals.trustedHelper and
           Retrievals.profile) {
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
         case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
-              confidenceLevel) ~ name ~ logins ~ trustedHelper ~ profile =>
+              confidenceLevel) ~ name ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
@@ -114,20 +116,24 @@ class AuthActionImpl @Inject()(
                     SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
               }
 
-          block(
-            AuthenticatedRequest[A](
-              trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
-              saEnrolment,
-              credentials,
-              confidenceLevel,
-              Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
-                Name(Some(helper.principalName), None)))),
-              logins.previousLogin,
-              trustedHelper,
-              addRedirect(profile),
-              trimmedRequest
-            )
+          val authenticatedRequest = AuthenticatedRequest[A](
+            trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
+            saEnrolment,
+            credentials,
+            confidenceLevel,
+            Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
+              Name(Some(helper.principalName), None)))),
+            trustedHelper,
+            addRedirect(profile),
+            enrolments,
+            trimmedRequest
           )
+
+          for {
+            result        <- block(authenticatedRequest)
+            updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
+          } yield updatedResult
+
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
@@ -158,6 +164,8 @@ class AuthActionImpl @Inject()(
         }
         case _ => Redirect(configDecorator.authProviderChoice)
       }
+
+    case _: IncorrectCredentialStrength => Redirect(configDecorator.authProviderChoice)
 
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }

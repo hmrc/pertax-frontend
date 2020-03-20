@@ -20,7 +20,7 @@ import controllers.helpers.ControllerLikeHelpers
 import models.Breadcrumb
 import play.api.i18n.I18nSupport
 import play.api.mvc._
-import uk.gov.hmrc.play.frontend.controller.Utf8MimeTypes
+import uk.gov.hmrc.play.bootstrap.controller.Utf8MimeTypes
 
 import scala.concurrent.Future
 
