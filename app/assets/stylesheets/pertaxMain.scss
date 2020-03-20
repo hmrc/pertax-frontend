@@ -135,3 +135,28 @@ input[type="text"].autocomplete__input {
 .address-line {
   display: block;
 }
+
+.full-width-banner {
+    background-color: #d4351c;
+
+}
+
+.full-width-banner__title {
+    display: none;
+}
+
+.full-width-banner #full-width-banner-link {
+    font-weight: 700;
+}
+
+.full-width-banner .full-width-banner__close {
+    font-size: 19px;
+}
+
+@media screen and (max-width:830px) {
+    .full-width-banner a {
+        display: block;
+        position: static;
+    }
+}
+
