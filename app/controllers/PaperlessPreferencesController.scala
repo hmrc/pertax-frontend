@@ -16,15 +16,18 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import controllers.auth.requests.UserRequest
-import com.google.inject.Inject
+import play.api.Mode.Mode
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.PreferencesFrontendPartialService
+import play.api.mvc.{Action, AnyContent}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
-import util.LocalPartialRetriever
+import util.{LocalPartialRetriever, Tools}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,7 +36,8 @@ class PaperlessPreferencesController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  tools: Tools)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -52,13 +56,13 @@ class PaperlessPreferencesController @Inject()(
                 Some("global.error.BadRequest.heading"),
                 List("global.error.BadRequest.message"))))
         } else {
-          for {
-            managePrefsPartial <- preferencesFrontendPartialService.getManagePreferencesPartial(
-                                   configDecorator.pertaxFrontendHomeUrl,
-                                   Messages("label.back_to_account_home"))
-          } yield {
-            Ok(views.html.preferences.managePrefs(managePrefsPartial.successfulContentOrEmpty))
-          }
+          Future.successful(
+            Redirect(
+              getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))))
         }
     }
+
+  private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
+    s"${configDecorator.preferencesFrontendService}/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
+      .encryptAndEncode(returnLinkText)}"
 }

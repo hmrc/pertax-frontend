@@ -140,10 +140,10 @@
                 projectId = "8386635457"
             )),
             Some(FullWidthBannerComponent(
-                Messages("label.help_improve_gov_uk"),
-                Messages("label.please_take_part_in_our_short_survey"),
+                " ",
+                Messages("label.url_coronavirus"),
                 configDecorator.urLinkUrl,
-                Some(Messages("label.no_thanks")),
+                Some(Messages("label.hide_message")),
                 Some("homepage UR banner")
             )).filter(x => showUserResearchBanner),
             Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),

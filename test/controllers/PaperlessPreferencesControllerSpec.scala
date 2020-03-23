@@ -35,12 +35,13 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{ActionBuilderFixture, BaseSpec, BetterOptionValues, LocalPartialRetriever, Tools}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
+  import BetterOptionValues._
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
@@ -53,46 +54,42 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       mockAuthJourney,
       injected[WithActiveTabAction],
       injected[WithBreadcrumbAction],
-      injected[MessagesControllerComponents]
-    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
-
-      when(mockPreferencesFrontendPartialService.getManagePreferencesPartial(any(), any())(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
-      }
-
-    }
+      injected[MessagesControllerComponents],
+      injected[Tools]
+    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {}
 
   "Calling PaperlessPreferencesController.managePreferences" should {
-    "call getManagePreferences" should {
-      "Return 200 and show messages when a user is logged in using GG" in {
+    "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(request = request)
-            )
-        })
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
 
-        val r = controller.managePreferences(FakeRequest())
-        status(r) shouldBe OK
-        verify(controller.preferencesFrontendPartialService, times(1)).getManagePreferencesPartial(any(), any())(any())
-      }
+      val r = controller.managePreferences(FakeRequest())
+      status(r) shouldBe SEE_OTHER
 
-      "Return 400 for Verify users" in {
+      val redirectUrl = redirectLocation(r).getValue
+      val configDecorator = app.injector.instanceOf[ConfigDecorator]
+      redirectUrl should include regex s"${configDecorator.preferencesFrontendService}/paperless/check-settings\\?returnUrl=.*\\&returnLinkText=.*"
+    }
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(
-                credentials = Credentials("", "Verify"),
-                confidenceLevel = ConfidenceLevel.L500,
-                request = request
-              ))
-        })
+    "Return 400 for Verify users" in {
 
-        val r = controller.managePreferences(FakeRequest())
-        status(r) shouldBe BAD_REQUEST
-      }
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              credentials = Credentials("", "Verify"),
+              confidenceLevel = ConfidenceLevel.L500,
+              request = request
+            ))
+      })
+
+      val r = controller.managePreferences(FakeRequest())
+      status(r) shouldBe BAD_REQUEST
     }
   }
 }
