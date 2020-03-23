@@ -58,6 +58,7 @@ class ConfigDecorator @Inject()(
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
   private lazy val payApiUrl = baseUrl("pay-api")
   lazy val authLoginApiService = baseUrl("auth-login-api")
+  lazy val preferencesFrontendService = baseUrl("preferences-frontend")
   private lazy val enrolmentStoreProxyService = baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
