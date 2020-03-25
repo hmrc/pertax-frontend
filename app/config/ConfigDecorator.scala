@@ -58,13 +58,13 @@ class ConfigDecorator @Inject()(
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
   private lazy val payApiUrl = baseUrl("pay-api")
   lazy val authLoginApiService = baseUrl("auth-login-api")
-  lazy val preferencesFrontendService = baseUrl("preferences-frontend")
   private lazy val enrolmentStoreProxyService = baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
     runModeConfiguration.getString(s"external-url.$key").filter(_ => env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
+  lazy val preferencesFrontendService =  decorateUrlForLocalDev(s"preferences-frontend").getOrElse("")
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
   lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
