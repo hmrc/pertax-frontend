@@ -62,6 +62,6 @@ class PaperlessPreferencesController @Inject()(
     }
 
   private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
-    s"${configDecorator.preferencesFrontendService}/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
+    s"${configDecorator.preferencesFrontendHost}/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
       .encryptAndEncode(returnLinkText)}"
 }

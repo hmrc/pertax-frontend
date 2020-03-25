@@ -58,7 +58,6 @@ class ConfigDecorator @Inject()(
   lazy val tcsFrontendService = baseUrl("tcs-frontend")
   private lazy val payApiUrl = baseUrl("pay-api")
   lazy val authLoginApiService = baseUrl("auth-login-api")
-  lazy val preferencesFrontendService = baseUrl("preferences-frontend")
   private lazy val enrolmentStoreProxyService = baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
@@ -91,6 +90,7 @@ class ConfigDecorator @Inject()(
     decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
   lazy val enrolmentManagementFrontendHost = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
   lazy val ssoUrl = decorateUrlForLocalDev("sso-portal.host")
+  lazy val preferencesFrontendHost = decorateUrlForLocalDev(s"preferences-frontend.host").getOrElse("")
 
   lazy val portalBaseUrl = runModeConfiguration.getString("external-url.sso-portal.host").getOrElse("")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)

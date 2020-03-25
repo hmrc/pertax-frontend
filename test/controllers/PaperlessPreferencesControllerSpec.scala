@@ -69,7 +69,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
         val redirectUrl = redirectLocation(r).getValue
         val configDecorator = app.injector.instanceOf[ConfigDecorator]
-        redirectUrl should include regex s"${configDecorator.preferencesFrontendService}/paperless/check-settings\\?returnUrl=.*\\&returnLinkText=.*"
+        redirectUrl should include regex s"${configDecorator.preferencesFrontendHost}/paperless/check-settings\\?returnUrl=.*\\&returnLinkText=.*"
       }
 
       "Return 400 for Verify users" in {
