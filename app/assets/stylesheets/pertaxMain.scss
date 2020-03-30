@@ -136,27 +136,33 @@ input[type="text"].autocomplete__input {
   display: block;
 }
 
-.full-width-banner {
-    background-color: #d4351c;
+.covid-banner {
+    border-top: 10px solid rgb(126, 255, 142);
+    background-color: #0b0c0c;
+    padding: 20px 0;
 
 }
 
-.full-width-banner__title {
-    display: none;
+.covid-banner a {
+    color: #fff;
 }
 
-.full-width-banner #full-width-banner-link {
+.covid-banner__title {
     font-weight: 700;
+    float: left;
 }
 
-.full-width-banner .full-width-banner__close {
+.covid-banner__close {
     font-size: 19px;
+    float: right;
 }
 
 @media screen and (max-width:830px) {
-    .full-width-banner a {
-        display: block;
-        position: static;
+    .covid-banner__title, .covid-banner__close {
+        float: none;
+    }
+    .covid-banner__close {
+        font-size: 16px;
     }
 }
 

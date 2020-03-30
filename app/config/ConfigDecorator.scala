@@ -64,7 +64,7 @@ class ConfigDecorator @Inject()(
     runModeConfiguration.getString(s"external-url.$key").filter(_ => env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
-  lazy val preferencesFrontendService =  decorateUrlForLocalDev(s"preferences-frontend").getOrElse("")
+  lazy val preferencesFrontendService = decorateUrlForLocalDev(s"preferences-frontend").getOrElse("")
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
   lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
@@ -216,7 +216,7 @@ class ConfigDecorator @Inject()(
   lazy val allowLowConfidenceSAEnabled =
     runModeConfiguration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
   lazy val ltaEnabled = runModeConfiguration.getString("feature.lta.enabled").getOrElse("true").toBoolean
-  lazy val urLinkUrl = runModeConfiguration.getString("feature.ur-link.url")
+  lazy val covidLinkUrl = runModeConfiguration.getString("feature.ur-link.url")
   lazy val platformFrontendHost = runModeConfiguration.getString("platform.frontend.host").getOrElse("")
 
   lazy val taxcalcEnabled = runModeConfiguration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
