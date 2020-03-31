@@ -121,7 +121,7 @@
     @{
         val covidBanner = showUserResearchBanner match {
             case true => Map[String, Any]("covidBannerTitle" -> Messages("label.url_coronavirus"),
-                "covidBannerLink" -> configDecorator.covidLinkUrl,
+                "covidBannerLink" -> configDecorator.bannerLinkUrl,
                 "covidBannerDismissText" -> Some(Messages("label.hide_message")),
                 "covidBannerGaAction" -> Some("homepage Covid banner"))
             case false => Map.empty[String, Any]

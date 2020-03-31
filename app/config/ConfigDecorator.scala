@@ -216,7 +216,7 @@ class ConfigDecorator @Inject()(
   lazy val allowLowConfidenceSAEnabled =
     runModeConfiguration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
   lazy val ltaEnabled = runModeConfiguration.getString("feature.lta.enabled").getOrElse("true").toBoolean
-  lazy val covidLinkUrl = runModeConfiguration.getString("feature.ur-link.url")
+  lazy val bannerLinkUrl = runModeConfiguration.getString("feature.ur-link.url")
   lazy val platformFrontendHost = runModeConfiguration.getString("platform.frontend.host").getOrElse("")
 
   lazy val taxcalcEnabled = runModeConfiguration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
