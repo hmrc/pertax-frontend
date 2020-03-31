@@ -146,43 +146,6 @@ class AddressController @Inject()(
     } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
   }
 
-  def taxCreditsChoice: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-        enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          Future.successful(
-            Ok(
-              views.html.personaldetails
-                .taxCreditsChoice(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-          )
-        }
-      }
-    }
-  }
-
-  def processTaxCreditsChoice: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        TaxCreditsChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(
-              BadRequest(
-                views.html.personaldetails.taxCreditsChoice(formWithErrors, configDecorator.tcsChangeAddressUrl)))
-          },
-          taxCreditsChoiceDto => {
-            addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-              if (taxCreditsChoiceDto.value) {
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              } else {
-                Redirect(routes.AddressController.residencyChoice())
-              }
-            }
-          }
-        )
-
-      }
-    }
-
   def residencyChoice: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { _ => _ =>
       gettingCachedTaxCreditsChoiceDto {
