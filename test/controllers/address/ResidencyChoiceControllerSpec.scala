@@ -49,10 +49,12 @@ class ResidencyChoiceControllerSpec extends BaseSpec with MockitoSugar with Guic
     val sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))))
 
+    val requestWithForm: Request[_] = FakeRequest()
+
     val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(
-          buildUserRequest(request = request)
+          buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
         )
     }
 
@@ -116,20 +118,11 @@ class ResidencyChoiceControllerSpec extends BaseSpec with MockitoSugar with Guic
 
     "redirect to find address page with primary type when primary is submitted" in new LocalSetup {
 
-      val requestWithform = FakeRequest("POST", "")
+      override val requestWithForm = FakeRequest("POST", "")
         .withFormUrlEncodedBody("residencyChoice" -> "primary")
 
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithform.asInstanceOf[Request[A]]
-            )
-          )
-      }
-
       val result =
-        controller.onSubmit()(requestWithform)
+        controller.onSubmit()(requestWithForm)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
@@ -137,20 +130,11 @@ class ResidencyChoiceControllerSpec extends BaseSpec with MockitoSugar with Guic
 
     "redirect to find address page with sole type when sole is submitted" in new LocalSetup {
 
-      val requestWithform = FakeRequest("POST", "")
+      override val requestWithForm = FakeRequest("POST", "")
         .withFormUrlEncodedBody("residencyChoice" -> "sole")
 
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithform.asInstanceOf[Request[A]]
-            )
-          )
-      }
-
       val result =
-        controller.onSubmit()(requestWithform)
+        controller.onSubmit()(requestWithForm)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
@@ -158,17 +142,8 @@ class ResidencyChoiceControllerSpec extends BaseSpec with MockitoSugar with Guic
 
     "return a bad request when supplied a bad value" in new LocalSetup {
 
-      val requestWithForm = FakeRequest("POST", "")
+      override val requestWithForm = FakeRequest("POST", "")
         .withFormUrlEncodedBody("residencyChoice" -> "bad")
-
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithForm.asInstanceOf[Request[A]]
-            )
-          )
-      }
 
       val result = controller.onSubmit(requestWithForm)
 
@@ -177,16 +152,7 @@ class ResidencyChoiceControllerSpec extends BaseSpec with MockitoSugar with Guic
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      val requestWithForm = FakeRequest("POST", "")
-
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithForm.asInstanceOf[Request[A]]
-            )
-          )
-      }
+      override val requestWithForm = FakeRequest("POST", "")
 
       val result = controller.onSubmit(requestWithForm)
 

@@ -45,7 +45,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
       </header>
 
 
-      @helpers.form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
+      @helpers.form(action = controllers.address.routes.PostcodeLookupController.onPageLoad(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
         <div class="form-group postcode-container">
           @input(

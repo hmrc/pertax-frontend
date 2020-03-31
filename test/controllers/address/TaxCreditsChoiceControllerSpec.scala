@@ -50,10 +50,12 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar with Gui
     val sessionCacheResponse: Option[CacheMap] = Some(
       CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
+    val requestWithForm: Request[_] = FakeRequest()
+
     val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(
-          buildUserRequest(request = request)
+          buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
         )
     }
 
@@ -127,17 +129,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar with Gui
 
     "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
 
-      val requestWithForm = FakeRequest("POST", "")
+      override val requestWithForm = FakeRequest("POST", "")
         .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
-
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithForm.asInstanceOf[Request[A]]
-            )
-          )
-      }
 
       val result = controller.onSubmit(requestWithForm)
 
@@ -147,16 +140,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar with Gui
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      val requestWithForm = FakeRequest("POST", "")
-
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithForm.asInstanceOf[Request[A]]
-            )
-          )
-      }
+      override val requestWithForm = FakeRequest("POST", "")
 
       val result = controller.onSubmit(requestWithForm)
 

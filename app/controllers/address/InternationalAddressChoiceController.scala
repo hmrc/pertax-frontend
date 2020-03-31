@@ -64,7 +64,7 @@ class InternationalAddressChoiceController @Inject()(
           internationalAddressChoiceDto => {
             addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
               if (internationalAddressChoiceDto.value) {
-                Redirect(controllers.routes.AddressController.showPostcodeLookupForm(typ))
+                Redirect(routes.PostcodeLookupController.onPageLoad(typ))
               } else {
                 if (configDecorator.updateInternationalAddressInPta) {
                   Redirect(controllers.routes.AddressController.showUpdateInternationalAddressForm(typ))

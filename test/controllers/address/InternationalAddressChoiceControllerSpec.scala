@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.SoleAddrType
-import models.dto.{AddressPageVisitedDto, TaxCreditsChoiceDto}
+import models.dto.AddressPageVisitedDto
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -47,6 +47,8 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
 
   trait LocalSetup {
 
+    val requestWithForm: Request[_] = FakeRequest()
+
     lazy val fakeConfigDecorator: ConfigDecorator = injected[ConfigDecorator]
 
     val sessionCacheResponse: Option[CacheMap] =
@@ -55,7 +57,7 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
     val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
       override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
         block(
-          buildUserRequest(request = request)
+          buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
         )
     }
 
@@ -75,7 +77,6 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
 
         when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn
           Future.successful(CacheMap("", Map.empty))
-
       }
   }
 
@@ -104,20 +105,11 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
 
     "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
 
-      val requestWithform = FakeRequest("POST", "")
+      override val requestWithForm = FakeRequest("POST", "")
         .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
 
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithform.asInstanceOf[Request[A]]
-            )
-          )
-      }
-
       val result =
-        controller.onSubmit(SoleAddrType)(requestWithform)
+        controller.onSubmit(SoleAddrType)(requestWithForm)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/find-address")
@@ -129,20 +121,11 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
 
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
 
-      val requestWithform = FakeRequest("POST", "")
+      override val requestWithForm = FakeRequest("POST", "")
         .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
 
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithform.asInstanceOf[Request[A]]
-            )
-          )
-      }
-
       val result =
-        controller.onSubmit(SoleAddrType)(requestWithform)
+        controller.onSubmit(SoleAddrType)(requestWithForm)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/cannot-use-the-service")
@@ -150,16 +133,7 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      val requestWithForm = FakeRequest("POST", "")
-
-      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = requestWithForm.asInstanceOf[Request[A]]
-            )
-          )
-      }
+      override val requestWithForm = FakeRequest("POST", "")
 
       val result = controller.onSubmit(SoleAddrType)(requestWithForm)
 

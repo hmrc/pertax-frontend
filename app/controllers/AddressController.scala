@@ -98,25 +98,6 @@ class AddressController @Inject()(
       }
     }
 
-  def lookingUpAddress(
-    typ: AddrType,
-    postcode: String,
-    lookupServiceDown: Boolean,
-    filter: Option[String] = None,
-    forceLookup: Boolean = false)(f: PartialFunction[AddressLookupResponse, Future[Result]])(
-    implicit request: UserRequest[_]): Future[Result] =
-    if (!forceLookup && lookupServiceDown) {
-      Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
-    } else {
-      val handleError: PartialFunction[AddressLookupResponse, Future[Result]] = {
-        case AddressLookupErrorResponse(_) | AddressLookupUnexpectedResponse(_) =>
-          cacheAddressLookupServiceDown() map { _ =>
-            Redirect(routes.AddressController.showUpdateAddressForm(typ))
-          }
-      }
-      addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
-    }
-
   private val authenticate
     : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
     .addActiveTab(ActiveTabYourAccount)
@@ -155,103 +136,6 @@ class AddressController @Inject()(
       }
     }
 
-  def showPostcodeLookupForm(typ: AddrType): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
-        gettingCachedJourneyData(typ) { journeyData =>
-          addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(true))
-          typ match {
-            case PostalAddrType =>
-              auditConnector.sendEvent(
-                buildAddressChangeEvent(
-                  "postalAddressChangeLinkClicked",
-                  personDetails,
-                  isInternationalAddress = false))
-              enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
-              }
-            case _ =>
-              auditConnector.sendEvent(
-                buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false))
-              enforceResidencyChoiceSubmitted(journeyData) { _ =>
-                Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
-              }
-          }
-        }
-      }
-    }
-
-  def processPostcodeLookupForm(typ: AddrType, back: Option[Boolean] = None): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        AddressFinderDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(views.html.personaldetails.postcodeLookup(formWithErrors, typ)))
-          },
-          addressFinderDto => {
-
-            if (addressFinderDto.postcode.isEmpty)
-              Logger.warn("post code is empty for processPostCodeLookupForm")
-
-            for {
-              _ <- addToCache(AddressFinderDtoId(typ), addressFinderDto)
-              lookupDown <- gettingCachedAddressLookupServiceDown { lookup =>
-                             lookup
-                           }
-              result <- lookingUpAddress(
-                         typ,
-                         addressFinderDto.postcode,
-                         lookupDown.getOrElse(false),
-                         addressFinderDto.filter,
-                         forceLookup = true) {
-                         case AddressLookupSuccessResponse(RecordSet(Seq())) => //No records returned by postcode lookup
-                           auditConnector.sendEvent(
-                             buildEvent(
-                               "addressLookupNotFound",
-                               "find_address",
-                               Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)))
-                           Future.successful(
-                             NotFound(views.html.personaldetails.postcodeLookup(
-                               AddressFinderDto.form
-                                 .fill(AddressFinderDto(addressFinderDto.postcode, addressFinderDto.filter))
-                                 .withError(FormError(postcode, "error.address_doesnt_exist_try_to_enter_manually")),
-                               typ
-                             )))
-                         case AddressLookupSuccessResponse(RecordSet(Seq(addressRecord))) => //One record returned by postcode lookup
-                           if (back.getOrElse(false)) {
-                             Future.successful(Redirect(routes.AddressController.showPostcodeLookupForm(typ)))
-                           } else {
-                             auditConnector.sendEvent(
-                               buildEvent(
-                                 "addressLookupResults",
-                                 "find_address",
-                                 Map(
-                                   postcode -> Some(addressRecord.address.postcode),
-                                   filter   -> addressFinderDto.filter)))
-                             addToCache(SelectedAddressRecordId(typ), addressRecord) map { _ =>
-                               Redirect(routes.AddressController.showUpdateAddressForm(typ))
-                             }
-                           }
-                         case AddressLookupSuccessResponse(recordSet) => //More than one record returned by postcode lookup
-                           auditConnector.sendEvent(
-                             buildEvent(
-                               "addressLookupResults",
-                               "find_address",
-                               Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)))
-
-                           addToCache(SelectedRecordSetId(typ), recordSet) map { _ =>
-                             Redirect(routes.AddressController.showAddressSelectorForm(typ))
-                               .addingToSession(
-                                 (postcode, addressFinderDto.postcode),
-                                 (filter, addressFinderDto.filter.getOrElse("")))
-                           }
-                       }
-            } yield result
-          }
-        )
-      }
-    }
-
   def showAddressSelectorForm(typ: AddrType) =
     authenticate.async { implicit request =>
       gettingCachedJourneyData(typ) { journeyData =>
@@ -268,7 +152,7 @@ class AddressController @Inject()(
                 )
               )
             )
-          case _ => Future.successful(Redirect(routes.AddressController.showPostcodeLookupForm(typ)))
+          case _ => Future.successful(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
         }
       }
     }
