@@ -42,34 +42,48 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar with Gui
   val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney: AuthJourney = mock[AuthJourney]
 
-  override def beforeEach: Unit =
+  override def afterEach: Unit =
     reset(mockLocalSessionCache, mockAuthJourney)
 
-  lazy val controller =
-    new TaxCreditsChoiceController(
-      mockLocalSessionCache,
-      mockAuthJourney,
-      injected[WithActiveTabAction],
-      injected[MessagesControllerComponents]
-    )(
-      injected[LocalPartialRetriever],
-      injected[ConfigDecorator],
-      injected[TemplateRenderer],
-      injected[ExecutionContext])
+  trait LocalSetup {
 
-  when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-      block(
-        buildUserRequest(request = request)
-      )
-  })
+    val sessionCacheResponse: Option[CacheMap] = Some(
+      CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+
+    val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
+      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+        block(
+          buildUserRequest(request = request)
+        )
+    }
+
+    def controller =
+      new TaxCreditsChoiceController(
+        mockLocalSessionCache,
+        mockAuthJourney,
+        injected[WithActiveTabAction],
+        injected[MessagesControllerComponents]
+      )(
+        injected[LocalPartialRetriever],
+        injected[ConfigDecorator],
+        injected[TemplateRenderer],
+        injected[ExecutionContext]) {
+
+        when(mockAuthJourney.authWithPersonalDetails) thenReturn
+          authActionResult
+
+        when(mockLocalSessionCache.fetch()(any(), any())) thenReturn
+          sessionCacheResponse
+
+        when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn
+          Future.successful(CacheMap("", Map.empty))
+
+      }
+  }
 
   "onPageLoad" should {
 
-    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in {
-
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
       val result = controller.onPageLoad(FakeRequest())
 
@@ -77,8 +91,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar with Gui
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
 
-    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in {
-      when(mockLocalSessionCache.fetch()(any(), any())) thenReturn None
+    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+      override val sessionCacheResponse: Option[CacheMap] = None
 
       val result = controller.onPageLoad(FakeRequest())
 
@@ -90,58 +104,61 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar with Gui
 
   "onSubmit" should {
 
-    "redirect to expected tax credits page when supplied with value = Yes (true)" in {
+    "redirect to expected tax credits page when supplied with value = Yes (true)" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      val requestWithform = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
+
+      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              request = FakeRequest("POST", "")
-                .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
-                .asInstanceOf[Request[A]]
+              request = requestWithform.asInstanceOf[Request[A]]
             )
           )
-      })
+      }
 
       val result =
-        controller.onSubmit()(FakeRequest())
+        controller.onSubmit()(requestWithform)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/tax-credits-service/personal/change-address")
     }
 
-    "redirect to ResidencyChoice page when supplied with value = No (false)" in {
+    "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      val requestWithForm = FakeRequest("POST", "")
+        .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
+
+      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              request = FakeRequest("POST", "")
-                .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
-                .asInstanceOf[Request[A]]
+              request = requestWithForm.asInstanceOf[Request[A]]
             )
           )
-      })
+      }
 
-      val result = controller.onSubmit(FakeRequest())
+      val result = controller.onSubmit(requestWithForm)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/residency-choice")
     }
 
-    "return a bad request when supplied no value" in {
+    "return a bad request when supplied no value" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      val requestWithForm = FakeRequest("POST", "")
+
+      override val authActionResult: ActionBuilderFixture = new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              request = FakeRequest("POST", "")
-                .asInstanceOf[Request[A]]
+              request = requestWithForm.asInstanceOf[Request[A]]
             )
           )
-      })
+      }
 
-      val result = controller.onSubmit(FakeRequest())
+      val result = controller.onSubmit(requestWithForm)
 
       status(result) shouldBe BAD_REQUEST
     }
