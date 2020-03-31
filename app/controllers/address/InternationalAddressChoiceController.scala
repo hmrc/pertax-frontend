@@ -19,8 +19,9 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.AddrType
 import controllers.routes
-import models.dto.{ResidencyChoiceDto, TaxCreditsChoiceDto}
+import models.dto.{InternationalAddressChoiceDto, ResidencyChoiceDto, TaxCreditsChoiceDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.LocalSessionCache
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -28,7 +29,7 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ResidencyChoiceController @Inject()(
+class InternationalAddressChoiceController @Inject()(
   sessionCache: LocalSessionCache,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
@@ -40,31 +41,37 @@ class ResidencyChoiceController @Inject()(
   ec: ExecutionContext)
     extends AddressBaseController(sessionCache, authJourney, withActiveTabAction, cc) {
 
-  def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      gettingCachedTaxCreditsChoiceDto {
-        case Some(TaxCreditsChoiceDto(false)) =>
-          Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
-        case _ =>
-          if (configDecorator.taxCreditsEnabled) {
-            Redirect(controllers.routes.AddressController.personalDetails())
-          } else {
-            Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
-          }
-      }
-    }
-  }
-
-  def onSubmit: Action[AnyContent] =
+  def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        ResidencyChoiceDto.form.bindFromRequest.fold(
+        gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+          enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+            Future.successful(
+              Ok(views.html.personaldetails.internationalAddressChoice(InternationalAddressChoiceDto.form, typ))
+            )
+          }
+        }
+      }
+    }
+
+  def onSubmit(typ: AddrType): Action[AnyContent] =
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
+        InternationalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(BadRequest(views.html.personaldetails.residencyChoice(formWithErrors)))
+            Future.successful(BadRequest(views.html.personaldetails.internationalAddressChoice(formWithErrors, typ)))
           },
-          residencyChoiceDto => {
-            addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map { _ =>
-              Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
+          internationalAddressChoiceDto => {
+            addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
+              if (internationalAddressChoiceDto.value) {
+                Redirect(controllers.routes.AddressController.showPostcodeLookupForm(typ))
+              } else {
+                if (configDecorator.updateInternationalAddressInPta) {
+                  Redirect(controllers.routes.AddressController.showUpdateInternationalAddressForm(typ))
+                } else {
+                  Redirect(controllers.routes.AddressController.cannotUseThisService(typ))
+                }
+              }
             }
           }
         )

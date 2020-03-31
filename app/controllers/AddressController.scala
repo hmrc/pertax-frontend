@@ -144,44 +144,6 @@ class AddressController @Inject()(
     } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
   }
 
-  def internationalAddressChoice(typ: AddrType): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(views.html.personaldetails.internationalAddressChoice(InternationalAddressChoiceDto.form, typ))
-            )
-          }
-        }
-      }
-    }
-
-  def processInternationalAddressChoice(typ: AddrType): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        InternationalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(views.html.personaldetails.internationalAddressChoice(formWithErrors, typ)))
-          },
-          internationalAddressChoiceDto => {
-            addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-              if (internationalAddressChoiceDto.value) {
-                Redirect(routes.AddressController.showPostcodeLookupForm(typ))
-              } else {
-                if (configDecorator.updateInternationalAddressInPta) {
-                  Redirect(routes.AddressController.showUpdateInternationalAddressForm(typ))
-                } else {
-                  Redirect(routes.AddressController.cannotUseThisService(typ))
-                }
-              }
-            }
-          }
-        )
-
-      }
-    }
-
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>

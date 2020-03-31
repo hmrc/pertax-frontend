@@ -40,8 +40,8 @@ GET         /personal-account/your-address/tax-credits-choice                   
 POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
 GET         /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onPageLoad
 POST        /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onSubmit
-GET         /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.AddressController.internationalAddressChoice(typ: AddrType)
-POST        /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.AddressController.processInternationalAddressChoice(typ: AddrType)
+GET         /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onSubmit(typ: AddrType)
 GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.AddressController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
 POST        /personal-account/your-address/:typ/find-address                           controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
