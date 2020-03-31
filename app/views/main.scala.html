@@ -119,6 +119,14 @@
     }
 
     @{
+        val covidBanner = showUserResearchBanner match {
+            case true => Map[String, Any]("covidBannerTitle" -> Messages("label.url_coronavirus"),
+                "covidBannerLink" -> configDecorator.bannerLinkUrl,
+                "covidBannerDismissText" -> Some(Messages("label.hide_message")),
+                "covidBannerGaAction" -> Some("homepage Covid banner"))
+            case false => Map.empty[String, Any]
+        }
+
         val arguments = TemplateArgumentsBuilder(
 
             Some(AccountMenuStyleComponent(
@@ -157,13 +165,6 @@
                 None,
                 projectId = "8386635457"
             )),
-            Some(FullWidthBannerComponent(
-                " ",
-                Messages("label.url_coronavirus"),
-                configDecorator.urLinkUrl,
-                Some(Messages("label.hide_message")),
-                Some("homepage UR banner")
-            )).filter(x => showUserResearchBanner),
             Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
             Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
@@ -178,7 +179,7 @@
             Some(MessagesMenuItemComponent(request.unreadMessageCount))
         ) ++ Map[String, Any](
             "bodyClass" -> printable
-        )
+        ) ++ covidBanner
 
         templateRenderer.renderDefaultTemplate(
             configDecorator.frontendTemplatePath,

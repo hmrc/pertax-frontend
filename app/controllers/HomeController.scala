@@ -57,7 +57,7 @@ class HomeController @Inject()(
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
-      configDecorator.urLinkUrl.fold(Future.successful(false))(_ =>
+      configDecorator.bannerLinkUrl.fold(Future.successful(false))(_ =>
         homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
