@@ -19,7 +19,8 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import models.dto.TaxCreditsChoiceDto
+import controllers.routes
+import models.dto.{ResidencyChoiceDto, TaxCreditsChoiceDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.LocalSessionCache
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -27,7 +28,7 @@ import util.LocalPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxCreditsChoiceController @Inject()(
+class ResidencyChoiceController @Inject()(
   sessionCache: LocalSessionCache,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
@@ -41,14 +42,15 @@ class TaxCreditsChoiceController @Inject()(
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { _ => _ =>
-      gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-        enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          Future.successful(
-            Ok(
-              views.html.personaldetails
-                .taxCreditsChoice(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-          )
-        }
+      gettingCachedTaxCreditsChoiceDto {
+        case Some(TaxCreditsChoiceDto(false)) =>
+          Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
+        case _ =>
+          if (configDecorator.taxCreditsEnabled) {
+            Redirect(controllers.routes.AddressController.personalDetails())
+          } else {
+            Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
+          }
       }
     }
   }
@@ -56,19 +58,14 @@ class TaxCreditsChoiceController @Inject()(
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        TaxCreditsChoiceDto.form.bindFromRequest.fold(
+        ResidencyChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(
-              BadRequest(
-                views.html.personaldetails.taxCreditsChoice(formWithErrors, configDecorator.tcsChangeAddressUrl)))
+            Future.successful(BadRequest(views.html.personaldetails.residencyChoice(formWithErrors)))
           },
-          taxCreditsChoiceDto => {
-            addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-              if (taxCreditsChoiceDto.value) {
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              } else {
-                Redirect(routes.ResidencyChoiceController.onPageLoad())
-              }
+          residencyChoiceDto => {
+            addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map { _ =>
+              Redirect(
+                controllers.routes.AddressController.internationalAddressChoice(residencyChoiceDto.residencyChoice))
             }
           }
         )

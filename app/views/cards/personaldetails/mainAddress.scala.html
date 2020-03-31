@@ -19,7 +19,7 @@
 @(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, isLocked: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
 
     @updateAddressLink() = @{
-        if(taxCreditsEnabled) controllers.address.routes.TaxCreditsChoiceController.onPageLoad() else controllers.routes.AddressController.residencyChoice
+        if(taxCreditsEnabled) controllers.address.routes.TaxCreditsChoiceController.onPageLoad() else controllers.address.routes.ResidencyChoiceController.onPageLoad()
     }
 
     @cardContent = {

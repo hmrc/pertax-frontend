@@ -29,14 +29,12 @@ import models.dto._
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.data.{Form, FormError}
-import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
@@ -145,38 +143,6 @@ class AddressController @Inject()(
 
     } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
   }
-
-  def residencyChoice: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      gettingCachedTaxCreditsChoiceDto {
-        case Some(TaxCreditsChoiceDto(false)) =>
-          Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
-        case _ =>
-          if (configDecorator.taxCreditsEnabled) {
-            Redirect(routes.AddressController.personalDetails())
-          } else {
-            Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
-          }
-      }
-    }
-  }
-
-  def processResidencyChoice: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        ResidencyChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(views.html.personaldetails.residencyChoice(formWithErrors)))
-          },
-          residencyChoiceDto => {
-            addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map { _ =>
-              Redirect(routes.AddressController.internationalAddressChoice(residencyChoiceDto.residencyChoice))
-            }
-          }
-        )
-
-      }
-    }
 
   def internationalAddressChoice(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
