@@ -136,89 +136,6 @@ class AddressController @Inject()(
       }
     }
 
-  def showUpdateAddressForm(typ: AddrType): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
-        addressJourneyEnforcer { _ => _ =>
-          typ match {
-            case PostalAddrType =>
-              enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
-                Future.successful(
-                  Ok(
-                    views.html.personaldetails.updateAddress(
-                      addressForm.discardingErrors,
-                      typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader)))
-              }
-            case _ =>
-              enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
-                Future.successful(
-                  Ok(
-                    views.html.personaldetails.updateAddress(
-                      addressForm.discardingErrors,
-                      typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader
-                    )
-                  )
-                )
-              }
-          }
-        }
-      }
-    }
-
-  def processUpdateAddressForm(typ: AddrType): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
-        addressJourneyEnforcer { _ => personDetails =>
-          {
-            AddressDto.ukForm.bindFromRequest.fold(
-              formWithErrors => {
-                Future.successful(
-                  BadRequest(
-                    views.html.personaldetails.updateAddress(
-                      formWithErrors,
-                      typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader
-                    )
-                  )
-                )
-              },
-              addressDto => {
-                addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap {
-                  _ =>
-                    val postCodeHasChanged = !addressDto.postcode
-                      .getOrElse("")
-                      .replace(" ", "")
-                      .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
-                    (typ, postCodeHasChanged) match {
-                      case (PostalAddrType, _) =>
-                        addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                        Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
-                      case (_, false) =>
-                        addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                        Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
-                      case (_, true) =>
-                        Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
-                    }
-                }
-              }
-            )
-          }
-        }
-      }
-    }
-
   def showUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       gettingCachedJourneyData[Result](typ) { journeyData =>
@@ -286,7 +203,7 @@ class AddressController @Inject()(
   def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result]): Future[Result] =
     typ match {
       case _: ResidentialAddrType => block
-      case PostalAddrType         => Future.successful(Redirect(routes.AddressController.showUpdateAddressForm(typ)))
+      case PostalAddrType         => Future.successful(Redirect(address.routes.UpdateAddressController.onPageLoad(typ)))
     }
 
   def enterStartDate(typ: AddrType): Action[AnyContent] =

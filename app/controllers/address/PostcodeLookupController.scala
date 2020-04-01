@@ -167,5 +167,5 @@ class PostcodeLookupController @Inject()(
     }
 
   private def updateAddressRedirect(typ: AddrType): Result =
-    Redirect(controllers.routes.AddressController.showUpdateAddressForm(typ))
+    Redirect(routes.UpdateAddressController.onPageLoad(typ))
 }
