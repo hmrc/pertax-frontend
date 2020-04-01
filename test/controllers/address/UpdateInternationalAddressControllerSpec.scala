@@ -21,8 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.CountryHelper
-import models.addresslookup.{AddressLookupResponse, AddressLookupSuccessResponse}
-import models.dto.{AddressDto, AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
+import models.dto.{AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -34,15 +33,14 @@ import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{AddressLookupService, LocalSessionCache, PersonDetailsSuccessResponse, UpdateAddressResponse, UpdateAddressSuccessResponse}
+import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.{asInternationalAddressDto, buildFakeAddress, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress, oneAndTwoOtherPlacePafRecordSet}
+import util.Fixtures.{asAddressDto, asInternationalAddressDto, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress, oneAndTwoOtherPlacePafRecordSet}
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -321,7 +319,4 @@ class UpdateInternationalAddressControllerSpec extends BaseSpec with MockitoSuga
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
   }
-
-  def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
-
 }

@@ -17,12 +17,12 @@
 package controllers.address
 
 import config.ConfigDecorator
-import controllers.address
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import models.addresslookup.{AddressLookupResponse, AddressLookupSuccessResponse}
-import models.dto.{AddressDto, AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
+import models.dto.{AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
+import util.Fixtures.asAddressDto
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{any, eq => meq}
@@ -33,10 +33,10 @@ import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{AddressLookupService, LocalSessionCache, PersonDetailsSuccessResponse, UpdateAddressResponse, UpdateAddressSuccessResponse}
+import services.{AddressLookupService, LocalSessionCache}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.{buildFakeAddress, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord, otherPlacePafDifferentPostcodeAddressRecord, twoOtherPlacePafAddressRecord}
+import util.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord, otherPlacePafDifferentPostcodeAddressRecord, twoOtherPlacePafAddressRecord}
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 
@@ -332,7 +332,4 @@ class UpdateAddressControllerSpec extends BaseSpec with MockitoSugar with GuiceO
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
     }
   }
-
-  def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
-
 }

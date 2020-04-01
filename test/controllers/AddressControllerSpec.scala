@@ -22,24 +22,19 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.{CountryHelper, PersonalDetailsCardGenerator}
 import models._
-import models.addresslookup.{AddressLookupSuccessResponse, AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
 import org.joda.time.LocalDate
-import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
-import play.api.mvc.Results._
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.EditAddressLockRepository
 import services._
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -48,19 +43,17 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.fixtures.AddressFixture.{address => addressLine}
-import util.fixtures.PersonFixture._
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
-  val mockAuditConnector = mock[AuditConnector]
-  val mockAuthJourney = mock[AuthJourney]
-  val mockLocalSessionCache = mock[LocalSessionCache]
-  val mockCitizenDetailsService = mock[CitizenDetailsService]
-  val mockEditAddressLockRepository = mock[EditAddressLockRepository]
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val mockAuthJourney: AuthJourney = mock[AuthJourney]
+  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
+  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
   val mockPersonalDetailsCardGenerator: PersonalDetailsCardGenerator = mock[PersonalDetailsCardGenerator]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
@@ -96,8 +89,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     def updateAddressResponse: UpdateAddressResponse
 
     lazy val fakePersonDetails = Fixtures.buildPersonDetails
-
-    def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
 
     def pruneDataEvent(dataEvent: DataEvent): DataEvent =
       dataEvent.copy(
@@ -229,7 +220,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       val requestWithForm = FakeRequest("POST", "").withFormUrlEncodedBody("closePostalAddressChoice" -> "false")
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
@@ -264,389 +255,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  "Calling AddressController.enterStartDate" should {
-
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-    }
-
-    "return 200 when passed PrimaryAddrType and submittedAddressDto is in keystore" in new LocalSetup {
-      lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map("primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))))
-
-      val result = controller.enterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "return 200 when passed SoleAddrType and submittedAddressDto is in keystore" in new LocalSetup {
-      lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map("soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))))
-
-      val result = controller.enterStartDate(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "redirect to 'edit address' when passed PostalAddrType as this step is not valid for postal" in new LocalSetup {
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      val result = controller.enterStartDate(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
-      verify(controller.sessionCache, times(0)).fetch()(any(), any())
-    }
-
-    "redirect back to start of journey if submittedAddressDto is missing from keystore" in new LocalSetup {
-      lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
-
-      val result = controller.enterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
-    }
-  }
-
-  "Calling AddressController.processEnterStartDate" should {
-
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-    }
-
-    "return 303 when passed PrimaryAddrType and a valid form with low numbers" in new LocalSetup {
-
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016")
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-      verify(controller.sessionCache, times(1))
-        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
-    }
-
-    "return 303 when passed PrimaryAddrType and date is in the today" in new LocalSetup {
-
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016")
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-      verify(controller.sessionCache, times(1))
-        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
-    }
-
-    "redirect to the changes to sole address page when passed PrimaryAddrType and a valid form with high numbers" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-      val result = controller.processEnterStartDate(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
-      verify(controller.sessionCache, times(1))
-        .cache(meq("soleSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2015)))(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and missing date fields" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "").withFormUrlEncodedBody()
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result =
-        controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and day out of range - too early" in new LocalSetup {
-      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and day out of range - too late" in new LocalSetup {
-      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "32", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and month out of range at lower bound" in new LocalSetup {
-      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "0", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and month out of range at upper bound" in new LocalSetup {
-      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "13", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return 400 when passed PrimaryAddrType and the updated start date is not after the start date on record" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm,
-              personDetails = Some(PersonDetails("", emptyPerson, Some(addressLine(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(1)).cache(any(), any())(any(), any(), any())
-    }
-
-    "return a 400 when startDate is earlier than recorded with sole address type" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe BAD_REQUEST
-    }
-
-    "return a 400 when startDate is the same as recorded with sole address type" in new LocalSetup {
-
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe BAD_REQUEST
-    }
-
-    "return a 400 when startDate is earlier than recorded with primary address type" in new LocalSetup {
-
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe BAD_REQUEST
-    }
-
-    "return a 400 when startDate is the same as recorded with primary address type" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe BAD_REQUEST
-    }
-
-    "redirect to correct successful url when supplied with startDate after recorded with sole address type" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
-    }
-
-    "redirect to correct successful url when supplied with startDate after startDate on record with primary address" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-    }
-
-    "redirect to success page when no startDate is on record" in new LocalSetup {
-      lazy val personDetailsNoStartDate =
-        fakePersonDetails.copy(address = fakePersonDetails.address.map(_.copy(startDate = None)))
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoStartDate)
-
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-    }
-
-    "redirect to success page when no address is on record" in new LocalSetup {
-      lazy val personDetailsNoAddress = fakePersonDetails.copy(address = None)
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoAddress)
-
-      val requestWithForm = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-    }
-  }
-
   "Calling AddressController.reviewChanges" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
@@ -662,7 +270,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         CacheMap(
           "id",
           Map(
-            "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
             "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
@@ -722,13 +330,13 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         CacheMap(
           "id",
           Map(
-            "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
             "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
 
       val result = controller.reviewChanges(PrimaryAddrType)(FakeRequest())
-    //  implicit val messages: Messages = Messages.Implicits.applicationMessages
+      //  implicit val messages: Messages = Messages.Implicits.applicationMessages
 
       contentAsString(result) shouldNot include(controller.messagesApi("label.when_this_became_your_main_home"))
     }
@@ -738,7 +346,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         CacheMap(
           "id",
           Map(
-            "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodifiedLowerCase)),
+            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodifiedLowerCase)),
             "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
@@ -771,7 +379,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         CacheMap(
           "id",
           Map(
-            "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
+            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
             "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
@@ -787,7 +395,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         CacheMap(
           "id",
           Map(
-            "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
+            "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
             "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
@@ -804,7 +412,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         CacheMap(
           "id",
           Map(
-            "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+            "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
             "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
@@ -859,8 +467,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
             buildUserRequest(
               request = requestWithForm
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -875,14 +482,13 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("closePostalAddressChoice" -> "false")
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
               request = requestWithForm
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -933,15 +539,15 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         dataEvent.eventId,
         Map("path" -> "/test", "transactionName" -> "closure_of_correspondence"),
         Map(
-          "nino" -> Some(Fixtures.fakeNino.nino),
-          "etag" -> Some("115"),
-          "submittedLine1" -> Some("1 Fake Street"),
-          "submittedLine2" -> Some("Fake Town"),
-          "submittedLine3" -> Some("Fake City"),
-          "submittedLine4" -> Some("Fake Region"),
+          "nino"              -> Some(Fixtures.fakeNino.nino),
+          "etag"              -> Some("115"),
+          "submittedLine1"    -> Some("1 Fake Street"),
+          "submittedLine2"    -> Some("Fake Town"),
+          "submittedLine3"    -> Some("Fake City"),
+          "submittedLine4"    -> Some("Fake Region"),
           "submittedPostcode" -> Some("AA1 1AA"),
-          "submittedCountry" -> None,
-          "addressType" -> Some("correspondence")
+          "submittedCountry"  -> None,
+          "addressType"       -> Some("correspondence")
         ).collect { case (k, Some(v)) => k -> v },
         dataEvent.generatedAt
       )
@@ -955,8 +561,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
               saUser = NonFilerSelfAssessmentUser,
               personDetails = Some(buildPersonDetailsCorrespondenceAddress),
               request = FakeRequest("POST", "/test")
-                .asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
+                .asInstanceOf[Request[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1060,8 +666,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
               saUser = NonFilerSelfAssessmentUser,
               personDetails = Some(buildPersonDetailsCorrespondenceAddress),
               request = FakeRequest("POST", "/test")
-                .asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
+                .asInstanceOf[Request[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1089,34 +695,34 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       override lazy val thisYearStr = "2015"
 
       def comparatorDataEvent(
-                               dataEvent: DataEvent,
-                               auditType: String,
-                               uprn: Option[String],
-                               includeOriginals: Boolean,
-                               submittedLine1: Option[String] = Some("1 Fake Street"),
-                               addressType: Option[String] = Some("Residential")) = DataEvent(
+        dataEvent: DataEvent,
+        auditType: String,
+        uprn: Option[String],
+        includeOriginals: Boolean,
+        submittedLine1: Option[String] = Some("1 Fake Street"),
+        addressType: Option[String] = Some("Residential")) = DataEvent(
         "pertax-frontend",
         auditType,
         dataEvent.eventId,
         Map("path" -> "/test", "transactionName" -> "change_of_address"),
         Map(
-          "nino" -> Some(Fixtures.fakeNino.nino),
-          "etag" -> Some("115"),
-          "submittedLine1" -> submittedLine1,
-          "submittedLine2" -> Some("Fake Town"),
-          "submittedLine3" -> Some("Fake City"),
-          "submittedLine4" -> Some("Fake Region"),
+          "nino"              -> Some(Fixtures.fakeNino.nino),
+          "etag"              -> Some("115"),
+          "submittedLine1"    -> submittedLine1,
+          "submittedLine2"    -> Some("Fake Town"),
+          "submittedLine3"    -> Some("Fake City"),
+          "submittedLine4"    -> Some("Fake Region"),
           "submittedPostcode" -> Some("AA1 1AA"),
-          "submittedCountry" -> None,
-          "addressType" -> addressType,
-          "submittedUPRN" -> uprn,
-          "originalLine1" -> Some("1 Fake Street").filter(x => includeOriginals),
-          "originalLine2" -> Some("Fake Town").filter(x => includeOriginals),
-          "originalLine3" -> Some("Fake City").filter(x => includeOriginals),
-          "originalLine4" -> Some("Fake Region").filter(x => includeOriginals),
-          "originalPostcode" -> Some("AA1 1AA").filter(x => includeOriginals),
-          "originalCountry" -> Some("Country(UK,United Kingdom)").filter(x => includeOriginals),
-          "originalUPRN" -> uprn.filter(x => includeOriginals)
+          "submittedCountry"  -> None,
+          "addressType"       -> addressType,
+          "submittedUPRN"     -> uprn,
+          "originalLine1"     -> Some("1 Fake Street").filter(x => includeOriginals),
+          "originalLine2"     -> Some("Fake Town").filter(x => includeOriginals),
+          "originalLine3"     -> Some("Fake City").filter(x => includeOriginals),
+          "originalLine4"     -> Some("Fake Region").filter(x => includeOriginals),
+          "originalPostcode"  -> Some("AA1 1AA").filter(x => includeOriginals),
+          "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(x => includeOriginals),
+          "originalUPRN"      -> uprn.filter(x => includeOriginals)
         ).map(t => t._2.map((t._1, _))).flatten.toMap,
         dataEvent.generatedAt
       )
@@ -1159,14 +765,13 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
             "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
           )))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
               request = FakeRequest("POST", "/test")
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1195,8 +800,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
             buildUserRequest(
               request = FakeRequest("POST", "/test")
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1221,8 +825,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
             buildUserRequest(
               request = FakeRequest("POST", "/test")
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1241,7 +844,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           "id",
           Map(
             "primarySelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-            "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
             "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
@@ -1253,8 +856,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
               saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1281,7 +883,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           "id",
           Map(
             "postalSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-            "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+            "postalSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
           )
         ))
 
@@ -1321,20 +923,19 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         CacheMap(
           "id",
           Map(
-            "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForManualyEntered)),
+            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForManualyEntered)),
             "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1356,20 +957,19 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           "id",
           Map(
             "primarySelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-            "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
+            "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
             "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
           )
         ))
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = FakeRequest("POST", "/test")
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -1410,8 +1010,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
             buildUserRequest(
               request = FakeRequest("POST", "/test")
                 .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 

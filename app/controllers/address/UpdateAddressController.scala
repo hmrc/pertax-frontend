@@ -112,7 +112,7 @@ class UpdateAddressController @Inject()(
                       case (_, false) =>
                         cacheAndRedirect(typ)
                       case (_, true) =>
-                        Future.successful(Redirect(controllers.routes.AddressController.enterStartDate(typ)))
+                        Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
                     }
                 }
               }
