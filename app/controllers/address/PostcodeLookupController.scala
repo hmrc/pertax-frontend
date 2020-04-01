@@ -134,7 +134,8 @@ class PostcodeLookupController @Inject()(
                                Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)))
 
                            addToCache(SelectedRecordSetId(typ), recordSet) map { _ =>
-                             Redirect(controllers.routes.AddressController.showAddressSelectorForm(typ))
+                             Redirect(routes.AddressSelectorController
+                               .onPageLoad(typ))
                                .addingToSession(
                                  (postcode, addressFinderDto.postcode),
                                  (filter, addressFinderDto.filter.getOrElse("")))

@@ -20,8 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.AddrType
-import controllers.routes
-import models.dto.{InternationalAddressChoiceDto, ResidencyChoiceDto, TaxCreditsChoiceDto}
+import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.LocalSessionCache
 import uk.gov.hmrc.renderer.TemplateRenderer

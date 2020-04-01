@@ -46,7 +46,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
         </h1>
       </header>
 
-      @helpers.form(action = controllers.routes.AddressController.processAddressSelectorForm(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+      @helpers.form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
           <input type="hidden" name="postcode" value="@postcode" />
           <input type="hidden" name="filter" value="@filter" />
 
