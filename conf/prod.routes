@@ -56,10 +56,10 @@ POST        /personal-account/your-address/:typ/enter-start-date                
 GET         /personal-account/your-address/:typ/changes                                controllers.AddressController.reviewChanges(typ: AddrType)
 POST        /personal-account/your-address/:typ/thank-you                              controllers.AddressController.submitChanges(typ: AddrType)
 GET         /personal-account/your-address/:typ/thank-you                              controllers.AddressController.showAddressAlreadyUpdated(typ: AddrType)
-GET         /personal-account/your-address/close-correspondence-address                controllers.AddressController.closePostalAddressChoice
-POST        /personal-account/your-address/close-correspondence-address                controllers.AddressController.processClosePostalAddressChoice
-GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.AddressController.confirmClosePostalAddress
-POST        /personal-account/your-address/thanks                                      controllers.AddressController.submitConfirmClosePostalAddress
+GET         /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onPageLoad
+POST        /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onSubmit
+GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.address.ClosePostalAddressController.onPageLoadConfirm
+POST        /personal-account/your-address/thanks                                      controllers.address.ClosePostalAddressController.onSubmitConfirm
 GET         /personal-account/your-address/thanks                                      controllers.AddressController.personalDetails
 
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment

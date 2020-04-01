@@ -40,7 +40,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
             <p>@messages("label.your_main_address_is")</p>
             <p>@Html(addressDto.mkString(", <br>"))</p>
 
-            @form(action = controllers.routes.AddressController.processClosePostalAddressChoice) {
+            @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit) {
             <div class="form-group inline">
                 @input_radio_group(
                 closePostalAddressChoiceForm("closePostalAddressChoice"),

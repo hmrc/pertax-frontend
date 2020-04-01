@@ -42,11 +42,11 @@ pageName = Some(messages("label.your_personal_tax_account"))
                       @messages("label.all_your_letters_will_be_sent_to_this_address")
                     </dt>
                     <dd class="cya-answer">@Html(addressDto.mkString(", <br>"))</dd>
-                    <dd class="cya-change"><a href="@controllers.routes.AddressController.processClosePostalAddressChoice">@messages("label.change")</a></dd>
+                    <dd class="cya-change"><a href="@controllers.address.routes.ClosePostalAddressController.onSubmit()">@messages("label.change")</a></dd>
                 </div>
             </dl>
 
-            @form(controllers.routes.AddressController.submitConfirmClosePostalAddress) {
+            @form(controllers.address.routes.ClosePostalAddressController.onSubmitConfirm()) {
             <button type="submit">@messages("label.confirm_and_save")</button>
             }
         </div>
