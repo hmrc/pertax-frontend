@@ -67,7 +67,7 @@ scriptElement = Some(scriptElems)) {
                 </h1>
             </header>
 
-            @helpers.form(action = controllers.routes.AddressController.processUpdateInternationalAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
+            @helpers.form(action = controllers.address.routes.UpdateInternationalAddressController.onSubmit(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
             <div class="form-group">
                 @input(

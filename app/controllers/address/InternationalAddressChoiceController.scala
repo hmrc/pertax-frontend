@@ -66,7 +66,7 @@ class InternationalAddressChoiceController @Inject()(
                 Redirect(routes.PostcodeLookupController.onPageLoad(typ))
               } else {
                 if (configDecorator.updateInternationalAddressInPta) {
-                  Redirect(controllers.routes.AddressController.showUpdateInternationalAddressForm(typ))
+                  Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
                 } else {
                   Redirect(controllers.routes.AddressController.cannotUseThisService(typ))
                 }
