@@ -68,7 +68,7 @@ class InternationalAddressChoiceController @Inject()(
                 if (configDecorator.updateInternationalAddressInPta) {
                   Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
                 } else {
-                  Redirect(controllers.routes.AddressController.cannotUseThisService(typ))
+                  Redirect(controllers.address.routes.PersonalDetailsController.cannotUseThisService(typ))
                 }
               }
             }

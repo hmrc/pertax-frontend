@@ -210,5 +210,5 @@ class AddressSubmissionController @Inject()(
   }
 
   private def redirectToPersonalDetails: Future[Result] =
-    Future.successful(Redirect(controllers.routes.AddressController.personalDetails()))
+    Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
 }

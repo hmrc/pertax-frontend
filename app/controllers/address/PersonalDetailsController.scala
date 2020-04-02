@@ -14,75 +14,41 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable._
-import controllers.controllershelpers.AddressJourneyAuditingHelper._
-import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import com.google.inject.Inject
-import models._
-import models.addresslookup.RecordSet
-import models.dto._
-import org.joda.time.LocalDate
-import play.api.Logger
-import play.api.data.{Form, FormError}
-import play.api.mvc._
+import config.ConfigDecorator
+import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.AddrType
+import controllers.controllershelpers.PersonalDetailsCardGenerator
+import models.{AddressJourneyTTLModel, PersonDetails}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
-import services._
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
+import services.LocalSessionCache
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
-import util.AuditServiceTools._
-import util.PertaxSessionKeys.{filter, postcode}
-import util.{LanguageHelper, LocalPartialRetriever}
+import uk.gov.hmrc.renderer.TemplateRenderer
+import util.AuditServiceTools.buildPersonDetailsEvent
+import util.LocalPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressController @Inject()(
-  val citizenDetailsService: CitizenDetailsService,
-  val addressLookupService: AddressLookupService,
-  val addressMovedService: AddressMovedService,
+class PersonalDetailsController @Inject()(
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
-  val countryHelper: CountryHelper,
   val editAddressLockRepository: EditAddressLockRepository,
-  authJourney: AuthJourney,
-  val sessionCache: LocalSessionCache,
-  withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
-  cc: MessagesControllerComponents)(
+  sessionCache: LocalSessionCache,
+  authJourney: AuthJourney,
+  withActiveTabAction: WithActiveTabAction,
+  cc: MessagesControllerComponents
+)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with AddressJourneyCachingHelper {
+    extends AddressBaseController(sessionCache, authJourney, withActiveTabAction, cc) {
 
-  def addressJourneyEnforcer(block: Nino => PersonDetails => Future[Result])(
-    implicit request: UserRequest[_]): Future[Result] =
-    (for {
-      payeAccount   <- request.nino
-      personDetails <- request.personDetails
-    } yield {
-      block(payeAccount)(personDetails)
-    }).getOrElse {
-      Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController
-          .personalDetails()
-          .url
-        Ok(views.html.interstitial.displayAddressInterstitial(continueUrl))
-      }
-    }
-
-  private val authenticate
-    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
-    .addActiveTab(ActiveTabYourAccount)
-
-  //todo move to PersonalDetailsController
-  def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>
+  def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     import models.dto.AddressPageVisitedDto
 
     for {

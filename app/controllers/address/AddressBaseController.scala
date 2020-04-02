@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
-import controllers.controllershelpers.AddressJourneyCachingHelperV2
+import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.PersonDetails
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import services.LocalSessionCache
@@ -41,7 +41,7 @@ abstract class AddressBaseController @Inject()(
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with AddressJourneyCachingHelperV2 {
+    extends PertaxBaseController(cc) with AddressJourneyCachingHelper {
 
   lazy val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen
@@ -57,8 +57,8 @@ abstract class AddressBaseController @Inject()(
       block(payeAccount)(personDetails)
     }).getOrElse {
       Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController
-          .personalDetails()
+        val continueUrl = configDecorator.pertaxFrontendHost + controllers.address.routes.PersonalDetailsController
+          .onPageLoad()
           .url
         Ok(views.html.interstitial.displayAddressInterstitial(continueUrl))
       }

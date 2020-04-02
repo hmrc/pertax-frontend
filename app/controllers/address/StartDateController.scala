@@ -58,7 +58,7 @@ class StartDateController @Inject()(
                 typ
               )))
             } getOrElse {
-              Future.successful(Redirect(controllers.routes.AddressController.personalDetails()))
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
             }
           }
         }

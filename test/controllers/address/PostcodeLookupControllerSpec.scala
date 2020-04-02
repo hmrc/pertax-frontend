@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
-import controllers.routes
 import models.NonFilerSelfAssessmentUser
 import models.addresslookup.{AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse, RecordSet}
 import models.dto.{AddressFinderDto, AddressPageVisitedDto, ResidencyChoiceDto}

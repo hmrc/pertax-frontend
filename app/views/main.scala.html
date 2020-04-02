@@ -48,7 +48,7 @@
 
         if(request.personDetails.isDefined) {
             if(request.nino.isDefined) {
-                seq += Map("url" -> controllers.routes.AddressController.personalDetails().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
+                seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
             }
             seq += Map("url" -> configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
             seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))

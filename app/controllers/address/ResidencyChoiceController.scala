@@ -46,7 +46,7 @@ class ResidencyChoiceController @Inject()(
           Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
         case _ =>
           if (configDecorator.taxCreditsEnabled) {
-            Redirect(controllers.routes.AddressController.personalDetails())
+            Redirect(routes.PersonalDetailsController.onPageLoad())
           } else {
             Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
           }
