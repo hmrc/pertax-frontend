@@ -124,6 +124,6 @@ class UpdateAddressController @Inject()(
 
   private def cacheAndRedirect(typ: AddrType)(implicit hc: HeaderCarrier): Future[Result] =
     addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now())) map { _ =>
-      Redirect(controllers.routes.AddressController.reviewChanges(typ))
+      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
     }
 }

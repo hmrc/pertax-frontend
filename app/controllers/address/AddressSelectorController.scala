@@ -120,7 +120,7 @@ class AddressSelectorController @Inject()(
                       case (_, true) => Redirect(routes.StartDateController.onPageLoad(typ))
                       case (_, false) =>
                         addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                        Redirect(controllers.routes.AddressController.reviewChanges(typ))
+                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                     }
                   }
                 case _ =>

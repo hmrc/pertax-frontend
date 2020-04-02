@@ -53,8 +53,8 @@ GET         /personal-account/your-address/:typ/enter-international-address     
 POST        /personal-account/your-address/:typ/enter-international-address            controllers.address.UpdateInternationalAddressController.onSubmit(typ: AddrType)
 GET         /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onSubmit(typ: AddrType)
-GET         /personal-account/your-address/:typ/changes                                controllers.AddressController.reviewChanges(typ: AddrType)
-POST        /personal-account/your-address/:typ/thank-you                              controllers.AddressController.submitChanges(typ: AddrType)
+GET         /personal-account/your-address/:typ/changes                                controllers.address.AddressSubmissionController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/thank-you                              controllers.address.AddressSubmissionController.onSubmit(typ: AddrType)
 GET         /personal-account/your-address/:typ/thank-you                              controllers.AddressController.showAddressAlreadyUpdated(typ: AddrType)
 GET         /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onPageLoad
 POST        /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onSubmit

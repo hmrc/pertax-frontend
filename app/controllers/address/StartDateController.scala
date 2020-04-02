@@ -79,13 +79,12 @@ class StartDateController @Inject()(
                   val proposedStartDate = dateDto.startDate
 
                   personDetails.address match {
-                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
-                      if (!currentStartDate.isBefore(proposedStartDate))
-                        BadRequest(
-                          views.html.personaldetails
-                            .cannotUpdateAddress(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
-                      else Redirect(controllers.routes.AddressController.reviewChanges(typ))
-                    case _ => Redirect(controllers.routes.AddressController.reviewChanges(typ))
+                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _))
+                        if !currentStartDate.isBefore(proposedStartDate) =>
+                      BadRequest(
+                        views.html.personaldetails
+                          .cannotUpdateAddress(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
+                    case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                   }
               }
             }
