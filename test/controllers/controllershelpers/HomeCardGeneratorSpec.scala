@@ -110,14 +110,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getSelfAssessmentCard" should {
-    val taxYear = "1819"
+    val taxYear = "1920"
     val nextDeadlineTaxYear = 2019
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest())
+        buildUserRequest(
+          saUser = saUserType,
+          request = FakeRequest()
+        )
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 

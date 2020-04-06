@@ -16,43 +16,31 @@
 
 package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.PersonDetails
 import models.dto.{AddressPageVisitedDto, DateDto}
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
-import play.api.test.Helpers._
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.redirectLocation
-import services.{LocalSessionCache, PersonDetailsSuccessResponse}
+import play.api.test.Helpers.{redirectLocation, _}
+import services.PersonDetailsSuccessResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 import util.Fixtures.{asAddressDto, fakeStreetTupleListAddressForUnmodified}
 import util.UserRequestFixture.buildUserRequest
-import util.fixtures.PersonFixture.emptyPerson
 import util.fixtures.AddressFixture.{address => addressLine}
+import util.fixtures.PersonFixture.emptyPerson
+import util.{ActionBuilderFixture, Fixtures}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class StartDateControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
+class StartDateControllerSpec extends AddressSpecHelper {
 
   val thisYearStr: String = "2015"
   val fakePersonDetails: PersonDetails = Fixtures.buildPersonDetails
-
-  override def afterEach: Unit =
-    reset(mockLocalSessionCache, mockAuthJourney)
 
   trait LocalSetup {
 
@@ -74,14 +62,9 @@ class StartDateControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAp
       new StartDateController(
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
-      )(
-        injected[LocalPartialRetriever],
-        injected[ConfigDecorator],
-        injected[TemplateRenderer],
-        injected[ExecutionContext]) {
-
+        withActiveTabAction,
+        mcc
+      ) {
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult
 
@@ -90,7 +73,6 @@ class StartDateControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAp
 
         when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn
           Future.successful(CacheMap("", Map.empty))
-
       }
   }
 

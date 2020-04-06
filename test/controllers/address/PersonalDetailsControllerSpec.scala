@@ -16,43 +16,26 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.SoleAddrType
-import controllers.controllershelpers.PersonalDetailsCardGenerator
 import models.AddressJourneyTTLModel
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.EditAddressLockRepository
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
+import util.ActionBuilderFixture
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class PersonalDetailsControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockPersonalDetailsCardGenerator = mock[PersonalDetailsCardGenerator]
-  val mockEditAddressLockRepository = mock[EditAddressLockRepository]
-  val mockAuditConnector = mock[AuditConnector]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-
-  override def afterEach: Unit =
-    reset(mockLocalSessionCache, mockAuthJourney, mockAuditConnector)
+class PersonalDetailsControllerSpec extends AddressSpecHelper {
 
   trait LocalSetup {
 
@@ -65,12 +48,6 @@ class PersonalDetailsControllerSpec extends BaseSpec with MockitoSugar with Guic
 
     val repoGetResult: List[AddressJourneyTTLModel] = List.empty
 
-    implicit val userRequest = Fixtures
-    implicit val configDecorator = injected[ConfigDecorator]
-
-    val cardGeneratorResponse =
-      Seq()
-
     def controller =
       new PersonalDetailsController(
         mockPersonalDetailsCardGenerator,
@@ -78,9 +55,9 @@ class PersonalDetailsControllerSpec extends BaseSpec with MockitoSugar with Guic
         mockAuditConnector,
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
-      )(injected[LocalPartialRetriever], configDecorator, injected[TemplateRenderer], injected[ExecutionContext]) {
+        withActiveTabAction,
+        mcc
+      ) {
 
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult
@@ -99,7 +76,7 @@ class PersonalDetailsControllerSpec extends BaseSpec with MockitoSugar with Guic
         }
 
         when(mockPersonalDetailsCardGenerator.getPersonalDetailsCards(any())(any(), any(), any())) thenReturn
-          cardGeneratorResponse
+          Seq()
       }
   }
 

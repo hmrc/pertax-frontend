@@ -18,32 +18,21 @@ package controllers.address
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.SoleAddrType
 import models.dto.AddressPageVisitedDto
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
+import util.ActionBuilderFixture
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-
-  override def afterEach: Unit =
-    reset(mockLocalSessionCache, mockAuthJourney)
+class InternationalAddressChoiceControllerSpec extends AddressSpecHelper {
 
   trait LocalSetup {
 
@@ -65,9 +54,9 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
       new InternationalAddressChoiceController(
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
-      )(injected[LocalPartialRetriever], fakeConfigDecorator, injected[TemplateRenderer], injected[ExecutionContext]) {
+        withActiveTabAction,
+        mcc
+      )(partialRetriever, fakeConfigDecorator, templateRenderer, executionContext) {
 
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult

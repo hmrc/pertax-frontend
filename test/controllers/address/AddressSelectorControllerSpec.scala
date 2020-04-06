@@ -16,45 +16,30 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.address
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import models.addresslookup.{AddressLookupResponse, AddressLookupSuccessResponse}
 import models.dto.{AddressDto, DateDto}
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{AddressLookupService, LocalSessionCache}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
+import util.{ActionBuilderFixture}
 import util.Fixtures.{oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord, otherPlacePafDifferentPostcodeAddressRecord, twoOtherPlacePafAddressRecord}
 import util.UserRequestFixture.buildUserRequest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-  val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-
-  override def afterEach: Unit =
-    reset(mockLocalSessionCache, mockAuthJourney, mockAddressLookupService)
+class AddressSelectorControllerSpec extends AddressSpecHelper {
 
   trait LocalSetup {
 
     val requestWithForm: Request[_] = FakeRequest()
-
-    lazy val fakeConfigDecorator: ConfigDecorator = injected[ConfigDecorator]
 
     val sessionCacheResponse: Option[CacheMap] =
       Some(
@@ -77,9 +62,9 @@ class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar with Guic
       new AddressSelectorController(
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
-      )(injected[LocalPartialRetriever], fakeConfigDecorator, injected[TemplateRenderer], injected[ExecutionContext]) {
+        withActiveTabAction,
+        mcc
+      ) {
 
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult

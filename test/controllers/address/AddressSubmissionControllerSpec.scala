@@ -16,55 +16,31 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
-import models.{AnyOtherMove, NonFilerSelfAssessmentUser}
+import models.AnyOtherMove
 import models.dto.{AddressPageVisitedDto, DateDto}
 import org.joda.time.LocalDate
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.Mockito.{times, verify, when}
 import play.api.i18n.Lang
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsFormUrlEncoded, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService, LocalSessionCache, UpdateAddressResponse, UpdateAddressSuccessResponse}
+import services.{UpdateAddressResponse, UpdateAddressSuccessResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{ActionBuilderFixture, Fixtures}
 import util.Fixtures._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class AddressSubmissionControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
+class AddressSubmissionControllerSpec extends AddressSpecHelper {
 
   implicit val lang: Lang = Lang("en")
-
-  override def afterEach: Unit =
-    reset(
-      mockAddressMovedService,
-      mockCitizenDetailsService,
-      mockEditAddressLockRepository,
-      mockAuditConnector,
-      mockLocalSessionCache,
-      mockAuthJourney
-    )
 
   trait LocalSetup {
 
@@ -92,13 +68,9 @@ class AddressSubmissionControllerSpec extends BaseSpec with MockitoSugar with Gu
         mockAuditConnector,
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
-      )(
-        injected[LocalPartialRetriever],
-        injected[ConfigDecorator],
-        injected[TemplateRenderer],
-        injected[ExecutionContext]) {
+        withActiveTabAction,
+        mcc
+      ) {
 
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult

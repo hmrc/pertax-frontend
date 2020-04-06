@@ -16,9 +16,7 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.CountryHelper
 import models.dto.{AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
@@ -26,32 +24,20 @@ import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.{asAddressDto, asInternationalAddressDto, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress, oneAndTwoOtherPlacePafRecordSet}
+import util.ActionBuilderFixture
+import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class UpdateInternationalAddressControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
-
-  override def afterEach: Unit =
-    reset(mockLocalSessionCache, mockAuthJourney, mockAuditConnector)
+class UpdateInternationalAddressControllerSpec extends AddressSpecHelper {
 
   trait LocalSetup {
 
@@ -73,13 +59,9 @@ class UpdateInternationalAddressControllerSpec extends BaseSpec with MockitoSuga
         mockAuditConnector,
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
-      )(
-        injected[LocalPartialRetriever],
-        injected[ConfigDecorator],
-        injected[TemplateRenderer],
-        injected[ExecutionContext]) {
+        withActiveTabAction,
+        mcc
+      ) {
 
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult

@@ -16,9 +16,7 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import models.NonFilerSelfAssessmentUser
 import models.addresslookup.{AddressLookupErrorResponse, AddressLookupResponse, AddressLookupSuccessResponse, RecordSet}
@@ -26,29 +24,19 @@ import models.dto.{AddressFinderDto, AddressPageVisitedDto, ResidencyChoiceDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsFormUrlEncoded, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import services.{AddressLookupService, LocalSessionCache}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{ActionBuilderFixture, Fixtures}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class PostcodeLookupControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-  val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+class PostcodeLookupControllerSpec extends AddressSpecHelper {
 
   override def afterEach: Unit =
     reset(mockLocalSessionCache, mockAuthJourney, mockAuditConnector)
@@ -80,14 +68,10 @@ class PostcodeLookupControllerSpec extends BaseSpec with MockitoSugar with Guice
         mockAddressLookupService,
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
+        withActiveTabAction,
         mockAuditConnector,
-        injected[MessagesControllerComponents]
-      )(
-        injected[LocalPartialRetriever],
-        injected[ConfigDecorator],
-        injected[TemplateRenderer],
-        injected[ExecutionContext]) {
+        mcc
+      ) {
 
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult

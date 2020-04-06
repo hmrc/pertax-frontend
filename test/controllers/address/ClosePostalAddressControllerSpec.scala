@@ -16,55 +16,31 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
 import models.{AddressJourneyTTLModel, AnyOtherMove, EditSoleAddress, NonFilerSelfAssessmentUser}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import reactivemongo.bson.BSONDateTime
-import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService, LocalSessionCache, UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
+import services.{UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.{buildFakeAddress, buildFakeAddressWithEndDate, buildPersonDetailsCorrespondenceAddress, oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord, otherPlacePafDifferentPostcodeAddressRecord, twoOtherPlacePafAddressRecord}
+import util.Fixtures.{buildFakeAddress, buildFakeAddressWithEndDate, buildPersonDetailsCorrespondenceAddress}
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
+import util.{ActionBuilderFixture, Fixtures}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar with GuiceOneAppPerSuite {
-
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-  val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-
-  override def afterEach: Unit =
-    reset(
-      mockLocalSessionCache,
-      mockAuthJourney,
-      mockAuditConnector,
-      mockCitizenDetailsService,
-      mockEditAddressLockRepository)
+class ClosePostalAddressControllerSpec extends AddressSpecHelper {
 
   trait LocalSetup {
-
-    val nino = Fixtures.fakeNino
 
     val requestWithForm: Request[_] = FakeRequest()
 
@@ -96,13 +72,9 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar with G
         mockAuditConnector,
         mockLocalSessionCache,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
-      )(
-        injected[LocalPartialRetriever],
-        injected[ConfigDecorator],
-        injected[TemplateRenderer],
-        injected[ExecutionContext]) {
+        withActiveTabAction,
+        mcc
+      ) {
 
         when(mockAuthJourney.authWithPersonalDetails) thenReturn
           authActionResult
@@ -158,14 +130,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar with G
       override val requestWithForm =
         FakeRequest("POST", "").withFormUrlEncodedBody("closePostalAddressChoice" -> "true")
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm.asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
       val result = controller.onSubmit()(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
@@ -196,25 +160,6 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar with G
   "Calling AddressController.submitConfirmClosePostalAddress" should {
 
     val fakeAddress = buildFakeAddressWithEndDate
-
-    def comparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
-      "pertax-frontend",
-      auditType,
-      dataEvent.eventId,
-      Map("path" -> "/test", "transactionName" -> "closure_of_correspondence"),
-      Map(
-        "nino"              -> Some(Fixtures.fakeNino.nino),
-        "etag"              -> Some("115"),
-        "submittedLine1"    -> Some("1 Fake Street"),
-        "submittedLine2"    -> Some("Fake Town"),
-        "submittedLine3"    -> Some("Fake City"),
-        "submittedLine4"    -> Some("Fake Region"),
-        "submittedPostcode" -> Some("AA1 1AA"),
-        "submittedCountry"  -> None,
-        "addressType"       -> Some("correspondence")
-      ).collect { case (k, Some(v)) => k -> v },
-      dataEvent.generatedAt
-    )
 
     "render the thank you page upon successful submission of closing the correspondence address" in new LocalSetup {
       override val authActionResult = new ActionBuilderFixture {
@@ -348,6 +293,25 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar with G
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
   }
+
+  def comparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
+    "pertax-frontend",
+    auditType,
+    dataEvent.eventId,
+    Map("path" -> "/test", "transactionName" -> "closure_of_correspondence"),
+    Map(
+      "nino"              -> Some(Fixtures.fakeNino.nino),
+      "etag"              -> Some("115"),
+      "submittedLine1"    -> Some("1 Fake Street"),
+      "submittedLine2"    -> Some("Fake Town"),
+      "submittedLine3"    -> Some("Fake City"),
+      "submittedLine4"    -> Some("Fake Region"),
+      "submittedPostcode" -> Some("AA1 1AA"),
+      "submittedCountry"  -> None,
+      "addressType"       -> Some("correspondence")
+    ).collect { case (k, Some(v)) => k -> v },
+    dataEvent.generatedAt
+  )
 
   def pruneDataEvent(dataEvent: DataEvent): DataEvent =
     dataEvent
