@@ -25,7 +25,7 @@ import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
 @Singleton
 class ConfigDecorator @Inject()(
