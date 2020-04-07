@@ -25,7 +25,7 @@ import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.config.ServicesConfig
 
 @Singleton
 class ConfigDecorator @Inject()(
@@ -60,13 +60,13 @@ class ConfigDecorator @Inject()(
   lazy val tcsFrontendService = servicesConfig.baseUrl("tcs-frontend")
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
   lazy val authLoginApiService = servicesConfig.baseUrl("auth-login-api")
-  lazy val preferencesFrontendService = servicesConfig.baseUrl("preferences-frontend")
   private lazy val enrolmentStoreProxyService = servicesConfig.baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
     runModeConfiguration.getString(s"external-url.$key").filter(_ => runMode.env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
+  lazy val preferencesFrontendService = decorateUrlForLocalDev(s"preferences-frontend").getOrElse("")
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
   lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
@@ -218,7 +218,7 @@ class ConfigDecorator @Inject()(
   lazy val allowLowConfidenceSAEnabled =
     runModeConfiguration.getString("feature.allow-low-confidence-sa.enabled").getOrElse("false").toBoolean
   lazy val ltaEnabled = runModeConfiguration.getString("feature.lta.enabled").getOrElse("true").toBoolean
-  lazy val urLinkUrl = runModeConfiguration.getString("feature.ur-link.url")
+  lazy val bannerLinkUrl = runModeConfiguration.getString("feature.ur-link.url")
   lazy val platformFrontendHost = runModeConfiguration.getString("platform.frontend.host").getOrElse("")
 
   lazy val taxcalcEnabled = runModeConfiguration.getString("feature.taxcalc.enabled").getOrElse("true").toBoolean
