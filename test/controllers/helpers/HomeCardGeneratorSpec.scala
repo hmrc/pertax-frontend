@@ -27,6 +27,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.SaUtr
+import util.DateTimeTools.previousAndCurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.cards.home._
@@ -113,7 +114,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
   }
 
   "Calling getSelfAssessmentCard" should {
-    val taxYear = "1819"
+    val taxYear = previousAndCurrentTaxYear
     val nextDeadlineTaxYear = 2019
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
