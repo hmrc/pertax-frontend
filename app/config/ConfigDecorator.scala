@@ -170,7 +170,8 @@ class ConfigDecorator @Inject()(
   lazy val tcsChangeAddressUrl = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
   lazy val updateAddressShortFormUrl = "https://www.tax.service.gov.uk/shortforms/form/PAYENICoC"
-  lazy val changeNameLinkUrl = s"$dfsFrontendHost/forms/form/notification-of-a-change-in-personal-details/new"
+  lazy val changeNameLinkUrl =
+    s"$dfsFrontendHost/digital-forms/form/notification-of-a-change-in-personal-details/draft/guide"
   lazy val changePersonalDetailsUrl =
     "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/change-your-personal-details"
   lazy val scottishRateIncomeTaxUrl = "https://www.gov.uk/scottish-rate-income-tax/how-it-works"
@@ -178,18 +179,19 @@ class ConfigDecorator @Inject()(
   lazy val personalAccount = "/personal-account"
 
   lazy val childBenefitsStaysInEducation =
-    s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/guide"
+    s"$dfsFrontendHost/digital-forms/form/Tell-Child-Benefit-about-your-child-staying-in-non-advanced-education-or-approved-training/draft/guide"
   lazy val childBenefitsLaterLeavesEducation =
-    s"$dfsFrontendHost/forms/form/Tell-Child-Benefit-about-your-child-leaving-non-advanced-education-or-approved-training/guide"
+    s"$dfsFrontendHost/digital-forms/form/Tell-Child-Benefit-about-your-child-leaving-non-advanced-education-or-approved-training/draft/guide"
   lazy val childBenefitsHasAnyChangeInCircumstances =
-    s"$dfsFrontendHost/forms/form/child-benefit-child-change-of-circumstances/guide"
+    s"$dfsFrontendHost/digital-forms/form/child-benefit-child-change-of-circumstances/draft/guide"
   lazy val childBenefitsApplyForExtension =
-    s"$dfsFrontendHost/forms/form/Application-for-extension-of-Child-Benefit/guide"
+    s"$dfsFrontendHost/digital-forms/form/Application-for-extension-of-Child-Benefit/draft/guide"
   lazy val childBenefitsReportChange =
-    s"$dfsFrontendHost/forms/form/Child-Benefit-Claimant-Change-of-Circumstances/guide"
+    s"$dfsFrontendHost/digital-forms/form/Child-Benefit-Claimant-Change-of-Circumstances/draft/guide"
   lazy val childBenefitsAuthoriseTaxAdvisor =
-    s"$dfsFrontendHost/forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/new"
-  lazy val childBenefitsStopOrRestart = s"$dfsFrontendHost/forms/form/high-income-child-benefit-tax-charge/guide"
+    s"$dfsFrontendHost/digital-forms/form/authorise-a-tax-adviser-for-high-income-child-benefit-charge-matters/draft/guide"
+  lazy val childBenefitsStopOrRestart =
+    s"$dfsFrontendHost/digital-forms/form/high-income-child-benefit-tax-charge/draft/guide"
   lazy val childBenefitsCheckIfYouCanClaim = "https://www.gov.uk/child-benefit/overview"
 
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
