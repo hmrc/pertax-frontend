@@ -26,9 +26,9 @@
         <p>
     @personDetails.address.map { address =>
         @address.lines.map { line =>
-            <div class="address-line">@upperCaseToTitleCase(line)</div>
+            <span class="address-line">@upperCaseToTitleCase(line)</span>
         }
-        <div class ="address-line">@address.postcode.map(_.toUpperCase)</div>
+        <span class ="address-line">@address.postcode.map(_.toUpperCase)</span>
         @if(!countries.contains(Country(address.country.map(_.toUpperCase).getOrElse("")))) {@address.country.map(_.toUpperCase)}
     }
         </p>
