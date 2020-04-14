@@ -50,6 +50,8 @@ class CitizenDetailsService @Inject()(
   val simpleHttp: SimpleHttp,
   val metrics: Metrics)
     extends ServicesConfig with HasMetrics {
+  
+  val logger = Logger(this.getClass)
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
@@ -65,22 +67,22 @@ class CitizenDetailsService @Inject()(
 
           case response if response.status == LOCKED =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Personal details record in citizen-details was hidden")
+            logger.warn("Personal details record in citizen-details was hidden")
             PersonDetailsHiddenResponse
 
           case response if response.status == NOT_FOUND =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Unable to find personal details record in citizen-details")
+            logger.warn("Unable to find personal details record in citizen-details")
             PersonDetailsNotFoundResponse
 
           case response =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${response.status} response getting personal details record from citizen-details")
+            logger.warn(s"Unexpected ${response.status} response getting personal details record from citizen-details")
             PersonDetailsUnexpectedResponse(response)
         },
         onError = { e =>
           timer.completeTimerAndIncrementFailedCounter()
-          Logger.warn("Error getting personal details record from citizen-details", e)
+          logger.warn("Error getting personal details record from citizen-details", e)
           PersonDetailsErrorResponse(e)
         }
       )
@@ -100,17 +102,19 @@ class CitizenDetailsService @Inject()(
 
           case response if response.status == BAD_REQUEST =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Bad Request ${response.status} response updating address record in citizen-details")
+            logger.warn(
+              s"Bad Request ${response.status}-${response.body} response updating address record in citizen-details")
             UpdateAddressBadRequestResponse
 
           case response =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${response.status} response updating address record in citizen-details")
+            logger.warn(
+              s"Unexpected ${response.status}-${response.body} response updating address record in citizen-details")
             UpdateAddressUnexpectedResponse(response)
         },
         onError = { e =>
           timer.completeTimerAndIncrementFailedCounter()
-          Logger.warn("Error updating address record in citizen-details", e)
+          logger.warn("Error updating address record in citizen-details", e)
           UpdateAddressErrorResponse(e)
         }
       )
@@ -126,16 +130,16 @@ class CitizenDetailsService @Inject()(
             MatchingDetailsSuccessResponse(MatchingDetails.fromJsonMatchingDetails(response.json))
           case response if response.status == NOT_FOUND =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Unable to find matching details in citizen-details")
+            logger.warn("Unable to find matching details in citizen-details")
             MatchingDetailsNotFoundResponse
           case response =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${response.status} response getting matching details from citizen-details")
+            logger.warn(s"Unexpected ${response.status} response getting matching details from citizen-details")
             MatchingDetailsUnexpectedResponse(response)
         },
         onError = { e =>
           timer.completeTimerAndIncrementFailedCounter()
-          Logger.warn("Error getting matching details from citizen-details", e)
+          logger.warn("Error getting matching details from citizen-details", e)
           MatchingDetailsErrorResponse(e)
         }
       )
