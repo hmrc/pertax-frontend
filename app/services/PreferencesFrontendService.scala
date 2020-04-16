@@ -51,8 +51,7 @@ class PreferencesFrontendService @Inject()(
   val mode: Mode = environment.mode
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-  override def crypto: String => String = cookie => sessionCookieCrypto.crypto.encrypt(PlainText(cookie)).value
-
+  override def crypto: String => String = cookie => cookie
   def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
