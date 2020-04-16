@@ -119,7 +119,7 @@ class StartDateControllerSpec extends AddressSpecHelper {
     }
   }
 
-  "Calling AddressController.processEnterStartDate" should {
+  "onSubmit" should {
 
     "return 303 when passed PrimaryAddrType and a valid form with low numbers" in new LocalSetup {
 

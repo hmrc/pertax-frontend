@@ -157,7 +157,7 @@ class ClosePostalAddressControllerSpec extends AddressSpecHelper {
     }
   }
 
-  "Calling AddressController.submitConfirmClosePostalAddress" should {
+  "onSubmitConfirm" should {
 
     val fakeAddress = buildFakeAddressWithEndDate
 
