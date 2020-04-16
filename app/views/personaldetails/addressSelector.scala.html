@@ -36,11 +36,12 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
   pageName = Some(messages("label.your_personal_tax_account"))
 ) {
 @back_link()
-  @errors(addressSelectorForm)
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <header class="page-heading">
+        @errors(addressSelectorForm)
+
+        <header class="page-heading">
         <h1 class="heading-xlarge">
           @typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))
         </h1>

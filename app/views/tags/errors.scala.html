@@ -17,20 +17,18 @@
 @(form: Form[_])(implicit messages: play.api.i18n.Messages)
 
 @if(form.hasErrors) {
-    <div class="grid-row">
-        <div class="column-two-thirds">
-            <div class="error-summary" tabindex="-1" role="alert" aria-labelledby="error-summary-heading">
-                <h2 id="error-summary-heading" class="error-summary-heading">
-                @Messages("label.theres_a_problem")
-                </h2>
-                <div class="error-summary-body">
-                    <ul class="error-summary-list">
-                        @form.errors.map { error =>
-                            <li><a href="#@error.key" id="@{error.key}-error">@Messages(s"head.${error.message}")</a></li>
-                        }
-                    </ul>
-                </div>
-            </div>
+
+    <div class="error-summary" tabindex="-1" role="alert" aria-labelledby="error-summary-heading">
+        <h2 id="error-summary-heading" class="error-summary-heading">
+        @Messages("label.theres_a_problem")
+        </h2>
+        <div class="error-summary-body">
+            <ul class="error-summary-list">
+                @form.errors.map { error =>
+                    <li><a href="#@error.key" id="@{error.key}-error">@Messages(s"head.${error.message}")</a></li>
+                }
+            </ul>
         </div>
     </div>
+
 }

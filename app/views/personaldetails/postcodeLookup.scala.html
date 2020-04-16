@@ -34,10 +34,11 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
   pageName = Some(messages("label.your_personal_tax_account"))
 ) {
   @back_link()
-  @errors(addressFinderForm)
 
   <div class="grid-row">
     <div class="column-two-thirds">
+      @errors(addressFinderForm)
+
       <header class="page-heading">
         <h1 class="heading-xlarge">
           @typ.ifIs(primary = messages("label.tell_us_your_main_home"), sole = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))

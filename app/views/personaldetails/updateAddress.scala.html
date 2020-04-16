@@ -42,10 +42,10 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
   title = getYourAddressLabels.toString,
   pageName = Some(Messages("label.your_personal_tax_account"))) {
   @back_link()
-  @errors(updateAddressForm)
 
   <div class="grid-row">
     <div class="column-two-thirds">
+      @errors(updateAddressForm)
       <header class="page-heading">
         <h1 class="heading-xlarge">
           @getYourAddressLabels

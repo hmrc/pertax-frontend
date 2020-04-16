@@ -31,12 +31,10 @@ pageName = Some(messages("label.your_personal_tax_account"))
 
     @back_link()
 
-
-
-        @errors(internationalAddressChoiceForm)
-
         <div class="grid-row">
             <div class="column-two-thirds">
+                @errors(internationalAddressChoiceForm)
+
                 <header class="page-heading">
                     <h1 class="heading-xlarge">@messages("label.do_you_live_in_the_uk")</h1>
                 </header>

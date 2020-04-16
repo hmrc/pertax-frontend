@@ -49,10 +49,10 @@
 ) {
     @back_link()
 
-    @errors(residenceStartDateForm)
 
         <div class="grid-row">
             <div class="column-two-thirds">
+                @errors(residenceStartDateForm)
                 <header class="page-heading">
                     <h1 class="heading-xlarge">@typ.ifIs(primary = messages("label.when_did_this_become_your_main_home"), sole = messages("label.when_did_you_start_living_here"), postal = "")</h1>
                 </header>
