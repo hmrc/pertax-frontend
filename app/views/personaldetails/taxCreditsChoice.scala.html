@@ -32,18 +32,24 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
 
     <div class="grid-row">
       <div class="column-two-thirds">
-          @errors(taxCreditsChoiceForm)
+
+        @errors(taxCreditsChoiceForm)
 
         @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">
-              @input_yes_no(
-                field = taxCreditsChoiceForm("taxCreditsChoice"),
-                heading = messages("label.do_you_get_tax_credits"),
-                trackGa = true
-            )
+            @input_yes_no(
+              taxCreditsChoiceForm("taxCreditsChoice"),
+                Seq(
+                  "true" -> messages("label.yes"),
+                  "false" -> messages("label.no")
+                ),
+                '_labelClass -> "block-label",
+                '_error -> taxCreditsChoiceForm("taxCreditsChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
+                '_legend -> messages("label.do_you_get_tax_credits")
+              )
           </div>
-          <div class="form-group">
-            <button type="submit" class="button ga-track-radio-select ga-track-error" data-ga-event-action="Do you get tax credits?" data-radio-button-name="taxCreditsChoice">@messages("global.label.continue_button")</button>
+          <div class="form-group inline">
+            <button type="submit" class="ga-track-radio-select ga-track-error" data-ga-event-action="Do you get tax credits?" data-radio-button-name="taxCreditsChoice">@messages("global.label.continue_button")</button>
           </div>
         }
       </div>

@@ -14,40 +14,46 @@
  * limitations under the License.
  *@
 
-@(
-        field: Field,
-        heading: String,
-        hint: Option[String] = None,
-        labelClass: Option[String] = None,
-        trackGa: Boolean = false
+@(field: Field,
+   radioOptions: Seq[(String, String)],
+   args: (Symbol, Any)*
 )(implicit messages: Messages)
 
+@import views.html.helper._
+
+@elements = @{new FieldElements(field.id, field, null, args.toMap, messages) }
 
 <div class="form-group @if(field.hasErrors){form-field--error form-group-error}">
-    <fieldset class="inline" id="@{field.id}">
+    <fieldset class="inline" id="@{field.id}" @if(field.hasErrors){aria-describedby="error-message-@{field.id}-input"}>
             <legend>
-                <h1 class="heading-xlarge">@heading</h1>
+                <h1 class="heading-xlarge">@elements.args.get('_legend)</h1>
             </legend>
 
-            @if(hint.nonEmpty){
-                <span class="form-hint">@hint</span>
-            }
-            @field.errors.map { error =>
-                <span class="error-message" id="error-message-@{field.id}-input">@messages(error.message, error.args: _*)</span>
-            }
-                <div class="multiple-choice">
-                    <input @if(trackGa){data-journey-click="radio-click:@heading:Yes"}  id="@{field.id}-yes" type="radio" name="@{field.id}" value="true" @if(field.value.contains("true")){checked="checked"} />
-                    <label class="block-label selection-button-radio" for="@{field.id}-yes">
-                        @messages("label.yes")
-                    </label>
-                </div>
+        @if(elements.args.contains('_hint)){<p>@elements.args.get('_hint)</p>}
 
+        @elements.errors.map{error => <span class="error-message" id="error-message-@{field.id}-input">@if(elements.args.contains('_errorPrefix) ){<span class="visually-hidden">@elements.args.get('_errorPrefix) </span>}@Messages(error)</span>}
+
+
+        @radioOptions.map { case (value, label) =>
+            @defining(s"${elements.field.name}-${value.toLowerCase.replace(" ","_")}")  { inputId =>
                 <div class="multiple-choice">
-                    <input @if(trackGa){data-journey-click="radio-click:@heading:No"} id="@{field.id}-no" type="radio" name="@{field.id}"   value="false" @if(field.value.contains("false")){checked="checked"} />
-                    <label class="block-label selection-button-radio" for="@{field.id}-no">
-                        @messages("label.no")
+                    <input
+                        type="radio"
+                        id="@inputId"
+                        name="@elements.field.name"
+                        value="@value"
+                        @elements.args.get('_inputClass).map{inputClass => class="@inputClass"}
+                        @if(elements.args.contains('_dataAttributes) ){ @elements.args.get('_dataAttributes)}
+                        @field.value.filter( _ == value).map{_ => checked="checked"}/>
+
+                    <label for="@inputId"
+                        @elements.args.get('_labelClass).map{labelClass => class="@labelClass@field.value.filter( _ == value).map{_ => selected}"}>
+                        @label
                     </label>
                 </div>
+            }
+        }
+
 
     </fieldset>
 </div>

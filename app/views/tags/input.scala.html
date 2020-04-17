@@ -1,0 +1,97 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@(field: play.api.data.Field, args: (Symbol,Any)*)(implicit messages: Messages)
+
+@import views.html.helper._
+
+@elements = @{ new FieldElements(field.id, field, null, args.toMap, messages) }
+@parentField = @{args.toMap.get('parentField).asInstanceOf[Option[Field]]}
+@parentElements = @{parentField.map(pf => new FieldElements(pf.id, pf, null, Map(), messages) )}
+@value = @{ field.value match { case Some(x) => x case None => "" case x => x }}
+@labelAfter = @{ elements.args.get('_labelAfter).getOrElse(false).asInstanceOf[Boolean] }
+@labelHighlight = @{ elements.args.get('_labelHighlight).getOrElse(false).asInstanceOf[Boolean] }
+
+<div class="form-group @if((elements.hasErrors || (parentElements.isDefined && parentElements.get.hasErrors)) && !elements.args.contains('_hideBar)) {form-group-error form-field--error}">
+
+    <label for="@elements.field.name" class="@if( elements.args.get('_labelClass) ){ @elements.args.get('_labelClass) }" @if(elements.args.contains('_labelDataAttributes)){@elements.args.get('_labelDataAttributes)}>
+
+        @if(parentElements.isDefined) {
+            @parentElements.get.errors.map { error => <span class="error-notification">@Messages(error)</span>}
+        }
+
+        @if(!labelAfter && elements.args.contains('_label)) {
+            @if(labelHighlight){<strong>}
+            <span @if(elements.args.contains('_labelTextClass)) { class="@elements.args.get('_labelTextClass)"}>
+                @elements.label
+            </span>
+            @if(elements.args.contains('_inputHint) ){
+                <span class="form-hint"
+                    @if(elements.args.contains('_hintId)) {
+                        id="@elements.args.get('_hintId)"
+                    }>
+                    @elements.args.get('_inputHint)
+                </span>
+            }
+            @if(labelHighlight){</strong>}
+
+        }
+
+    </label>
+
+    @if(!elements.args.contains('_hideErrors)) {
+            @elements.errors.map { error =>
+            <span class="error-message"
+                @if(elements.args.contains('_error_id)) {
+                    id="@elements.args.get('_error_id)"
+                }
+                data-journey="search-page:error:@elements.field.name">
+                @if(elements.args.contains('_errorPrefix) ){<span class="visually-hidden">@elements.args.get('_errorPrefix) </span>}
+                @Messages(error)
+            </span>
+            }
+        }
+
+        <input
+            @if( elements.args.contains('_type)){type="@elements.args.get('_type)" }else{type="text" }
+            @if( elements.args.contains('_dataAttributes) ){ @elements.args.get('_dataAttributes)}
+            @if( elements.args.get('_inputClass) ){ class="@elements.args.get('_inputClass)" }
+            @if( elements.args.get('_autoComplete) ){ autocomplete="@elements.args.get('_autoComplete)" }
+               name="@elements.field.name"
+               id="@elements.field.name"
+               value="@value"
+            @if(elements.args.get('_error_id).isDefined) { aria-labeledby="@elements.args.get('_error_id)" }
+            @if(elements.args.get('_hintId).isDefined) { aria-describedby="@elements.args.get('_hintId)" }
+            @if(elements.args.get('_maxlength).isDefined) { maxlength="@elements.args.get('_maxlength)" }
+            @if(elements.args.get('_min).isDefined) { min="@elements.args.get('_min)" }
+            @if(elements.args.get('_max).isDefined) { max="@elements.args.get('_max)" }
+            @if(elements.args.get('_pattern).isDefined) { pattern="@elements.args.get('_pattern)" }
+            @if(elements.args.get('_title).isDefined) { title="@elements.args.get('_title)" }
+            @if(elements.args.get('_required).isDefined) { required }
+               />
+
+        @if(labelAfter && elements.args.contains('_label)) {
+            @if(labelHighlight){<strong>}
+            <span @if(elements.args.contains('_labelTextClass)) { class="@elements.args.get('_labelTextClass)"}>
+                @elements.label
+            </span>
+            @if(elements.args.contains('_inputHint) ){
+                <span class="form-hint">@elements.args.get('_inputHint)</span>
+            }
+            @if(labelHighlight){</strong>}
+        }
+
+</div>
