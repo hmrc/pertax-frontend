@@ -25,7 +25,7 @@
 @labelAfter = @{ elements.args.get('_labelAfter).getOrElse(false).asInstanceOf[Boolean] }
 @labelHighlight = @{ elements.args.get('_labelHighlight).getOrElse(false).asInstanceOf[Boolean] }
 
-<div class="form-group @if(elements.args.contains('_divClass)){ @elements.args.get('_divClass) } @if((elements.hasErrors || (parentElements.isDefined && parentElements.get.hasErrors)) && !elements.args.contains('_hideBar)) {form-group-error form-field--error}">
+<div class="form-group@if(elements.args.contains('_divClass)){ @elements.args.get('_divClass) } @if((elements.hasErrors || (parentElements.isDefined && parentElements.get.hasErrors)) && !elements.args.contains('_hideBar)) {form-group-error form-field--error}">
 
     <label for="@elements.field.name" class="@if( elements.args.get('_labelClass) ){ @elements.args.get('_labelClass) }" @if(elements.args.contains('_labelDataAttributes)){@elements.args.get('_labelDataAttributes)}>
 
@@ -57,7 +57,7 @@
             <span class="error-message"
                 @if(elements.args.contains('_error_id)) {
                     id="@elements.args.get('_error_id)"
-                }
+                } else { id="@elements.field.name-error" }
                 data-journey="search-page:error:@elements.field.name">
                 @if(elements.args.contains('_errorPrefix) ){<span class="visually-hidden">@elements.args.get('_errorPrefix) </span>}
                 @Messages(error)
