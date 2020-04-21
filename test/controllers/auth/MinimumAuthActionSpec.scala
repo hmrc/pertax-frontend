@@ -70,7 +70,13 @@ class MinimumAuthActionSpec
     "be redirected to the session timeout page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents, sessionAuditor)
+      val authAction = new MinimumAuthAction(
+        mockAuthConnector,
+        app.configuration,
+        configDecorator,
+        sessionAuditor,
+        controllerComponents
+      )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -82,7 +88,13 @@ class MinimumAuthActionSpec
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents, sessionAuditor)
+      val authAction = new MinimumAuthAction(
+        mockAuthConnector,
+        app.configuration,
+        configDecorator,
+        sessionAuditor,
+        controllerComponents
+      )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -114,7 +126,13 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator,controllerComponents, sessionAuditor)
+      val authAction = new MinimumAuthAction(
+        mockAuthConnector,
+        app.configuration,
+        configDecorator,
+        sessionAuditor,
+        controllerComponents
+      )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -138,7 +156,13 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator,controllerComponents, sessionAuditor)
+      val authAction = new MinimumAuthAction(
+        mockAuthConnector,
+        app.configuration,
+        configDecorator,
+        sessionAuditor,
+        controllerComponents
+      )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -163,7 +187,13 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator,controllerComponents, sessionAuditor)
+      val authAction = new MinimumAuthAction(
+        mockAuthConnector,
+        app.configuration,
+        configDecorator,
+        sessionAuditor,
+        controllerComponents
+      )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -187,7 +217,13 @@ class MinimumAuthActionSpec
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(mockAuthConnector, app.configuration, configDecorator, controllerComponents, sessionAuditor)
+      val authAction = new MinimumAuthAction(
+        mockAuthConnector,
+        app.configuration,
+        configDecorator,
+        sessionAuditor,
+        controllerComponents
+      )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
