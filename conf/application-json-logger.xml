@@ -10,4 +10,7 @@
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
     </root>
+
+    <logger name="controllers.auth.SessionAuditor" level="${logger.auth:-INFO}"/>
+
 </configuration>
