@@ -15,7 +15,6 @@
  *@
 
 @import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
@@ -39,43 +38,41 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
     <div class="column-two-thirds">
       @errors(addressFinderForm)
 
-      <header class="page-heading">
-        <h1 class="heading-xlarge">
-          @typ.ifIs(primary = messages("label.tell_us_your_main_home"), sole = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
-        </h1>
-      </header>
-
 
       @helpers.form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
-        <div class="form-group postcode-container">
-          @input(
-            addressFinderForm("postcode"),
-            '_inputClass -> "form-control",
-            '_labelClass -> "form-label inputLabelBeforeError postcode-label",
-            '_label -> messages("title.postcode"),
-            '_maxlength -> 8
-          )
-        </div>
-          @if(addressFinderForm.hasErrors) {
-            @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
-              <p>
-              <a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_yourself")</a>
-              </p>
+        <fieldset @addressFinderForm.errors.map { error => aria-describedby="@error.key-error"}>
+          <legend><h1 class="heading-xlarge">
+            @typ.ifIs(primary = messages("label.tell_us_your_main_home"), sole = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
+          </h1></legend>
+          <div class="form-group postcode-container">
+            @input(
+              addressFinderForm("postcode"),
+              '_inputClass -> "form-control",
+              '_labelClass -> "form-label inputLabelBeforeError postcode-label",
+              '_label -> messages("title.postcode"),
+              '_maxlength -> 8
+            )
+          </div>
+            @if(addressFinderForm.hasErrors) {
+              @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
+                <p>
+                <a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_yourself")</a>
+                </p>
+              }
             }
-          }
 
-        <div class="form-group">
-          @input(
-            addressFinderForm("filter"),
-            '_inputClass -> "form-control",
-            '_labelClass -> "form-label inputLabelBeforeError",
-            '_label -> messages("title.house.name.or.number"),
-            '_maxlength -> 30
-          )
-        </div>
+          <div class="form-group">
+            @input(
+              addressFinderForm("filter"),
+              '_inputClass -> "form-control",
+              '_labelClass -> "form-label inputLabelBeforeError",
+              '_label -> messages("title.house.name.or.number"),
+              '_maxlength -> 30
+            )
+          </div>
 
-
+        </fieldset>
         @typ.ifIsPrimary {
 
 
