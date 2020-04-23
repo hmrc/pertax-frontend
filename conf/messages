@@ -363,6 +363,7 @@ head.error.date_in_future=You cannot enter a date in the future
 error.date_in_future=Enter today’s date or a date in the past
 head.error.country_required=Enter country
 error.country_required=Enter country
+error.message.error = Error:
 
 #
 # Messages in lower case
