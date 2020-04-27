@@ -195,6 +195,7 @@ class ConfigDecorator @Inject()(
   lazy val childBenefitsCheckIfYouCanClaim = "https://www.gov.uk/child-benefit/overview"
 
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
+
   lazy val myStatePensionAccount = s"$nispFrontendHost/check-your-state-pension/account/pta"
 
   lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
