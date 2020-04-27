@@ -82,7 +82,7 @@ class ConfigDecorator @Inject()(
   lazy val nispFrontendHost = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
   lazy val taxCalcHost = decorateUrlForLocalDev("taxcalc.host").getOrElse("")
-  lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-frontend.host").getOrElse("")
+  lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-digital-frontend.host").getOrElse("")
   lazy val plaBackEndHost = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
   lazy val saFrontendHost = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost =
