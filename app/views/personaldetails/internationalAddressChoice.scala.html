@@ -43,7 +43,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
 
                 <p>@messages("label.the_uk_is_england_")</p>
 
-                @form(action = controllers.address.routes.InternationalAddressChoiceController.onSubmit(typ)) {
+                @form(action = controllers.routes.AddressController.processInternationalAddressChoice(typ)) {
                 <div class="form-group inline">
                     @input_radio_group(
                         internationalAddressChoiceForm("internationalAddressChoice"),

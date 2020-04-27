@@ -70,7 +70,7 @@ class PublicController @Inject()(cc: MessagesControllerComponents)(
 
   def redirectToPersonalDetails(): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
-      Redirect(address.routes.PersonalDetailsController.onPageLoad())
+      Redirect(routes.AddressController.personalDetails())
     }
   }
 }
