@@ -61,7 +61,7 @@
 
                     <p>@messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
                     <p class="form-hint">@messages("label.for_example_31_3_2015")</p>
-                    @form(controllers.routes.AddressController.processEnterStartDate(typ)) {
+                    @form(controllers.address.routes.StartDateController.onSubmit(typ)) {
                         @dateFieldsFreeInline(
                             residenceStartDateForm,
                             "startDate"

@@ -37,7 +37,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
           <h1 class="heading-xlarge">@messages("label.do_you_get_tax_credits")</h1>
         </header>
 
-        @form(action = controllers.routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
+        @form(action = controllers.address.routes.TaxCreditsChoiceController.onSubmit(), 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">
             @input_radio_group(
               taxCreditsChoiceForm("taxCreditsChoice"),
