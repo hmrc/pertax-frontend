@@ -16,21 +16,19 @@
 
 package controllers.controllershelpers
 
-import controllers.address.AddressBaseController
 import controllers.bindable.AddrType
-import controllers.address
+import controllers.{AddressController, routes}
 import models.AddressJourneyData
 import models.addresslookup.{AddressRecord, RecordSet}
-import models.dto.{AddressDto, AddressFinderDto, AddressPageVisitedDto, DateDto, InternationalAddressChoiceDto, ResidencyChoiceDto, TaxCreditsChoiceDto}
+import models.dto._
 import play.api.libs.json.Writes
 import play.api.mvc.Result
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
 
-trait AddressJourneyCachingHelper {
-  this: AddressBaseController =>
+trait AddressJourneyCachingHelper { this: AddressController =>
 
   trait CacheIdentifier[A] {
     val id: String
@@ -128,7 +126,7 @@ trait AddressJourneyCachingHelper {
       case Some(_) =>
         block
       case None =>
-        redirectToPersonalDetails
+        Future.successful(Redirect(routes.AddressController.personalDetails()))
     }
 
   def enforceResidencyChoiceSubmitted(journeyData: AddressJourneyData)(
@@ -137,9 +135,7 @@ trait AddressJourneyCachingHelper {
       case AddressJourneyData(_, Some(_), _, _, _, _, _, _, _) =>
         block(journeyData)
       case AddressJourneyData(_, None, _, _, _, _, _, _, _) =>
-        redirectToPersonalDetails
+        Future.successful(Redirect(routes.AddressController.personalDetails()))
     }
 
-  private def redirectToPersonalDetails: Future[Result] =
-    Future.successful(Redirect(address.routes.PersonalDetailsController.onPageLoad()))
 }

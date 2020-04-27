@@ -16,7 +16,7 @@
 
 package services
 
-import models.addresslookup.{Address, AddressLookupErrorResponse, AddressLookupSuccessResponse, AddressLookupUnexpectedResponse, AddressRecord, Country, RecordSet}
+import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar

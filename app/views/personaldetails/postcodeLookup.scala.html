@@ -45,7 +45,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
       </header>
 
 
-      @helpers.form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
+      @helpers.form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
         <div class="form-group postcode-container">
           @input(
@@ -59,7 +59,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
           @if(addressFinderForm.hasErrors) {
             @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
               <p>
-              <a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.enter_your_address_yourself")</a>
+              <a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_yourself")</a>
               </p>
             }
           }
