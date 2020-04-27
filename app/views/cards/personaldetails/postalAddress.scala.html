@@ -41,7 +41,7 @@
         }
     } else {
         @card(
-            url = Some(controllers.routes.AddressController.internationalAddressChoice(PostalAddrType).url),
+            url = Some(controllers.address.routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType).url),
             gaAction = Some("Postal address"),
             gaLabel = Some("Postal address"),
             heading = messages("label.postal_address"),
@@ -49,11 +49,11 @@
         ) {
             <ul>
                 <li>
-                    <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@messages("label.change_your_postal_address")</a>
+                    <a class="ga-track-anchor-click" href="@controllers.address.routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@messages("label.change_your_postal_address")</a>
                 </li>
                 @if(closePostalAddressEnabled) {
                     <li>
-                        <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.closePostalAddressChoice" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Send letters to your main address">@messages("label.send_your_letters_to_your_main_address")</a>
+                        <a class="ga-track-anchor-click" href="@controllers.address.routes.ClosePostalAddressController.onPageLoad()" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Send letters to your main address">@messages("label.send_your_letters_to_your_main_address")</a>
                     </li>
                 }
             </ul>

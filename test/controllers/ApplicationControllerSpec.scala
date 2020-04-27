@@ -17,6 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
+import controllers.address.TaxCreditsChoiceController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
@@ -53,8 +54,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
-  val mockAddressController = mock[AddressController]
   val mockHomeController = mock[HomeController]
+  val mockTaxCreditsChoiceController = mock[TaxCreditsChoiceController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -63,8 +64,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[AddressController].toInstance(mockAddressController),
-      bind[HomeController].toInstance(mockHomeController)
+      bind[HomeController].toInstance(mockHomeController),
+      bind[TaxCreditsChoiceController].toInstance(mockTaxCreditsChoiceController)
     )
     .build()
 

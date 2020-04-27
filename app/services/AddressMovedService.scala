@@ -17,6 +17,7 @@
 package services
 
 import com.google.inject.Inject
+import models.addresslookup.AddressLookupSuccessResponse
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
 import uk.gov.hmrc.http.HeaderCarrier
 

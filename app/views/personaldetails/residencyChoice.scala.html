@@ -38,7 +38,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
                     <h1 class="heading-xlarge">@messages("label.do_you_live_in_more_than_one_place")</h1>
                 </header>
 
-                @form(action = controllers.routes.AddressController.processResidencyChoice) {
+                @form(action = controllers.address.routes.ResidencyChoiceController.onSubmit()) {
                 <div class="form-group inline">
                     @input_radio_group(
                         residencyChoiceForm("residencyChoice"),

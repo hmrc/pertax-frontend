@@ -18,6 +18,7 @@ package controllers
 
 import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
+import controllers.address.TaxCreditsChoiceController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
@@ -42,16 +43,16 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   val mockPdfGeneratorConnector = mock[PdfGeneratorConnector]
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
-  val mockAddressController = mock[AddressController]
   val mockHomeController = mock[HomeController]
+  val mockTaxCreditsChoiceController = mock[TaxCreditsChoiceController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
       bind[AuthJourney].toInstance(mockAuthJourney),
-      bind[AddressController].toInstance(mockAddressController),
-      bind[HomeController].toInstance(mockHomeController)
+      bind[HomeController].toInstance(mockHomeController),
+      bind[TaxCreditsChoiceController].toInstance(mockTaxCreditsChoiceController)
     )
     .configure(configValues)
     .build()

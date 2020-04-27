@@ -35,32 +35,32 @@ GET         /personal-account/self-assessment/find-your-user-id                 
 GET         /personal-account/lang/enGb                                                controllers.LanguageSwitchController.enGb()
 GET         /personal-account/lang/cyGb                                                controllers.LanguageSwitchController.cyGb()
 
-GET         /personal-account/personal-details                                         controllers.AddressController.personalDetails
-GET         /personal-account/your-address/tax-credits-choice                          controllers.AddressController.taxCreditsChoice
-POST        /personal-account/your-address/tax-credits-choice                          controllers.AddressController.processTaxCreditsChoice
-GET         /personal-account/your-address/residency-choice                            controllers.AddressController.residencyChoice
-POST        /personal-account/your-address/residency-choice                            controllers.AddressController.processResidencyChoice
-GET         /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.AddressController.internationalAddressChoice(typ: AddrType)
-POST        /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.AddressController.processInternationalAddressChoice(typ: AddrType)
-GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.AddressController.cannotUseThisService(typ: AddrType)
-GET         /personal-account/your-address/:typ/find-address                           controllers.AddressController.showPostcodeLookupForm(typ: AddrType)
-POST        /personal-account/your-address/:typ/find-address                           controllers.AddressController.processPostcodeLookupForm(typ: AddrType)
-GET         /personal-account/your-address/:typ/select-address                         controllers.AddressController.showAddressSelectorForm(typ: AddrType)
-POST        /personal-account/your-address/:typ/select-address                         controllers.AddressController.processAddressSelectorForm(typ: AddrType)
-GET         /personal-account/your-address/:typ/edit-address                           controllers.AddressController.showUpdateAddressForm(typ: AddrType)
-POST        /personal-account/your-address/:typ/edit-address                           controllers.AddressController.processUpdateAddressForm(typ: AddrType)
-GET         /personal-account/your-address/:typ/enter-international-address            controllers.AddressController.showUpdateInternationalAddressForm(typ: AddrType)
-POST        /personal-account/your-address/:typ/enter-international-address            controllers.AddressController.processUpdateInternationalAddressForm(typ: AddrType)
-GET         /personal-account/your-address/:typ/enter-start-date                       controllers.AddressController.enterStartDate(typ: AddrType)
-POST        /personal-account/your-address/:typ/enter-start-date                       controllers.AddressController.processEnterStartDate(typ: AddrType)
-GET         /personal-account/your-address/:typ/changes                                controllers.AddressController.reviewChanges(typ: AddrType)
-POST        /personal-account/your-address/:typ/thank-you                              controllers.AddressController.submitChanges(typ: AddrType)
-GET         /personal-account/your-address/:typ/thank-you                              controllers.AddressController.showAddressAlreadyUpdated(typ: AddrType)
-GET         /personal-account/your-address/close-correspondence-address                controllers.AddressController.closePostalAddressChoice
-POST        /personal-account/your-address/close-correspondence-address                controllers.AddressController.processClosePostalAddressChoice
-GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.AddressController.confirmClosePostalAddress
-POST        /personal-account/your-address/thanks                                      controllers.AddressController.submitConfirmClosePostalAddress
-GET         /personal-account/your-address/thanks                                      controllers.AddressController.personalDetails
+GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.onPageLoad
+GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
+POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
+GET         /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onPageLoad
+POST        /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onSubmit
+GET         /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.address.PersonalDetailsController.cannotUseThisService(typ: AddrType)
+GET         /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/select-address                         controllers.address.AddressSelectorController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/select-address                         controllers.address.AddressSelectorController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/edit-address                           controllers.address.UpdateAddressController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/edit-address                           controllers.address.UpdateAddressController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/enter-international-address            controllers.address.UpdateInternationalAddressController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/enter-international-address            controllers.address.UpdateInternationalAddressController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/changes                                controllers.address.AddressSubmissionController.onPageLoad(typ: AddrType)
+POST        /personal-account/your-address/:typ/thank-you                              controllers.address.AddressSubmissionController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/thank-you                              controllers.address.PersonalDetailsController.showAddressAlreadyUpdated(typ: AddrType)
+GET         /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onPageLoad
+POST        /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onSubmit
+GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.address.ClosePostalAddressController.onPageLoadConfirm
+POST        /personal-account/your-address/thanks                                      controllers.address.ClosePostalAddressController.onSubmitConfirm
+GET         /personal-account/your-address/thanks                                      controllers.address.PersonalDetailsController.onPageLoad
 
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)
