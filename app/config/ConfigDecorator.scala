@@ -54,7 +54,7 @@ class ConfigDecorator @Inject()(
 
   private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")
   private lazy val messageFrontendService = servicesConfig.baseUrl("message-frontend")
-  private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-frontend")
+  private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = servicesConfig.baseUrl("business-tax-account")
   lazy val tcsFrontendService = servicesConfig.baseUrl("tcs-frontend")
@@ -84,7 +84,7 @@ class ConfigDecorator @Inject()(
   lazy val nispFrontendHost = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
   lazy val taxCalcHost = decorateUrlForLocalDev("taxcalc.host").getOrElse("")
-  lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-digital-frontend.host").getOrElse("")
+  lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-digital-forms-frontend.host").getOrElse("")
   lazy val plaBackEndHost = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
   lazy val saFrontendHost = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost =
