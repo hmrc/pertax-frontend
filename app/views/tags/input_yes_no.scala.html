@@ -29,7 +29,7 @@
                 <h1 class="heading-xlarge">@elements.args.get('_legend)</h1>
             </legend>
 
-        @if(elements.args.contains('_hint)){<p>@elements.args.get('_hint)</p>}
+        @if(elements.args.contains('_hint)){@elements.args.get('_hint)}
 
         @elements.errors.map{error => <span class="error-message" id="error-message-@{field.id}-input"><span class="visually-hidden">@messages("error.message.error") </span>@Messages(error)</span>}
 

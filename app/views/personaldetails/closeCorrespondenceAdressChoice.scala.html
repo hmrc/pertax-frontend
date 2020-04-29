@@ -24,6 +24,9 @@
 @(addressDto: List[String], closePostalAddressChoiceForm: Form[dto.ClosePostalAddressChoiceDto]
 )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
+@address = {<p>@messages("label.your_main_address_is")</p>
+            <p>@Html(addressDto.mkString(", <br>"))</p>}
+
 @main(title = messages("label.do_you_want_all_your_letters_to_be_sent_"),
 pageName = Some(messages("label.your_personal_tax_account"))
 ) {
@@ -33,16 +36,10 @@ pageName = Some(messages("label.your_personal_tax_account"))
     <div class="grid-row">
         <div class="column-two-thirds">
             @errors(closePostalAddressChoiceForm)
-            <header class="page-heading">
-                <h1 class="heading-xlarge">@messages("label.do_you_want_all_your_letters_to_be_sent_")</h1>
-            </header>
-
-            <p>@messages("label.your_main_address_is")</p>
-            <p>@Html(addressDto.mkString(", <br>"))</p>
 
             @form(action = controllers.routes.AddressController.processClosePostalAddressChoice) {
             <div class="form-group inline">
-                @input_radio_group(
+                @input_yes_no(
                 closePostalAddressChoiceForm("closePostalAddressChoice"),
                 Seq(
                 "true" -> messages("label.yes_send_all_letters_to_my_main_address"),
@@ -51,7 +48,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
                 '_labelClass -> "block-label",
                 '_error -> closePostalAddressChoiceForm("closePostalAddressChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
                 '_legend -> messages("label.do_you_want_all_your_letters_to_be_sent_"),
-                '_legendClass -> "visuallyhidden"
+                '_hint -> address
                 )
             </div>
             <div class="form-group inline">
