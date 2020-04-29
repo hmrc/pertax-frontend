@@ -18,25 +18,54 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import controllers.auth.requests.UserRequest
 
-@(call: Call, gaEventName: String, wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
+@(call: Call, title: String, SAForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
-@errors(wrongCredentialsUserForm)
+<div class="grid-row">
+    <div class="column-two-thirds">
 
-@form(action = call) {
-    <div class="form-group inline">
-    @input_radio_group(
-        wrongCredentialsUserForm("wrongCredentialsFormChoice"),
-        Seq(
-            "true" -> messages("label.yes"),
-            "false" -> messages("label.no")
-        ),
-        '_labelClass -> "block-label inputLabelBeforeError",
-        '_error -> wrongCredentialsUserForm("wrongCredentialsFormChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
-        '_legend -> messages("label.content_needed"),
-        '_legendClass -> "visuallyhidden"
-    )
+        @errors(SAForm)
+
+        @form(action = call){
+            <div class="form-group @if(SAForm.hasErrors){form-field--error form-group-error}">
+                <div class="page-heading" aria-hidden="true">
+                    <h1 class="heading-xlarge">
+                        @title
+                    </h1>
+                    <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.access_your_self_assessment")</p>
+                </div>
+                <fieldset class="inline" id="wrongCredentialsFormChoice" @if(SAForm.hasErrors){aria-describedby="error-message-wrongCredentialsFormChoice-input"}>
+                    <legend class="visuallyhidden">
+                        <h1>@messages(title)</h1>
+                    </legend>
+
+                    @if(SAForm.hasErrors) { <span class="error-message" id="error-message-wrongCredentialsFormChoice-input"><span class="visually-hidden">@messages("error.message.error") </span>@messages("label.select_an_answer")</span>}
+
+
+                    <div class="multiple-choice">
+                        <input type="radio" id="wrongCredentialsFormChoice-true" name="wrongCredentialsFormChoice" value="true">
+
+                        <label for="wrongCredentialsFormChoice-true" class="block-label inputLabelBeforeError">
+                            @messages("label.yes")
+                        </label>
+                    </div>
+
+
+                    <div class="multiple-choice">
+                        <input type="radio" id="wrongCredentialsFormChoice-false" name="wrongCredentialsFormChoice" value="false">
+
+                        <label for="wrongCredentialsFormChoice-false" class="block-label inputLabelBeforeError">
+                            @messages("label.no")
+                        </label>
+                    </div>
+
+                </fieldset>
+            </div>
+
+
+            <div class="form-group inline">
+                <button type="submit" class="ga-track-error" data-ga-event-action=@title data-radio-button-name="wrongCredentialsFormChoice">@messages("global.label.continue_button")</button>
+            </div>
+        }
+
     </div>
-    <div class="form-group inline">
-        <button type="submit" class="ga-track-error" data-ga-event-action=@gaEventName data-radio-button-name="wrongCredentialsFormChoice">@messages("global.label.continue_button")</button>
-    </div>
-}
+</div>

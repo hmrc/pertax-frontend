@@ -31,7 +31,7 @@
 
         @if(elements.args.contains('_hint)){<p>@elements.args.get('_hint)</p>}
 
-        @elements.errors.map{error => <span class="error-message" id="error-message-@{field.id}-input">@if(elements.args.contains('_errorPrefix) ){<span class="visually-hidden">@elements.args.get('_errorPrefix) </span>}@Messages(error)</span>}
+        @elements.errors.map{error => <span class="error-message" id="error-message-@{field.id}-input"><span class="visually-hidden">@messages("error.message.error") </span>@Messages(error)</span>}
 
 
         @radioOptions.map { case (value, label) =>

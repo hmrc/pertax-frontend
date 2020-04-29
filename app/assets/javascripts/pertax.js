@@ -12,3 +12,5 @@ $(".print-this").css('display', 'inline-block');
 
 
 $('.error-summary').focus();
+
+GOVUK.shimLinksWithButtonRole.init();

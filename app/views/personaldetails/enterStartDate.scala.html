@@ -64,7 +64,7 @@
                             <p>@messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
                             <p class="form-hint" id="date-hint">@messages("label.for_example_31_3_2015")</p>
 
-                            @residenceStartDateForm.errors.map { error => <span class="error-message" id="date-error">@Messages(error.message)</span>}
+                            @residenceStartDateForm.errors.map { error => <span class="error-message" id="date-error"><span class="visually-hidden">@messages("error.message.error") </span>@Messages(error.message)</span>}
 
                             <div class="form-date" id="startDate">
                                 @tags.input(

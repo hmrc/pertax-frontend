@@ -59,7 +59,7 @@
                     id="@elements.args.get('_error_id)"
                 } else { id="@elements.field.name-error" }
                 data-journey="search-page:error:@elements.field.name">
-                @if(elements.args.contains('_errorPrefix) ){<span class="visually-hidden">@elements.args.get('_errorPrefix) </span>}
+                <span class="visually-hidden">@messages("error.message.error") </span>
                 @Messages(error)
             </span>
             }
