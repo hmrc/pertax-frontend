@@ -17,17 +17,15 @@
 package util
 
 import play.api.Environment
-import play.api.i18n.{DefaultLangs, DefaultMessagesApi}
+import play.api.i18n.{DefaultLangs, DefaultMessagesApi, MessagesApi}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.matching.Regex
 
 class MessagesSpec extends UnitSpec with WithFakeApplication {
 
-  val messagesAPI = new DefaultMessagesApi(
-    Environment.simple(),
-    fakeApplication.configuration,
-    new DefaultLangs(fakeApplication.configuration))
+  lazy val messagesAPI = fakeApplication.injector.instanceOf[MessagesApi]
+
   val matchSingleQuoteOnly: Regex = """\w+'{1}\w+""".r
   val matchBacktickQuoteOnly: Regex = """`+""".r
 

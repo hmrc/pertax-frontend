@@ -26,7 +26,7 @@ import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Future
 
@@ -38,13 +38,14 @@ case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsRes
 @Singleton
 class TaiService @Inject()(
   environment: Environment,
-  override val runModeConfiguration: Configuration,
+  runModeConfiguration: Configuration,
   val simpleHttp: SimpleHttp,
-  val metrics: Metrics)
-    extends ServicesConfig with HasMetrics {
+  val metrics: Metrics,
+  servicesConfig: ServicesConfig)
+    extends HasMetrics {
 
   val mode: Mode = environment.mode
-  lazy val taiUrl = baseUrl("tai")
+  lazy val taiUrl = servicesConfig.baseUrl("tai")
 
   /**
     * Gets a list of tax components

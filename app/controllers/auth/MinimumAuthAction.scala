@@ -37,7 +37,8 @@ class MinimumAuthAction @Inject()(
   val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator,
-  sessionAuditor: SessionAuditor)(implicit ec: ExecutionContext)
+  sessionAuditor: SessionAuditor,
+  cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -95,4 +96,8 @@ class MinimumAuthAction @Inject()(
 
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }
+
+  override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
+
+  override protected def executionContext: ExecutionContext = cc.executionContext
 }

@@ -15,6 +15,14 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
+val akkaVersion = "2.5.23"
+val akkaHttpVersion = "10.0.15"
+dependencyOverrides += "com.typesafe.akka" %% "akka-stream"    % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-protobuf"  % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-slf4j"     % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-actor"     % akkaVersion
+dependencyOverrides += "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
+
 lazy val plugins: Seq[Plugins] =
   Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
 
@@ -55,7 +63,6 @@ lazy val microservice = Project(appName, file("."))
     publishingSettings,
     defaultSettings(),
     libraryDependencies ++= AppDependencies.all,
-    routesGenerator := StaticRoutesGenerator,
     PlayKeys.playDefaultPort := 9232,
     scalafmtOnCompile := true,
     resolvers += Resolver.bintrayRepo("hmrc", "releases"),

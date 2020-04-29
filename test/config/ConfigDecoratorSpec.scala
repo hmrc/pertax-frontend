@@ -20,6 +20,7 @@ import java.net.{MalformedURLException, URL}
 
 import play.api.i18n.Langs
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import util.BaseSpec
 
 class ConfigDecoratorSpec extends BaseSpec {
@@ -28,7 +29,12 @@ class ConfigDecoratorSpec extends BaseSpec {
 
     trait LocalSetup {
 
-      lazy val configDecorator = new ConfigDecorator(injected[Environment], injected[Configuration], injected[Langs]) {
+      lazy val configDecorator = new ConfigDecorator(
+        injected[Environment],
+        injected[Configuration],
+        injected[RunMode],
+        injected[Langs],
+        injected[ServicesConfig]) {
         override lazy val portalBaseUrl = "http://portal.service"
         override lazy val companyAuthFrontendHost = "http://company-auth-frontend.service"
       }
@@ -59,7 +65,12 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       def portalBaseUrlToTest: Option[String]
 
-      lazy val configDecorator = new ConfigDecorator(injected[Environment], injected[Configuration], injected[Langs]) {
+      lazy val configDecorator = new ConfigDecorator(
+        injected[Environment],
+        injected[Configuration],
+        injected[RunMode],
+        injected[Langs],
+        injected[ServicesConfig]) {
         override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
       }
     }

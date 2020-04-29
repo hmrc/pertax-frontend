@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import connectors.PayApiConnector
 import models.{PayApiPayment, PaymentSearchResult}
 import org.joda.time.LocalDate
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures

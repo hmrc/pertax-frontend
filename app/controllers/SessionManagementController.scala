@@ -15,10 +15,11 @@
  */
 
 package controllers
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import com.google.inject.Inject
 
-class SessionManagementController extends FrontendController {
+class SessionManagementController @Inject()(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   def keepAlive: Action[AnyContent] = Action {
     Ok("")

@@ -22,7 +22,6 @@ import controllers.auth._
 import error.RendersErrors
 import org.joda.time.DateTime
 import play.api.Logger
-import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
@@ -32,16 +31,17 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationController @Inject()(
-  val messagesApi: MessagesApi,
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
-  authJourney: AuthJourney)(
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with CurrentTaxYear with RendersErrors {
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
 
   override def now: () => DateTime = () => DateTime.now()
 

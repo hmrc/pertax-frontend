@@ -17,9 +17,8 @@
 package controllers
 
 import config.ConfigDecorator
-import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.MessagesApi
-import play.api.mvc.Session
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.{MessagesControllerComponents, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.SessionKeys
@@ -28,15 +27,18 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.BaseSpec
 import util.Fixtures._
 
+import scala.concurrent.ExecutionContext
+
 class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
   private val mockTemplateRenderer = mock[TemplateRenderer]
   private val configDecorator = injected[ConfigDecorator]
 
-  private def controller = new PublicController(injected[MessagesApi])(
+  private def controller = new PublicController(injected[MessagesControllerComponents])(
     mockLocalPartialRetriever,
     configDecorator,
-    mockTemplateRenderer
+    mockTemplateRenderer,
+    injected[ExecutionContext]
   )
 
   "Calling PublicController.sessionTimeout" should {

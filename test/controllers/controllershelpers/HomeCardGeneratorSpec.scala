@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import org.joda.time.DateTime
-import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.{I18nSupport, MessagesApi}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.SaUtr
 import util.DateTimeTools.previousAndCurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, Fixtures, UserRequestFixture}
+import views.html.ViewSpec
 import views.html.cards.home._
 
-class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar {
+class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
-  override def messagesApi: MessagesApi = injected[MessagesApi]
   implicit val configDecorator = config
 
   val homeCardGenerator = new HomeCardGenerator()

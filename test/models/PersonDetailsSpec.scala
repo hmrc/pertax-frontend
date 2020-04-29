@@ -95,34 +95,6 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
         """.stripMargin).as[PersonDetails] shouldBe buildPersonDetails
     }
 
-    "convert correctly when json is in the old citizen-details api format (numeric date)" in {
-      Json.parse(s"""
-                    |{
-                    |  "etag" : "115",
-                    |  "person" : {
-                    |    "firstName" : "Firstname",
-                    |    "middleName" : "Middlename",
-                    |    "lastName" : "Lastname",
-                    |    "initials" : "FML",
-                    |    "title" : "Dr",
-                    |    "honours" : "Phd.",
-                    |    "sex" : "M",
-                    |    "dateOfBirth" : -782355600000,
-                    |    "nino" : "${Fixtures.fakeNino}"
-                    |  },
-                    |  "address" : {
-                    |    "line1" : "1 Fake Street",
-                    |    "line2" : "Fake Town",
-                    |    "line3" : "Fake City",
-                    |    "line4" : "Fake Region",
-                    |    "postcode" : "AA1 1AA",
-                    |    "startDate" : 1426377600000,
-                    |    "type" : "Residential"
-                    |  }
-                    |}
-                    |
-        """.stripMargin).as[PersonDetails] shouldBe buildPersonDetails
-    }
   }
 
   "Converting a PersonDetails object to json" should {

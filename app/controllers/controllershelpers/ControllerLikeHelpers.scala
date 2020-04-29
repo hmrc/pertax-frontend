@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
 import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
@@ -25,8 +25,6 @@ import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext
 import scala.concurrent.ExecutionContext
 
 trait ControllerLikeHelpers {
-  implicit def hc(implicit request: Request[_]): HeaderCarrier =
-    HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
   implicit def mdcExecutionContext(implicit loggingDetails: LoggingDetails): ExecutionContext =
     MdcLoggingExecutionContext.fromLoggingDetails
 }

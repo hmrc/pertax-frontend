@@ -19,7 +19,6 @@ package util
 import com.google.inject.Inject
 import metrics.HasMetrics
 import play.api.Logger
-import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpGet}
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.partials.HtmlPartial._
@@ -36,7 +35,7 @@ abstract class EnhancedPartialRetriever @Inject()(sessionCookieCrypto: SessionCo
 
   def http: HttpGet
 
-  override def crypto: String => String = cookie => sessionCookieCrypto.crypto.encrypt(PlainText(cookie)).value
+  override def crypto: String => String = cookie => cookie
 
   def loadPartial(url: String)(implicit hc: HeaderCarrier): Future[HtmlPartial] =
     withMetricsTimer("load-partial") { timer =>

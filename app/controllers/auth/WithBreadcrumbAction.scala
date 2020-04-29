@@ -19,10 +19,11 @@ package controllers.auth
 import controllers.auth.requests.UserRequest
 import models.Breadcrumb
 import play.api.mvc.{ActionRefiner, Result}
+import com.google.inject.Inject
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class WithBreadcrumbAction {
+class WithBreadcrumbAction @Inject()(implicit ec: ExecutionContext) {
 
   def addBreadcrumb(breadcrumb: Breadcrumb): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {
@@ -45,6 +46,8 @@ class WithBreadcrumbAction {
             )
           )
         )
+
+      override protected def executionContext: ExecutionContext = ec
     }
 
 }

@@ -24,7 +24,7 @@ import play.api.http.Status._
 import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.Future
 
@@ -50,12 +50,13 @@ class IdentityVerificationFrontendService @Inject()(
   environment: Environment,
   configuration: Configuration,
   val simpleHttp: SimpleHttp,
-  val metrics: Metrics)
-    extends ServicesConfig with HasMetrics {
+  val metrics: Metrics,
+  servicesConfig: ServicesConfig)
+    extends HasMetrics {
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  lazy val identityVerificationFrontendUrl: String = baseUrl("identity-verification-frontend")
+  lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
 
   def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
     withMetricsTimer("get-iv-journey-status") { t =>

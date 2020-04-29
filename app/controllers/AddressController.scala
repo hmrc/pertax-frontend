@@ -20,8 +20,8 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
-import controllers.helpers.AddressJourneyAuditingHelper._
-import controllers.helpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
+import controllers.controllershelpers.AddressJourneyAuditingHelper._
+import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import com.google.inject.Inject
 import models._
 import models.addresslookup.RecordSet
@@ -36,16 +36,16 @@ import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
 import util.PertaxSessionKeys.{filter, postcode}
 import util.{LanguageHelper, LocalPartialRetriever}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressController @Inject()(
-  val messagesApi: MessagesApi,
   val citizenDetailsService: CitizenDetailsService,
   val addressLookupService: AddressLookupService,
   val addressMovedService: AddressMovedService,
@@ -55,11 +55,13 @@ class AddressController @Inject()(
   authJourney: AuthJourney,
   val sessionCache: LocalSessionCache,
   withActiveTabAction: WithActiveTabAction,
-  auditConnector: AuditConnector)(
+  auditConnector: AuditConnector,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with AddressJourneyCachingHelper {
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with AddressJourneyCachingHelper {
 
   def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
@@ -117,7 +119,8 @@ class AddressController @Inject()(
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
 
-  private val authenticate: ActionBuilder[UserRequest] = authJourney.authWithPersonalDetails andThen withActiveTabAction
+  private val authenticate
+    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
     .addActiveTab(ActiveTabYourAccount)
 
   def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>

@@ -25,14 +25,16 @@ import play.api.Mode.Mode
 import play.api.i18n.{Lang, Langs}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
 @Singleton
 class ConfigDecorator @Inject()(
   environment: Environment,
-  override val runModeConfiguration: Configuration,
-  langs: Langs)
-    extends ServicesConfig with TaxcalcUrls {
+  runModeConfiguration: Configuration,
+  runMode: RunMode,
+  langs: Langs,
+  servicesConfig: ServicesConfig
+) extends TaxcalcUrls {
 
   val mode: Mode = environment.mode
 
@@ -50,18 +52,18 @@ class ConfigDecorator @Inject()(
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
-  private lazy val contactFrontendService = baseUrl("contact-frontend")
-  private lazy val messageFrontendService = baseUrl("message-frontend")
-  private lazy val formFrontendService = baseUrl("dfs-digital-frontend")
-  lazy val pertaxFrontendService = baseUrl("pertax-frontend")
-  lazy val businessTaxAccountService = baseUrl("business-tax-account")
-  lazy val tcsFrontendService = baseUrl("tcs-frontend")
-  private lazy val payApiUrl = baseUrl("pay-api")
-  lazy val authLoginApiService = baseUrl("auth-login-api")
-  private lazy val enrolmentStoreProxyService = baseUrl("enrolment-store-proxy")
+  private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")
+  private lazy val messageFrontendService = servicesConfig.baseUrl("message-frontend")
+  private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-frontend")
+  lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
+  lazy val businessTaxAccountService = servicesConfig.baseUrl("business-tax-account")
+  lazy val tcsFrontendService = servicesConfig.baseUrl("tcs-frontend")
+  private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
+  lazy val authLoginApiService = servicesConfig.baseUrl("auth-login-api")
+  private lazy val enrolmentStoreProxyService = servicesConfig.baseUrl("enrolment-store-proxy")
 
   private def decorateUrlForLocalDev(key: String): Option[String] =
-    runModeConfiguration.getString(s"external-url.$key").filter(_ => env == "Dev")
+    runModeConfiguration.getString(s"external-url.$key").filter(_ => runMode.env == "Dev")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
   lazy val preferencesFrontendService = decorateUrlForLocalDev(s"preferences-frontend").getOrElse("")

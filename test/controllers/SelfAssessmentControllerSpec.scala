@@ -25,11 +25,11 @@ import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.exceptions.TestFailedException
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject.bind
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentPaymentsService
@@ -41,7 +41,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
   override def now: () => DateTime = DateTime.now
@@ -69,18 +69,17 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
     reset(mockAuditConnector, mockAuthAction, mockSelfAssessmentStatusAction)
 
   trait LocalSetup {
-    val messagesApi = injected[MessagesApi]
 
     def fakeAuthJourney = defaultFakeAuthJourney
 
     def controller =
       new SelfAssessmentController(
-        messagesApi,
         mockSelfAssessmentPaymentsService,
         fakeAuthJourney,
         injected[WithBreadcrumbAction],
-        mockAuditConnector
-      )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer])
+        mockAuditConnector,
+        injected[MessagesControllerComponents]
+      )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)

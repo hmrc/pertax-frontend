@@ -18,7 +18,7 @@ package services
 
 import config.ConfigDecorator
 import models.NonFilerSelfAssessmentUser
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
