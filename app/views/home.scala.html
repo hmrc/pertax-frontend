@@ -16,18 +16,13 @@
 
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import models.UserName
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
+@import viewmodels.HomeViewModel
 
-@(      incomeCards: Seq[Html],
-        benefitCards: Seq[Html],
-        pensionCards: Seq[Html],
-        showUserResearchBanner: Boolean,
-        saUtr: Option[String]
-)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(viewModel: HomeViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-    @main(messages("label.account_home"), Some(messages("label.your_personal_tax_account")), showUserResearchBanner) {
+    @main(messages("label.account_home"), Some(messages("label.your_personal_tax_account")), viewModel.showUserResearchBanner) {
 
         <header class="page-heading">
             <h1 class="heading-xlarge">
@@ -38,7 +33,7 @@
                 @messages("label.this.section.is") </span>@messages("label.account_home")</p>
         </header>
 
-        @saUtr.map { utr =>
+        @viewModel.saUtr.map { utr =>
             <p>
                 @messages("label.home_page.utr") <strong>@utr</strong>
             </p>
@@ -49,19 +44,19 @@
             <h2 class="section-header flush--top">@messages("title.income")</h2>
 
             <div class="flex-container grid-row">
-            @incomeCards
+            @viewModel.incomeCards
             </div>
 
             <h2 class="section-header flush--top">@messages("title.benefits")</h2>
 
             <div class="flex-container grid-row">
-            @benefitCards
+            @viewModel.benefitCards
             </div>
 
             <h2 class="section-header flush--top">@messages("title.pensions")</h2>
 
             <div class="flex-container grid-row">
-            @pensionCards
+            @viewModel.pensionCards
             </div>
 
         </div>

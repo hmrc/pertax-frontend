@@ -25,6 +25,7 @@ import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
+import viewmodels.HomeViewModel
 
 import scala.collection.JavaConversions._
 
@@ -32,6 +33,8 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+
+  val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None)
 
   "Rendering home.scala.html" should {
 
@@ -41,7 +44,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true, None)
+          .home(homeViewModel)
           .toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
@@ -57,7 +60,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true, None)
+          .home(homeViewModel)
           .toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
@@ -69,7 +72,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true, None)
+          .home(homeViewModel)
           .toString)
 
       document.select("h1").exists(e => e.text == "Your account") shouldBe true
@@ -78,7 +81,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
     "should not show the UTR if the user is not a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-      val view = views.html.home(Nil, Nil, Nil, true, None).toString
+      val view = views.html.home(homeViewModel).toString
 
       view should not contain messages("label.home_page.utr")
     }
@@ -86,7 +89,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
     "should show the UTR if the user is a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
       val utr = "123456789"
-      val view = views.html.home(Nil, Nil, Nil, true, Some(utr)).toString
+      val view = views.html.home(homeViewModel.copy(saUtr = Some(utr))).toString
 
       view should include(messages("label.home_page.utr"))
       view should include(utr)

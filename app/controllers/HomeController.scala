@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
+import viewmodels.HomeViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -81,12 +82,8 @@ class HomeController @Inject()(
 
           val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-          val utr: Option[String] = saUserType match {
-            case saUser: SelfAssessmentUser => Some(saUser.saUtr.toString())
-            case _                          => None
-          }
-
-          Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner, utr))
+          Ok(
+            views.html.home(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
         }
       }
     }
