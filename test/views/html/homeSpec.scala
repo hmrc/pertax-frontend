@@ -63,7 +63,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true)
+          .home(Nil, Nil, Nil, true, None)
           .toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
@@ -89,7 +89,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true)
+          .home(Nil, Nil, Nil, true, None)
           .toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
@@ -114,7 +114,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true)
+          .home(Nil, Nil, Nil, true, None)
           .toString)
 
       document.select("h1").exists(e => e.text == "Your account") shouldBe true

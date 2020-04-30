@@ -20,10 +20,11 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@(incomeCards: Seq[Html],
+@(      incomeCards: Seq[Html],
         benefitCards: Seq[Html],
         pensionCards: Seq[Html],
-        showUserResearchBanner: Boolean
+        showUserResearchBanner: Boolean,
+        saUtr: Option[String]
 )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
     @main(messages("label.account_home"), Some(messages("label.your_personal_tax_account")), showUserResearchBanner) {
@@ -31,11 +32,17 @@
         <header class="page-heading">
             <h1 class="heading-xlarge">
             @request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)
+
             </h1>
             <p class="heading-secondary"><span class="visuallyhidden">
                 @messages("label.this.section.is") </span>@messages("label.account_home")</p>
         </header>
 
+        @saUtr.map { utr =>
+            <p>
+                @messages("label.home_page.utr") <strong>@utr</strong>
+            </p>
+        }
 
         <div class="pertax-home">
 

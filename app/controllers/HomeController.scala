@@ -79,7 +79,12 @@ class HomeController @Inject()(
 
           val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-          Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner))
+          val utr: Option[String] = request.saUserType match {
+            case saUser: SelfAssessmentUser => Some(saUser.saUtr.toString())
+            case _                          => None
+          }
+
+          Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner, utr))
         }
       }
     }
