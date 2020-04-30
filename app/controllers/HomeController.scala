@@ -68,18 +68,20 @@ class HomeController @Inject()(
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
         } yield {
+          val saUserType = request.saUserType
+
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
             taxSummaryState,
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
-            request.saUserType,
+            saUserType,
             current.currentYear)
 
           val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
           val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-          val utr: Option[String] = request.saUserType match {
+          val utr: Option[String] = saUserType match {
             case saUser: SelfAssessmentUser => Some(saUser.saUtr.toString())
             case _                          => None
           }
