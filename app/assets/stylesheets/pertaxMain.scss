@@ -166,3 +166,18 @@ input[type="text"].autocomplete__input {
     }
 }
 
+#pertaxHome {
+    margin-bottom: 10px;
+
+    + .pertax-home {
+        margin-top: 20px;
+    }
+}
+
+#utrNo {
+    margin-bottom: 2em;
+    border-left: 8px solid #bfc1c3;
+    span {
+        font-weight: 700;
+    }
+}

@@ -24,7 +24,7 @@
 
     @main(messages("label.account_home"), Some(messages("label.your_personal_tax_account")), viewModel.showUserResearchBanner) {
 
-        <header class="page-heading">
+        <header class="page-heading" id="pertaxHome">
             <h1 class="heading-xlarge">
             @request.name.fold(messages("label.your_account"))(upperCaseToTitleCase)
 
@@ -34,8 +34,8 @@
         </header>
 
         @viewModel.saUtr.map { utr =>
-            <p>
-                @messages("label.home_page.utr") <strong>@utr</strong>
+            <p class="panel-indent" id="utrNo">
+                @messages("label.home_page.utr") <span>@utr</span>
             </p>
         }
 
