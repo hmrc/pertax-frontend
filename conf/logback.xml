@@ -55,6 +55,8 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
+    <logger name="services.CitizenDetailsService" level="INFO"/>
+
     <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>

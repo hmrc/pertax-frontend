@@ -22,49 +22,56 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.i18n.MessagesApi
 import play.api.inject._
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{BaseSpec, CitizenDetailsFixtures}
+import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import util.UserRequestFixture.buildUserRequest
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
 
   val mockPdfGeneratorConnector = mock[PdfGeneratorConnector]
   val mockAuthJourney = mock[AuthJourney]
+  val mockInterstitialController = mock[InterstitialController]
+  val mockAddressController = mock[AddressController]
+  val mockHomeController = mock[HomeController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
+      bind[InterstitialController].toInstance(mockInterstitialController),
       bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
-      bind[AuthJourney].toInstance(mockAuthJourney)
+      bind[AuthJourney].toInstance(mockAuthJourney),
+      bind[AddressController].toInstance(mockAddressController),
+      bind[HomeController].toInstance(mockHomeController)
     )
     .configure(configValues)
     .build()
 
   def controller: NiLetterController =
     new NiLetterController(
-      injected[MessagesApi],
       mockPdfGeneratorConnector,
       mockAuthJourney,
-      injected[WithBreadcrumbAction])(
+      injected[WithBreadcrumbAction],
+      injected[MessagesControllerComponents])(
       mockLocalPartialRetriever,
       injected[ConfigDecorator],
-      injected[TemplateRenderer]
+      injected[TemplateRenderer],
+      injected[ExecutionContext]
     )
 
   "Calling NiLetterController.printNationalInsuranceNumber" should {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -77,7 +84,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
     }
 
     "call printNationalInsuranceNumber should return OK when called by a verify user" in {
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(

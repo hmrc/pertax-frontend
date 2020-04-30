@@ -20,12 +20,13 @@ import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.BaseSpec
 
 class IdentityVerificationFrontendServiceSpec extends BaseSpec {
@@ -43,13 +44,15 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
+      val serviceConfig = app.injector.instanceOf[ServicesConfig]
       val timer = MockitoSugar.mock[Timer.Context]
       val identityVerificationFrontendService: IdentityVerificationFrontendService =
         new IdentityVerificationFrontendService(
           injected[Environment],
           injected[Configuration],
           fakeSimpleHttp,
-          MockitoSugar.mock[Metrics]) {
+          MockitoSugar.mock[Metrics],
+          serviceConfig) {
 
           override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer

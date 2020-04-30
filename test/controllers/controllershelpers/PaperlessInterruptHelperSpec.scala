@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
 import controllers.auth.requests.UserRequest
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

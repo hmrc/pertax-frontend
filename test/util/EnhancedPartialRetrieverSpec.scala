@@ -21,9 +21,8 @@ import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
-import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.partials.HtmlPartial

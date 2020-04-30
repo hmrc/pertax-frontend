@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.LocalDate
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest

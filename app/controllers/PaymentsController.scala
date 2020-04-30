@@ -24,21 +24,23 @@ import com.google.inject.Inject
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
 import org.joda.time.DateTime
 import play.api.Logger
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 
+import scala.concurrent.ExecutionContext
+
 class PaymentsController @Inject()(
-  val messagesApi: MessagesApi,
   val payApiConnector: PayApiConnector,
   authJourney: AuthJourney,
-  withBreadcrumbAction: WithBreadcrumbAction)(
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with CurrentTaxYear with RendersErrors {
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
 
   override def now: () => DateTime = () => DateTime.now()
 

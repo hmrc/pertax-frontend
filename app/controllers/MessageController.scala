@@ -22,23 +22,26 @@ import error.RendersErrors
 import com.google.inject.Inject
 import models.Breadcrumb
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
 
+import scala.concurrent.ExecutionContext
+
 class MessageController @Inject()(
-  val messagesApi: MessagesApi,
   val messageFrontendService: MessageFrontendService,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
-  withBreadcrumbAction: WithBreadcrumbAction)(
+  withBreadcrumbAction: WithBreadcrumbAction,
+  cc: MessagesControllerComponents)(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer)
-    extends PertaxBaseController with RendersErrors {
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
+    extends PertaxBaseController(cc) with RendersErrors {
 
   def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList().url ::

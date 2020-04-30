@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
 import controllers.bindable.AddrType
 import controllers.{AddressController, routes}

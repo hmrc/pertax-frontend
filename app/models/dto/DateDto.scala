@@ -21,6 +21,8 @@ import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.mappers.DateTuple._
+import play.api.libs.json.JodaWrites._
+import play.api.libs.json.JodaReads._
 
 case class DateDto(
   startDate: LocalDate
