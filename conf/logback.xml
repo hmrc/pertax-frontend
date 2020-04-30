@@ -57,6 +57,13 @@
 
     <logger name="services.CitizenDetailsService" level="INFO"/>
 
+    <logger name="reactivemongo.api.Driver" level="WARN"/>
+    <logger name="reactivemongo.core.actors.MongoDBSystem" level="ERROR"/>
+    <logger name="reactivemongo.core.Driver" level="WARN"/>
+    <logger name="reactivemongo.core.netty.Pack" level="WARN"/>
+    <logger name="play.modules.reactivemongo.DefaultReactiveMongoApi" level="WARN"/>
+
+
     <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
