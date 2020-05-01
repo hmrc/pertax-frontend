@@ -22,7 +22,7 @@ import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessment
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.BaseSpec
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
@@ -37,7 +37,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).eachAttr("href").asScala should contain(href)
 
-  val saUtr = SaUtr("123456789")
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   trait LocalSetup {
 

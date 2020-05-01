@@ -25,7 +25,6 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import play.api.i18n.MessagesApi
 import play.api.inject._
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -33,7 +32,7 @@ import play.api.test.Helpers._
 import services._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
@@ -86,7 +85,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
     lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr("1111111111"))
+      SaUtr(new SaUtrGenerator().nextSaUtr.utr))
 
     def controller: ApplicationController =
       new ApplicationController(

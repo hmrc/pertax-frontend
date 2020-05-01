@@ -33,7 +33,7 @@ import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentPaymentsService
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.Upstream5xxResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -52,7 +52,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
   val mockPayApiConnector = mock[PayApiConnector]
   val mockSelfAssessmentPaymentsService = mock[SelfAssessmentPaymentsService]
 
-  val saUtr = SaUtr("1111111111")
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
