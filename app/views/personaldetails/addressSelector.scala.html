@@ -46,7 +46,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
         </h1>
       </header>
 
-      @helpers.form(action = controllers.address.routes.AddressSelectorController.onSubmit(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+      @helpers.form(action = controllers.routes.AddressController.processAddressSelectorForm(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
           <input type="hidden" name="postcode" value="@postcode" />
           <input type="hidden" name="filter" value="@filter" />
 
@@ -60,7 +60,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
             }
         </fieldset>
 
-        <p class="form-group"><a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.enter_your_address_if_it_is_not_shown")</a></p>
+        <p class="form-group"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_if_it_is_not_shown")</a></p>
 
         <input type="submit" class="button" id="submitAddressSelector" value='@messages("global.label.continue_button")' >
       }
