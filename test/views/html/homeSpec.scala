@@ -22,6 +22,7 @@ import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
@@ -88,7 +89,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
     "should show the UTR if the user is a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
-      val utr = "123456789"
+      val utr = new SaUtrGenerator().nextSaUtr.utr
       val view = views.html.home(homeViewModel.copy(saUtr = Some(utr))).toString
 
       view should include(messages("label.home_page.utr"))
