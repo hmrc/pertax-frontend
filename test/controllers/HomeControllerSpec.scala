@@ -34,7 +34,7 @@ import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
@@ -82,7 +82,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
     lazy val selfAssessmentUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr("1111111111"))
+      SaUtr(new SaUtrGenerator().nextSaUtr.utr))
     lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false

@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, SelfAssessmentUserType}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,7 +32,7 @@ import services._
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
@@ -216,10 +216,17 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
+        val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+
+        def userRequest[A](request: Request[A]) = buildUserRequest(
+          saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
+          request = request
+        )
+
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(request = request)
+              userRequest(request = request)
             )
         })
 
@@ -228,7 +235,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         val r = testController.displaySa302Interrupt(2018)(fakeRequest)
 
         status(r) shouldBe OK
-        contentAsString(r) should include("1111111111")
+        contentAsString(r) should include(saUtr.utr)
       }
 
       "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {

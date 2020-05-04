@@ -18,19 +18,18 @@ package util
 
 import controllers.auth.requests.UserRequest
 import models._
-import org.joda.time.DateTime
 import play.api.mvc.Request
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 
 object UserRequestFixture {
 
   def buildUserRequest[A](
     nino: Option[Nino] = Some(Fixtures.fakeNino),
     userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-    saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
     credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
     personDetails: Option[PersonDetails] = Some(Fixtures.buildPersonDetails),

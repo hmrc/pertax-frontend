@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import models.ActivatedOnlineFilerSelfAssessmentUser
 import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, LocalPartialRetriever}
 import util.UserRequestFixture.buildUserRequest
@@ -31,7 +31,7 @@ import util.Fixtures._
 
 class ViewPaymentsSpec extends ViewSpec with BaseSpec {
 
-  val user = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("123456789"))
+  val user = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
   val messagesImplicit = messages
   lazy val templateRenderer = injected[TemplateRenderer]
   lazy val partialRetriever = injected[LocalPartialRetriever]

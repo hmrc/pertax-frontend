@@ -30,7 +30,7 @@ import org.mockito.Matchers.any
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
-import uk.gov.hmrc.domain.{Generator, Nino, SaUtr}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.test.UnitSpec
@@ -186,7 +186,7 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
   val service = new EnrolmentStoreCachingService(cache, mockConnector)
 
-  val saUtr = SaUtr("test UTR")
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   "EnrolmentStoreCachingService" when {
 
