@@ -19,27 +19,25 @@ package views.html.cards
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import play.api.i18n.{Lang, Messages}
-import uk.gov.hmrc.domain.SaUtr
+import play.api.i18n.Messages
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.BaseSpec
 import util.UserRequestFixture.buildUserRequest
+import views.html.ViewSpec
 import views.html.cards.home.selfAssessment
 
 import scala.collection.JavaConverters._
 
-class SelfAssessmentViewSpec extends BaseSpec {
+class SelfAssessmentViewSpec extends ViewSpec {
 
-  val lang = Lang("en")
-  implicit val messages = Messages(lang, Messages.Implicits.applicationMessagesApi)
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).eachAttr("href").asScala should contain(href)
 
-  val saUtr = SaUtr("123456789")
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   trait LocalSetup {
 
@@ -53,9 +51,7 @@ class SelfAssessmentViewSpec extends BaseSpec {
     val thisYear = "2019"
     val nextYear = "2020"
 
-    def doc: Document = Jsoup.parse(
-      selfAssessment(user, thisYear, nextYear).toString
-    )
+    def doc: Document = asDocument(selfAssessment(user, thisYear, nextYear).toString)
   }
 
   "Self Assessment Card" should {

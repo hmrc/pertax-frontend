@@ -25,7 +25,7 @@ import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -34,12 +34,13 @@ class LifetimeAllowanceService @Inject()(
   environment: Environment,
   configuration: Configuration,
   val simpleHttp: SimpleHttp,
-  val metrics: Metrics)
-    extends ServicesConfig with HasMetrics {
+  val metrics: Metrics,
+  servicesConfig: ServicesConfig)
+    extends HasMetrics {
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  lazy val lifetimeAllowanceUrl = baseUrl("pensions-lifetime-allowance")
+  lazy val lifetimeAllowanceUrl = servicesConfig.baseUrl("pensions-lifetime-allowance")
 
   def getCount(nino: Nino)(implicit hc: HeaderCarrier, rds: HttpReads[LtaProtections]): Future[Option[Int]] =
     withMetricsTimer("has-lta-response") { t =>

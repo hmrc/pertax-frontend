@@ -17,12 +17,13 @@
 package controllers.auth
 
 import controllers.auth.requests.UserRequest
-import play.api.mvc.{ActionRefiner, Result}
+import play.api.mvc.{ActionRefiner, MessagesControllerComponents, Result}
 import uk.gov.hmrc.renderer.ActiveTab
+import javax.inject.Inject
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class WithActiveTabAction {
+class WithActiveTabAction @Inject()(implicit ec: ExecutionContext) {
 
   def addActiveTab(currentActiveTab: ActiveTab): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {
@@ -45,5 +46,7 @@ class WithActiveTabAction {
             )
           )
         )
+
+      override protected def executionContext: ExecutionContext = ec
     }
 }

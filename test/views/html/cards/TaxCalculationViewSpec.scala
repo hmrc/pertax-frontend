@@ -24,13 +24,13 @@ import play.api.i18n.Messages
 import util.BaseSpec
 import viewmodels.Message.text
 import viewmodels.{Heading, TaxCalculationViewModel, TaxYears, UnderpaidUrl}
+import views.html.ViewSpec
 import views.html.cards.home.taxCalculation
 
 import scala.collection.JavaConverters._
 
-class TaxCalculationViewSpec extends BaseSpec {
+class TaxCalculationViewSpec extends ViewSpec {
 
-  implicit val messages: Messages = Messages.Implicits.applicationMessages
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
@@ -41,7 +41,7 @@ class TaxCalculationViewSpec extends BaseSpec {
     val previousTaxYear = 2017
 
     val doc =
-      Jsoup.parse(
+      asDocument(
         taxCalculation(TaxCalculationViewModel(
           TaxYears(previousTaxYear, previousTaxYear + 1),
           Heading(

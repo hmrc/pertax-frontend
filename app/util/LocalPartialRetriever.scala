@@ -25,5 +25,5 @@ import uk.gov.hmrc.play.partials.FormPartialRetriever
 class LocalPartialRetriever @Inject()(override val httpGet: HttpClient, val sessionCookieCrypto: SessionCookieCrypto)
     extends FormPartialRetriever {
 
-  override def crypto: String => String = cookie => sessionCookieCrypto.crypto.encrypt(PlainText(cookie)).value
+  override def crypto: String => String = cookie => cookie
 }

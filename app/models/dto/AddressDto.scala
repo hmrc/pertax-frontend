@@ -16,7 +16,7 @@
 
 package models.dto
 
-import controllers.helpers.CountryHelper
+import controllers.controllershelpers.CountryHelper
 import models.addresslookup.AddressRecord
 import models.{Address, Country}
 import org.joda.time.LocalDate

@@ -29,8 +29,6 @@ class SelfAssessmentPaymentSpec extends ViewSpec {
 
       "display the date in the correct format in English" in {
 
-        implicit val messagesApi: Messages = messages
-
         val result = SelfAssessmentPayment(new LocalDate("2019-04-05"), "test", 1.0).getDisplayDate
 
         result shouldBe "5 April"
@@ -38,7 +36,7 @@ class SelfAssessmentPaymentSpec extends ViewSpec {
 
       "display the date in the correct format in Welsh" in {
 
-        implicit val messagesApi: Messages = welshMessages
+        implicit lazy val messages = welshMessages
 
         val result = SelfAssessmentPayment(new LocalDate("2019-04-05"), "test", 1.0).getDisplayDate
 

@@ -25,13 +25,14 @@ import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
+import javax.inject.Provider
 import util.LocalPartialRetriever
 
 @Singleton
 class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
   val materializer: Materializer,
-  authJourney: AuthJourney
+  authJourney: Provider[AuthJourney]
 )(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,

@@ -23,9 +23,9 @@ import metrics.HasMetrics
 import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.{EnhancedPartialRetriever, Tools}
 
@@ -33,13 +33,14 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class SaPartialService @Inject()(
   environment: Environment,
-  override val runModeConfiguration: Configuration,
+  runModeConfiguration: Configuration,
   override val http: HttpClient,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   sessionCookieCrypto: SessionCookieCrypto,
-  val tools: Tools)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics with ServicesConfig {
+  val tools: Tools,
+  servicesConfig: ServicesConfig)(implicit executionContext: ExecutionContext)
+    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics {
 
   val mode: Mode = environment.mode
   private val returnUrl = configDecorator.pertaxFrontendHomeUrl

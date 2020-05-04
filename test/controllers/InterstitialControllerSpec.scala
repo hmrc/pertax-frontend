@@ -19,12 +19,12 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, SelfAssessmentUserType}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -32,13 +32,13 @@ import services._
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
+import util._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -56,13 +56,13 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
     def controller: InterstitialController =
       new InterstitialController(
-        injected[MessagesApi],
         mock[FormPartialService],
         mock[SaPartialService],
         mock[PreferencesFrontendService],
         mockAuthJourney,
-        injected[WithBreadcrumbAction]
-      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer]) {
+        injected[WithBreadcrumbAction],
+        injected[MessagesControllerComponents]
+      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
@@ -87,7 +87,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
     "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user " in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -121,7 +121,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       val fakeRequestWithPath = FakeRequest("GET", "/foo")
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -145,7 +145,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -167,7 +167,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -190,7 +190,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -216,10 +216,17 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+
+        def userRequest[A](request: Request[A]) = buildUserRequest(
+          saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
+          request = request
+        )
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
-              buildUserRequest(request = request)
+              userRequest(request = request)
             )
         })
 
@@ -228,7 +235,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         val r = testController.displaySa302Interrupt(2018)(fakeRequest)
 
         status(r) shouldBe OK
-        contentAsString(r) should include("1111111111")
+        contentAsString(r) should include(saUtr.utr)
       }
 
       "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
@@ -237,7 +244,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
               buildUserRequest(

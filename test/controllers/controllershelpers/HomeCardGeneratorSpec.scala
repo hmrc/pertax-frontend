@@ -14,30 +14,28 @@
  * limitations under the License.
  */
 
-package controllers.helpers
+package controllers.controllershelpers
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import org.joda.time.DateTime
-import org.scalatest.mockito.MockitoSugar
-import play.api.i18n.{I18nSupport, MessagesApi}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, Fixtures, UserRequestFixture}
+import views.html.ViewSpec
 import views.html.cards.home._
 
-class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar {
+class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
-  override def messagesApi: MessagesApi = injected[MessagesApi]
   implicit val configDecorator = config
 
   val homeCardGenerator = new HomeCardGenerator()
+  val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   "Calling getPayAsYouEarnCard" should {
     "return nothing when called with no Pertax user" in {
@@ -118,7 +116,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     val nextDeadlineTaxYear = 2019
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
-      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest())
@@ -129,7 +127,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     }
 
     "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in {
-      val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+      val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(testUtr)
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = saUserType,
@@ -142,7 +140,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     }
 
     "return correct markup when called with WrongCredentialsSelfAssessmentUser" in {
-      val saUserType = WrongCredentialsSelfAssessmentUser(SaUtr("1111111111"))
+      val saUserType = WrongCredentialsSelfAssessmentUser(testUtr)
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = saUserType,
@@ -155,7 +153,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     }
 
     "return correct markup when called with NotEnrolledSelfAssessmentUser" in {
-      val saUserType = NotEnrolledSelfAssessmentUser(SaUtr("1111111111"))
+      val saUserType = NotEnrolledSelfAssessmentUser(testUtr)
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = saUserType,
@@ -181,7 +179,7 @@ class HomeCardGeneratorSpec extends BaseSpec with I18nSupport with MockitoSugar 
     }
 
     "return nothing for a verify user" in {
-      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111"))
+      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
         saUser = saUserType,

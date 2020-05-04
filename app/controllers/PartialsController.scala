@@ -21,20 +21,22 @@ import error.LocalErrorHandler
 import com.google.inject.Inject
 import models.Breadcrumb
 import org.joda.time.DateTime
-import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.LocalPartialRetriever
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PartialsController @Inject()(
-  val messagesApi: MessagesApi,
   val localErrorHandler: LocalErrorHandler,
   auditConnector: AuditConnector,
-  authConnector: AuthConnector)(implicit partialRetriever: LocalPartialRetriever, configDecorator: ConfigDecorator)
-    extends PertaxBaseController {
+  authConnector: AuthConnector,
+  cc: MessagesControllerComponents)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  ex: ExecutionContext)
+    extends PertaxBaseController(cc) {
 
   def mainContentHeader(
     name: Option[String],

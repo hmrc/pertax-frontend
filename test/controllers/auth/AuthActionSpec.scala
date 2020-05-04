@@ -23,14 +23,14 @@ import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, MustMatchers}
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{Action, AnyContent, Controller, Session}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -48,7 +48,7 @@ import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.language.postfixOps
 
-class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures {
+class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
@@ -57,6 +57,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
 
   val mockAuthConnector = mock[AuthConnector]
   def configDecorator = app.injector.instanceOf[ConfigDecorator]
+  def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
   class Harness(authAction: AuthAction) extends Controller {
@@ -91,7 +92,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
       nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ trustedHelper ~ profileUrl
     )
 
-    val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
+    val authAction =
+      new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
 
     new Harness(authAction)
   }
@@ -164,7 +166,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the auth provider choice page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
+      val authAction =
+        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -176,7 +179,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the auth provider choice page if unknown provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
+      val authAction =
+        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -186,7 +190,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the IDA login page if Verify provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
+      val authAction =
+        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderVerify)
@@ -202,7 +207,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the GG login page if GG provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
+      val authAction =
+        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderGG)
@@ -218,7 +224,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with O
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction = new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor)
+      val authAction =
+        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 

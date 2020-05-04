@@ -16,13 +16,12 @@
 
 package controllers.auth
 
-import connectors.EnrolmentsConnector
-import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
-import models.{ActivatedOnlineFilerSelfAssessmentUser, MatchingDetails, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
-import org.mockito.Matchers.{eq => meq, _}
+import controllers.auth.requests._
+import models._
+import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FreeSpec, MustMatchers}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
@@ -31,18 +30,17 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{CitizenDetailsService, EnrolmentStoreCachingService, LocalSessionCache, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
+import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{Nino, SaUtr}
-import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 
 import scala.concurrent.Future
 
 class SelfAssessmentStatusActionSpec
     extends FreeSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
 
-  val saUtr = SaUtr("1111111111")
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
@@ -87,7 +85,7 @@ class SelfAssessmentStatusActionSpec
 
   "An SA user with an activated enrolment must" - {
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
-      val saEnrolment = Some(SelfAssessmentEnrolment(SaUtr("1111111111"), Activated))
+      val saEnrolment = Some(SelfAssessmentEnrolment(saUtr, Activated))
       implicit val request = createAuthenticatedRequest(saEnrolment)
 
       val result = harness()(request)
@@ -98,7 +96,7 @@ class SelfAssessmentStatusActionSpec
 
   "An SA user with a not yet activated enrolment must" - {
     "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
-      val saEnrolment = Some(SelfAssessmentEnrolment(SaUtr("1111111111"), NotYetActivated))
+      val saEnrolment = Some(SelfAssessmentEnrolment(saUtr, NotYetActivated))
       implicit val request = createAuthenticatedRequest(saEnrolment)
 
       val result = harness()(request)
@@ -110,7 +108,7 @@ class SelfAssessmentStatusActionSpec
   "A user without an SA enrolment must" - {
     "when CitizenDetails has a matching SA account" - {
 
-      val saUtr = SaUtr("1111111111")
+      val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
       val userTypeList: List[(SelfAssessmentUserType, String)] = List(
         (WrongCredentialsSelfAssessmentUser(saUtr), "a Wrong credentials SA user"),

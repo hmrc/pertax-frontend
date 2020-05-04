@@ -25,7 +25,7 @@ import play.api.Mode.Mode
 import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util._
 
 import scala.concurrent.Future
@@ -43,12 +43,13 @@ class AddressLookupService @Inject()(
   configDecorator: ConfigDecorator,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
-  val tools: Tools)
-    extends ServicesConfig with HasMetrics {
+  val tools: Tools,
+  servicesConfig: ServicesConfig)
+    extends HasMetrics {
 
   val mode: Mode = environment.mode
   val runModeConfiguration: Configuration = configuration
-  lazy val addressLookupUrl = baseUrl("address-lookup")
+  lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(
     implicit hc: HeaderCarrier): Future[AddressLookupResponse] =

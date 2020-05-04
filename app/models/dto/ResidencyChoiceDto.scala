@@ -32,7 +32,7 @@ object ResidencyChoiceDto {
         case JsString("sole")    => JsSuccess(SoleAddrType)
         case JsString("primary") => JsSuccess(PrimaryAddrType)
         case JsString("postal")  => JsSuccess(PostalAddrType)
-        case _                   => JsError(Seq(JsPath() -> Seq(ValidationError("error.expected.jsString(addrType)"))))
+        case _                   => JsError(Seq(JsPath() -> Seq(JsonValidationError("error.expected.jsString(addrType)"))))
       }
     }
 

@@ -19,14 +19,18 @@ package views.html
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.i18n._
 import util.BaseSpec
 
 trait ViewSpec extends BaseSpec {
 
-  val messages: Messages = Messages(Lang("en"), app.injector.instanceOf[MessagesApi])
+  implicit lazy val messageProvider = injected[MessagesProvider]
 
-  val welshMessages: Messages = Messages(Lang("cy"), app.injector.instanceOf[MessagesApi])
+  lazy val messagesApi = injected[MessagesApi]
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+
+  lazy val welshMessages: Messages = MessagesImpl(Lang("cy"), messagesApi)
 
   def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")

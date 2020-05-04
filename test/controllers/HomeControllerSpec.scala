@@ -19,12 +19,12 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.helpers.{HomeCardGenerator, HomePageCachingHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models._
 import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.libs.json.JsBoolean
 import play.api.mvc._
@@ -34,7 +34,7 @@ import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.Origin
@@ -42,9 +42,9 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, UserRequestFixture}
+import util.{ActionBuilderFixture, BaseSpec, Fixtures, UserRequestFixture}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
 
@@ -82,22 +82,22 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
     lazy val selfAssessmentUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr("1111111111"))
+      SaUtr(new SaUtrGenerator().nextSaUtr.utr))
     lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false
 
     def controller =
       new HomeController(
-        injected[MessagesApi],
         mockPreferencesFrontendService,
         mockTaiService,
         mockTaxCalculationService,
         injected[HomeCardGenerator],
         injected[HomePageCachingHelper],
         mockAuthJourney,
-        injected[WithActiveTabAction]
-      )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer)
+        injected[WithActiveTabAction],
+        injected[MessagesControllerComponents]
+      )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
@@ -156,7 +156,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     val configDecorator = injected[ConfigDecorator]
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -174,7 +174,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return a 200 status when accessing index page with good nino and a non sa User" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -194,7 +194,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return 200 when Preferences Frontend returns ActivatePaperlessNotAllowedResponse" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -211,7 +211,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "redirect when Preferences Frontend returns ActivatePaperlessRequiresUserActionResponse" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -228,7 +228,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -245,7 +245,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -265,7 +265,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return TaxComponentsDisabled where taxComponents is not enabled" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -283,7 +283,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return TaxCalculationAvailable status when data returned from TaxCalculation" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -298,7 +298,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return TaxComponentsNotAvailableState status when TaxComponentsUnavailableResponse from TaxComponents" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -316,7 +316,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -334,7 +334,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return None where TaxCalculation service is not enabled" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(buildUserRequest(request = request))
       })
@@ -349,7 +349,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -366,7 +366,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
     "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)

@@ -22,13 +22,14 @@ import models._
 import org.joda.time.LocalDate
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, Json}
 import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{BaseSpec, Fixtures}
 
 class CitizenDetailsServiceSpec extends BaseSpec {
@@ -77,13 +78,15 @@ class CitizenDetailsServiceSpec extends BaseSpec {
         if (simulateCitizenDetailsServiceIsDown) new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
+      val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val timer = MockitoSugar.mock[Timer.Context]
       val citizenDetailsService: CitizenDetailsService = new CitizenDetailsService(
         injected[Environment],
         injected[Configuration],
         fakeSimpleHttp,
-        MockitoSugar.mock[Metrics]) {
+        MockitoSugar.mock[Metrics],
+        serviceConfig) {
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }
@@ -246,12 +249,13 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
     "return MatchingDetailsSuccessResponse containing an SAUTR when the service returns an SAUTR" in new LocalSetup {
 
+      val saUtr = new SaUtrGenerator().nextSaUtr.utr
       override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> "1111111111"))))
+      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr))))
 
       val r = service.getMatchingDetails(nino)
 
-      await(r) shouldBe MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr("1111111111"))))
+      await(r) shouldBe MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(saUtr))))
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()

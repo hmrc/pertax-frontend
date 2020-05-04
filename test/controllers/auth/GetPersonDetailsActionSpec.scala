@@ -20,7 +20,7 @@ import controllers.auth.requests.UserRequest
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FreeSpec, MustMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -34,7 +34,7 @@ import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{Nino, SaUtr}
+import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 
 import scala.concurrent.Future
 
@@ -75,7 +75,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
           UserRequest(
             Some(Nino("AB123456C")),
             None,
-            WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
+            WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,
@@ -103,7 +103,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
           UserRequest(
             Some(Nino("AB123456C")),
             None,
-            WrongCredentialsSelfAssessmentUser(SaUtr("1111111111")),
+            WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
             Credentials("", "Verify"),
             ConfidenceLevel.L50,
             None,

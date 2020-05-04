@@ -6,6 +6,7 @@
     </appender>
 
     <logger name="uk.gov" level="WARN"/>
+    <logger name="services.CitizenDetailsService" level="WARN"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT"/>

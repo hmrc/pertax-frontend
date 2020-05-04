@@ -20,13 +20,13 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import org.joda.time.LocalDate
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.BaseSpec
 
 class TaxCalculationStateSpec extends BaseSpec {
@@ -35,7 +35,7 @@ class TaxCalculationStateSpec extends BaseSpec {
   lazy val userRequest = UserRequest(
     None,
     None,
-    ActivatedOnlineFilerSelfAssessmentUser(SaUtr("1111111111")),
+    ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
     Credentials("", "GovernmentGateway"),
     ConfidenceLevel.L200,
     None,

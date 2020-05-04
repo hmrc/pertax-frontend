@@ -20,15 +20,23 @@ import java.net.{MalformedURLException, URL}
 
 import play.api.i18n.Langs
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.domain.SaUtrGenerator
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import util.BaseSpec
 
 class ConfigDecoratorSpec extends BaseSpec {
+  val saUtr = new SaUtrGenerator().nextSaUtr.utr
 
   "Converting urls to sso" should {
 
     trait LocalSetup {
 
-      lazy val configDecorator = new ConfigDecorator(injected[Environment], injected[Configuration], injected[Langs]) {
+      lazy val configDecorator = new ConfigDecorator(
+        injected[Environment],
+        injected[Configuration],
+        injected[RunMode],
+        injected[Langs],
+        injected[ServicesConfig]) {
         override lazy val portalBaseUrl = "http://portal.service"
         override lazy val companyAuthFrontendHost = "http://company-auth-frontend.service"
       }
@@ -42,14 +50,14 @@ class ConfigDecoratorSpec extends BaseSpec {
 
     "return a properly formatted sa302 url when calling sa302Url" in new LocalSetup {
 
-      configDecorator.sa302Url("1111111111", "1516") shouldBe
-        "/self-assessment-file/1516/ind/1111111111/return/viewYourCalculation/reviewYourFullCalculation"
+      configDecorator.sa302Url(saUtr, "1516") shouldBe
+        s"/self-assessment-file/1516/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
     }
 
     "return a properly formatted SA Account Summary Url url when calling ssoToSaAccountSummaryUrl" in new LocalSetup {
 
-      configDecorator.ssoToSaAccountSummaryUrl("1111111111", "1516") shouldBe
-        "http://company-auth-frontend.service/ssoout/non-digital?continue=http%3A%2F%2Fportal.service%2Fself-assessment%2Find%2F1111111111%2Ftaxreturn%2F1516%2Foptions"
+      configDecorator.ssoToSaAccountSummaryUrl(saUtr, "1516") shouldBe
+        s"http://company-auth-frontend.service/ssoout/non-digital?continue=http%3A%2F%2Fportal.service%2Fself-assessment%2Find%2F$saUtr%2Ftaxreturn%2F1516%2Foptions"
     }
   }
 
@@ -59,7 +67,12 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       def portalBaseUrlToTest: Option[String]
 
-      lazy val configDecorator = new ConfigDecorator(injected[Environment], injected[Configuration], injected[Langs]) {
+      lazy val configDecorator = new ConfigDecorator(
+        injected[Environment],
+        injected[Configuration],
+        injected[RunMode],
+        injected[Langs],
+        injected[ServicesConfig]) {
         override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
       }
     }

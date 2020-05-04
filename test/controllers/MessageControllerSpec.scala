@@ -23,9 +23,9 @@ import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUse
 import org.jsoup.Jsoup
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
@@ -37,10 +37,10 @@ import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, LocalPartialRetriever, UserRequestFixture}
+import util._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -56,14 +56,15 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
   def controller: MessageController =
     new MessageController(
-      injected[MessagesApi],
       mockMessageFrontendService,
       mockAuthJourney,
       injected[WithActiveTabAction],
-      injected[WithBreadcrumbAction])(
+      injected[WithBreadcrumbAction],
+      injected[MessagesControllerComponents])(
       mock[LocalPartialRetriever],
       injected[ConfigDecorator],
-      injected[TemplateRenderer]) {
+      injected[TemplateRenderer],
+      injected[ExecutionContext]) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }
@@ -72,7 +73,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   "Calling MessageController.messageList" should {
     "call messages and return 200 when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -96,7 +97,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
   "Calling MessageController.messageDetail" should {
     "call messages and return 200 when called by a GovernmentGateway user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -116,7 +117,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
     "call messages and return 200 with no page title when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -137,7 +138,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
     "call messages and return 200 with default messages when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilder[UserRequest] {
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
