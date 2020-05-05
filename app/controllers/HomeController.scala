@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
+import viewmodels.HomeViewModel
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -68,18 +69,21 @@ class HomeController @Inject()(
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
         } yield {
+          val saUserType = request.saUserType
+
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
             taxSummaryState,
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
-            request.saUserType,
+            saUserType,
             current.currentYear)
 
           val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
           val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-          Ok(views.html.home(incomeCards, benefitCards, pensionCards, showUserResearchBanner))
+          Ok(
+            views.html.home(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
         }
       }
     }

@@ -168,6 +168,7 @@ input[type="text"].autocomplete__input {
     }
 }
 
+
 .heading-xlarge {
     margin: 0 0 0.5em 0;
 }
@@ -191,4 +192,20 @@ input[type="text"].autocomplete__input {
 .form-group.form-field--error {
     padding-top: 0;
     padding-bottom: 0;
+}
+
+#pertaxHome {
+    margin-bottom: 10px;
+
+    + .pertax-home {
+        margin-top: 20px;
+    }
+}
+
+#utrNo {
+    margin-bottom: 2em;
+    border-left: 8px solid #bfc1c3;
+    span {
+        font-weight: 700;
+    }
 }

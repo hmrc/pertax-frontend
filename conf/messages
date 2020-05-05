@@ -520,5 +520,4 @@ label.request_sa_access.button=Request access to Self Assessment
 label.next_page_forgotten_password=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my password’.
 label.next_page_forgotten_userid=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my Government Gateway user ID’.
 
-
-
+label.home_page.utr=Your Self Assessment Unique Taxpayer Reference (UTR) is

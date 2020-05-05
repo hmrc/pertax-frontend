@@ -17,14 +17,14 @@
 package models
 
 import play.api.libs.json.{JsError, Json}
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.BaseSpec
 
 class SelfAssessmentUserTypeSpec extends BaseSpec {
 
   "SelfAssessmentUserType" should {
 
-    val utr = "123456789"
+    val utr = new SaUtrGenerator().nextSaUtr.utr
 
     val testList = List(
       ("ActivatedOnlineFilerSelfAssessmentUser", ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr))),

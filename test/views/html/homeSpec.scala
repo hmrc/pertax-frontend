@@ -17,53 +17,35 @@
 package views.html
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
 import models._
-import org.joda.time.DateTime
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import play.twirl.api.Html
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.auth.core.retrieve.Name
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{BaseSpec, Fixtures}
+import util.Fixtures
+import util.UserRequestFixture.buildUserRequest
+import viewmodels.HomeViewModel
 
 import scala.collection.JavaConversions._
 
 class homeSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-
-  override implicit lazy val app = localGuiceApplicationBuilder().build()
-
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
-  val messageInboxPartial = Html("")
+  val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None)
 
   "Rendering home.scala.html" should {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        Some(Fixtures.buildPersonDetails),
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest =
+        buildUserRequest(personDetails = Some(Fixtures.buildPersonDetails), userName = None, request = FakeRequest())
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true)
+          .home(homeViewModel)
           .toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
@@ -71,25 +53,15 @@ class homeSpec extends ViewSpec with MockitoSugar {
     }
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
-
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
+      implicit val userRequest = buildUserRequest(
+        personDetails = None,
+        userName = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        request = FakeRequest()
       )
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true)
+          .home(homeViewModel)
           .toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
@@ -97,29 +69,31 @@ class homeSpec extends ViewSpec with MockitoSugar {
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
-      implicit val userRequest = UserRequest(
-        Some(Fixtures.fakeNino),
-        None,
-        NonFilerSelfAssessmentUser,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
+      implicit val userRequest = buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
 
       lazy val document: Document = asDocument(
         views.html
-          .home(Nil, Nil, Nil, true)
+          .home(homeViewModel)
           .toString)
 
       document.select("h1").exists(e => e.text == "Your account") shouldBe true
     }
 
-  }
+    "should not show the UTR if the user is not a self assessment user" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
 
+      val view = views.html.home(homeViewModel).toString
+
+      view should not contain messages("label.home_page.utr")
+    }
+
+    "should show the UTR if the user is a self assessment user" in {
+      implicit val userRequest = buildUserRequest(request = FakeRequest())
+      val utr = new SaUtrGenerator().nextSaUtr.utr
+      val view = views.html.home(homeViewModel.copy(saUtr = Some(utr))).toString
+
+      view should include(messages("label.home_page.utr"))
+      view should include(utr)
+    }
+  }
 }
