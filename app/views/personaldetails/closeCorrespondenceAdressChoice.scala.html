@@ -25,7 +25,7 @@
 )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @address = {<p>@messages("label.your_main_address_is")</p>
-            <p>@Html(addressDto.mkString(", <br>"))</p>}
+<p><span>@Html(addressDto.mkString(",</span><span>"))</span></p>}
 
 @main(title = messages("label.do_you_want_all_your_letters_to_be_sent_"),
 pageName = Some(messages("label.your_personal_tax_account"))
@@ -52,7 +52,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
                 )
             </div>
             <div class="form-group inline">
-                <button type="submit" class="button ga-track-radio-select ga-track-error" data-ga-event-action="Do you want all your letters sent to your main address?" data-radio-button-name="closePostalAddressChoice">@messages("global.label.continue_button")</button>
+                <button class="button ga-track-radio-select ga-track-error" data-ga-event-action="Do you want all your letters sent to your main address?" data-radio-button-name="closePostalAddressChoice">@messages("global.label.continue_button")</button>
             </div>
             }
 
