@@ -30,6 +30,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
   import BetterOptionValues._
 
+  val taxCalculation: taxCalculation = injected[taxCalculation]
+
   def view(reconciliation: Reconciliation): Option[Document] =
     TaxCalculationViewModel.fromTaxYearReconciliation(TaxYearReconciliation(2017, reconciliation))(config).map {
       taxRec =>

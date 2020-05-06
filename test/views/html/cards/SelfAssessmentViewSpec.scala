@@ -32,6 +32,8 @@ import scala.collection.JavaConverters._
 
 class SelfAssessmentViewSpec extends ViewSpec {
 
+  val selfAssessment: selfAssessment = injected[selfAssessment]
+
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =

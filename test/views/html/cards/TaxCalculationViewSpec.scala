@@ -31,6 +31,8 @@ import scala.collection.JavaConverters._
 
 class TaxCalculationViewSpec extends ViewSpec {
 
+  val taxCalculation: taxCalculation = injected[taxCalculation]
+
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
