@@ -14,13 +14,11 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
 @import uk.gov.hmrc.renderer.TemplateRenderer
-
+@import util.LocalPartialRetriever
+@this()
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(messages("label.your_address_has_already_been_updated"), Some(messages("label.your_personal_tax_account"))) {

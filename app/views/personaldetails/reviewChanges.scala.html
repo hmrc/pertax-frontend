@@ -14,16 +14,12 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
-@import tags._
-@import scala.util.Try
-@import util.LanguageHelper
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
+@import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
-
+@import util.{LanguageHelper, LocalPartialRetriever}
+@this(form: FormWithCSRF)
 @(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
 displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
 partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
@@ -45,7 +41,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
             @messages("label.do_you_live_in_the_uk")
           </dt>
           <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-          <dd class="cya-change"><a href="@controllers.routes.AddressController.internationalAddressChoice(typ)">@messages("label.change")</a></dd>
+          <dd class="cya-change"><a href="@routes.AddressController.internationalAddressChoice(typ)">@messages("label.change")</a></dd>
         </div>
         <div>
           <dt class="cya-question">
@@ -69,12 +65,12 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
 
             <dd class="cya-answer">@Html(addressDto.toList.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateAddressForm(typ)">@messages("label.change_address")</a></dd>
+            <dd class="cya-change"><a href="@routes.AddressController.showUpdateAddressForm(typ)">@messages("label.change_address")</a></dd>
             } else {
 
             <dd class="cya-answer">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.routes.AddressController.showUpdateInternationalAddressForm(typ)">@messages("label.change")</a></dd>
+            <dd class="cya-change"><a href="@routes.AddressController.showUpdateInternationalAddressForm(typ)">@messages("label.change")</a></dd>
             }
 
         </div>
@@ -85,13 +81,13 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
                   @typ.ifIs(primary = messages("label.when_this_became_your_main_home"), sole = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
                 <dd class="cya-answer">@LanguageHelper.langUtils.Dates.formatDate(startDateDto.startDate)</dd>
-                <dd class="cya-change"><a href="@controllers.routes.AddressController.enterStartDate(typ)">@messages("label.change")</a></dd>
+                <dd class="cya-change"><a href="@routes.AddressController.enterStartDate(typ)">@messages("label.change")</a></dd>
               }
             </div>
           }
       </dl>
 
-      @form(controllers.routes.AddressController.submitChanges(typ)) {
+      @form(routes.AddressController.submitChanges(typ)) {
         <button type="submit">@messages("label.confirm_and_save")</button>
       }
     </div>

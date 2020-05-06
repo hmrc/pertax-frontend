@@ -16,32 +16,33 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
 import controllers.controllershelpers.AddressJourneyAuditingHelper._
 import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
-import com.google.inject.Inject
 import models._
 import models.addresslookup.RecordSet
 import models.dto._
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.data.{Form, FormError}
-import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.AuditServiceTools._
 import util.PertaxSessionKeys.{filter, postcode}
 import util.{LanguageHelper, LocalPartialRetriever}
+import views.html.error
+import views.html.interstitial.displayAddressInterstitial
+import views.html.personaldetails.{cannotUpdateAddress, _}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -56,7 +57,25 @@ class AddressController @Inject()(
   val sessionCache: LocalSessionCache,
   withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  displayAddressInterstitial: displayAddressInterstitial,
+  personalDetails: personalDetails,
+  taxCreditsChoice: taxCreditsChoice,
+  residencyChoice: residencyChoice,
+  internationalAddressChoice: internationalAddressChoice,
+  cannotUseService: cannotUseService,
+  postcodeLookup: postcodeLookup,
+  addressSelector: addressSelector,
+  updateAddress: updateAddress,
+  updateInternationalAddress: updateInternationalAddress,
+  enterStartDate: enterStartDate,
+  cannotUpdateAddress: cannotUpdateAddress,
+  closeCorrespondenceAdressChoice: closeCorrespondenceAdressChoice,
+  confirmCloseCorrespondenceAddress: confirmCloseCorrespondenceAddress,
+  updateAddressConfirmation: updateAddressConfirmation,
+  reviewChanges: reviewChanges,
+  addressAlreadyUpdated: addressAlreadyUpdated
+)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -96,7 +115,7 @@ class AddressController @Inject()(
         val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController
           .personalDetails()
           .url
-        Ok(views.html.interstitial.displayAddressInterstitial(continueUrl))
+        Ok(displayAddressInterstitial(continueUrl))
       }
     }
 
@@ -143,7 +162,7 @@ class AddressController @Inject()(
             .getOrElse(Future.successful(Unit))
       _ <- addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
-    } yield Ok(views.html.personaldetails.personalDetails(personalDetailsCards))
+    } yield Ok(personalDetails(personalDetailsCards))
   }
 
   def taxCreditsChoice: Action[AnyContent] = authenticate.async { implicit request =>
@@ -151,9 +170,7 @@ class AddressController @Inject()(
       gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         enforceDisplayAddressPageVisited(addressPageVisitedDto) {
           Future.successful(
-            Ok(
-              views.html.personaldetails
-                .taxCreditsChoice(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+            Ok(taxCreditsChoice(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
           )
         }
       }
@@ -165,9 +182,7 @@ class AddressController @Inject()(
       addressJourneyEnforcer { _ => _ =>
         TaxCreditsChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(
-              BadRequest(
-                views.html.personaldetails.taxCreditsChoice(formWithErrors, configDecorator.tcsChangeAddressUrl)))
+            Future.successful(BadRequest(taxCreditsChoice(formWithErrors, configDecorator.tcsChangeAddressUrl)))
           },
           taxCreditsChoiceDto => {
             addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
@@ -187,12 +202,12 @@ class AddressController @Inject()(
     addressJourneyEnforcer { _ => _ =>
       gettingCachedTaxCreditsChoiceDto {
         case Some(TaxCreditsChoiceDto(false)) =>
-          Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
+          Ok(residencyChoice(ResidencyChoiceDto.form))
         case _ =>
           if (configDecorator.taxCreditsEnabled) {
             Redirect(routes.AddressController.personalDetails())
           } else {
-            Ok(views.html.personaldetails.residencyChoice(ResidencyChoiceDto.form))
+            Ok(residencyChoice(ResidencyChoiceDto.form))
           }
       }
     }
@@ -203,7 +218,7 @@ class AddressController @Inject()(
       addressJourneyEnforcer { _ => _ =>
         ResidencyChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(BadRequest(views.html.personaldetails.residencyChoice(formWithErrors)))
+            Future.successful(BadRequest(residencyChoice(formWithErrors)))
           },
           residencyChoiceDto => {
             addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map { _ =>
@@ -221,7 +236,7 @@ class AddressController @Inject()(
         gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(
-              Ok(views.html.personaldetails.internationalAddressChoice(InternationalAddressChoiceDto.form, typ))
+              Ok(internationalAddressChoice(InternationalAddressChoiceDto.form, typ))
             )
           }
         }
@@ -233,7 +248,7 @@ class AddressController @Inject()(
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(BadRequest(views.html.personaldetails.internationalAddressChoice(formWithErrors, typ)))
+            Future.successful(BadRequest(internationalAddressChoice(formWithErrors, typ)))
           },
           internationalAddressChoiceDto => {
             addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
@@ -258,7 +273,7 @@ class AddressController @Inject()(
       addressJourneyEnforcer { _ => _ =>
         gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(Ok(views.html.personaldetails.cannotUseService(typ)))
+            Future.successful(Ok(cannotUseService(typ)))
           }
         }
       }
@@ -277,13 +292,13 @@ class AddressController @Inject()(
                   personDetails,
                   isInternationalAddress = false))
               enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
+                Future.successful(Ok(postcodeLookup(AddressFinderDto.form, typ)))
               }
             case _ =>
               auditConnector.sendEvent(
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false))
               enforceResidencyChoiceSubmitted(journeyData) { _ =>
-                Future.successful(Ok(views.html.personaldetails.postcodeLookup(AddressFinderDto.form, typ)))
+                Future.successful(Ok(postcodeLookup(AddressFinderDto.form, typ)))
               }
           }
         }
@@ -295,7 +310,7 @@ class AddressController @Inject()(
       addressJourneyEnforcer { _ => _ =>
         AddressFinderDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(BadRequest(views.html.personaldetails.postcodeLookup(formWithErrors, typ)))
+            Future.successful(BadRequest(postcodeLookup(formWithErrors, typ)))
           },
           addressFinderDto => {
 
@@ -320,7 +335,7 @@ class AddressController @Inject()(
                                "find_address",
                                Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)))
                            Future.successful(
-                             NotFound(views.html.personaldetails.postcodeLookup(
+                             NotFound(postcodeLookup(
                                AddressFinderDto.form
                                  .fill(AddressFinderDto(addressFinderDto.postcode, addressFinderDto.filter))
                                  .withError(FormError(postcode, "error.address_doesnt_exist_try_to_enter_manually")),
@@ -368,7 +383,7 @@ class AddressController @Inject()(
           case Some(set) =>
             Future.successful(
               Ok(
-                views.html.personaldetails.addressSelector(
+                addressSelector(
                   AddressSelectorDto.form,
                   set,
                   typ,
@@ -386,7 +401,7 @@ class AddressController @Inject()(
     authenticate.async { implicit request =>
       val errorPage = Future.successful(
         InternalServerError(
-          views.html.error(
+          error(
             "global.error.InternalServerError500.title",
             Some("global.error.InternalServerError500.title"),
             List("global.error.InternalServerError500.message")
@@ -403,7 +418,7 @@ class AddressController @Inject()(
                 case Some(set) =>
                   Future.successful(
                     BadRequest(
-                      views.html.personaldetails.addressSelector(
+                      addressSelector(
                         formWithErrors,
                         set,
                         typ,
@@ -459,7 +474,7 @@ class AddressController @Inject()(
                 val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
                 Future.successful(
                   Ok(
-                    views.html.personaldetails.updateAddress(
+                    updateAddress(
                       addressForm.discardingErrors,
                       typ,
                       journeyData.addressFinderDto,
@@ -471,7 +486,7 @@ class AddressController @Inject()(
                 val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
                 Future.successful(
                   Ok(
-                    views.html.personaldetails.updateAddress(
+                    updateAddress(
                       addressForm.discardingErrors,
                       typ,
                       journeyData.addressFinderDto,
@@ -496,7 +511,7 @@ class AddressController @Inject()(
               formWithErrors => {
                 Future.successful(
                   BadRequest(
-                    views.html.personaldetails.updateAddress(
+                    updateAddress(
                       formWithErrors,
                       typ,
                       journeyData.addressFinderDto,
@@ -542,7 +557,7 @@ class AddressController @Inject()(
               enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(
                   Ok(
-                    views.html.personaldetails.updateInternationalAddress(
+                    updateInternationalAddress(
                       journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(
                         AddressDto.internationalForm.fill),
                       typ,
@@ -558,8 +573,7 @@ class AddressController @Inject()(
               enforceResidencyChoiceSubmitted(journeyData) { _ =>
                 Future.successful(
                   Ok(
-                    views.html.personaldetails
-                      .updateInternationalAddress(AddressDto.internationalForm, typ, countryHelper.countries)
+                    updateInternationalAddress(AddressDto.internationalForm, typ, countryHelper.countries)
                   )
                 )
               }
@@ -575,8 +589,7 @@ class AddressController @Inject()(
           {
             AddressDto.internationalForm.bindFromRequest.fold(
               formWithErrors => {
-                Future.successful(BadRequest(
-                  views.html.personaldetails.updateInternationalAddress(formWithErrors, typ, countryHelper.countries)))
+                Future.successful(BadRequest(updateInternationalAddress(formWithErrors, typ, countryHelper.countries)))
               },
               addressDto => {
                 addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
@@ -609,7 +622,7 @@ class AddressController @Inject()(
             val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
             val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
             journeyData.submittedAddressDto map { _ =>
-              Future.successful(Ok(views.html.personaldetails.enterStartDate(
+              Future.successful(Ok(enterStartDate(
                 if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", "")))
                   journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
                 else dateDtoForm,
@@ -629,7 +642,7 @@ class AddressController @Inject()(
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm.bindFromRequest.fold(
             formWithErrors => {
-              Future.successful(BadRequest(views.html.personaldetails.enterStartDate(formWithErrors, typ)))
+              Future.successful(BadRequest(enterStartDate(formWithErrors, typ)))
             },
             dateDto => {
               addToCache(SubmittedStartDateId(typ), dateDto) map {
@@ -640,8 +653,7 @@ class AddressController @Inject()(
                     case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
                       if (!currentStartDate.isBefore(proposedStartDate))
                         BadRequest(
-                          views.html.personaldetails
-                            .cannotUpdateAddress(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
+                          cannotUpdateAddress(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
                       else Redirect(routes.AddressController.reviewChanges(typ))
                     case _ => Redirect(routes.AddressController.reviewChanges(typ))
                   }
@@ -664,8 +676,7 @@ class AddressController @Inject()(
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
-        Future.successful(
-          Ok(views.html.personaldetails.closeCorrespondenceAdressChoice(address, ClosePostalAddressChoiceDto.form)))
+        Future.successful(Ok(closeCorrespondenceAdressChoice(address, ClosePostalAddressChoiceDto.form)))
       }
     }
 
@@ -676,8 +687,7 @@ class AddressController @Inject()(
           formWithErrors => {
             Future.successful(
               BadRequest(
-                views.html.personaldetails
-                  .closeCorrespondenceAdressChoice(getAddress(personalDetails.address).fullAddress, formWithErrors))
+                closeCorrespondenceAdressChoice(getAddress(personalDetails.address).fullAddress, formWithErrors))
             )
           },
           closePostalAddressChoiceDto => {
@@ -695,7 +705,7 @@ class AddressController @Inject()(
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
-        Future.successful(Ok(views.html.personaldetails.confirmCloseCorrespondenceAddress(address)))
+        Future.successful(Ok(confirmCloseCorrespondenceAddress(address)))
       }
     }
 
@@ -703,7 +713,7 @@ class AddressController @Inject()(
     implicit request: UserRequest[_]): Future[Result] = {
     def internalServerError =
       InternalServerError(
-        views.html.error(
+        error(
           "global.error.InternalServerError500.title",
           Some("global.error.InternalServerError500.title"),
           List("global.error.InternalServerError500.message")
@@ -718,7 +728,7 @@ class AddressController @Inject()(
                  case UpdateAddressBadRequestResponse =>
                    Future.successful(
                      BadRequest(
-                       views.html.error(
+                       error(
                          "global.error.BadRequest.title",
                          Some("global.error.BadRequest.title"),
                          List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
@@ -740,7 +750,7 @@ class AddressController @Inject()(
                    } yield
                      if (inserted) {
                        Ok(
-                         views.html.personaldetails.updateAddressConfirmation(
+                         updateAddressConfirmation(
                            PostalAddrType,
                            closedPostalAddress = true,
                            Some(getAddress(personDetails.address).fullAddress),
@@ -790,7 +800,7 @@ class AddressController @Inject()(
                 Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
                 Future.successful(
                   Ok(
-                    views.html.personaldetails.reviewChanges(
+                    reviewChanges(
                       typ,
                       addressDto,
                       doYouLiveInTheUK,
@@ -808,7 +818,7 @@ class AddressController @Inject()(
                 Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
                 Future.successful(
                   Ok(
-                    views.html.personaldetails.reviewChanges(
+                    reviewChanges(
                       typ,
                       addressDto,
                       doYouLiveInTheUK,
@@ -896,13 +906,12 @@ class AddressController @Inject()(
                   clearCache()
 
                   Ok(
-                    views.html.personaldetails
-                      .updateAddressConfirmation(
-                        typ,
-                        closedPostalAddress = false,
-                        None,
-                        addressMovedService.toMessageKey(addressChanged)
-                      )
+                    updateAddressConfirmation(
+                      typ,
+                      closedPostalAddress = false,
+                      None,
+                      addressMovedService.toMessageKey(addressChanged)
+                    )
                   )
                 }
 
@@ -922,7 +931,7 @@ class AddressController @Inject()(
   def showAddressAlreadyUpdated(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        Future.successful(Ok(views.html.personaldetails.addressAlreadyUpdated()))
+        Future.successful(Ok(addressAlreadyUpdated()))
       }
     }
 }

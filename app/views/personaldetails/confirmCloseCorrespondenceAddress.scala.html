@@ -14,15 +14,12 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html._
-@import uk.gov.hmrc.play.views.html.helpers._
-@import tags._
-@import scala.util.Try
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
+@import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
-
+@import util.LocalPartialRetriever
+@this(form: FormWithCSRF)
 @(addressDto: List[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(title = messages("label.check_your_details"),
@@ -42,11 +39,11 @@ pageName = Some(messages("label.your_personal_tax_account"))
                       @messages("label.all_your_letters_will_be_sent_to_this_address")
                     </dt>
                     <dd class="cya-answer">@Html(addressDto.mkString(", <br>"))</dd>
-                    <dd class="cya-change"><a href="@controllers.routes.AddressController.processClosePostalAddressChoice">@messages("label.change")</a></dd>
+                    <dd class="cya-change"><a href="@routes.AddressController.processClosePostalAddressChoice">@messages("label.change")</a></dd>
                 </div>
             </dl>
 
-            @form(controllers.routes.AddressController.submitConfirmClosePostalAddress) {
+            @form(routes.AddressController.submitConfirmClosePostalAddress) {
             <button type="submit">@messages("label.confirm_and_save")</button>
             }
         </div>
