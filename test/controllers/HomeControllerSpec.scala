@@ -43,6 +43,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, UserRequestFixture}
+import views.html.home
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -96,7 +97,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
         injected[HomePageCachingHelper],
         mockAuthJourney,
         injected[WithActiveTabAction],
-        injected[MessagesControllerComponents]
+        injected[MessagesControllerComponents],
+        injected[home]
       )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {

@@ -32,8 +32,10 @@ import scala.collection.JavaConversions._
 
 class homeSpec extends ViewSpec with MockitoSugar {
 
+  lazy val home = injected[home]
+
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+  implicit val templateRenderer = injected[TemplateRenderer]
 
   val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None)
 
@@ -43,10 +45,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest =
         buildUserRequest(personDetails = Some(Fixtures.buildPersonDetails), userName = None, request = FakeRequest())
 
-      lazy val document: Document = asDocument(
-        views.html
-          .home(homeViewModel)
-          .toString)
+      lazy val document: Document = asDocument(home(homeViewModel).toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
       document.select("h1").exists(e => e.text == "Your account") shouldBe false
@@ -59,10 +58,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
         request = FakeRequest()
       )
 
-      lazy val document: Document = asDocument(
-        views.html
-          .home(homeViewModel)
-          .toString)
+      lazy val document: Document = asDocument(home(homeViewModel).toString)
 
       document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
       document.select("h1").exists(e => e.text == "Your account") shouldBe false
@@ -71,10 +67,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
       implicit val userRequest = buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
 
-      lazy val document: Document = asDocument(
-        views.html
-          .home(homeViewModel)
-          .toString)
+      lazy val document: Document = asDocument(home(homeViewModel).toString)
 
       document.select("h1").exists(e => e.text == "Your account") shouldBe true
     }
@@ -82,7 +75,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
     "should not show the UTR if the user is not a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-      val view = views.html.home(homeViewModel).toString
+      val view = home(homeViewModel).toString
 
       view should not contain messages("label.home_page.utr")
     }
@@ -90,7 +83,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
     "should show the UTR if the user is a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
       val utr = new SaUtrGenerator().nextSaUtr.utr
-      val view = views.html.home(homeViewModel.copy(saUtr = Some(utr))).toString
+      val view = home(homeViewModel.copy(saUtr = Some(utr))).toString
 
       view should include(messages("label.home_page.utr"))
       view should include(utr)
