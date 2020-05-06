@@ -16,17 +16,18 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.RendersErrors
-import com.google.inject.Inject
 import org.joda.time.LocalDate
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.print.{niLetter, niLetterPDfWrapper, printNationalInsuranceNumber}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
@@ -35,7 +36,10 @@ class NiLetterController @Inject()(
   val pdfGeneratorConnector: PdfGeneratorConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  printNiNumber: printNationalInsuranceNumber,
+  pdfWrapper: niLetterPDfWrapper,
+  niLetter: niLetter)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -47,10 +51,12 @@ class NiLetterController @Inject()(
       implicit request =>
         if (request.personDetails.isDefined) {
           Ok(
-            views.html.print.printNationalInsuranceNumber(
+            printNiNumber(
               request.personDetails.get,
               LocalDate.now.toString("MM/YY"),
-              configDecorator.saveNiLetterAsPdfLinkEnabled))
+              configDecorator.saveNiLetterAsPdfLinkEnabled
+            )
+          )
         } else {
           error(INTERNAL_SERVER_ERROR)
         }
@@ -69,13 +75,12 @@ class NiLetterController @Inject()(
               .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL())
               .mkString
 
-            val htmlPayload = views.html.print
-              .niLetterPDfWrapper()
+            val htmlPayload = pdfWrapper()
               .toString()
               .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
               .replace(
                 "<!-- niLetterPlaceHolder -->",
-                views.html.print.niLetter(request.personDetails.get, LocalDate.now.toString("MM/YY")).toString)
+                niLetter(request.personDetails.get, LocalDate.now.toString("MM/YY")).toString)
               .filter(_ >= ' ')
               .trim
               .replaceAll("  +", "")

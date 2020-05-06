@@ -18,7 +18,7 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import controllers.controllershelpers.WelshWarningHelper._
-
+@this()
 @(personDetails: models.PersonDetails, dateString: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @welshPostcode = @{"LL49 9BF"}

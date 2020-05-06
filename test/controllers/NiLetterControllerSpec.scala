@@ -24,16 +24,16 @@ import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import play.api.i18n.MessagesApi
 import play.api.inject._
-import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import util.UserRequestFixture.buildUserRequest
+import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
+import views.html.print.{niLetter, niLetterPDfWrapper, printNationalInsuranceNumber}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -61,7 +61,11 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       mockPdfGeneratorConnector,
       mockAuthJourney,
       injected[WithBreadcrumbAction],
-      injected[MessagesControllerComponents])(
+      injected[MessagesControllerComponents],
+      injected[printNationalInsuranceNumber],
+      injected[niLetterPDfWrapper],
+      injected[niLetter]
+    )(
       mockLocalPartialRetriever,
       injected[ConfigDecorator],
       injected[TemplateRenderer],
