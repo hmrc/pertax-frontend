@@ -15,7 +15,7 @@
  *@
 
 @import tags._
-
+@this()
 @(personDetails: models.PersonDetails, taxCreditsEnabled: Boolean, hasCorrespondenceAddress: Boolean, isLocked: Boolean, countries: List[Country])(implicit messages: play.api.i18n.Messages)
 
     @updateAddressLink() = @{

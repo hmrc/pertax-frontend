@@ -18,7 +18,7 @@
 @import controllers.auth.requests.UserRequest
 @import tags._
 @import models.UserName
-
+@this()
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
     @cardContent = {
