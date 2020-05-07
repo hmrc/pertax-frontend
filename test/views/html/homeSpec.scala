@@ -39,7 +39,7 @@ class homeSpec extends ViewSpec with MockitoSugar {
 
   val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None)
 
-  "Rendering home.scala.html" should {
+  "Rendering HomeView.scala.html" should {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest =

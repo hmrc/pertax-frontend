@@ -35,7 +35,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends ViewSpec with MockitoSug
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  "Rendering viewNationalInsuranceInterstitialHome.scala.html" should {
+  "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" should {
 
     "show NINO section when user is High GG and with Paye" in {
       implicit val userRequest = UserRequest(

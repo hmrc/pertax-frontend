@@ -27,10 +27,10 @@ import views.html.cards.personaldetails._
 class PersonalDetailsCardGenerator @Inject()(
   val configDecorator: ConfigDecorator,
   val countryHelper: CountryHelper,
-  mainAddress: mainAddress,
-  postalAddress: postalAddress,
-  nationalInsurance: nationalInsurance,
-  changeName: changeName
+  mainAddress: MainAddressView,
+  postalAddress: PostalAddressView,
+  nationalInsurance: NationalInsuranceView,
+  changeName: ChangeNameView
 ) {
 
   def getPersonalDetailsCards(changedAddressIndicator: List[AddressJourneyTTLModel])(

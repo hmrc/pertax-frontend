@@ -52,7 +52,7 @@ import util.UserRequestFixture.buildUserRequest
 import util.fixtures.AddressFixture._
 import util.fixtures.PersonFixture._
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import views.html.interstitial.displayAddressInterstitial
+import views.html.interstitial.{DisplayAddressInterstitialView, displayAddressInterstitial}
 import views.html.personaldetails.{taxCreditsChoice, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -70,23 +70,23 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
   lazy val messagesApi = injected[MessagesApi]
 
-  lazy val displayAddressInterstitial = injected[displayAddressInterstitial]
-  lazy val personalDetails = injected[personalDetails]
-  lazy val taxCreditsChoice = injected[taxCreditsChoice]
-  lazy val residencyChoice = injected[residencyChoice]
-  lazy val internationalAddressChoice = injected[internationalAddressChoice]
-  lazy val cannotUseService = injected[cannotUseService]
-  lazy val postcodeLookup = injected[postcodeLookup]
-  lazy val addressSelector = injected[addressSelector]
-  lazy val updateAddress = injected[updateAddress]
-  lazy val updateInternationalAddress = injected[updateInternationalAddress]
-  lazy val enterStartDate = injected[enterStartDate]
-  lazy val cannotUpdateAddress = injected[cannotUpdateAddress]
-  lazy val closeCorrespondenceAdressChoice = injected[closeCorrespondenceAdressChoice]
-  lazy val confirmCloseCorrespondenceAddress = injected[confirmCloseCorrespondenceAddress]
-  lazy val updateAddressConfirmation = injected[updateAddressConfirmation]
-  lazy val reviewChanges = injected[reviewChanges]
-  lazy val addressAlreadyUpdated = injected[addressAlreadyUpdated]
+  lazy val displayAddressInterstitial = injected[DisplayAddressInterstitialView]
+  lazy val personalDetails = injected[PersonalDetailsView]
+  lazy val taxCreditsChoice = injected[TaxCreditsChoiceView]
+  lazy val residencyChoice = injected[ResidencyChoiceView]
+  lazy val internationalAddressChoice = injected[InternationalAddressChoiceView]
+  lazy val cannotUseService = injected[CannotUseServiceView]
+  lazy val postcodeLookup = injected[PostcodeLookupView]
+  lazy val addressSelector = injected[AddressSelectorView]
+  lazy val updateAddress = injected[UpdateAddressView]
+  lazy val updateInternationalAddress = injected[UpdateInternationalAddressView]
+  lazy val enterStartDate = injected[EnterStartDateView]
+  lazy val cannotUpdateAddress = injected[CannotUpdateAddressView]
+  lazy val closeCorrespondenceAdressChoice = injected[CloseCorrespondenceAddressChoiceView]
+  lazy val confirmCloseCorrespondenceAddress = injected[ConfirmCloseCorrespondenceAddressView]
+  lazy val updateAddressConfirmation = injected[UpdateAddressConfirmationView]
+  lazy val reviewChanges = injected[ReviewChangesView]
+  lazy val addressAlreadyUpdated = injected[AddressAlreadyUpdatedView]
 
   implicit val lang: Lang = Lang("en-gb")
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)

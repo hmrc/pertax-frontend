@@ -27,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
-import views.html.print.{niLetter, niLetterPDfWrapper, printNationalInsuranceNumber}
+import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.Source
@@ -37,9 +37,9 @@ class NiLetterController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
-  printNiNumber: printNationalInsuranceNumber,
-  pdfWrapper: niLetterPDfWrapper,
-  niLetter: niLetter)(
+  printNiNumberView: PrintNationalInsuranceNumberView,
+  pdfWrapperView: NiLetterPDfWrapperView,
+  niLetterView: NiLetterView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -51,7 +51,7 @@ class NiLetterController @Inject()(
       implicit request =>
         if (request.personDetails.isDefined) {
           Ok(
-            printNiNumber(
+            printNiNumberView(
               request.personDetails.get,
               LocalDate.now.toString("MM/YY"),
               configDecorator.saveNiLetterAsPdfLinkEnabled
@@ -75,12 +75,12 @@ class NiLetterController @Inject()(
               .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL())
               .mkString
 
-            val htmlPayload = pdfWrapper()
+            val htmlPayload = pdfWrapperView()
               .toString()
               .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
               .replace(
                 "<!-- niLetterPlaceHolder -->",
-                niLetter(request.personDetails.get, LocalDate.now.toString("MM/YY")).toString)
+                niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY")).toString)
               .filter(_ >= ' ')
               .trim
               .replaceAll("  +", "")

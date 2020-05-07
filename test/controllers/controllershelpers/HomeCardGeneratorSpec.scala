@@ -34,14 +34,14 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator = config
 
-  val payAsYouEarn: payAsYouEarn = injected[payAsYouEarn]
-  val taxCalculation: taxCalculation = injected[taxCalculation]
-  val selfAssessment: selfAssessment = injected[selfAssessment]
-  val nationalInsurance: nationalInsurance = injected[nationalInsurance]
-  val taxCredits: taxCredits = injected[taxCredits]
-  val childBenefit: childBenefit = injected[childBenefit]
-  val marriageAllowance: marriageAllowance = injected[marriageAllowance]
-  val statePension: statePension = injected[statePension]
+  val payAsYouEarn = injected[PayAsYouEarnView]
+  val taxCalculation = injected[TaxCalculationView]
+  val selfAssessment = injected[SelfAssessmentView]
+  val nationalInsurance = injected[NationalInsuranceView]
+  val taxCredits = injected[TaxCreditsView]
+  val childBenefit = injected[ChildBenefitView]
+  val marriageAllowance = injected[MarriageAllowanceView]
+  val statePension = injected[StatePensionView]
 
   val homeCardGenerator =
     new HomeCardGenerator(

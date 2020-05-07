@@ -32,7 +32,7 @@ import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
 import viewmodels.HomeViewModel
-import views.html.home
+import views.html.HomeView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,7 +45,7 @@ class HomeController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  home: home)(
+  homeView: HomeView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -84,7 +84,7 @@ class HomeController @Inject()(
 
           val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-          Ok(home(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
+          Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
         }
       }
     }

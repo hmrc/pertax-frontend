@@ -25,7 +25,6 @@ import org.joda.time.DateTime
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.MessagesApi
 import play.api.libs.json.JsBoolean
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -33,7 +32,6 @@ import play.api.test.Helpers._
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -42,8 +40,8 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, UserRequestFixture}
-import views.html.home
+import util.{ActionBuilderFixture, BaseSpec, Fixtures}
+import views.html.HomeView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -98,7 +96,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
         mockAuthJourney,
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
-        injected[home]
+        injected[HomeView]
       )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
