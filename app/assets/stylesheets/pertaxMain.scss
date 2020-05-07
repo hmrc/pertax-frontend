@@ -147,6 +147,10 @@ input[type="text"].autocomplete__input {
 
 .covid-banner a {
     color: #fff;
+
+   &:focus {
+    color: $black;
+   }
 }
 
 .covid-banner__title {
