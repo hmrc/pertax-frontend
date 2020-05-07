@@ -19,7 +19,8 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@this(niLetter: views.html.print.niLetter)
+@this(niLetter: views.html.print.NiLetterView)
+
 @(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean)(implicit request: UserRequest[_],
         configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 

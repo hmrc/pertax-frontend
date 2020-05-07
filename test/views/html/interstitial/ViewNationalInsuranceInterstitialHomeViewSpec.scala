@@ -28,7 +28,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, Fixtures}
 import views.html.ViewSpec
 
-class viewNationalInsuranceInterstitialHomeSpec extends ViewSpec with MockitoSugar {
+class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec with MockitoSugar {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
@@ -52,10 +52,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends ViewSpec with MockitoSug
         None,
         FakeRequest()
       )
-      val document = asDocument(
-        views.html.interstitial
-          .viewNationalInsuranceInterstitialHome(Html(""), "asfa")
-          .toString)
+      val document = asDocument(ViewNationalInsuranceInterstitialHomeView(Html(""), "asfa").toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 
@@ -74,10 +71,7 @@ class viewNationalInsuranceInterstitialHomeSpec extends ViewSpec with MockitoSug
         None,
         FakeRequest()
       )
-      val document = asDocument(
-        views.html.interstitial
-          .viewNationalInsuranceInterstitialHome(Html(""), "aas")
-          .toString)
+      val document = asDocument(ViewNationalInsuranceInterstitialHomeView(Html(""), "aas").toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 

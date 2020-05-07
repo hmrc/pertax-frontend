@@ -41,8 +41,8 @@ import util.AuditServiceTools._
 import util.PertaxSessionKeys.{filter, postcode}
 import util.{LanguageHelper, LocalPartialRetriever}
 import views.html.error
-import views.html.interstitial.{DisplayAddressInterstitialView}
-import views.html.personaldetails.{cannotUpdateAddress, _}
+import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails._
 
 import scala.concurrent.{ExecutionContext, Future}
 

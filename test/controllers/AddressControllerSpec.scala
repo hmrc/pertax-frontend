@@ -52,8 +52,8 @@ import util.UserRequestFixture.buildUserRequest
 import util.fixtures.AddressFixture._
 import util.fixtures.PersonFixture._
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import views.html.interstitial.{DisplayAddressInterstitialView, displayAddressInterstitial}
-import views.html.personaldetails.{taxCreditsChoice, _}
+import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails._
 
 import scala.concurrent.{ExecutionContext, Future}
 

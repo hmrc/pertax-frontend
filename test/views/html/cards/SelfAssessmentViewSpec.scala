@@ -23,16 +23,15 @@ import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.BaseSpec
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
-import views.html.cards.home.selfAssessment
+import views.html.cards.home.SelfAssessmentView
 
 import scala.collection.JavaConverters._
 
 class SelfAssessmentViewSpec extends ViewSpec {
 
-  val selfAssessment: selfAssessment = injected[selfAssessment]
+  val selfAssessment = injected[SelfAssessmentView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
