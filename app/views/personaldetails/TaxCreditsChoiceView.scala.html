@@ -20,7 +20,7 @@
 @import controllers.auth.requests.UserRequest
 @import util.LocalPartialRetriever
 @import uk.gov.hmrc.renderer.TemplateRenderer
-@this(form: FormWithCSRF, input: InputRadioGroup)
+@this(form: FormWithCSRF, inputRadioGroup: InputRadioGroup)
 @(taxCreditsChoiceForm: Form[dto.TaxCreditsChoiceDto], tcsChangeAddressUrl: String)(implicit request: UserRequest[_],
 configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
@@ -39,7 +39,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
 
         @form(action = routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">
-            @input(
+            @inputRadioGroup(
               taxCreditsChoiceForm("taxCreditsChoice"),
                 Seq(
                   "true" -> messages("label.yes"),
