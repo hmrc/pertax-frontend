@@ -37,7 +37,7 @@
             </header>
 
             <div class="print-this">
-                <img class="print-this__icon" src="@configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon"/>
+                <img class="print-this__icon" src="@configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon" aria-hidden="true"/>
                 <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
             </div>
             @if(saveNiLetterAsPdfLinkEnabled) {
