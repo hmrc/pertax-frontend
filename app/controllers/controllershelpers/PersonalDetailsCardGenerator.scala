@@ -21,11 +21,16 @@ import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
 import play.twirl.api.{Html, HtmlFormat}
+import views.html.cards.personaldetails._
 
 @Singleton
 class PersonalDetailsCardGenerator @Inject()(
   val configDecorator: ConfigDecorator,
-  val countryHelper: CountryHelper
+  val countryHelper: CountryHelper,
+  mainAddress: MainAddressView,
+  postalAddress: PostalAddressView,
+  nationalInsurance: NationalInsuranceView,
+  changeName: ChangeNameView
 ) {
 
   def getPersonalDetailsCards(changedAddressIndicator: List[AddressJourneyTTLModel])(
@@ -62,7 +67,7 @@ class PersonalDetailsCardGenerator @Inject()(
     getPersonDetails match {
       case Some(personDetails) =>
         Some(
-          views.html.cards.personaldetails.mainAddress(
+          mainAddress(
             personDetails = personDetails,
             taxCreditsEnabled = configDecorator.taxCreditsEnabled,
             hasCorrespondenceAddress = hasCorrespondenceAddress,
@@ -80,7 +85,7 @@ class PersonalDetailsCardGenerator @Inject()(
         hasCorrespondenceAddress match {
           case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) =>
             Some(
-              views.html.cards.personaldetails.postalAddress(
+              postalAddress(
                 personDetails = personDetails,
                 isLocked = isLocked,
                 countryHelper.excludedCountries,
@@ -93,15 +98,11 @@ class PersonalDetailsCardGenerator @Inject()(
   def getNationalInsuranceCard()(
     implicit request: UserRequest[_],
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
-    request.nino.map { n =>
-      views.html.cards.personaldetails.nationalInsurance(n)
-    }
+    request.nino.map(n => nationalInsurance(n))
 
   def getChangeNameCard()(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,
     messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
-    request.name.map { _ =>
-      views.html.cards.personaldetails.changeName()
-    }
+    request.name.map(_ => changeName())
 }
