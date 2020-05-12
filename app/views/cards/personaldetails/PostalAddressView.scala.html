@@ -23,10 +23,10 @@
         <p>
     @personDetails.correspondenceAddress.map { correspondenceAddress =>
         @correspondenceAddress.lines.map { line =>
-            <div class="address-line">@upperCaseToTitleCase(line)</div>
+            <span class="address-line">@upperCaseToTitleCase(line)</span>
         }
-        <div class="address-line">@correspondenceAddress.postcode.map(_.toUpperCase)</div>
-        <div class="address-line">@if(!countries.contains(Country(correspondenceAddress.country.getOrElse("")))) {@correspondenceAddress.country.getOrElse("")}</div>
+        <span class="address-line">@correspondenceAddress.postcode.map(_.toUpperCase)</span>
+        <span class="address-line">@if(!countries.contains(Country(correspondenceAddress.country.getOrElse("")))) {@correspondenceAddress.country.getOrElse("")}</span>
     }
         </p>
         <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>

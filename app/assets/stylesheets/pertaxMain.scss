@@ -10,6 +10,8 @@
 @import 'partials/_panel.scss';
 @import 'partials/_errors.scss';
 @import 'partials/_home.scss';
+@import 'partials/_palette.scss';
+@import 'partials/_focus.scss';
 
 //Global
 .grid-row {
@@ -145,6 +147,10 @@ input[type="text"].autocomplete__input {
 
 .covid-banner a {
     color: #fff;
+
+   &:focus {
+    color: $black;
+   }
 }
 
 .covid-banner__title {
@@ -164,6 +170,32 @@ input[type="text"].autocomplete__input {
     .covid-banner__close {
         font-size: 16px;
     }
+}
+
+
+.heading-xlarge {
+    margin: 0 0 0.5em 0;
+}
+
+.form-group {
+    margin-top: 1.8em;
+}
+
+.error-message {
+    margin-bottom: 15px;
+}
+
+.form-date .form-group {
+    margin-top: 0;
+}
+
+.govuk-box-highlight {
+  background-color: #00703c
+}
+
+.form-group.form-field--error {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 #pertaxHome {
