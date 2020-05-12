@@ -107,7 +107,6 @@ trait TaxCalculationFixtures {
 trait CitizenDetailsFixtures {
   def buildPersonDetails =
     PersonDetails(
-      "115",
       Person(
         Some("Firstname"),
         Some("Middlename"),
@@ -125,7 +124,6 @@ trait CitizenDetailsFixtures {
 
   def buildPersonDetailsCorrespondenceAddress =
     PersonDetails(
-      "115",
       Person(
         Some("Firstname"),
         Some("Middlename"),
@@ -287,7 +285,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   def buildFakeHeaderCarrier = MockitoSugar.mock[HeaderCarrier]
 
-  def buildFakePersonDetails = PersonDetails("115", buildFakePerson, None, None)
+  def buildFakePersonDetails = PersonDetails(buildFakePerson, None, None)
 
   def buildFakePerson =
     Person(

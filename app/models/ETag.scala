@@ -16,15 +16,10 @@
 
 package models
 
-import play.api.libs.json._
+import play.api.libs.json.Json
 
-case class PersonDetails(
-  person: Person,
-  address: Option[Address],
-  correspondenceAddress: Option[Address]
-)
+case class ETag(etag: String)
 
-object PersonDetails {
-  implicit val formats = Json.format[PersonDetails]
-
+object ETag {
+  implicit lazy val reads = Json.reads[ETag]
 }
