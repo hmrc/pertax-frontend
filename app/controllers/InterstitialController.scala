@@ -65,7 +65,7 @@ class InterstitialController @Inject()(
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
     formPartialService.getNationalInsurancePartial.map { p =>
       Ok(
-        views.html.interstitial.viewNationalInsuranceInterstitialHome(
+        views.html.interstitial.ViewNationalInsuranceInterstitialHomeView(
           formPartial = p successfulContentOrElse Html(""),
           redirectUrl = currentUrl))
     }
@@ -73,7 +73,7 @@ class InterstitialController @Inject()(
 
   def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
     Ok(
-      views.html.interstitial.viewChildBenefitsSummaryInterstitial(
+      views.html.interstitial.ViewChildBenefitsSummaryInterstitialView(
         redirectUrl = currentUrl,
         taxCreditsEnabled = configDecorator.taxCreditsEnabled))
   }

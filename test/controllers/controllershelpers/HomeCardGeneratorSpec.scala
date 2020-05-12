@@ -25,8 +25,8 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.DateTimeTools.previousAndCurrentTaxYear
+import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, UserRequestFixture}
 import views.html.ViewSpec
 import views.html.cards.home._
 
@@ -34,7 +34,26 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator = config
 
-  val homeCardGenerator = new HomeCardGenerator()
+  val payAsYouEarn = injected[PayAsYouEarnView]
+  val taxCalculation = injected[TaxCalculationView]
+  val selfAssessment = injected[SelfAssessmentView]
+  val nationalInsurance = injected[NationalInsuranceView]
+  val taxCredits = injected[TaxCreditsView]
+  val childBenefit = injected[ChildBenefitView]
+  val marriageAllowance = injected[MarriageAllowanceView]
+  val statePension = injected[StatePensionView]
+
+  val homeCardGenerator =
+    new HomeCardGenerator(
+      payAsYouEarn,
+      taxCalculation,
+      selfAssessment,
+      nationalInsurance,
+      taxCredits,
+      childBenefit,
+      marriageAllowance,
+      statePension
+    )
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   "Calling getPayAsYouEarnCard" should {

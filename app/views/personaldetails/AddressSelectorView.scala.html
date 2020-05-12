@@ -1,0 +1,69 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+@import scala.util.Try
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@this(form: FormWithCSRF)
+@(addressSelectorForm: Form[models.dto.AddressSelectorDto], recordSet: models.addresslookup.RecordSet, typ: AddrType,
+postcode: String, filter: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@main(
+  title = typ.ifIs(
+    primary = messages("label.select_your_address"),
+    sole = messages("label.select_your_address"),
+    postal = messages("label.select_an_address")
+  ),
+  pageName = Some(messages("label.your_personal_tax_account"))
+) {
+@back_link()
+  @errors(addressSelectorForm)
+
+  <div class="grid-row">
+    <div class="column-two-thirds">
+      <header class="page-heading">
+        <h1 class="heading-xlarge">
+          @typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))
+        </h1>
+      </header>
+
+      @form(action = routes.AddressController.processAddressSelectorForm(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
+          <input type="hidden" name="postcode" value="@postcode" />
+          <input type="hidden" name="filter" value="@filter" />
+
+          <fieldset>
+          <legend class="visuallyhidden">@typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))</legend>
+            @for((ad,index) <- recordSet.addresses.zipWithIndex){
+              <label class="block-label" for="radio-@index">
+                <input id="radio-@index" type="radio" name="addressId" value="@ad.id" data-line1="@ad.address.lines(0)" data-line2='@Try(ad.address.lines(1)).getOrElse("")' data-line3="@ad.address.town" data-line4="" data-postcode="@ad.address.postcode" data-type="" data-etag="">
+                @ad.address.lines.mkString(","), @ad.address.town, @ad.address.postcode
+              </label>
+            }
+        </fieldset>
+
+        <p class="form-group"><a href="@routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_if_it_is_not_shown")</a></p>
+
+        <input type="submit" class="button" id="submitAddressSelector" value='@messages("global.label.continue_button")' >
+      }
+    </div>
+  </div>
+}

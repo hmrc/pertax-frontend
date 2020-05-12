@@ -31,7 +31,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.{Lang, Langs, Messages, MessagesApi}
+import play.api.i18n.{Lang, Langs, Messages, MessagesApi, MessagesImpl}
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
@@ -52,6 +52,8 @@ import util.UserRequestFixture.buildUserRequest
 import util.fixtures.AddressFixture._
 import util.fixtures.PersonFixture._
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
+import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -66,7 +68,28 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
 
+  lazy val messagesApi = injected[MessagesApi]
+
+  lazy val displayAddressInterstitial = injected[DisplayAddressInterstitialView]
+  lazy val personalDetails = injected[PersonalDetailsView]
+  lazy val taxCreditsChoice = injected[TaxCreditsChoiceView]
+  lazy val residencyChoice = injected[ResidencyChoiceView]
+  lazy val internationalAddressChoice = injected[InternationalAddressChoiceView]
+  lazy val cannotUseService = injected[CannotUseServiceView]
+  lazy val postcodeLookup = injected[PostcodeLookupView]
+  lazy val addressSelector = injected[AddressSelectorView]
+  lazy val updateAddress = injected[UpdateAddressView]
+  lazy val updateInternationalAddress = injected[UpdateInternationalAddressView]
+  lazy val enterStartDate = injected[EnterStartDateView]
+  lazy val cannotUpdateAddress = injected[CannotUpdateAddressView]
+  lazy val closeCorrespondenceAdressChoice = injected[CloseCorrespondenceAddressChoiceView]
+  lazy val confirmCloseCorrespondenceAddress = injected[ConfirmCloseCorrespondenceAddressView]
+  lazy val updateAddressConfirmation = injected[UpdateAddressConfirmationView]
+  lazy val reviewChanges = injected[ReviewChangesView]
+  lazy val addressAlreadyUpdated = injected[AddressAlreadyUpdatedView]
+
   implicit val lang: Lang = Lang("en-gb")
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach: Unit =
     reset(
@@ -121,7 +144,24 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockLocalSessionCache,
         injected[WithActiveTabAction],
         mockAuditConnector,
-        injected[MessagesControllerComponents]
+        injected[MessagesControllerComponents],
+        displayAddressInterstitial,
+        personalDetails,
+        taxCreditsChoice,
+        residencyChoice,
+        internationalAddressChoice,
+        cannotUseService,
+        postcodeLookup,
+        addressSelector,
+        updateAddress,
+        updateInternationalAddress,
+        enterStartDate,
+        cannotUpdateAddress,
+        closeCorrespondenceAdressChoice,
+        confirmCloseCorrespondenceAddress,
+        updateAddressConfirmation,
+        reviewChanges,
+        addressAlreadyUpdated
       )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
 
         when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
@@ -559,7 +599,24 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           mockLocalSessionCache,
           injected[WithActiveTabAction],
           mockAuditConnector,
-          injected[MessagesControllerComponents]
+          injected[MessagesControllerComponents],
+          displayAddressInterstitial,
+          personalDetails,
+          taxCreditsChoice,
+          residencyChoice,
+          internationalAddressChoice,
+          cannotUseService,
+          postcodeLookup,
+          addressSelector,
+          updateAddress,
+          updateInternationalAddress,
+          enterStartDate,
+          cannotUpdateAddress,
+          closeCorrespondenceAdressChoice,
+          confirmCloseCorrespondenceAddress,
+          updateAddressConfirmation,
+          reviewChanges,
+          addressAlreadyUpdated
         )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer], injected[ExecutionContext])
 
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
@@ -2244,7 +2301,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         ))
 
       val result = controller.reviewChanges(PrimaryAddrType)(FakeRequest())
-    //  implicit val messages: Messages = Messages.Implicits.applicationMessages
 
       contentAsString(result) shouldNot include(controller.messagesApi("label.when_this_became_your_main_home"))
     }
@@ -2260,7 +2316,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         ))
 
       val result = controller.reviewChanges(PrimaryAddrType)(FakeRequest())
-      implicit val messages: Messages = Messages.Implicits.applicationMessages
 
       contentAsString(result) shouldNot include(Messages("label.when_this_became_your_main_home"))
     }
@@ -2277,7 +2332,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         ))
 
       val result = controller.reviewChanges(PrimaryAddrType)(FakeRequest())
-      implicit val messages: Messages = Messages.Implicits.applicationMessages
 
       contentAsString(result) shouldNot include(Messages("label.when_this_became_your_main_home"))
     }
@@ -2293,7 +2347,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         ))
 
       val result = controller.reviewChanges(PrimaryAddrType)(FakeRequest())
-      implicit val messages: Messages = Messages.Implicits.applicationMessages
 
       contentAsString(result) should include(Messages("label.when_this_became_your_main_home"))
     }
@@ -2309,7 +2362,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         ))
 
       val result = controller.reviewChanges(SoleAddrType)(FakeRequest())
-      implicit val messages: Messages = Messages.Implicits.applicationMessages
 
       contentAsString(result) should include(Messages("label.your_new_address"))
       contentAsString(result) should include(Messages("label.when_you_started_living_here"))
@@ -2326,7 +2378,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         ))
 
       val result = controller.reviewChanges(SoleAddrType)(FakeRequest())
-      implicit val messages: Messages = Messages.Implicits.applicationMessages
 
       contentAsString(result) should include(Messages("label.your_address"))
       contentAsString(result) shouldNot include(Messages("label.when_you_started_living_here"))

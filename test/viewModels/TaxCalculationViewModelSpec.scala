@@ -24,11 +24,13 @@ import org.jsoup.nodes.Document
 import util.{BetterOptionValues, LanguageHelper}
 import viewmodels.TaxCalculationViewModel
 import views.html.ViewSpec
-import views.html.cards.home.taxCalculation
+import views.html.cards.home.TaxCalculationView
 
 class TaxCalculationViewModelSpec extends ViewSpec {
 
   import BetterOptionValues._
+
+  val taxCalculation = injected[TaxCalculationView]
 
   def view(reconciliation: Reconciliation): Option[Document] =
     TaxCalculationViewModel.fromTaxYearReconciliation(TaxYearReconciliation(2017, reconciliation))(config).map {

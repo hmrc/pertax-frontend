@@ -24,9 +24,19 @@ import play.api.i18n.Messages
 import play.twirl.api.{Html, HtmlFormat}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
+import views.html.cards.home._
 
 @Singleton
-class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
+class HomeCardGenerator @Inject()(
+  payAsYouEarnView: PayAsYouEarnView,
+  taxCalculationView: TaxCalculationView,
+  selfAssessmentView: SelfAssessmentView,
+  nationalInsuranceView: NationalInsuranceView,
+  taxCreditsView: TaxCreditsView,
+  childBenefitView: ChildBenefitView,
+  marriageAllowanceView: MarriageAllowanceView,
+  statePensionView: StatePensionView
+)(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
     taxComponentsState: TaxComponentsState,
@@ -60,7 +70,7 @@ class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
     request.nino.flatMap { _ =>
       taxComponentsState match {
         case TaxComponentsNotAvailableState => None
-        case _                              => Some(views.html.cards.home.payAsYouEarn(configDecorator))
+        case _                              => Some(payAsYouEarnView(configDecorator))
       }
     }
 
@@ -68,7 +78,7 @@ class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
     implicit messages: Messages): Option[HtmlFormat.Appendable] =
     taxYearReconciliations
       .flatMap(TaxCalculationViewModel.fromTaxYearReconciliation)
-      .map(views.html.cards.home.taxCalculation(_))
+      .map(taxCalculationView(_))
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(
     implicit request: UserRequest[_],
@@ -77,27 +87,25 @@ class HomeCardGenerator @Inject()(implicit configDecorator: ConfigDecorator) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saWithActionNeeded =>
-          Some(
-            views.html.cards.home
-              .selfAssessment(saWithActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
+          Some(selfAssessmentView(saWithActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
       }
     } else {
       None
     }
 
   def getNationalInsuranceCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(views.html.cards.home.nationalInsurance())
+    Some(nationalInsuranceView())
 
   def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(views.html.cards.home.taxCredits(showTaxCreditsPaymentLink))
+    Some(taxCreditsView(showTaxCreditsPaymentLink))
 
   def getChildBenefitCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(views.html.cards.home.childBenefit())
+    Some(childBenefitView())
 
   def getMarriageAllowanceCard(taxComponents: Option[TaxComponents])(
     implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(views.html.cards.home.marriageAllowance(taxComponents))
+    Some(marriageAllowanceView(taxComponents))
 
   def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(views.html.cards.home.statePension())
+    Some(statePensionView())
 }
