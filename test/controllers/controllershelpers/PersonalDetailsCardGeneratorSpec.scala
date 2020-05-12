@@ -34,9 +34,18 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
   implicit val mockConfigDecorator = mock[ConfigDecorator]
   override def messagesApi: MessagesApi = injected[MessagesApi]
 
+  val mainAddress = injected[MainAddressView]
+  val postalAddress = injected[PostalAddressView]
+  val nationalInsurance = injected[NationalInsuranceView]
+  val changeName = injected[ChangeNameView]
+
   def controller = new PersonalDetailsCardGenerator(
     mockConfigDecorator,
-    injected[CountryHelper]
+    injected[CountryHelper],
+    mainAddress,
+    postalAddress,
+    nationalInsurance,
+    changeName
   )
 
   trait MainAddressSetup {
