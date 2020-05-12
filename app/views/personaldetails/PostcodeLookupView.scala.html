@@ -1,0 +1,109 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.play.views.html.helpers._
+@import tags._
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import util.LocalPartialRetriever
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@this(form: FormWithCSRF, input: Input)
+@(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_],
+configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+
+@main(
+  title = typ.ifIs(
+    primary = messages("label.tell_us_your_main_home"),
+    sole = messages("label.find_your_address"),
+    postal = messages("label.find_your_postal_address")
+  ),
+  pageName = Some(messages("label.your_personal_tax_account"))
+) {
+  @back_link()
+
+  <div class="grid-row">
+    <div class="column-two-thirds">
+      @errors(addressFinderForm)
+
+
+      @form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
+
+
+        <fieldset @addressFinderForm.errors.map { error => aria-describedby="@error.key-error-message"}>
+          <legend><h1 class="heading-xlarge">
+            @typ.ifIs(primary = messages("label.tell_us_your_main_home"), sole = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
+          </h1></legend>
+          <div class="form-group postcode-container">
+            @tags.input(
+              addressFinderForm("postcode"),
+              '_inputClass -> "form-control",
+              '_labelClass -> "form-label inputLabelBeforeError postcode-label",
+              '_label -> messages("title.postcode"),
+              '_error_id -> "postcode-error-message"
+            )
+          </div>
+            @if(addressFinderForm.hasErrors) {
+              @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
+                <p>
+                <a href="@routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_yourself")</a>
+                </p>
+              }
+            }
+
+          <div class="form-group">
+            @input(
+              addressFinderForm("filter"),
+              '_inputClass -> "form-control",
+              '_labelClass -> "form-label inputLabelBeforeError",
+              '_label -> messages("title.house.name.or.number"),
+              '_maxlength -> 30
+            )
+          </div>
+
+        </fieldset>
+        @typ.ifIsPrimary {
+
+
+          <details class="form-group">
+            <summary class="ga-track-accordion-click" data-ga-event-action="Tell us your main home" data-ga-event-label="What's my main home" aria-controls="details-content" aria-expanded="false">
+              <span class="summary">@messages("label.whats_my_main_home")</span>
+            </summary>
+
+            <div class="panel panel-border-narrow" id="details-content" aria-hidden="true">
+              <p>@messages("label.your_main_home_is_usually_where_you_live_")</p>
+
+              <p>@messages("label.your_main_home_may_be_where_")</p>
+
+              <ul class="list-bullet">
+                <li>@messages("label.your_main_home_may_be_where_your_possessions")</li>
+                <li>@messages("label.your_main_home_may_be_where_your_family")</li>
+                <li>@messages("label.your_main_home_may_be_where_your_registerd_bank_address")</li>
+                <li>@messages("label.your_main_home_may_be_where_your_registerd_for_clubs")</li>
+              </ul>
+
+              <p>@messages("label.your_main_home_is_usually_where_you_live_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="What is my main home?" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="@configDecorator.scottishRateIncomeTaxUrl" target="_blank" rel="noopener noreferrer" tabindex="-1">@messages("label.your_main_home_is_usually_where_you_live_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
+            </div>
+          </details>
+
+        }
+
+      <button class="button submitAddressFinder" id="submitAddressFinder">@messages("global.label.find_your_address")</button>
+      }
+    </div>
+
+  </div>
+}
