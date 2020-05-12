@@ -41,6 +41,8 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
+import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvIncompleteView, LockedOutView, TechnicalIssuesView, TimeOutView}
+import views.html.iv.success.SuccessView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -91,7 +93,13 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       new ApplicationController(
         mockIdentityVerificationFrontendService,
         mockAuthJourney,
-        injected[MessagesControllerComponents]
+        injected[MessagesControllerComponents],
+        injected[SuccessView],
+        injected[CannotConfirmIdentityView],
+        injected[FailedIvIncompleteView],
+        injected[LockedOutView],
+        injected[TimeOutView],
+        injected[TechnicalIssuesView]
       )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
