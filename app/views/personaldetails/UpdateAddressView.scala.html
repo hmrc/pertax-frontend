@@ -54,7 +54,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
 
           <legend><h1 class="heading-xlarge">@getYourAddressLabels</h1></legend>
 
-          @input(
+          @tags.input(
             updateAddressForm("line1"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label inputLabelBeforeError",
@@ -62,7 +62,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
             '_error_id -> "line1-error-message"
           )
 
-          @input(
+          @tags.input(
             updateAddressForm("line2"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
@@ -70,28 +70,28 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
             '_error_id -> "line2-error-message"
           )
 
-          @input(
+          @tags.input(
             updateAddressForm("line3"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
             '_label -> Messages("label.third_line_of_your_address")
           )
 
-          @input(
+          @tags.input(
             updateAddressForm("line4"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
             '_label -> Messages("label.fourth_line_of_your_address")
           )
 
-          @input(
+          @tags.input(
             updateAddressForm("line5"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
             '_label -> Messages("label.fifth_line_of_your_address")
           )
 
-          @input(
+          @tags.input(
             updateAddressForm("postcode"),
             '_inputClass -> "form-control form-control-1-4",
             '_labelClass -> "form-label inputLabelBeforeError",
