@@ -54,14 +54,19 @@ class EditAddressLockRepository @Inject()(
 
   def insert(nino: String, addressType: AddrType): Future[Boolean] = {
 
-    logger.warn("Inserting into edit address lock")
+    val offsetDateTime = OffsetDateTime.now()
+    val getMidnight = getNextMidnight(offsetDateTime)
+    val bsonDate = toBSONDateTime(getMidnight)
+
+    logger.warn(
+      s"Inserting into edit address lock with timestamp now $offsetDateTime and next midnight - $getMidnight - bsonDate   $bsonDate")
     val record: EditedAddress =
-      AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
+      AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(offsetDateTime)))
 
     insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover {
       case e: DatabaseException => {
         val errorCode = e.code.getOrElse("unknown code")
-        logger.warn(s"Edit address lock failure with code $errorCode")
+        logger.warn(s"Edit address lock failure with error $e")
         false
       }
       case e: Exception => {
@@ -74,12 +79,15 @@ class EditAddressLockRepository @Inject()(
   def get(nino: String): Future[List[AddressJourneyTTLModel]] = {
 
     val getExpiredAt = "editedAddress.expireAt"
+    val offsetDateTime = OffsetDateTime.now()
+    val bsonVal = toBSONDateTime(offsetDateTime)
 
+    logger.warn(s"getting lock for $nino with against timestamp - $offsetDateTime with BSON val - $bsonVal")
     getCore(
       BSONDocument(
         BSONDocument("nino" -> nino),
         BSONDocument(
-          BSONDocument(getExpiredAt -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
+          BSONDocument(getExpiredAt -> BSONDocument("$gt" -> toBSONDateTime(offsetDateTime)))
         )
       )
     )
