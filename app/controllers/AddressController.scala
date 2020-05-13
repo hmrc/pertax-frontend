@@ -706,55 +706,53 @@ class AddressController @Inject()(
     val address = getAddress(personDetails.correspondenceAddress)
     val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
 
-    citizenDetailsService.getEtag(nino.nino) flatMap { etag =>
-      etag match {
-        case None =>
-          Logger.warn("Failed to retrieve Etag from citizen-details")
-          Future.successful(internalServerError)
+    citizenDetailsService.getEtag(nino.nino) flatMap {
+      case None =>
+        Logger.error("Failed to retrieve Etag from citizen-details")
+        Future.successful(internalServerError)
 
-        case Some(version) =>
-          for {
-            response <- citizenDetailsService.updateAddress(nino, version.etag, closingAddress)
-            action <- response match {
-                       case UpdateAddressBadRequestResponse =>
-                         Future.successful(
-                           BadRequest(
-                             error(
-                               "global.error.BadRequest.title",
-                               Some("global.error.BadRequest.title"),
-                               List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
-                             )
+      case Some(version) =>
+        for {
+          response <- citizenDetailsService.updateAddress(nino, version.etag, closingAddress)
+          action <- response match {
+                     case UpdateAddressBadRequestResponse =>
+                       Future.successful(
+                         BadRequest(
+                           error(
+                             "global.error.BadRequest.title",
+                             Some("global.error.BadRequest.title"),
+                             List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
                            )
                          )
-                       case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
-                         Future.successful(internalServerError)
-                       case UpdateAddressSuccessResponse =>
-                         for {
-                           _ <- auditConnector.sendEvent(
-                                 buildEvent(
-                                   "closedAddressSubmitted",
-                                   "closure_of_correspondence",
-                                   auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")))
-                           _        <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                           inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
-                           _ <- addressMovedService
-                                 .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
-                         } yield
-                           if (inserted) {
-                             Ok(
-                               updateAddressConfirmationView(
-                                 PostalAddrType,
-                                 closedPostalAddress = true,
-                                 Some(getAddress(personDetails.address).fullAddress),
-                                 None
-                               )
+                       )
+                     case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
+                       Future.successful(internalServerError)
+                     case UpdateAddressSuccessResponse =>
+                       for {
+                         _ <- auditConnector.sendEvent(
+                               buildEvent(
+                                 "closedAddressSubmitted",
+                                 "closure_of_correspondence",
+                                 auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")))
+                         _        <- clearCache() //This clears ENTIRE session cache, no way to target individual keys
+                         inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
+                         _ <- addressMovedService
+                               .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
+                       } yield
+                         if (inserted) {
+                           Ok(
+                             updateAddressConfirmationView(
+                               PostalAddrType,
+                               closedPostalAddress = true,
+                               Some(getAddress(personDetails.address).fullAddress),
+                               None
                              )
-                           } else {
-                             internalServerError
-                           }
-                     }
-          } yield action
-      }
+                           )
+                         } else {
+                           internalServerError
+                         }
+                   }
+        } yield action
     }
   }
 
@@ -875,60 +873,58 @@ class AddressController @Inject()(
       val addressType = mapAddressType(typ)
 
       addressJourneyEnforcer { nino => personDetails =>
-        citizenDetailsService.getEtag(nino.nino) flatMap { etag =>
-          etag match {
-            case None =>
-              Logger.warn("Failed to retrieve Etag from citizen-details")
-              Future.successful(internalServerError)
+        citizenDetailsService.getEtag(nino.nino) flatMap {
+          case None =>
+            Logger.error("Failed to retrieve Etag from citizen-details")
+            Future.successful(internalServerError)
 
-            case Some(version) =>
-              gettingCachedJourneyData(typ) { journeyData =>
-                ensuringSubmissionRequirments(typ, journeyData) {
+          case Some(version) =>
+            gettingCachedJourneyData(typ) { journeyData =>
+              ensuringSubmissionRequirments(typ, journeyData) {
 
-                  journeyData.submittedAddressDto.fold(
-                    Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
-                    val address =
-                      addressDto
-                        .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
+                journeyData.submittedAddressDto.fold(
+                  Future.successful(Redirect(routes.AddressController.personalDetails()))) { addressDto =>
+                  val address =
+                    addressDto
+                      .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
 
-                    val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
+                  val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
-                    addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap {
-                      addressChanged =>
-                        def successResponseBlock(): Result = {
-                          val originalAddressDto: Option[AddressDto] =
-                            journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
+                  addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap {
+                    addressChanged =>
+                      def successResponseBlock(): Result = {
+                        val originalAddressDto: Option[AddressDto] =
+                          journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
-                          val addressDtowithFormattedPostCode =
-                            addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
-                          handleAddressChangeAuditing(
-                            originalAddressDto,
-                            addressDtowithFormattedPostCode,
-                            version,
-                            addressType)
-                          clearCache()
+                        val addressDtowithFormattedPostCode =
+                          addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
+                        handleAddressChangeAuditing(
+                          originalAddressDto,
+                          addressDtowithFormattedPostCode,
+                          version,
+                          addressType)
+                        clearCache()
 
-                          Ok(
-                            updateAddressConfirmationView(
-                              typ,
-                              closedPostalAddress = false,
-                              None,
-                              addressMovedService.toMessageKey(addressChanged)
-                            )
+                        Ok(
+                          updateAddressConfirmationView(
+                            typ,
+                            closedPostalAddress = false,
+                            None,
+                            addressMovedService.toMessageKey(addressChanged)
                           )
-                        }
+                        )
+                      }
 
-                        for {
-                          _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
-                          result <- citizenDetailsService.updateAddress(nino, version.etag, address)
-                        } yield {
-                          result.response(successResponseBlock)
-                        }
-                    }
+                      for {
+                        _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
+                        result <- citizenDetailsService.updateAddress(nino, version.etag, address)
+                      } yield {
+                        result.response(successResponseBlock)
+                      }
                   }
                 }
               }
-          }
+            }
         }
       }
     }
