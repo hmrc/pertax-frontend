@@ -327,6 +327,7 @@ head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
 error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
 head.error.country_required=Nodwch wlad
 error.country_required=Nodwch wlad
+error.message.error = Gwall:
 
 #
 # Messages in lower case

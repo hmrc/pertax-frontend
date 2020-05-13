@@ -36,33 +36,33 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
   pageName = Some(messages("label.your_personal_tax_account"))
 ) {
 @back_link()
-  @errors(addressSelectorForm)
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <header class="page-heading">
-        <h1 class="heading-xlarge">
-          @typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))
-        </h1>
-      </header>
+        @errors(addressSelectorForm)
 
       @form(action = routes.AddressController.processAddressSelectorForm(typ), args = 'class -> "select-address-form", 'id -> "select-address-form") {
           <input type="hidden" name="postcode" value="@postcode" />
           <input type="hidden" name="filter" value="@filter" />
 
-          <fieldset>
-          <legend class="visuallyhidden">@typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))</legend>
-            @for((ad,index) <- recordSet.addresses.zipWithIndex){
-              <label class="block-label" for="radio-@index">
-                <input id="radio-@index" type="radio" name="addressId" value="@ad.id" data-line1="@ad.address.lines(0)" data-line2='@Try(ad.address.lines(1)).getOrElse("")' data-line3="@ad.address.town" data-line4="" data-postcode="@ad.address.postcode" data-type="" data-etag="">
-                @ad.address.lines.mkString(","), @ad.address.town, @ad.address.postcode
-              </label>
-            }
-        </fieldset>
+          <div class="form-group@if(addressSelectorForm.errors){ form-group-error}">
+              <fieldset id="addressId" @if(addressSelectorForm.errors) { aria-describedby="addressId-error-message"}>
+                  <legend><h1 class="heading-xlarge">@typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))</h1></legend>
+                  @addressSelectorForm.errors.map { error => <span class="error-message" id="addressId-error-message"><span class="visually-hidden">@messages("error.message.error")</span> @messages("head.error.address_not_selected")</span>}
+                @for((ad,index) <- recordSet.addresses.zipWithIndex){
+                  <div class="multiple-choice">
+                    <input id="radio-@index" type="radio" name="addressId" value="@ad.id" data-line1="@ad.address.lines(0)" data-line2='@Try(ad.address.lines(1)).getOrElse("")' data-line3="@ad.address.town" data-line4="" data-postcode="@ad.address.postcode" data-type="" data-etag="">
+                    <label for="radio-@index">
+                    @ad.address.lines.mkString(","), @ad.address.town, @ad.address.postcode
+                    </label>
+                  </div>
+                }
+            </fieldset>
+        </div>
 
         <p class="form-group"><a href="@routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_if_it_is_not_shown")</a></p>
 
-        <input type="submit" class="button" id="submitAddressSelector" value='@messages("global.label.continue_button")' >
+        <button class="button" id="submitAddressSelector">@messages("global.label.continue_button")</button>
       }
     </div>
   </div>
