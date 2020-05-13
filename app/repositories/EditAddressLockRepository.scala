@@ -50,16 +50,22 @@ class EditAddressLockRepository @Inject()(
 
   import EditAddressLockRepository._
 
+  val logger = Logger(this.getClass)
+
   def insert(nino: String, addressType: AddrType): Future[Boolean] = {
 
-    Logger.warn("Inserting into edit address lock")
+    logger.warn("Inserting into edit address lock")
     val record: EditedAddress =
       AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
 
     insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover {
       case e: DatabaseException => {
         val errorCode = e.code.getOrElse("unknown code")
-        Logger.warn(s"Edit address lock failure with code $errorCode")
+        logger.warn(s"Edit address lock failure with code $errorCode")
+        false
+      }
+      case e: Exception => {
+        logger.warn(s"Unknown error inserting address lock $e")
         false
       }
     }
