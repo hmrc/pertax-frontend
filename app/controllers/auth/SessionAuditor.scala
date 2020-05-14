@@ -19,7 +19,6 @@ package controllers.auth
 import com.google.inject.Inject
 import controllers.auth.SessionAuditor._
 import controllers.auth.requests.AuthenticatedRequest
-import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
@@ -37,9 +36,13 @@ import scala.concurrent.{ExecutionContext, Future}
 private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext)
     extends AuditTags {
 
+  val logger = Logger(this.getClass)
+
   def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit hc: HeaderCarrier): Future[Result] =
     request.session.get(sessionKey) match {
       case None =>
+        logger.info(request.profile.toString)
+
         val eventDetail = UserSessionAuditEvent(request)
 
         val sendAuditEvent = auditConnector

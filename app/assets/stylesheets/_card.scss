@@ -63,6 +63,11 @@ html[data-useragent*='MSIE 10.0'] .flex-container {
       .card-heading a {
         color: $link-colour;
         margin-top: 0;
+          &:focus {
+            color: $black;
+            outline: 3px solid transparent;
+            box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+          }
       }
     }
 
@@ -99,6 +104,12 @@ html[data-useragent*='MSIE 10.0'] .flex-container {
         text-decoration: none;
         border-bottom: 1px solid $link-colour;
         color: #2e8aca;
+      }
+
+      &:focus {
+        color: $black;
+        outline: 3px solid transparent;
+        box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
       }
     }
 

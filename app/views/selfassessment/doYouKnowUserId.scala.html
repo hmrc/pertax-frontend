@@ -26,16 +26,6 @@
     Some(messages("label.your_personal_tax_account")),
     backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
 
-    <div class="grid-row">
-        <div class="column-two-thirds">
-
-            @selfAssessmentHeading("title.do_you_know_user_id.h1")
-
-            @selfAssessmentForm(controllers.routes.SaWrongCredentialsController.processDoYouKnowUserId, messages("title.do_you_know_user_id.h1"), wrongCredentialsUserForm)
-
-        </div>
-
-
-    </div>
+    @selfAssessmentForm(controllers.routes.SaWrongCredentialsController.processDoYouKnowUserId, messages("title.do_you_know_user_id.h1"), wrongCredentialsUserForm)
 
 }
