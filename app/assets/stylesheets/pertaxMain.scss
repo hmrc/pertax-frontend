@@ -156,14 +156,29 @@ input[type="text"].autocomplete__input {
 .covid-banner__title {
     font-weight: 700;
     float: left;
+
+    display: inline-block;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding-left: 50px;
+    min-height: 45px;
+    background-image: url(../images/covid-icon.png);
+    background-image: url(../images/covid-icon.svg);
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+    background-size: 37px auto
 }
 
 .covid-banner__close {
     font-size: 19px;
     float: right;
+    margin-top: 0.5em;
 }
 
-@media screen and (max-width:830px) {
+@media screen and (max-width:900px) {
     .covid-banner__title, .covid-banner__close {
         float: none;
     }
