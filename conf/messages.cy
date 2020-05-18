@@ -260,6 +260,7 @@ label.help_improve_gov_uk=Helpwch i wella gwasanaethau CThEM
 label.get.involved.in.making.gov.services.better=Gallwch fod yn rhan o wneud gwasanaethau’r Llywodraeth yn well (yn agor ffenestr neu dab newydd)
 label.no_thanks=Dim diolch
 label.url_coronavirus=Coronafeirws (COVID-19): yr hyn y mae angen i chi ei wneud (yn agor ffenestr neu dab newydd)
+label.url_coronavirus=Coronavirus (COVID-19): guidance and support (opens in a new window or tab)
 label.hide_message=Cuddio’r neges
 label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
