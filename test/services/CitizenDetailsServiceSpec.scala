@@ -24,7 +24,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.{JsNull, Json}
+import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
@@ -316,4 +316,79 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
   }
 
+  "Calling CitizenDetailsService.getEtag" should {
+
+    trait LocalSetup extends SpecSetup {
+      val metricId = "get-etag"
+    }
+
+    "return an etag when citizen-details returns 200" in new LocalSetup {
+      override def httpResponse: HttpResponse =
+        HttpResponse(OK, Some(JsObject(Seq(("etag", JsString("115"))))))
+
+      override def simulateCitizenDetailsServiceIsDown: Boolean = false
+
+      val r = service.getEtag(nino.nino)
+
+      await(r) shouldBe Some(ETag("115"))
+      verify(met, times(1)).startTimer(metricId)
+      verify(met, times(1)).incrementSuccessCounter(metricId)
+      verify(timer, times(1)).stop()
+    }
+
+    "return None" when {
+
+      "citizen-details returns 404" in new LocalSetup {
+        override def httpResponse: HttpResponse = HttpResponse(NOT_FOUND)
+
+        override def simulateCitizenDetailsServiceIsDown: Boolean = false
+
+        val r = service.getEtag(nino.nino)
+
+        await(r) shouldBe None
+        verify(met, times(1)).startTimer(metricId)
+        verify(met, times(1)).incrementFailedCounter(metricId)
+        verify(timer, times(1)).stop()
+      }
+
+      "citizen-details returns 423" in new LocalSetup {
+        override def httpResponse: HttpResponse = HttpResponse(LOCKED)
+
+        override def simulateCitizenDetailsServiceIsDown: Boolean = false
+
+        val r = service.getEtag(nino.nino)
+
+        await(r) shouldBe None
+        verify(met, times(1)).startTimer(metricId)
+        verify(met, times(1)).incrementFailedCounter(metricId)
+        verify(timer, times(1)).stop()
+      }
+
+      "citizen-details returns 500" in new LocalSetup {
+        override def httpResponse: HttpResponse = HttpResponse(INTERNAL_SERVER_ERROR)
+
+        override def simulateCitizenDetailsServiceIsDown: Boolean = false
+
+        val r = service.getEtag(nino.nino)
+
+        await(r) shouldBe None
+        verify(met, times(1)).startTimer(metricId)
+        verify(met, times(1)).incrementFailedCounter(metricId)
+        verify(timer, times(1)).stop()
+      }
+
+      "the call to citizen-details throws an exception" in new LocalSetup {
+        override def httpResponse: HttpResponse = HttpResponse(INTERNAL_SERVER_ERROR)
+
+        override def simulateCitizenDetailsServiceIsDown: Boolean = true
+
+        val r = service.getEtag(nino.nino)
+
+        await(r) shouldBe None
+        verify(met, times(1)).startTimer(metricId)
+        verify(met, times(1)).incrementFailedCounter(metricId)
+        verify(timer, times(1)).stop()
+      }
+    }
+  }
 }

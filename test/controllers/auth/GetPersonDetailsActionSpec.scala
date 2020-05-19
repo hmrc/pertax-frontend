@@ -69,7 +69,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
 
         when(mockCitizenDetailsService.personDetails(any())(any()))
           .thenReturn(Future.successful(PersonDetailsSuccessResponse(
-            PersonDetails("blah", Person(Some("blah"), None, None, None, None, None, None, None, None), None, None))))
+            PersonDetails(Person(Some("blah"), None, None, None, None, None, None, None, None), None, None))))
 
         val refinedRequest =
           UserRequest(
