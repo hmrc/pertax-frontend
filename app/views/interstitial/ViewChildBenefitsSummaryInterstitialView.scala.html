@@ -22,9 +22,10 @@
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.interstitial.InterstitialWrapperView
 
+@this(interstitialWrapperView: InterstitialWrapperView)
 @(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@InterstitialWrapperView(messages("label.report_changes_that_affect_your_child_benefit"), messages("label.report_changes_that_affect_your_child_benefit")) {
+@interstitialWrapperView(messages("label.report_changes_that_affect_your_child_benefit"), messages("label.report_changes_that_affect_your_child_benefit")) {
     <div class="column-two-thirds child-benefit-partial pta-panel">
     @if(request.nino.isDefined) {
         <h2 class="heading-medium">@messages("label.if_your_childs_circumstances_change")</h2>

@@ -22,16 +22,17 @@
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.interstitial.InterstitialWrapperView
 
-@(formPartial: Html, redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+@this(interstitialWrapperView: InterstitialWrapperView)
+@(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
         partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-    @InterstitialWrapperView(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
+    @interstitialWrapperView(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
 
         <div class="column-two-thirds">
 
-        @if(request.nino.isDefined) {
+        @if(nino.isDefined) {
 
-            @request.nino.map { nino =>
+            @nino.map { nino =>
                 <div class="panel-indent panel-border-wide">
                     <p>@messages("label.your_national_insurance_number_is") @formattedNino(nino)</p>
                 </div>

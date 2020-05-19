@@ -19,7 +19,7 @@
 @import controllers.auth.requests.UserRequest
 @import controllers.controllershelpers.WelshWarningHelper._
 @this()
-@(personDetails: models.PersonDetails, dateString: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+@(personDetails: models.PersonDetails, dateString: String, ninoOpt: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
 
 @welshPostcode = @{"LL49 9BF"}
 
@@ -79,10 +79,10 @@
 
             <p class="name">@personDetails.person.fullName</p>
 
-            @if(request.nino.isDefined) {
+            @ninoOpt.map { nino =>
                 <div class="print-document__information-box bold-small">
                     <p class="insurance-number-text">@messages("label.your_national_insurance_number_is")</p>
-                    <span class="insurance-number">@formattedNino(request.nino.get)</span>
+                    <span class="insurance-number">@formattedNino(nino)</span>
                 </div>
             }
 

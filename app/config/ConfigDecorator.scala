@@ -238,6 +238,9 @@ class ConfigDecorator @Inject()(
   lazy val closePostalAddressEnabled =
     runModeConfiguration.getString("feature.close-postal-address.enabled").getOrElse("false").toBoolean
 
+  lazy val getNinoFromCID =
+    runModeConfiguration.getOptional[Boolean]("feature.get-nino-from-cid.enabled").getOrElse(false)
+
   lazy val egainWebchatPertaxId = runModeConfiguration.getString(s"egain-webchat.pertax.id").getOrElse("TT55004894")
 
   val enc = URLEncoder.encode(_: String, "UTF-8")

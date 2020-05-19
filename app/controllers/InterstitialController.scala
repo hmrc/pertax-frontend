@@ -26,12 +26,13 @@ import models._
 import play.api.Logger
 import play.api.mvc._
 import play.twirl.api.Html
-import services.PreferencesFrontendService
+import services.{NinoDisplayService, PreferencesFrontendService}
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 import util.LocalPartialRetriever
+import views.html.interstitial.{InterstitialWrapperView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,9 +40,13 @@ class InterstitialController @Inject()(
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
   val preferencesFrontendService: PreferencesFrontendService,
+  ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
+  viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
+  interstitialWrapperView: InterstitialWrapperView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -63,17 +68,20 @@ class InterstitialController @Inject()(
     .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.map { p =>
-      Ok(
-        views.html.interstitial.ViewNationalInsuranceInterstitialHomeView(
-          formPartial = p successfulContentOrElse Html(""),
-          redirectUrl = currentUrl))
+    formPartialService.getNationalInsurancePartial.flatMap { p =>
+      ninoDisplayService.getNino.map { nino =>
+        Ok(
+          viewNationalInsuranceInterstitialHomeView(
+            formPartial = p successfulContentOrElse Html(""),
+            redirectUrl = currentUrl,
+            nino))
+      }
     }
   }
 
   def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
     Ok(
-      views.html.interstitial.ViewChildBenefitsSummaryInterstitialView(
+      viewChildBenefitsSummaryInterstitialView(
         redirectUrl = currentUrl,
         taxCreditsEnabled = configDecorator.taxCreditsEnabled))
   }
