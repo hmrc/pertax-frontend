@@ -370,7 +370,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
     trait LocalSetup {
       implicit def userRequest: UserRequest[_]
 
-      lazy val cardBody = controller.getNationalInsuranceCard()
+      lazy val cardBody = controller.getNationalInsuranceCard(userRequest.nino)
     }
 
     "always return the same markup" in new LocalSetup {

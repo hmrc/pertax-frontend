@@ -53,6 +53,7 @@ class AddressController @Inject()(
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val countryHelper: CountryHelper,
   val editAddressLockRepository: EditAddressLockRepository,
+  ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   val sessionCache: LocalSessionCache,
   withActiveTabAction: WithActiveTabAction,
@@ -151,8 +152,9 @@ class AddressController @Inject()(
                          editAddressLockRepository.get(nino.withoutSuffix)
                        }
                        .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
-
-      personalDetailsCards: Seq[Html] = personalDetailsCardGenerator.getPersonalDetailsCards(addressModel)
+      ninoToDisplay <- ninoDisplayService.getNino
+      personalDetailsCards: Seq[Html] = personalDetailsCardGenerator
+        .getPersonalDetailsCards(addressModel, ninoToDisplay)
       personDetails: Option[PersonDetails] = request.personDetails
 
       _ <- personDetails

@@ -67,6 +67,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
   val mockPersonalDetailsCardGenerator: PersonalDetailsCardGenerator = mock[PersonalDetailsCardGenerator]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
+  val ninoDisplayService = mock[NinoDisplayService]
 
   lazy val messagesApi = injected[MessagesApi]
 
@@ -140,6 +141,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockPersonalDetailsCardGenerator,
         injected[CountryHelper],
         mockEditAddressLockRepository,
+        ninoDisplayService,
         mockAuthJourney,
         mockLocalSessionCache,
         injected[WithActiveTabAction],
@@ -182,7 +184,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
           Future.successful(mock[HttpResponse])
         }
-        when(mockPersonalDetailsCardGenerator.getPersonalDetailsCards(any())(any(), any(), any())) thenReturn {
+        when(mockPersonalDetailsCardGenerator.getPersonalDetailsCards(any(), any())(any(), any(), any())) thenReturn {
           Seq.empty
         }
         when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
@@ -197,6 +199,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         when(mockAddressMovedService.toMessageKey(any[AddressChanged]())) thenReturn {
           None
         }
+        when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
       }
 
     when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -595,6 +598,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           mockPersonalDetailsCardGenerator,
           mock[CountryHelper],
           mockEditAddressLockRepository,
+          ninoDisplayService,
           mockAuthJourney,
           mockLocalSessionCache,
           injected[WithActiveTabAction],
@@ -623,6 +627,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
         Future.successful(CacheMap("id", Map.empty))
       }
+
+      when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
