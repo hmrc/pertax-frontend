@@ -34,52 +34,51 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
   pageName = Some(messages("label.your_personal_tax_account"))
 ) {
   @back_link()
-  @errors(addressFinderForm)
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <header class="page-heading">
-        <h1 class="heading-xlarge">
-          @typ.ifIs(primary = messages("label.tell_us_your_main_home"), sole = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
-        </h1>
-      </header>
+      @errors(addressFinderForm)
 
 
       @form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
-        <div class="form-group postcode-container">
-          @input(
-            addressFinderForm("postcode"),
-            '_inputClass -> "form-control",
-            '_labelClass -> "form-label inputLabelBeforeError postcode-label",
-            '_label -> messages("title.postcode"),
-            '_maxlength -> 8
-          )
-        </div>
-          @if(addressFinderForm.hasErrors) {
-            @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
-              <p>
-              <a href="@routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_yourself")</a>
-              </p>
+
+        <fieldset @addressFinderForm.errors.map { error => aria-describedby="@error.key-error-message"}>
+          <legend><h1 class="heading-xlarge">
+            @typ.ifIs(primary = messages("label.tell_us_your_main_home"), sole = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
+          </h1></legend>
+          <div class="form-group postcode-container">
+            @tags.input(
+              addressFinderForm("postcode"),
+              '_inputClass -> "form-control",
+              '_labelClass -> "form-label inputLabelBeforeError postcode-label",
+              '_label -> messages("title.postcode"),
+              '_error_id -> "postcode-error-message"
+            )
+          </div>
+            @if(addressFinderForm.hasErrors) {
+              @if(addressFinderForm.errors.exists(_.messages.contains("error.address_doesnt_exist_try_to_enter_manually"))) {
+                <p>
+                <a href="@routes.AddressController.showUpdateAddressForm(typ)">@messages("label.enter_your_address_yourself")</a>
+                </p>
+              }
             }
-          }
 
-        <div class="form-group">
-          @input(
-            addressFinderForm("filter"),
-            '_inputClass -> "form-control",
-            '_labelClass -> "form-label inputLabelBeforeError",
-            '_label -> messages("title.house.name.or.number"),
-            '_maxlength -> 30
-          )
-        </div>
+          <div class="form-group">
+            @input(
+              addressFinderForm("filter"),
+              '_inputClass -> "form-control",
+              '_labelClass -> "form-label inputLabelBeforeError",
+              '_label -> messages("title.house.name.or.number")
+            )
+          </div>
 
-
+        </fieldset>
         @typ.ifIsPrimary {
 
 
-          <details class="form-group" role="group">
-            <summary class="ga-track-accordion-click" role="button" data-ga-event-action="Tell us your main home" data-ga-event-label="What's my main home" aria-controls="details-content" tabindex="0" aria-expanded="false">
+          <details class="form-group">
+            <summary class="ga-track-accordion-click" data-ga-event-action="Tell us your main home" data-ga-event-label="What's my main home" aria-controls="details-content" aria-expanded="false">
               <span class="summary">@messages("label.whats_my_main_home")</span>
             </summary>
 
@@ -95,13 +94,13 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
                 <li>@messages("label.your_main_home_may_be_where_your_registerd_for_clubs")</li>
               </ul>
 
-              <p>@messages("label.your_main_home_is_usually_where_you_live_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="What is my main home?" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="@configDecorator.scottishRateIncomeTaxUrl" target="_blank" rel="noopener noreferrer">@messages("label.your_main_home_is_usually_where_you_live_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
+              <p>@messages("label.your_main_home_is_usually_where_you_live_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="What is my main home?" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="@configDecorator.scottishRateIncomeTaxUrl" target="_blank" rel="noopener noreferrer" tabindex="-1">@messages("label.your_main_home_is_usually_where_you_live_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
             </div>
           </details>
 
         }
 
-        <input type="submit" class="button submitAddressFinder" id="submitAddressFinder" value='@messages("global.label.find_your_address")' >
+      <button class="button submitAddressFinder" id="submitAddressFinder">@messages("global.label.find_your_address")</button>
       }
     </div>
 

@@ -28,29 +28,22 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
   pageName = Some(messages("label.your_personal_tax_account"))
 ) {
     @back_link()
-
-
-        @errors(residencyChoiceForm)
-
         <div class="grid-row">
             <div class="column-two-thirds">
-                <header class="page-heading">
-                    <h1 class="heading-xlarge">@messages("label.do_you_live_in_more_than_one_place")</h1>
-                </header>
+                @errors(residencyChoiceForm)
 
                 @form(action = controllers.routes.AddressController.processResidencyChoice) {
                 <div class="form-group inline">
-                    @inputRadioGroup(
+                    @input_yes_no(
                         residencyChoiceForm("residencyChoice"),
                         Seq("primary" -> messages("label.yes"), "sole" -> messages("label.no")),
                         '_labelClass -> "block-label inputLabelBeforeError",
                         '_error -> residencyChoiceForm("residencyChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
-                        '_legend -> messages("label.do_you_live_in_more_than_one_place"),
-                        '_legendClass -> "visuallyhidden"
+                        '_legend -> messages("label.do_you_live_in_more_than_one_place")
                     )
                 </div>
                 <div class="form-group inline">
-                    <button type="submit" class="ga-track-error" data-ga-event-action="Do you live in more than one place?" data-radio-button-name="residencyChoice">@messages("global.label.continue_button")</button>
+                    <button class="button ga-track-error" data-ga-event-action="Do you live in more than one place?" data-radio-button-name="residencyChoice">@messages("global.label.continue_button")</button>
                 </div>
                 }
             </div>

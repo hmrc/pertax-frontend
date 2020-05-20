@@ -294,7 +294,7 @@ label.what_happens_next=What happens next
 label.confirm_and_save=Confirm and save
 label.help_improve_gov_uk=Help improve GOV.UK
 label.get.involved.in.making.gov.services.better=Get involved in making government services better (opens in a new window or tab)
-label.url_coronavirus=Coronavirus (COVID-19): what you need to do (opens in a new window or tab)
+label.url_coronavirus=Coronavirus (COVID-19): guidance and support (opens in a new window or tab)
 label.hide_message=Hide message
 label.no_thanks=No thanks
 label.moved_from_scotland=You have moved from Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
@@ -363,6 +363,7 @@ head.error.date_in_future=You cannot enter a date in the future
 error.date_in_future=Enter today’s date or a date in the past
 head.error.country_required=Enter country
 error.country_required=Enter country
+error.message.error = Error:
 
 #
 # Messages in lower case

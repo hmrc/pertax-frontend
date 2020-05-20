@@ -14,12 +14,12 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers._
-@import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
+@import tags._
+@import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import util.LocalPartialRetriever
 
 @this(form: FormWithCSRF, input: Input)
 
@@ -43,81 +43,67 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
   title = getYourAddressLabels.toString,
   pageName = Some(Messages("label.your_personal_tax_account"))) {
   @back_link()
-  @errors(updateAddressForm)
 
   <div class="grid-row">
     <div class="column-two-thirds">
-      <header class="page-heading">
-        <h1 class="heading-xlarge">
-          @getYourAddressLabels
-        </h1>
-      </header>
+      @errors(updateAddressForm)
 
       @form(action = controllers.routes.AddressController.processUpdateAddressForm(typ), args = 'class -> "update-address-form", 'id -> "update-address-form") {
 
-        <div class="form-group">
-          @input(
+        <fieldset @updateAddressForm.errors.map { error => aria-describedby="@updateAddressForm.errors.foldLeft("")((x, y) => x + " " + y.key + "-error-message") "}>
+
+          <legend><h1 class="heading-xlarge">@getYourAddressLabels</h1></legend>
+
+          @tags.input(
             updateAddressForm("line1"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label inputLabelBeforeError",
             '_label -> Messages("label.first_line_of_your_address"),
-            'divClass -> "form-group",
-            '_maxlength -> 35
+            '_error_id -> "line1-error-message"
           )
-        </div>
-        <div class="form-group">
-          @input(
+
+          @tags.input(
             updateAddressForm("line2"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
             '_label -> Messages("label.second_line_of_your_address"),
-            'divClass -> "form-group",
-            '_maxlength -> 35
+            '_error_id -> "line2-error-message"
           )
-        </div>
-        <div class="form-group">
-          @input(
+
+          @tags.input(
             updateAddressForm("line3"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.third_line_of_your_address"),
-            'divClass -> "form-group",
-            '_maxlength -> 35
+            '_label -> Messages("label.third_line_of_your_address")
           )
-        </div>
-        <div class="form-group">
-          @input(
+
+          @tags.input(
             updateAddressForm("line4"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.fourth_line_of_your_address"),
-            'divClass -> "form-group",
-            '_maxlength -> 35
+            '_label -> Messages("label.fourth_line_of_your_address")
           )
-        </div>
-        <div class="form-group">
-          @input(
+
+          @tags.input(
             updateAddressForm("line5"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.fifth_line_of_your_address"),
-            'divClass -> "form-group",
-            '_maxlength -> 35
+            '_label -> Messages("label.fifth_line_of_your_address")
           )
-        </div>
-        <div class="form-group">
-          @input(
+
+          @tags.input(
             updateAddressForm("postcode"),
             '_inputClass -> "form-control form-control-1-4",
             '_labelClass -> "form-label inputLabelBeforeError",
             '_label -> Messages("title.postcode"),
-            'divClass -> "form-group",
-            '_maxlength -> 8
+            '_error_id -> "postcode-error-message"
           )
-        </div>
+
+        </fieldset>
         <input type="hidden" name="type" value="@updateAddressForm("type").value" />
         <input type="hidden" name="etag" value="@updateAddressForm("etag").value" />
-        <input type="submit" class="button" id="updateAddress" value='@Messages("label.continue")' >
+
+      <button class="button" id="updateAddress">@messages("label.continue")</button>
       }
     </div>
   </div>
