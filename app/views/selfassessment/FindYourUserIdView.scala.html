@@ -18,18 +18,22 @@
 @import config.ConfigDecorator
 @import util.LocalPartialRetriever
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import views.html.selfassessment.selfAssessmentHeading
+@import views.html.selfassessment.selfAssessmentUtr
+
+@this()
 
 @(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("title.reset_your_password.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowUserId().url)) {
+@main(messages("title.find_your_user_id.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowUserId().url)) {
     <div class="grid-row">
         <div class="column-two-thirds">
 
-            @selfAssessmentHeading("title.reset_your_password.h1")
+            @selfAssessmentHeading("title.find_your_user_id.h1")
             @selfAssessmentUtr(saUtr)
 
             <p>
-                @messages("label.next_page_forgotten_password")
+            @messages("label.next_page_forgotten_userid")
             </p>
 
             <a href="@ggSignInUrl" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>

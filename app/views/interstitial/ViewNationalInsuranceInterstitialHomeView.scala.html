@@ -22,10 +22,12 @@
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.interstitial.InterstitialWrapperView
 
+@this(interstitialWrapperView: InterstitialWrapperView)
+
 @(formPartial: Html, redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
         partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-    @InterstitialWrapperView(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
+    @interstitialWrapperView(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
 
         <div class="column-two-thirds">
 
@@ -45,7 +47,7 @@
 
             <h2 class="heading-medium">@messages("label.print_proof_of_your_national_insurance_number")</h2>
             <p>@messages("label.if_you_start_a_new_job_your_employer_will_ask_for_your_national_insurance_number_")</p>
-            <p><a class="trackLink" href="@controllers.routes.NiLetterController.printNationalInsuranceNumber()">@messages("label.print_proof_of_your_national_insurance_number")</a></p>
+            <p><a class="trackLink" href="@routes.NiLetterController.printNationalInsuranceNumber()">@messages("label.print_proof_of_your_national_insurance_number")</a></p>
 
             <div class="forms-group pertax-panel" id="national_insurance">
                 <div class="grid-row">
@@ -56,7 +58,7 @@
             </div>
         } else {
             <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-            <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
+            <a href="@routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
         }
         </div>
     }

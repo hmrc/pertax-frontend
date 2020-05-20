@@ -23,14 +23,23 @@ import controllers.auth.requests.UserRequest
 import io.lemonlabs.uri.{QueryString, Url}
 import models.SelfAssessmentUser
 import models.dto.SAWrongCredentialsDto
-import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.selfassessment._
 
 import scala.concurrent.ExecutionContext
 
-class SaWrongCredentialsController @Inject()(authJourney: AuthJourney, cc: MessagesControllerComponents)(
+class SaWrongCredentialsController @Inject()(
+  authJourney: AuthJourney,
+  cc: MessagesControllerComponents,
+  signedInWrongAccountView: SignedInWrongAccountView,
+  doYouKnowOtherCredentialsView: DoYouKnowOtherCredentialsView,
+  signInAgainView: SignInAgainView,
+  doYouKnowUserIdView: DoYouKnowUserIdView,
+  needToResetPasswordView: NeedToResetPasswordView,
+  findYourUserIdView: FindYourUserIdView
+)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -53,19 +62,19 @@ class SaWrongCredentialsController @Inject()(authJourney: AuthJourney, cc: Messa
   }
 
   def landingPage: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.signedInWrongAccount())
+    Ok(signedInWrongAccountView())
   }
 
   def doYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.doYouKnowOtherCredentials(SAWrongCredentialsDto.form))
+    Ok(doYouKnowOtherCredentialsView(SAWrongCredentialsDto.form))
   }
 
   def signInAgain: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.signInAgain(ggSignInUrl))
+    Ok(signInAgainView(ggSignInUrl))
   }
 
   def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.doYouKnowUserId(SAWrongCredentialsDto.form))
+    Ok(doYouKnowUserIdView(SAWrongCredentialsDto.form))
   }
 
   private def getSaUtr(implicit request: UserRequest[AnyContent]) =
@@ -75,17 +84,17 @@ class SaWrongCredentialsController @Inject()(authJourney: AuthJourney, cc: Messa
     }
 
   def needToResetPassword: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.needToResetPassword(getSaUtr, ggSignInUrl))
+    Ok(needToResetPasswordView(getSaUtr, ggSignInUrl))
   }
 
   def findYourUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(views.html.selfassessment.findYourUserId(getSaUtr, ggSignInUrl))
+    Ok(findYourUserIdView(getSaUtr, ggSignInUrl))
   }
 
   def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
     SAWrongCredentialsDto.form.bindFromRequest.fold(
       formWithErrors => {
-        BadRequest(views.html.selfassessment.doYouKnowOtherCredentials(formWithErrors))
+        BadRequest(doYouKnowOtherCredentialsView(formWithErrors))
       },
       wrongCredentialsDto => {
         if (wrongCredentialsDto.value) {
@@ -100,7 +109,7 @@ class SaWrongCredentialsController @Inject()(authJourney: AuthJourney, cc: Messa
   def processDoYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
     SAWrongCredentialsDto.form.bindFromRequest.fold(
       formWithErrors => {
-        BadRequest(views.html.selfassessment.doYouKnowUserId(formWithErrors))
+        BadRequest(doYouKnowUserIdView(formWithErrors))
       },
       wrongCredentialsDto => {
         if (wrongCredentialsDto.value) {

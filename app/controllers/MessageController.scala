@@ -16,18 +16,19 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import error.RendersErrors
-import com.google.inject.Inject
 import models.Breadcrumb
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
+import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.ExecutionContext
 
@@ -36,7 +37,9 @@ class MessageController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  messageInboxView: MessageInboxView,
+  messageDetailView: MessageDetailView)(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -52,8 +55,9 @@ class MessageController @Inject()(
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageListPartial map { p =>
         Ok(
-          views.html.message.messageInbox(messageListPartial = p successfulContentOrElse Html(
-            Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")))
+          messageInboxView(
+            messageListPartial = p successfulContentOrElse Html(
+              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")))
         )
       }
     }
@@ -63,12 +67,12 @@ class MessageController @Inject()(
       .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageDetailPartial(messageToken).map {
         case HtmlPartial.Success(Some(title), content) =>
-          Ok(views.html.message.messageDetail(message = content, title = title))
+          Ok(messageDetailView(message = content, title = title))
         case HtmlPartial.Success(None, content) =>
-          Ok(views.html.message.messageDetail(message = content, title = Messages("label.message")))
+          Ok(messageDetailView(message = content, title = Messages("label.message")))
         case HtmlPartial.Failure(_, _) =>
           Ok(
-            views.html.message.messageDetail(
+            messageDetailView(
               message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
               title = Messages("label.message")
             )

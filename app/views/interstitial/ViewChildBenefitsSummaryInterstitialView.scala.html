@@ -21,10 +21,13 @@
 
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.interstitial.InterstitialWrapperView
+@import views.html.interstitial.InterstitialWrapperView
+
+@this(interstitialWrapperView: InterstitialWrapperView)
 
 @(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@InterstitialWrapperView(messages("label.report_changes_that_affect_your_child_benefit"), messages("label.report_changes_that_affect_your_child_benefit")) {
+@interstitialWrapperView(messages("label.report_changes_that_affect_your_child_benefit"), messages("label.report_changes_that_affect_your_child_benefit")) {
     <div class="column-two-thirds child-benefit-partial pta-panel">
     @if(request.nino.isDefined) {
         <h2 class="heading-medium">@messages("label.if_your_childs_circumstances_change")</h2>
@@ -57,7 +60,7 @@
         <p>@messages("text.if_you_do_not_claim_child_benefit_text_before_link") <a class="trackLink" href="@configDecorator.childBenefitsCheckIfYouCanClaim" target="_blank" rel="noopener noreferrer">@messages("text.if_you_do_not_claim_child_benefit_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
     } else {
         <p class="lede">@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
-        <a href="@controllers.routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
+        <a href="@routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
     }
     </div>
 }

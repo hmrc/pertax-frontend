@@ -32,6 +32,8 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec with Mockit
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
+  lazy val view = injected[ViewNationalInsuranceInterstitialHomeView]
+
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
@@ -52,7 +54,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec with Mockit
         None,
         FakeRequest()
       )
-      val document = asDocument(ViewNationalInsuranceInterstitialHomeView(Html(""), "asfa").toString)
+      val document = asDocument(view(Html(""), "asfa").toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 
@@ -71,7 +73,7 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec with Mockit
         None,
         FakeRequest()
       )
-      val document = asDocument(ViewNationalInsuranceInterstitialHomeView(Html(""), "aas").toString)
+      val document = asDocument(view(Html(""), "aas").toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 
