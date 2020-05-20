@@ -21,16 +21,10 @@
 
 @this()
 
-@(title: String, header: String, scriptElement: Option[Html] = None)(content: Html)(implicit request: UserRequest[_],
-        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(message: Html, title: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(title, Some(messages("label.your_personal_tax_account")), scriptElement = scriptElement) {
+@main(title = title, Some(messages("label.your_personal_tax_account"))) {
 
-    <div class="page-heading">
-        <h1 class="heading-xlarge no-margin-bottom">@header</h1>
-    </div>
-    <div class="grid-row">
-    @content
-    </div>
-
+    @back_link()
+    @message
 }

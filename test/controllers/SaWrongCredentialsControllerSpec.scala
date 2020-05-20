@@ -26,6 +26,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, LocalPartialRetriever}
+import views.html.selfassessment.{DoYouKnowOtherCredentialsView, DoYouKnowUserIdView, FindYourUserIdView, NeedToResetPasswordView, SignInAgainView, SignedInWrongAccountView}
 
 import scala.concurrent.ExecutionContext
 
@@ -35,11 +36,16 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
     WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
 
   def controller =
-    new SaWrongCredentialsController(fakeAuthJourney, injected[MessagesControllerComponents])(
-      injected[LocalPartialRetriever],
-      config,
-      injected[TemplateRenderer],
-      injected[ExecutionContext])
+    new SaWrongCredentialsController(
+      fakeAuthJourney,
+      injected[MessagesControllerComponents],
+      injected[SignedInWrongAccountView],
+      injected[DoYouKnowOtherCredentialsView],
+      injected[SignInAgainView],
+      injected[DoYouKnowUserIdView],
+      injected[NeedToResetPasswordView],
+      injected[FindYourUserIdView]
+    )(injected[LocalPartialRetriever], config, injected[TemplateRenderer], injected[ExecutionContext])
 
   "processDoYouKnowOtherCredentials" should {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {

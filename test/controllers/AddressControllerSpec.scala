@@ -16,7 +16,6 @@
 
 package controllers
 
-import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
@@ -25,13 +24,13 @@ import controllers.controllershelpers.{CountryHelper, PersonalDetailsCardGenerat
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
-import org.joda.time.{DateTime, LocalDate}
+import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.{Lang, Langs, Messages, MessagesApi, MessagesImpl}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
@@ -118,6 +117,8 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
     def thisYearStr: String
 
+    def eTagResponse: Option[ETag] = Some(ETag("115"))
+
     def updateAddressResponse: UpdateAddressResponse
 
     lazy val fakePersonDetails = Fixtures.buildPersonDetails
@@ -171,6 +172,9 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         }
         when(mockCitizenDetailsService.personDetails(meq(nino))(any())) thenReturn {
           Future.successful(personDetailsResponse)
+        }
+        when(mockCitizenDetailsService.getEtag(any())(any())) thenReturn {
+          Future.successful(eTagResponse)
         }
         when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any())) thenReturn {
           Future.successful(updateAddressResponse)
@@ -2066,7 +2070,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = requestWithForm,
-              personDetails = Some(PersonDetails("", emptyPerson, Some(address(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
+              personDetails = Some(PersonDetails(emptyPerson, Some(address(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
               .asInstanceOf[UserRequest[A]]
           )
       })
@@ -2650,6 +2654,26 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
+
+    "return 500 if fetching etag from citizen details fails" in new LocalSetup {
+      override def eTagResponse: Option[ETag] = None
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              personDetails = Some(buildPersonDetailsCorrespondenceAddress),
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]])
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.submitConfirmClosePostalAddress(FakeRequest())
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
   }
 
   "Calling AddressController.submitChanges" should {
@@ -2960,6 +2984,35 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         Some("11 Fake Street"))
       verify(controller.sessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
+    }
+
+    "return 500 when fetching etag from citizen details fails" in new LocalSetup {
+
+      override def eTagResponse: Option[ETag] = None
+
+      override lazy val fakeAddress =
+        buildFakeAddress.copy(`type` = Some("Correspondence"), startDate = Some(LocalDate.now))
+      override lazy val sessionCacheResponse = Some(
+        CacheMap(
+          "id",
+          Map(
+            "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+          )))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = FakeRequest("POST", "/test")
+                .asInstanceOf[Request[A]]
+            )
+              .asInstanceOf[UserRequest[A]]
+          )
+      })
+
+      val result = controller.submitChanges(PostalAddrType)(FakeRequest())
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
     }
   }
 

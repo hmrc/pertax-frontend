@@ -64,7 +64,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
 
     def buildPersonDetails =
       PersonDetails(
-        "115",
         Person(
           Some("Firstname"),
           Some("Middlename"),
@@ -224,7 +223,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
 
     def buildPersonDetails =
       PersonDetails(
-        "115",
         Person(
           Some("Firstname"),
           Some("Middlename"),
@@ -391,7 +389,6 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
 
       def buildPersonDetails =
         PersonDetails(
-          "115",
           Person(
             Some("Firstname"),
             Some("Middlename"),

@@ -43,7 +43,6 @@ class NinoDisplayServiceSpec
   val authNino = Fixtures.fakeNino
 
   val personDetails = PersonDetails(
-    "115",
     Person(
       None,
       None,

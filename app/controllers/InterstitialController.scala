@@ -32,7 +32,9 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 import util.LocalPartialRetriever
-import views.html.interstitial.{InterstitialWrapperView, ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
+import views.html.SelfAssessmentSummaryView
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
+import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,7 +48,8 @@ class InterstitialController @Inject()(
   cc: MessagesControllerComponents,
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
-  interstitialWrapperView: InterstitialWrapperView)(
+  selfAssessmentSummaryView: SelfAssessmentSummaryView,
+  sa302InterruptView: Sa302InterruptView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -100,7 +103,7 @@ class InterstitialController @Inject()(
         saPartial   <- saPartial
       } yield {
         Ok(
-          views.html.selfAssessmentSummary(
+          selfAssessmentSummaryView(
             formPartial successfulContentOrElse Html(""),
             saPartial successfulContentOrElse Html("")
           ))
@@ -113,9 +116,7 @@ class InterstitialController @Inject()(
     if (request.isSa) {
       request.saUserType match {
         case saUser: SelfAssessmentUser =>
-          Ok(
-            views.html.selfassessment
-              .sa302Interrupt(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUser.saUtr))
+          Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUser.saUtr))
         case NonFilerSelfAssessmentUser =>
           Logger.warn("User had no sa account (non filer) when one was required")
           error(INTERNAL_SERVER_ERROR)

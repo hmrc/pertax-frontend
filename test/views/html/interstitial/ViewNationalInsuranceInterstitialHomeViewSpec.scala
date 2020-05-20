@@ -28,21 +28,21 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec with Mockit
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
+  lazy val view = injected[ViewNationalInsuranceInterstitialHomeView]
+
   implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-  lazy val viewNationalInsuranceInterstitialHomeView = injected[ViewNationalInsuranceInterstitialHomeView]
-
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" should {
 
     "show NINO section when a nino is present" in {
-      val document = asDocument(viewNationalInsuranceInterstitialHomeView(Html(""), "asfa", userRequest.nino).toString)
+      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
       Option(document.select(".nino").first).isDefined shouldBe true
     }
 
     "show incomplete when there is no NINO" in {
-      val document = asDocument(viewNationalInsuranceInterstitialHomeView(Html(""), "http://google.com", None).toString)
+      val document = asDocument(view(Html(""), "http://google.com", None).toString)
       Option(document.select(".nino").first).isDefined shouldBe false
       document.body().toString should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
     }

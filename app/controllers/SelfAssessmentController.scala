@@ -32,6 +32,9 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.{DateTimeTools, LocalPartialRetriever}
+import views.html.ActivatedSaFilerIntermediateView
+import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
+import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,7 +43,11 @@ class SelfAssessmentController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  activatedSaFilerIntermediateView: ActivatedSaFilerIntermediateView,
+  failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
+  cannotConfirmIdentityView: CannotConfirmIdentityView,
+  requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -57,9 +64,9 @@ class SelfAssessmentController @Inject()(
             case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
               Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
             case WrongCredentialsSelfAssessmentUser(_) =>
-              Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
+              Redirect(routes.SaWrongCredentialsController.landingPage())
             case NotEnrolledSelfAssessmentUser(_) =>
-              Redirect(controllers.routes.SelfAssessmentController.requestAccess())
+              Redirect(routes.SelfAssessmentController.requestAccess())
             case _ => Redirect(routes.HomeController.index())
           }
         } else {
@@ -69,23 +76,23 @@ class SelfAssessmentController @Inject()(
 
   def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
-      val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
+      val retryUrl = routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(x) =>
           handleIvExemptAuditing("Activated online SA filer")
-          Ok(views.html.activatedSaFilerIntermediate(x.toString, DateTimeTools.previousAndCurrentTaxYear))
+          Ok(activatedSaFilerIntermediateView(x.toString, DateTimeTools.previousAndCurrentTaxYear))
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
-          Ok(views.html.iv.failure.failedIvContinueToActivateSa())
+          Ok(failedIvContinueToActivateSaView())
         case WrongCredentialsSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Wrong credentials SA filer")
-          Redirect(controllers.routes.SaWrongCredentialsController.landingPage())
+          Redirect(routes.SaWrongCredentialsController.landingPage())
         case NotEnrolledSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Never enrolled SA filer")
-          Redirect(controllers.routes.SelfAssessmentController.requestAccess())
+          Redirect(routes.SelfAssessmentController.requestAccess())
         case NonFilerSelfAssessmentUser =>
-          Ok(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+          Ok(cannotConfirmIdentityView(retryUrl))
       }
     }
 
@@ -102,7 +109,7 @@ class SelfAssessmentController @Inject()(
       request.saUserType match {
         case NotEnrolledSelfAssessmentUser(saUtr) =>
           val deadlineYear = current.finishYear.toString
-          Ok(views.html.selfassessment.requestAccessToSelfAssessment(saUtr.utr, deadlineYear))
+          Ok(requestAccessToSelfAssessmentView(saUtr.utr, deadlineYear))
         case _ => Redirect(routes.HomeController.index())
       }
     }

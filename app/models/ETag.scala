@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import config.ConfigDecorator
-@import uk.gov.hmrc.renderer.TemplateRenderer
-@import util.LocalPartialRetriever
+package models
 
-@(allowContinue: Boolean)(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+import play.api.libs.json.Json
 
-@views.html.iv.ivOutcomeWrapper(messages("label.we_cannot_confirm_your_identity"), messages("label.we_cannot_confirm_your_identity")) {
+case class ETag(etag: String)
 
-    <p>@messages("label.you_have_tried_to_confirm_your_identity_")</p>
-    <p>@messages("label.try_again_in_24_hours")</p>
+object ETag {
+  implicit lazy val reads = Json.reads[ETag]
 }
