@@ -15,13 +15,18 @@
  *@
 
 @import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@(allowContinue: Boolean)(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@this()
 
-@views.html.iv.ivOutcomeWrapper(messages("label.we_cannot_confirm_your_identity"), messages("label.we_cannot_confirm_your_identity")) {
+@(continueUrl: String)(implicit request: Request[_], configDecorator: ConfigDecorator,
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-    <p>@messages("label.you_have_tried_to_confirm_your_identity_")</p>
-    <p>@messages("label.try_again_in_24_hours")</p>
+@views.html.iv.ivOutcomeWrapper(messages("label.we_have_confirmed_your_identity"), messages("label.we_have_confirmed_your_identity")) {
+
+    <p class="margin-bottom">@messages("label.you_can_sign_in_to_your_personal_tax_account")</p>
+
+    <a href="@continueUrl" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
 }

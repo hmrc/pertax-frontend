@@ -30,13 +30,21 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
+import views.html.iv.success.SuccessView
+import views.html.iv.failure._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ApplicationController @Inject()(
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
   authJourney: AuthJourney,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  successView: SuccessView,
+  cannotConfirmIdentityView: CannotConfirmIdentityView,
+  failedIvIncompleteView: FailedIvIncompleteView,
+  lockedOutView: LockedOutView,
+  timeOutView: TimeOutView,
+  technicalIssuesView: TechnicalIssuesView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -54,45 +62,58 @@ class ApplicationController @Inject()(
       val journeyId =
         List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
 
-      val retryUrl = controllers.routes.ApplicationController.uplift(continueUrl).url
+      val retryUrl = routes.ApplicationController.uplift(continueUrl).url
 
       journeyId match {
         case Some(jid) =>
           identityVerificationFrontendService.getIVJourneyStatus(jid).map {
+
             case IdentityVerificationSuccessResponse(Success) =>
-              Ok(views.html.iv.success.success(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+              Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+
             case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-              Redirect(controllers.routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+              Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+
             case IdentityVerificationSuccessResponse(UserAborted) =>
-              Logger.warn(s"Unable to confirm user identity: $UserAborted")
-              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+              logErrorMessage(UserAborted)
+              Unauthorized(cannotConfirmIdentityView(retryUrl))
+
             case IdentityVerificationSuccessResponse(FailedMatching) =>
-              Logger.warn(s"Unable to confirm user identity: $FailedMatching")
-              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+              logErrorMessage(FailedMatching)
+              Unauthorized(cannotConfirmIdentityView(retryUrl))
+
             case IdentityVerificationSuccessResponse(Incomplete) =>
-              Logger.warn(s"Unable to confirm user identity: $Incomplete")
-              Unauthorized(views.html.iv.failure.failedIvIncomplete(retryUrl))
+              logErrorMessage(Incomplete)
+              Unauthorized(failedIvIncompleteView(retryUrl))
+
             case IdentityVerificationSuccessResponse(PrecondFailed) =>
-              Logger.warn(s"Unable to confirm user identity: $PrecondFailed")
-              Unauthorized(views.html.iv.failure.cantConfirmIdentity(retryUrl))
+              logErrorMessage(PrecondFailed)
+              Unauthorized(cannotConfirmIdentityView(retryUrl))
+
             case IdentityVerificationSuccessResponse(LockedOut) =>
-              Logger.warn(s"Unable to confirm user identity: $LockedOut")
-              Unauthorized(views.html.iv.failure.lockedOut(allowContinue = false))
+              logErrorMessage(LockedOut)
+              Unauthorized(lockedOutView(allowContinue = false))
+
             case IdentityVerificationSuccessResponse(Timeout) =>
-              Logger.warn(s"Unable to confirm user identity: $Timeout")
-              InternalServerError(views.html.iv.failure.timeOut(retryUrl))
+              logErrorMessage(Timeout)
+              InternalServerError(timeOutView(retryUrl))
+
             case IdentityVerificationSuccessResponse(TechnicalIssue) =>
               Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
-              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+              InternalServerError(technicalIssuesView(retryUrl))
+
             case r =>
               Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
-              InternalServerError(views.html.iv.failure.technicalIssues(retryUrl))
+              InternalServerError(technicalIssuesView(retryUrl))
           }
         case None =>
           Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
-          Future.successful(BadRequest(views.html.iv.failure.technicalIssues(retryUrl)))
+          Future.successful(BadRequest(technicalIssuesView(retryUrl)))
       }
     }
+
+  private def logErrorMessage(reason: String): Unit =
+    Logger.warn(s"Unable to confirm user identity: $reason")
 
   def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
     authJourney.authWithSelfAssessment { implicit request =>

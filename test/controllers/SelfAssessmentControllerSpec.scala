@@ -27,19 +27,20 @@ import org.mockito.Mockito.{reset, when}
 import org.scalatest.exceptions.TestFailedException
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import play.api.i18n.MessagesApi
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
 import services.SelfAssessmentPaymentsService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.Upstream5xxResponse
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
+import views.html.ActivatedSaFilerIntermediateView
+import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
+import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -78,7 +79,11 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         fakeAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector,
-        injected[MessagesControllerComponents]
+        injected[MessagesControllerComponents],
+        injected[ActivatedSaFilerIntermediateView],
+        injected[FailedIvContinueToActivateSaView],
+        injected[CannotConfirmIdentityView],
+        injected[RequestAccessToSelfAssessmentView]
       )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
