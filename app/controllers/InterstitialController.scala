@@ -26,7 +26,7 @@ import models._
 import play.api.Logger
 import play.api.mvc._
 import play.twirl.api.Html
-import services.PreferencesFrontendService
+import services.{NinoDisplayService, PreferencesFrontendService}
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -42,6 +42,7 @@ class InterstitialController @Inject()(
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
   val preferencesFrontendService: PreferencesFrontendService,
+  ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
@@ -70,11 +71,14 @@ class InterstitialController @Inject()(
     .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.map { p =>
-      Ok(
-        viewNationalInsuranceInterstitialHomeView(
-          formPartial = p successfulContentOrElse Html(""),
-          redirectUrl = currentUrl))
+    formPartialService.getNationalInsurancePartial.flatMap { p =>
+      ninoDisplayService.getNino.map { nino =>
+        Ok(
+          viewNationalInsuranceInterstitialHomeView(
+            formPartial = p successfulContentOrElse Html(""),
+            redirectUrl = currentUrl,
+            nino))
+      }
     }
   }
 

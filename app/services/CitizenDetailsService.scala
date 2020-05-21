@@ -20,7 +20,7 @@ import com.kenshoo.play.metrics.Metrics
 import com.google.inject.{Inject, Singleton}
 import metrics._
 import models._
-import play.api.Mode.Mode
+import play.api.Mode
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
 import play.api.{Configuration, Environment, Logger}

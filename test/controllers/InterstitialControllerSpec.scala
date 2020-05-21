@@ -28,11 +28,12 @@ import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Resul
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services._
+import services.{NinoDisplayService, _}
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
@@ -56,12 +57,14 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
     lazy val fakeRequest = FakeRequest("", "")
 
     val mockAuthJourney = mock[AuthJourney]
+    val ninoDisplayService = mock[NinoDisplayService]
 
     def controller: InterstitialController =
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
         mock[PreferencesFrontendService],
+        ninoDisplayService,
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
@@ -87,6 +90,8 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(paperlessResponse)
         }
+
+        when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
       }
   }
 
@@ -114,7 +119,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       status(result) shouldBe OK
 
       verify(testController.formPartialService, times(1)).getNationalInsurancePartial(any())
-
     }
   }
 

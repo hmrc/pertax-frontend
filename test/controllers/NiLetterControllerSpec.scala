@@ -22,17 +22,19 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
+import org.mockito.Matchers.any
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.NinoDisplayService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
+import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures, Fixtures}
 import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,6 +46,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   val mockInterstitialController = mock[InterstitialController]
   val mockAddressController = mock[AddressController]
   val mockHomeController = mock[HomeController]
+  val ninoDisplayService = mock[NinoDisplayService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -59,6 +62,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   def controller: NiLetterController =
     new NiLetterController(
       mockPdfGeneratorConnector,
+      ninoDisplayService,
       mockAuthJourney,
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
@@ -70,7 +74,9 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       injected[ConfigDecorator],
       injected[TemplateRenderer],
       injected[ExecutionContext]
-    )
+    ) {
+      when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
+    }
 
   "Calling NiLetterController.printNationalInsuranceNumber" should {
 

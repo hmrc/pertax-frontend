@@ -21,7 +21,7 @@
 
 @this(niLetter: views.html.print.NiLetterView)
 
-@(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean)(implicit request: UserRequest[_],
+@(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean, nino : Option[Nino])(implicit request: UserRequest[_],
         configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @main(messages("label.print_your_national_insurance_summary"), Some(messages("label.national_insurance")), printableDocument = true) {
@@ -48,7 +48,7 @@
                 </div>
             }
 
-            @niLetter(personDetails, dateString)
+            @niLetter(personDetails, dateString, nino)
         </div>
     </div>
 }

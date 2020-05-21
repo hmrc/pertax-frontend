@@ -24,6 +24,7 @@ import error.RendersErrors
 import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.NinoDisplayService
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
@@ -34,6 +35,7 @@ import scala.io.Source
 
 class NiLetterController @Inject()(
   val pdfGeneratorConnector: PdfGeneratorConnector,
+  ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
@@ -47,18 +49,23 @@ class NiLetterController @Inject()(
     extends PertaxBaseController(cc) with RendersErrors {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.personDetails.isDefined) {
-          Ok(
-            printNiNumberView(
-              request.personDetails.get,
-              LocalDate.now.toString("MM/YY"),
-              configDecorator.saveNiLetterAsPdfLinkEnabled
+          for {
+            nino <- ninoDisplayService.getNino
+          } yield {
+            Ok(
+              printNiNumberView(
+                request.personDetails.get,
+                LocalDate.now.toString("MM/YY"),
+                configDecorator.saveNiLetterAsPdfLinkEnabled,
+                nino
+              )
             )
-          )
+          }
         } else {
-          error(INTERNAL_SERVER_ERROR)
+          futureError(INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -75,26 +82,35 @@ class NiLetterController @Inject()(
               .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL())
               .mkString
 
-            val htmlPayload = pdfWrapperView()
-              .toString()
-              .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
-              .replace(
-                "<!-- niLetterPlaceHolder -->",
-                niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY")).toString)
-              .filter(_ >= ' ')
-              .trim
-              .replaceAll("  +", "")
+            val htmlPayloadF = for {
+              nino <- ninoDisplayService.getNino
+            } yield {
+              val niLetter = niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY"), nino).toString()
 
-            pdfGeneratorConnector.generatePdf(htmlPayload).map { response =>
+              pdfWrapperView()
+                .toString()
+                .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
+                .replace("<!-- niLetterPlaceHolder -->", niLetter)
+                .filter(_ >= ' ')
+                .trim
+                .replaceAll("  +", "")
+            }
+
+            for {
+              htmlPayload <- htmlPayloadF
+              response    <- pdfGeneratorConnector.generatePdf(htmlPayload)
+            } yield {
               if (response.status != OK) {
                 throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
               } else {
+
                 Ok(response.bodyAsBytes.toArray)
                   .as("application/pdf")
                   .withHeaders("Content-Disposition" -> s"attachment; filename=${Messages(
                     "label.your_national_insurance_letter").replaceAll(" ", "-")}.pdf")
               }
             }
+
           } else {
             futureError(INTERNAL_SERVER_ERROR)
 
