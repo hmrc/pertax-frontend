@@ -18,7 +18,9 @@ package modules
 
 import com.google.inject.AbstractModule
 import config.LocalTemplateRenderer
+import services.LocalSessionCache
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
@@ -31,5 +33,6 @@ class LocalGuiceModule extends AbstractModule {
     bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
     bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])
     bind(classOf[AuditConnector]).to(classOf[DefaultAuditConnector])
+    bind(classOf[SessionCache]).to(classOf[LocalSessionCache])
   }
 }
