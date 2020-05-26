@@ -65,19 +65,15 @@ class EditAddressLockRepository @Inject()(
     }
   }
 
-  def get(nino: String): Future[List[AddressJourneyTTLModel]] = {
-
-    val getExpiredAt = "editedAddress.expireAt"
-
+  def get(nino: String): Future[List[AddressJourneyTTLModel]] =
     getCore(
       BSONDocument(
         BSONDocument("nino" -> nino),
         BSONDocument(
-          BSONDocument(getExpiredAt -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
+          BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
         )
       )
     )
-  }
 
   private[repositories] def getCore(selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
     this.collection
