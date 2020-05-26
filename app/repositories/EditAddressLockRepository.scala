@@ -147,7 +147,7 @@ class EditAddressLockRepository @Inject()(
 }
 
 object EditAddressLockRepository {
-  val EXPIRE_AT = "editedaddress.expireAt"
+  val EXPIRE_AT = "editedAddress.expireAt"
   val UK_TIME_ZONE: ZoneId = TimeZone.getTimeZone("Europe/London").toZoneId
   val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
   val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
