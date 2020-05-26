@@ -31,7 +31,6 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
-import services.SelfAssessmentPaymentsService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -51,7 +50,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
   val mockAuthAction = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockPayApiConnector = mock[PayApiConnector]
-  val mockSelfAssessmentPaymentsService = mock[SelfAssessmentPaymentsService]
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
@@ -61,8 +59,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
       bind[AuditConnector].toInstance(mockAuditConnector),
       bind[AuthAction].toInstance(mockAuthAction),
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
-      bind[AuthJourney].toInstance(defaultFakeAuthJourney),
-      bind[SelfAssessmentPaymentsService].toInstance(mockSelfAssessmentPaymentsService)
+      bind[AuthJourney].toInstance(defaultFakeAuthJourney)
     )
     .build()
 
@@ -75,7 +72,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
     def controller =
       new SelfAssessmentController(
-        mockSelfAssessmentPaymentsService,
         fakeAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector,
@@ -178,22 +174,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
           .getOrElse(throw new TestFailedException("Failed to route", 0))
 
       status(result) shouldBe BAD_REQUEST
-    }
-  }
-
-  "Calling SelfAssessmentController.viewPayments" should {
-
-    "redirect to the home page" in new LocalSetup {
-
-      override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NonFilerSelfAssessmentUser)
-
-      val result =
-        routeWrapper(buildFakeRequestWithAuth("GET", routes.SelfAssessmentController.viewPayments().url))
-          .getOrElse(throw new TestFailedException("Failed to route", 0))
-
-      status(result) shouldBe SEE_OTHER
-
-      redirectLocation(result) shouldBe Some(routes.HomeController.index().url)
     }
   }
 }

@@ -106,7 +106,7 @@ class ConfigDecorator @Inject()(
     .concat(
       "://" + runModeConfiguration.getString("microservice.services.frontend-template-provider.host").getOrElse(""))
     .concat(":" + runModeConfiguration.getString("microservice.services.frontend-template-provider.port").getOrElse(""))
-  def ssoifyUrl(url: URL) =
+  def transformUrlForSso(url: URL) =
     s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
   def sa302Url(saUtr: String, taxYear: String) =
@@ -117,10 +117,12 @@ class ConfigDecorator @Inject()(
                                                                                 else "cym")
   lazy val ssoToActivateSaEnrolmentPinUrl =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
-  lazy val ssoToRegisterForSaEnrolment = ssoifyUrl(toPortalUrl("/home/services/enroll"))
-  lazy val ssoToRegistration = ssoifyUrl(toPortalUrl("/registration"))
+  lazy val ssoToRegisterForSaEnrolment = transformUrlForSso(toPortalUrl("/home/services/enroll"))
+  lazy val ssoToRegistration = transformUrlForSso(toPortalUrl("/registration"))
   def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) =
-    ssoifyUrl(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
+    transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
+  def viewSaPaymentsUrl(saUtr: String): String =
+    transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/account/payments"))
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
@@ -128,7 +130,6 @@ class ConfigDecorator @Inject()(
   lazy val analyticsHost = Some(runModeConfiguration.getString(s"google-analytics.host").getOrElse("service.gov.uk"))
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
-  lazy val getPaymentsUrl = s"$payApiUrl/pay-api/payment/search/PTA"
   lazy val deskproToken = "PTA"
   lazy val citizenSwitchOffUrl = s"$citizenAuthHost/attorney/switch-off-act"
   lazy val taxEstimateServiceUrl = s"$taiHost/check-income-tax/paye"

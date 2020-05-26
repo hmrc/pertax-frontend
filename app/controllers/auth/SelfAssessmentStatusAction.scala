@@ -17,12 +17,10 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import connectors.EnrolmentsConnector
-import controllers.auth.requests.{Activated, AuthenticatedRequest, NotYetActivated, SelfAssessmentEnrolment, UserRequest}
+import controllers.auth.requests._
 import models._
-import play.api.Logger
-import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, MessagesControllerComponents, Result}
-import services.{CitizenDetailsService, EnrolmentStoreCachingService, LocalSessionCache, MatchingDetailsSuccessResponse}
+import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
+import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
