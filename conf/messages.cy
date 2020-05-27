@@ -19,7 +19,6 @@ title.name=Enw
 title.year=Blwyddyn
 title.postcode=Cod post
 title.house.name.or.number=Enw neu rif y tŷ (dewisol)
-title.amount=Swm
 title.type=Math
 
 #
@@ -491,13 +490,6 @@ global.page.not.found.error.contact.link=https://www.gov.uk/government/organisat
 
 
 label.access_your_self_assessment=Cael at eich cyfrif Hunanasesiad
-
-title.selfAssessment.viewPayments.h1=Taliadau Hunanasesiad ar gyfer y 60 diwrnod diwethaf
-label.selfAssessment.noPaymentsIn60=Ni fu unrhyw daliadau yn ystod y 60 diwrnod diwethaf
-label.selfAssessment.balanceUpdateAdvisory=Gall gymryd hyd at 7 diwrnod i ddiweddaru’ch balans ar ôl pob taliad.
-label.selfAssessment.paymentsTable.date=Dyddiad
-label.selfAssessment.paymentsTable.reference=Cyfeirnod
-label.selfAssessment.paymentsTable.amount=Swm
 
 title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
 label.signed_in_wrong_account=Defnyddioch gyfrif gwahanol pan wnaethoch gofrestru gyntaf i fwrw golwg dros eich Ffurflenni Treth, neu eu hanfon, ar-lein.
