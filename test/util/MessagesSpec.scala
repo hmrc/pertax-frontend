@@ -49,7 +49,7 @@ class MessagesSpec extends UnitSpec with WithFakeApplication {
       }
     }
 
-    "not have the same messages" ignore {
+    "not have the same messages" in {
       val same = defaultMessages.keys.collect({
         case key if defaultMessages.get(key) == welshMessages.get(key) =>
           (key, defaultMessages.get(key))

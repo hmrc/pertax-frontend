@@ -490,37 +490,37 @@ global.page.not.found.error.contact.link.text=cysylltwch â Gwasanaeth Cwsmeriai
 global.page.not.found.error.contact.link=https://www.gov.uk/government/organisations/hm-revenue-customs/contact/welsh-language-helplines
 
 
-label.access_your_self_assessment=Access your Self Assessment
+label.access_your_self_assessment=Cael at eich cyfrif Hunanasesiad
 
-title.selfAssessment.viewPayments.h1=Self Assessment payments for the last 60 days
-label.selfAssessment.noPaymentsIn60=There have been no payments in the last 60 days
-label.selfAssessment.balanceUpdateAdvisory=It can take up to 7 days to update your balance after each payment.
-label.selfAssessment.paymentsTable.date=Date
-label.selfAssessment.paymentsTable.reference=Reference number
-label.selfAssessment.paymentsTable.amount=Amount
+title.selfAssessment.viewPayments.h1=Taliadau Hunanasesiad ar gyfer y 60 diwrnod diwethaf
+label.selfAssessment.noPaymentsIn60=Ni fu unrhyw daliadau yn ystod y 60 diwrnod diwethaf
+label.selfAssessment.balanceUpdateAdvisory=Gall gymryd hyd at 7 diwrnod i ddiweddaru’ch balans ar ôl pob taliad.
+label.selfAssessment.paymentsTable.date=Dyddiad
+label.selfAssessment.paymentsTable.reference=Cyfeirnod
+label.selfAssessment.paymentsTable.amount=Swm
 
-title.signed_in_wrong_account.h1=You are not signed in to the right account
-label.signed_in_wrong_account=You used a different account when you first signed-up to view or send your tax returns online.
+title.signed_in_wrong_account.h1=Nid ydych wedi mewngofnodi i’r cyfrif cywir
+label.signed_in_wrong_account=Defnyddioch gyfrif gwahanol pan wnaethoch gofrestru gyntaf i fwrw golwg dros eich Ffurflenni Treth, neu eu hanfon, ar-lein.
 
-title.sign_in_again.h1=You need to sign back in to Government Gateway using different details
-label.sign_in_again=You will be asked to sign in again with the user ID and password for the account you use for Self Assessment.
+title.sign_in_again.h1=Mae angen i chi fewngofnodi eto i Borth y Llywodraeth gan ddefnyddio manylion gwahanol
+label.sign_in_again=Gofynnir i chi fewngofnodi eto gyda’r Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer y cyfrif rydych yn ei ddefnyddio ar gyfer Hunanasesiad.
 
-title.do_you_know_other_credentials.h1=Do you know the user ID and password for the account you use for Self Assessment?
-title.do_you_know_user_id.h1=Do you know the user ID?
+title.do_you_know_other_credentials.h1=A ydych yn gwybod beth yw’r Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer y cyfrif rydych yn ei ddefnyddio ar gyfer Hunanasesiad?
+title.do_you_know_user_id.h1=A ydych yn gwybod beth yw’r Dynodydd Defnyddiwr (ID)?
 
-title.reset_your_password.h1=You need to reset your password
-labels.need_utr=You will need your Unique Taxpayer Reference (UTR).
-labels.your_utr_is=Your UTR is
+title.reset_your_password.h1=Mae angen i chi ailosod eich cyfrinair
+labels.need_utr=Bydd angen eich Cyfeirnod Unigryw y Trethdalwr (UTR) arnoch.
+labels.your_utr_is=Eich UTR yw
 
-title.find_your_user_id.h1=Get help finding your user ID
+title.find_your_user_id.h1=Cael help i ddod o hyd i’ch Dynodydd Defnyddiwr (ID)
 
-title.request_sa_access.h1=You need to request access to Self Assessment
-label.request_sa_access.p1=This may be because you have deregistered from Self Assessment online.
-label.request_sa_access.p2=You will need your Unique Taxpayer Reference (UTR).
-label.request_sa_access.p3=You will get an activation code in the post within 10 days of requesting access.
-label.request_sa_access.button=Request access to Self Assessment
+title.request_sa_access.h1=Rhaid i chi wneud cais i gael at eich cyfrif Hunanasesiad
+label.request_sa_access.p1=Gallai hyn fod oherwydd eich bod wedi dadgofrestru rhag defnyddio Hunanasesiad ar-lein.
+label.request_sa_access.p2=Bydd angen eich Cyfeirnod Unigryw y Trethdalwr (UTR) arnoch.
+label.request_sa_access.p3=Byddwch yn cael cod cychwyn drwy’r post cyn pen 10 diwrnod ar ôl gwneud cais i gael at eich cyfrif Hunanasesiad.
+label.request_sa_access.button=Gwneud cais i gael at eich cyfrif Hunanasesiad
 
-label.next_page_forgotten_password=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my password’.
-label.next_page_forgotten_userid=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my Government Gateway user ID’.
+label.next_page_forgotten_password=Ar y dudalen nesaf, ewch i ‘Problemau wrth fewngofnodi’, ac, ar waelod y dudalen, dewiswch ‘Rwyf wedi anghofio’m cyfrinair’.
+label.next_page_forgotten_userid=Ar y dudalen nesaf, ewch i ‘Problemau wrth fewngofnodi’, ac, ar waelod y dudalen, dewiswch ‘Rwyf wedi anghofio’m Dynodydd Defnyddiwr (ID) Porth y Llywodraeth’.
 
 label.home_page.utr=Eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Hunanasesiad yw
