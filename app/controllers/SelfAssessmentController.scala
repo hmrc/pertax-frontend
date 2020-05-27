@@ -24,7 +24,6 @@ import error.RendersErrors
 import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.SelfAssessmentPaymentsService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
@@ -39,7 +38,6 @@ import views.html.selfassessment.RequestAccessToSelfAssessmentView
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentController @Inject()(
-  selfAssessmentPaymentsService: SelfAssessmentPaymentsService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
@@ -112,10 +110,5 @@ class SelfAssessmentController @Inject()(
           Ok(requestAccessToSelfAssessmentView(saUtr.utr, deadlineYear))
         case _ => Redirect(routes.HomeController.index())
       }
-    }
-
-  def viewPayments: Action[AnyContent] =
-    authJourney.authWithPersonalDetails.async { implicit request =>
-      Future.successful(Redirect(routes.HomeController.index()))
     }
 }

@@ -42,9 +42,9 @@ class ConfigDecoratorSpec extends BaseSpec {
       }
     }
 
-    "return a properly encoded sso url when calling ssoifyUrl" in new LocalSetup {
+    "return a properly encoded sso url when calling transformUrlForSso" in new LocalSetup {
 
-      configDecorator.ssoifyUrl(new URL("http://example.com/some/path?key=val")) shouldBe
+      configDecorator.transformUrlForSso(new URL("http://example.com/some/path?key=val")) shouldBe
         "http://company-auth-frontend.service/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
     }
 
