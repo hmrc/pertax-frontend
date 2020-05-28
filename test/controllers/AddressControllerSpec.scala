@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
-import controllers.controllershelpers.{CountryHelper, PersonalDetailsCardGenerator}
+import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
@@ -90,6 +90,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
   implicit val lang: Lang = Lang("en-gb")
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+  implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
 
   override def beforeEach: Unit =
     reset(
@@ -144,7 +145,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockEditAddressLockRepository,
         ninoDisplayService,
         mockAuthJourney,
-        mockLocalSessionCache,
+        new AddressJourneyCachingHelper(mockLocalSessionCache),
         injected[WithActiveTabAction],
         mockAuditConnector,
         injected[MessagesControllerComponents],
@@ -165,7 +166,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         updateAddressConfirmation,
         reviewChanges,
         addressAlreadyUpdated
-      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
+      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec) {
 
         when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
           Future.successful(AuditResult.Success)
@@ -306,7 +307,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.taxCreditsChoice(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new WithAddressControllerSpecSetup
@@ -317,7 +318,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
@@ -411,7 +412,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.residencyChoice(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return to the beginning of journey when the user has indicated that they receive tax credits on the previous page" in new LocalSetup {
@@ -422,7 +423,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return to the beginning of journey when the user has not selected any tax credits choice on the previous page" in new LocalSetup {
@@ -432,7 +433,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
@@ -543,7 +544,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.internationalAddressChoice(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new WithAddressControllerSpecSetup
@@ -554,7 +555,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
@@ -604,7 +605,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           mockEditAddressLockRepository,
           ninoDisplayService,
           mockAuthJourney,
-          mockLocalSessionCache,
+          new AddressJourneyCachingHelper(mockLocalSessionCache),
           injected[WithActiveTabAction],
           mockAuditConnector,
           injected[MessagesControllerComponents],
@@ -625,7 +626,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           updateAddressConfirmation,
           reviewChanges,
           addressAlreadyUpdated
-        )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer], injected[ExecutionContext])
+        )(mock[LocalPartialRetriever], mockConfigDecorator, injected[TemplateRenderer], ec)
 
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
       when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
@@ -687,7 +688,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 200 if the user is on correspondence address journey and has postal address type" in new LocalSetup {
@@ -697,7 +698,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in new LocalSetup {
@@ -706,7 +707,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -716,7 +717,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -732,7 +733,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -746,7 +747,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -1202,7 +1203,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
-      verify(controller.sessionCache, times(1))
+      verify(mockLocalSessionCache, times(1))
         .cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
     }
   }
@@ -1226,7 +1227,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "fetch the selected address and a sole residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
@@ -1241,7 +1242,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no selected address with sole address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
@@ -1252,7 +1253,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no residency choice in the session cache and redirect to the beginning of the journey" in new LocalSetup {
@@ -1262,7 +1263,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -1273,7 +1274,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -1289,7 +1290,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in new LocalSetup {
@@ -1300,7 +1301,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no addresses in the session cache and return 303" in new LocalSetup {
@@ -1311,7 +1312,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find sole selected and submitted addresses in the session cache and return 200" in new LocalSetup {
@@ -1329,7 +1330,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no selected address but a submitted address in the session cache and return 200" in new LocalSetup {
@@ -1346,7 +1347,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in new LocalSetup {
@@ -1357,7 +1358,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementsByClass("heading-xlarge").toString().contains("Your postal address") shouldBe true
     }
@@ -1370,7 +1371,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementsByClass("heading-xlarge").toString().contains("Your address") shouldBe true
     }
@@ -1389,7 +1390,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementsByClass("heading-xlarge").toString().contains("Edit the address (optional)") shouldBe true
     }
@@ -1408,7 +1409,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementsByClass("heading-xlarge").toString().contains("Edit your address (optional)") shouldBe true
     }
@@ -1433,7 +1434,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.processUpdateAddressForm(PostalAddrType)(FakeRequest("POST", ""))
 
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a postal journey" in new LocalSetup {
@@ -1454,10 +1455,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/changes")
-      verify(controller.sessionCache, times(1)).cache(
+      verify(mockLocalSessionCache, times(1)).cache(
         meq("postalSubmittedAddressDto"),
         meq(asAddressDto(fakeStreetTupleListAddressForUnmodified)))(any(), any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a non postal journey and input default startDate into cache" in new LocalSetup {
@@ -1478,12 +1479,12 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
-      verify(controller.sessionCache, times(1)).cache(
+      verify(mockLocalSessionCache, times(1)).cache(
         meq("soleSubmittedAddressDto"),
         meq(asAddressDto(fakeStreetTupleListAddressForUnmodified)))(any(), any(), any())
-      verify(controller.sessionCache, times(1))
+      verify(mockLocalSessionCache, times(1))
         .cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
@@ -1507,7 +1508,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "fetch the selected address and a sole residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
@@ -1522,7 +1523,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no selected address with sole address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
@@ -1533,7 +1534,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no residency choice in the session cache and redirect to the beginning of the journey" in new LocalSetup {
@@ -1543,7 +1544,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -1554,7 +1555,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
     }
 
@@ -1570,7 +1571,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in new LocalSetup {
@@ -1581,7 +1582,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no addresses in the session cache and return 303" in new LocalSetup {
@@ -1592,7 +1593,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find sole selected and submitted addresses in the session cache and return 200" in new LocalSetup {
@@ -1610,7 +1611,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "find no selected address but a submitted address in the session cache and return 200" in new LocalSetup {
@@ -1627,7 +1628,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in new LocalSetup {
@@ -1638,7 +1639,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementsByClass("heading-xlarge").toString().contains("Your postal address") shouldBe true
     }
@@ -1651,7 +1652,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       val doc = Jsoup.parse(contentAsString(result))
       doc.getElementsByClass("heading-xlarge").toString().contains("Your address") shouldBe true
     }
@@ -1664,7 +1665,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -1678,7 +1679,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
 
       val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
@@ -1801,7 +1802,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.processUpdateInternationalAddressForm(PostalAddrType)(FakeRequest("POST", ""))
 
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in new LocalSetup {
@@ -1818,12 +1819,12 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/changes")
-      verify(controller.sessionCache, times(1)).cache(
+      verify(mockLocalSessionCache, times(1)).cache(
         meq("postalSubmittedAddressDto"),
         meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
-      verify(controller.sessionCache, times(1))
+      verify(mockLocalSessionCache, times(1))
         .cache(meq("postalSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in new LocalSetup {
@@ -1840,10 +1841,10 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
-      verify(controller.sessionCache, times(1)).cache(
+      verify(mockLocalSessionCache, times(1)).cache(
         meq("soleSubmittedAddressDto"),
         meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
@@ -1866,7 +1867,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.enterStartDate(PrimaryAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 200 when passed SoleAddrType and submittedAddressDto is in keystore" in new LocalSetup {
@@ -1878,7 +1879,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.enterStartDate(SoleAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect to 'edit address' when passed PostalAddrType as this step is not valid for postal" in new LocalSetup {
@@ -1889,7 +1890,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
-      verify(controller.sessionCache, times(0)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(0)).fetch()(any(), any())
     }
 
     "redirect back to start of journey if submittedAddressDto is missing from keystore" in new LocalSetup {
@@ -1899,7 +1900,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
@@ -1932,7 +1933,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-      verify(controller.sessionCache, times(1))
+      verify(mockLocalSessionCache, times(1))
         .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
     }
 
@@ -1953,7 +1954,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
-      verify(controller.sessionCache, times(1))
+      verify(mockLocalSessionCache, times(1))
         .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
     }
 
@@ -1972,7 +1973,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
-      verify(controller.sessionCache, times(1))
+      verify(mockLocalSessionCache, times(1))
         .cache(meq("soleSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2015)))(any(), any(), any())
     }
 
@@ -1990,7 +1991,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result =
         controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
     "return 400 when passed PrimaryAddrType and day out of range - too early" in new LocalSetup {
@@ -2007,7 +2008,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
     "return 400 when passed PrimaryAddrType and day out of range - too late" in new LocalSetup {
@@ -2025,7 +2026,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
 
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
     "return 400 when passed PrimaryAddrType and month out of range at lower bound" in new LocalSetup {
@@ -2042,7 +2043,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
     "return 400 when passed PrimaryAddrType and month out of range at upper bound" in new LocalSetup {
@@ -2059,7 +2060,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
     "return 400 when passed PrimaryAddrType and the updated start date is not after the start date on record" in new LocalSetup {
@@ -2077,7 +2078,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       val result: Future[Result] = controller.processEnterStartDate(PrimaryAddrType)(FakeRequest())
       status(result) shouldBe BAD_REQUEST
-      verify(controller.sessionCache, times(1)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
     }
 
     "return a 400 when startDate is earlier than recorded with sole address type" in new LocalSetup {
@@ -2253,7 +2254,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.reviewChanges(PrimaryAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "return 200 if only SubmittedAddressDto is present in keystore for postal" in new LocalSetup {
@@ -2267,7 +2268,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.reviewChanges(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect back to start of journey if SubmittedAddressDto is missing from keystore for non-postal" in new LocalSetup {
@@ -2282,7 +2283,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "redirect back to start of journey if SubmittedAddressDto is missing from keystore for postal" in new LocalSetup {
@@ -2297,7 +2298,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "display no message relating to the date the address started when the primary address has not changed" in new LocalSetup {
@@ -2743,7 +2744,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(SoleAddrType))
 
     }
@@ -2773,7 +2774,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "render the thank-you page if postalSubmittedStartDateDto is not in the cache, and the journey type is PostalAddrType" in new LocalSetup {
@@ -2800,7 +2801,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.submitChanges(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe OK
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
@@ -2829,7 +2830,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
     "render the thank-you page and log a postcodeAddressSubmitted audit event upon successful submission of an unmodified address" in new LocalSetup {
@@ -2866,7 +2867,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         "postcodeAddressSubmitted",
         Some("GB101"),
         false)
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
@@ -2909,7 +2910,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         Some("GB101"),
         false,
         addressType = Some("Correspondence"))
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
@@ -2942,7 +2943,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
       pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
@@ -2982,7 +2983,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         Some("GB101"),
         true,
         Some("11 Fake Street"))
-      verify(controller.sessionCache, times(1)).fetch()(any(), any())
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
