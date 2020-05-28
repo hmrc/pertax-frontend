@@ -18,6 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import controllers.address.AddressControllerHelper
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
@@ -36,7 +37,7 @@ import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
+import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools._
 import util.PertaxSessionKeys.{filter, postcode}
 import util.{LanguageHelper, LocalPartialRetriever}
@@ -61,7 +62,6 @@ class AddressController @Inject()(
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView,
-  taxCreditsChoiceView: TaxCreditsChoiceView,
   residencyChoiceView: ResidencyChoiceView,
   internationalAddressChoiceView: InternationalAddressChoiceView,
   cannotUseServiceView: CannotUseServiceView,
@@ -81,7 +81,7 @@ class AddressController @Inject()(
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+    extends AddressControllerHelper(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
@@ -104,22 +104,6 @@ class AddressController @Inject()(
     "label.personal_details" -> routes.AddressController.personalDetails().url ::
       baseBreadcrumb
 
-  def addressJourneyEnforcer(block: Nino => PersonDetails => Future[Result])(
-    implicit request: UserRequest[_]): Future[Result] =
-    (for {
-      payeAccount   <- request.nino
-      personDetails <- request.personDetails
-    } yield {
-      block(payeAccount)(personDetails)
-    }).getOrElse {
-      Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController
-          .personalDetails()
-          .url
-        Ok(displayAddressInterstitialView(continueUrl))
-      }
-    }
-
   def lookingUpAddress(
     typ: AddrType,
     postcode: String,
@@ -138,10 +122,6 @@ class AddressController @Inject()(
       }
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
     }
-
-  private val authenticate
-    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
-    .addActiveTab(ActiveTabYourAccount)
 
   def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>
     import models.dto.AddressPageVisitedDto
@@ -166,39 +146,6 @@ class AddressController @Inject()(
 
     } yield Ok(personalDetailsView(personalDetailsCards))
   }
-
-  def taxCreditsChoice: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-        cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          Future.successful(
-            Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-          )
-        }
-      }
-    }
-  }
-
-  def processTaxCreditsChoice: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        TaxCreditsChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl)))
-          },
-          taxCreditsChoiceDto => {
-            cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-              if (taxCreditsChoiceDto.value) {
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              } else {
-                Redirect(routes.AddressController.residencyChoice())
-              }
-            }
-          }
-        )
-
-      }
-    }
 
   def residencyChoice: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { _ => _ =>

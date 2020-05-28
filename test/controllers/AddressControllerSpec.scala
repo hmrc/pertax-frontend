@@ -48,7 +48,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.fixtures.AddressFixture._
+import util.fixtures.AddressFixture.{address => addressFixture}
 import util.fixtures.PersonFixture._
 import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -72,7 +72,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
   lazy val displayAddressInterstitial = injected[DisplayAddressInterstitialView]
   lazy val personalDetails = injected[PersonalDetailsView]
-  lazy val taxCreditsChoice = injected[TaxCreditsChoiceView]
   lazy val residencyChoice = injected[ResidencyChoiceView]
   lazy val internationalAddressChoice = injected[InternationalAddressChoiceView]
   lazy val cannotUseService = injected[CannotUseServiceView]
@@ -151,7 +150,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         injected[MessagesControllerComponents],
         displayAddressInterstitial,
         personalDetails,
-        taxCreditsChoice,
         residencyChoice,
         internationalAddressChoice,
         cannotUseService,
@@ -287,110 +285,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       an[Exception] shouldBe thrownBy {
         controller.getAddress(None)
       }
-    }
-  }
-
-  "Calling AddressController.taxCreditsChoice" should {
-
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-    }
-
-    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      val result = controller.taxCreditsChoice(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new WithAddressControllerSpecSetup
-      with LocalSetup {
-      lazy val sessionCacheResponse = None
-
-      val result = controller.taxCreditsChoice(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-  }
-
-  "Calling AddressController.processTaxCreditsChoice" should {
-
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-    }
-
-    "redirect to expected tax credits page when supplied with value = Yes (true)" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = FakeRequest("POST", "")
-                .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
-                .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result =
-        controller.processTaxCreditsChoice()(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/tax-credits-service/personal/change-address")
-    }
-
-    "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = FakeRequest("POST", "")
-                .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
-                .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processTaxCreditsChoice(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/residency-choice")
-    }
-
-    "return a bad request when supplied no value" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = FakeRequest("POST", "")
-                .asInstanceOf[Request[A]]
-            )
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processTaxCreditsChoice(FakeRequest())
-
-      status(result) shouldBe BAD_REQUEST
     }
   }
 
@@ -611,7 +505,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
           injected[MessagesControllerComponents],
           displayAddressInterstitial,
           personalDetails,
-          taxCreditsChoice,
           residencyChoice,
           internationalAddressChoice,
           cannotUseService,
@@ -2071,7 +1964,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = requestWithForm,
-              personDetails = Some(PersonDetails(emptyPerson, Some(address(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
+              personDetails = Some(PersonDetails(emptyPerson, Some(addressFixture(startDate = Some(new LocalDate(2016, 11, 22)))), None)))
               .asInstanceOf[UserRequest[A]]
           )
       })
