@@ -21,7 +21,7 @@ import java.util.UUID
 
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, SoleAddrType}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -142,7 +142,7 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
           val result = await(mongo.get(nino))
 
-          result shouldBe List(address2, address1)
+          result should contain theSameElementsAs List(address2, address1)
         }
       }
     }
