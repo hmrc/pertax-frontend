@@ -21,7 +21,7 @@ import java.util.UUID
 
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, SoleAddrType}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatestplus.mockito.MockitoSugar.mock
