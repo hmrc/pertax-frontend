@@ -16,10 +16,9 @@
 
 package services
 
-import config.ConfigDecorator
 import com.google.inject.{Inject, Singleton}
+import config.ConfigDecorator
 import javax.inject.Named
-import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -35,8 +34,6 @@ class LocalSessionCache @Inject()(
   servicesConfig: ServicesConfig,
   @Named("appName") appName: String)
     extends SessionCache {
-  val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   override lazy val defaultSource = appName
   override lazy val baseUri = servicesConfig.baseUrl("cachable.session-cache")
   override lazy val domain = servicesConfig.getConfString("cachable.session-cache.domain", "keystore")

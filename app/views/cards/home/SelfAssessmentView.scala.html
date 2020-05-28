@@ -38,6 +38,9 @@
             <li id="make-payment">
                 <a class="ga-track-anchor-click" href="@controllers.routes.PaymentsController.makePayment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Make a payment">@messages("label.make_a_payment")</a>
             </li>
+            <li id="view-payments">
+                <a class="ga-track-anchor-click" href="@configDecorator.viewSaPaymentsUrl(saUtr.value)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View your payments">@messages("label.view_your_payments")</a>
+            </li>
             <li id="check-if-you-need-tax-return">
                 <a class="ga-track-anchor-click" href="https://www.gov.uk/check-if-you-need-a-tax-return" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Check if you need to fill in a tax return">@messages("label.check_if_you_need_to_fill_in_a_tax_return")</a>
             </li>
