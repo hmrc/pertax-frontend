@@ -70,7 +70,8 @@ class AuthActionImpl @Inject()(
         CredentialStrength(CredentialStrength.strong)
 
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+      HeaderCarrierConverter.fromHeadersAndSessionAndRequest(request.headers, Some(request.session), Some(request))
+
     authorised(compositePredicate)
       .retrieve(
         Retrievals.nino and

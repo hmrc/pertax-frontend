@@ -96,7 +96,7 @@ class GetPersonDetailsAction @Inject()(
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+      HeaderCarrierConverter.fromHeadersAndSessionAndRequest(request.headers, Some(request.session), Some(request))
 
     request.nino match {
       case Some(nino) =>

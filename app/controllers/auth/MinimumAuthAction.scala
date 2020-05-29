@@ -44,7 +44,8 @@ class MinimumAuthAction @Inject()(
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+      HeaderCarrierConverter.fromHeadersAndSessionAndRequest(request.headers, Some(request.session), Some(request))
+
     authorised(ConfidenceLevel.L50)
       .retrieve(
         Retrievals.nino and
