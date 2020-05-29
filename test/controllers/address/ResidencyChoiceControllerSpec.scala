@@ -20,11 +20,10 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.dto.AddressPageVisitedDto
+import models.dto.TaxCreditsChoiceDto
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
@@ -35,11 +34,11 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.TaxCreditsChoiceView
+import views.html.personaldetails.ResidencyChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar {
+class ResidencyChoiceControllerSpec extends BaseSpec with MockitoSugar {
 
   trait LocalSetup {
 
@@ -48,18 +47,18 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar {
 
     implicit lazy val ec = injected[ExecutionContext]
 
-    def controller: TaxCreditsChoiceController =
-      new TaxCreditsChoiceController(
+    def controller: ResidencyChoiceController =
+      new ResidencyChoiceController(
+        new AddressJourneyCachingHelper(mockLocalSessionCache),
         mockAuthJourney,
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
-        injected[TaxCreditsChoiceView],
+        injected[ResidencyChoiceView],
         injected[DisplayAddressInterstitialView]
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
 
     def sessionCacheResponse: Future[Option[CacheMap]] =
-      Future.successful(Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))))))
+      Future.successful(Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false))))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
@@ -78,18 +77,38 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar {
 
   "onPageLoad" should {
 
-    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+//    trait LocalSetup extends WithAddressControllerSpecSetup {
+//      override lazy val fakeAddress = buildFakeAddress
+//      override lazy val nino = Fixtures.fakeNino
+//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
+//      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+//      override lazy val thisYearStr = "2015"
+//
+//    }
 
-      val result = controller.onPageLoad(currentRequest)
+    "return OK when the user has indicated that they do not receive tax credits on the previous page" in new LocalSetup {
+
+      val result = controller.onPageLoad(FakeRequest())
 
       status(result) shouldBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
-    "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+    "return to the beginning of journey when the user has indicated that they receive tax credits on the previous page" in new LocalSetup {
+      override def sessionCacheResponse: Future[Some[CacheMap]] =
+        Future.successful(Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(true))))))
+
+      val result = controller.onPageLoad(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return to the beginning of journey when the user has not selected any tax credits choice on the previous page" in new LocalSetup {
       override def sessionCacheResponse: Future[Option[CacheMap]] = Future.successful(None)
 
-      val result = controller.onPageLoad(currentRequest)
+      val result = controller.onPageLoad(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/personal-details")
@@ -99,38 +118,57 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar {
 
   "onSubmit" should {
 
-    "redirect to expected tax credits page when supplied with value = Yes (true)" in new LocalSetup {
+//    trait LocalSetup extends WithAddressControllerSpecSetup {
+//      override lazy val fakeAddress = buildFakeAddress
+//      override lazy val nino = Fixtures.fakeNino
+//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
+//      override lazy val sessionCacheResponse =
+//        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+//      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+//      override lazy val thisYearStr = "2015"
+//    }
+
+    "redirect to find address page with primary type when supplied value=primary" in new LocalSetup {
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
-          .asInstanceOf[Request[A]]
-
-      val result =
-        controller.onSubmit()(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/tax-credits-service/personal/change-address")
-    }
-
-    "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
-
-      override def currentRequest[A]: Request[A] =
-        FakeRequest("POST", "")
-          .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
+          .withFormUrlEncodedBody("residencyChoice" -> "primary")
           .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/residency-choice")
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
+    }
+
+    "redirect to find address page with sole type when supplied value=sole" in new LocalSetup {
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("residencyChoice" -> "sole")
+          .asInstanceOf[Request[A]]
+
+      val result = controller.onSubmit(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
+    }
+
+    "return a bad request when supplied value=bad" in new LocalSetup {
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("residencyChoice" -> "bad")
+          .asInstanceOf[Request[A]]
+
+      val result = controller.onSubmit(FakeRequest())
+
+      status(result) shouldBe BAD_REQUEST
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      override def currentRequest[A]: Request[A] =
-        FakeRequest("POST", "")
-          .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(FakeRequest())
 

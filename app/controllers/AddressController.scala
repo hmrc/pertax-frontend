@@ -147,40 +147,6 @@ class AddressController @Inject()(
     } yield Ok(personalDetailsView(personalDetailsCards))
   }
 
-  def residencyChoice: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      cachingHelper.gettingCachedTaxCreditsChoiceDto {
-        case Some(TaxCreditsChoiceDto(false)) =>
-          Ok(residencyChoiceView(ResidencyChoiceDto.form))
-        case _ =>
-          if (configDecorator.taxCreditsEnabled) {
-            Redirect(routes.AddressController.personalDetails())
-          } else {
-            Ok(residencyChoiceView(ResidencyChoiceDto.form))
-          }
-      }
-    }
-  }
-
-  def processResidencyChoice: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        ResidencyChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(residencyChoiceView(formWithErrors)))
-          },
-          residencyChoiceDto => {
-            cachingHelper
-              .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
-              _ =>
-                Redirect(routes.AddressController.internationalAddressChoice(residencyChoiceDto.residencyChoice))
-            }
-          }
-        )
-
-      }
-    }
-
   def internationalAddressChoice(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
