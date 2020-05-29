@@ -17,6 +17,7 @@
 package controllers.controllershelpers
 
 import com.google.inject.Inject
+import play.api.Logger
 import services.LocalSessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -28,12 +29,25 @@ class HomePageCachingHelper @Inject()(
   val sessionCache: LocalSessionCache
 ) {
 
-  def hasUserDismissedUrInvitation[T](implicit hc: HeaderCarrier): Future[Boolean] =
+  val logger = Logger(this.getClass)
+
+  private def checkSessionId(functionName: String)(implicit hc: HeaderCarrier) =
+    if (hc.sessionId.isEmpty) {
+      logger.warn(s"HomePageCachingHelper.$functionName has no session id")
+      throw new RuntimeException("Cannot write to session cache without session id in header carrier.")
+    }
+
+  def hasUserDismissedUrInvitation[T](implicit hc: HeaderCarrier): Future[Boolean] = {
+    checkSessionId("hasUserDismissedUrInvitation")
+
     sessionCache.fetch() map {
       case Some(cacheMap) => cacheMap.getEntry[Boolean]("urBannerDismissed").getOrElse(false)
       case None           => false
     }
+  }
 
-  def storeUserUrDismissal()(implicit hc: HeaderCarrier): Future[CacheMap] =
+  def storeUserUrDismissal()(implicit hc: HeaderCarrier): Future[CacheMap] = {
+    checkSessionId("storeUserUrDismissal")
     sessionCache.cache("urBannerDismissed", true)
+  }
 }
