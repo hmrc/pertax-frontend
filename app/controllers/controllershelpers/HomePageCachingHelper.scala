@@ -17,23 +17,23 @@
 package controllers.controllershelpers
 
 import com.google.inject.Inject
-import services.LocalSessionCache
+import services.SafeLocalSessionCache
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class HomePageCachingHelper @Inject()(
-  val sessionCache: LocalSessionCache
-) {
+  sessionCache: SafeLocalSessionCache
+)(implicit ec: ExecutionContext) {
 
-  def hasUserDismissedUrInvitation[T](implicit hc: HeaderCarrier): Future[Boolean] =
-    sessionCache.fetch() map {
+  def hasUserDismissedUrInvitation[T](nino: Option[Nino])(implicit hc: HeaderCarrier): Future[Boolean] =
+    sessionCache.fetch(nino) map {
       case Some(cacheMap) => cacheMap.getEntry[Boolean]("urBannerDismissed").getOrElse(false)
       case None           => false
     }
 
-  def storeUserUrDismissal()(implicit hc: HeaderCarrier): Future[CacheMap] =
-    sessionCache.cache("urBannerDismissed", true)
+  def storeUserUrDismissal(nino: Option[Nino])(implicit hc: HeaderCarrier): Future[CacheMap] =
+    sessionCache.cache(nino, "urBannerDismissed", true)
 }

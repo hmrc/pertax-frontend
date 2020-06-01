@@ -18,93 +18,77 @@ package controllers.controllershelpers
 
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito.{reset, times, verify, when}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.Application
-import play.api.inject.bind
 import play.api.libs.json.JsBoolean
-import services.LocalSessionCache
+import services.SafeLocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import util.BaseSpec
+import util.{BaseSpec, Fixtures}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class HomePageCachingHelperSpec extends BaseSpec {
+class HomePageCachingHelperSpec extends BaseSpec with MockitoSugar with ScalaFutures with BeforeAndAfterEach {
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
-    .build()
+  implicit val ec = app.injector.instanceOf[ExecutionContext]
 
-  override def beforeEach: Unit =
-    reset(injected[LocalSessionCache])
+  val safeLocalSessionCache = mock[SafeLocalSessionCache]
+  val nino = Some(Fixtures.fakeNino)
+  val homePageCachingHelper = new HomePageCachingHelper(safeLocalSessionCache)
+
+  override def beforeEach(): Unit =
+    reset(safeLocalSessionCache)
 
   "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" should {
-    trait LocalSetup {
+    "return true if cached value returns true" in {
+      when(safeLocalSessionCache.fetch(meq(nino))(any(), any())).thenReturn(
+        Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(true)))))
+      )
 
-      def urBannerDismissedValueInSessionCache: Option[Boolean]
+      val result = homePageCachingHelper.hasUserDismissedUrInvitation(nino)
 
-      lazy val cachingHelper: HomePageCachingHelper = {
+      result.futureValue shouldBe true
 
-        val c = injected[HomePageCachingHelper]
-
-        when(injected[LocalSessionCache].fetch()(any(), any())) thenReturn {
-
-          Future.successful {
-            urBannerDismissedValueInSessionCache.map { myBool =>
-              CacheMap("id", Map("urBannerDismissed" -> JsBoolean(myBool)))
-            }
-          }
-        }
-        c
-      }
-
-      lazy val hasUserDismissedUrInvitationResult: Boolean = await(cachingHelper.hasUserDismissedUrInvitation)
+      verify(safeLocalSessionCache, times(1)).fetch(meq(nino))(any(), any())
     }
 
-    "return true if cached value returns true" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache = Some(true)
+    "return false if cached value returns false" in {
+      when(safeLocalSessionCache.fetch(meq(nino))(any(), any())).thenReturn(
+        Future.successful(Some(CacheMap("id", Map("urBannerDismissed" -> JsBoolean(false)))))
+      )
 
-      hasUserDismissedUrInvitationResult shouldBe true
+      val result = homePageCachingHelper.hasUserDismissedUrInvitation(nino)
 
-      verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
+      result.futureValue shouldBe false
+
+      verify(safeLocalSessionCache, times(1)).fetch(meq(nino))(any(), any())
     }
 
-    "return false if cached value returns false" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache = Some(false)
+    "return false if cache returns no record" in {
+      when(safeLocalSessionCache.fetch(meq(nino))(any(), any())).thenReturn(
+        Future.successful(None)
+      )
 
-      hasUserDismissedUrInvitationResult shouldBe false
+      val result = homePageCachingHelper.hasUserDismissedUrInvitation(nino)
 
-      verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
-    }
+      result.futureValue shouldBe false
 
-    "return false if cache returns no record" in new LocalSetup {
-      lazy val urBannerDismissedValueInSessionCache = None
-
-      hasUserDismissedUrInvitationResult shouldBe false
-
-      verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
+      verify(safeLocalSessionCache, times(1)).fetch(meq(nino))(any(), any())
     }
   }
 
   "Calling HomePageCachingHelper.StoreUserUrDismissal" should {
+    "Store true in session cache" in {
+      val cacheMap = CacheMap(("id"), Map.empty)
 
-    trait LocalSetup {
+      when(safeLocalSessionCache.cache(meq(nino), any(), any())(any(), any(), any())).thenReturn(
+        Future.successful(cacheMap)
+      )
 
-      lazy val cachingHelper = {
+      val result = homePageCachingHelper.storeUserUrDismissal(nino)
+      result.futureValue shouldBe cacheMap
 
-        val c = injected[HomePageCachingHelper]
-
-        when(injected[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
-          Future.successful(CacheMap(("id"), Map.empty))
-        }
-        c
-      }
-    }
-
-    "Store true in session cache" in new LocalSetup {
-
-      val r = cachingHelper.storeUserUrDismissal()
-      verify(cachingHelper.sessionCache, times(1)).cache(meq("urBannerDismissed"), meq(true))(any(), any(), any())
+      verify(safeLocalSessionCache, times(1)).cache(meq(nino), meq("urBannerDismissed"), meq(true))(any(), any(), any())
     }
   }
-
 }

@@ -46,7 +46,7 @@ class UserResearchDismissalController @Inject()(
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    homePageCachingHelper.storeUserUrDismissal()
+    homePageCachingHelper.storeUserUrDismissal(request.nino)
     NoContent
   }
 }

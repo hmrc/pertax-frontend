@@ -28,6 +28,7 @@ import play.twirl.api.Html
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
@@ -61,7 +62,7 @@ class HomeController @Inject()(
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
       configDecorator.bannerLinkUrl.fold(Future.successful(false))(_ =>
-        homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
+        homePageCachingHelper.hasUserDismissedUrInvitation(request.nino).map(!_))
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)

@@ -22,6 +22,7 @@ import org.mockito.{ArgumentMatcher, Matchers}
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{reset, times, verify}
 import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Writes._
 import uk.gov.hmrc.domain.Nino
@@ -31,7 +32,7 @@ import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.ExecutionContext
 
-class SafeLocalSessionCacheSpec extends BaseSpec with MockitoSugar with BeforeAndAfterEach {
+class SafeLocalSessionCacheSpec extends BaseSpec with MockitoSugar with BeforeAndAfterEach with ScalaFutures {
   implicit val ec = app.injector.instanceOf[ExecutionContext]
 
   override implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
@@ -59,7 +60,7 @@ class SafeLocalSessionCacheSpec extends BaseSpec with MockitoSugar with BeforeAn
     val formId = "form-id"
 
     "call through to local session cache when there is a session id" in {
-      safeLocalSessionCache.cache(nino, formId, true)
+      safeLocalSessionCache.cache(Some(nino), formId, true)
 
       verify(localSessionCache, times(1)).cache(meq(formId), meq(true))(any(), meq(hc), any())
     }
@@ -67,23 +68,29 @@ class SafeLocalSessionCacheSpec extends BaseSpec with MockitoSugar with BeforeAn
     "replaces the session id with a nino when there is no session id" in {
       implicit val hc = HeaderCarrier()
 
-      safeLocalSessionCache.cache(nino, formId, true)
+      safeLocalSessionCache.cache(Some(nino), formId, true)
 
       verify(localSessionCache, times(1))
         .cache(meq(formId), meq(true))(any(), Matchers.argThat(containNinoAsSessionId(nino)), any())
+    }
+
+    "throws if there is no Nino" in {
+      the[RuntimeException] thrownBy {
+        safeLocalSessionCache.cache(None, formId, true)
+      } should have message "No NINO found"
     }
   }
 
   "fetch" should {
     "call through to local session cache when there is a session id" in {
-      safeLocalSessionCache.fetch(nino)
+      safeLocalSessionCache.fetch(Some(nino))
       verify(localSessionCache, times(1)).fetch()(meq(hc), any())
     }
 
     "replaces the session id with a nino when there is no session id" in {
       implicit val hc = HeaderCarrier()
 
-      safeLocalSessionCache.fetch(nino)
+      safeLocalSessionCache.fetch(Some(nino))
 
       verify(localSessionCache, times(1))
         .fetch()(Matchers.argThat(containNinoAsSessionId(nino)), any())
@@ -94,14 +101,14 @@ class SafeLocalSessionCacheSpec extends BaseSpec with MockitoSugar with BeforeAn
     val key = "key"
 
     "call through to local session cache when there is a session id" in {
-      safeLocalSessionCache.fetchAndGetEntry[Boolean](nino, key)
+      safeLocalSessionCache.fetchAndGetEntry[Boolean](Some(nino), key)
       verify(localSessionCache, times(1)).fetchAndGetEntry(meq(key))(meq(hc), any(), any())
     }
 
     "replaces the session id with a nino when there is no session id" in {
       implicit val hc = HeaderCarrier()
 
-      safeLocalSessionCache.fetchAndGetEntry[Boolean](nino, key)
+      safeLocalSessionCache.fetchAndGetEntry[Boolean](Some(nino), key)
 
       verify(localSessionCache, times(1))
         .fetchAndGetEntry(meq(key))(Matchers.argThat(containNinoAsSessionId(nino)), any(), any())
@@ -110,14 +117,14 @@ class SafeLocalSessionCacheSpec extends BaseSpec with MockitoSugar with BeforeAn
 
   "remove" should {
     "call through to local session cache when there is a session id" in {
-      safeLocalSessionCache.remove(nino)
+      safeLocalSessionCache.remove(Some(nino))
       verify(localSessionCache, times(1)).remove()(meq(hc), any())
     }
 
     "replaces the session id with a nino when there is no session id" in {
       implicit val hc = HeaderCarrier()
 
-      safeLocalSessionCache.remove(nino)
+      safeLocalSessionCache.remove(Some(nino))
 
       verify(localSessionCache, times(1))
         .remove()(Matchers.argThat(containNinoAsSessionId(nino)), any())
