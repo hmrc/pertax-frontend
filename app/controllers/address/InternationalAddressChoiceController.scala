@@ -19,24 +19,25 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import controllers.routes
-import models.SubmittedResidencyChoiceDtoId
-import models.dto.{ResidencyChoiceDto, TaxCreditsChoiceDto}
+import models.SubmittedInternationalAddressChoiceId
+import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.ResidencyChoiceView
+import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ResidencyChoiceController @Inject()(
+class InternationalAddressChoiceController @Inject()(
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  residencyChoiceView: ResidencyChoiceView,
+  internationalAddressChoiceView: InternationalAddressChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
@@ -44,33 +45,37 @@ class ResidencyChoiceController @Inject()(
   ec: ExecutionContext)
     extends AddressControllerHelper(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
-  def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      cachingHelper.gettingCachedTaxCreditsChoiceDto {
-        case Some(TaxCreditsChoiceDto(false)) =>
-          Ok(residencyChoiceView(ResidencyChoiceDto.form))
-        case _ =>
-          if (configDecorator.taxCreditsEnabled) {
-            Redirect(controllers.routes.AddressController.personalDetails())
-          } else {
-            Ok(residencyChoiceView(ResidencyChoiceDto.form))
-          }
-      }
-    }
-  }
-
-  def onSubmit: Action[AnyContent] =
+  def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        ResidencyChoiceDto.form.bindFromRequest.fold(
+        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+            Future.successful(
+              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form, typ))
+            )
+          }
+        }
+      }
+    }
+
+  def onSubmit(typ: AddrType): Action[AnyContent] =
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
+        InternationalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(BadRequest(residencyChoiceView(formWithErrors)))
+            Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, typ)))
           },
-          residencyChoiceDto => {
-            cachingHelper
-              .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
-              _ =>
-                Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
+          internationalAddressChoiceDto => {
+            cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
+              if (internationalAddressChoiceDto.value) {
+                Redirect(controllers.routes.AddressController.showPostcodeLookupForm(typ))
+              } else {
+                if (configDecorator.updateInternationalAddressInPta) {
+                  Redirect(controllers.routes.AddressController.showUpdateInternationalAddressForm(typ))
+                } else {
+                  Redirect(controllers.routes.AddressController.cannotUseThisService(typ))
+                }
+              }
             }
           }
         )

@@ -54,7 +54,7 @@
                 </li>
                 @if(!hasCorrespondenceAddress) {
                     <li>
-                        <a class="ga-track-anchor-click" href="@controllers.routes.AddressController.internationalAddressChoice(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@messages("label.change_where_we_send_your_letters")</a>
+                        <a class="ga-track-anchor-click" href="@address.routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Main address" data-ga-event-label="Change where we send your letters">@messages("label.change_where_we_send_your_letters")</a>
                     </li>
                 }
             </ul>

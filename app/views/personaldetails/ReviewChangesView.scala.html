@@ -41,7 +41,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
             @messages("label.do_you_live_in_the_uk")
           </dt>
           <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-          <dd class="cya-change"><a href="@routes.AddressController.internationalAddressChoice(typ)">@messages("label.change")</a></dd>
+          <dd class="cya-change"><a href="@controllers.address.routes.InternationalAddressChoiceController.onPageLoad(typ).url">@messages("label.change")</a></dd>
         </div>
         <div>
           <dt class="cya-question">

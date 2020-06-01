@@ -33,7 +33,7 @@ import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
+import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
 
@@ -58,8 +58,8 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar {
         injected[DisplayAddressInterstitialView]
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
 
-    def sessionCacheResponse: Future[Option[CacheMap]] =
-      Future.successful(Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))))))
+    def sessionCacheResponse: Option[CacheMap] =
+      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
@@ -87,7 +87,7 @@ class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
-      override def sessionCacheResponse: Future[Option[CacheMap]] = Future.successful(None)
+      override def sessionCacheResponse: Option[CacheMap] = None
 
       val result = controller.onPageLoad(currentRequest)
 
