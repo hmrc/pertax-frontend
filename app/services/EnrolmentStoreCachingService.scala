@@ -20,22 +20,24 @@ import com.google.inject.Inject
 import connectors.EnrolmentsConnector
 import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
 import play.api.Logger
-import uk.gov.hmrc.domain.SaUtr
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentStoreCachingService @Inject()(
-  val sessionCache: LocalSessionCache,
+  val sessionCache: SafeLocalSessionCache,
   enrolmentsConnector: EnrolmentsConnector) {
 
-  private def addSaUserTypeToCache(
-    user: SelfAssessmentUserType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
-    sessionCache.cache[SelfAssessmentUserType](SelfAssessmentUserType.cacheId, user).map(_ => user)
+  private def addSaUserTypeToCache(nino: Option[Nino], user: SelfAssessmentUserType)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[SelfAssessmentUserType] =
+    sessionCache.cache[SelfAssessmentUserType](nino, SelfAssessmentUserType.cacheId, user).map(_ => user)
 
-  def getSaUserTypeFromCache(
-    saUtr: SaUtr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
-    sessionCache.fetchAndGetEntry[SelfAssessmentUserType](SelfAssessmentUserType.cacheId).flatMap {
+  def getSaUserTypeFromCache(nino: Option[Nino], saUtr: SaUtr)(
+    implicit hc: HeaderCarrier,
+    ec: ExecutionContext): Future[SelfAssessmentUserType] =
+    sessionCache.fetchAndGetEntry[SelfAssessmentUserType](nino, SelfAssessmentUserType.cacheId).flatMap {
 
       case Some(user) => Future.successful(user)
 
@@ -47,13 +49,13 @@ class EnrolmentStoreCachingService @Inject()(
               response.fold(
                 error => {
                   Logger.warn(error)
-                  addSaUserTypeToCache(NonFilerSelfAssessmentUser)
+                  addSaUserTypeToCache(nino, NonFilerSelfAssessmentUser)
                 },
                 ids =>
                   if (ids.nonEmpty) {
-                    addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
+                    addSaUserTypeToCache(nino, WrongCredentialsSelfAssessmentUser(saUtr))
                   } else {
-                    addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
+                    addSaUserTypeToCache(nino, NotEnrolledSelfAssessmentUser(saUtr))
                 }
             )
           )

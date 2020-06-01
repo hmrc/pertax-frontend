@@ -24,7 +24,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import util.BaseSpec
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -33,7 +33,8 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
 
   trait LocalSetup {
 
-    val mockSessionCache: LocalSessionCache = mock[LocalSessionCache]
+    val nino = Fixtures.fakeNino
+    val mockSessionCache = mock[SafeLocalSessionCache]
     val mockEnrolmentsConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
 
     val cacheResult: CacheMap = CacheMap("", Map.empty)
@@ -45,11 +46,11 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
       val c = new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
 
       when(
-        mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())
+        mockSessionCache.cache[SelfAssessmentUserType](any(), any(), any())(any(), any(), any())
       ) thenReturn Future.successful(cacheResult)
 
       when(
-        mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
+        mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any(), any())(any(), any(), any())
       ) thenReturn Future.successful(fetchResult)
 
       when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())) thenReturn Future.successful(
@@ -69,19 +70,19 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
 
         override val connectorResult: Either[String, Seq[String]] = Left("An error has occurred")
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe NonFilerSelfAssessmentUser
+        sut.getSaUserTypeFromCache(Some(nino), saUtr).futureValue shouldBe NonFilerSelfAssessmentUser
       }
 
       "return NotEnrolledSelfAssessmentUser when the connector returns a Right with an empty sequence" in new LocalSetup {
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe NotEnrolledSelfAssessmentUser(saUtr)
+        sut.getSaUserTypeFromCache(Some(nino), saUtr).futureValue shouldBe NotEnrolledSelfAssessmentUser(saUtr)
       }
 
       "return WrongCredentialsSelfAssessmentUser when the connector returns a Right with a non-empty sequence" in new LocalSetup {
 
         override val connectorResult: Either[String, Seq[String]] = Right(Seq[String]("Hello there"))
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe WrongCredentialsSelfAssessmentUser(saUtr)
+        sut.getSaUserTypeFromCache(Some(nino), saUtr).futureValue shouldBe WrongCredentialsSelfAssessmentUser(saUtr)
       }
     }
   }

@@ -18,7 +18,7 @@ package controllers.auth
 
 import controllers.auth.requests._
 import models._
-import org.mockito.Matchers._
+import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito._
 import org.scalatest.{BeforeAndAfterEach, FreeSpec, MustMatchers}
 import org.scalatestplus.mockito.MockitoSugar
@@ -34,6 +34,7 @@ import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDe
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
+import util.Fixtures
 
 import scala.concurrent.Future
 
@@ -41,7 +42,7 @@ class SelfAssessmentStatusActionSpec
     extends FreeSpec with MustMatchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
+  val nino = Fixtures.fakeNino
   val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
   val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
 
@@ -70,7 +71,7 @@ class SelfAssessmentStatusActionSpec
 
   def createAuthenticatedRequest(
     saEnrolment: Option[SelfAssessmentEnrolment],
-    nino: Option[Nino] = Some(Nino("AB123456C"))): AuthenticatedRequest[AnyContent] =
+    nino: Option[Nino] = Some(Nino(nino.toString))): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       nino,
       saEnrolment,
@@ -125,7 +126,7 @@ class SelfAssessmentStatusActionSpec
             when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
               .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
 
-            when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
+            when(enrolmentsCachingService.getSaUserTypeFromCache(meq(Some(nino)), any())(any(), any()))
               .thenReturn(Future.successful(userType))
 
             val result = harness()(request)

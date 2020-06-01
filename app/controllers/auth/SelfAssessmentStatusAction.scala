@@ -51,7 +51,7 @@ class SelfAssessmentStatusAction @Inject()(
         case None =>
           getSaUtrFromCitizenDetailsService(nino).flatMap {
             case Some(saUtr) =>
-              enrolmentsCachingService.getSaUserTypeFromCache(saUtr)
+              enrolmentsCachingService.getSaUserTypeFromCache(request.nino, saUtr)
             case None => Future.successful(NonFilerSelfAssessmentUser)
           }
       }
