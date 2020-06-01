@@ -18,22 +18,17 @@ package controllers.controllershelpers
 
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
 import services.LocalSessionCache
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.http.logging.SessionId
 import util.BaseSpec
 
 import scala.concurrent.Future
 
-class HomePageCachingHelperSpec extends BaseSpec with ScalaFutures {
-
-  override implicit val hc = HeaderCarrier(sessionId = Some(SessionId("some session Id")))
+class HomePageCachingHelperSpec extends BaseSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
@@ -42,7 +37,7 @@ class HomePageCachingHelperSpec extends BaseSpec with ScalaFutures {
   override def beforeEach: Unit =
     reset(injected[LocalSessionCache])
 
-  "hasUserDismissedUrInvitation" should {
+  "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" should {
     trait LocalSetup {
 
       def urBannerDismissedValueInSessionCache: Option[Boolean]
@@ -62,7 +57,7 @@ class HomePageCachingHelperSpec extends BaseSpec with ScalaFutures {
         c
       }
 
-      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedUrInvitation.futureValue
+      lazy val hasUserDismissedUrInvitationResult: Boolean = await(cachingHelper.hasUserDismissedUrInvitation)
     }
 
     "return true if cached value returns true" in new LocalSetup {
@@ -88,19 +83,9 @@ class HomePageCachingHelperSpec extends BaseSpec with ScalaFutures {
 
       verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
     }
-
-    "throws when there is no session Id" in {
-      implicit val hc = HeaderCarrier(sessionId = None)
-
-      val homePageCachingHelper = new HomePageCachingHelper(injected[LocalSessionCache])
-
-      a[RuntimeException] should be thrownBy {
-        homePageCachingHelper.hasUserDismissedUrInvitation
-      }
-    }
   }
 
-  "storeUserUrDismissal" should {
+  "Calling HomePageCachingHelper.StoreUserUrDismissal" should {
 
     trait LocalSetup {
 
@@ -116,18 +101,10 @@ class HomePageCachingHelperSpec extends BaseSpec with ScalaFutures {
     }
 
     "Store true in session cache" in new LocalSetup {
+
       val r = cachingHelper.storeUserUrDismissal()
       verify(cachingHelper.sessionCache, times(1)).cache(meq("urBannerDismissed"), meq(true))(any(), any(), any())
     }
-
-    "throws when there is no session Id" in {
-      implicit val hc = HeaderCarrier(sessionId = None)
-
-      val homePageCachingHelper = new HomePageCachingHelper(injected[LocalSessionCache])
-
-      a[RuntimeException] should be thrownBy {
-        homePageCachingHelper.storeUserUrDismissal
-      }
-    }
   }
+
 }
