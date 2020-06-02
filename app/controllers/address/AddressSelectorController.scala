@@ -109,7 +109,7 @@ class AddressSelectorController @Inject()(
                       .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
                     (typ, postCodeHasChanged) match {
                       case (PostalAddrType, false) =>
-                        Redirect(controllers.routes.AddressController.showUpdateAddressForm(typ))
+                        Redirect(routes.UpdateAddressController.onPageLoad(typ))
                       case (_, true) => Redirect(controllers.routes.AddressController.enterStartDate(typ))
                       case (_, false) =>
                         cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))

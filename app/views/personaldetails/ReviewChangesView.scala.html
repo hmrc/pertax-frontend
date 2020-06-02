@@ -65,7 +65,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
 
             <dd class="cya-answer">@Html(addressDto.toList.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@routes.AddressController.showUpdateAddressForm(typ)">@messages("label.change_address")</a></dd>
+            <dd class="cya-change"><a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.change_address")</a></dd>
             } else {
 
             <dd class="cya-answer">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>

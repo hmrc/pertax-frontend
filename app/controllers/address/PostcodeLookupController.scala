@@ -129,7 +129,7 @@ class PostcodeLookupController @Inject()(
                                    postcode -> Some(addressRecord.address.postcode),
                                    filter   -> addressFinderDto.filter)))
                              cachingHelper.addToCache(SelectedAddressRecordId(typ), addressRecord) map { _ =>
-                               Redirect(controllers.routes.AddressController.showUpdateAddressForm(typ))
+                               Redirect(routes.UpdateAddressController.onPageLoad(typ))
                              }
                            }
                          case AddressLookupSuccessResponse(recordSet) => //More than one record returned by postcode lookup
@@ -160,12 +160,12 @@ class PostcodeLookupController @Inject()(
     forceLookup: Boolean = false)(f: PartialFunction[AddressLookupResponse, Future[Result]])(
     implicit request: UserRequest[_]): Future[Result] =
     if (!forceLookup && lookupServiceDown) {
-      Future.successful(Redirect(controllers.routes.AddressController.showUpdateAddressForm(typ)))
+      Future.successful(Redirect(routes.UpdateAddressController.onPageLoad(typ)))
     } else {
       val handleError: PartialFunction[AddressLookupResponse, Future[Result]] = {
         case AddressLookupErrorResponse(_) | AddressLookupUnexpectedResponse(_) =>
           cachingHelper.cacheAddressLookupServiceDown() map { _ =>
-            Redirect(controllers.routes.AddressController.showUpdateAddressForm(typ))
+            Redirect(routes.UpdateAddressController.onPageLoad(typ))
           }
       }
       addressLookupService.lookup(postcode, filter).flatMap(handleError orElse f)
