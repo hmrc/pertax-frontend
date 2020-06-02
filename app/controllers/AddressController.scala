@@ -23,7 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable._
 import controllers.controllershelpers.AddressJourneyAuditingHelper._
-import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
+import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
 import models._
 import models.dto._
 import org.joda.time.LocalDate
@@ -50,7 +50,6 @@ class AddressController @Inject()(
   val addressLookupService: AddressLookupService,
   val addressMovedService: AddressMovedService,
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
-  val countryHelper: CountryHelper,
   val editAddressLockRepository: EditAddressLockRepository,
   ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
@@ -61,7 +60,6 @@ class AddressController @Inject()(
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView,
   cannotUseServiceView: CannotUseServiceView,
-  updateInternationalAddressView: UpdateInternationalAddressView,
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
@@ -121,69 +119,6 @@ class AddressController @Inject()(
         cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(Ok(cannotUseServiceView(typ)))
-          }
-        }
-      }
-    }
-
-  def showUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        addressJourneyEnforcer { _ => personDetails =>
-          typ match {
-            case PostalAddrType =>
-              auditConnector.sendEvent(
-                buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = true))
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                Future.successful(
-                  Ok(
-                    updateInternationalAddressView(
-                      journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(
-                        AddressDto.internationalForm.fill),
-                      typ,
-                      countryHelper.countries
-                    )
-                  )
-                )
-              }
-
-            case _ =>
-              auditConnector.sendEvent(
-                buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true))
-              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { _ =>
-                Future.successful(
-                  Ok(
-                    updateInternationalAddressView(AddressDto.internationalForm, typ, countryHelper.countries)
-                  )
-                )
-              }
-          }
-        }
-      }
-    }
-
-  def processUpdateInternationalAddressForm(typ: AddrType): Action[AnyContent] =
-    authenticate.async { implicit request =>
-      cachingHelper.gettingCachedJourneyData[Result](typ) { _ =>
-        addressJourneyEnforcer { _ => _ =>
-          {
-            AddressDto.internationalForm.bindFromRequest.fold(
-              formWithErrors => {
-                Future.successful(
-                  BadRequest(updateInternationalAddressView(formWithErrors, typ, countryHelper.countries)))
-              },
-              addressDto => {
-                cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
-                  typ match {
-                    case PostalAddrType =>
-                      cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                      Future.successful(Redirect(routes.AddressController.reviewChanges(typ)))
-                    case _ =>
-                      Future.successful(Redirect(routes.AddressController.enterStartDate(typ)))
-                  }
-                }
-              }
-            )
           }
         }
       }

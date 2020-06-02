@@ -70,7 +70,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
 
             <dd class="cya-answer">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@routes.AddressController.showUpdateInternationalAddressForm(typ)">@messages("label.change")</a></dd>
+            <dd class="cya-change"><a href="@controllers.address.routes.UpdateInternationalAddressController.onPageLoad(typ)">@messages("label.change")</a></dd>
             }
 
         </div>

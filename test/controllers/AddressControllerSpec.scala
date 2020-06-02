@@ -20,11 +20,10 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
-import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
+import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
 import models._
 import models.dto._
 import org.joda.time.LocalDate
-import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => meq, _}
 import org.mockito.Mockito._
@@ -69,7 +68,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
   lazy val displayAddressInterstitial = injected[DisplayAddressInterstitialView]
   lazy val personalDetails = injected[PersonalDetailsView]
   lazy val cannotUseService = injected[CannotUseServiceView]
-  lazy val updateInternationalAddress = injected[UpdateInternationalAddressView]
   lazy val enterStartDate = injected[EnterStartDateView]
   lazy val cannotUpdateAddress = injected[CannotUpdateAddressView]
   lazy val closeCorrespondenceAdressChoice = injected[CloseCorrespondenceAddressChoiceView]
@@ -131,7 +129,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         mockAddressLookupService,
         mockAddressMovedService,
         mockPersonalDetailsCardGenerator,
-        injected[CountryHelper],
         mockEditAddressLockRepository,
         ninoDisplayService,
         mockAuthJourney,
@@ -142,7 +139,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         displayAddressInterstitial,
         personalDetails,
         cannotUseService,
-        updateInternationalAddress,
         enterStartDate,
         cannotUpdateAddress,
         closeCorrespondenceAdressChoice,
@@ -274,204 +270,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  "Calling AddressController.showUpdateInternationalAddressForm" should {
-
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-
-    }
-
-    "find only the selected address from the session cache and no residency choice and return 303" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "fetch the selected address and a sole residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
-
-      lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-            "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType)))))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "find no selected address with sole address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "find no residency choice in the session cache and redirect to the beginning of the journey" in new LocalSetup {
-
-      lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-    }
-
-    "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in new LocalSetup {
-
-      lazy val sessionCacheResponse = None
-
-      val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-    }
-
-    "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in new LocalSetup {
-
-      lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)),
-            "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
-
-      val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "display edit address page and return 200 for postal addressType with pagevisitedDto and no addressRecord in cache" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "find no addresses in the session cache and return 303" in new LocalSetup {
-
-      lazy val sessionCacheResponse = Some(CacheMap("id", Map.empty))
-
-      val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "find sole selected and submitted addresses in the session cache and return 200" in new LocalSetup {
-
-      lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-            "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-            "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
-          )
-        ))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "find no selected address but a submitted address in the session cache and return 200" in new LocalSetup {
-
-      lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-            "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
-          )
-        ))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "show 'Enter the address' when user amends correspondence address manually and address has not been selected" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Your postal address") shouldBe true
-    }
-
-    "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val doc = Jsoup.parse(contentAsString(result))
-      doc.getElementsByClass("heading-xlarge").toString().contains("Your address") shouldBe true
-    }
-
-    "verify an audit event has been sent when user chooses to add/amend main address" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
-
-      val result = controller.showUpdateInternationalAddressForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-    }
-
-    "verify an audit event has been sent when user chooses to add postal address" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      val result = controller.showUpdateInternationalAddressForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-    }
-  }
-
   "Calling AddressController.closePostalAddressChoice" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
@@ -567,70 +365,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.confirmClosePostalAddress(FakeRequest())
 
       contentAsString(result) should include(fakeAddress.line1.getOrElse("line6"))
-    }
-  }
-
-  "Calling AddressController.processUpdateInternationalAddressForm" should {
-
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-    }
-
-    "return 400 when supplied invalid form input" in new LocalSetup {
-      override lazy val sessionCacheResponse = Some(CacheMap("id", Map("selectedAddressRecord" -> Json.toJson(""))))
-
-      val result = controller.processUpdateInternationalAddressForm(PostalAddrType)(FakeRequest("POST", ""))
-
-      status(result) shouldBe BAD_REQUEST
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "return 303, caching addressDto and redirecting to review changes page when supplied valid form input on a postal journey and input default startDate into cache" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processUpdateInternationalAddressForm(PostalAddrType)(requestWithForm)
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/changes")
-      verify(mockLocalSessionCache, times(1)).cache(
-        meq("postalSubmittedAddressDto"),
-        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
-      verify(mockLocalSessionCache, times(1))
-        .cache(meq("postalSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "return 303, caching addressDto and redirecting to enter start date page when supplied valid form input on a non postal journey" in new LocalSetup {
-      val requestWithForm = FakeRequest("POST", "").withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = requestWithForm)
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processUpdateInternationalAddressForm(SoleAddrType)(requestWithForm)
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
-      verify(mockLocalSessionCache, times(1)).cache(
-        meq("soleSubmittedAddressDto"),
-        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
