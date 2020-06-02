@@ -101,7 +101,7 @@ class UpdateInternationalAddressController @Inject()(
                     cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
                     Future.successful(Redirect(controllers.routes.AddressController.reviewChanges(typ)))
                   case _ =>
-                    Future.successful(Redirect(controllers.routes.AddressController.enterStartDate(typ)))
+                    Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
                 }
               }
             }

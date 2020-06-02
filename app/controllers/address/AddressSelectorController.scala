@@ -110,7 +110,7 @@ class AddressSelectorController @Inject()(
                     (typ, postCodeHasChanged) match {
                       case (PostalAddrType, false) =>
                         Redirect(routes.UpdateAddressController.onPageLoad(typ))
-                      case (_, true) => Redirect(controllers.routes.AddressController.enterStartDate(typ))
+                      case (_, true) => Redirect(routes.StartDateController.onPageLoad(typ))
                       case (_, false) =>
                         cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
                         Redirect(controllers.routes.AddressController.reviewChanges(typ))

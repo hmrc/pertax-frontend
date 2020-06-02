@@ -81,7 +81,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
                   @typ.ifIs(primary = messages("label.when_this_became_your_main_home"), sole = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
                 <dd class="cya-answer">@LanguageHelper.langUtils.Dates.formatDate(startDateDto.startDate)</dd>
-                <dd class="cya-change"><a href="@routes.AddressController.enterStartDate(typ)">@messages("label.change")</a></dd>
+                <dd class="cya-change"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change")</a></dd>
               }
             </div>
           }
