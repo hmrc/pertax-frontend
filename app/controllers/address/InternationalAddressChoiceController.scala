@@ -21,7 +21,6 @@ import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import controllers.routes
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -68,7 +67,7 @@ class InternationalAddressChoiceController @Inject()(
           internationalAddressChoiceDto => {
             cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
               if (internationalAddressChoiceDto.value) {
-                Redirect(controllers.routes.AddressController.showPostcodeLookupForm(typ))
+                Redirect(routes.PostcodeLookupController.onPageLoad(typ))
               } else {
                 if (configDecorator.updateInternationalAddressInPta) {
                   Redirect(controllers.routes.AddressController.showUpdateInternationalAddressForm(typ))

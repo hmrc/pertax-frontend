@@ -22,7 +22,6 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper, PersonalDetailsCardGenerator}
 import models._
-import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto._
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
@@ -32,14 +31,11 @@ import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.libs.json.Json
-import play.api.mvc.Results._
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.EditAddressLockRepository
 import services._
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -72,10 +68,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
 
   lazy val displayAddressInterstitial = injected[DisplayAddressInterstitialView]
   lazy val personalDetails = injected[PersonalDetailsView]
-  lazy val residencyChoice = injected[ResidencyChoiceView]
-  lazy val internationalAddressChoice = injected[InternationalAddressChoiceView]
   lazy val cannotUseService = injected[CannotUseServiceView]
-  lazy val postcodeLookup = injected[PostcodeLookupView]
   lazy val addressSelector = injected[AddressSelectorView]
   lazy val updateAddress = injected[UpdateAddressView]
   lazy val updateInternationalAddress = injected[UpdateInternationalAddressView]
@@ -150,10 +143,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         injected[MessagesControllerComponents],
         displayAddressInterstitial,
         personalDetails,
-        residencyChoice,
-        internationalAddressChoice,
         cannotUseService,
-        postcodeLookup,
         addressSelector,
         updateAddress,
         updateInternationalAddress,
@@ -288,308 +278,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  "Calling AddressController.showPostcodeLookupForm" should {
-
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-    }
-
-    "return 200 if the user has entered a residency choice on the previous page" in new LocalSetup {
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
-
-      val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "return 200 if the user is on correspondence address journey and has postal address type" in new LocalSetup {
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "redirect to the beginning of the journey when user has not indicated Residency choice on previous page" in new LocalSetup {
-      lazy val sessionCacheResponse = None
-
-      val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-    }
-
-    "redirect to the beginning of the journey when user has not visited your-address page on correspondence journey" in new LocalSetup {
-      lazy val sessionCacheResponse = None
-
-      val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
-    }
-
-    "verify an audit event has been sent for a user clicking the change address link" in new LocalSetup {
-
-      lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)),
-            "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
-
-      val result = controller.showPostcodeLookupForm(SoleAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-    }
-
-    "verify an audit event has been sent for a user clicking the change postal address link" in new LocalSetup {
-
-      lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-      val result = controller.showPostcodeLookupForm(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-    }
-  }
-
-  "Calling AddressController.processPostcodeLookupForm" should {
-    trait LocalSetup extends WithAddressControllerSpecSetup {
-
-      def addressLookupResponse: AddressLookupResponse
-
-      override lazy val fakeAddress = buildFakeAddress
-      override lazy val nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("postalAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)))))
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-
-      def comparatorDataEvent(dataEvent: DataEvent, auditType: String, postcode: String): DataEvent = DataEvent(
-        "pertax-frontend",
-        auditType,
-        dataEvent.eventId,
-        Map("path" -> "/test", "transactionName" -> "find_address"),
-        Map("nino" -> Fixtures.fakeNino.nino, "postcode" -> postcode),
-        dataEvent.generatedAt
-      )
-
-      when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-        Future.successful(addressLookupResponse)
-      }
-    }
-
-    "return 404 and log a addressLookupNotFound audit event when an empty record set is returned by the address lookup service" in new LocalSetup {
-      override lazy val addressLookupResponse = AddressLookupSuccessResponse(RecordSet(List()))
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = FakeRequest("POST", "/test")
-                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                .asInstanceOf[Request[A]]).asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processPostcodeLookupForm(PostalAddrType, None)(FakeRequest("POST", "/test"))
-
-      status(result) shouldBe NOT_FOUND
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
-        eventCaptor.getValue,
-        "addressLookupNotFound",
-        "AA1 1AA")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "redirect to the edit address page for a postal address type and log a addressLookupResults audit event when a single record is returned by the address lookup service" in new LocalSetup {
-      override lazy val addressLookupResponse =
-        AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = FakeRequest("POST", "/test")
-                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                .asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processPostcodeLookupForm(PostalAddrType, None)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
-      verify(mockLocalSessionCache, times(1))
-        .cache(meq("postalSelectedAddressRecord"), meq(fakeStreetPafAddressRecord))(any(), any(), any())
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
-        eventCaptor.getValue,
-        "addressLookupResults",
-        "AA1 1AA")
-    }
-
-    "redirect to the edit-address page for a non postal address type and log a addressLookupResults audit event when a single record is returned by the address lookup service" in new LocalSetup {
-      override lazy val addressLookupResponse =
-        AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
-      override lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("soleAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)))))
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = FakeRequest("POST", "/test")
-                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                .asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processPostcodeLookupForm(SoleAddrType, None)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/edit-address")
-      verify(mockLocalSessionCache, times(1))
-        .cache(meq("soleSelectedAddressRecord"), meq(fakeStreetPafAddressRecord))(any(), any(), any())
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
-        eventCaptor.getValue,
-        "addressLookupResults",
-        "AA1 1AA")
-    }
-
-    "redirect to showAddressSelectorForm and log a addressLookupResults audit event when multiple records are returned by the address lookup service" in new LocalSetup {
-      override lazy val addressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = FakeRequest("POST", "/test")
-                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                .asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processPostcodeLookupForm(PostalAddrType, None)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result).getOrElse("") should include("/select-address")
-
-      val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      pruneDataEvent(eventCaptor.getValue) shouldBe comparatorDataEvent(
-        eventCaptor.getValue,
-        "addressLookupResults",
-        "AA1 1AA")
-    }
-
-    "return Not Found when an empty recordset is returned by the address lookup service and back = true" in new LocalSetup {
-      override lazy val addressLookupResponse = AddressLookupSuccessResponse(RecordSet(List()))
-      override lazy val sessionCacheResponse = Some(
-        CacheMap(
-          "id",
-          Map(
-            "postalAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)),
-            "addressLookupServiceDown" -> Json.toJson(Some(false)))))
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = FakeRequest("POST", "/test")
-                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                .asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processPostcodeLookupForm(PostalAddrType, None)(FakeRequest())
-
-      status(result) shouldBe NOT_FOUND
-      verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
-    "redirect to the postcodeLookupForm and when a single record is returned by the address lookup service and back = true" in new LocalSetup {
-      override lazy val addressLookupResponse =
-        AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = FakeRequest("POST", "/test")
-                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                .asInstanceOf[Request[A]]
-            ).asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processPostcodeLookupForm(PostalAddrType, Some(true))(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/find-address")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
-    }
-
-    "redirect to showAddressSelectorForm and display the select-address page when multiple records are returned by the address lookup service back=true" in new LocalSetup {
-      override lazy val addressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture{
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = FakeRequest("POST", "")
-                .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
-                .asInstanceOf[Request[A]]
-            ).asInstanceOf[UserRequest[A]]
-          )
-      })
-
-      val result = controller.processPostcodeLookupForm(PostalAddrType, None)(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result).getOrElse("") should include("/select-address")
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(mockLocalSessionCache, times(2)).cache(any(), any())(any(), any(), any())
-    }
-  }
-
   "Calling AddressController.showAddressSelectorForm" should {
 
     trait LocalSetup extends WithAddressControllerSpecSetup {
@@ -647,7 +335,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
         val result = controller.showAddressSelectorForm(SoleAddrType)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(routes.AddressController.showPostcodeLookupForm(SoleAddrType).url)
+        redirectLocation(result) shouldBe Some(address.routes.PostcodeLookupController.onPageLoad(SoleAddrType).url)
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
     }
@@ -2660,73 +2348,6 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
       })
 
       val result = controller.showAddressAlreadyUpdated(PostalAddrType)(FakeRequest())
-
-      status(result) shouldBe OK
-    }
-  }
-
-  "Calling AddressController.lookingUpAddress" should {
-
-    trait LookingUpAddressLocalSetup extends WithAddressControllerSpecSetup {
-
-      implicit val userRequest = UserRequest(Some(Fixtures.fakeNino), Some(UserName(Name(Some("Firstname"), Some("Lastname")))), NonFilerSelfAssessmentUser, Credentials("", "GovernmentGateway"), ConfidenceLevel.L200, None, None, None, None, None, None, FakeRequest())
-
-      def addressLookupResponse: AddressLookupResponse
-
-      override lazy val fakeAddress: Address = buildFakeAddress
-      override lazy val nino: Nino = Fixtures.fakeNino
-      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-      override lazy val sessionCacheResponse =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-      override lazy val updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-      override lazy val thisYearStr = "2015"
-
-      lazy val c1 = {
-        when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-          Future.successful(addressLookupResponse)
-        }
-        controller
-      }
-
-      def result = c1.lookingUpAddress(SoleAddrType, "AA1 1AA", false) {
-        case AddressLookupSuccessResponse(_) => Future.successful(Ok("OK"))
-      }
-
-      val validAddressRecordSet = RecordSet(
-        List(
-          AddressRecord(
-            "GB990091234514",
-            PafAddress(
-              List("1 Fake Street", "Fake Town"),
-              Some("Fake City"),
-              None,
-              "AA1 1AA",
-              Country("UK", "United Kingdom"),
-              Some("GB-ENG")),
-            "en"),
-          AddressRecord(
-            "GB990091234515",
-            PafAddress(
-              List("2 Fake Street", "Fake Town"),
-              Some("Fake City"),
-              None,
-              "AA1 1AA",
-              Country("UK", "United Kingdom"),
-              Some("GB-ENG")),
-            "en")
-        )
-      )
-    }
-
-    "redirect to 'Edit your address' when address lookup service is down" in new LookingUpAddressLocalSetup {
-      override lazy val addressLookupResponse = AddressLookupErrorResponse(new RuntimeException("Some error"))
-
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/edit-address")
-    }
-
-    "return valid recordset when address lookup service is up" in new LookingUpAddressLocalSetup {
-      override lazy val addressLookupResponse = AddressLookupSuccessResponse(validAddressRecordSet)
 
       status(result) shouldBe OK
     }

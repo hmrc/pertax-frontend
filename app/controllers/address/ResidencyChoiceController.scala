@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import controllers.routes
 import models.SubmittedResidencyChoiceDtoId
 import models.dto.{ResidencyChoiceDto, TaxCreditsChoiceDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

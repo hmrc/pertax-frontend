@@ -40,7 +40,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
       @errors(addressFinderForm)
 
 
-      @form(action = controllers.routes.AddressController.processPostcodeLookupForm(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
+      @form(action = controllers.address.routes.PostcodeLookupController.onSubmit(typ), args = 'class -> "find-address-form", 'id -> "find-address-form") {
 
 
         <fieldset @addressFinderForm.errors.map { error => aria-describedby="@error.key-error-message"}>
