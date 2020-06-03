@@ -77,12 +77,6 @@ class AddressController @Inject()(
   def currentAddressType(personDetails: PersonDetails): String =
     personDetails.address.flatMap(_.`type`).getOrElse("Residential")
 
-  def getAddress(address: Option[Address]): Address =
-    address match {
-      case Some(address) => address
-      case None          => throw new Exception("Address does not exist in the current context")
-    }
-
   def addressBreadcrumb: Breadcrumb =
     "label.personal_details" -> routes.AddressController.personalDetails().url ::
       baseBreadcrumb
@@ -128,113 +122,6 @@ class AddressController @Inject()(
       Future.successful(Redirect(routes.AddressController.personalDetails()))
     } else {
       block
-    }
-
-  def closePostalAddressChoice: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
-        val address = getAddress(personDetails.address).fullAddress
-        Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
-      }
-    }
-
-  def processClosePostalAddressChoice: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personalDetails =>
-        ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(
-              BadRequest(
-                closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors))
-            )
-          },
-          closePostalAddressChoiceDto => {
-            if (closePostalAddressChoiceDto.value) {
-              Future.successful(Redirect(routes.AddressController.confirmClosePostalAddress()))
-            } else {
-              Future.successful(Redirect(routes.AddressController.personalDetails()))
-            }
-          }
-        )
-      }
-    }
-
-  def confirmClosePostalAddress: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
-        val address = getAddress(personDetails.address).fullAddress
-        Future.successful(Ok(confirmCloseCorrespondenceAddressView(address)))
-      }
-    }
-
-  private def submitConfirmClosePostalAddress(nino: Nino, personDetails: PersonDetails)(
-    implicit request: UserRequest[_]): Future[Result] = {
-
-    val address = getAddress(personDetails.correspondenceAddress)
-    val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
-
-    citizenDetailsService.getEtag(nino.nino) flatMap {
-      case None =>
-        Logger.error("Failed to retrieve Etag from citizen-details")
-        Future.successful(internalServerError)
-
-      case Some(version) =>
-        for {
-          response <- citizenDetailsService.updateAddress(nino, version.etag, closingAddress)
-          action <- response match {
-                     case UpdateAddressBadRequestResponse =>
-                       Future.successful(
-                         BadRequest(
-                           error(
-                             "global.error.BadRequest.title",
-                             Some("global.error.BadRequest.title"),
-                             List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
-                           )
-                         )
-                       )
-                     case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
-                       Future.successful(internalServerError)
-                     case UpdateAddressSuccessResponse =>
-                       for {
-                         _ <- auditConnector.sendEvent(
-                               buildEvent(
-                                 "closedAddressSubmitted",
-                                 "closure_of_correspondence",
-                                 auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")))
-                         _ <- cachingHelper
-                               .clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                         inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
-                         _ <- addressMovedService
-                               .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
-                       } yield
-                         if (inserted) {
-                           Ok(
-                             updateAddressConfirmationView(
-                               PostalAddrType,
-                               closedPostalAddress = true,
-                               Some(getAddress(personDetails.address).fullAddress),
-                               None
-                             )
-                           )
-                         } else {
-                           internalServerError
-                         }
-                   }
-        } yield action
-    }
-  }
-
-  def submitConfirmClosePostalAddress: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { nino => personDetails =>
-        for {
-          addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
-          result <- if (addressChanges.nonEmpty) {
-                     Future.successful(Redirect(routes.AddressController.personalDetails()))
-                   } else submitConfirmClosePostalAddress(nino, personDetails)
-
-        } yield result
-      }
     }
 
   def reviewChanges(typ: AddrType): Action[AnyContent] =

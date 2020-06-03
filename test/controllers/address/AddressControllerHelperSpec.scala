@@ -19,17 +19,21 @@ package controllers.address
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import org.mockito.Mockito.when
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.Results._
-import play.api.mvc.{MessagesControllerComponents, Request}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.renderer.TemplateRenderer
+import util.Fixtures.buildFakeAddress
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, LocalPartialRetriever}
+import util.fixtures.AddressFixture
+import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressControllerHelperSpec extends BaseSpec {
 
@@ -97,6 +101,20 @@ class AddressControllerHelperSpec extends BaseSpec {
         contentAsString(result) should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
 
       }
+    }
+  }
+
+  "getAddress" should {
+
+    "return Address when the option contains address" in {
+      SUT.getAddress(Some(buildFakeAddress)) shouldBe buildFakeAddress
+    }
+
+    "throw an Exception when address is None" in {
+
+      the[Exception] thrownBy {
+        SUT.getAddress(None)
+      } should have message "Address does not exist in the current context"
     }
   }
 }

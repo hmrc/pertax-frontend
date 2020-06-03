@@ -28,7 +28,7 @@ object ClosePostalAddressChoiceDto {
 
   val form = Form(
     mapping(
-      "closePostalAddressChoice" -> optional(boolean)
+      "onPageLoad" -> optional(boolean)
         .verifying("error.you_must_select_an_answer", _.isDefined)
         .transform[Boolean](_.getOrElse(false), Some(_))
     )(ClosePostalAddressChoiceDto.apply)(ClosePostalAddressChoiceDto.unapply)

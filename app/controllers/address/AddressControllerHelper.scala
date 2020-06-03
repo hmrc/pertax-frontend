@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
-import models.PersonDetails
+import models.{Address, PersonDetails}
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
@@ -60,6 +60,12 @@ abstract class AddressControllerHelper @Inject()(
           .url
         Ok(displayAddressInterstitialView(continueUrl))
       }
+    }
+
+  def getAddress(address: Option[Address]): Address =
+    address match {
+      case Some(address) => address
+      case None          => throw new Exception("Address does not exist in the current context")
     }
 
   def internalServerError(implicit userRequest: UserRequest[_]): Result =
