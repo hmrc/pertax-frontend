@@ -42,7 +42,7 @@ class AddressControllerHelperSpec extends BaseSpec {
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   object SUT
-      extends AddressControllerHelper(
+      extends AddressController(
         injected[AuthJourney],
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],

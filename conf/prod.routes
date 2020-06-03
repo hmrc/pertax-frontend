@@ -42,7 +42,7 @@ GET         /personal-account/your-address/residency-choice                     
 POST        /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onSubmit
 GET         /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onSubmit(typ: AddrType)
-GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.AddressController.cannotUseThisService(typ: AddrType)
+GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.address.AddressErrorController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onSubmit(typ: AddrType)
 GET         /personal-account/your-address/:typ/select-address                         controllers.address.AddressSelectorController.onPageLoad(typ: AddrType)
@@ -55,7 +55,7 @@ GET         /personal-account/your-address/:typ/enter-start-date                
 POST        /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onSubmit(typ: AddrType)
 GET         /personal-account/your-address/:typ/changes                                controllers.address.AddressSubmissionController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/thank-you                              controllers.address.AddressSubmissionController.onSubmit(typ: AddrType)
-GET         /personal-account/your-address/:typ/thank-you                              controllers.AddressController.showAddressAlreadyUpdated(typ: AddrType)
+GET         /personal-account/your-address/:typ/thank-you                              controllers.address.AddressErrorController.showAddressAlreadyUpdated(typ: AddrType)
 GET         /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onPageLoad
 POST        /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onSubmit
 GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.address.ClosePostalAddressController.confirmPageLoad

@@ -42,7 +42,7 @@ class InternationalAddressChoiceController @Inject()(
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressControllerHelper(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -72,7 +72,7 @@ class InternationalAddressChoiceController @Inject()(
                 if (configDecorator.updateInternationalAddressInPta) {
                   Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
                 } else {
-                  Redirect(controllers.routes.AddressController.cannotUseThisService(typ))
+                  Redirect(routes.AddressErrorController.cannotUseThisService(typ))
                 }
               }
             }

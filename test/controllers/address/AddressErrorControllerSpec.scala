@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.address
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
@@ -40,7 +40,7 @@ import views.html.personaldetails._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressControllerSpec extends BaseSpec with MockitoSugar {
+class AddressErrorControllerSpec extends BaseSpec with MockitoSugar {
 
   val mockAuthJourney = mock[AuthJourney]
   val mockLocalSessionCache = mock[LocalSessionCache]
@@ -61,7 +61,7 @@ class AddressControllerSpec extends BaseSpec with MockitoSugar {
     def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
     def controller =
-      new AddressController(
+      new AddressErrorController(
         mockAuthJourney,
         new AddressJourneyCachingHelper(mockLocalSessionCache),
         injected[WithActiveTabAction],

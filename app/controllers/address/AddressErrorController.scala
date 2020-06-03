@@ -14,38 +14,22 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.address.AddressControllerHelper
-import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable._
-import controllers.controllershelpers.AddressJourneyAuditingHelper._
-import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
-import models._
-import models.dto._
-import org.joda.time.LocalDate
-import play.api.Logger
-import play.api.data.Form
-import play.api.mvc._
-import play.twirl.api.Html
-import repositories.EditAddressLockRepository
-import services._
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import controllers.bindable.AddrType
+import controllers.controllershelpers.AddressJourneyCachingHelper
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.AuditServiceTools._
-import util.{LanguageHelper, LocalPartialRetriever}
-import views.html.error
+import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails._
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressController @Inject()(
+class AddressErrorController @Inject()(
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
@@ -58,7 +42,7 @@ class AddressController @Inject()(
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressControllerHelper(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
