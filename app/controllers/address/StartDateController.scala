@@ -89,9 +89,9 @@ class StartDateController @Inject()(
                         BadRequest(
                           cannotUpdateAddressView(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
                       } else {
-                        Redirect(controllers.routes.AddressController.reviewChanges(typ))
+                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }
-                    case _ => Redirect(controllers.routes.AddressController.reviewChanges(typ))
+                    case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                   }
               }
             }

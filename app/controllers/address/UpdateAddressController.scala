@@ -115,12 +115,12 @@ class UpdateAddressController @Inject()(
                       case (PostalAddrType, _) =>
                         cacheStartDate(
                           typ,
-                          Redirect(controllers.routes.AddressController.reviewChanges(typ))
+                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                         )
                       case (_, false) =>
                         cacheStartDate(
                           typ,
-                          Redirect(controllers.routes.AddressController.reviewChanges(typ))
+                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                         )
                       case (_, true) =>
                         Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))

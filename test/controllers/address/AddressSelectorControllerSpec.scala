@@ -244,7 +244,7 @@ class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar {
 
     "redirect to check and submit page if postcode is not different to currently held postcode" in new LocalSetup {
 
-      override lazy val sessionCacheResponse =
+      override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
