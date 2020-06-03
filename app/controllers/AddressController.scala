@@ -46,16 +46,11 @@ import views.html.personaldetails._
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressController @Inject()(
-  val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
-  val editAddressLockRepository: EditAddressLockRepository,
-  ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
-  auditConnector: AuditConnector,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  personalDetailsView: PersonalDetailsView,
   cannotUseServiceView: CannotUseServiceView,
   addressAlreadyUpdatedView: AddressAlreadyUpdatedView
 )(
@@ -64,30 +59,6 @@ class AddressController @Inject()(
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends AddressControllerHelper(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
-
-  def personalDetails: Action[AnyContent] = authenticate.async { implicit request =>
-    import models.dto.AddressPageVisitedDto
-
-    for {
-      addressModel <- request.nino
-                       .map { nino =>
-                         editAddressLockRepository.get(nino.withoutSuffix)
-                       }
-                       .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
-      ninoToDisplay <- ninoDisplayService.getNino
-      personalDetailsCards: Seq[Html] = personalDetailsCardGenerator
-        .getPersonalDetailsCards(addressModel, ninoToDisplay)
-      personDetails: Option[PersonDetails] = request.personDetails
-
-      _ <- personDetails
-            .map { details =>
-              auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
-            }
-            .getOrElse(Future.successful(Unit))
-      _ <- cachingHelper.addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
-
-    } yield Ok(personalDetailsView(personalDetailsCards))
-  }
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

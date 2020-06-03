@@ -280,7 +280,7 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(controllers.routes.AddressController.personalDetails().url)
+      redirectLocation(result) shouldBe Some(routes.PersonalDetailsController.onPageLoad().url)
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), any())(any())

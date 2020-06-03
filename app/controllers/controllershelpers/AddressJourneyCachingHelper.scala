@@ -96,7 +96,7 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case Some(_) =>
         block
       case None =>
-        Future.successful(Redirect(routes.AddressController.personalDetails()))
+        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
     }
 
   def enforceResidencyChoiceSubmitted(journeyData: AddressJourneyData)(
@@ -105,7 +105,7 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case AddressJourneyData(_, Some(_), _, _, _, _, _, _, _) =>
         block(journeyData)
       case AddressJourneyData(_, None, _, _, _, _, _, _, _) =>
-        Future.successful(Redirect(routes.AddressController.personalDetails()))
+        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
     }
 
 }

@@ -55,8 +55,8 @@ abstract class AddressControllerHelper @Inject()(
       block(payeAccount)(personDetails)
     }).getOrElse {
       Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + controllers.routes.AddressController
-          .personalDetails()
+        val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
+          .onPageLoad()
           .url
         Ok(displayAddressInterstitialView(continueUrl))
       }

@@ -63,7 +63,7 @@ class StartDateController @Inject()(
 
               Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
             } getOrElse {
-              Future.successful(Redirect(controllers.routes.AddressController.personalDetails()))
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
             }
           }
         }
