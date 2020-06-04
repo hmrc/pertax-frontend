@@ -6,13 +6,12 @@ object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc"         %% "play-breadcrumb"          % "1.0.0",
     "uk.gov.hmrc"         %% "bootstrap-play-26"        % "1.5.0",
     "uk.gov.hmrc"         %% "play-partials"            % "6.9.0-play-26",
     "uk.gov.hmrc"         %% "url-builder"              % "3.3.0-play-26",
     "uk.gov.hmrc"         %% "http-caching-client"      % "9.0.0-play-26",
     "uk.gov.hmrc"         %% "play-language"            % "4.2.0-play-26",
-    "uk.gov.hmrc"         %% "local-template-renderer"  % "2.8.0-play-26",
+//    "uk.gov.hmrc"         %% "local-template-renderer"  % "2.8.0-play-26",
     "uk.gov.hmrc"         %% "play-ui"                  % "8.8.0-play-26",
     "uk.gov.hmrc"         %% "tax-year"                 % "1.0.0",
     "uk.gov.hmrc"         %% "domain"                   % "5.6.0-play-26",

@@ -15,6 +15,8 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
+scalaVersion := "2.12.8"
+
 val akkaVersion = "2.5.23"
 val akkaHttpVersion = "10.0.15"
 dependencyOverrides += "com.typesafe.akka" %% "akka-stream"    % akkaVersion
