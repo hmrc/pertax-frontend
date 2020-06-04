@@ -24,6 +24,7 @@ import com.google.inject.Inject
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -46,6 +47,7 @@ class UserResearchDismissalController @Inject()(
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     homePageCachingHelper.storeUserUrDismissal(request.nino)
     NoContent
   }

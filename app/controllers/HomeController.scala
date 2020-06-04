@@ -22,6 +22,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import com.google.inject.Inject
 import models._
+import uk.gov.hmrc.play.HeaderCarrierConverter
 import org.joda.time.DateTime
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
@@ -60,6 +61,7 @@ class HomeController @Inject()(
     .addActiveTab(ActiveTabHome)
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
+    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
     val showUserResearchBanner: Future[Boolean] =
       configDecorator.bannerLinkUrl.fold(Future.successful(false))(_ =>
         homePageCachingHelper.hasUserDismissedUrInvitation(request.nino).map(!_))
