@@ -90,6 +90,10 @@ trait PafFixtures {
     List(
       otherPlacePafDifferentPostcodeAddressRecord
     ))
+
+  val twoOtherPlaceRecordSet = RecordSet(
+    List(twoOtherPlacePafAddressRecord)
+  )
 }
 
 trait TaiFixtures {
