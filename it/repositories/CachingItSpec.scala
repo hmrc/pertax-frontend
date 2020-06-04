@@ -29,7 +29,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
-import services.{EnrolmentStoreCachingService, LocalSessionCache}
+import services.{EnrolmentStoreCachingService, LocalSessionCache, SafeLocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
@@ -49,7 +49,7 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
   override def beforeEach(): Unit = {
     super.beforeEach()
-    await(cache.remove())
+    await(cache.remove(Some(testNino)))
     await(mongo.drop)
   }
 
@@ -181,7 +181,7 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
     }
   }
 
-  val cache: LocalSessionCache = app.injector.instanceOf[LocalSessionCache]
+  val cache = app.injector.instanceOf[SafeLocalSessionCache]
   val mockConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
 
   val service = new EnrolmentStoreCachingService(cache, mockConnector)
@@ -197,9 +197,9 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
         when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
         ) thenReturn Future.successful(Right(Seq[String]()))
 
-        await(service.getSaUserTypeFromCache(saUtr))
+        await(service.getSaUserTypeFromCache(Some(testNino), saUtr))
 
-        await(service.getSaUserTypeFromCache(saUtr))
+        await(service.getSaUserTypeFromCache(Some(testNino), saUtr))
 
         verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
