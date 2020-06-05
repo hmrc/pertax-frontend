@@ -27,7 +27,7 @@ object RecordSet {
     RecordSet(validAddresses)
   }
 
-  def removeInvalidAddresses(addresses: Seq[AddressRecord]): Seq[AddressRecord] =
+  private def removeInvalidAddresses(addresses: Seq[AddressRecord]): Seq[AddressRecord] =
     addresses.filter(_.validAddress)
 
   implicit val formats = Json.format[RecordSet]
