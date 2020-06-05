@@ -16,70 +16,40 @@
 
 package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
-import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.dto.{AddressDto, AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
+import models.dto.{AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
+import util.Fixtures
 import util.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressView
 
-import scala.concurrent.{ExecutionContext, Future}
+class UpdateAddressControllerSpec extends AddressBaseSpec {
 
-class UpdateAddressControllerSpec extends BaseSpec with MockitoSugar {
-
-  trait LocalSetup {
-
-    def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
-
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-
-    implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: UpdateAddressController =
       new UpdateAddressController(
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
+        addressJourneyCachingHelper,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
+        withActiveTabAction,
+        cc,
         injected[UpdateAddressView],
-        injected[DisplayAddressInterstitialView]
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
+        displayAddressInterstitialView
+      )
 
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(CacheMap("id", Map.empty)))
-
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(Future.successful(sessionCacheResponse))
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = currentRequest[A]).asInstanceOf[UserRequest[A]]
-        )
-    })
   }
 
   "onPageLoad" should {

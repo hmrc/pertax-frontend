@@ -23,7 +23,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.PersonDetails
+import models.{Address, PersonDetails}
 import models.dto.ClosePostalAddressChoiceDto
 import org.joda.time.LocalDate
 import play.api.Logger
@@ -167,4 +167,10 @@ class ClosePostalAddressController @Inject()(
         } yield action
     }
   }
+
+  private def getAddress(address: Option[Address]): Address =
+    address match {
+      case Some(address) => address
+      case None          => throw new Exception("Address does not exist in the current context")
+    }
 }

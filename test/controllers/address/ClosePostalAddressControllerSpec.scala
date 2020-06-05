@@ -16,72 +16,46 @@
 
 package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
-import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{AddressJourneyTTLModel, ETag, MovedToScotland, NonFilerSelfAssessmentUser}
-import models.dto.{AddressDto, AddressPageVisitedDto}
+import models._
+import models.dto.AddressDto
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsFormUrlEncoded, MessagesControllerComponents, Request, Result}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService, LocalSessionCache, PersonDetailsResponse, PersonDetailsSuccessResponse, UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
+import services._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.{buildFakeAddress, buildFakeAddressWithEndDate, buildPersonDetailsCorrespondenceAddress}
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
+import util.Fixtures
+import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
-import scala.concurrent.{ExecutionContext, Future}
+class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
-class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar {
+  val addressExceptionMessage = "Address does not exist in the current context"
 
-  trait LocalSetup {
-
-    def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
-
-    lazy val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-    lazy val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
-    lazy val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-    lazy val mockAuditConnector: AuditConnector = mock[AuditConnector]
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-
-    implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
         mockCitizenDetailsService,
         mockEditAddressLockRepository,
         mockAddressMovedService,
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
+        addressJourneyCachingHelper,
         mockAuditConnector,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
+        withActiveTabAction,
+        cc,
         injected[CloseCorrespondenceAddressChoiceView],
         injected[ConfirmCloseCorrespondenceAddressView],
         injected[UpdateAddressConfirmationView],
-        injected[DisplayAddressInterstitialView]
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
-
-    def pruneDataEvent(dataEvent: DataEvent): DataEvent =
-      dataEvent.copy(
-        tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token",
-        detail = dataEvent.detail - "credId")
+        displayAddressInterstitialView
+      )
 
     def comparatorDataEvent(
       dataEvent: DataEvent,
@@ -116,72 +90,13 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar {
       dataEvent.generatedAt
     )
 
-    lazy val nino = Fixtures.fakeNino
-
-    lazy val fakePersonDetails = Fixtures.buildPersonDetails
-
-    def personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("addressLookupServiceDown" -> Json.toJson(Some(true)))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
-
-    def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
-
-    def updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-
-    def eTagResponse: Option[ETag] = Some(ETag("115"))
-
-    when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
-      Future.successful(AuditResult.Success)
-    }
-    when(mockCitizenDetailsService.personDetails(meq(nino))(any())) thenReturn {
-      Future.successful(personDetailsResponse)
-    }
-    when(mockCitizenDetailsService.getEtag(any())(any())) thenReturn {
-      Future.successful(eTagResponse)
-    }
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any())) thenReturn {
-      Future.successful(updateAddressResponse)
-    }
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any())) thenReturn {
-      Future.successful(updateAddressResponse)
-    }
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
-      Future.successful(CacheMap("id", Map.empty))
-    }
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn {
-      Future.successful(sessionCacheResponse)
-    }
-    when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
-      Future.successful(mock[HttpResponse])
-    }
-    when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
-      Future.successful(isInsertCorrespondenceAddressLockSuccessful)
-    }
-    when(mockEditAddressLockRepository.get(any())) thenReturn {
-      Future.successful(getEditedAddressIndicators)
-    }
-    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
-      Future.successful(MovedToScotland)
-    }
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(
-            request = currentRequest[A],
-            personDetails = Some(buildPersonDetailsCorrespondenceAddress),
-            saUser = NonFilerSelfAssessmentUser
-          ).asInstanceOf[UserRequest[A]]
-        )
-    })
   }
 
-  "Calling AddressController.onPageLoad" should {
+  "onPageLoad" should {
 
     "display the closeCorrespondenceAddressChoice form that contains the main address" in new LocalSetup {
       val result = controller.onPageLoad(FakeRequest())
@@ -190,9 +105,19 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe OK
     }
+
+    "throw an Exception if person details does not contain an address" in new LocalSetup {
+
+      override def personDetailsForRequest: Option[PersonDetails] =
+        Some(buildPersonDetailsCorrespondenceAddress.copy(address = None))
+
+      the[Exception] thrownBy {
+        await(controller.onPageLoad(FakeRequest()))
+      } should have message addressExceptionMessage
+    }
   }
 
-  "Calling AddressController.onSubmit" should {
+  "onSubmit" should {
 
     "redirect to expected confirm close correspondence confirmation page when supplied with value = Yes (true)" in new LocalSetup {
 
@@ -224,17 +149,37 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar {
 
       status(result) shouldBe BAD_REQUEST
     }
+
+    "throw an Exception if person details does not contain an address" in new LocalSetup {
+
+      override def personDetailsForRequest: Option[PersonDetails] =
+        Some(buildPersonDetailsCorrespondenceAddress.copy(address = None))
+
+      the[Exception] thrownBy {
+        await(controller.onSubmit(FakeRequest()))
+      } should have message addressExceptionMessage
+    }
   }
 
-  "Calling AddressController.confirmPageLoad" should {
+  "confirmPageLoad" should {
 
     "return OK when confirmPageLoad is called" in new LocalSetup {
       val result = controller.confirmPageLoad(FakeRequest())
       status(result) shouldBe OK
     }
+
+    "throw an Exception if person details does not contain an address" in new LocalSetup {
+
+      override def personDetailsForRequest: Option[PersonDetails] =
+        Some(buildPersonDetailsCorrespondenceAddress.copy(address = None))
+
+      the[Exception] thrownBy {
+        await(controller.confirmPageLoad(FakeRequest()))
+      } should have message addressExceptionMessage
+    }
   }
 
-  "Calling AddressController.confirmSubmit" should {
+  "confirmSubmit" should {
 
     def submitComparatorDataEvent(dataEvent: DataEvent, auditType: String, uprn: Option[String]) = DataEvent(
       "pertax-frontend",
@@ -347,6 +292,17 @@ class ClosePostalAddressControllerSpec extends BaseSpec with MockitoSugar {
       val result = controller.confirmSubmit(currentRequest)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    "throw an Exception when person details does not contain a correspondence address" in new LocalSetup {
+      override def personDetailsForRequest: Option[PersonDetails] =
+        Some(buildPersonDetailsCorrespondenceAddress.copy(correspondenceAddress = None))
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+
+      the[Exception] thrownBy {
+        await(controller.confirmSubmit(currentRequest))
+      } should have message addressExceptionMessage
+
     }
   }
 }

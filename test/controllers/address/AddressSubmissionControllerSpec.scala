@@ -17,135 +17,36 @@
 package controllers.address
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.ETag
 import models.dto.DateDto
-import models.{AddressChanged, AddressJourneyTTLModel, ETag, MovedToScotland, NonFilerSelfAssessmentUser}
 import org.joda.time.LocalDate
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.{I18nSupport, Lang, Messages, MessagesApi, MessagesImpl}
+import org.mockito.Mockito.{times, verify}
+import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json
-import play.api.mvc.{AnyContentAsFormUrlEncoded, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.http.Status.{OK, SEE_OTHER}
-import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService, LocalSessionCache, PersonDetailsResponse, PersonDetailsSuccessResponse, UpdateAddressResponse, UpdateAddressSuccessResponse}
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
-import util.UserRequestFixture.buildUserRequest
+import util.{Fixtures, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
-import scala.concurrent.{ExecutionContext, Future}
+class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
-class AddressSubmissionControllerSpec extends BaseSpec with MockitoSugar {
+  implicit lazy val lang: Lang = Lang("en")
 
-  lazy val messagesApi: MessagesApi = injected[MessagesApi]
-  implicit val lang: Lang = Lang("en-gb")
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
-
-  implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
-
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
-  val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
-  val mockAuthJourney: AuthJourney = mock[AuthJourney]
-  val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
-
-  def pruneDataEvent(dataEvent: DataEvent): DataEvent =
-    dataEvent
-      .copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
-
-  override def beforeEach: Unit =
-    reset(
-      mockLocalSessionCache,
-      mockAuditConnector,
-      mockEditAddressLockRepository,
-      mockAuthJourney,
-      mockCitizenDetailsService,
-      mockAddressMovedService
-    )
-
-  trait LocalSetup {
-
-    lazy val nino: Nino = fakeNino
-
-    lazy val fakePersonDetails = buildPersonDetails
-
-    lazy val fakeAddress = buildFakeAddress
-
-    def personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
-
-    def sessionCacheResponse: Option[CacheMap]
-
-    def thisYearStr: String = "2019"
-
-    def eTagResponse: Option[ETag] = Some(ETag("115"))
-
-    def updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
-
-    def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
-
-    def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
+  trait LocalSetup extends AddressControllerSetup {
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
-      Future.successful(AuditResult.Success)
-    }
-    when(mockCitizenDetailsService.personDetails(meq(nino))(any())) thenReturn {
-      Future.successful(personDetailsResponse)
-    }
-    when(mockCitizenDetailsService.getEtag(any())(any())) thenReturn {
-      Future.successful(eTagResponse)
-    }
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any())) thenReturn {
-      Future.successful(updateAddressResponse)
-    }
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
-      Future.successful(CacheMap("id", Map.empty))
-    }
-    when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-      Future.successful(sessionCacheResponse)
-    }
-    when(mockLocalSessionCache.remove()(any(), any())) thenReturn {
-      Future.successful(mock[HttpResponse])
-    }
-    when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
-      Future.successful(isInsertCorrespondenceAddressLockSuccessful)
-    }
-    when(mockEditAddressLockRepository.get(any())) thenReturn {
-      Future.successful(getEditedAddressIndicators)
-    }
-    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
-      Future.successful(MovedToScotland)
-    }
-    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())) thenReturn {
-      None
-    }
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(
-            request = currentRequest,
-            saUser = NonFilerSelfAssessmentUser
-          ).asInstanceOf[UserRequest[A]]
-        )
-    })
 
     def controller =
       new AddressSubmissionController(
@@ -163,7 +64,7 @@ class AddressSubmissionControllerSpec extends BaseSpec with MockitoSugar {
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
   }
 
-  "Calling AddressController.onPageLoad" should {
+  "onPageLoad" should {
 
     "return 200 if both SubmittedAddressDto and SubmittedStartDateDto are present in keystore for non-postal" in new LocalSetup {
       override def sessionCacheResponse =
@@ -329,7 +230,7 @@ class AddressSubmissionControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  "Calling AddressController.onSubmit" should {
+  "onSubmit" should {
 
     def comparatorDataEvent(
       dataEvent: DataEvent,
@@ -494,20 +395,10 @@ class AddressSubmissionControllerSpec extends BaseSpec with MockitoSugar {
             )
           ))
 
-      val requestWithForm: FakeRequest[AnyContentAsFormUrlEncoded] =
+      override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
           .withFormUrlEncodedBody(fakeStreetTupleListAddressForUnmodified: _*)
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = requestWithForm
-                .asInstanceOf[Request[A]])
-              .asInstanceOf[UserRequest[A]]
-          )
-      })
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 

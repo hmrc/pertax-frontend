@@ -18,42 +18,28 @@ package controllers.address
 
 import config.ConfigDecorator
 import controllers.address
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.DateDto
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{AddressLookupService, AddressLookupSuccessResponse, LocalSessionCache}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures.{oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord}
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
+import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
 
-import scala.concurrent.{ExecutionContext, Future}
+class AddressSelectorControllerSpec extends AddressBaseSpec {
 
-class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar {
-
-  trait LocalSetup {
-
-    val addressLookupResponseFirstPostcode = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
-
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-    lazy val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-
-    implicit lazy val ec = injected[ExecutionContext]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: AddressSelectorController =
       new AddressSelectorController(
@@ -72,20 +58,6 @@ class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar {
           Map(
             "addressLookupServiceDown" -> Json.toJson(Some(false)),
             "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
-
-    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(CacheMap("id", Map.empty)))
-
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(Future.successful(sessionCacheResponse))
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = currentRequest[A]).asInstanceOf[UserRequest[A]]
-        )
-    })
   }
 
   "onPageLoad" should {
@@ -139,10 +111,6 @@ class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar {
                 "addressLookupServiceDown" -> Json.toJson(Some(false)),
                 "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
 
-        when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-          Future.successful(addressLookupResponseFirstPostcode)
-        }
-
         val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
         status(result) shouldBe BAD_REQUEST
@@ -163,10 +131,6 @@ class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar {
               Map(
                 "addressLookupServiceDown" -> Json.toJson(Some(false)),
                 "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
-
-        when(mockAddressLookupService.lookup(any(), any())(any())) thenReturn {
-          Future.successful(addressLookupResponseFirstPostcode)
-        }
 
         val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
@@ -191,10 +155,6 @@ class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar {
               "addressLookupServiceDown" -> Json.toJson(Some(false)),
               "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
 
-      when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-        Future.successful(addressLookupResponseFirstPostcode)
-      }
-
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
@@ -210,10 +170,6 @@ class AddressSelectorControllerSpec extends BaseSpec with MockitoSugar {
         FakeRequest("POST", "")
           .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
-
-      when(mockAddressLookupService.lookup(meq("AA1 1AA"), any())(any())) thenReturn {
-        Future.successful(addressLookupResponseFirstPostcode)
-      }
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 

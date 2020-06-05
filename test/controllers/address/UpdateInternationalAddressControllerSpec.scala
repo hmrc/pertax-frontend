@@ -46,46 +46,26 @@ import views.html.personaldetails.UpdateInternationalAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UpdateInternationalAddressControllerSpec extends BaseSpec with MockitoSugar {
+class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
-  trait LocalSetup {
-
-    def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
-
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-    lazy val mockAuditConnector: AuditConnector = mock[AuditConnector]
-
-    implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: UpdateInternationalAddressController =
       new UpdateInternationalAddressController(
         injected[CountryHelper],
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
+        addressJourneyCachingHelper,
         mockAuditConnector,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
+        withActiveTabAction,
+        cc,
         injected[UpdateInternationalAddressView],
-        injected[DisplayAddressInterstitialView]
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
+        displayAddressInterstitialView
+      )
 
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(CacheMap("id", Map.empty)))
-
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(Future.successful(sessionCacheResponse))
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = currentRequest[A]).asInstanceOf[UserRequest[A]]
-        )
-    })
   }
 
   "onPageLoad" should {

@@ -16,64 +16,35 @@
 
 package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.AddressPageVisitedDto
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
 
-import scala.concurrent.{ExecutionContext, Future}
+class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
-class TaxCreditsChoiceControllerSpec extends BaseSpec with MockitoSugar {
-
-  trait LocalSetup {
-
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-
-    implicit lazy val ec = injected[ExecutionContext]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: TaxCreditsChoiceController =
       new TaxCreditsChoiceController(
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
+        withActiveTabAction,
+        cc,
+        addressJourneyCachingHelper,
         injected[TaxCreditsChoiceView],
-        injected[DisplayAddressInterstitialView]
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
+        displayAddressInterstitialView
+      )
 
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(CacheMap("id", Map.empty)))
-
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(Future.successful(sessionCacheResponse))
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = currentRequest[A]).asInstanceOf[UserRequest[A]]
-        )
-    })
   }
 
   "onPageLoad" should {

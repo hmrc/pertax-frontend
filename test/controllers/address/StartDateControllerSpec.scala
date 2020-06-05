@@ -44,49 +44,28 @@ import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class StartDateControllerSpec extends BaseSpec with MockitoSugar {
+class StartDateControllerSpec extends AddressBaseSpec {
 
-  trait LocalSetup {
-
-    val thisYearStr: String = "2019"
-
-    def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
-
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-
-    implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: StartDateController =
       new StartDateController(
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
+        withActiveTabAction,
+        cc,
+        addressJourneyCachingHelper,
         injected[EnterStartDateView],
         injected[CannotUpdateAddressView],
-        injected[DisplayAddressInterstitialView]
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
+        displayAddressInterstitialView
+      )
 
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(CacheMap("id", Map.empty)))
-
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(Future.successful(sessionCacheResponse))
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = currentRequest[A]).asInstanceOf[UserRequest[A]]
-        )
-    })
   }
 
-  "Calling AddressController.onPageLoad" should {
+  "onPageLoad" should {
 
     "return 200 when passed PrimaryAddrType and submittedAddressDto is in keystore" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = Some(
@@ -134,7 +113,7 @@ class StartDateControllerSpec extends BaseSpec with MockitoSugar {
     }
   }
 
-  "Calling AddressController.onSubmit" should {
+  "onSubmit" should {
 
     "return 303 when passed PrimaryAddrType and a valid form with low numbers" in new LocalSetup {
 
@@ -353,10 +332,6 @@ class StartDateControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to success page when no startDate is on record" in new LocalSetup {
-//      lazy val personDetailsNoStartDate =
-//        fakePersonDetails.copy(address = fakePersonDetails.address.map(_.copy(startDate = None)))
-//
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoStartDate)
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -371,9 +346,6 @@ class StartDateControllerSpec extends BaseSpec with MockitoSugar {
     }
 
     "redirect to success page when no address is on record" in new LocalSetup {
-//      lazy val personDetailsNoAddress = fakePersonDetails.copy(address = None)
-//
-//      override lazy val personDetailsResponse = PersonDetailsSuccessResponse(personDetailsNoAddress)
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))

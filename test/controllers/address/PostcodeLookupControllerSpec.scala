@@ -16,89 +16,46 @@
 
 package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
-import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.NonFilerSelfAssessmentUser
 import models.addresslookup.RecordSet
 import models.dto.{AddressFinderDto, AddressPageVisitedDto, ResidencyChoiceDto, TaxCreditsChoiceDto}
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
+import util.Fixtures
 import util.Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PostcodeLookupView
 
-import scala.concurrent.{ExecutionContext, Future}
+class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
-class PostcodeLookupControllerSpec extends BaseSpec with MockitoSugar {
-
-  trait LocalSetup {
-
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-    lazy val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-    lazy val mockAuditConnector: AuditConnector = mock[AuditConnector]
-
-    implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
-    implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-    implicit lazy val templateRenderer: TemplateRenderer = injected[TemplateRenderer]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: PostcodeLookupController =
       new PostcodeLookupController(
         mockAddressLookupService,
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
+        addressJourneyCachingHelper,
         mockAuditConnector,
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
+        withActiveTabAction,
+        cc,
         injected[PostcodeLookupView],
-        injected[DisplayAddressInterstitialView]
-      )(injected[LocalPartialRetriever], configDecorator, templateRenderer, ec)
+        displayAddressInterstitialView
+      )
 
     def sessionCacheResponse: Option[CacheMap] =
       Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
-    def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(RecordSet(List()))
-
-    when(mockAddressLookupService.lookup(any(), any())(any())) thenReturn Future.successful(addressLookupResponse)
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(CacheMap("id", Map.empty)))
-
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(Future.successful(sessionCacheResponse))
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(
-            saUser = NonFilerSelfAssessmentUser,
-            request = currentRequest[A]
-          ).asInstanceOf[UserRequest[A]]
-        )
-    })
-
-    def pruneDataEvent(dataEvent: DataEvent): DataEvent =
-      dataEvent.copy(
-        tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token",
-        detail = dataEvent.detail - "credId")
+    override def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(RecordSet(List()))
 
     def comparatorDataEvent(dataEvent: DataEvent, auditType: String, postcode: String): DataEvent = DataEvent(
       "pertax-frontend",

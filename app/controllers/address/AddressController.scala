@@ -62,12 +62,6 @@ abstract class AddressController @Inject()(
       }
     }
 
-  def getAddress(address: Option[Address]): Address =
-    address match {
-      case Some(address) => address
-      case None          => throw new Exception("Address does not exist in the current context")
-    }
-
   def internalServerError(implicit userRequest: UserRequest[_]): Result =
     InternalServerError(
       error(

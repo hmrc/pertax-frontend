@@ -43,75 +43,37 @@ import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceVi
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PersonalDetailsControllerSpec extends BaseSpec with MockitoSugar {
+class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
-  val mockAuditConnector = mock[AuditConnector]
-  val mockAuthJourney = mock[AuthJourney]
-  val mockLocalSessionCache = mock[LocalSessionCache]
-  val mockEditAddressLockRepository = mock[EditAddressLockRepository]
-  val mockPersonalDetailsCardGenerator: PersonalDetailsCardGenerator = mock[PersonalDetailsCardGenerator]
   val ninoDisplayService = mock[NinoDisplayService]
 
-  lazy val displayAddressInterstitial = injected[DisplayAddressInterstitialView]
-  lazy val personalDetails = injected[PersonalDetailsView]
+  trait LocalSetup extends AddressControllerSetup {
 
-  implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
-
-  trait LocalSetup {
-
-    def sessionCacheResponse: Option[CacheMap]
-
-    def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
-      Future.successful(CacheMap("id", Map.empty))
-    }
-    when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
-      Future.successful(sessionCacheResponse)
-    }
-    when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
-      Future.successful(AuditResult.Success)
-    }
     when(ninoDisplayService.getNino(any(), any())).thenReturn {
       Future.successful(Some(Fixtures.fakeNino))
     }
-    when(mockEditAddressLockRepository.get(any())) thenReturn {
-      Future.successful(getEditedAddressIndicators)
-    }
 
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = request).asInstanceOf[UserRequest[A]]
-        )
-    })
+    def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
 
     def controller =
       new PersonalDetailsController(
-        mockPersonalDetailsCardGenerator,
+        injected[PersonalDetailsCardGenerator],
         mockEditAddressLockRepository,
         ninoDisplayService,
         mockAuthJourney,
-        new AddressJourneyCachingHelper(mockLocalSessionCache),
-        injected[WithActiveTabAction],
+        addressJourneyCachingHelper,
+        withActiveTabAction,
         mockAuditConnector,
-        injected[MessagesControllerComponents],
-        displayAddressInterstitial,
-        personalDetails
-      )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec) {}
+        cc,
+        displayAddressInterstitialView,
+        injected[PersonalDetailsView]
+      ) {}
 
     "Calling AddressController.onPageLoad" should {
 
       "call citizenDetailsService.fakePersonDetails and return 200" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] =
           Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
-
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(request = request)
-            )
-        })
 
         val result = controller.onPageLoad()(FakeRequest())
 

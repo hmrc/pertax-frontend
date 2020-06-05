@@ -17,52 +17,28 @@
 package controllers.address
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.SoleAddrType
-import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.AddressPageVisitedDto
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec}
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.InternationalAddressChoiceView
 
-import scala.concurrent.{ExecutionContext, Future}
+class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
-class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSugar {
-
-  trait LocalSetup {
-
-    lazy val mockAuthJourney: AuthJourney = mock[AuthJourney]
-    lazy val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-
-    implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
-    implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-    implicit lazy val templateRenderer: TemplateRenderer = injected[TemplateRenderer]
-
-    lazy val cachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
-    lazy val withActiveTabAction: WithActiveTabAction = injected[WithActiveTabAction]
-    lazy val cc: MessagesControllerComponents = injected[MessagesControllerComponents]
-    lazy val internationalAddressChoiceView: InternationalAddressChoiceView = injected[InternationalAddressChoiceView]
-    lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
+  trait LocalSetup extends AddressControllerSetup {
 
     def controller: InternationalAddressChoiceController =
       new InternationalAddressChoiceController(
-        cachingHelper,
+        addressJourneyCachingHelper,
         mockAuthJourney,
         withActiveTabAction,
         cc,
-        internationalAddressChoiceView,
+        injected[InternationalAddressChoiceView],
         displayAddressInterstitialView
       )
 
@@ -70,18 +46,6 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
       Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any()))
-      .thenReturn(Future.successful(CacheMap("id", Map.empty)))
-
-    when(mockLocalSessionCache.fetch()(any(), any())).thenReturn(Future.successful(sessionCacheResponse))
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = currentRequest[A]).asInstanceOf[UserRequest[A]]
-        )
-    })
   }
 
   "onPageLoad" should {
@@ -128,13 +92,13 @@ class InternationalAddressChoiceControllerSpec extends BaseSpec with MockitoSuga
 
       override def controller: InternationalAddressChoiceController =
         new InternationalAddressChoiceController(
-          cachingHelper,
+          addressJourneyCachingHelper,
           mockAuthJourney,
           withActiveTabAction,
           cc,
-          internationalAddressChoiceView,
+          injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(mockLocalPartialRetriever, mockConfigDecorator, templateRenderer, ec)
+        )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

@@ -16,42 +16,22 @@
 
 package controllers.address
 
-import config.ConfigDecorator
+import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
-import org.mockito.Mockito.when
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
+import play.api.mvc.Request
 import play.api.mvc.Results._
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.buildFakeAddress
 import util.UserRequestFixture.buildUserRequest
-import util.fixtures.AddressFixture
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
 
-import scala.concurrent.{ExecutionContext, Future}
-
-class AddressControllerHelperSpec extends BaseSpec {
-
-  lazy val messagesApi: MessagesApi = injected[MessagesApi]
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+class AddressControllerSpec extends AddressBaseSpec {
 
   object SUT
       extends AddressController(
         injected[AuthJourney],
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
-        injected[DisplayAddressInterstitialView]
-      )(
-        injected[LocalPartialRetriever],
-        injected[ConfigDecorator],
-        injected[TemplateRenderer],
-        injected[ExecutionContext]
+        withActiveTabAction,
+        cc,
+        displayAddressInterstitialView
       )
 
   "addressJourneyEnforcer" should {
@@ -104,17 +84,16 @@ class AddressControllerHelperSpec extends BaseSpec {
     }
   }
 
-  "getAddress" should {
+  "internalServerError" should {
 
-    "return Address when the option contains address" in {
-      SUT.getAddress(Some(buildFakeAddress)) shouldBe buildFakeAddress
-    }
+    "return 500 and render the correct page" in {
+      def userRequest[A]: UserRequest[A] =
+        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
 
-    "throw an Exception when address is None" in {
+      val result = SUT.internalServerError(userRequest)
 
-      the[Exception] thrownBy {
-        SUT.getAddress(None)
-      } should have message "Address does not exist in the current context"
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsString(result) should include(messages("global.error.InternalServerError500.title"))
     }
   }
 }
