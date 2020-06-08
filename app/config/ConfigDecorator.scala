@@ -263,7 +263,7 @@ class ConfigDecorator @Inject()(
   def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
     companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
 
-  lazy val editAddressTtl: Int = runModeConfiguration.getInt("mongodb.editAddressTtl").getOrElse(86400)
+  lazy val editAddressTtl: Int = runModeConfiguration.getInt("mongodb.editAddressTtl").getOrElse(0)
 
   lazy val saPartialReturnLinkText = "Back to account home"
 }
