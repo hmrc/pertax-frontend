@@ -56,6 +56,7 @@
     </logger>
 
     <logger name="services.CitizenDetailsService" level="INFO"/>
+    <logger name="repositories.EditAddressLockRepository" level="WARN"/>
 
     <logger name="reactivemongo.api.Driver" level="WARN"/>
     <logger name="reactivemongo.core.actors.MongoDBSystem" level="ERROR"/>
