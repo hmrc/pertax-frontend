@@ -36,12 +36,12 @@ class AuthJourneyImpl @Inject()(
     extends AuthJourney {
 
   override val authWithPersonalDetails
-    : ActionFunction[UserRequest, AnyContent] = withActiveSession andThen authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+    : ActionBuilder[UserRequest, AnyContent] = withActiveSession andThen authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
 
   override val authWithSelfAssessment
-    : ActionBuilder[UserRequest, AnyContent] = authAction andThen selfAssessmentStatusAction
+    : ActionBuilder[UserRequest, AnyContent] = withActiveSession andThen authAction andThen selfAssessmentStatusAction
 
   override val minimumAuthWithSelfAssessment
-    : ActionBuilder[UserRequest, AnyContent] = minimumAuthAction andThen selfAssessmentStatusAction
+    : ActionBuilder[UserRequest, AnyContent] = withActiveSession andThen minimumAuthAction andThen selfAssessmentStatusAction
 
 }
