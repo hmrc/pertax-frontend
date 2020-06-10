@@ -121,7 +121,7 @@ class AddressLookupServiceSpec extends BaseSpec {
       verify(timer, times(1)).stop()
     }
 
-    "return a List of addresses matching the filtering out addresses with no lines postcode" in new LocalSetup {
+    "return a List of addresses filtering addresse out with no lines" in new LocalSetup {
       override lazy val r: Future[AddressLookupResponse] = service.lookup("ZZ11ZZ", Some("2"))
       override lazy val httpResponse = HttpResponse(OK, Some(expectedRecordSetMissingLinesJson))
 
