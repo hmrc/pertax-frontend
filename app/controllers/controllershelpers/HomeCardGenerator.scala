@@ -21,6 +21,7 @@ import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.Messages
+import play.api.mvc.AnyContent
 import play.twirl.api.{Html, HtmlFormat}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
@@ -43,7 +44,7 @@ class HomeCardGenerator @Inject()(
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
     saActionNeeded: SelfAssessmentUserType,
-    currentTaxYear: Int)(implicit request: UserRequest[_], messages: Messages): Seq[Html] =
+    currentTaxYear: Int)(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
       getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
@@ -81,7 +82,7 @@ class HomeCardGenerator @Inject()(
       .map(taxCalculationView(_))
 
   def getSelfAssessmentCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(
-    implicit request: UserRequest[_],
+    implicit request: UserRequest[AnyContent],
     messages: Messages): Option[HtmlFormat.Appendable] =
     if (!request.isVerify) {
       saActionNeeded match {

@@ -15,6 +15,8 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
+scalaVersion := "2.12.8"
+
 val akkaVersion = "2.5.23"
 val akkaHttpVersion = "10.0.15"
 dependencyOverrides += "com.typesafe.akka" %% "akka-stream"    % akkaVersion
@@ -99,8 +101,3 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
   parallelExecution := false,
   fork := true
 )
-
-def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
-  tests map { test =>
-    Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
-  }

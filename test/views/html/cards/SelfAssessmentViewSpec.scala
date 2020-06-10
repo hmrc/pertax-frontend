@@ -24,6 +24,7 @@ import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessment
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
+import play.api.mvc.AnyContent
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
@@ -53,7 +54,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
     val user: SelfAssessmentUser
 
-    implicit val request: UserRequest[_] = buildUserRequest(
+    implicit val request: UserRequest[AnyContent] = buildUserRequest(
       saUser = user,
       request = request
     )
