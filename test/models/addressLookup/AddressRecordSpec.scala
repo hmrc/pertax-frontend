@@ -26,13 +26,31 @@ class AddressRecordSpec extends UnitSpec {
     "return true where the address has at least one line" in {
       val addressLines = List("some line")
       val validAddress = Address(addressLines, None, None, "Some Postcode", Country("", ""), None)
-      AddressRecord("some id", validAddress, "en").validAddress shouldBe true
+      AddressRecord("some id", validAddress, "en").isValid shouldBe true
     }
 
     "return false where the address has no lines" in {
       val noAddressLines = List()
       val invalidAddress = Address(noAddressLines, None, None, "Some Postcode", Country("", ""), None)
-      AddressRecord("some id", invalidAddress, "en").validAddress shouldBe false
+      AddressRecord("some id", invalidAddress, "en").isValid shouldBe false
     }
+
+    "return false where country code is more than 2 chars" in {
+      val addressLines = List("some line")
+      val validAddress = Address(addressLines, None, None, "Some Postcode", Country("", ""), None)
+      AddressRecord("some id", validAddress, "ena").isValid shouldBe false
+    }
+    "return false where country code is less than 2 chars" in {
+      val addressLines = List("some line")
+      val validAddress = Address(addressLines, None, None, "Some Postcode", Country("", ""), None)
+      AddressRecord("some id", validAddress, "e").isValid shouldBe false
+    }
+
+    "return false where country code is an emptry string" in {
+      val addressLines = List("some line")
+      val validAddress = Address(addressLines, None, None, "Some Postcode", Country("", ""), None)
+      AddressRecord("some id", validAddress, "").isValid shouldBe false
+    }
+
   }
 }

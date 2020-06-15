@@ -31,8 +31,6 @@ case class Address(
   country: Country,
   subdivision: Option[String]) {
 
-  def hasAddressLines: Boolean = lines.nonEmpty
-
   def isValid: Boolean = lines.nonEmpty && lines.size <= (if (town.isEmpty) 4 else 3)
 
   def nonEmptyFields: List[String] = lines.toList ::: town.toList ::: List(postcode)
