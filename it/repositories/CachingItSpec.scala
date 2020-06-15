@@ -142,7 +142,7 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
           val result = await(mongo.get(nino))
 
-          result shouldBe List(address2, address1)
+          result should contain theSameElementsAs List(address2, address1)
         }
       }
     }

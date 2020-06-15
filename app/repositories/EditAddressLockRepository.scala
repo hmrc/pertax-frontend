@@ -44,9 +44,10 @@ class EditAddressLockRepository @Inject()(
 
   private val collectionName: String = "EditAddressLock"
   private val duplicateKeyErrorCode = "E11000"
-
   private def collection: Future[JSONCollection] =
     mongo.database.map(_.collection[JSONCollection](collectionName))
+
+  private val logger = Logger(this.getClass)
 
   import EditAddressLockRepository._
 
@@ -56,23 +57,23 @@ class EditAddressLockRepository @Inject()(
       AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
 
     insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover {
-      case e: DatabaseException => false
+      case e: DatabaseException => {
+        val errorCode = e.code.getOrElse("unknown code")
+        logger.error(s"Edit address lock failure with error $errorCode")
+        false
+      }
     }
   }
 
-  def get(nino: String): Future[List[AddressJourneyTTLModel]] = {
-
-    val getExpiredAt = "editedAddress.expireAt"
-
+  def get(nino: String): Future[List[AddressJourneyTTLModel]] =
     getCore(
       BSONDocument(
         BSONDocument("nino" -> nino),
         BSONDocument(
-          BSONDocument(getExpiredAt -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
+          BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
         )
       )
     )
-  }
 
   private[repositories] def getCore(selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
     this.collection
@@ -142,7 +143,7 @@ class EditAddressLockRepository @Inject()(
 }
 
 object EditAddressLockRepository {
-  val EXPIRE_AT = "expireAt"
+  val EXPIRE_AT = "editedAddress.expireAt"
   val UK_TIME_ZONE: ZoneId = TimeZone.getTimeZone("Europe/London").toZoneId
   val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
   val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
