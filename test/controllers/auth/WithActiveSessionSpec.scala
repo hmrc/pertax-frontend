@@ -51,7 +51,7 @@ class WithActiveSessionSpec extends UnitSpec with MockitoSugar with GuiceOneAppP
 
       "a session is present in the request" in {
 
-        val result = SUT.onPageLoad()(FakeRequest().withSession(("id", "123")))
+        val result = SUT.onPageLoad()(FakeRequest().withSession("sessionId" -> "123"))
 
         status(result) shouldBe OK
         contentAsString(result) should include("123")

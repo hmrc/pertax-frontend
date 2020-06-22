@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
+import uk.gov.hmrc.play.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,8 +30,10 @@ class WithActiveSession @Inject()(cc: ControllerComponents, configDecorator: Con
 
   override protected def executionContext: ExecutionContext = cc.executionContext
   override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
-  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] =
-    if (request.session.isEmpty) Future.successful(Redirect(configDecorator.authProviderChoice))
-    else
-      block(request)
+  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
+    val hc =
+      HeaderCarrierConverter.fromHeadersAndSessionAndRequest(request.headers, Some(request.session), Some(request))
+
+    hc.sessionId.fold(Future.successful(Redirect(configDecorator.authProviderChoice)))(_ => block(request))
+  }
 }
