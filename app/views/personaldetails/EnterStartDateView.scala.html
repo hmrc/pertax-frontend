@@ -50,7 +50,7 @@
         <div class="grid-row">
             <div class="column-two-thirds">
                 @errors(residenceStartDateForm)
-                    @form(routes.AddressController.processEnterStartDate(typ)) {
+                    @form(controllers.address.routes.StartDateController.onSubmit(typ)) {
 
                     <div class="form-group @if(residenceStartDateForm.hasErrors){form-group-error form-field--error}">
                         <fieldset aria-describedby="date-hint@residenceStartDateForm.errors.map { error => date-error}">

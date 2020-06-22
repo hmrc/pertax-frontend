@@ -16,53 +16,23 @@
 
 package controllers.controllershelpers
 
+import com.google.inject.{Inject, Singleton}
 import controllers.bindable.AddrType
-import controllers.{AddressController, routes}
-import models.AddressJourneyData
+import controllers.routes
+import models.{AddressFinderDtoId, AddressJourneyData, AddressPageVisitedDtoId, CacheIdentifier, SelectedAddressRecordId, SelectedRecordSetId, SubmittedAddressDtoId, SubmittedInternationalAddressChoiceId, SubmittedResidencyChoiceDtoId, SubmittedStartDateId, SubmittedTaxCreditsChoiceId}
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
 import play.api.libs.json.Writes
-import play.api.mvc.Result
+import play.api.mvc.{Result, Results}
+import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-trait AddressJourneyCachingHelper { this: AddressController =>
-
-  trait CacheIdentifier[A] {
-    val id: String
-  }
-
-  case object AddressPageVisitedDtoId extends CacheIdentifier[AddressPageVisitedDto] {
-    override val id: String = "addressPageVisitedDto"
-  }
-
-  case object SubmittedTaxCreditsChoiceId extends CacheIdentifier[TaxCreditsChoiceDto] {
-    override val id: String = "taxCreditsChoiceDto"
-  }
-
-  case object SubmittedInternationalAddressChoiceId extends CacheIdentifier[InternationalAddressChoiceDto] {
-    override val id: String = "internationalAddressChoiceDto"
-  }
-
-  abstract class AddressIdentifier[A](partialId: String) extends CacheIdentifier[A] {
-    val typ: AddrType
-    val id: String = s"$typ$partialId"
-  }
-
-  case class AddressFinderDtoId(typ: AddrType) extends AddressIdentifier[AddressFinderDto]("AddressFinderDto")
-
-  case class SelectedAddressRecordId(typ: AddrType) extends AddressIdentifier[AddressRecord]("SelectedAddressRecord")
-
-  case class SelectedRecordSetId(typ: AddrType) extends AddressIdentifier[RecordSet]("SelectedRecordSet")
-
-  case class SubmittedAddressDtoId(typ: AddrType) extends AddressIdentifier[AddressDto]("SubmittedAddressDto")
-
-  case class SubmittedStartDateId(typ: AddrType) extends AddressIdentifier[DateDto]("SubmittedStartDateDto")
-
-  case class SubmittedResidencyChoiceDtoId(typ: AddrType)
-      extends AddressIdentifier[ResidencyChoiceDto]("ResidencyChoiceDto")
+@Singleton
+class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)(implicit ec: ExecutionContext)
+    extends Results {
 
   val addressLookupServiceDownKey = "addressLookupServiceDown"
 
@@ -126,7 +96,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
       case Some(_) =>
         block
       case None =>
-        Future.successful(Redirect(routes.AddressController.personalDetails()))
+        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
     }
 
   def enforceResidencyChoiceSubmitted(journeyData: AddressJourneyData)(
@@ -135,7 +105,7 @@ trait AddressJourneyCachingHelper { this: AddressController =>
       case AddressJourneyData(_, Some(_), _, _, _, _, _, _, _) =>
         block(journeyData)
       case AddressJourneyData(_, None, _, _, _, _, _, _, _) =>
-        Future.successful(Redirect(routes.AddressController.personalDetails()))
+        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
     }
 
 }

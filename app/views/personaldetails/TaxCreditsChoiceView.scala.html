@@ -35,7 +35,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
 
         @errors(taxCreditsChoiceForm)
 
-        @form(action = routes.AddressController.processTaxCreditsChoice, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
+        @form(action = controllers.address.routes.TaxCreditsChoiceController.onSubmit(), 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">
             @input_yes_no(
               taxCreditsChoiceForm("taxCreditsChoice"),

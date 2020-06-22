@@ -16,9 +16,10 @@
 
 package controllers.controllershelpers
 
+import com.google.inject.Inject
 import models.Country
 
-class CountryHelper {
+class CountryHelper @Inject()() {
 
   val countries = List(
     Country("Gibraltar"),
