@@ -37,22 +37,22 @@ pageName = Some(messages("label.your_personal_tax_account"))
         <div class="column-two-thirds">
             @errors(closePostalAddressChoiceForm)
 
-            @form(action = routes.AddressController.processClosePostalAddressChoice) {
+            @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit()) {
             <div class="form-group inline">
                 @input_yes_no(
-                closePostalAddressChoiceForm("closePostalAddressChoice"),
+                closePostalAddressChoiceForm("onPageLoad"),
                 Seq(
                 "true" -> messages("label.yes_send_all_letters_to_my_main_address"),
                 "false" -> messages("label.no_return_to_my_personal_details")
                 ),
                 '_labelClass -> "block-label",
-                '_error -> closePostalAddressChoiceForm("closePostalAddressChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
+                '_error -> closePostalAddressChoiceForm("onPageLoad").error.map(_.withMessage({messages("label.select_an_answer")})),
                 '_legend -> messages("label.do_you_want_all_your_letters_to_be_sent_"),
                 '_hint -> address
                 )
             </div>
             <div class="form-group inline">
-                <button class="button ga-track-radio-select ga-track-error" data-ga-event-action="Do you want all your letters sent to your main address?" data-radio-button-name="closePostalAddressChoice">@messages("global.label.continue_button")</button>
+                <button class="button ga-track-radio-select ga-track-error" data-ga-event-action="Do you want all your letters sent to your main address?" data-radio-button-name="onPageLoad">@messages("global.label.continue_button")</button>
             </div>
             }
 

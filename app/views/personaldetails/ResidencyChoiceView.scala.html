@@ -32,7 +32,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
             <div class="column-two-thirds">
                 @errors(residencyChoiceForm)
 
-                @form(action = controllers.routes.AddressController.processResidencyChoice) {
+                @form(action = controllers.address.routes.ResidencyChoiceController.onSubmit) {
                 <div class="form-group inline">
                     @input_yes_no(
                         residencyChoiceForm("residencyChoice"),

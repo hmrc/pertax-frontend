@@ -54,7 +54,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
-  val mockAddressController = mock[AddressController]
   val mockHomeController = mock[HomeController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -64,7 +63,6 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[AddressController].toInstance(mockAddressController),
       bind[HomeController].toInstance(mockHomeController)
     )
     .build()
