@@ -23,19 +23,19 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{Address, PersonDetails}
 import models.dto.ClosePostalAddressChoiceDto
+import models.{Address, PersonDetails}
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService, UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
+import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
 import util.LocalPartialRetriever
-import views.html.error
+import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -53,12 +53,13 @@ class ClosePostalAddressController @Inject()(
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  errorView: ErrorView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView, errorView) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -129,7 +130,7 @@ class ClosePostalAddressController @Inject()(
                      case UpdateAddressBadRequestResponse =>
                        Future.successful(
                          BadRequest(
-                           error(
+                           errorView(
                              "global.error.BadRequest.title",
                              Some("global.error.BadRequest.title"),
                              List("global.error.BadRequest.message1", "global.error.BadRequest.message2")

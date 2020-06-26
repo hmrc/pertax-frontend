@@ -60,7 +60,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         injected[MessagesControllerComponents],
         injected[UpdateAddressConfirmationView],
         injected[ReviewChangesView],
-        injected[DisplayAddressInterstitialView]
+        injected[DisplayAddressInterstitialView],
+        errorView
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
   }
 

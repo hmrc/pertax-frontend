@@ -31,7 +31,8 @@ class AddressControllerSpec extends AddressBaseSpec {
         injected[AuthJourney],
         withActiveTabAction,
         cc,
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        errorView
       )
 
   "addressJourneyEnforcer" should {

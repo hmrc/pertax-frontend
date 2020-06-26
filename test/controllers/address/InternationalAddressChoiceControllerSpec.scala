@@ -39,7 +39,8 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[InternationalAddressChoiceView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        errorView
       )
 
     def sessionCacheResponse: Option[CacheMap] =
@@ -97,7 +98,8 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           withActiveTabAction,
           cc,
           injected[InternationalAddressChoiceView],
-          displayAddressInterstitialView
+          displayAddressInterstitialView,
+          errorView
         )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =

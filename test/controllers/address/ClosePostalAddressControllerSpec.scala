@@ -54,7 +54,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         injected[CloseCorrespondenceAddressChoiceView],
         injected[ConfirmCloseCorrespondenceAddressView],
         injected[UpdateAddressConfirmationView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        errorView
       )
 
     def comparatorDataEvent(

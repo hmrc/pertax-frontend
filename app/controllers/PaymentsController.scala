@@ -28,6 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
+import views.html.{ErrorView, NotFoundView}
 
 import scala.concurrent.ExecutionContext
 
@@ -35,7 +36,9 @@ class PaymentsController @Inject()(
   val payApiConnector: PayApiConnector,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
-  cc: MessagesControllerComponents)(
+  cc: MessagesControllerComponents,
+  val notFoundView: NotFoundView,
+  val errorView: ErrorView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,

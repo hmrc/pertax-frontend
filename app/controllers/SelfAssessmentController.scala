@@ -31,7 +31,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.{DateTimeTools, LocalPartialRetriever}
-import views.html.ActivatedSaFilerIntermediateView
+import views.html.{ActivatedSaFilerIntermediateView, ErrorView, NotFoundView}
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -45,7 +45,9 @@ class SelfAssessmentController @Inject()(
   activatedSaFilerIntermediateView: ActivatedSaFilerIntermediateView,
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
-  requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView)(
+  requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView,
+  val notFoundView: NotFoundView,
+  val errorView: ErrorView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,

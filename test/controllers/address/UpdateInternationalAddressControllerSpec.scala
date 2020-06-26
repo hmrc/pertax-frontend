@@ -59,7 +59,8 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[UpdateInternationalAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        errorView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

@@ -66,7 +66,8 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockAuditConnector,
         cc,
         displayAddressInterstitialView,
-        injected[PersonalDetailsView]
+        injected[PersonalDetailsView],
+        errorView
       ) {}
 
     "Calling AddressController.onPageLoad" should {

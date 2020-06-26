@@ -38,7 +38,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
-import views.html.SelfAssessmentSummaryView
+import views.html.{ErrorView, NotFoundView, SelfAssessmentSummaryView}
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
 
@@ -71,7 +71,9 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         injected[ViewNationalInsuranceInterstitialHomeView],
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
-        injected[Sa302InterruptView]
+        injected[Sa302InterruptView],
+        injected[NotFoundView],
+        injected[ErrorView]
       )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()

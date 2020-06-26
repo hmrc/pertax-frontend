@@ -40,6 +40,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures.{buildFakeAddress, buildPersonDetails, buildPersonDetailsCorrespondenceAddress, fakeNino, oneAndTwoOtherPlacePafRecordSet}
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
+import views.html.{ErrorView, NotFoundView}
 import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,6 +62,7 @@ trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSuga
   lazy val withActiveTabAction: WithActiveTabAction = injected[WithActiveTabAction]
   lazy val cc: MessagesControllerComponents = injected[MessagesControllerComponents]
   lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
+  lazy val errorView: ErrorView = injected[ErrorView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

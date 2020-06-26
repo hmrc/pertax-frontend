@@ -48,7 +48,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[AddressSelectorView],
-        injected[DisplayAddressInterstitialView]
+        injected[DisplayAddressInterstitialView],
+        errorView
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
 
     def sessionCacheResponse: Option[CacheMap] =

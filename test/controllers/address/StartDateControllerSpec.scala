@@ -56,7 +56,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         injected[EnterStartDateView],
         injected[CannotUpdateAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        errorView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

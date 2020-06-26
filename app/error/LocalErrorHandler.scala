@@ -27,12 +27,15 @@ import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
 import javax.inject.Provider
 import util.LocalPartialRetriever
+import views.html.{ErrorView, NotFoundView}
 
 @Singleton
 class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
   val materializer: Materializer,
-  authJourney: Provider[AuthJourney]
+  authJourney: Provider[AuthJourney],
+  val notFoundView: NotFoundView,
+  val errorView: ErrorView
 )(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,

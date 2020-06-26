@@ -30,6 +30,7 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
+import views.html.{ErrorView, NotFoundView}
 import views.html.iv.success.SuccessView
 import views.html.iv.failure._
 
@@ -44,7 +45,9 @@ class ApplicationController @Inject()(
   failedIvIncompleteView: FailedIvIncompleteView,
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
-  technicalIssuesView: TechnicalIssuesView)(
+  technicalIssuesView: TechnicalIssuesView,
+  val notFoundView: NotFoundView,
+  val errorView: ErrorView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,

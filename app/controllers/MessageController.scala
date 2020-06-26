@@ -28,6 +28,7 @@ import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.LocalPartialRetriever
+import views.html.{ErrorView, NotFoundView}
 import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.ExecutionContext
@@ -39,7 +40,9 @@ class MessageController @Inject()(
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   messageInboxView: MessageInboxView,
-  messageDetailView: MessageDetailView)(
+  messageDetailView: MessageDetailView,
+  val notFoundView: NotFoundView,
+  val errorView: ErrorView)(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,

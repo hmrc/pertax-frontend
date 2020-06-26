@@ -37,7 +37,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
-import views.html.ActivatedSaFilerIntermediateView
+import views.html.{ActivatedSaFilerIntermediateView, ErrorView, NotFoundView}
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -79,7 +79,9 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         injected[ActivatedSaFilerIntermediateView],
         injected[FailedIvContinueToActivateSaView],
         injected[CannotConfirmIdentityView],
-        injected[RequestAccessToSelfAssessmentView]
+        injected[RequestAccessToSelfAssessmentView],
+        injected[NotFoundView],
+        injected[ErrorView]
       )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {

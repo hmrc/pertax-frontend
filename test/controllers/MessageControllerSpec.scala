@@ -38,6 +38,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
+import views.html.{ErrorView, NotFoundView}
 import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -63,7 +64,9 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[MessageInboxView],
-      injected[MessageDetailView]
+      injected[MessageDetailView],
+      injected[NotFoundView],
+      injected[ErrorView]
     )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)

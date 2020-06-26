@@ -28,6 +28,7 @@ import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.{LocalPartialRetriever, Tools}
+import views.html.ErrorView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,7 +38,8 @@ class PaperlessPreferencesController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
-  tools: Tools)(
+  tools: Tools,
+  errorView: ErrorView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -51,7 +53,7 @@ class PaperlessPreferencesController @Inject()(
         if (request.isVerify) {
           Future.successful(
             BadRequest(
-              views.html.error(
+              errorView(
                 "global.error.BadRequest.title",
                 Some("global.error.BadRequest.heading"),
                 List("global.error.BadRequest.message"))))

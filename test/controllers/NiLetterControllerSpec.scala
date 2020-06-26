@@ -35,6 +35,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures, Fixtures}
+import views.html.{ErrorView, NotFoundView}
 import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -66,7 +67,9 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       injected[MessagesControllerComponents],
       injected[PrintNationalInsuranceNumberView],
       injected[NiLetterPDfWrapperView],
-      injected[NiLetterView]
+      injected[NiLetterView],
+      injected[NotFoundView],
+      injected[ErrorView]
     )(
       mockLocalPartialRetriever,
       injected[ConfigDecorator],

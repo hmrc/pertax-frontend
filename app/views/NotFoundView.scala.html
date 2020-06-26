@@ -18,13 +18,13 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
-
+@this(mainView: MainView)
 @()(implicit request: UserRequest[_],
 configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @anchor(text: String, url: String) = {<a href="@url" target="_blank">@text</a>}
 
-@main(title = messages("global.page.not.found.error.title"),
+@mainView(title = messages("global.page.not.found.error.title"),
 pageName = Some(messages("label.your_personal_tax_account"))
 ) {
 

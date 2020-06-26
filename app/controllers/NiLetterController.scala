@@ -28,6 +28,7 @@ import services.NinoDisplayService
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.{ErrorView, NotFoundView}
 import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,7 +42,9 @@ class NiLetterController @Inject()(
   cc: MessagesControllerComponents,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView)(
+  niLetterView: NiLetterView,
+  val notFoundView: NotFoundView,
+  val errorView: ErrorView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
@@ -118,7 +121,7 @@ class NiLetterController @Inject()(
         } else {
           Future.successful(
             InternalServerError(
-              views.html.error(
+              errorView(
                 "global.error.InternalServerError500.title",
                 Some("global.error.InternalServerError500.title"),
                 List("global.error.InternalServerError500.message"))))

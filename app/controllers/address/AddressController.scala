@@ -19,14 +19,14 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
-import models.{Address, PersonDetails}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
+import models.PersonDetails
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.LocalPartialRetriever
-import views.html.error
+import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +35,8 @@ abstract class AddressController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  errorView: ErrorView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -64,7 +65,7 @@ abstract class AddressController @Inject()(
 
   def internalServerError(implicit userRequest: UserRequest[_]): Result =
     InternalServerError(
-      error(
+      errorView(
         "global.error.InternalServerError500.title",
         Some("global.error.InternalServerError500.title"),
         List("global.error.InternalServerError500.message")

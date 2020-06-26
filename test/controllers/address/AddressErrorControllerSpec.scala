@@ -42,7 +42,8 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
         cc,
         displayAddressInterstitialView,
         injected[CannotUseServiceView],
-        injected[AddressAlreadyUpdatedView]
+        injected[AddressAlreadyUpdatedView],
+        errorView
       )
   }
 

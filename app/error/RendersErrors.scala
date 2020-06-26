@@ -23,10 +23,14 @@ import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.{ErrorView, NotFoundView}
 
 import scala.concurrent.Future
 
 trait RendersErrors extends Results {
+
+  def errorView: ErrorView
+  def notFoundView: NotFoundView
 
   implicit def templateRenderer: TemplateRenderer
 
@@ -49,7 +53,7 @@ trait RendersErrors extends Results {
       case _           => "InternalServerError500"
     }
     Status(statusCode)(
-      views.html.error(
+      errorView(
         s"global.error.$errorKey.title",
         Some(s"global.error.$errorKey.heading"),
         List(s"global.error.$errorKey.message")))
@@ -87,6 +91,6 @@ trait RendersErrors extends Results {
     configDecorator: ConfigDecorator,
     partialRetriever: LocalPartialRetriever,
     messages: Messages): Future[Result] =
-    Future.successful(NotFound(views.html.page_not_found_template()))
+    Future.successful(NotFound(notFoundView()))
 
 }
