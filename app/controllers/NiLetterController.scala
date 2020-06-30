@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.RendersErrors
+import error.ErrorRenderer
 import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,10 +28,9 @@ import services.NinoDisplayService
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
-import views.html.{ErrorView, NotFoundView}
 import views.html.print._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.io.Source
 
 class NiLetterController @Inject()(
@@ -40,16 +39,15 @@ class NiLetterController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView,
-  val notFoundView: NotFoundView,
-  val errorView: ErrorView)(
+  niLetterView: NiLetterView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with RendersErrors {
+    extends PertaxBaseController(cc) {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
@@ -68,7 +66,7 @@ class NiLetterController @Inject()(
             )
           }
         } else {
-          futureError(INTERNAL_SERVER_ERROR)
+          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -115,16 +113,11 @@ class NiLetterController @Inject()(
             }
 
           } else {
-            futureError(INTERNAL_SERVER_ERROR)
+            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
           }
         } else {
-          Future.successful(
-            InternalServerError(
-              errorView(
-                "global.error.InternalServerError500.title",
-                Some("global.error.InternalServerError500.title"),
-                List("global.error.InternalServerError500.message"))))
+          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
     }
 }

@@ -51,11 +51,11 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         withActiveTabAction,
         cc,
+        errorRenderer,
         injected[CloseCorrespondenceAddressChoiceView],
         injected[ConfirmCloseCorrespondenceAddressView],
         injected[UpdateAddressConfirmationView],
-        displayAddressInterstitialView,
-        errorView
+        displayAddressInterstitialView
       )
 
     def comparatorDataEvent(

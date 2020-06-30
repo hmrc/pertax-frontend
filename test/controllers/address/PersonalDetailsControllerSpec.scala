@@ -16,32 +16,22 @@
 
 package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
-import models.AddressJourneyTTLModel
+import controllers.controllershelpers.PersonalDetailsCardGenerator
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito.{times, verify, when}
 import org.mockito.Matchers.{eq => meq, _}
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{times, verify, when}
 import play.api.http.Status.OK
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
-import repositories.EditAddressLockRepository
-import services.{LocalSessionCache, NinoDisplayService}
+import services.NinoDisplayService
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, Fixtures, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceView, PersonalDetailsView}
+import util.Fixtures
+import views.html.personaldetails.PersonalDetailsView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
@@ -66,8 +56,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockAuditConnector,
         cc,
         displayAddressInterstitialView,
-        injected[PersonalDetailsView],
-        errorView
+        injected[PersonalDetailsView]
       ) {}
 
     "Calling AddressController.onPageLoad" should {

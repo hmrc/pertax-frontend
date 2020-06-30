@@ -14,40 +14,119 @@
  * limitations under the License.
  */
 
-package views.html
-
 import config.{ConfigDecorator, LocalTemplateRenderer}
 import controllers.auth.requests.UserRequest
-import models.UserDetails
+import models._
+import org.joda.time.LocalDate
+import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
+import org.scalatest.Assertion
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Application
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContentAsEmpty, Request}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
+import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.{buildFakeRequestWithVerify, fakeNino}
-import util.UserRequestFixture.buildUserRequest
+import util.LocalPartialRetriever
+import views.html.MainView
 
-class MainViewSpec extends ViewSpec {
+import scala.util.Random
 
-  override protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
+class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
+
+  protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
         bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
       )
-      .configure(configValues)
+      .configure(Map(
+        "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
+        "metrics.enabled"               -> false
+      ))
+
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+
+  private val generator = new Generator(new Random())
+
+  private val testNino: Nino = generator.nextNino
+
+  val fakePersonDetails: PersonDetails = PersonDetails(
+    Person(
+      Some("John"),
+      None,
+      Some("Doe"),
+      Some("JD"),
+      Some("Mr"),
+      None,
+      Some("M"),
+      Some(LocalDate.parse("1975-12-03")),
+      Some(testNino)),
+    Some(Address(
+      Some("1 Fake Street"),
+      Some("Fake Town"),
+      Some("Fake City"),
+      Some("Fake Region"),
+      None,
+      Some("AA1 1AA"),
+      None,
+      Some(new LocalDate(2015, 3, 15)),
+      None,
+      Some("Residential")
+    )),
+    None
+  )
+
+  lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+
+  implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
+  implicit val partialRetriever: LocalPartialRetriever = app.injector.instanceOf[LocalPartialRetriever]
+  implicit val templateRenderer: TemplateRenderer = app.injector.instanceOf[TemplateRenderer]
+  implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi).messages
 
   trait LocalSetup {
 
-    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
-    implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-    implicit val templateRenderer: TemplateRenderer = injected[TemplateRenderer]
+    def buildUserRequest[A](
+                          nino: Option[Nino] = Some(testNino),
+                          userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+                          saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+                          credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
+                          confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
+                          personDetails: Option[PersonDetails] = Some(fakePersonDetails),
+                          trustedHelper: Option[TrustedHelper] = None,
+                          profile: Option[String] = None,
+                          messageCount: Option[Int] = None,
+                          request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
+                        ): UserRequest[A] =
+      UserRequest(
+        nino,
+        userName,
+        saUser,
+        credentials,
+        confidenceLevel,
+        personDetails,
+        trustedHelper,
+        profile,
+        messageCount,
+        None,
+        None,
+        request
+      )
 
-    def view = injected[MainView]
+    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest()
+
+    def view: MainView = app.injector.instanceOf[MainView]
 
     val title = "Fake page title"
     val heading = "Fake page heading"
@@ -71,8 +150,15 @@ class MainViewSpec extends ViewSpec {
         printableDocument = true
       )(Html(content))
 
-    def doc: Document = asDocument(main.toString)
+    def doc: Document = Jsoup.parse(main.toString)
 
+    def assertContainsText(doc: Document, text: String): Assertion =
+      assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
+
+    def assertContainsLink(doc: Document, text: String, href: String): Assertion =
+      assert(
+        doc.getElementsContainingText(text).attr("href").contains(href),
+        s"\n\nLink $href was not rendered on the page\n")
   }
 
   "Main" when {
@@ -133,7 +219,6 @@ class MainViewSpec extends ViewSpec {
       "render the Security settings subnav link if user is verify" in new LocalSetup {
         override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
-            request = buildFakeRequestWithVerify("GET"),
             credentials = Credentials("", UserDetails.VerifyAuthProvider)
           )
 
@@ -197,7 +282,7 @@ class MainViewSpec extends ViewSpec {
             principalName,
             "Attorney name",
             url,
-            fakeNino.nino
+            generator.nextNino.nino
           )
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), trustedHelper = Some(helper))

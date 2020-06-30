@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.dto.AddressDto
 import models.{Address, AddressChanged, AddressJourneyTTLModel, ETag, MovedToScotland, NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
 import org.mockito.Matchers.any
@@ -61,8 +62,8 @@ trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSuga
 
   lazy val withActiveTabAction: WithActiveTabAction = injected[WithActiveTabAction]
   lazy val cc: MessagesControllerComponents = injected[MessagesControllerComponents]
+  lazy val errorRenderer: ErrorRenderer = injected[ErrorRenderer]
   lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
-  lazy val errorView: ErrorView = injected[ErrorView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

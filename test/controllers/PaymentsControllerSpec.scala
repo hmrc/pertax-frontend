@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import connectors._
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import error.ErrorRenderer
 import models.CreatePayment
 import org.joda.time.DateTime
 import org.mockito.Matchers.any
@@ -61,8 +62,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       mockAuthJourney,
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
-      injected[NotFoundView],
-      injected[ErrorView]
+      injected[ErrorRenderer]
     )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer], injected[ExecutionContext])
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

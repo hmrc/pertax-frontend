@@ -23,6 +23,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.dto.ClosePostalAddressChoiceDto
 import models.{Address, PersonDetails}
 import org.joda.time.LocalDate
@@ -35,7 +36,6 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
 import util.LocalPartialRetriever
-import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -50,16 +50,16 @@ class ClosePostalAddressController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  errorView: ErrorView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView, errorView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -121,24 +121,16 @@ class ClosePostalAddressController @Inject()(
     citizenDetailsService.getEtag(nino.nino) flatMap {
       case None =>
         Logger.error("Failed to retrieve Etag from citizen-details")
-        Future.successful(internalServerError)
+        errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
       case Some(version) =>
         for {
           response <- citizenDetailsService.updateAddress(nino, version.etag, closingAddress)
           action <- response match {
                      case UpdateAddressBadRequestResponse =>
-                       Future.successful(
-                         BadRequest(
-                           errorView(
-                             "global.error.BadRequest.title",
-                             Some("global.error.BadRequest.title"),
-                             List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
-                           )
-                         )
-                       )
+                       errorRenderer.futureError(BAD_REQUEST)
                      case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
-                       Future.successful(internalServerError)
+                       errorRenderer.futureError(INTERNAL_SERVER_ERROR)
                      case UpdateAddressSuccessResponse =>
                        for {
                          _ <- auditConnector.sendEvent(
@@ -162,7 +154,7 @@ class ClosePostalAddressController @Inject()(
                              )
                            )
                          } else {
-                           internalServerError
+                           errorRenderer.error(INTERNAL_SERVER_ERROR)
                          }
                    }
         } yield action

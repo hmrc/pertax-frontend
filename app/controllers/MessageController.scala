@@ -19,7 +19,6 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
-import error.RendersErrors
 import models.Breadcrumb
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -47,7 +46,7 @@ class MessageController @Inject()(
   val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with RendersErrors {
+    extends PertaxBaseController(cc) {
 
   def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList().url ::

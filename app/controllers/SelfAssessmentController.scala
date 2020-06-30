@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.RendersErrors
+import error.ErrorRenderer
 import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -31,7 +31,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.{DateTimeTools, LocalPartialRetriever}
-import views.html.{ActivatedSaFilerIntermediateView, ErrorView, NotFoundView}
+import views.html.ActivatedSaFilerIntermediateView
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -42,17 +42,16 @@ class SelfAssessmentController @Inject()(
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   activatedSaFilerIntermediateView: ActivatedSaFilerIntermediateView,
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
-  requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView,
-  val notFoundView: NotFoundView,
-  val errorView: ErrorView)(
+  requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
+    extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -70,7 +69,7 @@ class SelfAssessmentController @Inject()(
             case _ => Redirect(routes.HomeController.index())
           }
         } else {
-          error(INTERNAL_SERVER_ERROR)
+          errorRenderer.error(INTERNAL_SERVER_ERROR)
         }
     }
 

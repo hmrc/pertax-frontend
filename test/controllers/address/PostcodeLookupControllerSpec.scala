@@ -47,8 +47,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[PostcodeLookupView],
-        displayAddressInterstitialView,
-        errorView
+        displayAddressInterstitialView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

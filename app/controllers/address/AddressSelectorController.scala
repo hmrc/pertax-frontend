@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
 import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDateId}
 import org.joda.time.LocalDate
@@ -31,7 +32,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import util.PertaxSessionKeys.{filter, postcode}
-import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
 
@@ -42,14 +42,14 @@ class AddressSelectorController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  errorView: ErrorView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView, errorView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -93,7 +93,7 @@ class AddressSelectorController @Inject()(
                     ))
                 case _ =>
                   Logger.warn("Failed to retrieve Address Record Set from cache")
-                  Future.successful(internalServerError)
+                  errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }
             },
             addressSelectorDto => {
@@ -120,7 +120,7 @@ class AddressSelectorController @Inject()(
                   }
                 case _ =>
                   Logger.warn("Address selector was unable to find address using the id returned by a previous request")
-                  Future.successful(internalServerError)
+                  errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }
             }
           )

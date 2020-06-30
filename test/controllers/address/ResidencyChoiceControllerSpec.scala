@@ -37,8 +37,7 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[ResidencyChoiceView],
-        displayAddressInterstitialView,
-        errorView
+        displayAddressInterstitialView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

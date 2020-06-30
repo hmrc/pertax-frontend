@@ -16,33 +16,26 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
-import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.PersonDetails
-import models.dto.{AddressDto, AddressPageVisitedDto, DateDto}
+import models.dto.{AddressPageVisitedDto, DateDto}
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
+import util.ActionBuilderFixture
 import util.Fixtures.fakeStreetTupleListAddressForUnmodified
 import util.UserRequestFixture.buildUserRequest
 import util.fixtures.AddressFixture.{address => addressFixture}
 import util.fixtures.PersonFixture.emptyPerson
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class StartDateControllerSpec extends AddressBaseSpec {
 
@@ -56,8 +49,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         injected[EnterStartDateView],
         injected[CannotUpdateAddressView],
-        displayAddressInterstitialView,
-        errorView
+        displayAddressInterstitialView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

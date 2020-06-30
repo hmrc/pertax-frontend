@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import error.ErrorRenderer
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
@@ -65,11 +66,10 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       mockAuthJourney,
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
+      injected[ErrorRenderer],
       injected[PrintNationalInsuranceNumberView],
       injected[NiLetterPDfWrapperView],
-      injected[NiLetterView],
-      injected[NotFoundView],
-      injected[ErrorView]
+      injected[NiLetterView]
     )(
       mockLocalPartialRetriever,
       injected[ConfigDecorator],

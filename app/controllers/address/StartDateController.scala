@@ -27,7 +27,6 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{LanguageHelper, LocalPartialRetriever}
-import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
@@ -40,13 +39,12 @@ class StartDateController @Inject()(
   cachingHelper: AddressJourneyCachingHelper,
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  errorView: ErrorView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView, errorView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

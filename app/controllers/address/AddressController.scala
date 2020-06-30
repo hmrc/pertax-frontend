@@ -26,7 +26,6 @@ import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Re
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.LocalPartialRetriever
-import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,8 +34,7 @@ abstract class AddressController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  errorView: ErrorView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -62,12 +60,4 @@ abstract class AddressController @Inject()(
         Ok(displayAddressInterstitialView(continueUrl))
       }
     }
-
-  def internalServerError(implicit userRequest: UserRequest[_]): Result =
-    InternalServerError(
-      errorView(
-        "global.error.InternalServerError500.title",
-        Some("global.error.InternalServerError500.title"),
-        List("global.error.InternalServerError500.message")
-      ))
 }

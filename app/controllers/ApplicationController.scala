@@ -19,7 +19,6 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
-import error.RendersErrors
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.mvc._
@@ -30,7 +29,6 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
-import views.html.{ErrorView, NotFoundView}
 import views.html.iv.success.SuccessView
 import views.html.iv.failure._
 
@@ -45,14 +43,12 @@ class ApplicationController @Inject()(
   failedIvIncompleteView: FailedIvIncompleteView,
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
-  technicalIssuesView: TechnicalIssuesView,
-  val notFoundView: NotFoundView,
-  val errorView: ErrorView)(
+  technicalIssuesView: TechnicalIssuesView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
+    extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 

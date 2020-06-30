@@ -31,8 +31,7 @@ class AddressControllerSpec extends AddressBaseSpec {
         injected[AuthJourney],
         withActiveTabAction,
         cc,
-        displayAddressInterstitialView,
-        errorView
+        displayAddressInterstitialView
       )
 
   "addressJourneyEnforcer" should {
@@ -82,19 +81,6 @@ class AddressControllerSpec extends AddressBaseSpec {
         contentAsString(result) should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
 
       }
-    }
-  }
-
-  "internalServerError" should {
-
-    "return 500 and render the correct page" in {
-      def userRequest[A]: UserRequest[A] =
-        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
-
-      val result = SUT.internalServerError(userRequest)
-
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-      contentAsString(result) should include(messages("global.error.InternalServerError500.title"))
     }
   }
 }

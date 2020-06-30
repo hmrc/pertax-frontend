@@ -26,7 +26,6 @@ import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
-import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.InternationalAddressChoiceView
 
@@ -38,13 +37,12 @@ class InternationalAddressChoiceController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  errorView: ErrorView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView, errorView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

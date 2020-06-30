@@ -38,8 +38,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         cc,
         addressJourneyCachingHelper,
         injected[TaxCreditsChoiceView],
-        displayAddressInterstitialView,
-        errorView
+        displayAddressInterstitialView
       )
 
     def sessionCacheResponse: Option[CacheMap] =

@@ -23,18 +23,17 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.RecordSet
-import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId, SubmittedInternationalAddressChoiceId}
 import models.dto.{AddressFinderDto, InternationalAddressChoiceDto}
+import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId, SubmittedInternationalAddressChoiceId}
 import play.api.Logger
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{AddressLookupErrorResponse, AddressLookupResponse, AddressLookupService, AddressLookupSuccessResponse, AddressLookupUnexpectedResponse}
+import services._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
 import util.LocalPartialRetriever
 import util.PertaxSessionKeys.{filter, postcode}
-import views.html.ErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PostcodeLookupView
 
@@ -48,14 +47,12 @@ class PostcodeLookupController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView,
-  errorView: ErrorView
-)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView, errorView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

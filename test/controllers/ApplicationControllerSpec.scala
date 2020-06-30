@@ -98,9 +98,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
         injected[FailedIvIncompleteView],
         injected[LockedOutView],
         injected[TimeOutView],
-        injected[TechnicalIssuesView],
-        injected[NotFoundView],
-        injected[ErrorView]
+        injected[TechnicalIssuesView]
       )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {

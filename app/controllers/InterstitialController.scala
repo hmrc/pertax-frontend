@@ -16,25 +16,25 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
-import error.RendersErrors
-import com.google.inject.Inject
+import error.ErrorRenderer
 import models._
 import play.api.Logger
 import play.api.mvc._
 import play.twirl.api.Html
-import services.{NinoDisplayService, PreferencesFrontendService}
 import services.partials.{FormPartialService, SaPartialService}
+import services.{NinoDisplayService, PreferencesFrontendService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 import util.LocalPartialRetriever
-import views.html.{ErrorView, NotFoundView, SelfAssessmentSummaryView}
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
+import views.html.{ErrorView, NotFoundView, SelfAssessmentSummaryView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,6 +46,7 @@ class InterstitialController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
@@ -56,7 +57,7 @@ class InterstitialController @Inject()(
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper with RendersErrors {
+    extends PertaxBaseController(cc) with PaperlessInterruptHelper {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::
@@ -110,7 +111,7 @@ class InterstitialController @Inject()(
             saPartial successfulContentOrElse Html("")
           ))
       }
-    } else futureError(UNAUTHORIZED)
+    } else errorRenderer.futureError(UNAUTHORIZED)
 
   }
 
@@ -121,11 +122,11 @@ class InterstitialController @Inject()(
           Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUser.saUtr))
         case NonFilerSelfAssessmentUser =>
           Logger.warn("User had no sa account (non filer) when one was required")
-          error(INTERNAL_SERVER_ERROR)
+          errorRenderer.error(INTERNAL_SERVER_ERROR)
       }
     } else {
       Logger.warn("User had no sa account when one was required")
-      error(UNAUTHORIZED)
+      errorRenderer.error(UNAUTHORIZED)
     }
   }
 }

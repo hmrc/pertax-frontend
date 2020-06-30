@@ -21,6 +21,7 @@ import controllers.address
 import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.dto.DateDto
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, eq => meq}
@@ -45,12 +46,12 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       new AddressSelectorController(
         new AddressJourneyCachingHelper(mockLocalSessionCache),
         mockAuthJourney,
-        injected[WithActiveTabAction],
-        injected[MessagesControllerComponents],
+        withActiveTabAction,
+        cc,
+        errorRenderer,
         injected[AddressSelectorView],
-        injected[DisplayAddressInterstitialView],
-        errorView
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
+        injected[DisplayAddressInterstitialView]
+      )
 
     def sessionCacheResponse: Option[CacheMap] =
       Some(

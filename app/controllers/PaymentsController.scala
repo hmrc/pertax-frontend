@@ -16,11 +16,11 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.RendersErrors
-import com.google.inject.Inject
+import error.ErrorRenderer
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
 import org.joda.time.DateTime
 import play.api.Logger
@@ -28,7 +28,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.LocalPartialRetriever
-import views.html.{ErrorView, NotFoundView}
 
 import scala.concurrent.ExecutionContext
 
@@ -37,13 +36,12 @@ class PaymentsController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
-  val notFoundView: NotFoundView,
-  val errorView: ErrorView)(
+  errorRenderer: ErrorRenderer)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
+    extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -59,18 +57,18 @@ class PaymentsController @Inject()(
               } yield {
                 response match {
                   case Some(createPayment) => Redirect(createPayment.nextUrl)
-                  case None                => error(BAD_REQUEST)
+                  case None                => errorRenderer.error(BAD_REQUEST)
                 }
               }
             }
             case NonFilerSelfAssessmentUser => {
               Logger.warn("User had no sa account when one was required")
-              futureError(INTERNAL_SERVER_ERROR)
+              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
             }
           }
         } else {
           Logger.warn("User had no sa account when one was required")
-          futureError(INTERNAL_SERVER_ERROR)
+          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
     }
 }

@@ -19,6 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth._
+import error.ErrorRenderer
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -76,12 +77,11 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         injected[WithBreadcrumbAction],
         mockAuditConnector,
         injected[MessagesControllerComponents],
+        injected[ErrorRenderer],
         injected[ActivatedSaFilerIntermediateView],
         injected[FailedIvContinueToActivateSaView],
         injected[CannotConfirmIdentityView],
-        injected[RequestAccessToSelfAssessmentView],
-        injected[NotFoundView],
-        injected[ErrorView]
+        injected[RequestAccessToSelfAssessmentView]
       )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
