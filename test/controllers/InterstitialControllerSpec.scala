@@ -20,26 +20,24 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
-import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, SelfAssessmentUserType}
+import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.MessagesApi
-import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.{NinoDisplayService, _}
 import services.partials.{FormPartialService, SaPartialService}
+import services.{NinoDisplayService, _}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
-import views.html.{ErrorView, NotFoundView, SelfAssessmentSummaryView}
+import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
 
@@ -73,9 +71,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         injected[ViewNationalInsuranceInterstitialHomeView],
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
-        injected[Sa302InterruptView],
-        injected[NotFoundView],
-        injected[ErrorView]
+        injected[Sa302InterruptView]
       )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()

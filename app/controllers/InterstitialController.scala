@@ -32,9 +32,9 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 import util.LocalPartialRetriever
+import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
-import views.html.{ErrorView, NotFoundView, SelfAssessmentSummaryView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,9 +50,7 @@ class InterstitialController @Inject()(
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
-  sa302InterruptView: Sa302InterruptView,
-  val notFoundView: NotFoundView,
-  val errorView: ErrorView)(
+  sa302InterruptView: Sa302InterruptView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,

@@ -19,6 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import error.ErrorRenderer
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -30,7 +31,6 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
-import views.html.ErrorView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,8 +49,8 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       injected[WithActiveTabAction],
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
-      injected[Tools],
-      injected[ErrorView]
+      injected[ErrorRenderer],
+      injected[Tools]
     )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {}
 
   "Calling PaperlessPreferencesController.managePreferences" should {
