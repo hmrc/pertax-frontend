@@ -24,7 +24,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.crypto.ApplicationCrypto
@@ -33,6 +33,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.Fixtures._
 import util.{BaseSpec, Tools}
 
+import scala.concurrent.Future
 import scala.io.Source
 
 class AddressLookupServiceSpec extends BaseSpec {
@@ -41,11 +42,19 @@ class AddressLookupServiceSpec extends BaseSpec {
     def httpResponse: HttpResponse
     def simulateAddressLookupServiceIsDown: Boolean
 
-    val oneAndTwoOtherPlacePafRecordSetJson =
+    val oneAndTwoOtherPlacePafRecordSetJson: String =
       Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
+
+    val addressesWithMissingLinesRecordSetJson: String =
+      Source
+        .fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSetWithMissingAddressLines.json"))
+        .mkString
 
     val expectedRecordSet = oneAndTwoOtherPlacePafRecordSet
     val expectedRecordSetJson = Json.parse(oneAndTwoOtherPlacePafRecordSetJson)
+
+    val expectedRecordSetMissingLinesJson: JsValue = Json.parse(addressesWithMissingLinesRecordSetJson)
+
     val emptyRecordSet = RecordSet(List())
     val emptyRecordSetJson = Json.parse("[]")
 
@@ -107,6 +116,16 @@ class AddressLookupServiceSpec extends BaseSpec {
       override lazy val r = service.lookup("ZZ11ZZ", Some("2"))
 
       await(r) shouldBe AddressLookupSuccessResponse(expectedRecordSet)
+      verify(met, times(1)).startTimer(metricId)
+      verify(met, times(1)).incrementSuccessCounter(metricId)
+      verify(timer, times(1)).stop()
+    }
+
+    "return a List of addresses filtering addresse out with no lines" in new LocalSetup {
+      override lazy val r: Future[AddressLookupResponse] = service.lookup("ZZ11ZZ", Some("2"))
+      override lazy val httpResponse = HttpResponse(OK, Some(expectedRecordSetMissingLinesJson))
+
+      await(r) shouldBe AddressLookupSuccessResponse(twoOtherPlaceRecordSet)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()

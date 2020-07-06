@@ -23,7 +23,7 @@ import play.api.libs.json.Json
   */
 case class AddressRecord(id: String, address: Address, language: String) {
 
-  def isValid: Boolean = address.isValid && language.length == 2
+  def isValid: Boolean = address.isValid
 }
 
 object AddressRecord {
