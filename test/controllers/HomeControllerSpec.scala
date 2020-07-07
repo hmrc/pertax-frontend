@@ -102,17 +102,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
     }
-    when(mockTaxCalculationService.getTaxCalculation(any[Nino], any[Int])(any[HeaderCarrier])) thenReturn {
-      Future.successful(TaxCalculationSuccessResponse(buildTaxCalculation))
-    }
     when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])) thenReturn {
       Future.successful(buildTaxYearReconciliations)
     }
     when(mockPreferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
       Future.successful(getPaperlessPreferenceResponse)
-    }
-    when(mockTaxCalculationService.getTaxCalculation(meq(nino), meq(year - 1))(any())) thenReturn {
-      Future.successful(getTaxCalculationResponse)
     }
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
       Future.successful(getIVJourneyStatusResponse)

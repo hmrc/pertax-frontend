@@ -46,50 +46,21 @@ class TaxCalculationService @Inject()(
   val http: HttpClient,
   servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
     extends HasMetrics {
-  val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
+
   lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
-
-  /**
-    * Gets a tax calc summary
-    */
-  def getTaxCalculation(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxCalculationResponse] =
-    withMetricsTimer("get-taxcalc-summary") { t =>
-      simpleHttp.get[TaxCalculationResponse](s"$taxCalcUrl/taxcalc/$nino/taxSummary/$year")(
-        onComplete = {
-
-          case r if r.status >= 200 && r.status < 300 =>
-            Logger.debug(r.body)
-            t.completeTimerAndIncrementSuccessCounter()
-            TaxCalculationSuccessResponse(r.json.as[TaxCalculation])
-
-          case r if r.status == NOT_FOUND =>
-            Logger.debug(r.body)
-            t.completeTimerAndIncrementSuccessCounter()
-            TaxCalculationNotFoundResponse
-
-          case r =>
-            Logger.debug(r.body)
-            t.completeTimerAndIncrementFailedCounter()
-            Logger.debug(s"Unexpected ${r.status} response getting tax calculation from tax-calculation-service")
-            TaxCalculationUnexpectedResponse(r)
-        },
-        onError = { e =>
-          Logger.debug(e.toString)
-          t.completeTimerAndIncrementFailedCounter()
-          Logger.warn("Error getting tax calculation from tax-calculation-service", e)
-          TaxCalculationErrorResponse(e)
-        }
-      )
-    }
 
   def getTaxYearReconciliations(nino: Nino)(
     implicit headerCarrier: HeaderCarrier): Future[List[TaxYearReconciliation]] =
-    http
-      .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/reconciliations")
-      .recover {
+    withMetricsTimer("get-tax-year-reconciliations") { t =>
+      http
+        .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/reconciliations") map { result =>
+        t.completeTimerAndIncrementSuccessCounter()
+        result
+      } recover {
         case NonFatal(e) =>
-          Logger.debug(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
+          t.completeTimerAndIncrementFailedCounter()
+          Logger.error(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
           Nil
       }
+    }
 }
