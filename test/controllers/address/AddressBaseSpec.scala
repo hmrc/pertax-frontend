@@ -119,8 +119,6 @@ trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSuga
 
     def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
 
-    // def getEditedAddressCorrespondenceIndicators: List[AddressJourneyTTLModel]=List(AddressJourneyTTLModel("AA000003",EditSoleAddress(BSONDateTime(15942))))
-
     when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
       Future.successful(CacheMap("id", Map.empty))
     }
