@@ -23,7 +23,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{Address, PersonDetails}
+import models.{Address, AddressJourneyTTLModel, EditCorrespondenceAddress, PersonDetails}
 import models.dto.ClosePostalAddressChoiceDto
 import org.joda.time.LocalDate
 import play.api.Logger
@@ -102,12 +102,15 @@ class ClosePostalAddressController @Inject()(
       addressJourneyEnforcer { nino => personDetails =>
         for {
           addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
-          result <- if (addressChanges.nonEmpty) {
-                     Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
-                   } else {
-                     submitConfirmClosePostalAddress(nino, personDetails)
-                   }
+          result <- {
+            if (addressChanges.map(_.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])) {
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+            } else {
+              submitConfirmClosePostalAddress(nino, personDetails)
+            }
+          }
         } yield result
+
       }
     }
 

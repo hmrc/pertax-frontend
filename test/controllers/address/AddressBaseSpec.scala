@@ -21,7 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.AddressDto
-import models.{Address, AddressChanged, AddressJourneyTTLModel, ETag, MovedToScotland, NonFilerSelfAssessmentUser, PersonDetails, SelfAssessmentUserType}
+import models._
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
@@ -29,6 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import reactivemongo.bson.BSONDateTime
 import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
@@ -37,7 +38,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.Fixtures.{buildFakeAddress, buildPersonDetails, buildPersonDetailsCorrespondenceAddress, fakeNino, oneAndTwoOtherPlacePafRecordSet}
+import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -117,6 +118,8 @@ trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSuga
     def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
 
     def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
+
+    // def getEditedAddressCorrespondenceIndicators: List[AddressJourneyTTLModel]=List(AddressJourneyTTLModel("AA000003",EditSoleAddress(BSONDateTime(15942))))
 
     when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
       Future.successful(CacheMap("id", Map.empty))

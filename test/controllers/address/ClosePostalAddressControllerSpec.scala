@@ -27,6 +27,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import reactivemongo.bson.BSONDateTime
 import services._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -219,9 +220,9 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
-      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
-        List(mock[AddressJourneyTTLModel])
 
+      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+        List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(BSONDateTime(0))))
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
@@ -230,6 +231,42 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
+    }
+
+    "render the thank you page details if there is only a lock on the primary address for the user" in new LocalSetup {
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+        List(AddressJourneyTTLModel("SomeNino", EditPrimaryAddress(BSONDateTime(0))))
+      val result = controller.confirmSubmit(FakeRequest())
+
+      status(result) shouldBe OK
+
+      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      val dataEvent = arg.getValue
+
+      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
+    }
+
+    "render the thank you page details if there is only a lock on the sole address for the user" in new LocalSetup {
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+        List(AddressJourneyTTLModel("SomeNino", EditSoleAddress(BSONDateTime(0))))
+      val result = controller.confirmSubmit(FakeRequest())
+
+      status(result) shouldBe OK
+
+      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      val dataEvent = arg.getValue
+
+      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
