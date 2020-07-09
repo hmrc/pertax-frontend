@@ -22,10 +22,9 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
 import models.{ActivatePaperlessActivatedResponse, ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, ActivatePaperlessResponse}
-import play.api.Mode.Mode
+import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
-import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
@@ -36,8 +35,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendService @Inject()(
-  environment: Environment,
-  runModeConfiguration: Configuration,
   val simpleHttp: DefaultHttpClient,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
@@ -47,7 +44,6 @@ class PreferencesFrontendService @Inject()(
   servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport {
 
-  val mode: Mode = environment.mode
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
   override def crypto: String => String = cookie => cookie
