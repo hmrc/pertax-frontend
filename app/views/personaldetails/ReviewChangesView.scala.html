@@ -19,12 +19,12 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.{LanguageHelper, LocalPartialRetriever}
-@this(form: FormWithCSRF)
+@this(mainView: MainView, form: FormWithCSRF)
 @(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
 displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
 partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(title = messages("label.check_your_details"),
+@mainView(title = messages("label.check_your_details"),
   pageName = Some(messages("label.your_personal_tax_account"))
 ) {
     @back_link()

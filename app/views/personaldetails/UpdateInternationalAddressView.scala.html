@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@this(form: FormWithCSRF, input: Input)
+@this(mainView: MainView, form: FormWithCSRF, input: Input)
 
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, countries: List[Country])(implicit request: UserRequest[_],
 configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
@@ -53,7 +53,7 @@ postal = messages("label.enter_the_address"))
 
 
 
-@main(
+@mainView(
 title = getYourAddressLabels.toString,
 pageName = Some(messages("label.your_personal_tax_account")),
 scriptElement = Some(scriptElems)) {

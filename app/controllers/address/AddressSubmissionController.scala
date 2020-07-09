@@ -23,6 +23,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.ErrorRenderer
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
 import org.joda.time.LocalDate
@@ -49,10 +50,10 @@ class AddressSubmissionController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
-)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -125,7 +126,7 @@ class AddressSubmissionController @Inject()(
         citizenDetailsService.getEtag(nino.nino) flatMap {
           case None =>
             Logger.error("Failed to retrieve Etag from citizen-details")
-            Future.successful(internalServerError)
+            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
           case Some(version) =>
             cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
