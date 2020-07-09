@@ -71,10 +71,8 @@ class ConfigDecorator @Inject()(
   lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
   lazy val companyAuthFrontendHost = decorateUrlForLocalDev(s"company-auth-frontend.host").getOrElse("")
   lazy val taiHost = decorateUrlForLocalDev(s"tai-frontend.host").getOrElse("")
-//  lazy val fandfHost = decorateUrlForLocalDev(s"fandf-frontend.host").getOrElse("")
-//  lazy val tamcHost = decorateUrlForLocalDev(s"tamc-frontend.host").getOrElse("")
   lazy val formTrackingHost = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
-//  lazy val businessTaxAccountHost = decorateUrlForLocalDev(s"business-tax-account.host").getOrElse("")
+
   lazy val identityVerificationHost = decorateUrlForLocalDev(s"identity-verification.host").getOrElse("")
   lazy val basGatewayFrontendHost = decorateUrlForLocalDev(s"bas-gateway-frontend.host").getOrElse("")
   lazy val pertaxFrontendHost = decorateUrlForLocalDev(s"pertax-frontend.host").getOrElse("")
@@ -82,7 +80,6 @@ class ConfigDecorator @Inject()(
   lazy val tcsFrontendHost = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
   lazy val nispFrontendHost = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
-//  lazy val taxCalcHost = decorateUrlForLocalDev("taxcalc.host").getOrElse("")
   lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-digital-forms-frontend.host").getOrElse("")
 
   lazy val saFrontendHost = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
