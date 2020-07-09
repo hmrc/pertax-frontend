@@ -36,8 +36,7 @@ class AddressErrorController @Inject()(
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
-  addressAlreadyUpdatedView: AddressAlreadyUpdatedView
-)(
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

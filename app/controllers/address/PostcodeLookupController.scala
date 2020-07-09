@@ -23,12 +23,12 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.RecordSet
-import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId, SubmittedInternationalAddressChoiceId}
 import models.dto.{AddressFinderDto, InternationalAddressChoiceDto}
+import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId, SubmittedInternationalAddressChoiceId}
 import play.api.Logger
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{AddressLookupErrorResponse, AddressLookupResponse, AddressLookupService, AddressLookupSuccessResponse, AddressLookupUnexpectedResponse}
+import services._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
@@ -47,8 +47,7 @@ class PostcodeLookupController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
-)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import controllers.auth.requests.UserRequest
+import error.ErrorRenderer
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.PreferencesFrontendPartialService
@@ -34,6 +35,7 @@ class PaperlessPreferencesController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   tools: Tools)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
@@ -46,12 +48,7 @@ class PaperlessPreferencesController @Inject()(
       .addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request: UserRequest[_] =>
         if (request.isVerify) {
-          Future.successful(
-            BadRequest(
-              views.html.error(
-                "global.error.BadRequest.title",
-                Some("global.error.BadRequest.heading"),
-                List("global.error.BadRequest.message"))))
+          errorRenderer.futureError(BAD_REQUEST)
         } else {
           Future.successful(
             Redirect(

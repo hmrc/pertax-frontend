@@ -19,6 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import error.ErrorRenderer
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
@@ -66,6 +67,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
+        injected[ErrorRenderer],
         injected[ViewNationalInsuranceInterstitialHomeView],
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],

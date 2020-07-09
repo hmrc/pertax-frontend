@@ -41,6 +41,7 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
+import views.html.{ErrorView, NotFoundView}
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvIncompleteView, LockedOutView, TechnicalIssuesView, TimeOutView}
 import views.html.iv.success.SuccessView
 

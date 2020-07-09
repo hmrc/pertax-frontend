@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
-import error.RendersErrors
+import error.ErrorRenderer
 import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,6 +42,7 @@ class SelfAssessmentController @Inject()(
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   activatedSaFilerIntermediateView: ActivatedSaFilerIntermediateView,
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
@@ -50,7 +51,7 @@ class SelfAssessmentController @Inject()(
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
+    extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -68,7 +69,7 @@ class SelfAssessmentController @Inject()(
             case _ => Redirect(routes.HomeController.index())
           }
         } else {
-          error(INTERNAL_SERVER_ERROR)
+          errorRenderer.error(INTERNAL_SERVER_ERROR)
         }
     }
 

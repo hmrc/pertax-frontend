@@ -217,7 +217,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       doc.getElementsByClass("heading-xlarge").toString().contains("Your address") shouldBe true
     }
 
-    "verify an audit event has been sent when user chooses to add/amend main address" in new LocalSetup {
+    "verify an audit event has been sent when user chooses to add/amend view address" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
