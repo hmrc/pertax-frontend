@@ -43,7 +43,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    val expectedView = updateAddressConfirmationView(
+    val expectedAddressConfirmationView = updateAddressConfirmationView(
       PostalAddrType,
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
@@ -216,7 +216,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe OK
-      contentAsString(result) shouldBe expectedView
+      contentAsString(result) shouldBe expectedAddressConfirmationView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
@@ -250,7 +250,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe OK
-      contentAsString(result) shouldBe expectedView
+      contentAsString(result) shouldBe expectedAddressConfirmationView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
@@ -269,7 +269,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe OK
-      contentAsString(result) shouldBe expectedView
+      contentAsString(result) shouldBe expectedAddressConfirmationView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
