@@ -19,9 +19,9 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
-import models.{Address, PersonDetails}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
+import models.PersonDetails
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}

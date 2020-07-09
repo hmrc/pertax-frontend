@@ -20,12 +20,9 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import controllers.auth.requests.UserRequest
-import play.api.Mode.Mode
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.PreferencesFrontendPartialService
-import play.api.mvc.{Action, AnyContent}
-import play.api.{Configuration, Environment}
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
 import util.{LocalPartialRetriever, Tools}
 

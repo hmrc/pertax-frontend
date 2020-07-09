@@ -16,7 +16,7 @@
 
 package models.addressLookup
 
-import models.addresslookup.{Address, AddressRecord, Country}
+import models.addresslookup.{Address, Country}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class classAddressModelSpec extends UnitSpec {

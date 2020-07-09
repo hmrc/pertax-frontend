@@ -26,7 +26,7 @@ class SelfAssessmentUserTypeSpec extends BaseSpec {
 
     val utr = new SaUtrGenerator().nextSaUtr.utr
 
-    val testList = List(
+    val testList: List[(String, SelfAssessmentUser)] = List(
       ("ActivatedOnlineFilerSelfAssessmentUser", ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr))),
       ("NotYetActivatedOnlineFilerSelfAssessmentUser", NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr))),
       ("WrongCredentialsSelfAssessmentUser", WrongCredentialsSelfAssessmentUser(SaUtr(utr))),

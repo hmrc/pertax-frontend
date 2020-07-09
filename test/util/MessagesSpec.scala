@@ -16,8 +16,7 @@
 
 package util
 
-import play.api.Environment
-import play.api.i18n.{DefaultLangs, DefaultMessagesApi, MessagesApi}
+import play.api.i18n.MessagesApi
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.matching.Regex
@@ -104,8 +103,6 @@ class MessagesSpec extends UnitSpec with WithFakeApplication {
       mismatchedArgSequences.size shouldBe 0
     }
   }
-
-  private def isInteger(s: String): Boolean = s forall Character.isDigit
 
   private def toArgArray(msg: String) =
     msg
