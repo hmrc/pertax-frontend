@@ -19,11 +19,11 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@this()
+@this(mainView: MainView)
 
 @(message: Html, title: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(title = title, Some(messages("label.your_personal_tax_account"))) {
+@mainView(title = title, Some(messages("label.your_personal_tax_account"))) {
 
     @back_link()
     @message

@@ -60,6 +60,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         withActiveTabAction,
         cc,
+        errorRenderer,
         injected[CloseCorrespondenceAddressChoiceView],
         injected[ConfirmCloseCorrespondenceAddressView],
         injected[UpdateAddressConfirmationView],
@@ -107,7 +108,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
   "onPageLoad" should {
 
-    "display the closeCorrespondenceAddressChoice form that contains the main address" in new LocalSetup {
+    "display the closeCorrespondenceAddressChoice form that contains the view address" in new LocalSetup {
       val result = controller.onPageLoad(FakeRequest())
 
       contentAsString(result) should include(buildFakeAddress.line1.getOrElse("line6"))

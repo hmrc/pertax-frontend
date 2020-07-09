@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import connectors._
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import error.ErrorRenderer
 import models.CreatePayment
 import org.joda.time.DateTime
 import org.mockito.Matchers.any
@@ -35,6 +36,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec}
+import views.html.{ErrorView, NotFoundView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -59,7 +61,8 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       mockPayConnector,
       mockAuthJourney,
       injected[WithBreadcrumbAction],
-      injected[MessagesControllerComponents]
+      injected[MessagesControllerComponents],
+      injected[ErrorRenderer]
     )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer], injected[ExecutionContext])
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

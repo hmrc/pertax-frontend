@@ -19,7 +19,6 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
-import error.RendersErrors
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.mvc._
@@ -49,7 +48,7 @@ class ApplicationController @Inject()(
   configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear with RendersErrors {
+    extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
