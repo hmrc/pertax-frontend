@@ -71,10 +71,10 @@ class ConfigDecorator @Inject()(
   lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
   lazy val companyAuthFrontendHost = decorateUrlForLocalDev(s"company-auth-frontend.host").getOrElse("")
   lazy val taiHost = decorateUrlForLocalDev(s"tai-frontend.host").getOrElse("")
-  lazy val fandfHost = decorateUrlForLocalDev(s"fandf-frontend.host").getOrElse("")
-  lazy val tamcHost = decorateUrlForLocalDev(s"tamc-frontend.host").getOrElse("")
+//  lazy val fandfHost = decorateUrlForLocalDev(s"fandf-frontend.host").getOrElse("")
+//  lazy val tamcHost = decorateUrlForLocalDev(s"tamc-frontend.host").getOrElse("")
   lazy val formTrackingHost = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
-  lazy val businessTaxAccountHost = decorateUrlForLocalDev(s"business-tax-account.host").getOrElse("")
+//  lazy val businessTaxAccountHost = decorateUrlForLocalDev(s"business-tax-account.host").getOrElse("")
   lazy val identityVerificationHost = decorateUrlForLocalDev(s"identity-verification.host").getOrElse("")
   lazy val basGatewayFrontendHost = decorateUrlForLocalDev(s"bas-gateway-frontend.host").getOrElse("")
   lazy val pertaxFrontendHost = decorateUrlForLocalDev(s"pertax-frontend.host").getOrElse("")
@@ -82,7 +82,7 @@ class ConfigDecorator @Inject()(
   lazy val tcsFrontendHost = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
   lazy val nispFrontendHost = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
-  lazy val taxCalcHost = decorateUrlForLocalDev("taxcalc.host").getOrElse("")
+//  lazy val taxCalcHost = decorateUrlForLocalDev("taxcalc.host").getOrElse("")
   lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-digital-forms-frontend.host").getOrElse("")
 
   lazy val saFrontendHost = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
@@ -247,78 +247,10 @@ class ConfigDecorator @Inject()(
   lazy val editAddressTtl: Int = runModeConfiguration.getOptional[Int]("mongodb.editAddressTtl").getOrElse(0)
 
   lazy val saPartialReturnLinkText = "Back to account home"
-
-  /* --------------------------------
-    These values look like they are not being used
-    --------------------------------
-   */
-
-//  private lazy val messageFrontendService = servicesConfig.baseUrl("message-frontend")
-//
-//  lazy val tcsFrontendService = servicesConfig.baseUrl("tcs-frontend")
-//
-//  lazy val authLoginApiService = servicesConfig.baseUrl("auth-login-api")
-//
-//  lazy val plaBackEndHost = decorateUrlForLocalDev(s"pensions-lifetime-allowance.host").getOrElse("")
-//
-//  lazy val governmentGatewayRegistrationFrontendHost =
-//    decorateUrlForLocalDev(s"government-gateway-registration-frontend.host").getOrElse("")
-//
-//  lazy val assetsUrl = runModeConfiguration.get[String](s"assets.url")
-//  lazy val assetsVersion = runModeConfiguration.get[String](s"assets.version")
-//  lazy val mongoUrl = runModeConfiguration.get[String]("mongodb.uri")
-//
-//  lazy val frontendPath: String = runModeConfiguration
-//    .get[String]("microservice.services.frontend-template-provider.protocol")
-//    .concat("://" + runModeConfiguration.get[String]("microservice.services.frontend-template-provider.host"))
-//    .concat(":" + runModeConfiguration.get[String]("microservice.services.frontend-template-provider.port"))
-//
-//  lazy val citizenSwitchOffUrl = s"$citizenAuthHost/attorney/switch-off-act"
-//  lazy val taxEstimateServiceUrl = s"$taiHost/check-income-tax/paye"
-//
-//  lazy val messageInboxLinkUrl = s"$messageFrontendService/messages/inbox-link"
-//  lazy val fandfUrl = s"$fandfHost/trusted-helpers"
-//  def lostCredentialsChooseAccountUrl(continueUrl: String, forgottenOption: String) =
-//    s"$governmentGatewayLostCredentialsFrontendHost/government-gateway-lost-credentials-frontend/choose-your-account?continue=${enc(
-//      continueUrl)}&origin=${enc(defaultOrigin.toString)}&forgottenOption=$forgottenOption"
-//
-//  lazy val tamcTransferAllowanceUrl = s"$tamcHost/marriage-allowance-application/history"
-//  lazy val incomeTaxFormsUrl = "https://www.gov.uk/government/collections/hmrc-forms"
-//
-//  lazy val contactHrmcUrl = "https://www.gov.uk/contact-hmrc"
-//
-//  lazy val ggLoginUrl = runModeConfiguration.get[String](s"ggLogin.url")
-//
-//  lazy val problemsSigningInUrl = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
-//  lazy val taxReturnByPostUrl = "https://www.gov.uk/government/publications/self-assessment-tax-return-sa100"
-//
-//  lazy val mainContentHeaderPartialUrl = s"$pertaxFrontendService/personal-account/integration/main-content-header"
-//
-//  lazy val businessTaxAccountUrl = s"$businessTaxAccountHost/business-account"
-//  lazy val taxYouPaidStatus = s"$taxCalcFrontendHost/tax-you-paid/status"
-//  lazy val tcsHomeUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
-//
-//  lazy val myStatePensionAccount = s"$nispFrontendHost/check-your-state-pension/account/pta"
-//  lazy val marriageAllowanceSalaryAmount = "£11,500"
-//
-//  lazy val activateSALinkEnabled =
-//    runModeConfiguration.getOptional[String]("feature.activate-sa-link.enabled").getOrElse("true").toBoolean
-//
-//  lazy val platformFrontendHost = runModeConfiguration.get[String]("platform.frontend.host")
-//
-//  lazy val saReminderBannerEnabled =
-//    runModeConfiguration.getOptional[String]("feature.sa-banner.enabled").getOrElse("true").toBoolean
-//
-//  lazy val egainWebchatPertaxId =
-//    runModeConfiguration.getOptional[String](s"egain-webchat.pertax.id").getOrElse("TT55004894")
 }
 
 trait TaxcalcUrls {
   self: ConfigDecorator =>
-
-// Not used
-//  def reconciliationsUrl(nino: String, startYear: Int, endYear: Int) =
-//    s"${self.taxCalcHost}/$nino/$startYear/$endYear/reconciliations"
 
   def underpaidUrlReasons(taxYear: Int) =
     s"${self.taxCalcFrontendHost}/tax-you-paid/$taxYear-${taxYear + 1}/paid-too-little/reasons"

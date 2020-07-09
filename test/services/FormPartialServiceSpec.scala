@@ -39,16 +39,12 @@ import scala.concurrent.Future
 class FormPartialServiceSpec extends BaseSpec {
 
   trait LocalSetup {
-    val servicesConfig = app.injector.instanceOf[ServicesConfig]
     val timer = MockitoSugar.mock[Timer.Context]
     val formPartialService: FormPartialService = new FormPartialService(
-      injected[Environment],
-      injected[Configuration],
       MockitoSugar.mock[DefaultHttpClient],
       MockitoSugar.mock[Metrics],
       MockitoSugar.mock[ConfigDecorator],
-      injected[SessionCookieCrypto],
-      servicesConfig
+      injected[SessionCookieCrypto]
     ) {
       override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
