@@ -201,7 +201,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       dataEvent.generatedAt
     )
 
-    "render the thank you page upon successful submission of closing the correspondence address" in new LocalSetup {
+    "render the thank you page upon successful submission of closing the correspondence address and no locks present" in new LocalSetup {
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
@@ -233,7 +233,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "render the thank you page details if there is only a lock on the primary address for the user" in new LocalSetup {
+    "render the thank you page upon successful submission of closing the correspondence address and only a lock on the primary address" in new LocalSetup {
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditPrimaryAddress(BSONDateTime(0))))
@@ -251,7 +251,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "render the thank you page details if there is only a lock on the sole address for the user" in new LocalSetup {
+    "render the thank you page upon successful submission of closing the correspondence address and only a lock on the sole address" in new LocalSetup {
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditSoleAddress(BSONDateTime(0))))
