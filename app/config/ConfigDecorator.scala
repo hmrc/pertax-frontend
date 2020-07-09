@@ -18,25 +18,21 @@ package config
 
 import java.net.{URL, URLEncoder}
 
-import controllers.routes
 import com.google.inject.{Inject, Singleton}
+import controllers.routes
 import org.joda.time.LocalDate
-import play.api.Mode.Mode
+import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
-import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
 @Singleton
 class ConfigDecorator @Inject()(
-  environment: Environment,
   runModeConfiguration: Configuration,
   runMode: RunMode,
   langs: Langs,
   servicesConfig: ServicesConfig
 ) extends TaxcalcUrls {
-
-  val mode: Mode = environment.mode
 
   // Define the web contexts to access the IV-FE and AUTH frontend applications.
   lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")

@@ -25,7 +25,6 @@ import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
-import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.HttpResponse
@@ -81,15 +80,11 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val citizenDetailsService: CitizenDetailsService = new CitizenDetailsService(
-        injected[Environment],
-        injected[Configuration],
-        fakeSimpleHttp,
-        MockitoSugar.mock[Metrics],
-        serviceConfig) {
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
-        when(metricsOperator.startTimer(any())) thenReturn timer
-      }
+      val citizenDetailsService: CitizenDetailsService =
+        new CitizenDetailsService(fakeSimpleHttp, MockitoSugar.mock[Metrics], serviceConfig) {
+          override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+          when(metricsOperator.startTimer(any())) thenReturn timer
+        }
 
       (citizenDetailsService, citizenDetailsService.metricsOperator, timer)
     }

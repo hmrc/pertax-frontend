@@ -73,8 +73,6 @@ class AddressLookupServiceSpec extends BaseSpec {
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val addressLookupService: AddressLookupService = new AddressLookupService(
-        injected[Environment],
-        injected[Configuration],
         injected[ConfigDecorator],
         fakeSimpleHttp,
         MockitoSugar.mock[Metrics],
