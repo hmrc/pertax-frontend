@@ -42,6 +42,7 @@ import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.UpdateAddressConfirmationView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -62,6 +63,7 @@ trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSuga
   lazy val withActiveTabAction: WithActiveTabAction = injected[WithActiveTabAction]
   lazy val cc: MessagesControllerComponents = injected[MessagesControllerComponents]
   lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
+  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView = injected[UpdateAddressConfirmationView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 

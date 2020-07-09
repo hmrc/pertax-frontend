@@ -34,6 +34,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures
 import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
+import util.UserRequestFixture.buildUserRequest
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
@@ -41,6 +42,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   val addressExceptionMessage = "Address does not exist in the current context"
 
   trait LocalSetup extends AddressControllerSetup {
+
+    val expectedView = updateAddressConfirmationView(
+      PostalAddrType,
+      closedPostalAddress = true,
+      Some(fakeAddress.fullAddress),
+      None
+    )(buildUserRequest(request = FakeRequest()), configDecorator, partialRetriever, templateRenderer, messages).toString
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
@@ -208,6 +216,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
@@ -237,9 +246,11 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
         List(AddressJourneyTTLModel("SomeNino", EditPrimaryAddress(BSONDateTime(0))))
+
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
@@ -258,6 +269,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
