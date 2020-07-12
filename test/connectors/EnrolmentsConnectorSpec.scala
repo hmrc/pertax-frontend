@@ -16,17 +16,14 @@
 
 package connectors
 
-import models._
-import org.joda.time.DateTime
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
-import org.scalatest.Inspectors.forAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.{JsObject, JsResultException, Json}
-import uk.gov.hmrc.http.{HttpException, HttpResponse}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.BaseSpec
 

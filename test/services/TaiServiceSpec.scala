@@ -65,12 +65,7 @@ class TaiServiceSpec extends BaseSpec {
       val timer = MockitoSugar.mock[Timer.Context]
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
       lazy val taiService: TaiService =
-        new TaiService(
-          injected[Environment],
-          injected[Configuration],
-          fakeSimpleHttp,
-          MockitoSugar.mock[Metrics],
-          serviceConfig) {
+        new TaiService(fakeSimpleHttp, MockitoSugar.mock[Metrics], serviceConfig) {
 
           override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer

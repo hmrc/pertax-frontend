@@ -19,14 +19,13 @@ package controllers
 import controllers.auth.FakeAuthJourney
 import models.WrongCredentialsSelfAssessmentUser
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{BaseSpec, LocalPartialRetriever}
-import views.html.selfassessment.{DoYouKnowOtherCredentialsView, DoYouKnowUserIdView, FindYourUserIdView, NeedToResetPasswordView, SignInAgainView, SignedInWrongAccountView}
+import views.html.selfassessment._
 
 import scala.concurrent.ExecutionContext
 

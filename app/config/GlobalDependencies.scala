@@ -18,7 +18,6 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Play}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 

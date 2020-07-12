@@ -18,7 +18,7 @@ package controllers.auth
 
 import controllers.auth.requests.UserRequest
 import models.SelfAssessmentUserType
-import play.api.mvc.{ActionBuilder, Request, Result}
+import play.api.mvc.{Request, Result}
 import util.ActionBuilderFixture
 import util.UserRequestFixture.buildUserRequest
 
