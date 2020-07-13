@@ -44,13 +44,13 @@ abstract class EnhancedPartialRetriever @Inject()(sessionCookieCrypto: SessionCo
           timer.completeTimerAndIncrementSuccessCounter()
           partial
         case partial: HtmlPartial.Failure =>
-          Logger.error(s"Failed to load partial, partial info: $partial")
+          Logger.error(s"Failed to load partial from $url, partial info: $partial")
           timer.completeTimerAndIncrementFailedCounter()
           partial
       } recover {
         case e =>
           timer.completeTimerAndIncrementFailedCounter()
-          Logger.error(s"Failed to load partial", e)
+          Logger.error(s"Failed to load partial from $url", e)
           e match {
             case ex: HttpException =>
               HtmlPartial.Failure(Some(ex.responseCode))
