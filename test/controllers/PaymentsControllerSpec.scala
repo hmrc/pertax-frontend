@@ -27,9 +27,8 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import play.api.i18n.MessagesApi
 import play.api.inject.bind
-import play.api.mvc.{ActionBuilder, MessagesControllerComponents, Request, Result}
+import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.renderer.TemplateRenderer

@@ -18,7 +18,6 @@ package controllers.address
 
 import controllers.bindable.PostalAddrType
 import models._
-import models.dto.AddressDto
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}

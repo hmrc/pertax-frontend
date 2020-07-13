@@ -19,7 +19,6 @@ package models.dto
 import controllers.bindable._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.validation.ValidationError
 import play.api.libs.json._
 
 case class ResidencyChoiceDto(residencyChoice: AddrType)

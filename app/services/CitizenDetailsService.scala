@@ -16,14 +16,13 @@
 
 package services
 
-import com.kenshoo.play.metrics.Metrics
 import com.google.inject.{Inject, Singleton}
+import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
-import play.api.Mode
+import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
-import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -43,19 +42,13 @@ case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) exte
 case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
 case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
 case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
+
 @Singleton
-class CitizenDetailsService @Inject()(
-  environment: Environment,
-  configuration: Configuration,
-  val simpleHttp: SimpleHttp,
-  val metrics: Metrics,
-  servicesConfig: ServicesConfig)
+class CitizenDetailsService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
     extends HasMetrics {
 
   val logger = Logger(this.getClass)
 
-  val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 
   def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =

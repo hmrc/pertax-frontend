@@ -19,9 +19,7 @@ package services.partials
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
-import play.api.Mode.Mode
 import play.api.mvc.RequestHeader
-import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -32,8 +30,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendPartialService @Inject()(
-  environment: Environment,
-  runModeConfiguration: Configuration,
   val http: HttpClient,
   val metrics: Metrics,
   sessionCookieCrypto: SessionCookieCrypto,
@@ -41,7 +37,6 @@ class PreferencesFrontendPartialService @Inject()(
   servicesConfig: ServicesConfig)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics {
 
-  val mode: Mode = environment.mode
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
   def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(
