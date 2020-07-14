@@ -57,7 +57,7 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
 
                     <p>@messages("label.all_your_letters_will_be_sent_to_this_addr")</p>
 
-                    <p>@Html(addr.map(x => x.mkString(", <br>")).getOrElse("")))</p>
+                    <p>@Html(addr.map(x => x.mkString(", <br>")).getOrElse(""))</p>
 
                     <p><a href="@routes.HomeController.index" class="button" role="button">@messages("label.return_to_your_account_home")</a></p>
                 </div>
