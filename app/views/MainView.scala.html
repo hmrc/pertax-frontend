@@ -78,33 +78,21 @@
     @inlineScript = {
 
 
-@scriptElement
+        @scriptElement
 
-@if(configDecorator.analyticsToken == Some("N/A")) {
+        @if(configDecorator.analyticsToken == Some("N/A")) {
 
-<script type="text/javascript">
-                    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-                    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            @views.html.scripts.google_analytics(configDecorator.analyticsToken, configDecorator.analyticsHost, gaCustomEvent)
 
-                    ga('create', '@configDecorator.analyticsToken', '@configDecorator.analyticsHost');
-                    ga('set', 'anonymizeIp', true);
+        }
 
-                    @gaCustomEvent
-    </script>
-}
+        @if(displayTimeoutDialog) {
+            @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds)
+        }
 
-@if(displayTimeoutDialog) {
-        <script>
-                window.GOVUK.timeoutDialog({
-                    timeout: @configDecorator.sessionTimeoutInSeconds,
-                    countdown: @configDecorator.sessionCountdownInSeconds,
-                    keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
-                    signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
-                });
-        </script>
-    }
+        @if(configDecorator.isGtmEnabled) {
+            @views.html.scripts.google_tag_manager(configDecorator.googleTagManagerId)
+        }
 }
 
     @printable = @{
