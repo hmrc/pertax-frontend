@@ -60,14 +60,12 @@
 
     @gaCustomEvent = @{
         val langCode = messages.lang.code
-
         views.html.google_analytics(langCode, request.uri)
     }
 
 
     @actingAttorneyBanner = {
     @{
-
         request.trustedHelper.map { (helper: TrustedHelper) =>
             attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
         }
@@ -76,14 +74,10 @@
     }
 
     @inlineScript = {
-
-
         @scriptElement
 
         @if(configDecorator.analyticsToken == Some("N/A")) {
-
             @views.html.scripts.google_analytics(configDecorator.analyticsToken, configDecorator.analyticsHost, gaCustomEvent)
-
         }
 
         @if(displayTimeoutDialog) {
@@ -93,7 +87,7 @@
         @if(configDecorator.isGtmEnabled) {
             @views.html.scripts.google_tag_manager(configDecorator.googleTagManagerId)
         }
-}
+    }
 
     @printable = @{
         if(printableDocument) {
@@ -102,10 +96,9 @@
     }
 
     @mainContentHeader = {
-
-    @if(WelshWarningHelper.usingWelsh) {
-        @tags.welshContentWarning()
-    }
+        @if(WelshWarningHelper.usingWelsh) {
+            @tags.welshContentWarning()
+        }
     }
 
     @{
