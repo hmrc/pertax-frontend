@@ -17,14 +17,17 @@
 package connectors
 
 import com.google.inject.Inject
+import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import metrics.HasMetrics
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentsConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator) {
+class EnrolmentsConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
+    extends HasMetrics {
 
   val baseUrl = configDecorator.enrolmentStoreProxyUrl
 
@@ -32,11 +35,19 @@ class EnrolmentsConnector @Inject()(http: HttpClient, configDecorator: ConfigDec
     saUtr: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Seq[String]]] = {
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users"
 
-    http.GET[HttpResponse](url) map { response =>
-      response.status match {
-        case OK         => Right((response.json \ "principalUserIds").as[Seq[String]])
-        case NO_CONTENT => Right(Seq.empty)
-        case errorCode  => Left(s"HttpError: $errorCode. Invalid call for getUserIdsWithEnrolments: $response")
+    withMetricsTimer("get-user-ids-with-enrolments") { timer =>
+      http.GET[HttpResponse](url) map { response =>
+        response.status match {
+          case OK =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            Right((response.json \ "principalUserIds").as[Seq[String]])
+          case NO_CONTENT =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            Right(Seq.empty)
+          case errorCode =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Left(s"HttpError: $errorCode. Invalid call for getUserIdsWithEnrolments: $response")
+        }
       }
     }
   }

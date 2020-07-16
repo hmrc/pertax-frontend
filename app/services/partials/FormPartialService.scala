@@ -33,7 +33,7 @@ class FormPartialService @Inject()(
   override val http: HttpClient,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
-  sessionCookieCrypto: SessionCookieCrypto,
+  sessionCookieCrypto: SessionCookieCrypto
 )(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics {
 

@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@this()
+@this(mainView: MainView)
 
 @(utr: String, previousTaxYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
@@ -36,7 +36,7 @@
     </noscript>
 }
 
-@main(messages("label.we_are_processing_your-details"), Some(messages("label.your_personal_tax_account")), scriptElement = Some(scriptElem)) {
+@mainView(messages("label.we_are_processing_your-details"), Some(messages("label.your_personal_tax_account")), scriptElement = Some(scriptElem)) {
     <div>
         <h1 class="heading-xlarge">@messages("label.we_are_processing_your-details")</h1>
         <p class="margin-bottom">@messages("label.this_may_take_up_to_30_seconds")</p>

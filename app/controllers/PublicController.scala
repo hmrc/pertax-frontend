@@ -16,9 +16,8 @@
 
 package controllers
 
-import config.ConfigDecorator
 import com.google.inject.Inject
-import play.api.i18n.MessagesApi
+import config.ConfigDecorator
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin

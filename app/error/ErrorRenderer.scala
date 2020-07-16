@@ -16,6 +16,7 @@
 
 package error
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
@@ -23,25 +24,23 @@ import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.{ErrorView, NotFoundView}
 
 import scala.concurrent.Future
 
-trait RendersErrors extends Results {
+class ErrorRenderer @Inject()(
+  notFoundView: NotFoundView,
+  errorView: ErrorView
+)(
+  implicit partialRetriever: LocalPartialRetriever,
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer)
+    extends Results {
 
-  implicit def templateRenderer: TemplateRenderer
-
-  def futureError(statusCode: Int)(
-    implicit request: UserRequest[_],
-    configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
-    messages: Messages): Future[Result] =
+  def futureError(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Future[Result] =
     Future.successful(error(statusCode))
 
-  def error(statusCode: Int)(
-    implicit request: UserRequest[_],
-    configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
-    messages: Messages): Result = {
+  def error(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"
@@ -49,24 +48,16 @@ trait RendersErrors extends Results {
       case _           => "InternalServerError500"
     }
     Status(statusCode)(
-      views.html.error(
+      errorView(
         s"global.error.$errorKey.title",
         Some(s"global.error.$errorKey.heading"),
         List(s"global.error.$errorKey.message")))
   }
 
-  def unauthenticatedFutureError(statusCode: Int)(
-    implicit request: Request[_],
-    configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
-    messages: Messages): Future[Result] =
+  def unauthenticatedFutureError(statusCode: Int)(implicit request: Request[_], messages: Messages): Future[Result] =
     Future.successful(unauthenticatedError(statusCode))
 
-  def unauthenticatedError(statusCode: Int)(
-    implicit request: Request[_],
-    configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
-    messages: Messages): Result = {
+  def unauthenticatedError(statusCode: Int)(implicit request: Request[_], messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"
@@ -82,11 +73,7 @@ trait RendersErrors extends Results {
 
   }
 
-  def notFoundFutureError(
-    implicit request: UserRequest[_],
-    configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
-    messages: Messages): Future[Result] =
-    Future.successful(NotFound(views.html.page_not_found_template()))
+  def notFoundFutureError(implicit request: UserRequest[_], messages: Messages): Future[Result] =
+    Future.successful(NotFound(notFoundView()))
 
 }

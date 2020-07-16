@@ -18,10 +18,10 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
-@this()
+@this(mainView: MainView)
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("label.your_address_has_already_been_updated"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(messages("label.your_address_has_already_been_updated"), Some(messages("label.your_personal_tax_account"))) {
 
   <div class="grid-row">
     <div class="column-two-thirds">

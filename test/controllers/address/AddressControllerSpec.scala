@@ -83,17 +83,4 @@ class AddressControllerSpec extends AddressBaseSpec {
       }
     }
   }
-
-  "internalServerError" should {
-
-    "return 500 and render the correct page" in {
-      def userRequest[A]: UserRequest[A] =
-        buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
-
-      val result = SUT.internalServerError(userRequest)
-
-      status(result) shouldBe INTERNAL_SERVER_ERROR
-      contentAsString(result) should include(messages("global.error.InternalServerError500.title"))
-    }
-  }
 }

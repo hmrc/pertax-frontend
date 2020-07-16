@@ -20,11 +20,11 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import views.html.selfassessment.selfAssessmentHeading
 
-@this()
+@this(mainView: MainView)
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("title.signed_in_wrong_account.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(routes.HomeController.index().url)) {
+@mainView(messages("title.signed_in_wrong_account.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(routes.HomeController.index().url)) {
  <div class="grid-row">
    <div class="column-two-thirds">
 

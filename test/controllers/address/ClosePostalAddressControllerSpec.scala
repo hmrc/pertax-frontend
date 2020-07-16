@@ -18,7 +18,6 @@ package controllers.address
 
 import controllers.bindable.PostalAddrType
 import models._
-import models.dto.AddressDto
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
@@ -27,12 +26,14 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import reactivemongo.bson.BSONDateTime
 import services._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures
 import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
+import util.UserRequestFixture.buildUserRequest
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
@@ -40,6 +41,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
   val addressExceptionMessage = "Address does not exist in the current context"
 
   trait LocalSetup extends AddressControllerSetup {
+
+    val expectedAddressConfirmationView = updateAddressConfirmationView(
+      PostalAddrType,
+      closedPostalAddress = true,
+      Some(fakeAddress.fullAddress),
+      None
+    )(buildUserRequest(request = FakeRequest()), configDecorator, partialRetriever, templateRenderer, messages).toString
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
@@ -51,6 +59,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         mockAuthJourney,
         withActiveTabAction,
         cc,
+        errorRenderer,
         injected[CloseCorrespondenceAddressChoiceView],
         injected[ConfirmCloseCorrespondenceAddressView],
         injected[UpdateAddressConfirmationView],
@@ -98,7 +107,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
   "onPageLoad" should {
 
-    "display the closeCorrespondenceAddressChoice form that contains the main address" in new LocalSetup {
+    "display the closeCorrespondenceAddressChoice form that contains the view address" in new LocalSetup {
       val result = controller.onPageLoad(FakeRequest())
 
       contentAsString(result) should include(buildFakeAddress.line1.getOrElse("line6"))
@@ -200,13 +209,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       dataEvent.generatedAt
     )
 
-    "render the thank you page upon successful submission of closing the correspondence address" in new LocalSetup {
+    "render the thank you page upon successful submission of closing the correspondence address and no locks present" in new LocalSetup {
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedAddressConfirmationView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
@@ -219,9 +229,9 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     }
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
-      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
-        List(mock[AddressJourneyTTLModel])
 
+      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+        List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(BSONDateTime(0))))
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
@@ -230,6 +240,45 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
+    }
+
+    "render the thank you page upon successful submission of closing the correspondence address and only a lock on the primary address" in new LocalSetup {
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+        List(AddressJourneyTTLModel("SomeNino", EditPrimaryAddress(BSONDateTime(0))))
+
+      val result = controller.confirmSubmit(FakeRequest())
+
+      status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedAddressConfirmationView
+
+      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      val dataEvent = arg.getValue
+
+      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
+    }
+
+    "render the thank you page upon successful submission of closing the correspondence address and only a lock on the sole address" in new LocalSetup {
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
+        List(AddressJourneyTTLModel("SomeNino", EditSoleAddress(BSONDateTime(0))))
+      val result = controller.confirmSubmit(FakeRequest())
+
+      status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedAddressConfirmationView
+
+      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
+      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
+      val dataEvent = arg.getValue
+
+      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+
+      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {

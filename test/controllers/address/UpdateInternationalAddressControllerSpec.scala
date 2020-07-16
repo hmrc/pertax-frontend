@@ -16,35 +16,23 @@
 
 package controllers.address
 
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{PostalAddrType, SoleAddrType}
-import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper}
-import models.dto.{AddressDto, AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
+import controllers.controllershelpers.CountryHelper
+import models.dto.{AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.Json
+import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.libs.json.Json
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.LocalSessionCache
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures.{asInternationalAddressDto, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
-import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
-import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateInternationalAddressView
-
-import scala.concurrent.{ExecutionContext, Future}
 
 class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
@@ -229,7 +217,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       doc.getElementsByClass("heading-xlarge").toString().contains("Your address") shouldBe true
     }
 
-    "verify an audit event has been sent when user chooses to add/amend main address" in new LocalSetup {
+    "verify an audit event has been sent when user chooses to add/amend view address" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))

@@ -23,19 +23,19 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.{Address, PersonDetails}
+import error.ErrorRenderer
+import models.{Address, AddressJourneyTTLModel, EditCorrespondenceAddress, PersonDetails}
 import models.dto.ClosePostalAddressChoiceDto
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService, UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
+import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
 import util.LocalPartialRetriever
-import views.html.error
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -50,6 +50,7 @@ class ClosePostalAddressController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
+  errorRenderer: ErrorRenderer,
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
@@ -102,12 +103,15 @@ class ClosePostalAddressController @Inject()(
       addressJourneyEnforcer { nino => personDetails =>
         for {
           addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
-          result <- if (addressChanges.nonEmpty) {
-                     Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
-                   } else {
-                     submitConfirmClosePostalAddress(nino, personDetails)
-                   }
+          result <- {
+            if (addressChanges.map(_.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])) {
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+            } else {
+              submitConfirmClosePostalAddress(nino, personDetails)
+            }
+          }
         } yield result
+
       }
     }
 
@@ -120,24 +124,16 @@ class ClosePostalAddressController @Inject()(
     citizenDetailsService.getEtag(nino.nino) flatMap {
       case None =>
         Logger.error("Failed to retrieve Etag from citizen-details")
-        Future.successful(internalServerError)
+        errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
       case Some(version) =>
         for {
           response <- citizenDetailsService.updateAddress(nino, version.etag, closingAddress)
           action <- response match {
                      case UpdateAddressBadRequestResponse =>
-                       Future.successful(
-                         BadRequest(
-                           error(
-                             "global.error.BadRequest.title",
-                             Some("global.error.BadRequest.title"),
-                             List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
-                           )
-                         )
-                       )
+                       errorRenderer.futureError(BAD_REQUEST)
                      case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
-                       Future.successful(internalServerError)
+                       errorRenderer.futureError(INTERNAL_SERVER_ERROR)
                      case UpdateAddressSuccessResponse =>
                        for {
                          _ <- auditConnector.sendEvent(
@@ -161,7 +157,7 @@ class ClosePostalAddressController @Inject()(
                              )
                            )
                          } else {
-                           internalServerError
+                           errorRenderer.error(INTERNAL_SERVER_ERROR)
                          }
                    }
         } yield action

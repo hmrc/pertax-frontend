@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.layouts
+@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner}
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import util.LanguageHelper
 @import uk.gov.hmrc.renderer._
@@ -26,6 +26,8 @@
 
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+
+@this(attorneyBanner: AttorneyBanner, article: Article)
 @(title: String,
         pageName: Option[String] = None,
         showUserResearchBanner: Boolean = false,
@@ -67,7 +69,7 @@
     @{
 
         request.trustedHelper.map { (helper: TrustedHelper) =>
-            layouts.attorney_banner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
+            attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
         }
     }
 
@@ -184,7 +186,7 @@
 
         templateRenderer.renderDefaultTemplate(
             configDecorator.frontendTemplatePath,
-            layouts.article(mainContent, includeGridWrapper, articleClasses),
+            article(mainContent, includeGridWrapper, articleClasses),
             arguments
         )
 

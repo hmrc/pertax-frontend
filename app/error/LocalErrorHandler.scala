@@ -17,27 +17,21 @@
 package error
 
 import akka.stream.Materializer
-import config.ConfigDecorator
-import controllers.auth.AuthJourney
 import com.google.inject.{Inject, Singleton}
+import config.ConfigDecorator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
-import javax.inject.Provider
 import util.LocalPartialRetriever
 
 @Singleton
-class LocalErrorHandler @Inject()(
-  val messagesApi: MessagesApi,
-  val materializer: Materializer,
-  authJourney: Provider[AuthJourney]
-)(
+class LocalErrorHandler @Inject()(val messagesApi: MessagesApi, val materializer: Materializer)(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer)
-    extends FrontendErrorHandler with I18nSupport with RendersErrors {
+    extends FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(
     pageTitle: String,

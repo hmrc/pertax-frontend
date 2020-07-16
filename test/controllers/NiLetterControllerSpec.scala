@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import error.ErrorRenderer
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
@@ -35,6 +36,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures, Fixtures}
+import views.html.{ErrorView, NotFoundView}
 import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -64,6 +66,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       mockAuthJourney,
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
+      injected[ErrorRenderer],
       injected[PrintNationalInsuranceNumberView],
       injected[NiLetterPDfWrapperView],
       injected[NiLetterView]

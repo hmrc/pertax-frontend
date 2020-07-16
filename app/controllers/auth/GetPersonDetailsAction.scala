@@ -22,13 +22,14 @@ import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
-import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, MessagesControllerComponents, Result}
+import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.ManualCorrespondenceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,7 +37,8 @@ class GetPersonDetailsAction @Inject()(
   citizenDetailsService: CitizenDetailsService,
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
-  val messagesApi: MessagesApi)(
+  val messagesApi: MessagesApi,
+  manualCorrespondenceView: ManualCorrespondenceView)(
   implicit configDecorator: ConfigDecorator,
   partialRetriever: LocalPartialRetriever,
   ec: ExecutionContext,
@@ -103,7 +105,7 @@ class GetPersonDetailsAction @Inject()(
         citizenDetailsService.personDetails(nino).map {
           case PersonDetailsSuccessResponse(pd) => Right(Some(pd))
           case PersonDetailsHiddenResponse =>
-            Left(Locked(views.html.manualCorrespondence()))
+            Left(Locked(manualCorrespondenceView()))
           case _ => Right(None)
         }
       case _ => Future.successful(Right(None))

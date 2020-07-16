@@ -20,10 +20,10 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import views.html.selfassessment.selfAssessmentForm
 
-@this()
+@this(mainView: MainView)
 @(wrongCredentialsUserForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@main(messages("title.do_you_know_user_id.h1"),
+@mainView(messages("title.do_you_know_user_id.h1"),
     Some(messages("label.your_personal_tax_account")),
     backlinkUrl = Some(routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
 

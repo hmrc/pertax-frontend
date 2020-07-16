@@ -19,6 +19,7 @@ package controllers
 import config.ConfigDecorator
 import connectors.PayApiConnector
 import controllers.auth._
+import error.ErrorRenderer
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
@@ -37,7 +38,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
-import views.html.ActivatedSaFilerIntermediateView
+import views.html.{ActivatedSaFilerIntermediateView, ErrorView, NotFoundView}
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -76,6 +77,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         injected[WithBreadcrumbAction],
         mockAuditConnector,
         injected[MessagesControllerComponents],
+        injected[ErrorRenderer],
         injected[ActivatedSaFilerIntermediateView],
         injected[FailedIvContinueToActivateSaView],
         injected[CannotConfirmIdentityView],
