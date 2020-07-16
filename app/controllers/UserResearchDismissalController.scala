@@ -16,12 +16,11 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import error.LocalErrorHandler
-import com.google.inject.Inject
-import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
 import services.partials.MessageFrontendService

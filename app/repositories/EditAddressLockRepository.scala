@@ -20,7 +20,6 @@ import java.time.zone.ZoneRules
 import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 
-import akka.actor.ActorSystem
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
@@ -31,7 +30,7 @@ import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
-import reactivemongo.core.errors.{DatabaseException, GenericDatabaseException}
+import reactivemongo.core.errors.DatabaseException
 import reactivemongo.play.json.BSONDocumentWrites
 import reactivemongo.play.json.collection.JSONCollection
 

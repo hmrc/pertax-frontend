@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@this()
+@this(mainView: MainView)
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
@@ -31,7 +31,7 @@
     </script>
 }
 
-@main(messages("label.activate_your_self_assessment"), scriptElement = Some(scriptElem)) {
+@mainView(messages("label.activate_your_self_assessment"), scriptElement = Some(scriptElem)) {
     <h1 class="heading-large">@messages("label.activate_your_self_assessment_registration")</h1>
     <p>@messages("label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_1")</p>
     <p>@messages("label.you_need_to_activate_your_self_assessment_registration_using_your_text_before_link_2")</p>

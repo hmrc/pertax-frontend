@@ -19,7 +19,6 @@ package controllers.auth
 import controllers.auth.SessionAuditor.UserSessionAuditEvent
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
-import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
@@ -33,8 +32,8 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Failure, Success}
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import util.{AuditServiceTools, Fixtures}
 

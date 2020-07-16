@@ -16,13 +16,12 @@
 
 package services
 
-import com.kenshoo.play.metrics.Metrics
 import com.google.inject.{Inject, Singleton}
+import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
-import play.api.Mode.Mode
+import play.api.Logger
 import play.api.http.Status._
-import play.api.{Configuration, Environment, Logger}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -36,15 +35,9 @@ case object TaxComponentsUnavailableResponse extends TaxComponentsResponse
 case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponentsResponse
 case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 @Singleton
-class TaiService @Inject()(
-  environment: Environment,
-  runModeConfiguration: Configuration,
-  val simpleHttp: SimpleHttp,
-  val metrics: Metrics,
-  servicesConfig: ServicesConfig)
+class TaiService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
     extends HasMetrics {
 
-  val mode: Mode = environment.mode
   lazy val taiUrl = servicesConfig.baseUrl("tai")
 
   /**

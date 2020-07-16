@@ -18,10 +18,9 @@ package controllers.controllershelpers
 
 import com.google.inject.{Inject, Singleton}
 import controllers.bindable.AddrType
-import controllers.routes
-import models.{AddressFinderDtoId, AddressJourneyData, AddressPageVisitedDtoId, CacheIdentifier, SelectedAddressRecordId, SelectedRecordSetId, SubmittedAddressDtoId, SubmittedInternationalAddressChoiceId, SubmittedResidencyChoiceDtoId, SubmittedStartDateId, SubmittedTaxCreditsChoiceId}
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
+import models._
 import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
 import services.LocalSessionCache

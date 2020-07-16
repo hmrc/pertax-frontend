@@ -26,7 +26,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import util.UserRequestFixture.buildUserRequest
-import util.{BaseSpec, Fixtures, UserRequestFixture}
+import util.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
 
 class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I18nSupport {
@@ -158,7 +158,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       cardBody.map(_.body).get should not include "Change where we send your letters"
     }
 
-    "return the correct markup when there are person details and the user has edited their main address" in new MainAddressSetup {
+    "return the correct markup when there are person details and the user has edited their view address" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
       override lazy val userHasPersonDetails = true
       override lazy val userHasCorrespondenceAddress = true

@@ -25,7 +25,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -55,17 +54,12 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val timer = MockitoSugar.mock[Timer.Context]
-      val taxCalculationService: TaxCalculationService = new TaxCalculationService(
-        injected[Environment],
-        injected[Configuration],
-        fakeSimpleHttp,
-        MockitoSugar.mock[Metrics],
-        mockHttp,
-        serviceConfig) {
+      val taxCalculationService: TaxCalculationService =
+        new TaxCalculationService(fakeSimpleHttp, MockitoSugar.mock[Metrics], mockHttp, serviceConfig) {
 
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
-        when(metricsOperator.startTimer(any())) thenReturn timer
-      }
+          override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+          when(metricsOperator.startTimer(any())) thenReturn timer
+        }
 
       (taxCalculationService, taxCalculationService.metricsOperator, timer)
     }

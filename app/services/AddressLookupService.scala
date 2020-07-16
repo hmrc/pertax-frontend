@@ -16,13 +16,12 @@
 
 package services
 
+import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import com.google.inject.{Inject, Singleton}
 import metrics._
 import models.addresslookup.RecordSet
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment, Logger}
+import play.api.Logger
 import services.http.SimpleHttp
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -38,8 +37,6 @@ final case class AddressLookupErrorResponse(cause: Exception) extends AddressLoo
 
 @Singleton
 class AddressLookupService @Inject()(
-  environment: Environment,
-  configuration: Configuration,
   configDecorator: ConfigDecorator,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
@@ -47,8 +44,6 @@ class AddressLookupService @Inject()(
   servicesConfig: ServicesConfig)
     extends HasMetrics {
 
-  val mode: Mode = environment.mode
-  val runModeConfiguration: Configuration = configuration
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(

@@ -20,9 +20,8 @@ import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import models.MessageCount
-import play.api.Mode.Mode
+import play.api.Logger
 import play.api.mvc.RequestHeader
-import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
@@ -34,15 +33,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class MessageFrontendService @Inject()(
-  environment: Environment,
-  runModeConfiguration: Configuration,
   override val http: HttpClient,
   val metrics: Metrics,
   val sessionCookieCrypto: SessionCookieCrypto,
   servicesConfig: ServicesConfig)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics {
-
-  val mode: Mode = environment.mode
 
   lazy val messageFrontendUrl: String = servicesConfig.baseUrl("message-frontend")
 

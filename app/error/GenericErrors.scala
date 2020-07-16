@@ -24,10 +24,12 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.ErrorView
 
 object GenericErrors {
 
   implicit val templateRenderer: TemplateRenderer = Play.current.injector.instanceOf[TemplateRenderer]
+  val errorView: ErrorView = Play.current.injector.instanceOf[ErrorView]
 
   def badRequest(
     implicit request: UserRequest[_],
@@ -35,7 +37,7 @@ object GenericErrors {
     partialRetriever: LocalPartialRetriever,
     messages: Messages): Result =
     BadRequest(
-      views.html.error(
+      errorView(
         "global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),
         List("global.error.BadRequest.message1", "global.error.BadRequest.message2")))
@@ -46,7 +48,7 @@ object GenericErrors {
     partialRetriever: LocalPartialRetriever,
     messages: Messages): Result =
     InternalServerError(
-      views.html.error(
+      errorView(
         "global.error.InternalServerError500.title",
         Some("global.error.InternalServerError500.title"),
         List("global.error.InternalServerError500.message")))
