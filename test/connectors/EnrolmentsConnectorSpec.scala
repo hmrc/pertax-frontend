@@ -25,7 +25,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import util.BaseSpec
+import util.{BaseSpec, NullMetrics}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures with EitherValues {
 
   val http = mock[DefaultHttpClient]
-  val connector = new EnrolmentsConnector(http, config)
+  val connector = new EnrolmentsConnector(http, config, new NullMetrics)
   val baseUrl = config.enrolmentStoreProxyUrl
 
   "getAssignedEnrolments" should {

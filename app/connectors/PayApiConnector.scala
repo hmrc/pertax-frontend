@@ -17,7 +17,9 @@
 package connectors
 
 import com.google.inject.Inject
+import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import metrics.HasMetrics
 import models.{CreatePayment, PaymentRequest}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -25,17 +27,23 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayApiConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator) {
+class PayApiConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
+    extends HasMetrics {
 
   def createPayment(
     request: PaymentRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CreatePayment]] = {
     val postUrl = configDecorator.makeAPaymentUrl
 
-    http.POST[PaymentRequest, HttpResponse](postUrl, request) flatMap { response =>
-      response.status match {
-        case CREATED =>
-          Future.successful(Some(response.json.as[CreatePayment]))
-        case _ => Future.successful(None)
+    withMetricsTimer("create-payment") { timer =>
+      http.POST[PaymentRequest, HttpResponse](postUrl, request) flatMap { response =>
+        response.status match {
+          case CREATED =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            Future.successful(Some(response.json.as[CreatePayment]))
+          case _ =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Future.successful(None)
+        }
       }
     }
   }
