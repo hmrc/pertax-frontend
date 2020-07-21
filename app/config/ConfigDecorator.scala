@@ -124,6 +124,8 @@ class ConfigDecorator @Inject()(
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
   lazy val analyticsToken = runModeConfiguration.getString(s"google-analytics.token")
   lazy val analyticsHost = Some(runModeConfiguration.getString(s"google-analytics.host").getOrElse("service.gov.uk"))
+  lazy val googleTagManagerId = runModeConfiguration.getString(s"google-tag-manager.id")
+  lazy val isGtmEnabled = runModeConfiguration.getString(s"google-tag-manager.enabled")
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
