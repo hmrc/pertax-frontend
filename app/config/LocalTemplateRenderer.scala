@@ -33,7 +33,7 @@ class LocalTemplateRenderer @Inject()(configuration: Configuration, wsHttp: Http
   val runModeConfiguration: Configuration = configuration
   override lazy val templateServiceBaseUrl = servicesConfig.baseUrl("frontend-template-provider")
   override lazy val refreshAfter: Duration =
-    runModeConfiguration.getInt("template.refreshInterval").getOrElse(600) seconds
+    runModeConfiguration.getOptional[Int]("template.refreshInterval").getOrElse(600) seconds
 
   private implicit val hc = HeaderCarrier()
 
