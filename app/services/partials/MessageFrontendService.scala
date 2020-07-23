@@ -52,16 +52,21 @@ class MessageFrontendService @Inject()(
       messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController
         .messageList())
 
-  def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] =
-    loadJson(messageFrontendUrl + "/messages/count?read=No").map(_.map(_.count))
+  def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] = {
+    val url = messageFrontendUrl + "/messages/count?read=No"
 
-  private def loadJson(url: String)(implicit hc: HeaderCarrier): Future[Option[MessageCount]] =
-    withMetricsTimer("load-json") { t =>
-      http.GET[Option[MessageCount]](url) recover {
+    withMetricsTimer("get-unread-message-count") { t =>
+      (for {
+        messageCount <- http.GET[Option[MessageCount]](url)
+      } yield {
+        t.completeTimerAndIncrementSuccessCounter()
+        messageCount.map(_.count)
+      }) recover {
         case e =>
           t.completeTimerAndIncrementFailedCounter()
           Logger.warn(s"Failed to load json", e)
           None
       }
     }
+  }
 }
