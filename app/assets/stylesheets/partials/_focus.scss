@@ -1,8 +1,9 @@
 // =========================
-// updated 29 Nov 2019 16:07 BST
+// updated 11 June 2020 13:46 BST
 // focus states
 // changes made to bring in line with
 // https://designnotes.blog.gov.uk/2019/07/29/weve-made-the-gov-uk-design-system-more-accessible/
+// to check for updates visit https://gist.github.com/adamliptrot-oc/f77250a6f69fb31fabd935e2002f4964
 // =========================
 
   a:focus,
@@ -119,17 +120,51 @@
     left: 10px;
   }
 
+// skip link
 #skiplink-container {
-    .skiplink {
-        padding: 10px 15px;
-        display: block;
-        margin: 0;
-    }
-    .skiplink:focus {
-        text-decoration: underline;
-    }
-
-    div {
-        max-width: none;
-    }
+  text-align: left;
+  background: none;
+}
+#skiplink-container div {
+  text-align: left;
+  margin: 0;
+  max-width: none;
+}
+#skiplink-container .skiplink {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  -webkit-clip-path: inset(50%) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  font-family: "GDS Transport", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  font-size: 1.6rem;
+  text-decoration: underline;
+  line-height: 1.14286;
+  display: block;
+  padding: 10px 15px;
+}
+@supports (padding: unquote('max(calc(0px))')) {
+  #skiplink-container .skiplink {
+      padding-right: unquote('max(15px, calc(15px + env(safe-area-inset-right)))');
+      padding-left: unquote('max(15px, calc(15px + env(safe-area-inset-left)))');
+  }
+}
+#skiplink-container .skiplink:active,
+#skiplink-container .skiplink:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  -webkit-clip-path: none !important;
+  clip-path: none !important;
+  white-space: inherit !important;
 }
