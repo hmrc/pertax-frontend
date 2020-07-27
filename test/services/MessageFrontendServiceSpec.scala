@@ -30,7 +30,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.http.{HttpException, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.BaseSpec
@@ -113,6 +113,16 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
 
   "Calling getMessageCount" should {
     def messageCount = messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
+
+    "return None unread messages when http client throws an exception" in {
+
+      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
+        Future.failed(new HttpException("bad", 413))
+
+      await(messageCount) shouldBe None
+
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
+    }
 
     "return None unread messages when http client does not return a usable response" in {
 
