@@ -36,7 +36,7 @@ class PublicController @Inject()(cc: MessagesControllerComponents)(
   def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        SessionKeys.authProvider -> configDecorator.authProviderVerify
+        configDecorator.authProviderKey -> configDecorator.authProviderVerify
       )
     }
   }
@@ -44,7 +44,7 @@ class PublicController @Inject()(cc: MessagesControllerComponents)(
   def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
       Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        SessionKeys.authProvider -> configDecorator.authProviderGG
+        configDecorator.authProviderKey -> configDecorator.authProviderGG
       )
     }
   }

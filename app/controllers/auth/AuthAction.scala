@@ -144,7 +144,7 @@ class AuthActionImpl @Inject()(
           .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
           .url
 
-      request.session.get(SessionKeys.authProvider) match {
+      request.session.get(configDecorator.authProviderKey) match {
         case Some(configDecorator.authProviderVerify) => {
           lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
           Redirect(idaSignIn).withSession(

@@ -43,8 +43,9 @@ class ConfigDecorator @Inject()(
 
   val defaultOrigin = Origin("PERTAX")
 
-  val authProviderGG = "GGW"
-  val authProviderVerify = "IDA"
+  val authProviderKey = "AuthProvider"
+  val authProviderGG = "GovernmentGateway"
+  val authProviderVerify = "Verify"
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
@@ -116,8 +117,8 @@ class ConfigDecorator @Inject()(
   lazy val analyticsToken = runModeConfiguration.getOptional[String](s"google-analytics.token")
   lazy val analyticsHost = Some(
     runModeConfiguration.getOptional[String](s"google-analytics.host").getOrElse("service.gov.uk"))
-  lazy val googleTagManagerId = runModeConfiguration.getString(s"google-tag-manager.id")
-  lazy val isGtmEnabled = runModeConfiguration.getString(s"google-tag-manager.enabled")
+  lazy val googleTagManagerId = runModeConfiguration.getOptional[String](s"google-tag-manager.id")
+  lazy val isGtmEnabled = runModeConfiguration.getOptional[String](s"google-tag-manager.enabled")
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
