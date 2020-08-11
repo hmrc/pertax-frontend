@@ -169,7 +169,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       status(r) shouldBe OK
 
       verify(testController.formPartialService, times(1))
-        .getSelfAssessmentPartial(any()) //Not called at the min due to DFS bug
+        .getSelfAssessmentPartial(any())
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return return 401 for a high GG user not enrolled in SA" in new LocalSetup {
@@ -191,8 +191,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       val r = testController.displaySelfAssessment(fakeRequest)
       status(r) shouldBe UNAUTHORIZED
-
-      verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
@@ -215,8 +213,6 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       val r = testController.displaySelfAssessment(fakeRequest)
       status(r) shouldBe UNAUTHORIZED
-
-      verify(testController.formPartialService, times(1)).getSelfAssessmentPartial(any())
     }
 
     "Calling getSa302" should {
