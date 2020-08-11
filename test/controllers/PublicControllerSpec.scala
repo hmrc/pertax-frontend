@@ -21,7 +21,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.BaseSpec
@@ -88,7 +87,7 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe new Session(Map(SessionKeys.authProvider -> configDecorator.authProviderVerify))
+      session(r) shouldBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderVerify))
     }
   }
 
@@ -100,7 +99,7 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
       status(r) shouldBe SEE_OTHER
       redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe new Session(Map(SessionKeys.authProvider -> configDecorator.authProviderGG))
+      session(r) shouldBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderGG))
     }
   }
 }

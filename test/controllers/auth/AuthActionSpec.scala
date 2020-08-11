@@ -37,7 +37,6 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import util.Fixtures
@@ -193,7 +192,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
         new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
-        FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderVerify)
+        FakeRequest("GET", "/foo").withSession(configDecorator.authProviderKey -> configDecorator.authProviderVerify)
       val result = controller.onPageLoad()(request)
       status(result) mustBe SEE_OTHER
       session(result) mustBe new Session(
@@ -210,7 +209,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
         new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
-        FakeRequest("GET", "/foo").withSession(SessionKeys.authProvider -> configDecorator.authProviderGG)
+        FakeRequest("GET", "/foo").withSession(configDecorator.authProviderKey -> configDecorator.authProviderGG)
       val result = controller.onPageLoad()(request)
       status(result) mustBe SEE_OTHER
 

@@ -22,7 +22,6 @@ import metrics.HasMetrics
 import models.MessageCount
 import play.api.Logger
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
