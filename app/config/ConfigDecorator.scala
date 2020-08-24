@@ -215,6 +215,10 @@ class ConfigDecorator @Inject()(
     runModeConfiguration.getOptional[String]("feature.tax-credits-payment-link.enabled").getOrElse("true").toBoolean
   lazy val saveNiLetterAsPdfLinkEnabled =
     runModeConfiguration.getOptional[String]("feature.save-ni-letter-as-pdf.enabled").getOrElse("false").toBoolean
+
+  lazy val enforcePaperlessPreferenceEnabled =
+    runModeConfiguration.getOptional[String]("feature.enforce-paperless-preference.enabled").getOrElse("true").toBoolean
+
   lazy val updateInternationalAddressInPta =
     runModeConfiguration
       .getOptional[String]("feature.update-international-address-form.enabled")
