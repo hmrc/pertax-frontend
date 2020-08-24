@@ -264,10 +264,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-      SessionKeys.userId               -> "/auth/oid/flastname",
-      SessionKeys.token                -> "FAKEGGTOKEN" //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-    )
+      SessionKeys.lastRequestTimestamp -> now.getMillis.toString)
 
     FakeRequest(method, uri).withSession(session.toList: _*)
   }
@@ -277,10 +274,7 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
     uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString,
-      SessionKeys.userId               -> "/auth/oid/flastname",
-      SessionKeys.token                -> "FAKEVERIFYTOKEN" //NOTE - this is only used by AnyAuthenticationProvider and not this application to determine AP
-    )
+      SessionKeys.lastRequestTimestamp -> now.getMillis.toString)
 
     FakeRequest(method, uri).withSession(session.toList: _*)
   }

@@ -91,14 +91,14 @@ class InterstitialController @Inject()(
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
-    val formPartial = formPartialService.getSelfAssessmentPartial recoverWith {
-      case _ => Future.successful(HtmlPartial.Failure(None, ""))
-    }
-    val saPartial = saPartialService.getSaAccountSummary recoverWith {
-      case _ => Future.successful(HtmlPartial.Failure(None, ""))
-    }
+    if (request.isSaUserLoggedIntoCorrectAccount && request.isGovernmentGateway) {
+      val formPartial = formPartialService.getSelfAssessmentPartial recoverWith {
+        case _ => Future.successful(HtmlPartial.Failure(None, ""))
+      }
+      val saPartial = saPartialService.getSaAccountSummary recoverWith {
+        case _ => Future.successful(HtmlPartial.Failure(None, ""))
+      }
 
-    if (request.isSa && request.isGovernmentGateway) {
       for {
         formPartial <- formPartial
         saPartial   <- saPartial
@@ -114,17 +114,12 @@ class InterstitialController @Inject()(
   }
 
   def displaySa302Interrupt(year: Int): Action[AnyContent] = authenticateSa { implicit request =>
-    if (request.isSa) {
-      request.saUserType match {
-        case saUser: SelfAssessmentUser =>
-          Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUser.saUtr))
-        case NonFilerSelfAssessmentUser =>
-          Logger.warn("User had no sa account (non filer) when one was required")
-          errorRenderer.error(INTERNAL_SERVER_ERROR)
-      }
-    } else {
-      Logger.warn("User had no sa account when one was required")
-      errorRenderer.error(UNAUTHORIZED)
+    request.saUserType match {
+      case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
+        Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
+      case _ =>
+        Logger.warn("User had no sa account when one was required")
+        errorRenderer.error(UNAUTHORIZED)
     }
   }
 }
