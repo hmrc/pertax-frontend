@@ -35,7 +35,7 @@ import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.Fixtures
 
 import scala.concurrent.Future
