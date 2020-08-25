@@ -219,6 +219,9 @@ class ConfigDecorator @Inject()(
   lazy val enforcePaperlessPreferenceEnabled =
     runModeConfiguration.getOptional[String]("feature.enforce-paperless-preference.enabled").getOrElse("true").toBoolean
 
+  lazy val personDetailsMessageCountEnabled =
+    runModeConfiguration.getOptional[String]("feature.person-details-message-count.enabled").getOrElse("true").toBoolean
+
   lazy val updateInternationalAddressInPta =
     runModeConfiguration
       .getOptional[String]("feature.update-international-address-form.enabled")

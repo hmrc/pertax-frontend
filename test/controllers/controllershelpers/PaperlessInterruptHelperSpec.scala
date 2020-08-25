@@ -22,7 +22,7 @@ import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUse
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.Result
+import play.api.mvc.{AnyContent, Result}
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -41,7 +41,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec with MockitoSugar {
 
   val okBlock: Result = Ok("Block")
 
-  implicit val userRequest = UserRequest(
+  implicit val userRequest: UserRequest[AnyContent] = UserRequest(
     Some(Fixtures.fakeNino),
     Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
     NonFilerSelfAssessmentUser,
@@ -56,7 +56,7 @@ class PaperlessInterruptHelperSpec extends BaseSpec with MockitoSugar {
     FakeRequest()
   )
 
-  implicit val mockConfigDecorator = mock[ConfigDecorator]
+  implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   "enforcePaperlessPreference" when {
     "the enforce paperless preference toggle is set to true" should {
