@@ -83,7 +83,6 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/find-address")
     }
 
-
     "redirect to enter international address page when supplied with value = No (false)" in new LocalSetup {
 
       override def currentRequest[A]: Request[A] =
@@ -96,7 +95,6 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/enter-international-address")
     }
-
 
     "redirect to 'cannot use this service' service configured to prevent updating International Addresses" in new LocalSetup {
 

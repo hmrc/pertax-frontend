@@ -34,9 +34,8 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
       <header class="page-heading">
         <h1 class="heading-xlarge">@messages("label.check_your_details")</h1>
       </header>
-
-      <dl class="govuk-check-your-answers cya-questions-short form-group">
-        <div>
+        <dl class="govuk-check-your-answers cya-questions-short form-group">
+          <div>
             @if(typ.isPostal){
           <dt class="cya-question">
              @messages("label.is_your_postal_address_in_the_uk")
