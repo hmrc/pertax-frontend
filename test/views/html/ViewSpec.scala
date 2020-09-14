@@ -35,10 +35,18 @@ trait ViewSpec extends BaseSpec {
   def assertContainsText(doc: Document, text: String): Assertion =
     assert(doc.toString.contains(text), "\n\ntext " + text + " was not rendered on the page.\n")
 
+  def assertNotContainText(doc: Document, text: String): Assertion =
+    assert(!doc.toString.contains(text), "\n\ntext " + text + " was rendered on the page.\n")
+
   def assertContainsLink(doc: Document, text: String, href: String): Assertion =
     assert(
       doc.getElementsContainingText(text).attr("href").contains(href),
       s"\n\nLink $href was not rendered on the page\n")
+
+  def assertNotContainLink(doc: Document, text: String, href: String): Assertion =
+    assert(
+      !doc.getElementsContainingText(text).attr("href").contains(href),
+      s"\n\nLink $href was rendered on the page\n")
 
   def asDocument(page: String): Document = Jsoup.parse(page)
 

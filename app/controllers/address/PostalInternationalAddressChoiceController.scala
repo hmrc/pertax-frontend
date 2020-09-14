@@ -36,7 +36,7 @@ class PostalInternationalAddressChoiceController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  PostalinternationalAddressChoiceView: PostalInternationalAddressChoiceView,
+  postalInternationalAddressChoiceView: PostalInternationalAddressChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
@@ -50,7 +50,7 @@ class PostalInternationalAddressChoiceController @Inject()(
         cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(
-              Ok(PostalinternationalAddressChoiceView(InternationalAddressChoiceDto.form))
+              Ok(postalInternationalAddressChoiceView(InternationalAddressChoiceDto.form))
             )
           }
         }
@@ -62,7 +62,7 @@ class PostalInternationalAddressChoiceController @Inject()(
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
-            Future.successful(BadRequest(PostalinternationalAddressChoiceView(formWithErrors)))
+            Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors)))
           },
           internationalAddressChoiceDto => {
             cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>

@@ -83,7 +83,22 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/find-address")
     }
 
-    "redirect to 'cannot use this service' page when value = No (false)" in new LocalSetup {
+
+    "redirect to enter international address page when supplied with value = No (false)" in new LocalSetup {
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
+          .asInstanceOf[Request[A]]
+
+      val result = controller.onSubmit(FakeRequest())
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/enter-international-address")
+    }
+
+
+    "redirect to 'cannot use this service' service configured to prevent updating International Addresses" in new LocalSetup {
 
       lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 

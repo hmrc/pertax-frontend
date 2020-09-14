@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package views.html
+package views.html.address
 
 import config.ConfigDecorator
 import models.dto.InternationalAddressChoiceDto
-import org.jsoup.nodes.Document
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.data.Form
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
+import views.html.ViewSpec
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 class PostalInternationalAddressChoiceViewSpec extends ViewSpec with MockitoSugar {
@@ -36,15 +35,16 @@ class PostalInternationalAddressChoiceViewSpec extends ViewSpec with MockitoSuga
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-  "rendering PostalInternationalAddressChoiceViewSpec" should {
+  "rendering PostalInternationalAddressChoiceView" should {
     "must render the correct h1 appropriate to postal address" in {
-      val result = view(InternationalAddressChoiceDto.form).toString()
-      result should include(messages("label.is_your_postal_address_in_the_uk"))
+      val result = asDocument(view(InternationalAddressChoiceDto.form).toString)
+      assertContainsText(result, messages("label.is_your_postal_address_in_the_uk"))
+      assertNotContainText(result, messages("label.do_you_live_in_the_uk"))
     }
 
     "must not render the h1 appropriate to residential addresses" in {
-      val result = view(InternationalAddressChoiceDto.form).toString()
-      result should not include (messages("label.do_you_live_in_the_uk"))
+      val result = asDocument(view(InternationalAddressChoiceDto.form).toString)
+      assertNotContainText(result, messages("label.do_you_live_in_the_uk"))
     }
   }
 }

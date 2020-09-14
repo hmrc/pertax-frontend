@@ -84,7 +84,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/find-address")
     }
 
-    "redirect to 'cannot use this service' page when value = No (false)" in new LocalSetup {
+    "redirect to 'cannot use this service' service configured to prevent updating International Addresses" in new LocalSetup {
 
       lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
