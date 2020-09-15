@@ -27,7 +27,7 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.ReviewChangesView
 
-class ChangesViewSpec extends ViewSpec with MockitoSugar {
+class ReviewChangesViewSpec extends ViewSpec with MockitoSugar {
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   lazy val view = injected[ReviewChangesView]

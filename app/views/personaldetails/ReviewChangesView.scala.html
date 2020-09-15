@@ -36,7 +36,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
       </header>
         <dl class="govuk-check-your-answers cya-questions-short form-group">
           <div>
-            @if(typ.isPostal){
+            @if(typ==PostalAddrType){
           <dt class="cya-question">
              @messages("label.is_your_postal_address_in_the_uk")
           </dt>

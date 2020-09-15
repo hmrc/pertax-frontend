@@ -48,11 +48,6 @@ sealed trait AddrType {
     case PostalAddrType  => postal
   }
 
-  def isPostal: Boolean =
-    this match {
-      case PostalAddrType => true
-      case _              => false
-    }
 }
 case object PostalAddrType extends AddrType
 sealed trait ResidentialAddrType extends AddrType
