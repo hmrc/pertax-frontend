@@ -41,7 +41,7 @@
         }
     } else {
         @card(
-            url = Some(controllers.address.routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType).url),
+            url = Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url),
             gaAction = Some("Postal address"),
             gaLabel = Some("Postal address"),
             heading = messages("label.postal_address"),
@@ -49,7 +49,7 @@
         ) {
             <ul>
                 <li>
-                    <a class="ga-track-anchor-click" href="@controllers.address.routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType)" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@messages("label.change_your_postal_address")</a>
+                    <a class="ga-track-anchor-click" href="@controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad" data-ga-event-category="link - click" data-ga-event-action="Postal address" data-ga-event-label="Change your postal address">@messages("label.change_your_postal_address")</a>
                 </li>
                 @if(closePostalAddressEnabled) {
                     <li>

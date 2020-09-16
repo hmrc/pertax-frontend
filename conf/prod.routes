@@ -42,6 +42,9 @@ GET         /personal-account/your-address/residency-choice                     
 POST        /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onSubmit
 GET         /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/postal/is-your-postal-address-in-the-uk       controllers.address.PostalInternationalAddressChoiceController.onPageLoad
+POST        /personal-account/your-address/postal/is-your-postal-address-in-the-uk       controllers.address.PostalInternationalAddressChoiceController.onSubmit
+
 GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.address.AddressErrorController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onSubmit(typ: AddrType)

@@ -34,14 +34,21 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
       <header class="page-heading">
         <h1 class="heading-xlarge">@messages("label.check_your_details")</h1>
       </header>
-
-      <dl class="govuk-check-your-answers cya-questions-short form-group">
-        <div>
+        <dl class="govuk-check-your-answers cya-questions-short form-group">
+          <div>
+            @if(typ==PostalAddrType){
           <dt class="cya-question">
-            @messages("label.do_you_live_in_the_uk")
+             @messages("label.is_your_postal_address_in_the_uk")
           </dt>
+            <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
+            <dd class="cya-change"><a href="@controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url">@messages("label.change")</a></dd>
+            }else{
+            <dt class="cya-question">
+                @messages("label.do_you_live_in_the_uk")
+            </dt>
           <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
           <dd class="cya-change"><a href="@controllers.address.routes.InternationalAddressChoiceController.onPageLoad(typ).url">@messages("label.change")</a></dd>
+            }
         </div>
         <div>
           <dt class="cya-question">
