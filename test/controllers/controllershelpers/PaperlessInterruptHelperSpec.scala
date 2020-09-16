@@ -16,11 +16,13 @@
 
 package controllers.controllershelpers
 
+import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.{AnyContent, Result}
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -31,50 +33,62 @@ import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
-class PaperlessInterruptHelperSpec extends BaseSpec {
+class PaperlessInterruptHelperSpec extends BaseSpec with MockitoSugar {
 
-  "Calling PaperlessInterruptHelper.enforcePaperlessPreference" should {
+  val paperlessInterruptHelper = new PaperlessInterruptHelper {
+    override val preferencesFrontendService: PreferencesFrontendService = mock[PreferencesFrontendService]
+  }
 
-    implicit val userRequest = UserRequest(
-      Some(Fixtures.fakeNino),
-      Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-      NonFilerSelfAssessmentUser,
-      Credentials("", "GovernmentGateway"),
-      ConfidenceLevel.L200,
-      None,
-      None,
-      None,
-      None,
-      None,
-      None,
-      FakeRequest()
-    )
+  val okBlock: Result = Ok("Block")
 
-    "Redirect to paperless interupt page for a user who has no enrolments" in {
-      lazy val paperlessInterruptHelper = new PaperlessInterruptHelper {
-        override val preferencesFrontendService: PreferencesFrontendService =
-          MockitoSugar.mock[PreferencesFrontendService]
-        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+  implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+    Some(Fixtures.fakeNino),
+    Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+    NonFilerSelfAssessmentUser,
+    Credentials("", "GovernmentGateway"),
+    ConfidenceLevel.L200,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    FakeRequest()
+  )
+
+  implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+
+  "enforcePaperlessPreference" when {
+    "the enforce paperless preference toggle is set to true" should {
+      "Redirect to paperless interupt page for a user who has no enrolments" in {
+        when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(ActivatePaperlessRequiresUserActionResponse("/activate-paperless"))
         }
+
+        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(true)
+
+        val r = paperlessInterruptHelper.enforcePaperlessPreference(Ok)
+        status(r) shouldBe SEE_OTHER
+        redirectLocation(await(r)) shouldBe Some("/activate-paperless")
       }
 
-      val r = paperlessInterruptHelper.enforcePaperlessPreference(Ok)
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(await(r)) shouldBe Some("/activate-paperless")
-    }
-
-    "Return the result of the block when getPaperlessPreference does not return ActivatePaperlessRequiresUserActionResponse" in {
-      lazy val paperlessInterruptHelper = new PaperlessInterruptHelper {
-        override val preferencesFrontendService: PreferencesFrontendService =
-          MockitoSugar.mock[PreferencesFrontendService]
-        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+      "Return the result of the block when getPaperlessPreference does not return ActivatePaperlessRequiresUserActionResponse" in {
+        when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(ActivatePaperlessNotAllowedResponse)
         }
-      }
 
-      val r = paperlessInterruptHelper.enforcePaperlessPreference(Ok)
-      status(r) shouldBe OK
+        val result = await(paperlessInterruptHelper.enforcePaperlessPreference(okBlock))
+        result shouldBe okBlock
+      }
+    }
+
+    "the enforce paperless preference toggle is set to false" should {
+      "return the result of a passed in block" in {
+        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(false)
+
+        val result = await(paperlessInterruptHelper.enforcePaperlessPreference(okBlock))
+        result shouldBe okBlock
+      }
     }
   }
 }

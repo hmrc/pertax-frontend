@@ -50,5 +50,4 @@ object UserRequestFixture {
       None,
       None,
       request)
-
 }

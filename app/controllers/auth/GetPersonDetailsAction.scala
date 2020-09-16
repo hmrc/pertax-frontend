@@ -93,7 +93,8 @@ class GetPersonDetailsAction @Inject()(
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    messageFrontendService.getUnreadMessageCount
+    if (configDecorator.personDetailsMessageCountEnabled) messageFrontendService.getUnreadMessageCount
+    else Future.successful(None)
 
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 

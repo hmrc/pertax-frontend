@@ -119,6 +119,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       Future.successful(None)
     }
 
+    when(mockConfigDecorator.enforcePaperlessPreferenceEnabled) thenReturn true
     when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
     when(mockConfigDecorator.taxcalcEnabled) thenReturn true
     when(mockConfigDecorator.ltaEnabled) thenReturn true
