@@ -27,12 +27,12 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.personaldetails.{PostalAddressView}
 
-class PostalAddressViewSpec extends ViewSpec with BaseSpec with MockitoSugar {
+class PostalAddressViewSpec extends ViewSpec with MockitoSugar {
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   lazy val view = injected[PostalAddressView]
 
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+  implicit val templateRenderer = injected[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
   val result = asDocument(view(Fixtures.buildFakePersonDetails, false, List[Country](), true).toString)
