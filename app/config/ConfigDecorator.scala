@@ -126,9 +126,9 @@ class ConfigDecorator @Inject()(
 
   lazy val accessibilityStatementToggle: Boolean =
     runModeConfiguration.getOptional[Boolean](s"accessibility-statement.toggle").getOrElse(false)
-  lazy val accessibilityBaseUrl = runModeConfiguration.underlying.getString(s"accessibility-statement.baseUrl")
+  lazy val accessibilityBaseUrl = servicesConfig.getString("accessibility-statement.baseUrl")
   lazy private val accessibilityRedirectUrl =
-    runModeConfiguration.underlying.getString(s"accessibility-statement.redirectUrl")
+    servicesConfig.getString("accessibility-statement.redirectUrl")
   def accessibilityStatementUrl(referrer: String) =
     s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(
       accessibilityBaseUrl + referrer).encodedUrl}"
