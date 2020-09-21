@@ -25,6 +25,7 @@ import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 @Singleton
 class ConfigDecorator @Inject()(
@@ -122,6 +123,15 @@ class ConfigDecorator @Inject()(
   lazy val reportAProblemPartialUrl = s"$contactFrontendService/contact/problem_reports"
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
+
+  lazy val accessibilityStatementToggle: Boolean =
+    runModeConfiguration.getOptional[Boolean](s"accessibility-statement.toggle").getOrElse(false)
+  lazy val accessibilityBaseUrl = runModeConfiguration.underlying.getString(s"accessibility-statement.baseUrl")
+  lazy private val accessibilityRedirectUrl =
+    runModeConfiguration.underlying.getString(s"accessibility-statement.redirectUrl")
+  def accessibilityStatementUrl(referrer: String) =
+    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(
+      accessibilityBaseUrl + referrer).encodedUrl}"
 
   lazy val formTrackingServiceUrl = s"$formTrackingHost/track"
 
