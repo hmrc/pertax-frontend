@@ -101,6 +101,10 @@
         }
     }
 
+    @accessibilityFooterUrl = {
+        @configDecorator.accessibilityStatementUrl(request.uri)
+    }
+
     @{
         val covidBanner = showUserResearchBanner match {
             case true => Map[String, Any]("covidBannerTitle" -> Messages("label.url_coronavirus"),
@@ -165,10 +169,18 @@
             "bodyClass" -> printable
         ) ++ covidBanner
 
+        val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
+            arguments ++ Map[String,Any](
+              "accessibilityFooterUrl" -> accessibilityFooterUrl
+            )
+        } else {
+            arguments
+        }
+
         templateRenderer.renderDefaultTemplate(
             configDecorator.frontendTemplatePath,
             article(mainContent, includeGridWrapper, articleClasses),
-            arguments
+            extraArguments
         )
 
     }
