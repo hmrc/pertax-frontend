@@ -29,6 +29,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures.{asInternationalAddressDto, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
@@ -47,7 +48,8 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[UpdateInternationalAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        injected[EditAddressLockRepository]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

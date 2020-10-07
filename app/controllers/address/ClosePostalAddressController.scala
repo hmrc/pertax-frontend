@@ -43,7 +43,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ClosePostalAddressController @Inject()(
   val citizenDetailsService: CitizenDetailsService,
-  val editAddressLockRepository: EditAddressLockRepository,
+  override val editAddressLockRepository: EditAddressLockRepository,
   val addressMovedService: AddressMovedService,
   cachingHelper: AddressJourneyCachingHelper,
   auditConnector: AuditConnector,
@@ -59,34 +59,43 @@ class ClosePostalAddressController @Inject()(
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
-        val address = getAddress(personDetails.address).fullAddress
-        Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
+      lockedTileEnforcer(PostalAddrType) {
+        addressJourneyEnforcer { _ => personDetails =>
+          val address = getAddress(personDetails.address).fullAddress
+          Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
+        }
       }
     }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personalDetails =>
-        ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(
-              BadRequest(
-                closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors))
-            )
-          },
-          closePostalAddressChoiceDto => {
-            if (closePostalAddressChoiceDto.value) {
-              Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad()))
-            } else {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+      lockedTileEnforcer(PostalAddrType) {
+        addressJourneyEnforcer { _ => personalDetails =>
+          ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
+            formWithErrors => {
+              Future.successful(
+                BadRequest(
+                  closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors))
+              )
+            },
+            closePostalAddressChoiceDto => {
+              if (closePostalAddressChoiceDto.value) {
+                Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad()))
+              } else {
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+              }
             }
-          }
-        )
+          )
+        }
       }
     }
 

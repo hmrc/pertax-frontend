@@ -24,6 +24,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -37,21 +38,29 @@ class InternationalAddressChoiceController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  override val editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form, typ))
-            )
+      lockedTileEnforcer(typ) {
+        addressJourneyEnforcer { _ => _ =>
+          cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+            cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+              Future.successful(
+                Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form, typ))
+              )
+            }
           }
         }
       }
@@ -59,26 +68,28 @@ class InternationalAddressChoiceController @Inject()(
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        InternationalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, typ)))
-          },
-          internationalAddressChoiceDto => {
-            cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-              if (internationalAddressChoiceDto.value) {
-                Redirect(routes.PostcodeLookupController.onPageLoad(typ))
-              } else {
-                if (configDecorator.updateInternationalAddressInPta) {
-                  Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
+      lockedTileEnforcer(typ) {
+        addressJourneyEnforcer { _ => _ =>
+          InternationalAddressChoiceDto.form.bindFromRequest.fold(
+            formWithErrors => {
+              Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, typ)))
+            },
+            internationalAddressChoiceDto => {
+              cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
+                if (internationalAddressChoiceDto.value) {
+                  Redirect(routes.PostcodeLookupController.onPageLoad(typ))
                 } else {
-                  Redirect(routes.AddressErrorController.cannotUseThisService(typ))
+                  if (configDecorator.updateInternationalAddressInPta) {
+                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
+                  } else {
+                    Redirect(routes.AddressErrorController.cannotUseThisService(typ))
+                  }
                 }
               }
             }
-          }
-        )
+          )
 
+        }
       }
     }
 }

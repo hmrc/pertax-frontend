@@ -22,6 +22,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.personaldetails._
 
@@ -42,7 +43,8 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
         cc,
         displayAddressInterstitialView,
         injected[CannotUseServiceView],
-        injected[AddressAlreadyUpdatedView]
+        injected[AddressAlreadyUpdatedView],
+        injected[EditAddressLockRepository]
       )
   }
 

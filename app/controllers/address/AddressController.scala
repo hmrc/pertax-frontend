@@ -21,8 +21,10 @@ import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import models.PersonDetails
+import controllers.bindable.{AddrType, MainAddrType, PostalAddrType, PrimaryAddrType, ResidentialAddrType, SoleAddrType}
+import models._
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.LocalPartialRetriever
@@ -34,7 +36,8 @@ abstract class AddressController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  val editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -60,4 +63,30 @@ abstract class AddressController @Inject()(
         Ok(displayAddressInterstitialView(continueUrl))
       }
     }
+
+  def lockedTileEnforcer(typ: AddrType)(block: => Future[Result])(implicit request: UserRequest[_]) = {
+    for {
+      addressTiles <- request.nino
+                       .map { nino =>
+                         editAddressLockRepository.get(nino.withoutSuffix)
+                       }
+                       .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
+    } yield {
+      if (isLockPresent(typ, addressTiles))
+        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
+      else
+        block
+    }
+  }.flatten
+
+  private def isLockPresent(typ: AddrType, addressTiles: List[AddressJourneyTTLModel]) = {
+    val optionalEditAddress = addressTiles.map(y => y.editedAddress)
+    typ match {
+      case PostalAddrType => optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
+      case _: ResidentialAddrType =>
+        optionalEditAddress.exists(_.isInstanceOf[EditSoleAddress]) || optionalEditAddress
+          .exists(_.isInstanceOf[EditPrimaryAddress])
+      case _ => false
+    }
+  }
 }

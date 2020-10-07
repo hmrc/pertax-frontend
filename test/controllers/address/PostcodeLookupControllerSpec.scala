@@ -27,6 +27,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -47,7 +48,8 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[PostcodeLookupView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        injected[EditAddressLockRepository]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

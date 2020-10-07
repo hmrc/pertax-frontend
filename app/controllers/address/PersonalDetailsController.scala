@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalDetailsController @Inject()(
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
-  val editAddressLockRepository: EditAddressLockRepository,
+  override val editAddressLockRepository: EditAddressLockRepository,
   ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
@@ -50,7 +50,12 @@ class PersonalDetailsController @Inject()(
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     import models.dto.AddressPageVisitedDto

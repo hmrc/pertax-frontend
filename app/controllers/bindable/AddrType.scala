@@ -53,3 +53,4 @@ case object PostalAddrType extends AddrType
 sealed trait ResidentialAddrType extends AddrType
 case object SoleAddrType extends ResidentialAddrType
 case object PrimaryAddrType extends ResidentialAddrType
+case object MainAddrType extends ResidentialAddrType

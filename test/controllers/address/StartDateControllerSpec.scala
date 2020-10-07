@@ -27,6 +27,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.ActionBuilderFixture
 import util.Fixtures.fakeStreetTupleListAddressForUnmodified
@@ -49,7 +50,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         injected[EnterStartDateView],
         injected[CannotUpdateAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        injected[EditAddressLockRepository]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

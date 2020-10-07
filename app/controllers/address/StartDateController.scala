@@ -25,6 +25,7 @@ import models.dto.DateDto
 import models.{Address, SubmittedStartDateId}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{LanguageHelper, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -39,31 +40,39 @@ class StartDateController @Inject()(
   cachingHelper: AddressJourneyCachingHelper,
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  override val editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
-        nonPostalJourneyEnforcer(typ) {
-          cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-            val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
-            val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
-            journeyData.submittedAddressDto map { _ =>
-              val postcodesMatch =
-                if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) {
-                  journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
-                } else {
-                  dateDtoForm
-                }
+      lockedTileEnforcer(typ) {
+        addressJourneyEnforcer { _ => personDetails =>
+          nonPostalJourneyEnforcer(typ) {
+            cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+              val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
+              val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
+              journeyData.submittedAddressDto map { _ =>
+                val postcodesMatch =
+                  if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) {
+                    journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
+                  } else {
+                    dateDtoForm
+                  }
 
-              Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
-            } getOrElse {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
+              } getOrElse {
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+              }
             }
           }
         }
@@ -72,34 +81,35 @@ class StartDateController @Inject()(
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
-        nonPostalJourneyEnforcer(typ) {
-          dateDtoForm.bindFromRequest.fold(
-            formWithErrors => {
-              Future.successful(BadRequest(enterStartDateView(formWithErrors, typ)))
-            },
-            dateDto => {
-              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map {
-                _ =>
-                  val proposedStartDate = dateDto.startDate
+      lockedTileEnforcer(typ) {
+        addressJourneyEnforcer { _ => personDetails =>
+          nonPostalJourneyEnforcer(typ) {
+            dateDtoForm.bindFromRequest.fold(
+              formWithErrors => {
+                Future.successful(BadRequest(enterStartDateView(formWithErrors, typ)))
+              },
+              dateDto => {
+                cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map {
+                  _ =>
+                    val proposedStartDate = dateDto.startDate
 
-                  personDetails.address match {
-                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
-                      if (!currentStartDate.isBefore(proposedStartDate)) {
-                        BadRequest(
-                          cannotUpdateAddressView(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
-                      } else {
-                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                      }
-                    case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                  }
+                    personDetails.address match {
+                      case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
+                        if (!currentStartDate.isBefore(proposedStartDate)) {
+                          BadRequest(
+                            cannotUpdateAddressView(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
+                        } else {
+                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                        }
+                      case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                    }
+                }
               }
-            }
-          )
+            )
+          }
         }
       }
     }
-
   private def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
   private def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result]): Future[Result] =

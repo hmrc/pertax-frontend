@@ -19,10 +19,12 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.MainAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedTaxCreditsChoiceId
 import models.dto.TaxCreditsChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -36,20 +38,28 @@ class TaxCreditsChoiceController @Inject()(
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
   taxCreditsChoiceView: TaxCreditsChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  override val editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-        cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          Future.successful(
-            Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-          )
+    lockedTileEnforcer(MainAddrType) {
+      addressJourneyEnforcer { _ => _ =>
+        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+            Future.successful(
+              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+            )
+          }
         }
       }
     }
@@ -57,21 +67,23 @@ class TaxCreditsChoiceController @Inject()(
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        TaxCreditsChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl)))
-          },
-          taxCreditsChoiceDto => {
-            cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-              if (taxCreditsChoiceDto.value) {
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              } else {
-                Redirect(routes.ResidencyChoiceController.onPageLoad())
+      lockedTileEnforcer(MainAddrType) {
+        addressJourneyEnforcer { _ => _ =>
+          TaxCreditsChoiceDto.form.bindFromRequest.fold(
+            formWithErrors => {
+              Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl)))
+            },
+            taxCreditsChoiceDto => {
+              cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
+                if (taxCreditsChoiceDto.value) {
+                  Redirect(configDecorator.tcsChangeAddressUrl)
+                } else {
+                  Redirect(routes.ResidencyChoiceController.onPageLoad())
+                }
               }
             }
-          }
-        )
+          )
+        }
       }
     }
 }

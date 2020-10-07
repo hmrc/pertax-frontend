@@ -19,10 +19,12 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.MainAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedResidencyChoiceDtoId
 import models.dto.{ResidencyChoiceDto, TaxCreditsChoiceDto}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -36,44 +38,53 @@ class ResidencyChoiceController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   residencyChoiceView: ResidencyChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  override val editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      cachingHelper.gettingCachedTaxCreditsChoiceDto {
-        case Some(TaxCreditsChoiceDto(false)) =>
-          Ok(residencyChoiceView(ResidencyChoiceDto.form))
-        case _ =>
-          if (configDecorator.taxCreditsEnabled) {
-            Redirect(routes.PersonalDetailsController.onPageLoad())
-          } else {
+    lockedTileEnforcer(MainAddrType) {
+      addressJourneyEnforcer { _ => _ =>
+        cachingHelper.gettingCachedTaxCreditsChoiceDto {
+          case Some(TaxCreditsChoiceDto(false)) =>
             Ok(residencyChoiceView(ResidencyChoiceDto.form))
-          }
+          case _ =>
+            if (configDecorator.taxCreditsEnabled) {
+              Redirect(routes.PersonalDetailsController.onPageLoad())
+            } else {
+              Ok(residencyChoiceView(ResidencyChoiceDto.form))
+            }
+        }
       }
     }
   }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        ResidencyChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(residencyChoiceView(formWithErrors)))
-          },
-          residencyChoiceDto => {
-            cachingHelper
-              .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
-              _ =>
-                Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
+      lockedTileEnforcer(MainAddrType) {
+        addressJourneyEnforcer { _ => _ =>
+          ResidencyChoiceDto.form.bindFromRequest.fold(
+            formWithErrors => {
+              Future.successful(BadRequest(residencyChoiceView(formWithErrors)))
+            },
+            residencyChoiceDto => {
+              cachingHelper
+                .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
+                _ =>
+                  Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
+              }
             }
-          }
-        )
-
+          )
+        }
       }
     }
 }
