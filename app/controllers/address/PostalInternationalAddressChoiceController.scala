@@ -53,14 +53,12 @@ class PostalInternationalAddressChoiceController @Inject()(
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(PostalAddrType) {
-        addressJourneyEnforcer { _ => _ =>
-          cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-            cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-              Future.successful(
-                Ok(postalInternationalAddressChoiceView(InternationalAddressChoiceDto.form))
-              )
-            }
+      addressJourneyEnforcer(PostalAddrType) { _ => _ =>
+        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+            Future.successful(
+              Ok(postalInternationalAddressChoiceView(InternationalAddressChoiceDto.form))
+            )
           }
         }
       }
@@ -68,27 +66,25 @@ class PostalInternationalAddressChoiceController @Inject()(
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(PostalAddrType) {
-        addressJourneyEnforcer { _ => _ =>
-          InternationalAddressChoiceDto.form.bindFromRequest.fold(
-            formWithErrors => {
-              Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors)))
-            },
-            internationalAddressChoiceDto => {
-              cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-                if (internationalAddressChoiceDto.value) {
-                  Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
+      addressJourneyEnforcer(PostalAddrType) { _ => _ =>
+        InternationalAddressChoiceDto.form.bindFromRequest.fold(
+          formWithErrors => {
+            Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors)))
+          },
+          internationalAddressChoiceDto => {
+            cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
+              if (internationalAddressChoiceDto.value) {
+                Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
+              } else {
+                if (configDecorator.updateInternationalAddressInPta) {
+                  Redirect(routes.UpdateInternationalAddressController.onPageLoad(PostalAddrType))
                 } else {
-                  if (configDecorator.updateInternationalAddressInPta) {
-                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(PostalAddrType))
-                  } else {
-                    Redirect(routes.AddressErrorController.cannotUseThisService(PostalAddrType))
-                  }
+                  Redirect(routes.AddressErrorController.cannotUseThisService(PostalAddrType))
                 }
               }
             }
-          )
-        }
+          }
+        )
       }
     }
 }

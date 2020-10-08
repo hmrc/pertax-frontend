@@ -22,8 +22,9 @@ import java.util.TimeZone
 
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import controllers.bindable.AddrType
-import models.{AddressJourneyTTLModel, EditedAddress}
+import controllers.auth.requests.UserRequest
+import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
+import models._
 import play.api.Logger
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor

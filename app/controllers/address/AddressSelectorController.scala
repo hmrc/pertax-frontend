@@ -83,59 +83,56 @@ class AddressSelectorController @Inject()(
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(typ) {
-        addressJourneyEnforcer { _ => personDetails =>
-          cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-            AddressSelectorDto.form.bindFromRequest.fold(
-              formWithErrors => {
+      addressJourneyEnforcer(typ) { _ => personDetails =>
+        cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+          AddressSelectorDto.form.bindFromRequest.fold(
+            formWithErrors => {
 
-                journeyData.recordSet match {
-                  case Some(set) =>
-                    Future.successful(
-                      BadRequest(
-                        addressSelectorView(
-                          formWithErrors,
-                          set,
-                          typ,
-                          postcodeFromRequest,
-                          filterFromRequest
-                        )
-                      ))
-                  case _ =>
-                    Logger.warn("Failed to retrieve Address Record Set from cache")
-                    errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                }
-              },
-              addressSelectorDto => {
-                journeyData.recordSet
-                  .flatMap(_.addresses.find(_.id == addressSelectorDto.addressId.getOrElse(""))) match {
-                  case Some(addressRecord) =>
-                    val addressDto = AddressDto.fromAddressRecord(addressRecord)
-
-                    for {
-                      _ <- cachingHelper.addToCache(SelectedAddressRecordId(typ), addressRecord)
-                      _ <- cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto)
-                    } yield {
-                      val postCodeHasChanged = !postcodeFromRequest
-                        .replace(" ", "")
-                        .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
-                      (typ, postCodeHasChanged) match {
-                        case (PostalAddrType, false) =>
-                          Redirect(routes.UpdateAddressController.onPageLoad(typ))
-                        case (_, true) => Redirect(routes.StartDateController.onPageLoad(typ))
-                        case (_, false) =>
-                          cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                      }
-                    }
-                  case _ =>
-                    Logger.warn(
-                      "Address selector was unable to find address using the id returned by a previous request")
-                    errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                }
+              journeyData.recordSet match {
+                case Some(set) =>
+                  Future.successful(
+                    BadRequest(
+                      addressSelectorView(
+                        formWithErrors,
+                        set,
+                        typ,
+                        postcodeFromRequest,
+                        filterFromRequest
+                      )
+                    ))
+                case _ =>
+                  Logger.warn("Failed to retrieve Address Record Set from cache")
+                  errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }
-            )
-          }
+            },
+            addressSelectorDto => {
+              journeyData.recordSet
+                .flatMap(_.addresses.find(_.id == addressSelectorDto.addressId.getOrElse(""))) match {
+                case Some(addressRecord) =>
+                  val addressDto = AddressDto.fromAddressRecord(addressRecord)
+
+                  for {
+                    _ <- cachingHelper.addToCache(SelectedAddressRecordId(typ), addressRecord)
+                    _ <- cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto)
+                  } yield {
+                    val postCodeHasChanged = !postcodeFromRequest
+                      .replace(" ", "")
+                      .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
+                    (typ, postCodeHasChanged) match {
+                      case (PostalAddrType, false) =>
+                        Redirect(routes.UpdateAddressController.onPageLoad(typ))
+                      case (_, true) => Redirect(routes.StartDateController.onPageLoad(typ))
+                      case (_, false) =>
+                        cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
+                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                    }
+                  }
+                case _ =>
+                  Logger.warn("Address selector was unable to find address using the id returned by a previous request")
+                  errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+              }
+            }
+          )
         }
       }
     }

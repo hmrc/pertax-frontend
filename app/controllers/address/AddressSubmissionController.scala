@@ -67,57 +67,55 @@ class AddressSubmissionController @Inject()(
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(typ) {
-        addressJourneyEnforcer { _ => personDetails =>
-          cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-            val isUkAddress: Boolean = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
-            val doYouLiveInTheUK: String =
-              if (journeyData.submittedInternationalAddressChoiceDto.forall(_.value)) {
-                "label.yes"
-              } else {
-                "label.no"
-              }
-
-            if (isUkAddress) {
-              val newPostcode: String = journeyData.submittedAddressDto.map(_.postcode).fold("")(_.getOrElse(""))
-              val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).fold("")(_.toString)
-
-              val showAddressChangedDate: Boolean =
-                !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
-              ensuringSubmissionRequirements(typ, journeyData) {
-                journeyData.submittedAddressDto.fold(
-                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
-                  Future.successful(
-                    Ok(
-                      reviewChangesView(
-                        typ,
-                        addressDto,
-                        doYouLiveInTheUK,
-                        isUkAddress,
-                        journeyData.submittedStartDateDto,
-                        showAddressChangedDate
-                      )
-                    )
-                  )
-                }
-              }
+      addressJourneyEnforcer(typ) { _ => personDetails =>
+        cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+          val isUkAddress: Boolean = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
+          val doYouLiveInTheUK: String =
+            if (journeyData.submittedInternationalAddressChoiceDto.forall(_.value)) {
+              "label.yes"
             } else {
-              ensuringSubmissionRequirements(typ, journeyData) {
-                journeyData.submittedAddressDto.fold(
-                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
-                  Future.successful(
-                    Ok(
-                      reviewChangesView(
-                        typ,
-                        addressDto,
-                        doYouLiveInTheUK,
-                        isUkAddress,
-                        journeyData.submittedStartDateDto,
-                        displayDateAddressChanged = true
-                      )
+              "label.no"
+            }
+
+          if (isUkAddress) {
+            val newPostcode: String = journeyData.submittedAddressDto.map(_.postcode).fold("")(_.getOrElse(""))
+            val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).fold("")(_.toString)
+
+            val showAddressChangedDate: Boolean =
+              !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
+            ensuringSubmissionRequirements(typ, journeyData) {
+              journeyData.submittedAddressDto.fold(
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
+                Future.successful(
+                  Ok(
+                    reviewChangesView(
+                      typ,
+                      addressDto,
+                      doYouLiveInTheUK,
+                      isUkAddress,
+                      journeyData.submittedStartDateDto,
+                      showAddressChangedDate
                     )
                   )
-                }
+                )
+              }
+            }
+          } else {
+            ensuringSubmissionRequirements(typ, journeyData) {
+              journeyData.submittedAddressDto.fold(
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
+                Future.successful(
+                  Ok(
+                    reviewChangesView(
+                      typ,
+                      addressDto,
+                      doYouLiveInTheUK,
+                      isUkAddress,
+                      journeyData.submittedStartDateDto,
+                      displayDateAddressChanged = true
+                    )
+                  )
+                )
               }
             }
           }
@@ -128,61 +126,59 @@ class AddressSubmissionController @Inject()(
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       val addressType = mapAddressType(typ)
-      lockedTileEnforcer(typ) {
-        addressJourneyEnforcer { nino => personDetails =>
-          citizenDetailsService.getEtag(nino.nino) flatMap {
-            case None =>
-              Logger.error("Failed to retrieve Etag from citizen-details")
-              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+      addressJourneyEnforcer(typ) { nino => personDetails =>
+        citizenDetailsService.getEtag(nino.nino) flatMap {
+          case None =>
+            Logger.error("Failed to retrieve Etag from citizen-details")
+            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
-            case Some(version) =>
-              cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-                ensuringSubmissionRequirements(typ, journeyData) {
+          case Some(version) =>
+            cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+              ensuringSubmissionRequirements(typ, journeyData) {
 
-                  journeyData.submittedAddressDto.fold(
-                    Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
-                    val address =
-                      addressDto
-                        .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
+                journeyData.submittedAddressDto.fold(
+                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
+                  val address =
+                    addressDto
+                      .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
 
-                    val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
+                  val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
-                    addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap {
-                      addressChanged =>
-                        def successResponseBlock(): Result = {
-                          val originalAddressDto: Option[AddressDto] =
-                            journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
+                  addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap {
+                    addressChanged =>
+                      def successResponseBlock(): Result = {
+                        val originalAddressDto: Option[AddressDto] =
+                          journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
 
-                          val addressDtowithFormattedPostCode =
-                            addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
-                          handleAddressChangeAuditing(
-                            originalAddressDto,
-                            addressDtowithFormattedPostCode,
-                            version,
-                            addressType)
-                          cachingHelper.clearCache()
+                        val addressDtowithFormattedPostCode =
+                          addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
+                        handleAddressChangeAuditing(
+                          originalAddressDto,
+                          addressDtowithFormattedPostCode,
+                          version,
+                          addressType)
+                        cachingHelper.clearCache()
 
-                          Ok(
-                            updateAddressConfirmationView(
-                              typ,
-                              closedPostalAddress = false,
-                              None,
-                              addressMovedService.toMessageKey(addressChanged)
-                            )
+                        Ok(
+                          updateAddressConfirmationView(
+                            typ,
+                            closedPostalAddress = false,
+                            None,
+                            addressMovedService.toMessageKey(addressChanged)
                           )
-                        }
+                        )
+                      }
 
-                        for {
-                          _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
-                          result <- citizenDetailsService.updateAddress(nino, version.etag, address)
-                        } yield {
-                          result.response(successResponseBlock)
-                        }
-                    }
+                      for {
+                        _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
+                        result <- citizenDetailsService.updateAddress(nino, version.etag, address)
+                      } yield {
+                        result.response(successResponseBlock)
+                      }
                   }
                 }
               }
-          }
+            }
         }
       }
     }

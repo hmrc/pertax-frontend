@@ -52,14 +52,12 @@ class TaxCreditsChoiceController @Inject()(
       editAddressLockRepository) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    lockedTileEnforcer(MainAddrType) {
-      addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-            )
-          }
+    addressJourneyEnforcer(MainAddrType) { _ => _ =>
+      cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+        cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
+          Future.successful(
+            Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+          )
         }
       }
     }
@@ -67,23 +65,21 @@ class TaxCreditsChoiceController @Inject()(
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(MainAddrType) {
-        addressJourneyEnforcer { _ => _ =>
-          TaxCreditsChoiceDto.form.bindFromRequest.fold(
-            formWithErrors => {
-              Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl)))
-            },
-            taxCreditsChoiceDto => {
-              cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-                if (taxCreditsChoiceDto.value) {
-                  Redirect(configDecorator.tcsChangeAddressUrl)
-                } else {
-                  Redirect(routes.ResidencyChoiceController.onPageLoad())
-                }
+      addressJourneyEnforcer(MainAddrType) { _ => _ =>
+        TaxCreditsChoiceDto.form.bindFromRequest.fold(
+          formWithErrors => {
+            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl)))
+          },
+          taxCreditsChoiceDto => {
+            cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
+              if (taxCreditsChoiceDto.value) {
+                Redirect(configDecorator.tcsChangeAddressUrl)
+              } else {
+                Redirect(routes.ResidencyChoiceController.onPageLoad())
               }
             }
-          )
-        }
+          }
+        )
       }
     }
 }

@@ -55,58 +55,55 @@ class StartDateController @Inject()(
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(typ) {
-        addressJourneyEnforcer { _ => personDetails =>
-          nonPostalJourneyEnforcer(typ) {
-            cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-              val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
-              val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
-              journeyData.submittedAddressDto map { _ =>
-                val postcodesMatch =
-                  if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) {
-                    journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
-                  } else {
-                    dateDtoForm
-                  }
+      addressJourneyEnforcer(typ) { _ => personDetails =>
+        nonPostalJourneyEnforcer(typ) {
+          cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+            val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
+            val oldPostcode = personDetails.address.flatMap(add => add.postcode).getOrElse("")
+            journeyData.submittedAddressDto map { _ =>
+              val postcodesMatch =
+                if (newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))) {
+                  journeyData.submittedStartDateDto.fold(dateDtoForm)(dateDtoForm.fill)
+                } else {
+                  dateDtoForm
+                }
 
-                Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
-              } getOrElse {
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
-              }
+              Future.successful(Ok(enterStartDateView(postcodesMatch, typ)))
+            } getOrElse {
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
             }
           }
         }
       }
+
     }
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(typ) {
-        addressJourneyEnforcer { _ => personDetails =>
-          nonPostalJourneyEnforcer(typ) {
-            dateDtoForm.bindFromRequest.fold(
-              formWithErrors => {
-                Future.successful(BadRequest(enterStartDateView(formWithErrors, typ)))
-              },
-              dateDto => {
-                cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map {
-                  _ =>
-                    val proposedStartDate = dateDto.startDate
+      addressJourneyEnforcer(typ) { _ => personDetails =>
+        nonPostalJourneyEnforcer(typ) {
+          dateDtoForm.bindFromRequest.fold(
+            formWithErrors => {
+              Future.successful(BadRequest(enterStartDateView(formWithErrors, typ)))
+            },
+            dateDto => {
+              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map {
+                _ =>
+                  val proposedStartDate = dateDto.startDate
 
-                    personDetails.address match {
-                      case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
-                        if (!currentStartDate.isBefore(proposedStartDate)) {
-                          BadRequest(
-                            cannotUpdateAddressView(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
-                        } else {
-                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                        }
-                      case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                    }
-                }
+                  personDetails.address match {
+                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
+                      if (!currentStartDate.isBefore(proposedStartDate)) {
+                        BadRequest(
+                          cannotUpdateAddressView(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
+                      } else {
+                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                      }
+                    case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                  }
               }
-            )
-          }
+            }
+          )
         }
       }
     }

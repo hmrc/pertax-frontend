@@ -52,7 +52,7 @@ class AddressErrorController @Inject()(
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer(typ) { _ => _ =>
         cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(Ok(cannotUseServiceView(typ)))
@@ -63,7 +63,7 @@ class AddressErrorController @Inject()(
 
   def showAddressAlreadyUpdated(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer(typ) { _ => _ =>
         Future.successful(Ok(addressAlreadyUpdatedView()))
       }
     }

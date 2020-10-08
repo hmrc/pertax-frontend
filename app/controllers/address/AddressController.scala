@@ -21,7 +21,7 @@ import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable.{AddrType, MainAddrType, PostalAddrType, PrimaryAddrType, ResidentialAddrType, SoleAddrType}
+import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import models._
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
@@ -48,19 +48,21 @@ abstract class AddressController @Inject()(
     authJourney.authWithPersonalDetails andThen withActiveTabAction
       .addActiveTab(ActiveTabYourAccount)
 
-  def addressJourneyEnforcer(block: Nino => PersonDetails => Future[Result])(
+  def addressJourneyEnforcer(typ: AddrType)(block: Nino => PersonDetails => Future[Result])(
     implicit request: UserRequest[_]): Future[Result] =
-    (for {
-      payeAccount   <- request.nino
-      personDetails <- request.personDetails
-    } yield {
-      block(payeAccount)(personDetails)
-    }).getOrElse {
-      Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
-          .onPageLoad()
-          .url
-        Ok(displayAddressInterstitialView(continueUrl))
+    lockedTileEnforcer(typ) {
+      (for {
+        payeAccount   <- request.nino
+        personDetails <- request.personDetails
+      } yield {
+        block(payeAccount)(personDetails)
+      }).getOrElse {
+        Future.successful {
+          val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
+            .onPageLoad()
+            .url
+          Ok(displayAddressInterstitialView(continueUrl))
+        }
       }
     }
 

@@ -194,5 +194,4 @@ class EditAddressLockRepositorySpec extends BaseSpec {
       }
     }
   }
-
 }

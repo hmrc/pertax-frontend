@@ -68,40 +68,38 @@ class ClosePostalAddressController @Inject()(
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(PostalAddrType) {
-        addressJourneyEnforcer { _ => personDetails =>
-          val address = getAddress(personDetails.address).fullAddress
-          Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
-        }
+      addressJourneyEnforcer(PostalAddrType) { _ => personDetails =>
+        val address = getAddress(personDetails.address).fullAddress
+        Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
       }
+
     }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(PostalAddrType) {
-        addressJourneyEnforcer { _ => personalDetails =>
-          ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
-            formWithErrors => {
-              Future.successful(
-                BadRequest(
-                  closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors))
-              )
-            },
-            closePostalAddressChoiceDto => {
-              if (closePostalAddressChoiceDto.value) {
-                Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad()))
-              } else {
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
-              }
+      addressJourneyEnforcer(PostalAddrType) { _ => personalDetails =>
+        ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
+          formWithErrors => {
+            Future.successful(
+              BadRequest(
+                closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors))
+            )
+          },
+          closePostalAddressChoiceDto => {
+            if (closePostalAddressChoiceDto.value) {
+              Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad()))
+            } else {
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
             }
-          )
-        }
+          }
+        )
       }
+
     }
 
   def confirmPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
         Future.successful(Ok(confirmCloseCorrespondenceAddressView(address)))
       }
@@ -109,7 +107,7 @@ class ClosePostalAddressController @Inject()(
 
   def confirmSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { nino => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { nino => personDetails =>
         for {
           addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
           result <- {

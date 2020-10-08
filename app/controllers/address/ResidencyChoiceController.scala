@@ -52,39 +52,36 @@ class ResidencyChoiceController @Inject()(
       editAddressLockRepository) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    lockedTileEnforcer(MainAddrType) {
-      addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedTaxCreditsChoiceDto {
-          case Some(TaxCreditsChoiceDto(false)) =>
+    addressJourneyEnforcer(MainAddrType) { _ => _ =>
+      cachingHelper.gettingCachedTaxCreditsChoiceDto {
+        case Some(TaxCreditsChoiceDto(false)) =>
+          Ok(residencyChoiceView(ResidencyChoiceDto.form))
+        case _ =>
+          if (configDecorator.taxCreditsEnabled) {
+            Redirect(routes.PersonalDetailsController.onPageLoad())
+          } else {
             Ok(residencyChoiceView(ResidencyChoiceDto.form))
-          case _ =>
-            if (configDecorator.taxCreditsEnabled) {
-              Redirect(routes.PersonalDetailsController.onPageLoad())
-            } else {
-              Ok(residencyChoiceView(ResidencyChoiceDto.form))
-            }
-        }
+          }
       }
     }
   }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      lockedTileEnforcer(MainAddrType) {
-        addressJourneyEnforcer { _ => _ =>
-          ResidencyChoiceDto.form.bindFromRequest.fold(
-            formWithErrors => {
-              Future.successful(BadRequest(residencyChoiceView(formWithErrors)))
-            },
-            residencyChoiceDto => {
-              cachingHelper
-                .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
-                _ =>
-                  Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
-              }
+      addressJourneyEnforcer(MainAddrType) { _ => _ =>
+        ResidencyChoiceDto.form.bindFromRequest.fold(
+          formWithErrors => {
+            Future.successful(BadRequest(residencyChoiceView(formWithErrors)))
+          },
+          residencyChoiceDto => {
+            cachingHelper
+              .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
+              _ =>
+                Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
             }
-          )
-        }
+          }
+        )
       }
     }
+
 }
