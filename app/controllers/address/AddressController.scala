@@ -72,7 +72,7 @@ abstract class AddressController @Inject()(
   def lockedTileEnforcer(typ: AddrType)(block: => Future[Result])(implicit request: UserRequest[_]): Future[Result] =
     editAddressLockRepository.isLockPresent(typ)(request).flatMap { lockPresent =>
       if (lockPresent) {
-        logger.warn("Trying to locked page")
+        logger.warn("Trying to access locked page")
         Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
       } else
         block
