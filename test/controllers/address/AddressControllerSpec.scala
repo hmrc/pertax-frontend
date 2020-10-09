@@ -19,21 +19,16 @@ package controllers.address
 import controllers.address
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import controllers.bindable.{MainAddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
+import controllers.bindable.{MainAddrType, PostalAddrType}
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import reactivemongo.bson.BSONDateTime
-import uk.gov.hmrc.domain.{Generator, Nino}
 import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
-import scala.util.Random
-
 class AddressControllerSpec extends AddressBaseSpec {
 
   object SUT
@@ -50,8 +45,9 @@ class AddressControllerSpec extends AddressBaseSpec {
     "complete given block" when {
 
       "a nino and person details are present in the request" in {
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List())
+
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(false)
         }
 
         def userRequest[A]: UserRequest[A] =
@@ -72,12 +68,12 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       "a nino cannot be found in the request" in {
 
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List())
-        }
-
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
+
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(false)
+        }
 
         val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
           Ok("Success")
@@ -91,10 +87,9 @@ class AddressControllerSpec extends AddressBaseSpec {
         implicit def userRequest[A]: UserRequest[A] =
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
 
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List())
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(false)
         }
-
         val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
           Ok("Success")
         }
@@ -104,223 +99,55 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       }
     }
-  }
-  "EditLockEnforcer" when {
 
-    val expectedContent = "success"
-    val testNino = Nino(new Generator(new Random()).nextNino.nino)
+    "Show the Personal Details page" when {
+      "when a lock is persent for the given journey" in {
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(true)
+        }
+        implicit def userRequest[A]: UserRequest[A] =
+          buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
+
+        val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
+          Ok("Should not get here")
+        }(userRequest)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
+      }
+    }
+  }
+  "EditLockEnforcer" should {
 
     def userRequest[A]: UserRequest[A] =
-      buildUserRequest(nino = Some(testNino), request = FakeRequest().asInstanceOf[Request[A]])
+      buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
 
-    val correspondenceLock =
-      AddressJourneyTTLModel(testNino.toString(), EditCorrespondenceAddress(BSONDateTime(11111111)))
-    val soleLock = AddressJourneyTTLModel(testNino.toString(), EditSoleAddress(BSONDateTime(11111111)))
-    val primaryLock = AddressJourneyTTLModel(testNino.toString(), EditPrimaryAddress(BSONDateTime(11111111)))
-
-    "the address is postal" should {
-
-      "take user to Personal Details page if Postal lock is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(correspondenceLock))
-        }
-        val result = SUT.lockedTileEnforcer(PostalAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
+    "complete given block when no lock" in {
+      when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+        Future.successful(false)
       }
+      val expectedContent = "success"
+      val result = SUT.lockedTileEnforcer(PostalAddrType) {
+        Ok("success")
+      }(userRequest)
 
-      "complete block if no locks are present" in {
+      status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedContent
 
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List())
-        }
-        val result = SUT.lockedTileEnforcer(PostalAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
-
-      "complete block if only SoleAddress is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(soleLock))
-        }
-        val result = SUT.lockedTileEnforcer(PostalAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
-
-      "complete block if only PrimaryAddress is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(primaryLock))
-        }
-        val result = SUT.lockedTileEnforcer(PostalAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
     }
 
-    "When the address is Sole" should {
-
-      "take user to PersonalDetails page if Sole address lock is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(soleLock))
-        }
-        val result = SUT.lockedTileEnforcer(SoleAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
+    "redirect to Personal Details if a relevant lock is present" in {
+      when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+        Future.successful(true)
       }
 
-      "complete block if Sole address and if no lock is present" in {
+      val result = SUT.lockedTileEnforcer(PostalAddrType) {
+        Ok("Should not get here")
+      }(userRequest)
 
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List())
-        }
-        val result = SUT.lockedTileEnforcer(SoleAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
 
-      "complete block if only Correspondence Lock is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(correspondenceLock))
-        }
-        val result = SUT.lockedTileEnforcer(SoleAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
-
-      "take user to Personal Details if Sole address and PrimaryAddress is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(primaryLock))
-        }
-        val result = SUT.lockedTileEnforcer(SoleAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
-      }
     }
-
-    "The address is primary" should {
-
-      "take user to PersonalDetails page if Primary address lock is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(soleLock))
-        }
-        val result = SUT.lockedTileEnforcer(PrimaryAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
-      }
-
-      "complete block if Primary address and Primary Lock is not present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List())
-        }
-        val result = SUT.lockedTileEnforcer(PrimaryAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
-
-      "complete block if Primary address and only Postal Lock is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(correspondenceLock))
-        }
-        val result = SUT.lockedTileEnforcer(PrimaryAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
-
-      "take user to Personal Details if Primary address and Sole Address is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(soleLock))
-        }
-        val result = SUT.lockedTileEnforcer(PrimaryAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
-      }
-    }
-    "The address is MainAddrType" should {
-
-      "take user to PersonalDetails page if Sole address lock is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(soleLock))
-        }
-        val result = SUT.lockedTileEnforcer(MainAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
-      }
-
-      "complete block if neither Sole Lock and Primary Lock are not present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List())
-        }
-        val result = SUT.lockedTileEnforcer(PrimaryAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
-
-      "complete block if only Postal Lock is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(correspondenceLock))
-        }
-        val result = SUT.lockedTileEnforcer(PrimaryAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
-      }
-
-      "take user to Personal Details if Sole Address is present" in {
-
-        when(mockEditAddressLockRepository.get(any())) thenReturn {
-          Future.successful(List(soleLock))
-        }
-        val result = SUT.lockedTileEnforcer(PrimaryAddrType) {
-          Ok(expectedContent)
-        }(userRequest)
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
-      }
-    }
-
   }
-
 }

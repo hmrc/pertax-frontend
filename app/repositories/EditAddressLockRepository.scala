@@ -26,6 +26,7 @@ import controllers.auth.requests.UserRequest
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import models._
 import play.api.Logger
+import play.api.mvc.Result
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
@@ -74,6 +75,24 @@ class EditAddressLockRepository @Inject()(
         )
       )
     )
+
+  def isLockPresent(typ: AddrType)(request: UserRequest[_]): Future[Boolean] =
+    for {
+      addressTiles <- request.nino
+                       .map { nino =>
+                         get(nino.withoutSuffix)
+                       }
+                       .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
+    } yield {
+      val optionalEditAddress = addressTiles.map(y => y.editedAddress)
+      typ match {
+        case PostalAddrType => optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
+        case _: ResidentialAddrType =>
+          optionalEditAddress.exists(_.isInstanceOf[EditSoleAddress]) || optionalEditAddress
+            .exists(_.isInstanceOf[EditPrimaryAddress])
+        case _ => false
+      }
+    }
 
   private[repositories] def getCore(selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
     this.collection

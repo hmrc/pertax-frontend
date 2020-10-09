@@ -19,11 +19,41 @@ package repositories
 import java.time.{LocalDateTime, OffsetDateTime, ZoneOffset}
 import java.util.TimeZone
 
+import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import controllers.bindable.{MainAddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.Request
+import play.api.test.FakeRequest
+import play.modules.reactivemongo.ReactiveMongoApi
+import reactivemongo.bson.BSONDateTime
+import uk.gov.hmrc.domain.{Generator, Nino}
 import util.BaseSpec
+import util.UserRequestFixture.buildUserRequest
 
-class EditAddressLockRepositorySpec extends BaseSpec {
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Random
+
+class EditAddressLockRepositorySpec extends BaseSpec with MockitoSugar {
 
   val MAX_NANO_SECONDS = 999999
+
+  val testNino = Nino(new Generator(new Random()).nextNino.nino)
+
+  val soleLock = AddressJourneyTTLModel(testNino.toString(), EditSoleAddress(BSONDateTime(11111111)))
+  val primaryLock = AddressJourneyTTLModel(testNino.toString(), EditPrimaryAddress(BSONDateTime(11111111)))
+  val correspondenceLock =
+    AddressJourneyTTLModel(testNino.toString(), EditCorrespondenceAddress(BSONDateTime(11111111)))
+
+  def userRequest[A]: UserRequest[A] =
+    buildUserRequest(nino = Some(testNino), request = FakeRequest().asInstanceOf[Request[A]])
+
+  def sut(locks: List[AddressJourneyTTLModel]): EditAddressLockRepository =
+    new EditAddressLockRepository(injected[ConfigDecorator])(injected[ReactiveMongoApi], injected[ExecutionContext]) {
+      override def get(nino: String): Future[List[AddressJourneyTTLModel]] =
+        Future.successful(locks)
+    }
 
   "AddressJourneyMongoHelper.getNextMidnight" when {
     import EditAddressLockRepository._
@@ -194,4 +224,95 @@ class EditAddressLockRepositorySpec extends BaseSpec {
       }
     }
   }
+
+  "isLockPresent" when {
+
+    "where no nino in request" should {
+
+      "return false" in {
+        def userRequest[A]: UserRequest[A] =
+          buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
+
+        val locks = List(correspondenceLock)
+        await(sut(locks).isLockPresent(PostalAddrType)(userRequest)) shouldBe false
+      }
+    }
+
+    "a correspondence address" should {
+      "return true if correspondence lock is present" in {
+        val locks = List(correspondenceLock)
+        await(sut(locks).isLockPresent(PostalAddrType)(userRequest)) shouldBe true
+      }
+      "return false if no locks are present" in {
+        val locks = List()
+        await(sut(locks).isLockPresent(PostalAddrType)(userRequest)) shouldBe false
+      }
+      "return false if sole lock is present" in {
+        val locks = List(soleLock)
+        await(sut(locks).isLockPresent(PostalAddrType)(userRequest)) shouldBe false
+      }
+      "return true if primary lock is present" in {
+        val locks = List(primaryLock)
+        await(sut(locks).isLockPresent(PostalAddrType)(userRequest)) shouldBe false
+      }
+    }
+
+    "a sole address" should {
+      "return true if sole lock is present" in {
+        val locks = List(soleLock)
+        await(sut(locks).isLockPresent(SoleAddrType)(userRequest)) shouldBe true
+      }
+      "return false if no locks are present" in {
+        val locks = List()
+        await(sut(locks).isLockPresent(SoleAddrType)(userRequest)) shouldBe false
+      }
+      "return false if correspondence lock is present" in {
+        val locks = List(correspondenceLock)
+        await(sut(locks).isLockPresent(SoleAddrType)(userRequest)) shouldBe false
+      }
+      "return true if primary lock is present" in {
+        val locks = List(primaryLock)
+        await(sut(locks).isLockPresent(SoleAddrType)(userRequest)) shouldBe true
+      }
+    }
+
+    "a primary address" should {
+      "return true if primary lock is present" in {
+        val locks = List(primaryLock)
+        await(sut(locks).isLockPresent(PrimaryAddrType)(userRequest)) shouldBe true
+      }
+      "return false if no locks are present" in {
+        val locks = List()
+        await(sut(locks).isLockPresent(PrimaryAddrType)(userRequest)) shouldBe false
+      }
+      "return false if correspondence lock is present" in {
+        val locks = List(correspondenceLock)
+        await(sut(locks).isLockPresent(PrimaryAddrType)(userRequest)) shouldBe false
+      }
+      "return true if sole lock is present" in {
+        val locks = List(soleLock)
+        await(sut(locks).isLockPresent(PrimaryAddrType)(userRequest)) shouldBe true
+      }
+    }
+
+    "a generic main address" should {
+      "return true if primary lock is present" in {
+        val locks = List(primaryLock)
+        await(sut(locks).isLockPresent(MainAddrType)(userRequest)) shouldBe true
+      }
+      "return false if no locks are present" in {
+        val locks = List()
+        await(sut(locks).isLockPresent(MainAddrType)(userRequest)) shouldBe false
+      }
+      "return false if correspondence lock is present" in {
+        val locks = List(correspondenceLock)
+        await(sut(locks).isLockPresent(MainAddrType)(userRequest)) shouldBe false
+      }
+      "return true if sole lock is present" in {
+        val locks = List(soleLock)
+        await(sut(locks).isLockPresent(MainAddrType)(userRequest)) shouldBe true
+      }
+    }
+  }
+
 }
