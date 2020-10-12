@@ -77,10 +77,10 @@ class NiLetterController @Inject()(
           if (request.personDetails.isDefined) {
             val applicationMinCss =
               Source
-                .fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").url)
+                .fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL(true))
                 .mkString
             val saveNiLetterAsPDFCss = Source
-              .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").url)
+              .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
               .mkString
 
             val htmlPayloadF = for {
