@@ -39,7 +39,7 @@ class ResidencyChoiceController @Inject()(
   cc: MessagesControllerComponents,
   residencyChoiceView: ResidencyChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  override val editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

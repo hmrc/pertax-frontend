@@ -39,7 +39,7 @@ class InternationalAddressChoiceController @Inject()(
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  override val editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

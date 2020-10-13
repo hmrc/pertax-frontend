@@ -46,7 +46,7 @@ class AddressSelectorController @Inject()(
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  override val editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

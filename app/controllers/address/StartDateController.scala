@@ -41,7 +41,7 @@ class StartDateController @Inject()(
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  override val editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

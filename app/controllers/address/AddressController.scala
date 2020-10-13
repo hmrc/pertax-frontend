@@ -30,6 +30,7 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.AddressAlreadyUpdatedView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,7 +39,7 @@ abstract class AddressController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  val editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

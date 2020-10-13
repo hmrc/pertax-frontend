@@ -39,7 +39,7 @@ class TaxCreditsChoiceController @Inject()(
   cachingHelper: AddressJourneyCachingHelper,
   taxCreditsChoiceView: TaxCreditsChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  override val editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

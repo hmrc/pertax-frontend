@@ -41,7 +41,7 @@ class UpdateAddressController @Inject()(
   cc: MessagesControllerComponents,
   updateAddressView: UpdateAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  override val editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,

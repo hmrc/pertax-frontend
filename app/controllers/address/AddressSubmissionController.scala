@@ -44,7 +44,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressSubmissionController @Inject()(
   val citizenDetailsService: CitizenDetailsService,
   val addressMovedService: AddressMovedService,
-  override val editAddressLockRepository: EditAddressLockRepository,
+  val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,

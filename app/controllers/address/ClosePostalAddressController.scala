@@ -43,7 +43,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ClosePostalAddressController @Inject()(
   val citizenDetailsService: CitizenDetailsService,
-  override val editAddressLockRepository: EditAddressLockRepository,
+  val editAddressLockRepository: EditAddressLockRepository,
   val addressMovedService: AddressMovedService,
   cachingHelper: AddressJourneyCachingHelper,
   auditConnector: AuditConnector,
