@@ -27,6 +27,7 @@ import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import util.UserRequestFixture.buildUserRequest
+import views.html.personaldetails.AddressAlreadyUpdatedView
 
 import scala.concurrent.Future
 class AddressControllerSpec extends AddressBaseSpec {
@@ -37,7 +38,8 @@ class AddressControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         displayAddressInterstitialView,
-        mockEditAddressLockRepository
+        mockEditAddressLockRepository,
+        injected[AddressAlreadyUpdatedView]
       )
 
   "addressJourneyEnforcer" should {
@@ -105,15 +107,18 @@ class AddressControllerSpec extends AddressBaseSpec {
         when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
           Future.successful(true)
         }
-        implicit def userRequest[A]: UserRequest[A] =
+
+        val expectedContent = "Your address has already been updated"
+
+        def userRequest[A]: UserRequest[A] =
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
 
         val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
           Ok("Should not get here")
         }(userRequest)
 
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
+        status(result) shouldBe OK
+        contentAsString(result) should include("Your address has already been updated")
       }
     }
   }
@@ -136,17 +141,19 @@ class AddressControllerSpec extends AddressBaseSpec {
 
     }
 
-    "redirect to Personal Details if a relevant lock is present" in {
+    "show you already updated page if a relevant lock is present" in {
       when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
         Future.successful(true)
       }
+
+      val expectedContent = "Your address has already been updated"
 
       val result = SUT.lockedTileEnforcer(PostalAddrType) {
         Ok("Should not get here")
       }(userRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(address.routes.PersonalDetailsController.onPageLoad().url)
+      status(result) shouldBe OK
+      contentAsString(result) should include(expectedContent)
 
     }
   }

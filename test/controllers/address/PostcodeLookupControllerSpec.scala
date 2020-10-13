@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures
 import util.Fixtures.{fakeStreetPafAddressRecord, oneAndTwoOtherPlacePafRecordSet}
-import views.html.personaldetails.PostcodeLookupView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, PostcodeLookupView}
 
 class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
@@ -49,7 +49,8 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
         cc,
         injected[PostcodeLookupView],
         displayAddressInterstitialView,
-        injected[EditAddressLockRepository]
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

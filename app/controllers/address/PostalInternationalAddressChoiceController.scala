@@ -28,7 +28,7 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.PostalInternationalAddressChoiceView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, PostalInternationalAddressChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,7 +39,8 @@ class PostalInternationalAddressChoiceController @Inject()(
   cc: MessagesControllerComponents,
   postalInternationalAddressChoiceView: PostalInternationalAddressChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -49,7 +50,8 @@ class PostalInternationalAddressChoiceController @Inject()(
       withActiveTabAction,
       cc,
       displayAddressInterstitialView,
-      editAddressLockRepository) {
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>

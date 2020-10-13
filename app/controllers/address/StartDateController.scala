@@ -29,7 +29,7 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{LanguageHelper, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUpdateAddressView, EnterStartDateView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +41,8 @@ class StartDateController @Inject()(
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -51,7 +52,8 @@ class StartDateController @Inject()(
       withActiveTabAction,
       cc,
       displayAddressInterstitialView,
-      editAddressLockRepository) {
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

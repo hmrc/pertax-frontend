@@ -39,7 +39,8 @@ abstract class AddressController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -74,7 +75,7 @@ abstract class AddressController @Inject()(
     editAddressLockRepository.isLockPresent(typ)(request).flatMap { lockPresent =>
       if (lockPresent) {
         logger.warn("Trying to access locked page")
-        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
+        Future.successful(Ok(addressAlreadyUpdatedView()))
       } else
         block
     }

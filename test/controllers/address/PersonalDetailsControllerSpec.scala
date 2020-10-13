@@ -29,7 +29,7 @@ import services.NinoDisplayService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures
-import views.html.personaldetails.PersonalDetailsView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, PersonalDetailsView}
 
 import scala.concurrent.Future
 
@@ -56,7 +56,8 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockAuditConnector,
         cc,
         displayAddressInterstitialView,
-        injected[PersonalDetailsView]
+        injected[PersonalDetailsView],
+        injected[AddressAlreadyUpdatedView]
       ) {}
 
     "Calling AddressController.onPageLoad" should {

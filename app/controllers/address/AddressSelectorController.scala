@@ -34,7 +34,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.AddressSelectorView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, AddressSelectorView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,7 +46,8 @@ class AddressSelectorController @Inject()(
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -56,7 +57,8 @@ class AddressSelectorController @Inject()(
       withActiveTabAction,
       cc,
       displayAddressInterstitialView,
-      editAddressLockRepository) {
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

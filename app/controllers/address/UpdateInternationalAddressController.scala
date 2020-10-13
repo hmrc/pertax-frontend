@@ -31,7 +31,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildAddressChangeEvent
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.UpdateInternationalAddressView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, UpdateInternationalAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,7 +44,8 @@ class UpdateInternationalAddressController @Inject()(
   cc: MessagesControllerComponents,
   updateInternationalAddressView: UpdateInternationalAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -54,7 +55,8 @@ class UpdateInternationalAddressController @Inject()(
       withActiveTabAction,
       cc,
       displayAddressInterstitialView,
-      editAddressLockRepository) {
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

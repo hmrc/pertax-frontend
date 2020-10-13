@@ -36,7 +36,7 @@ import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
 import util.LocalPartialRetriever
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.PostcodeLookupView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, PostcodeLookupView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -49,7 +49,8 @@ class PostcodeLookupController @Inject()(
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  editAddressLockRepository: EditAddressLockRepository)(
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -59,7 +60,8 @@ class PostcodeLookupController @Inject()(
       withActiveTabAction,
       cc,
       displayAddressInterstitialView,
-      editAddressLockRepository) {
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

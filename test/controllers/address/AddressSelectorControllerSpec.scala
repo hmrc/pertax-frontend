@@ -37,7 +37,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures.{oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord}
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.AddressSelectorView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, AddressSelectorView}
 
 class AddressSelectorControllerSpec extends AddressBaseSpec {
 
@@ -52,7 +52,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         errorRenderer,
         injected[AddressSelectorView],
         injected[DisplayAddressInterstitialView],
-        injected[EditAddressLockRepository]
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

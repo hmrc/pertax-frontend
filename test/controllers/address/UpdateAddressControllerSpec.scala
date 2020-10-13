@@ -31,7 +31,7 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.Fixtures
 import util.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
-import views.html.personaldetails.UpdateAddressView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, UpdateAddressView}
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {
 
@@ -45,7 +45,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
         cc,
         injected[UpdateAddressView],
         displayAddressInterstitialView,
-        injected[EditAddressLockRepository]
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

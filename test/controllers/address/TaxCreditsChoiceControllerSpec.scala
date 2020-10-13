@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
-import views.html.personaldetails.TaxCreditsChoiceView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, TaxCreditsChoiceView}
 
 class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
@@ -40,7 +40,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         injected[TaxCreditsChoiceView],
         displayAddressInterstitialView,
-        injected[EditAddressLockRepository]
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

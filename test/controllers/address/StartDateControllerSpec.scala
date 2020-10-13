@@ -34,7 +34,7 @@ import util.Fixtures.fakeStreetTupleListAddressForUnmodified
 import util.UserRequestFixture.buildUserRequest
 import util.fixtures.AddressFixture.{address => addressFixture}
 import util.fixtures.PersonFixture.emptyPerson
-import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUpdateAddressView, EnterStartDateView}
 
 import scala.concurrent.Future
 
@@ -51,7 +51,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
         injected[EnterStartDateView],
         injected[CannotUpdateAddressView],
         displayAddressInterstitialView,
-        injected[EditAddressLockRepository]
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
-import views.html.personaldetails.PostalInternationalAddressChoiceView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, PostalInternationalAddressChoiceView}
 
 class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
@@ -40,7 +40,8 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
         cc,
         injected[PostalInternationalAddressChoiceView],
         displayAddressInterstitialView,
-        injected[EditAddressLockRepository]
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =
@@ -112,7 +113,8 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           cc,
           injected[PostalInternationalAddressChoiceView],
           displayAddressInterstitialView,
-          injected[EditAddressLockRepository]
+          injected[EditAddressLockRepository],
+          injected[AddressAlreadyUpdatedView]
         )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =

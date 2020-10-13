@@ -37,7 +37,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, ReviewChangesView, UpdateAddressConfirmationView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,7 +53,8 @@ class AddressSubmissionController @Inject()(
   errorRenderer: ErrorRenderer,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -63,7 +64,8 @@ class AddressSubmissionController @Inject()(
       withActiveTabAction,
       cc,
       displayAddressInterstitialView,
-      editAddressLockRepository) {
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

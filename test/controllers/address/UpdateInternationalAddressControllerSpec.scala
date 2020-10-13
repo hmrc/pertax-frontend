@@ -33,7 +33,7 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures.{asInternationalAddressDto, fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified, fakeStreetTupleListInternationalAddress}
-import views.html.personaldetails.UpdateInternationalAddressView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, UpdateInternationalAddressView}
 
 class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
@@ -49,7 +49,8 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
         cc,
         injected[UpdateInternationalAddressView],
         displayAddressInterstitialView,
-        injected[EditAddressLockRepository]
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

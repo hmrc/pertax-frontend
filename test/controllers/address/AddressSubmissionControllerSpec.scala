@@ -38,7 +38,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.{Fixtures, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, ReviewChangesView, UpdateAddressConfirmationView}
 
 class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
@@ -61,7 +61,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         errorRenderer,
         injected[UpdateAddressConfirmationView],
         injected[ReviewChangesView],
-        injected[DisplayAddressInterstitialView]
+        injected[DisplayAddressInterstitialView],
+        injected[AddressAlreadyUpdatedView]
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
   }
 

@@ -30,7 +30,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.PersonalDetailsView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, PersonalDetailsView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,7 +44,8 @@ class PersonalDetailsController @Inject()(
   auditConnector: AuditConnector,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  personalDetailsView: PersonalDetailsView
+  personalDetailsView: PersonalDetailsView,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView
 )(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
@@ -55,7 +56,8 @@ class PersonalDetailsController @Inject()(
       withActiveTabAction,
       cc,
       displayAddressInterstitialView,
-      editAddressLockRepository) {
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     import models.dto.AddressPageVisitedDto
