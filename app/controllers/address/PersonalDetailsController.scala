@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalDetailsController @Inject()(
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
-  editAddressLockRepository: EditAddressLockRepository,
+  val editAddressLockRepository: EditAddressLockRepository,
   ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,

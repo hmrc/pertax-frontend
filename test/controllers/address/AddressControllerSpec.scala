@@ -118,7 +118,7 @@ class AddressControllerSpec extends AddressBaseSpec {
         }(userRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include("Your address has already been updated")
+        contentAsString(result) should include(expectedContent)
       }
     }
   }

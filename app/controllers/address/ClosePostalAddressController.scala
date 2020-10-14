@@ -24,8 +24,8 @@ import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
-import models.{Address, AddressJourneyTTLModel, EditCorrespondenceAddress, PersonDetails}
 import models.dto.ClosePostalAddressChoiceDto
+import models.{Address, EditCorrespondenceAddress, PersonDetails}
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
