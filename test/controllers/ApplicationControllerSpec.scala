@@ -258,7 +258,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with a continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -269,10 +269,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/gg/sign-out?continue=/personal-account")
     }
-
     "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -304,7 +303,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(request = request)
@@ -320,7 +319,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "redirect to verify sign-out link with correct continue url when signed in with verify, with no continue URL and but an origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -338,7 +337,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
     "return 'Bad Request' when signed in with verify and supplied no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
