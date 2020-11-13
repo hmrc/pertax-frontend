@@ -442,6 +442,12 @@ label.message=Neges
 
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
 
+#
+# Tax Summaries tile
+#
+card.ats.heading=Welsh placeholder heading
+card.ats.text=Welsh placeholder test
+
 label.phone_text=Ffôn
 label.national_insurance_number=Rhif Yswiriant Gwladol gennych
 label.keep_this_number_in_a_safe_place_do_not_destroy_this_letter=Cadwch y rhif hwn mewn man diogel. Peidiwch â dinistrio’r llythyr hwn.

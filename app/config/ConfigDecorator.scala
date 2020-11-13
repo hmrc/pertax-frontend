@@ -86,6 +86,9 @@ class ConfigDecorator @Inject()(
 
   lazy val enrolmentManagementFrontendHost = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
   lazy val ssoUrl = decorateUrlForLocalDev("sso-portal.host")
+  lazy val annualTaxSummariesUrl = decorateUrlForLocalDev("tax-summaries-frontend.host").getOrElse("")
+  lazy val isAtsTileEnabled = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
+  lazy val annualTaxSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
 
   lazy val portalBaseUrl = runModeConfiguration.get[String]("external-url.sso-portal.host")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)

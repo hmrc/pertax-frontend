@@ -36,7 +36,8 @@ class HomeCardGenerator @Inject()(
   taxCreditsView: TaxCreditsView,
   childBenefitView: ChildBenefitView,
   marriageAllowanceView: MarriageAllowanceView,
-  statePensionView: StatePensionView
+  statePensionView: StatePensionView,
+  taxSummariesView: TaxSummariesView
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -50,7 +51,8 @@ class HomeCardGenerator @Inject()(
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
-      getNationalInsuranceCard()
+      getNationalInsuranceCard(),
+      getAnnualTaxSummaryCard
     ).flatten
 
   def getBenefitCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
@@ -93,6 +95,11 @@ class HomeCardGenerator @Inject()(
     } else {
       None
     }
+
+  def getAnnualTaxSummaryCard(
+    implicit request: UserRequest[AnyContent],
+    messages: Messages): Option[HtmlFormat.Appendable] =
+    if (configDecorator.isAtsTileEnabled) Some(taxSummariesView()) else None
 
   def getNationalInsuranceCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(nationalInsuranceView())
