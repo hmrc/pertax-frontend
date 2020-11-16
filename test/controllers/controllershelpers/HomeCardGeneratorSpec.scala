@@ -20,9 +20,8 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.Configuration
 import play.api.i18n.Langs
-import play.api.{Application, Configuration}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -62,12 +61,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       taxSummaries
     )
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
-  override implicit lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(
-      "feature.tax-summaries-tile.enabled" -> true
-    )
-    .build()
 
   "Calling getPayAsYouEarnCard" should {
     "return nothing when called with no Pertax user" in {
