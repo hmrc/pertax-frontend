@@ -445,8 +445,8 @@ label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
 #
 # Tax Summaries tile
 #
-card.ats.heading=Welsh placeholder heading
-card.ats.text=Welsh placeholder test
+card.ats.heading=Gwirio’ch crynodeb treth blynyddol
+card.ats.text=Gwiriwch eich treth a chyfraniadau Yswiriant Gwladol a gweld sut mae’r llywodraeth yn gwario’ch trethi. Mae hyn er eich gwybodaeth yn unig.
 
 label.phone_text=Ffôn
 label.national_insurance_number=Rhif Yswiriant Gwladol gennych
