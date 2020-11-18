@@ -14,16 +14,9 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.11"
 
-val akkaVersion = "2.5.23"
-val akkaHttpVersion = "10.0.15"
 val silencerVersion = "1.6.0"
-dependencyOverrides += "com.typesafe.akka" %% "akka-stream"    % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-protobuf"  % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-slf4j"     % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-actor"     % akkaVersion
-dependencyOverrides += "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
 
 lazy val plugins: Seq[Plugins] =
   Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
