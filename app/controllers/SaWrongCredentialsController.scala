@@ -48,7 +48,7 @@ class SaWrongCredentialsController @Inject()(
   private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithSelfAssessment
 
   def ggSignInUrl: String = {
-    lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+    lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
 
     val continueUrl = configDecorator.pertaxFrontendHost + configDecorator.personalAccount
 

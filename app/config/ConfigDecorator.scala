@@ -34,12 +34,6 @@ class ConfigDecorator @Inject()(
   langs: Langs,
   servicesConfig: ServicesConfig
 ) extends TaxcalcUrls {
-
-  // Define the web contexts to access the IV-FE and AUTH frontend applications.
-  lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")
-  lazy val ida_web_context = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
-  lazy val gg_web_context = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
-
   lazy val authProviderChoice = runModeConfiguration.get[String](s"external-url.auth-provider-choice.host")
 
   val defaultOrigin = Origin("PERTAX")
@@ -66,8 +60,6 @@ class ConfigDecorator @Inject()(
   lazy val preferencesFrontendService = decorateUrlForLocalDev(s"preferences-frontend").getOrElse("")
   lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
-  lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
-  lazy val companyAuthFrontendHost = decorateUrlForLocalDev(s"company-auth-frontend.host").getOrElse("")
   lazy val taiHost = decorateUrlForLocalDev(s"tai-frontend.host").getOrElse("")
   lazy val formTrackingHost = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
 
@@ -95,7 +87,7 @@ class ConfigDecorator @Inject()(
       .getOrElse("/template/mustache")
 
   def transformUrlForSso(url: URL) =
-    s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
+    s"$basGatewayFrontendHost/bas-gateway/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
   def sa302Url(saUtr: String, taxYear: String) =
     s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
@@ -160,7 +152,7 @@ class ConfigDecorator @Inject()(
   lazy val selfAssessmentFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
-  lazy val identityVerificationUpliftUrl = s"$identityVerificationHost/$ivfe_web_context/uplift"
+  lazy val identityVerificationUpliftUrl = s"$identityVerificationHost/mdtp/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
   lazy val tcsChangeAddressUrl = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
@@ -255,8 +247,8 @@ class ConfigDecorator @Inject()(
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
 
-  def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
-    companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
+  def getBasGatewayFrontendSignOutUrl(continueUrl: String): String =
+    basGatewayFrontendHost + s"/bas-gateway/sign-out-without-state?continue=$continueUrl"
 
   lazy val editAddressTtl: Int = runModeConfiguration.getOptional[Int]("mongodb.editAddressTtl").getOrElse(0)
 
