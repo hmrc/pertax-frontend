@@ -17,12 +17,13 @@
 @import config.ConfigDecorator
 @import tags._
 @this()
-@()(implicit configDecorator: ConfigDecorator, messages: play.api.i18n.Messages)
+
+@(taxSummariesUrl: String)(implicit messages: play.api.i18n.Messages)
 
 
 @card(
     id = Some("ats-card"),
-    url = Some(configDecorator.annualTaxSummariesTileLink),
+    url = Some(taxSummariesUrl),
     gaAction = Some("Tax Summaries"),
     gaLabel = Some("Annual Tax Summary"),
     heading = messages("card.ats.heading"),

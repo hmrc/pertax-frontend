@@ -316,22 +316,31 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   "Calling getAnnualTaxSummaryCard" when {
 
-    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-      buildUserRequest(request = FakeRequest())
-
     "the tax summaries card is enabled" should {
-
-      "always return the same markup" in {
+      "always return the same markup for a SA user" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(request = FakeRequest())
 
         lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
 
-        cardBody shouldBe Some(taxSummaries())
+        cardBody shouldBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
+      }
+
+      "always return the same markup for a PAYE user" in {
+
+        implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+
+        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
+        cardBody shouldBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
       }
     }
 
     "the tax summaries card is disabled" should {
-
       "return None" in {
+
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(request = FakeRequest())
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],

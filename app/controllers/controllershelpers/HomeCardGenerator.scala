@@ -99,7 +99,17 @@ class HomeCardGenerator @Inject()(
   def getAnnualTaxSummaryCard(
     implicit request: UserRequest[AnyContent],
     messages: Messages): Option[HtmlFormat.Appendable] =
-    if (configDecorator.isAtsTileEnabled) Some(taxSummariesView()) else None
+    if (configDecorator.isAtsTileEnabled) {
+      val url = if (request.isSa) {
+        configDecorator.annualTaxSaSummariesTileLink
+      } else {
+        configDecorator.annualTaxPayeSummariesTileLink
+      }
+
+      Some(taxSummariesView(url))
+    } else {
+      None
+    }
 
   def getNationalInsuranceCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(nationalInsuranceView())
