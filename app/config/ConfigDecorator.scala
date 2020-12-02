@@ -64,6 +64,7 @@ class ConfigDecorator @Inject()(
   lazy val formTrackingHost = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
 
   lazy val identityVerificationHost = decorateUrlForLocalDev(s"identity-verification.host").getOrElse("")
+  lazy val identityVerificationPrefix = decorateUrlForLocalDev(s"identity-verification.prefix").getOrElse("mdtp")
   lazy val basGatewayFrontendHost = decorateUrlForLocalDev(s"bas-gateway-frontend.host").getOrElse("")
   lazy val pertaxFrontendHost = decorateUrlForLocalDev(s"pertax-frontend.host").getOrElse("")
   lazy val feedbackSurveyFrontendHost = decorateUrlForLocalDev(s"feedback-survey-frontend.host").getOrElse("")
@@ -152,7 +153,7 @@ class ConfigDecorator @Inject()(
   lazy val selfAssessmentFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
-  lazy val identityVerificationUpliftUrl = s"$identityVerificationHost/mdtp/uplift"
+  lazy val identityVerificationUpliftUrl = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
   lazy val tcsChangeAddressUrl = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"

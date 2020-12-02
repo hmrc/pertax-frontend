@@ -55,9 +55,9 @@ class SaWrongCredentialsController @Inject()(
     Url(
       path = ggSignIn,
       query = QueryString.fromPairs(
-        "continue"    -> continueUrl,
-        "accountType" -> "individual",
-        "origin"      -> configDecorator.defaultOrigin.origin)
+        "continue_url" -> continueUrl,
+        "accountType"  -> "individual",
+        "origin"       -> configDecorator.defaultOrigin.origin)
     ).toString()
   }
 
