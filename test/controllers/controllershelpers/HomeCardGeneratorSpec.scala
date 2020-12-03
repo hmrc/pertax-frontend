@@ -16,14 +16,18 @@
 
 package controllers.controllershelpers
 
+import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.Configuration
+import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
@@ -42,6 +46,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val childBenefit = injected[ChildBenefitView]
   val marriageAllowance = injected[MarriageAllowanceView]
   val statePension = injected[StatePensionView]
+  val taxSummaries = injected[TaxSummariesView]
 
   val homeCardGenerator =
     new HomeCardGenerator(
@@ -52,7 +57,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       taxCredits,
       childBenefit,
       marriageAllowance,
-      statePension
+      statePension,
+      taxSummaries
     )
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -305,6 +311,75 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       lazy val cardBody = homeCardGenerator.getStatePensionCard()
 
       cardBody shouldBe Some(statePension())
+    }
+  }
+
+  "Calling getAnnualTaxSummaryCard" when {
+
+    "the tax summaries card is enabled" should {
+      "always return the same markup for a SA user" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+            request = FakeRequest())
+
+        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
+
+        cardBody shouldBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
+      }
+
+      val saUtr: SaUtr = SaUtr("test utr")
+      val incorrectSaUsers = Seq(
+        NonFilerSelfAssessmentUser,
+        NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
+        WrongCredentialsSelfAssessmentUser(saUtr),
+        NotEnrolledSelfAssessmentUser(saUtr)
+      )
+
+      incorrectSaUsers.foreach { saType =>
+        s"always return the same markup for a $saType user" in {
+
+          implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
+            buildUserRequest(saUser = saType, request = FakeRequest())
+
+          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
+          cardBody shouldBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
+        }
+      }
+    }
+
+    "the tax summaries card is disabled" should {
+      "return None" in {
+
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(request = FakeRequest())
+
+        val stubConfigDecorator = new ConfigDecorator(
+          injected[Configuration],
+          injected[RunMode],
+          injected[Langs],
+          injected[ServicesConfig]
+        ) {
+          override lazy val isAtsTileEnabled = false
+        }
+
+        def sut: HomeCardGenerator =
+          new HomeCardGenerator(
+            payAsYouEarn,
+            taxCalculation,
+            selfAssessment,
+            nationalInsurance,
+            taxCredits,
+            childBenefit,
+            marriageAllowance,
+            statePension,
+            taxSummaries
+          )(stubConfigDecorator)
+
+        lazy val cardBody = sut.getAnnualTaxSummaryCard
+
+        cardBody shouldBe None
+      }
     }
   }
 }
