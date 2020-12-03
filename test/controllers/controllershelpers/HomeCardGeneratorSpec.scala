@@ -319,20 +319,32 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "the tax summaries card is enabled" should {
       "always return the same markup for a SA user" in {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(request = FakeRequest())
+          buildUserRequest(
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+            request = FakeRequest())
 
         lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
 
         cardBody shouldBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
       }
 
-      "always return the same markup for a PAYE user" in {
+      val saUtr: SaUtr = SaUtr("test utr")
+      val incorrectSaUsers = Seq(
+        NonFilerSelfAssessmentUser,
+        NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
+        WrongCredentialsSelfAssessmentUser(saUtr),
+        NotEnrolledSelfAssessmentUser(saUtr)
+      )
 
-        implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+      incorrectSaUsers.foreach { saType =>
+        s"always return the same markup for a $saType user" in {
 
-        lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
-        cardBody shouldBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
+          implicit val payeRequest: UserRequest[AnyContentAsEmpty.type] =
+            buildUserRequest(saUser = saType, request = FakeRequest())
+
+          lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
+          cardBody shouldBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
+        }
       }
     }
 

@@ -100,7 +100,7 @@ class HomeCardGenerator @Inject()(
     implicit request: UserRequest[AnyContent],
     messages: Messages): Option[HtmlFormat.Appendable] =
     if (configDecorator.isAtsTileEnabled) {
-      val url = if (request.isSa) {
+      val url = if (request.isSaUserLoggedIntoCorrectAccount) {
         configDecorator.annualTaxSaSummariesTileLink
       } else {
         configDecorator.annualTaxPayeSummariesTileLink
