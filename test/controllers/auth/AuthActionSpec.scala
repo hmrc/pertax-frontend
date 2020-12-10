@@ -214,7 +214,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       status(result) mustBe SEE_OTHER
 
       redirectLocation(result).get must endWith(
-        "/bas-gateway/sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Ffoo&accountType=individual&origin=PERTAX")
+        "/bas-gateway/sign-in?continue_url=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Ffoo&accountType=individual&origin=PERTAX")
     }
   }
 

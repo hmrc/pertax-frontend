@@ -156,9 +156,9 @@ class AuthActionImpl @Inject()(
           Redirect(
             ggSignIn,
             Map(
-              "continue"    -> Seq(postSignInRedirectUrl(request)),
-              "accountType" -> Seq("individual"),
-              "origin"      -> Seq(configDecorator.defaultOrigin.origin)
+              "continue_url" -> Seq(postSignInRedirectUrl(request)),
+              "accountType"  -> Seq("individual"),
+              "origin"       -> Seq(configDecorator.defaultOrigin.origin)
             )
           )
         }
