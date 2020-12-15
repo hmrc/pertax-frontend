@@ -476,6 +476,11 @@ label.personal_details=Personal details
 label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings
 
+#
+# Tax Summaries tile
+#
+card.ats.heading=Check your Annual Tax Summary
+card.ats.text=Check your tax and National Insurance contributions and find out how the government spends your taxes. This is for your information only.
 
 #
 # Page not found

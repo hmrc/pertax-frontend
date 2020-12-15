@@ -36,7 +36,8 @@ class HomeCardGenerator @Inject()(
   taxCreditsView: TaxCreditsView,
   childBenefitView: ChildBenefitView,
   marriageAllowanceView: MarriageAllowanceView,
-  statePensionView: StatePensionView
+  statePensionView: StatePensionView,
+  taxSummariesView: TaxSummariesView
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -50,7 +51,8 @@ class HomeCardGenerator @Inject()(
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
-      getNationalInsuranceCard()
+      getNationalInsuranceCard(),
+      getAnnualTaxSummaryCard
     ).flatten
 
   def getBenefitCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
@@ -90,6 +92,21 @@ class HomeCardGenerator @Inject()(
         case saWithActionNeeded =>
           Some(selfAssessmentView(saWithActionNeeded, previousAndCurrentTaxYear, nextDeadlineTaxYear.toString))
       }
+    } else {
+      None
+    }
+
+  def getAnnualTaxSummaryCard(
+    implicit request: UserRequest[AnyContent],
+    messages: Messages): Option[HtmlFormat.Appendable] =
+    if (configDecorator.isAtsTileEnabled) {
+      val url = if (request.isSaUserLoggedIntoCorrectAccount) {
+        configDecorator.annualTaxSaSummariesTileLink
+      } else {
+        configDecorator.annualTaxPayeSummariesTileLink
+      }
+
+      Some(taxSummariesView(url))
     } else {
       None
     }
