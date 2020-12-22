@@ -81,7 +81,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         controller.onSubmit()(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/tax-credits-service/personal/change-address")
+      redirectLocation(result) shouldBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
     }
 
     "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {

@@ -266,7 +266,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       val result = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/bas-gateway/sign-out-without-state?continue=/personal-account")
+      redirectLocation(result) shouldBe Some(
+        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account")
     }
     "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
 
@@ -282,7 +283,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       val result = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/ida/signout")
+      redirectLocation(result) shouldBe Some("http://localhost:9949/ida/signout")
       session(result).get("postLogoutPage") shouldBe Some("/personal-account")
     }
 
@@ -297,7 +298,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/bas-gateway/sign-out-without-state?continue=/feedback/PERTAX")
+      redirectLocation(result) shouldBe Some(
+        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/PERTAX")
     }
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
@@ -330,8 +332,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/ida/signout")
-      session(result).get("postLogoutPage") shouldBe Some("/feedback/PERTAX")
+      redirectLocation(result) shouldBe Some("http://localhost:9949/ida/signout")
+      session(result).get("postLogoutPage") shouldBe Some("http://localhost:9514/feedback/PERTAX")
     }
 
     "return 'Bad Request' when signed in with verify and supplied no continue URL and no origin" in new LocalSetup {

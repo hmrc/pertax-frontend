@@ -98,7 +98,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
   "ggSignInUrl" should {
     "be the gg-sign in url" in {
-      controller.ggSignInUrl shouldBe "/bas-gateway/sign-in?continue_url=/personal-account&accountType=individual&origin=PERTAX"
+      controller.ggSignInUrl shouldBe "http://localhost:9553/bas-gateway/sign-in?continue_url=http://localhost:9232/personal-account&accountType=individual&origin=PERTAX"
     }
   }
 }

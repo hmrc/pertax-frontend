@@ -30,7 +30,7 @@ class ConfigDecoratorSpec extends BaseSpec {
   "Converting urls to sso" should {
     "return a properly encoded sso url when calling transformUrlForSso" in {
       config.transformUrlForSso(new URL("http://example.com/some/path?key=val")) shouldBe
-        "/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
+        "http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
     }
 
     "return a properly formatted sa302 url when calling sa302Url" in {
@@ -40,7 +40,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
     "return a properly formatted SA Account Summary Url url when calling ssoToSaAccountSummaryUrl" in {
       config.ssoToSaAccountSummaryUrl(saUtr, "1516") shouldBe
-        s"/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Flocalhost%3A9237%2Fself-assessment%2Find%2F$saUtr%2Ftaxreturn%2F1516%2Foptions"
+        s"http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Flocalhost%3A9237%2Fself-assessment%2Find%2F$saUtr%2Ftaxreturn%2F1516%2Foptions"
     }
   }
 

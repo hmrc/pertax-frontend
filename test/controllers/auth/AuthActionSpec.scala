@@ -96,7 +96,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
   }
 
   val ivRedirectUrl =
-    "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
+    "http://localhost:9948/iv-stub/uplift?origin=PERTAX&confidenceLevel=200&completionURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
 
   "A user without a L200 confidence level must" - {
     "be redirected to the IV uplift endpoint when" - {
@@ -129,14 +129,16 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
   "A user without a credential strength of Strong must" - {
     "be redirected to the MFA uplift endpoint when" - {
 
-      def mfaRedirectUrl = "/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=%2Fpersonal-account"
+      val mfaRedirectUrl =
+        Some(
+          "http://localhost:9553/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
 
       "the user in an Individual" in {
 
         val controller = retrievals(credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(mfaRedirectUrl)
+        redirectLocation(result) mustBe mfaRedirectUrl
       }
 
       "the user in an Organisation" in {
@@ -145,7 +147,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
-          Some(mfaRedirectUrl)
+          mfaRedirectUrl
       }
 
       "the user in an Agent" in {
@@ -154,7 +156,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
-          Some(mfaRedirectUrl)
+          mfaRedirectUrl
       }
     }
   }
@@ -197,7 +199,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       session(result) mustBe new Session(
         Map(
           "loginOrigin"    -> Origin("PERTAX").origin,
-          "login_redirect" -> "/personal-account/do-uplift?redirectUrl=%2Ffoo"))
+          "login_redirect" -> "http://localhost:9232/personal-account/do-uplift?redirectUrl=http%3A%2F%2Flocalhost%3A9232%2Ffoo"
+        ))
       redirectLocation(result).get must endWith("/ida/login")
     }
 
@@ -213,7 +216,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       status(result) mustBe SEE_OTHER
 
       redirectLocation(result).get must endWith(
-        "/bas-gateway/sign-in?continue_url=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Ffoo&accountType=individual&origin=PERTAX")
+        "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3Dhttp%253A%252F%252Flocalhost%253A9232%252Ffoo&accountType=individual&origin=PERTAX")
     }
   }
 
