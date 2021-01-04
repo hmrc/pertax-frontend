@@ -121,7 +121,7 @@ class ApplicationController @Inject()(
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         .fold(BadRequest("Missing origin")) { url: String =>
           if (request.isGovernmentGateway) {
-            Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
+            Redirect(configDecorator.getBasGatewayFrontendSignOutUrl(url))
           } else {
             Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
           }
