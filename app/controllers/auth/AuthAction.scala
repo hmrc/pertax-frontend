@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment,
 import controllers.routes
 import io.lemonlabs.uri.Url
 import models.UserName
-import play.api.Configuration
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -139,8 +138,8 @@ class AuthActionImpl @Inject()(
   } recover {
     case _: NoActiveSession =>
       def postSignInRedirectUrl(implicit request: Request[_]) =
-        configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
-          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
+        configDecorator.pertaxFrontendForAuthHost + controllers.routes.ApplicationController
+          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendForAuthHost + request.path)))
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
@@ -176,7 +175,7 @@ class AuthActionImpl @Inject()(
         configDecorator.multiFactorAuthenticationUpliftUrl,
         Map(
           "origin"      -> Seq(configDecorator.origin),
-          "continueUrl" -> Seq(configDecorator.pertaxFrontendHost + configDecorator.personalAccount)
+          "continueUrl" -> Seq(configDecorator.pertaxFrontendForAuthHost + configDecorator.personalAccount)
         )
       ))
 
@@ -187,9 +186,9 @@ class AuthActionImpl @Inject()(
         Map(
           "origin"          -> Seq(configDecorator.origin),
           "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-          "completionURL" -> Seq(configDecorator.pertaxFrontendHost + routes.ApplicationController
+          "completionURL" -> Seq(configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
             .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))),
-          "failureURL" -> Seq(configDecorator.pertaxFrontendHost + routes.ApplicationController
+          "failureURL" -> Seq(configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
             .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri))))
         )
       ))
