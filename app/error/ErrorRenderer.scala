@@ -65,11 +65,7 @@ class ErrorRenderer @Inject()(
       case _           => "InternalServerError500"
     }
 
-    Status(statusCode)(
-      views.html.unauthenticatedError(
-        s"global.error.$errorKey.title",
-        Some(s"global.error.$errorKey.heading"),
-        Some(s"global.error.$errorKey.message")))
+    Status(statusCode)(views.html.unauthenticatedError(s"global.error.$errorKey.title"))
 
   }
 

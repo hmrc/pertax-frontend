@@ -38,6 +38,6 @@ class LocalErrorHandler @Inject()(val messagesApi: MessagesApi, val materializer
     heading: String,
     message: String
   )(implicit request: Request[_]): Html =
-    views.html.unauthenticatedError(pageTitle, Some(heading), Some(message))
+    views.html.unauthenticatedError(pageTitle)
 
 }

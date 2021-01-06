@@ -122,6 +122,8 @@ class ConfigDecorator @Inject()(
   lazy val makeAPaymentUrl = s"$payApiUrl/pay-api/pta/sa/journey/start"
   lazy val deskproToken = "PTA"
 
+  lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
+
   lazy val accessibilityStatementToggle: Boolean =
     runModeConfiguration.getOptional[Boolean](s"accessibility-statement.toggle").getOrElse(false)
   lazy val accessibilityBaseUrl = servicesConfig.getString("accessibility-statement.baseUrl")

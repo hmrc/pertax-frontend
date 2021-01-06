@@ -18,7 +18,7 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@(title: String, heading: Option[String] = None, body: Option[String] = None)(implicit request: Request[_],
+@(title: String)(implicit request: Request[_],
         configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
 @unauthenticatedMain(title = messages(title),
@@ -29,11 +29,9 @@
     <div class="grid-row pertax-error">
         <div class="column-two-thirds">
             <header class="page-header">
-                <h1>@messages(heading.getOrElse(title))</h1>
+                <h1>@messages("global.error.InternalServerError500.title")</h1>
             </header>
-            @body.map { body =>
-                <p>@Html(messages(body))</p>
-            }
+            <p>@messages("global.error.InternalServerError500.message.you.can") <a href="@configDecorator.contactHmrcUrl">@messages("global.error.InternalServerError500.message.contact.hmrc")</a> @messages("global.error.InternalServerError500.message.by.phone.post")</p>
         </div>
     </div>
 
