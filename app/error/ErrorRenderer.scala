@@ -68,8 +68,8 @@ class ErrorRenderer @Inject()(
     Status(statusCode)(
       views.html.unauthenticatedError(
         s"global.error.$errorKey.title",
-        Some(s"global.error.$errorKey.heading"),
-        Some(s"global.error.$errorKey.message")))
+        s"global.error.$errorKey.heading",
+        s"global.error.$errorKey.message"))
 
   }
 
