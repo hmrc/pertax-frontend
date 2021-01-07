@@ -527,7 +527,7 @@ label.home_page.utr=Eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Hunanases
 #*************************************************************
 # Service unavailable
 #*************************************************************
-global.error.InternalServerError500.title = Mae’n ddrwg gennym – nid yw’r gwasanaeth ar gael
-global.error.InternalServerError500.message.you.can = Gallwch ddefnyddio’r gwasanaeth hwn yn nes ymlaen, neu gallwch
-global.error.InternalServerError500.message.contact.hmrc = gysylltu â CThEM
-global.error.InternalServerError500.message.by.phone.post = ar-lein, dros y ffôn neu drwy’r post.
+global.error.InternalServerError500.pta.title = Mae’n ddrwg gennym – nid yw’r gwasanaeth ar gael
+global.error.InternalServerError500.pta.message.you.can = Gallwch ddefnyddio’r gwasanaeth hwn yn nes ymlaen, neu gallwch
+global.error.InternalServerError500.pta.message.contact.hmrc = gysylltu â CThEM
+global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y ffôn neu drwy’r post.

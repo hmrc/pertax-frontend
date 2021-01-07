@@ -523,7 +523,7 @@ label.home_page.utr=Your Self Assessment Unique Taxpayer Reference (UTR) is
 #*************************************************************
 # Service unavailable
 #*************************************************************
-global.error.InternalServerError500.title = Sorry, the service is unavailable
-global.error.InternalServerError500.message.you.can = You can use this service later or you can
-global.error.InternalServerError500.message.contact.hmrc = contact HMRC
-global.error.InternalServerError500.message.by.phone.post = online, by phone or by post.
+global.error.InternalServerError500.pta.title = Sorry, the service is unavailable
+global.error.InternalServerError500.pta.message.you.can = You can use this service later or you can
+global.error.InternalServerError500.pta.message.contact.hmrc = contact HMRC
+global.error.InternalServerError500.pta.message.by.phone.post = online, by phone or by post.
