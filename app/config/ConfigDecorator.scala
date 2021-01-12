@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,6 @@ class ConfigDecorator @Inject()(
   langs: Langs,
   servicesConfig: ServicesConfig
 ) extends TaxcalcUrls {
-
-  // Define the web contexts to access the IV-FE and AUTH frontend applications.
-  lazy val ivfe_web_context = decorateUrlForLocalDev(s"identity-verification.web-context").getOrElse("mdtp")
-  lazy val ida_web_context = decorateUrlForLocalDev(s"ida.web-context").getOrElse("ida")
-  lazy val gg_web_context = decorateUrlForLocalDev(s"gg.web-context").getOrElse("gg/sign-in")
-
   lazy val authProviderChoice = runModeConfiguration.get[String](s"external-url.auth-provider-choice.host")
 
   val defaultOrigin = Origin("PERTAX")
@@ -59,34 +53,34 @@ class ConfigDecorator @Inject()(
 
   private lazy val enrolmentStoreProxyService = servicesConfig.baseUrl("enrolment-store-proxy")
 
-  private def decorateUrlForLocalDev(key: String): Option[String] =
-    runModeConfiguration.getOptional[String](s"external-url.$key").filter(_ => runMode.env == "Dev")
+  private def getExternalUrl(key: String): Option[String] =
+    runModeConfiguration.getOptional[String](s"external-url.$key")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
-  lazy val preferencesFrontendService = decorateUrlForLocalDev(s"preferences-frontend").getOrElse("")
-  lazy val contactHost = decorateUrlForLocalDev(s"contact-frontend.host").getOrElse("")
-  lazy val citizenAuthHost = decorateUrlForLocalDev(s"citizen-auth.host").getOrElse("")
-  lazy val companyAuthHost = decorateUrlForLocalDev(s"company-auth.host").getOrElse("")
-  lazy val companyAuthFrontendHost = decorateUrlForLocalDev(s"company-auth-frontend.host").getOrElse("")
-  lazy val taiHost = decorateUrlForLocalDev(s"tai-frontend.host").getOrElse("")
-  lazy val formTrackingHost = decorateUrlForLocalDev(s"tracking-frontend.host").getOrElse("")
+  lazy val preferencesFrontendService = getExternalUrl(s"preferences-frontend").getOrElse("")
+  lazy val contactHost = getExternalUrl(s"contact-frontend.host").getOrElse("")
+  lazy val citizenAuthHost = getExternalUrl(s"citizen-auth.host").getOrElse("")
+  lazy val taiHost = getExternalUrl(s"tai-frontend.host").getOrElse("")
+  lazy val formTrackingHost = getExternalUrl(s"tracking-frontend.host").getOrElse("")
 
-  lazy val identityVerificationHost = decorateUrlForLocalDev(s"identity-verification.host").getOrElse("")
-  lazy val basGatewayFrontendHost = decorateUrlForLocalDev(s"bas-gateway-frontend.host").getOrElse("")
-  lazy val pertaxFrontendHost = decorateUrlForLocalDev(s"pertax-frontend.host").getOrElse("")
-  lazy val feedbackSurveyFrontendHost = decorateUrlForLocalDev(s"feedback-survey-frontend.host").getOrElse("")
-  lazy val tcsFrontendHost = decorateUrlForLocalDev(s"tcs-frontend.host").getOrElse("")
-  lazy val nispFrontendHost = decorateUrlForLocalDev(s"nisp-frontend.host").getOrElse("")
-  lazy val taxCalcFrontendHost = decorateUrlForLocalDev(s"taxcalc-frontend.host").getOrElse("")
-  lazy val dfsFrontendHost = decorateUrlForLocalDev(s"dfs-digital-forms-frontend.host").getOrElse("")
+  lazy val identityVerificationHost = getExternalUrl(s"identity-verification.host").getOrElse("")
+  lazy val identityVerificationPrefix = getExternalUrl(s"identity-verification.prefix").getOrElse("mdtp")
+  lazy val basGatewayFrontendHost = getExternalUrl(s"bas-gateway-frontend.host").getOrElse("")
+  lazy val pertaxFrontendHost = getExternalUrl(s"pertax-frontend.host").getOrElse("")
+  lazy val pertaxFrontendForAuthHost = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
+  lazy val feedbackSurveyFrontendHost = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
+  lazy val tcsFrontendHost = getExternalUrl(s"tcs-frontend.host").getOrElse("")
+  lazy val nispFrontendHost = getExternalUrl(s"nisp-frontend.host").getOrElse("")
+  lazy val taxCalcFrontendHost = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
+  lazy val dfsFrontendHost = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
 
-  lazy val saFrontendHost = decorateUrlForLocalDev(s"sa-frontend.host").getOrElse("")
+  lazy val saFrontendHost = getExternalUrl(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost =
-    decorateUrlForLocalDev(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
+    getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
-  lazy val enrolmentManagementFrontendHost = decorateUrlForLocalDev(s"enrolment-management-frontend.host").getOrElse("")
-  lazy val ssoUrl = decorateUrlForLocalDev("sso-portal.host")
-  lazy val annualTaxSummariesUrl = decorateUrlForLocalDev("tax-summaries-frontend.host").getOrElse("")
+  lazy val enrolmentManagementFrontendHost = getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
+  lazy val ssoUrl = getExternalUrl("sso-portal.host")
+  lazy val annualTaxSummariesUrl = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
   lazy val isAtsTileEnabled = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
@@ -99,7 +93,7 @@ class ConfigDecorator @Inject()(
       .getOrElse("/template/mustache")
 
   def transformUrlForSso(url: URL) =
-    s"$companyAuthFrontendHost/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
+    s"$basGatewayFrontendHost/bas-gateway/ssoout/non-digital?continue=" + URLEncoder.encode(url.toString, "UTF-8")
 
   def sa302Url(saUtr: String, taxYear: String) =
     s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
@@ -162,7 +156,7 @@ class ConfigDecorator @Inject()(
   lazy val selfAssessmentFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/self-assessment/catalogue"
 
-  lazy val identityVerificationUpliftUrl = s"$identityVerificationHost/$ivfe_web_context/uplift"
+  lazy val identityVerificationUpliftUrl = s"$identityVerificationHost/$identityVerificationPrefix/uplift"
   lazy val multiFactorAuthenticationUpliftUrl = s"$basGatewayFrontendHost/bas-gateway/uplift-mfa"
   lazy val tcsChangeAddressUrl = s"$tcsFrontendHost/tax-credits-service/personal/change-address"
   lazy val tcsServiceRouterUrl = s"$tcsFrontendHost/tax-credits-service/renewals/service-router"
@@ -257,8 +251,8 @@ class ConfigDecorator @Inject()(
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
 
-  def getCompanyAuthFrontendSignOutUrl(continueUrl: String): String =
-    companyAuthHost + s"/gg/sign-out?continue=$continueUrl"
+  def getBasGatewayFrontendSignOutUrl(continueUrl: String): String =
+    basGatewayFrontendHost + s"/bas-gateway/sign-out-without-state?continue=$continueUrl"
 
   lazy val editAddressTtl: Int = runModeConfiguration.getOptional[Int]("mongodb.editAddressTtl").getOrElse(0)
 

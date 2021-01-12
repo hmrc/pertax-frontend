@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
 import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
 import controllers.routes
+import io.lemonlabs.uri.Url
 import models.UserName
-import play.api.Configuration
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
@@ -30,16 +30,14 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
-import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-import io.lemonlabs.uri.Url
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthActionImpl @Inject()(
   val authConnector: AuthConnector,
-  configuration: Configuration,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
   cc: ControllerComponents)(implicit ec: ExecutionContext)
@@ -140,26 +138,26 @@ class AuthActionImpl @Inject()(
   } recover {
     case _: NoActiveSession =>
       def postSignInRedirectUrl(implicit request: Request[_]) =
-        configDecorator.pertaxFrontendHost + controllers.routes.ApplicationController
-          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendHost + request.path)))
+        configDecorator.pertaxFrontendForAuthHost + controllers.routes.ApplicationController
+          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendForAuthHost + request.path)))
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
         case Some(configDecorator.authProviderVerify) => {
-          lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/${configDecorator.ida_web_context}/login"
+          lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/ida/login"
           Redirect(idaSignIn).withSession(
             "loginOrigin"    -> configDecorator.defaultOrigin.origin,
             "login_redirect" -> postSignInRedirectUrl(request)
           )
         }
         case Some(configDecorator.authProviderGG) => {
-          lazy val ggSignIn = s"${configDecorator.companyAuthHost}/${configDecorator.gg_web_context}"
+          lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
           Redirect(
             ggSignIn,
             Map(
-              "continue"    -> Seq(postSignInRedirectUrl(request)),
-              "accountType" -> Seq("individual"),
-              "origin"      -> Seq(configDecorator.defaultOrigin.origin)
+              "continue_url" -> Seq(postSignInRedirectUrl(request)),
+              "accountType"  -> Seq("individual"),
+              "origin"       -> Seq(configDecorator.defaultOrigin.origin)
             )
           )
         }
@@ -177,7 +175,7 @@ class AuthActionImpl @Inject()(
         configDecorator.multiFactorAuthenticationUpliftUrl,
         Map(
           "origin"      -> Seq(configDecorator.origin),
-          "continueUrl" -> Seq(configDecorator.pertaxFrontendHost + configDecorator.personalAccount)
+          "continueUrl" -> Seq(configDecorator.pertaxFrontendForAuthHost + configDecorator.personalAccount)
         )
       ))
 
@@ -188,9 +186,9 @@ class AuthActionImpl @Inject()(
         Map(
           "origin"          -> Seq(configDecorator.origin),
           "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-          "completionURL" -> Seq(configDecorator.pertaxFrontendHost + routes.ApplicationController
+          "completionURL" -> Seq(configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
             .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))),
-          "failureURL" -> Seq(configDecorator.pertaxFrontendHost + routes.ApplicationController
+          "failureURL" -> Seq(configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
             .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri))))
         )
       ))
