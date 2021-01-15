@@ -24,13 +24,14 @@ import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
-import views.html.{ErrorView, NotFoundView}
+import views.html.{ErrorView, NotFoundView, unauthenticatedError}
 
 import scala.concurrent.Future
 
 class ErrorRenderer @Inject()(
   notFoundView: NotFoundView,
-  errorView: ErrorView
+  errorView: ErrorView,
+  unauthenticatedErrorTemplate: unauthenticatedError
 )(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
@@ -66,7 +67,7 @@ class ErrorRenderer @Inject()(
     }
 
     Status(statusCode)(
-      views.html.unauthenticatedError(
+      unauthenticatedErrorTemplate(
         s"global.error.$errorKey.title",
         s"global.error.$errorKey.heading",
         s"global.error.$errorKey.message"))

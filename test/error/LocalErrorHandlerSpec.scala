@@ -21,20 +21,39 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import views.html.{InternalServerErrorView, ViewSpec}
+import views.html.{InternalServerErrorView, ViewSpec, unauthenticatedError}
 
 class LocalErrorHandlerSpec extends ViewSpec with MockitoSugar {
 
   lazy val internalServerError = injected[InternalServerErrorView]
+  lazy val standardError = injected[unauthenticatedError]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val templateRenderer = injected[TemplateRenderer]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-  "errorTemplate" in {
+  "standardErrorTemplate" in {
+    val doc =
+      asDocument(
+        standardError(
+          "Service unavailable",
+          "Service unavailable",
+          "Sorry, we are currently experiencing technical issues.").toString())
+
+    doc.getElementsByTag("h1").toString should include(messages("label.service_unavailable"))
+    doc.getElementsByTag("p").toString should include(
+      messages("label.sorry_we_are_currently_experiencing_technical_issues"))
+
+  }
+
+  "internalServerErrorTemplate" in {
     val doc = asDocument(internalServerError().toString())
-    doc.getElementsByTag("h1").toString shouldBe messages("global.error.StandardError.heading")
-    doc.getElementsByTag("p").toString shouldBe messages("global.error.StandardError.message")
+    doc.getElementsByTag("h1").toString should include(messages("global.error.InternalServerError500.pta.title"))
+    doc.getElementsByTag("p").toString should include(messages(
+      "global.error.InternalServerError500.pta.message.you.can") + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
+      "global.error.InternalServerError500.pta.message.contact.hmrc") + "</a> " + messages(
+      "global.error.InternalServerError500.pta.message.by.phone.post"))
+
   }
 
 }

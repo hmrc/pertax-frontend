@@ -18,6 +18,8 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
+@this()
+
 @(pageTitle: String, heading: String, message: String)(implicit request: Request[_],
         configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
