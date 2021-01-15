@@ -25,10 +25,13 @@ import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
-import views.html.internalServerErrorView
+import views.html.InternalServerErrorView
 
 @Singleton
-class LocalErrorHandler @Inject()(val messagesApi: MessagesApi, val materializer: Materializer)(
+class LocalErrorHandler @Inject()(
+  val messagesApi: MessagesApi,
+  val materializer: Materializer,
+  internalServerErrorView: InternalServerErrorView)(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer)
