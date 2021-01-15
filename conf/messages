@@ -479,8 +479,8 @@ label.manage_your_paperless_settings=Manage your paperless settings
 #
 # Tax Summaries tile
 #
-card.ats.heading=Check your Annual Tax Summary
-card.ats.text=Check your tax and National Insurance contributions and find out how the government spends your taxes. This is for your information only.
+card.ats.heading=View your Annual Tax Summary
+card.ats.text=View your tax and National Insurance contributions and find out how the government spends your taxes. This is for your information only.
 
 #
 # Page not found
