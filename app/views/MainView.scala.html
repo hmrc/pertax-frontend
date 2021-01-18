@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner}
+@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner, TrackingConsentSnippet}
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import util.LanguageHelper
 @import uk.gov.hmrc.renderer._
@@ -27,7 +27,7 @@
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
-@this(attorneyBanner: AttorneyBanner, article: Article)
+@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet)
 @(title: String,
         pageName: Option[String] = None,
         showUserResearchBanner: Boolean = false,
@@ -73,6 +73,10 @@
 
     }
 
+    @headInlineScript = {
+        @trackingConsentSnippet()
+    }
+
     @inlineScript = {
         @scriptElement
 
@@ -82,10 +86,6 @@
 
         @if(displayTimeoutDialog) {
             @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds)
-        }
-
-        @if(configDecorator.isGtmEnabled) {
-            @views.html.scripts.google_tag_manager(configDecorator.googleTagManagerId)
         }
     }
 
@@ -149,10 +149,6 @@
                     "authProvider" -> Some(request.credentials.providerType)
                 )
             },
-            Some(OptimizelyComponent(
-                None,
-                projectId = "8461600066"
-            )),
             Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
             Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
@@ -166,7 +162,8 @@
             Some(BetaBannerComponent(configDecorator.deskproToken)),
             Some(MessagesMenuItemComponent(request.unreadMessageCount))
         ) ++ Map[String, Any](
-            "bodyClass" -> printable
+            "bodyClass" -> printable,
+            "headInlineScript" -> headInlineScript
         ) ++ covidBanner
 
         val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
