@@ -19,15 +19,20 @@ package error
 import akka.stream.Materializer
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.{InternalServerErrorView, unauthenticatedError}
 
 @Singleton
-class LocalErrorHandler @Inject()(val messagesApi: MessagesApi, val materializer: Materializer)(
+class LocalErrorHandler @Inject()(
+  val messagesApi: MessagesApi,
+  val materializer: Materializer,
+  internalServerErrorView: InternalServerErrorView,
+  unauthenticatedErrorTemplate: unauthenticatedError)(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer)
@@ -38,6 +43,9 @@ class LocalErrorHandler @Inject()(val messagesApi: MessagesApi, val materializer
     heading: String,
     message: String
   )(implicit request: Request[_]): Html =
-    views.html.unauthenticatedError(pageTitle, Some(heading), Some(message))
+    unauthenticatedErrorTemplate(pageTitle, heading, message)
+
+  override def internalServerErrorTemplate(implicit request: Request[_]): Html =
+    internalServerErrorView()
 
 }

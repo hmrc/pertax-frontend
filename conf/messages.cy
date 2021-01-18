@@ -523,3 +523,11 @@ label.next_page_forgotten_password=Ar y dudalen nesaf, ewch i ‘Problemau wrth 
 label.next_page_forgotten_userid=Ar y dudalen nesaf, ewch i ‘Problemau wrth fewngofnodi’, ac, ar waelod y dudalen, dewiswch ‘Rwyf wedi anghofio’m Dynodydd Defnyddiwr (ID) Porth y Llywodraeth’.
 
 label.home_page.utr=Eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Hunanasesiad yw
+
+#*************************************************************
+# Service unavailable
+#*************************************************************
+global.error.InternalServerError500.pta.title = Mae’n ddrwg gennym – nid yw’r gwasanaeth ar gael
+global.error.InternalServerError500.pta.message.you.can = Gallwch ddefnyddio’r gwasanaeth hwn yn nes ymlaen, neu gallwch
+global.error.InternalServerError500.pta.message.contact.hmrc = gysylltu â CThEM
+global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y ffôn neu drwy’r post.

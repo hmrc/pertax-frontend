@@ -113,6 +113,8 @@ class ConfigDecorator @Inject()(
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
 
+  lazy val contactHmrcUrl = "https://www.gov.uk/contact-hmrc"
+
   lazy val analyticsToken = runModeConfiguration.getOptional[String](s"google-analytics.token")
   lazy val analyticsHost = Some(
     runModeConfiguration.getOptional[String](s"google-analytics.host").getOrElse("service.gov.uk"))

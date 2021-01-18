@@ -20,20 +20,19 @@
 
 @this()
 
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_],
+@()(implicit request: Request[_],
         configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@unauthenticatedMain(title = messages(pageTitle),
+@unauthenticatedMain(title = messages("global.error.InternalServerError500.pta.title"),
     pageName = Some(messages("label.your_personal_tax_account")),
     backlinkUrl = Some("javascript:window.history.back();")
 ) {
 
     <div class="grid-row pertax-error">
         <div class="column-two-thirds">
-            <header class="page-header">
-                <h1>@messages(heading)</h1>
-            </header>
-            <p>@Html(messages(message))</p>
+             <h1 class="heading-48">@messages("global.error.InternalServerError500.pta.title")</h1>
+            <p>@messages("global.error.InternalServerError500.pta.message.you.can") <a href="@configDecorator.contactHmrcUrl">@messages("global.error.InternalServerError500.pta.message.contact.hmrc")</a> @messages("global.error.InternalServerError500.pta.message.by.phone.post")</p>
+
         </div>
     </div>
 
