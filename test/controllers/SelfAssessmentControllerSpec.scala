@@ -32,6 +32,7 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
+import services.SelfAssessmentService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -51,6 +52,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
   val mockAuthAction = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockPayApiConnector = mock[PayApiConnector]
+  val mockSelfAssessmentService = mock[SelfAssessmentService]
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
@@ -76,6 +78,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         fakeAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector,
+        mockSelfAssessmentService,
         injected[MessagesControllerComponents],
         injected[ErrorRenderer],
         injected[ActivatedSaFilerIntermediateView],
@@ -176,6 +179,25 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
           .getOrElse(throw new TestFailedException("Failed to route", 0))
 
       status(result) shouldBe BAD_REQUEST
+    }
+  }
+
+  "redirectToEnrolForSa" should {
+
+    "redirect to the url returned by the SelfAssessmentService" in new LocalSetup {
+
+      val redirectUrl = "/foo"
+
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(Some(redirectUrl))
+
+      redirectLocation(controller.redirectToEnrolForSa(FakeRequest())) shouldBe Some(redirectUrl)
+    }
+
+    "show an error page if no url is returned" in new LocalSetup {
+
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(None)
+
+      status(controller.redirectToEnrolForSa(FakeRequest())) shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }

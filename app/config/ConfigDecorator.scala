@@ -78,6 +78,9 @@ class ConfigDecorator @Inject()(
   lazy val governmentGatewayLostCredentialsFrontendHost =
     getExternalUrl(s"government-gateway-lost-credentials-frontend.host").getOrElse("")
 
+  lazy val addTaxesFrontendUrl: String = getExternalUrl("add-taxes-frontend.host").getOrElse("")
+  lazy val addTaxesPtaOrigin: String = "pta-sa"
+
   lazy val enrolmentManagementFrontendHost = getExternalUrl(s"enrolment-management-frontend.host").getOrElse("")
   lazy val ssoUrl = getExternalUrl("sso-portal.host")
   lazy val annualTaxSummariesUrl = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
