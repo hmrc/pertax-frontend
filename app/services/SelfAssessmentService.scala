@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentService @Inject()(
   selfAssessmentConnector: SelfAssessmentConnector,
-  configDecorator: ConfigDecorator,
+  configDecorator: ConfigDecorator
 )(implicit ec: ExecutionContext) {
 
   def getSaEnrolmentUrl(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Option[String]] = {
