@@ -33,7 +33,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
-      "external-url.add-taxes-frontend.host" -> s"http://localhost:${server.port()}"
+      "microservice.services.add-taxes-frontend.port" -> server.port()
     )
     .build()
 

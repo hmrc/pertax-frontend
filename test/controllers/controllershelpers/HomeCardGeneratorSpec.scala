@@ -27,7 +27,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.DateTimeTools.previousAndCurrentTaxYear
 import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
@@ -356,7 +356,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
-          injected[RunMode],
           injected[Langs],
           injected[ServicesConfig]
         ) {
