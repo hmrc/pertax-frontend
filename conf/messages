@@ -440,6 +440,8 @@ label.no_need_to_contact_hmrc=There is no need to contact HMRC about this. You w
 label.you_paid_the_right_amount_of_tax=You paid the right amount of tax
 label.nothing_more_to_pay=There is nothing more to pay for this year.
 label.no_record_of_employment=HMRC has no record of you being employed in this tax year so there is nothing more to pay.
+label.not_enrolled.content=You are registered for Self Assessment. To use your Self Assessment online, you need to request access.
+label.not_enrolled.link.text=Request access to your Self Assessment
 
 #
 # Benefits

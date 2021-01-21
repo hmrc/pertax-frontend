@@ -25,6 +25,9 @@
         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
             <p>@messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_", nextDeadlineTaxYear)</p>
         }
+        case NotEnrolledSelfAssessmentUser(saUtr) => {
+            <p>@messages("label.not_enrolled.content")</p>
+        }
         case _ => {}
     }
     }
@@ -58,7 +61,7 @@
         }
         case NotEnrolledSelfAssessmentUser(saUtr) => {
             <li>
-                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
+                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.redirectToEnrolForSa()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Request access to your Self Assessment">@messages("label.not_enrolled.link.text")</a>
             </li>
         }
         case _ => {}
@@ -68,6 +71,7 @@
     @cardLink = @{
         saActionNeeded match {
             case _: ActivatedOnlineFilerSelfAssessmentUser => controllers.routes.InterstitialController.displaySelfAssessment()
+            case _: NotEnrolledSelfAssessmentUser => controllers.routes.SelfAssessmentController.redirectToEnrolForSa()
             case _ => controllers.routes.SelfAssessmentController.handleSelfAssessment()
         }
     }

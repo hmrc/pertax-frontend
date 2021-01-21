@@ -24,6 +24,7 @@ import error.ErrorRenderer
 import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SelfAssessmentService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
@@ -41,6 +42,7 @@ class SelfAssessmentController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
+  selfAssessmentService: SelfAssessmentService,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   activatedSaFilerIntermediateView: ActivatedSaFilerIntermediateView,
@@ -94,6 +96,13 @@ class SelfAssessmentController @Inject()(
           Ok(cannotConfirmIdentityView(retryUrl))
       }
     }
+
+  def redirectToEnrolForSa: Action[AnyContent] = authJourney.authWithSelfAssessment.async { implicit request =>
+    selfAssessmentService.getSaEnrolmentUrl map {
+      case Some(redirectUrl) => Redirect(redirectUrl)
+      case _                 => errorRenderer.error(INTERNAL_SERVER_ERROR)
+    }
+  }
 
   private def handleIvExemptAuditing(
     saUserType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =

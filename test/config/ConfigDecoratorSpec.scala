@@ -21,7 +21,7 @@ import java.net.{MalformedURLException, URL}
 import play.api.i18n.Langs
 import play.api.Configuration
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.BaseSpec
 
 class ConfigDecoratorSpec extends BaseSpec {
@@ -51,7 +51,7 @@ class ConfigDecoratorSpec extends BaseSpec {
       def portalBaseUrlToTest: Option[String]
 
       lazy val configDecorator =
-        new ConfigDecorator(injected[Configuration], injected[RunMode], injected[Langs], injected[ServicesConfig]) {
+        new ConfigDecorator(injected[Configuration], injected[Langs], injected[ServicesConfig]) {
           override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
         }
     }

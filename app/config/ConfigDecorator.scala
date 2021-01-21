@@ -24,13 +24,12 @@ import org.joda.time.LocalDate
 import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 @Singleton
 class ConfigDecorator @Inject()(
   runModeConfiguration: Configuration,
-  runMode: RunMode,
   langs: Langs,
   servicesConfig: ServicesConfig
 ) extends TaxcalcUrls {
@@ -52,6 +51,9 @@ class ConfigDecorator @Inject()(
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
   private lazy val enrolmentStoreProxyService = servicesConfig.baseUrl("enrolment-store-proxy")
+
+  lazy val addTaxesFrontendUrl: String = servicesConfig.baseUrl("add-taxes-frontend")
+  lazy val addTaxesPtaOrigin: String = "pta-sa"
 
   private def getExternalUrl(key: String): Option[String] =
     runModeConfiguration.getOptional[String](s"external-url.$key")
