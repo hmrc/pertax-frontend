@@ -398,7 +398,7 @@ label.make_a_payment=Gwneud taliad
 label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
-label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg dros eich Ffurflen Dreth Hunanasesiad a’i rheoli. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 28 Chwefror {0}.
 label.not_enrolled.content=Rydych wedi cofrestru ar gyfer Hunanasesiad. I ddefnyddio’ch cyfrif Hunanasesiad ar-lein, mae’n rhaid i chi wneud cais i gael mynediad ato.
 label.not_enrolled.link.text=Gwneud cais i gael mynediad at eich Hunanasesiad
 
