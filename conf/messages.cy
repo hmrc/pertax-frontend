@@ -124,7 +124,7 @@ label.you_need_to_activate_your_self_assessment_registration_using_your_link_tex
 label.find_out_how_to_access_your_self_assessment=Cael gwybod sut i gyrchu’ch Hunanasesiad
 label.we_need_to_ask_you_some_questions_=Mae’n rhaid i ni ofyn ambell gwestiwn i chi cyn y gallwn eich helpu.
 label.do_your_tax_return_before_the_deadline=Cyflwynwch eich Ffurflen Dreth cyn y dyddiad cau
-label.the_deadline_to_do_your_tax_return_online_is_=Y dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth ar-lein yw 23:59 ar 31 Ionawr {0}.
+label.the_deadline_to_do_your_tax_return_online_is_=Y dyddiad cau ar gyfer cyflwyno’ch Ffurflen Dreth ar-lein yw 23:59 ar 28 Chwefror {0}.
 label.you_cannot_access_your_self_assessment_=Ni allwch ddod o hyd i’ch gwybodaeth Hunanasesiad o’r cyfrif hwn
 label.you_cannot_view_your_self_assessment_information_here_=Ni allwch fwrw golwg ar eich gwybodaeth ynghylch Hunanasesiad yma.
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=cyflwyno’ch Ffurflen Dreth ar-lein
