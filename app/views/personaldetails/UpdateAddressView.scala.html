@@ -76,21 +76,24 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
             updateAddressForm("line3"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.third_line_of_your_address")
+            '_label -> Messages("label.third_line_of_your_address"),
+            '_autoComplete -> "address-level1"
           )
 
           @tags.input(
             updateAddressForm("line4"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.fourth_line_of_your_address")
+            '_label -> Messages("label.fourth_line_of_your_address"),
+            '_autoComplete -> "address-level2"
           )
 
           @tags.input(
             updateAddressForm("line5"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.fifth_line_of_your_address")
+            '_label -> Messages("label.fifth_line_of_your_address"),
+            '_autoComplete -> "address-level3"
           )
 
           @tags.input(
