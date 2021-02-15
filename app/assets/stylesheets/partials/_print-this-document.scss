@@ -185,6 +185,10 @@
   margin-top: 5px;
 }
 
+.wrap-long-text {
+    word-break: break-all;
+}
+
 @media print {
   .print-document {
     border: none;
