@@ -59,7 +59,8 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label inputLabelBeforeError",
             '_label -> Messages("label.first_line_of_your_address"),
-            '_error_id -> "line1-error-message"
+            '_error_id -> "line1-error-message",
+            '_autoComplete -> "address-line1"
           )
 
           @tags.input(
@@ -67,28 +68,32 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
             '_label -> Messages("label.second_line_of_your_address"),
-            '_error_id -> "line2-error-message"
+            '_error_id -> "line2-error-message",
+            '_autoComplete -> "address-line2"
           )
 
           @tags.input(
             updateAddressForm("line3"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.third_line_of_your_address")
+            '_label -> Messages("label.third_line_of_your_address"),
+            '_autoComplete -> "address-level1"
           )
 
           @tags.input(
             updateAddressForm("line4"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.fourth_line_of_your_address")
+            '_label -> Messages("label.fourth_line_of_your_address"),
+            '_autoComplete -> "address-level2"
           )
 
           @tags.input(
             updateAddressForm("line5"),
             '_inputClass -> "form-control form-control-3-4",
             '_labelClass -> "form-label",
-            '_label -> Messages("label.fifth_line_of_your_address")
+            '_label -> Messages("label.fifth_line_of_your_address"),
+            '_autoComplete -> "address-level3"
           )
 
           @tags.input(
@@ -96,7 +101,8 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
             '_inputClass -> "form-control form-control-1-4",
             '_labelClass -> "form-label inputLabelBeforeError",
             '_label -> Messages("title.postcode"),
-            '_error_id -> "postcode-error-message"
+            '_error_id -> "postcode-error-message",
+            '_autoComplete -> "postal-code"
           )
 
         </fieldset>

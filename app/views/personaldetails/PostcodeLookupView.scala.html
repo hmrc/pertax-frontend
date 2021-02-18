@@ -53,7 +53,8 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
               '_inputClass -> "form-control",
               '_labelClass -> "form-label inputLabelBeforeError postcode-label",
               '_label -> messages("title.postcode"),
-              '_error_id -> "postcode-error-message"
+              '_error_id -> "postcode-error-message",
+              '_autoComplete -> "postal-code"
             )
           </div>
             @if(addressFinderForm.hasErrors) {
@@ -69,7 +70,8 @@ configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templ
               addressFinderForm("filter"),
               '_inputClass -> "form-control",
               '_labelClass -> "form-label inputLabelBeforeError",
-              '_label -> messages("title.house.name.or.number")
+              '_label -> messages("title.house.name.or.number"),
+              '_autoComplete -> "address-line1"
             )
           </div>
 
