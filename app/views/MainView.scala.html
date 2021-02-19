@@ -85,7 +85,7 @@
         }
 
         @if(displayTimeoutDialog) {
-            @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds)
+            @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds, messages)
         }
     }
 
