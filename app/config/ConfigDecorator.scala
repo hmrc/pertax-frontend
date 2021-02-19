@@ -248,7 +248,7 @@ class ConfigDecorator @Inject()(
   lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration
     .get[String](s"assets.version") + '/'
 
-  lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("session.timeout").getOrElse(1800)
+  lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("session.timeout").getOrElse(900)
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("session.countdown").getOrElse(120)
 
