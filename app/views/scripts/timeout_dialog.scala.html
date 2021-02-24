@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(sessionTimeoutInSeconds: Int, sessionCountdownInSeconds: Int)
+@(sessionTimeoutInSeconds: Int, sessionCountdownInSeconds: Int, messages: play.api.i18n.Messages)
 
 <script>
     window.GOVUK.timeoutDialog({
@@ -22,5 +22,13 @@
         countdown: @sessionCountdownInSeconds,
         keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
         signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
+        title: "@messages("label.timeout.dialog.title")",
+        message: "@messages("label.timeout.dialog.message")",
+        keepAliveButtonText: "@messages("label.timeout.dialog.keepAlive.button")",
+        signOutButtonText: "@messages("label.timeout.dialog.signout.button")",
+        properties: {
+            minutes: "@messages("label.timeout.dialog.minutes")",
+            seconds: "@messages("label.timeout.dialog.seconds")"
+        }
     });
 </script>
