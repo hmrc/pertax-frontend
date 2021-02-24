@@ -120,6 +120,7 @@ label.timeout.dialog.title=You are about to be signed out
 label.timeout.dialog.message=You will be signed out for security reasons in
 label.timeout.dialog.minutes=minutes
 label.timeout.dialog.seconds=seconds
+label.timeout.dialog.keepAlive.button=Stay signed in
 label.timeout.dialog.signout.button=Sign out now
 label.theres_a_problem=There is a problem
 label.first_line_of_your_address=Address line 1

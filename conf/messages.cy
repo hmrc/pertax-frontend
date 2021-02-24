@@ -79,6 +79,7 @@ label.timeout.dialog.title=Rydych ar fin cael eich allgofnodi
 label.timeout.dialog.message=Am resymau diogelwch, byddwch yn cael eich allgofnodi ymhen
 label.timeout.dialog.minutes=o funudau
 label.timeout.dialog.seconds=eiliad
+label.timeout.dialog.keepAlive.button=Parhau i fod wedi’ch mewngofnodi
 label.timeout.dialog.signout.button=Allgofnodi nawr
 label.theres_a_problem=Mae problem wedi codi
 label.first_line_of_your_address=Llinell gyntaf eich cyfeiriad
