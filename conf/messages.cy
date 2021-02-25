@@ -59,7 +59,6 @@ label.postal_address=Cyfeiriad post
 label.do_you_live_in_the_uk=A ydych yn byw yn y DU?
 label.do_you_live_in_the_uk.change=a ydych yn byw yn y DU?
 label.is_your_postal_address_in_the_uk = A yw’ch cyfeiriad post yn y DU?
-label.is_your_postal_address_in_the_uk.change = A yw’ch cyfeiriad post yn y DU?
 label.the_uk_is_england_=Y DU yw Cymru, Lloegr, Yr Alban a Gogledd Iwerddon.
 label.this_is_because_you_do_not_live_in_the_uk=Mae hyn am nad ydych yn byw yn y DU.
 label.if_you_do_live_in_the_uk_text_before_link=Os ydych yn byw yn y DU, gallwch
