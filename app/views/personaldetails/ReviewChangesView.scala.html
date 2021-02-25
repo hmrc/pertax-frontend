@@ -41,13 +41,13 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
              @messages("label.is_your_postal_address_in_the_uk")
           </dt>
             <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-            <dd class="cya-change"><a href="@controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url">@messages("label.change")</a></dd>
+              <dd class="cya-change"><a href="@controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url">@messages("label.change") <span class="visuallyhidden">@messages("label.is_your_postal_address_in_the_uk.change")</span></a></dd>
             }else{
             <dt class="cya-question">
                 @messages("label.do_you_live_in_the_uk")
             </dt>
           <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-          <dd class="cya-change"><a href="@controllers.address.routes.InternationalAddressChoiceController.onPageLoad(typ).url">@messages("label.change")</a></dd>
+              <dd class="cya-change"><a href="@controllers.address.routes.InternationalAddressChoiceController.onPageLoad(typ).url">@messages("label.change") <span class="visuallyhidden"> @messages("label.do_you_live_in_the_uk.change")</span></a></dd>
             }
         </div>
         <div>
@@ -72,12 +72,12 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
 
             <dd class="cya-answer">@Html(addressDto.toList.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.change_address")</a></dd>
+            <dd class="cya-change"><a href="@controllers.address.routes.UpdateAddressController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.change_address")</span></a></dd>
             } else {
 
             <dd class="cya-answer">@Html(addressDto.toListWithCountry.map(item => s"<div>$item</div>").mkString)</dd>
 
-            <dd class="cya-change"><a href="@controllers.address.routes.UpdateInternationalAddressController.onPageLoad(typ)">@messages("label.change")</a></dd>
+            <dd class="cya-change"><a href="@controllers.address.routes.UpdateInternationalAddressController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.change_address")</span></a></dd>
             }
 
         </div>
@@ -88,7 +88,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
                   @typ.ifIs(primary = messages("label.when_this_became_your_main_home"), sole = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
                 <dd class="cya-answer">@LanguageHelper.langUtils.Dates.formatDate(startDateDto.startDate)</dd>
-                <dd class="cya-change"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change")</a></dd>
+                <dd class="cya-change"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.when_you_started_living_here.change")</span></a></dd>
               }
             </div>
           }
