@@ -111,8 +111,12 @@ class HomeCardGenerator @Inject()(
       None
     }
 
-  def getNationalInsuranceCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
-    Some(nationalInsuranceView())
+  def getNationalInsuranceCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    if (configDecorator.isNationalInsuranceCardEnabled) {
+      Some(nationalInsuranceView())
+    } else {
+      None
+    }
 
   def getTaxCreditsCard(showTaxCreditsPaymentLink: Boolean)(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(taxCreditsView(showTaxCreditsPaymentLink))
