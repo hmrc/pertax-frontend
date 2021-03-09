@@ -220,11 +220,36 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   }
 
   "Calling getNationalInsuranceCard" should {
-    "always return the same markup" in {
+    "return NI Card when toggled on" in {
 
       lazy val cardBody = homeCardGenerator.getNationalInsuranceCard()
 
       cardBody shouldBe Some(nationalInsurance())
+    }
+
+    "return nothing when toggled off" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val isNationalInsuranceCardEnabled: Boolean = false
+      }
+
+      def sut: HomeCardGenerator =
+        new HomeCardGenerator(
+          payAsYouEarn,
+          taxCalculation,
+          selfAssessment,
+          nationalInsurance,
+          taxCredits,
+          childBenefit,
+          marriageAllowance,
+          statePension,
+          taxSummaries
+        )(stubConfigDecorator)
+
+      sut.getNationalInsuranceCard() shouldBe None
     }
   }
 

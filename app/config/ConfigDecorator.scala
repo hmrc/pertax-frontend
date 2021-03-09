@@ -261,6 +261,12 @@ class ConfigDecorator @Inject()(
   lazy val editAddressTtl: Int = runModeConfiguration.getOptional[Int]("mongodb.editAddressTtl").getOrElse(0)
 
   lazy val saPartialReturnLinkText = "Back to account home"
+
+  lazy val isNationalInsuranceCardEnabled: Boolean =
+    runModeConfiguration
+      .getOptional[String]("feature.national-insurance-tile.enabled")
+      .getOrElse("false")
+      .toBoolean
 }
 
 trait TaxcalcUrls {
