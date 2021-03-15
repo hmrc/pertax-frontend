@@ -58,19 +58,12 @@
         seq
     }
 
-    @gaCustomEvent = @{
-        val langCode = messages.lang.code
-        views.html.google_analytics(langCode, request.uri)
-    }
-
-
     @actingAttorneyBanner = {
-    @{
-        request.trustedHelper.map { (helper: TrustedHelper) =>
-            attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
+        @{
+            request.trustedHelper.map { (helper: TrustedHelper) =>
+                attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
+            }
         }
-    }
-
     }
 
     @headInlineScript = {
@@ -79,10 +72,6 @@
 
     @inlineScript = {
         @scriptElement
-
-        @if(configDecorator.analyticsToken == Some("N/A")) {
-            @views.html.scripts.google_analytics(configDecorator.analyticsToken, configDecorator.analyticsHost, gaCustomEvent)
-        }
 
         @if(displayTimeoutDialog) {
             @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds, messages)
@@ -141,14 +130,6 @@
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
-            configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
-                GoogleAnalyticsComponent(
-                    trackingId,
-                    cookieDomain = configDecorator.analyticsHost,
-                    "confidenceLevel" -> Some(request.confidenceLevel.toString),
-                    "authProvider" -> Some(request.credentials.providerType)
-                )
-            },
             Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
             Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
