@@ -102,7 +102,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     "be redirected to the IV uplift endpoint when" - {
       "the user is an Individual" in {
 
-        val controller = retrievals(confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -110,7 +110,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
 
       "the user is an Organisation" in {
 
-        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L50)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -118,7 +118,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
 
       "the user is an Agent" in {
 
-        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L50)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
