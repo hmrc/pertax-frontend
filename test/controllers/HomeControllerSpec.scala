@@ -135,7 +135,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerLinkUrl) thenReturn None
-    when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
       controller
