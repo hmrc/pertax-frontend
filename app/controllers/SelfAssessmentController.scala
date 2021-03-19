@@ -32,7 +32,6 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.{DateTimeTools, LocalPartialRetriever}
-import views.html.ActivatedSaFilerIntermediateView
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -45,7 +44,6 @@ class SelfAssessmentController @Inject()(
   selfAssessmentService: SelfAssessmentService,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
-  activatedSaFilerIntermediateView: ActivatedSaFilerIntermediateView,
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
   requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView)(
@@ -82,7 +80,7 @@ class SelfAssessmentController @Inject()(
       request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(x) =>
           handleIvExemptAuditing("Activated online SA filer")
-          Ok(activatedSaFilerIntermediateView(x.toString, DateTimeTools.previousAndCurrentTaxYear))
+          Redirect(configDecorator.ssoToSaAccountSummaryUrl(x.toString, DateTimeTools.previousAndCurrentTaxYear))
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
           Ok(failedIvContinueToActivateSaView())
