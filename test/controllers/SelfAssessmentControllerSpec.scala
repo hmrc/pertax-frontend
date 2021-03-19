@@ -39,7 +39,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
-import views.html.{ActivatedSaFilerIntermediateView, ErrorView, NotFoundView}
+import views.html.{ErrorView, NotFoundView}
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -81,7 +81,6 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         mockSelfAssessmentService,
         injected[MessagesControllerComponents],
         injected[ErrorRenderer],
-        injected[ActivatedSaFilerIntermediateView],
         injected[FailedIvContinueToActivateSaView],
         injected[CannotConfirmIdentityView],
         injected[RequestAccessToSelfAssessmentView]
@@ -124,12 +123,12 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
   }
 
   "Calling SelfAssessmentController.ivExemptLandingPage" should {
-    "return 200 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
+    "return 303 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) shouldBe SEE_OTHER
     }
 
     "redirect to the SA activation page on the portal for a user logged in with GG linked to SA which is not yet activated" in new LocalSetup {
