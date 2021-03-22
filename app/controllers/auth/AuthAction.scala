@@ -51,14 +51,14 @@ class AuthActionImpl @Inject()(
       res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
     }
 
-  object GT100 {
-    def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
-      if (confLevel.level > ConfidenceLevel.L100.level) Some(confLevel) else None
-  }
-
   object LT200 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
       if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
+  }
+
+  object GTOE200 {
+    def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
+      if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
   }
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -93,7 +93,7 @@ class AuthActionImpl @Inject()(
         case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GT100(
+        case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GTOE200(
               confidenceLevel) ~ name ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
