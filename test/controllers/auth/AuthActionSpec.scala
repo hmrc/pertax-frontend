@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import util.RetrievalOps._
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
-import scala.language.postfixOps
 
 class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
 
@@ -58,7 +57,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
-  class Harness(authAction: AuthAction) extends Controller {
+  class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
@@ -91,19 +90,19 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     )
 
     val authAction =
-      new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
+      new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
 
     new Harness(authAction)
   }
 
   val ivRedirectUrl =
-    "/mdtp/uplift?origin=PERTAX&confidenceLevel=200&completionURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
+    "http://localhost:9948/iv-stub/uplift?origin=PERTAX&confidenceLevel=200&completionURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
 
   "A user without a L200 confidence level must" - {
     "be redirected to the IV uplift endpoint when" - {
       "the user is an Individual" in {
 
-        val controller = retrievals(confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -111,7 +110,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
 
       "the user is an Organisation" in {
 
-        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L50)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -119,7 +118,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
 
       "the user is an Agent" in {
 
-        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L100)
+        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L50)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
@@ -130,14 +129,16 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
   "A user without a credential strength of Strong must" - {
     "be redirected to the MFA uplift endpoint when" - {
 
-      def mfaRedirectUrl = "/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=%2Fpersonal-account"
+      val mfaRedirectUrl =
+        Some(
+          "http://localhost:9553/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
 
       "the user in an Individual" in {
 
         val controller = retrievals(credentialStrength = CredentialStrength.weak)
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(mfaRedirectUrl)
+        redirectLocation(result) mustBe mfaRedirectUrl
       }
 
       "the user in an Organisation" in {
@@ -146,7 +147,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
-          Some(mfaRedirectUrl)
+          mfaRedirectUrl
       }
 
       "the user in an Agent" in {
@@ -155,7 +156,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
         val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
-          Some(mfaRedirectUrl)
+          mfaRedirectUrl
       }
     }
   }
@@ -165,7 +166,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -178,7 +179,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -189,7 +190,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(configDecorator.authProviderKey -> configDecorator.authProviderVerify)
@@ -198,7 +199,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       session(result) mustBe new Session(
         Map(
           "loginOrigin"    -> Origin("PERTAX").origin,
-          "login_redirect" -> "/personal-account/do-uplift?redirectUrl=%2Ffoo"))
+          "login_redirect" -> "http://localhost:9232/personal-account/do-uplift?redirectUrl=http%3A%2F%2Flocalhost%3A9232%2Ffoo"
+        ))
       redirectLocation(result).get must endWith("/ida/login")
     }
 
@@ -206,7 +208,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(configDecorator.authProviderKey -> configDecorator.authProviderGG)
@@ -214,7 +216,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       status(result) mustBe SEE_OTHER
 
       redirectLocation(result).get must endWith(
-        "/gg/sign-in?continue=%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3D%252Ffoo&accountType=individual&origin=PERTAX")
+        "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3Dhttp%253A%252F%252Flocalhost%253A9232%252Ffoo&accountType=individual&origin=PERTAX")
     }
   }
 
@@ -223,7 +225,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, app.configuration, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 

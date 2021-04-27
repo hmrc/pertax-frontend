@@ -11,7 +11,8 @@ var card = (function () {
 
   var checkSize = function () {
     var maxHeight = getMaxHeight('.card-body')
-    setMaxheight('.card-body', maxHeight)
+    //tile height increased by 15px due to issue DDCNL-3530
+    setMaxheight('.card-body', (maxHeight + 15))
   }
 
   // Check each card. If the card does not contain a .card-action

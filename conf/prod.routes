@@ -57,8 +57,8 @@ POST        /personal-account/your-address/:typ/enter-international-address     
 GET         /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onPageLoad(typ: AddrType)
 POST        /personal-account/your-address/:typ/enter-start-date                       controllers.address.StartDateController.onSubmit(typ: AddrType)
 GET         /personal-account/your-address/:typ/changes                                controllers.address.AddressSubmissionController.onPageLoad(typ: AddrType)
-POST        /personal-account/your-address/:typ/thank-you                              controllers.address.AddressSubmissionController.onSubmit(typ: AddrType)
-GET         /personal-account/your-address/:typ/thank-you                              controllers.address.AddressErrorController.showAddressAlreadyUpdated(typ: AddrType)
+POST        /personal-account/your-address/:typ/address-changed                        controllers.address.AddressSubmissionController.onSubmit(typ: AddrType)
+GET         /personal-account/your-address/:typ/address-changed                        controllers.address.AddressErrorController.showAddressAlreadyUpdated(typ: AddrType)
 GET         /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onPageLoad
 POST        /personal-account/your-address/close-correspondence-address                controllers.address.ClosePostalAddressController.onSubmit
 GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.address.ClosePostalAddressController.confirmPageLoad
@@ -67,6 +67,8 @@ GET         /personal-account/your-address/thanks                               
 
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)
+
+GET         /personal-account/sa-enrolment                                             controllers.SelfAssessmentController.redirectToEnrolForSa
 
 GET         /personal-account/national-insurance-summary                               controllers.InterstitialController.displayNationalInsurance
 GET         /personal-account/national-insurance-summary/print-letter                  controllers.NiLetterController.printNationalInsuranceNumber

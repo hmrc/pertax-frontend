@@ -1,5 +1,5 @@
 @*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,33 +45,6 @@
     @inlineScript = {
 
     @scriptElement
-
-    @if(configDecorator.analyticsToken == Some("N/A")) {
-        <script type="text/javascript">
-                var ga = function (send, event, category, action, label, args) {
-                    console.log(JSON.stringify({
-                        call: 'ga',
-                        send: send,
-                        event: event,
-                        category: category,
-                        action: action,
-                        label: label
-                    }));
-
-                    if (args && typeof args !== 'undefined' && typeof args['hitCallback'] === 'function') {
-                        var hitCallback = args['hitCallback'];
-                        hitCallback();
-                    }
-
-                };
-                window._gaq.push = function (args) {
-                    console.log(JSON.stringify({
-                        call: '_gaq.push',
-                        args: args
-                    }));
-                };
-        </script>
-    }
 
     @if(displayTimeoutDialog) {
         <script>
@@ -126,7 +99,6 @@
             )),
             Some(ScriptsComponent(
                 controllers.routes.AssetsController.versioned("javascripts/pertax.js").url,
-                controllers.routes.AssetsController.versioned("javascripts/gaTracking.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/webChat.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/card.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js").url
@@ -134,14 +106,6 @@
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
-            configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
-                GoogleAnalyticsComponent(
-                    trackingId,
-                    cookieDomain = configDecorator.analyticsHost,
-                    "confidenceLevel" -> None,
-                    "authProvider" -> None
-                )
-            },
             Some(OptimizelyComponent(
                 None,
                 projectId = "8386635457"

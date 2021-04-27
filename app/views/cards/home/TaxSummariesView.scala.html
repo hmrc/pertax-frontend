@@ -1,5 +1,5 @@
 @*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,20 @@
  * limitations under the License.
  *@
 
-@(langCode: String, url: String)
+@import config.ConfigDecorator
+@import tags._
+@this()
 
-ga('set', 'dimension5', '@langCode');
-ga(function(tracker) {
-var clientId = tracker.get('clientId');
-ga('set', 'dimension66', clientId);
-});
-ga('set', 'page', '@url');
+@(taxSummariesUrl: String)(implicit messages: play.api.i18n.Messages)
+
+
+@card(
+    id = Some("ats-card"),
+    url = Some(taxSummariesUrl),
+    gaAction = Some("Tax Summaries"),
+    gaLabel = Some("Annual Tax Summary"),
+    heading = messages("card.ats.heading"),
+    headingTag = "h3",
+    bodyContent = Some(Html("<p>" + messages("card.ats.text") + "</p>"))
+) {
+}

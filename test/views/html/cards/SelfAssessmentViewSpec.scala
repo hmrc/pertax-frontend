@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
         hasLink(
           doc,
           messages("label.self_assessment"),
-          "/personal-account/self-assessment"
+          "/personal-account/sa-enrolment"
         )
       }
     }
@@ -155,8 +155,8 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
         hasLink(
           doc,
-          messages("label.find_out_how_to_access_self_assessment"),
-          "/personal-account/self-assessment"
+          messages("label.not_enrolled.link.text"),
+          "/personal-account/sa-enrolment"
         )
       }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,39 +21,26 @@ import java.net.{MalformedURLException, URL}
 import play.api.i18n.Langs
 import play.api.Configuration
 import uk.gov.hmrc.domain.SaUtrGenerator
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.BaseSpec
 
 class ConfigDecoratorSpec extends BaseSpec {
   val saUtr = new SaUtrGenerator().nextSaUtr.utr
 
   "Converting urls to sso" should {
-
-    trait LocalSetup {
-
-      lazy val configDecorator =
-        new ConfigDecorator(injected[Configuration], injected[RunMode], injected[Langs], injected[ServicesConfig]) {
-          override lazy val portalBaseUrl = "http://portal.service"
-          override lazy val companyAuthFrontendHost = "http://company-auth-frontend.service"
-        }
+    "return a properly encoded sso url when calling transformUrlForSso" in {
+      config.transformUrlForSso(new URL("http://example.com/some/path?key=val")) shouldBe
+        "http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
     }
 
-    "return a properly encoded sso url when calling transformUrlForSso" in new LocalSetup {
-
-      configDecorator.transformUrlForSso(new URL("http://example.com/some/path?key=val")) shouldBe
-        "http://company-auth-frontend.service/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
-    }
-
-    "return a properly formatted sa302 url when calling sa302Url" in new LocalSetup {
-
-      configDecorator.sa302Url(saUtr, "1516") shouldBe
+    "return a properly formatted sa302 url when calling sa302Url" in {
+      config.sa302Url(saUtr, "1516") shouldBe
         s"/self-assessment-file/1516/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
     }
 
-    "return a properly formatted SA Account Summary Url url when calling ssoToSaAccountSummaryUrl" in new LocalSetup {
-
-      configDecorator.ssoToSaAccountSummaryUrl(saUtr, "1516") shouldBe
-        s"http://company-auth-frontend.service/ssoout/non-digital?continue=http%3A%2F%2Fportal.service%2Fself-assessment%2Find%2F$saUtr%2Ftaxreturn%2F1516%2Foptions"
+    "return a properly formatted SA Account Summary Url url when calling ssoToSaAccountSummaryUrl" in {
+      config.ssoToSaAccountSummaryUrl(saUtr, "1516") shouldBe
+        s"http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Flocalhost%3A9237%2Fself-assessment%2Find%2F$saUtr%2Ftaxreturn%2F1516%2Foptions"
     }
   }
 
@@ -64,7 +51,7 @@ class ConfigDecoratorSpec extends BaseSpec {
       def portalBaseUrlToTest: Option[String]
 
       lazy val configDecorator =
-        new ConfigDecorator(injected[Configuration], injected[RunMode], injected[Langs], injected[ServicesConfig]) {
+        new ConfigDecorator(injected[Configuration], injected[Langs], injected[ServicesConfig]) {
           override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
         }
     }

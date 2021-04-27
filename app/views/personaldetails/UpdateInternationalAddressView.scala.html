@@ -1,5 +1,5 @@
 @*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,8 @@ scriptElement = Some(scriptElems)) {
                     '_inputClass -> "form-control form-control-3-4",
                     '_labelClass -> "form-label inputLabelBeforeError",
                     '_label -> messages("label.address_line_one"),
-                    '_error_id -> "line1-error-message"
+                    '_error_id -> "line1-error-message",
+                    '_autoComplete -> "address-line1"
                     )
 
                     @tags.input(
@@ -82,28 +83,32 @@ scriptElement = Some(scriptElems)) {
                     '_inputClass -> "form-control form-control-3-4",
                     '_labelClass -> "form-label",
                     '_label -> messages("label.address_line_two"),
-                    '_error_id -> "line2-error-message"
+                    '_error_id -> "line2-error-message",
+                    '_autoComplete -> "address-line2"
                     )
 
                     @tags.input(
                     updateAddressForm("line3"),
                     '_inputClass -> "form-control form-control-3-4",
                     '_labelClass -> "form-label",
-                    '_label -> messages("label.address_line_three")
+                    '_label -> messages("label.address_line_three"),
+                    '_autoComplete -> "address-level1"
                     )
 
                     @tags.input(
                     updateAddressForm("line4"),
                     '_inputClass -> "form-control form-control-3-4",
                     '_labelClass -> "form-label",
-                    '_label -> messages("label.address_line_four")
+                    '_label -> messages("label.address_line_four"),
+                    '_autoComplete -> "address-level2"
                     )
 
                     @tags.input(
                     updateAddressForm("line5"),
                     '_inputClass -> "form-control form-control-3-4",
                     '_labelClass -> "form-label",
-                    '_label -> messages("label.address_line_five")
+                    '_label -> messages("label.address_line_five"),
+                    '_autoComplete -> "address-level3"
                     )
 
                     @countryInput(

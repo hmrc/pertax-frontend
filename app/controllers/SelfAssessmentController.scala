@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import error.ErrorRenderer
 import models._
 import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SelfAssessmentService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
@@ -31,7 +32,6 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
 import util.{DateTimeTools, LocalPartialRetriever}
-import views.html.ActivatedSaFilerIntermediateView
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -41,9 +41,9 @@ class SelfAssessmentController @Inject()(
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
+  selfAssessmentService: SelfAssessmentService,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
-  activatedSaFilerIntermediateView: ActivatedSaFilerIntermediateView,
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
   requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView)(
@@ -80,7 +80,7 @@ class SelfAssessmentController @Inject()(
       request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(x) =>
           handleIvExemptAuditing("Activated online SA filer")
-          Ok(activatedSaFilerIntermediateView(x.toString, DateTimeTools.previousAndCurrentTaxYear))
+          Redirect(configDecorator.ssoToSaAccountSummaryUrl(x.toString, DateTimeTools.previousAndCurrentTaxYear))
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
           Ok(failedIvContinueToActivateSaView())
@@ -94,6 +94,13 @@ class SelfAssessmentController @Inject()(
           Ok(cannotConfirmIdentityView(retryUrl))
       }
     }
+
+  def redirectToEnrolForSa: Action[AnyContent] = authJourney.authWithSelfAssessment.async { implicit request =>
+    selfAssessmentService.getSaEnrolmentUrl map {
+      case Some(redirectUrl) => Redirect(redirectUrl)
+      case _                 => errorRenderer.error(INTERNAL_SERVER_ERROR)
+    }
+  }
 
   private def handleIvExemptAuditing(
     saUserType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
   "ggSignInUrl" should {
     "be the gg-sign in url" in {
-      controller.ggSignInUrl shouldBe "/gg/sign-in?continue=/personal-account&accountType=individual&origin=PERTAX"
+      controller.ggSignInUrl shouldBe "http://localhost:9553/bas-gateway/sign-in?continue_url=http://localhost:9232/personal-account&accountType=individual&origin=PERTAX"
     }
   }
 }

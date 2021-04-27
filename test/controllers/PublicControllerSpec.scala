@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
       val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/feedback/PERTAX")
+      redirectLocation(r) shouldBe Some("http://localhost:9514/feedback/PERTAX")
     }
   }
 
@@ -65,7 +65,7 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
 
       val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
       status(r) shouldBe MOVED_PERMANENTLY
-      redirectLocation(r) shouldBe Some("/tax-credits-service/renewals/service-router")
+      redirectLocation(r) shouldBe Some("http://localhost:9362/tax-credits-service/renewals/service-router")
     }
   }
 

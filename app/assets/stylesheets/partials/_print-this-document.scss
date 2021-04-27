@@ -58,7 +58,7 @@
       text-align: right;
       margin-top: 2em;
       font-size: 1.2em;
-      color: #28A197;
+      color: #0b0c0c;
       font-weight: 600;
     }
   }
@@ -183,6 +183,10 @@
 .ni-footer-info {
   font-size: 14px;
   margin-top: 5px;
+}
+
+.wrap-long-text {
+    word-break: break-all;
 }
 
 @media print {

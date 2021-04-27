@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         controller.onSubmit()(FakeRequest())
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/tax-credits-service/personal/change-address")
+      redirectLocation(result) shouldBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
     }
 
     "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,14 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, redirectLocation, _}
+import services.SelfAssessmentService
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
-import views.html.{ActivatedSaFilerIntermediateView, ErrorView, NotFoundView}
+import views.html.{ErrorView, NotFoundView}
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -51,6 +52,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
   val mockAuthAction = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockPayApiConnector = mock[PayApiConnector]
+  val mockSelfAssessmentService = mock[SelfAssessmentService]
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
   val defaultFakeAuthJourney = new FakeAuthJourney(NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr))
@@ -76,9 +78,9 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         fakeAuthJourney,
         injected[WithBreadcrumbAction],
         mockAuditConnector,
+        mockSelfAssessmentService,
         injected[MessagesControllerComponents],
         injected[ErrorRenderer],
-        injected[ActivatedSaFilerIntermediateView],
         injected[FailedIvContinueToActivateSaView],
         injected[CannotConfirmIdentityView],
         injected[RequestAccessToSelfAssessmentView]
@@ -100,7 +102,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
       val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(
-        "/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account")
+        "http://localhost:9555/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account")
     }
 
     "return 303 when called with a GG user that is SA or has an SA enrollment in another account." in new LocalSetup {
@@ -121,12 +123,12 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
   }
 
   "Calling SelfAssessmentController.ivExemptLandingPage" should {
-    "return 200 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
+    "return 303 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) shouldBe SEE_OTHER
     }
 
     "redirect to the SA activation page on the portal for a user logged in with GG linked to SA which is not yet activated" in new LocalSetup {
@@ -176,6 +178,25 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
           .getOrElse(throw new TestFailedException("Failed to route", 0))
 
       status(result) shouldBe BAD_REQUEST
+    }
+  }
+
+  "redirectToEnrolForSa" should {
+
+    "redirect to the url returned by the SelfAssessmentService" in new LocalSetup {
+
+      val redirectUrl = "/foo"
+
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(Some(redirectUrl))
+
+      redirectLocation(controller.redirectToEnrolForSa(FakeRequest())) shouldBe Some(redirectUrl)
+    }
+
+    "show an error page if no url is returned" in new LocalSetup {
+
+      when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(None)
+
+      status(controller.redirectToEnrolForSa(FakeRequest())) shouldBe INTERNAL_SERVER_ERROR
     }
   }
 }

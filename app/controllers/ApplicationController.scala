@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ class ApplicationController @Inject()(
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         .fold(BadRequest("Missing origin")) { url: String =>
           if (request.isGovernmentGateway) {
-            Redirect(configDecorator.getCompanyAuthFrontendSignOutUrl(url))
+            Redirect(configDecorator.getBasGatewayFrontendSignOutUrl(url))
           } else {
             Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
           }

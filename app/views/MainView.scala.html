@@ -1,5 +1,5 @@
 @*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner}
+@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner, TrackingConsentSnippet}
 @import uk.gov.hmrc.play.views.helpers.AttorneyRegime
 @import util.LanguageHelper
 @import uk.gov.hmrc.renderer._
@@ -27,7 +27,7 @@
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
-@this(attorneyBanner: AttorneyBanner, article: Article)
+@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet)
 @(title: String,
         pageName: Option[String] = None,
         showUserResearchBanner: Boolean = false,
@@ -58,34 +58,23 @@
         seq
     }
 
-    @gaCustomEvent = @{
-        val langCode = messages.lang.code
-        views.html.google_analytics(langCode, request.uri)
-    }
-
-
     @actingAttorneyBanner = {
-    @{
-        request.trustedHelper.map { (helper: TrustedHelper) =>
-            attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
+        @{
+            request.trustedHelper.map { (helper: TrustedHelper) =>
+                attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
+            }
         }
     }
 
+    @headInlineScript = {
+        @trackingConsentSnippet()
     }
 
     @inlineScript = {
         @scriptElement
 
-        @if(configDecorator.analyticsToken == Some("N/A")) {
-            @views.html.scripts.google_analytics(configDecorator.analyticsToken, configDecorator.analyticsHost, gaCustomEvent)
-        }
-
         @if(displayTimeoutDialog) {
-            @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds)
-        }
-
-        @if(configDecorator.isGtmEnabled) {
-            @views.html.scripts.google_tag_manager(configDecorator.googleTagManagerId)
+            @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds, messages)
         }
     }
 
@@ -132,7 +121,6 @@
             )),
             Some(ScriptsComponent(
                 controllers.routes.AssetsController.versioned("javascripts/pertax.js").url,
-                controllers.routes.AssetsController.versioned("javascripts/gaTracking.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/webChat.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/card.js").url,
                 controllers.routes.AssetsController.versioned("javascripts/polyfill.js").url,
@@ -141,18 +129,6 @@
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
-            configDecorator.analyticsToken.filter(_ != "N/A").map { trackingId =>
-                GoogleAnalyticsComponent(
-                    trackingId,
-                    cookieDomain = configDecorator.analyticsHost,
-                    "confidenceLevel" -> Some(request.confidenceLevel.toString),
-                    "authProvider" -> Some(request.credentials.providerType)
-                )
-            },
-            Some(OptimizelyComponent(
-                None,
-                projectId = "8461600066"
-            )),
             Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
             Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
@@ -166,7 +142,8 @@
             Some(BetaBannerComponent(configDecorator.deskproToken)),
             Some(MessagesMenuItemComponent(request.unreadMessageCount))
         ) ++ Map[String, Any](
-            "bodyClass" -> printable
+            "bodyClass" -> printable,
+            "headInlineScript" -> headInlineScript
         ) ++ covidBanner
 
         val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {

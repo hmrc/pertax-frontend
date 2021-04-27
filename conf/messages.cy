@@ -57,6 +57,7 @@ label.change_your_main_address=Newid eich prif gyfeiriad
 label.change_your_postal_address=Newid eich cyfeiriad post
 label.postal_address=Cyfeiriad post
 label.do_you_live_in_the_uk=A ydych yn byw yn y DU?
+label.do_you_live_in_the_uk.change=a ydych yn byw yn y DU?
 label.is_your_postal_address_in_the_uk = A yw’ch cyfeiriad post yn y DU?
 label.the_uk_is_england_=Y DU yw Cymru, Lloegr, Yr Alban a Gogledd Iwerddon.
 label.this_is_because_you_do_not_live_in_the_uk=Mae hyn am nad ydych yn byw yn y DU.
@@ -75,6 +76,12 @@ label.sign_in=Mewngofnodi
 label.youve_been_signed_out=Mae’r system wedi’ch allgofnodi
 label.timeout_message=Nid ydych wedi gwneud unrhyw beth am {0} munud, felly rydym wedi’ch allgofnodi er mwyn cadw’ch cyfrif yn ddiogel.
 label.please_sign_in_again=Mewngofnodwch eto.
+label.timeout.dialog.title=Rydych ar fin cael eich allgofnodi
+label.timeout.dialog.message=Am resymau diogelwch, byddwch yn cael eich allgofnodi ymhen
+label.timeout.dialog.minutes=o funudau
+label.timeout.dialog.seconds=eiliad
+label.timeout.dialog.keepAlive.button=Parhau i fod wedi’ch mewngofnodi
+label.timeout.dialog.signout.button=Allgofnodi nawr
 label.theres_a_problem=Mae problem wedi codi
 label.first_line_of_your_address=Llinell gyntaf eich cyfeiriad
 label.second_line_of_your_address=Ail linell eich cyfeiriad
@@ -226,8 +233,9 @@ label.your_main_home_may_be_where_your_registerd_bank_address=rydych wedi’ch c
 label.your_main_home_may_be_where_your_registerd_for_clubs=rydych yn aelod o glybiau neu gymdeithasau
 label.your_main_home_is_usually_where_you_live_text_before_link=O 6 Ebrill 2016 ymlaen, byddwch yn talu cyfradd yr Alban o Dreth Incwm os ydych yn byw yn yr Alban. Os ydych yn symud i’r Alban, neu o’r Alban, yn ystod blwyddyn dreth, neu’n byw mewn mwy nag un cartref, mae’n bosibl y bydd eich sefyllfa’n wahanol.
 label.your_main_home_is_usually_where_you_live_link_text=Gwirio a fyddwch yn talu cyfradd yr Alban o Dreth Incwm
-label.change_address=Newid cyfeiriad
+label.change_address=eich cyfeiriad newydd
 label.when_you_started_living_here=Pan wnaethoch ddechrau byw fan hyn
+label.when_you_started_living_here.change=pryd y gwnaethoch ddechrau byw fan hyn
 label.what_happens_next=Yr hyn sy’n digwydd nesaf
 label.confirm_and_save=Cadarnhau a chadw
 label.continue_to_your_sa302=Mynd yn eich blaen i’ch SA302
@@ -276,24 +284,24 @@ head.error.enrolled.to.send.tax.required=Dewiswch ‘Iawn’ os ydych wedi cofre
 head.error.you_must_select_an_answer=Mae angen i chi ddewis ateb
 head.error.required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.required=Mae angen rhoi gwybodaeth ar y llinell hon
-head.error.line1_required=Gwirio llinell gyntaf eich cyfeiriad
-head.error.line2_required=Gwirio ail linell eich cyfeiriad
+head.error.line1_required=Nodwch linell gyntaf eich cyfeiriad
+head.error.line2_required=Nodwch ail linell eich cyfeiriad
 head.error.line3_required=Gwirio trydedd linell eich cyfeiriad
 head.error.line4_required=Gwirio pedwaredd linell eich cyfeiriad
-error.line1_required=Mae angen rhoi gwybodaeth ar y llinell hon
-error.line2_required=Mae angen rhoi gwybodaeth ar y llinell hon
+error.line1_required=Nodwch linell gyntaf eich cyfeiriad
+error.line2_required=Nodwch ail linell eich cyfeiriad
 error.line3_required=Mae angen rhoi gwybodaeth ar y llinell hon
 error.line4_required=Mae angen rhoi gwybodaeth ar y llinell hon
-head.error.line1_contains_more_than_35_characters=Gwirio llinell gyntaf eich cyfeiriad
-head.error.line2_contains_more_than_35_characters=Gwirio ail linell eich cyfeiriad
-head.error.line3_contains_more_than_35_characters=Gwirio trydedd linell eich cyfeiriad
-head.error.line4_contains_more_than_35_characters=Gwirio pedwaredd linell eich cyfeiriad
-head.error.line5_contains_more_than_35_characters=Gwirio pumed linell eich cyfeiriad
-error.line1_contains_more_than_35_characters=Mae’r llinell hon o’ch cyfeiriad yn cynnwys mwy na 35 o gymeriadau
-error.line2_contains_more_than_35_characters=Mae’r llinell hon o’ch cyfeiriad yn cynnwys mwy na 35 o gymeriadau
-error.line3_contains_more_than_35_characters=Mae’r llinell hon o’ch cyfeiriad yn cynnwys mwy na 35 o gymeriadau
-error.line4_contains_more_than_35_characters=Mae’r llinell hon o’ch cyfeiriad yn cynnwys mwy na 35 o gymeriadau
-error.line5_contains_more_than_35_characters=Mae’r llinell hon o’ch cyfeiriad yn cynnwys mwy na 35 o gymeriadau
+head.error.line1_contains_more_than_35_characters=Mae’n rhaid i linell 1 y cyfeiriad fod yn 35 o gymeriadau neu lai
+head.error.line2_contains_more_than_35_characters=Mae’n rhaid i linell 2 y cyfeiriad fod yn 35 o gymeriadau neu lai
+head.error.line3_contains_more_than_35_characters=Mae’n rhaid i linell 3 y cyfeiriad fod yn 35 o gymeriadau neu lai
+head.error.line4_contains_more_than_35_characters=Mae’n rhaid i linell 4 y cyfeiriad fod yn 35 o gymeriadau neu lai
+head.error.line5_contains_more_than_35_characters=Mae’n rhaid i linell 5 y cyfeiriad fod yn 35 o gymeriadau neu lai
+error.line1_contains_more_than_35_characters=Mae’n rhaid i linell 1 y cyfeiriad fod yn 35 o gymeriadau neu lai
+error.line2_contains_more_than_35_characters=Mae’n rhaid i linell 2 y cyfeiriad fod yn 35 o gymeriadau neu lai
+error.line3_contains_more_than_35_characters=Mae’n rhaid i linell 3 y cyfeiriad fod yn 35 o gymeriadau neu lai
+error.line4_contains_more_than_35_characters=Mae’n rhaid i linell 4 y cyfeiriad fod yn 35 o gymeriadau neu lai
+error.line5_contains_more_than_35_characters=Mae’n rhaid i linell 5 y cyfeiriad fod yn 35 o gymeriadau neu lai
 head.error.line1_invalid_characters=Gwirio llinell gyntaf eich cyfeiriad
 head.error.line2_invalid_characters=Gwirio ail linell eich cyfeiriad
 head.error.line3_invalid_characters=Gwirio trydedd linell eich cyfeiriad
@@ -304,7 +312,7 @@ error.line2_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rh
 error.line3_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line4_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line5_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
-head.error.enter_a_valid_uk_postcode=Gwirio bod eich cod post yn gywir
+head.error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
 error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
 error.enter_valid_characters=Nodwch gymeriadau dilys
 error.enter_valid_date=Nodwch ddyddiad dilys
@@ -399,6 +407,8 @@ label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.not_enrolled.content=Rydych wedi cofrestru ar gyfer Hunanasesiad. I ddefnyddio’ch cyfrif Hunanasesiad ar-lein, mae’n rhaid i chi wneud cais i gael mynediad ato.
+label.not_enrolled.link.text=Gwneud cais i gael mynediad at eich Hunanasesiad
 
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=Mae gennych rif Yswiriant Gwladol er mwyn sicrhau bod eich cyfraniadau Yswiriant Gwladol a threth yn cael eu cofnodi yn erbyn eich enw chi’n unig.
 label.your_national_insurance_number_is_your_unique_identifier=Eich rhif Yswiriant Gwladol yw’ch dynodydd unigryw.
@@ -441,6 +451,12 @@ label.messages=Negeseuon
 label.message=Neges
 
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
+
+#
+# Tax Summaries tile
+#
+card.ats.heading=Bwrw golwg dros eich Crynodeb Treth Blynyddol
+card.ats.text=Bwrw golwg dros eich treth a chyfraniadau Yswiriant Gwladol a gweld sut mae’r llywodraeth yn gwario’ch trethi. Mae hyn er eich gwybodaeth yn unig.
 
 label.phone_text=Ffôn
 label.national_insurance_number=Rhif Yswiriant Gwladol gennych
@@ -517,3 +533,11 @@ label.next_page_forgotten_password=Ar y dudalen nesaf, ewch i ‘Problemau wrth 
 label.next_page_forgotten_userid=Ar y dudalen nesaf, ewch i ‘Problemau wrth fewngofnodi’, ac, ar waelod y dudalen, dewiswch ‘Rwyf wedi anghofio’m Dynodydd Defnyddiwr (ID) Porth y Llywodraeth’.
 
 label.home_page.utr=Eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Hunanasesiad yw
+
+#*************************************************************
+# Service unavailable
+#*************************************************************
+global.error.InternalServerError500.pta.title = Mae’n ddrwg gennym – nid yw’r gwasanaeth ar gael
+global.error.InternalServerError500.pta.message.you.can = Gallwch ddefnyddio’r gwasanaeth hwn yn nes ymlaen, neu gallwch
+global.error.InternalServerError500.pta.message.contact.hmrc = gysylltu â CThEM
+global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y ffôn neu drwy’r post.

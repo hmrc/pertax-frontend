@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,18 +126,15 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
     when(mockConfigDecorator.allowSaPreview) thenReturn true
     when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
     when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
-    when(mockConfigDecorator.companyAuthHost) thenReturn ""
     when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
-    when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/personal-account")) thenReturn "/gg/sign-out?continue=/personal-account"
-    when(mockConfigDecorator.getCompanyAuthFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/gg/sign-out?continue=/feedback/PERTAX"
+    when(mockConfigDecorator.getBasGatewayFrontendSignOutUrl("/personal-account")) thenReturn "/bas-gateway/sign-out-without-state?continue=/personal-account"
+    when(mockConfigDecorator.getBasGatewayFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/bas-gateway/sign-out-without-state?continue=/feedback/PERTAX"
     when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
     when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
     when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-    when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
-    when(mockConfigDecorator.gg_web_context) thenReturn "gg-sign-in"
+    when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerLinkUrl) thenReturn None
-    when(mockConfigDecorator.analyticsToken) thenReturn Some("N/A")
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
       controller
