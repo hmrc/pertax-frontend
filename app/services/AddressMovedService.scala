@@ -17,6 +17,7 @@
 package services
 
 import com.google.inject.Inject
+import models.addresslookup.Subdivision
 import models.{AddressChanged, AnyOtherMove, MovedFromScotland, MovedToScotland}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -59,11 +60,13 @@ class AddressMovedService @Inject()(addressLookupService: AddressLookupService) 
 
   private val scottishSubdivision = "GB-SCT"
 
-  private def hasMovedFromScotland(fromSubdivision: Option[String], toSubdivision: Option[String]): Boolean =
-    fromSubdivision.contains(scottishSubdivision) && !toSubdivision.contains(scottishSubdivision)
+  private def hasMovedFromScotland(fromSubdivision: Option[Subdivision], toSubdivision: Option[Subdivision]): Boolean =
+    fromSubdivision.fold(false)(_.code.contains(scottishSubdivision)) && !toSubdivision.fold(false)(
+      _.code.contains(scottishSubdivision))
 
-  private def hasMovedToScotland(fromSubdivision: Option[String], toSubdivision: Option[String]): Boolean =
-    !fromSubdivision.contains(scottishSubdivision) && toSubdivision.contains(scottishSubdivision)
+  private def hasMovedToScotland(fromSubdivision: Option[Subdivision], toSubdivision: Option[Subdivision]): Boolean =
+    !fromSubdivision.fold(false)(_.code.contains(scottishSubdivision)) && toSubdivision.fold(false)(
+      _.code.contains(scottishSubdivision))
 
   private def withAddressExists(fromAddressId: String, toAddressId: String)(
     f: => Future[AddressChanged]): Future[AddressChanged] =

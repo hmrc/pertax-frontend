@@ -29,7 +29,7 @@ case class Address(
   otherLine: Option[String],
   postcode: String,
   country: Country,
-  subdivision: Option[String]) {
+  subdivision: Option[Subdivision]) {
 
   def isValid: Boolean = lines.nonEmpty
 

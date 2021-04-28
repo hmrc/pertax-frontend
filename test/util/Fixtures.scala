@@ -21,7 +21,7 @@ import java.util.UUID
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
+import models.addresslookup.{AddressRecord, Country, RecordSet, Subdivision, Address => PafAddress}
 import models.dto.AddressDto
 import org.joda.time.LocalDate
 import org.mockito.Matchers._
@@ -49,7 +49,7 @@ import scala.util.Random
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK", "United Kingdom")
-  val subDivision = Some("GB-ENG")
+  val subDivision = Some(Subdivision("GB-ENG", "England"))
 
   val fakeStreetPafAddressRecord = AddressRecord(
     "GB101",
@@ -71,7 +71,7 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       exampleCountryUK,
-      Some("GB-SCT"))
+      Some(Subdivision("GB-SCT", "Scotland")))
   val otherPlacePafDifferentPostcodeAddress =
     PafAddress(Seq("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", exampleCountryUK, subDivision)
 
