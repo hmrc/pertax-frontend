@@ -25,13 +25,13 @@ class AddressRecordSpec extends UnitSpec {
 
     "return true where the address has at least one line" in {
       val addressLines = List("some line")
-      val validAddress = Address(addressLines, None, None, "Some Postcode", Country("UK", "United Kingdom"), None)
+      val validAddress = Address(addressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom"))
       AddressRecord("some id", validAddress, "en").isValid shouldBe true
     }
 
     "return false where the address has no lines" in {
       val noAddressLines = List()
-      val invalidAddress = Address(noAddressLines, None, None, "Some Postcode", Country("UK", "United Kingdom"), None)
+      val invalidAddress = Address(noAddressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom"))
       AddressRecord("some id", invalidAddress, "en").isValid shouldBe false
     }
   }

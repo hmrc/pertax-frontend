@@ -16,7 +16,7 @@
 
 package services
 
-import models.addresslookup.{Address, AddressRecord, Country, RecordSet, Subdivision}
+import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -37,13 +37,13 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
     Seq(
       AddressRecord(
         "some id",
-        Address(Seq.empty, None, None, fromPostcode, Country("eng", "England"), Some(Subdivision("GB-ENG", "England"))),
+        Address(List.empty, None, None, fromPostcode, Some(Country("GB-ENG", "England")), Country("eng", "England")),
         "en")))
   val scotlandRecordSet = RecordSet(
     Seq(
       AddressRecord(
         "some id",
-        Address(Seq.empty, None, None, fromPostcode, Country("blah", "blah"), Some(Subdivision("GB-SCT", "Scotland"))),
+        Address(List.empty, None, None, fromPostcode, Some(Country("GB-SCT", "Scotland")), Country("blah", "blah")),
         "en")))
 
   val service = new AddressMovedService(addressLookupService)

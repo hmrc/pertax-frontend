@@ -21,7 +21,7 @@ import java.util.UUID
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import models.addresslookup.{AddressRecord, Country, RecordSet, Subdivision, Address => PafAddress}
+import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.joda.time.LocalDate
 import org.mockito.Matchers._
@@ -49,31 +49,31 @@ import scala.util.Random
 
 trait PafFixtures {
   val exampleCountryUK = Country("UK", "United Kingdom")
-  val subDivision = Some(Subdivision("GB-ENG", "England"))
+  val subDivision = Some(Country("GB-ENG", "England"))
 
   val fakeStreetPafAddressRecord = AddressRecord(
     "GB101",
     PafAddress(
-      Seq("1 Fake Street", "Fake Town", "Fake City"),
+      List("1 Fake Street", "Fake Town", "Fake City"),
       Some("Fake Region"),
       None,
       "AA1 1AA",
-      exampleCountryUK,
-      subDivision),
+      subDivision,
+      exampleCountryUK),
     "en")
 
   val oneOtherPlacePafAddress =
-    PafAddress(Seq("2 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", exampleCountryUK, subDivision)
+    PafAddress(List("2 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", subDivision, exampleCountryUK)
   val twoOtherPlacePafAddress =
     PafAddress(
-      Seq("3 Other Place", "Some District"),
+      List("3 Other Place", "Some District"),
       Some("Anytown"),
       None,
       "AA1 1AA",
-      exampleCountryUK,
-      Some(Subdivision("GB-SCT", "Scotland")))
+      Some(Country("GB-SCT", "Scotland")),
+      exampleCountryUK)
   val otherPlacePafDifferentPostcodeAddress =
-    PafAddress(Seq("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", exampleCountryUK, subDivision)
+    PafAddress(List("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", subDivision, exampleCountryUK)
 
   val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
   val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
