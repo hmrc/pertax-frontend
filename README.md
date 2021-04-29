@@ -6,7 +6,7 @@ This is the repository for the Personal Tax Account frontend project.
 
 
 Integrating the PTA header into your project
---------------------------------------------
+-------------------------------------------
 
 Example Partial URL: 
 
