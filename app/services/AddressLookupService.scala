@@ -53,7 +53,7 @@ class AddressLookupService @Inject()(
       val pc = postcode.replaceAll(" ", "")
       val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
 
-      simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v1/gb/addresses.json?postcode=$pc&filter=$hn")(
+      simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v2/uk/addresses?postcode=$pc&filter=$hn")(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()

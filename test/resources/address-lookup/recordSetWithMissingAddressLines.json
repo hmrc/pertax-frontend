@@ -10,7 +10,10 @@
         "code": "UK",
         "name": "United Kingdom"
       },
-      "subdivision": "GB-ENG"
+      "subdivision":  {
+        "code": "GB-ENG",
+        "name": "England"
+      }
     },
     "language": "en"
   },
@@ -27,7 +30,10 @@
         "code": "UK",
         "name": "United Kingdom"
       },
-      "subdivision": "GB-SCT"
+      "subdivision":{
+        "code": "GB-SCT",
+        "name": "Scotland"
+      }
     },
     "language": "en"
   }
