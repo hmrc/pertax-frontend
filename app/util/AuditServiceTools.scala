@@ -18,7 +18,7 @@ package util
 
 import controllers.auth.requests.UserRequest
 import models.{PersonDetails, SelfAssessmentUser}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames}
 import uk.gov.hmrc.play.audit.model.DataEvent
 
 object AuditServiceTools {
@@ -51,7 +51,9 @@ object AuditServiceTools {
     DataEvent(
       auditSource = auditSource,
       auditType = auditType,
-      tags = hc.headers.toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
+      tags = hc
+        .headers(HeaderNames.explicitlyIncludedHeaders)
+        .toMap ++ customTags.map(x => x._2.map((x._1, _))).flatten.toMap,
       detail = standardAuditData ++ customAuditData
     )
   }
