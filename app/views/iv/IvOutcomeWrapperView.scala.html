@@ -18,14 +18,23 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
 
-@()(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@this(unauthenticatedMainView: UnauthenticatedMainView)
 
-@unauthenticatedMain(messages("label.sign_in"), displayTimeoutDialog = false) {
+@(title: String, header: String)(content: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-    <header class="page-heading">
-        <h1 class="heading-xlarge">@messages("label.youve_been_signed_out")</h1>
-    </header>
-    <p>@messages("label.timeout_message", configDecorator.sessionTimeoutInMinutes.toString)</p>
-    <p>@messages("label.please_sign_in_again")</p>
-    <a class="button" href="@controllers.routes.HomeController.index" role="button">@messages("label.sign_in")</a>
-}
+    @unauthenticatedMainView(title) {
+
+        <div class="grid-row">
+            <div class="column-two-thirds">
+
+                <header class="page-heading">
+                    <h1 class="heading-xlarge">@header</h1>
+                </header>
+
+                @content
+
+            </div>
+        </div>
+
+    }

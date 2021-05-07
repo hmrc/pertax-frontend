@@ -27,7 +27,7 @@
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
-@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet)
+@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet, getHelpFormView: GetHelpFormView)
 @(title: String,
         pageName: Option[String] = None,
         showUserResearchBanner: Boolean = false,
@@ -129,7 +129,7 @@
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
-            Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
+            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, includeGridWrapper))),
             Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
             Some(UserPropertiesComponent(

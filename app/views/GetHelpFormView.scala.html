@@ -16,7 +16,9 @@
 
 @import config.ConfigDecorator
 @import util.LocalPartialRetriever
+@import scala.concurrent.ExecutionContext
 
+@this()(implicit ec: ExecutionContext)
 @(supportLinkEnabled: Boolean = true, includeGridWrapper: Boolean = false)(implicit request: Request[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, messages: play.api.i18n.Messages)
 
     @if(supportLinkEnabled) {

@@ -19,14 +19,14 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
+import views.html.public.SessionTimeoutView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PublicController @Inject()(cc: MessagesControllerComponents)(
+class PublicController @Inject()(cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -51,7 +51,7 @@ class PublicController @Inject()(cc: MessagesControllerComponents)(
 
   def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
-      Ok(views.html.public.sessionTimeout())
+      Ok(sessionTimeoutView())
     }
   }
 

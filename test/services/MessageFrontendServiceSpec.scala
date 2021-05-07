@@ -73,7 +73,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
   "Calling getMessageListPartial" should {
     "return message partial for list of messages" in {
 
-      when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
+      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
       val result = messageFrontendService.getMessageListPartial(FakeRequest())
@@ -88,7 +88,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
   "Calling getMessageDetailPartial" should {
     "return message partial for message details" in {
 
-      when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
+      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String")))
 
       val partial = messageFrontendService.getMessageDetailPartial("")(FakeRequest())
@@ -101,7 +101,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
   "Calling getMessageInboxLinkPartial" should {
     "return message inbox link partial" in {
 
-      when(messageFrontendService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
+      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
 
       val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest())
