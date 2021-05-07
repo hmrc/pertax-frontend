@@ -50,7 +50,7 @@ class SimpleHttpSpec extends BaseSpec {
     lazy val dummyCallbacks = MockitoSugar.mock[DummyCallbacks]
     lazy val http = {
       val h = MockitoSugar.mock[DefaultHttpClient]
-      when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
+      when(h.GET[HttpResponse](any(), any(), any())(any(), any(), any())) thenReturn httpResponse
       h
     }
 
@@ -63,7 +63,7 @@ class SimpleHttpSpec extends BaseSpec {
 
       override lazy val http = {
         val h = MockitoSugar.mock[DefaultHttpClient]
-        when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
+        when(h.GET[HttpResponse](any(), any(), any())(any(), any(), any())) thenReturn httpResponse
         h
       }
 

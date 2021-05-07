@@ -19,8 +19,8 @@ package metrics
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import org.mockito.Matchers.any
-import org.mockito.{InOrder, Mockito}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito
+import org.mockito.Mockito.{times, when}
 import org.scalatestplus.mockito.MockitoSugar
 import util.BaseSpec
 

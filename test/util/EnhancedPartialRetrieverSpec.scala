@@ -22,15 +22,16 @@ import metrics.HasMetrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EnhancedPartialRetrieverSpec extends BaseSpec {
+
+  lazy implicit val fakeRequest = FakeRequest("", "")
 
   trait LocalSetup {
 
@@ -44,13 +45,17 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
 
       val timer = MockitoSugar.mock[Timer.Context]
 
-      val epr = new EnhancedPartialRetriever(injected[SessionCookieCrypto]) with HasMetrics {
+      lazy implicit val ec = injected[ExecutionContext]
+
+      val epr = new EnhancedPartialRetriever(injected[HeaderCarrierForPartialsConverter]) with HasMetrics {
 
         override val http: HttpGet = MockitoSugar.mock[HttpGet]
         if (simulateCallFailed)
-          when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.failed(
+          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.failed(
             new GatewayTimeoutException("Gateway timeout"))
-        else when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.successful(returnPartial)
+        else
+          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.successful(
+            returnPartial)
 
         override val metrics: Metrics = MockitoSugar.mock[Metrics]
         override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]

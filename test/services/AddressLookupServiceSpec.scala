@@ -25,7 +25,6 @@ import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
-import play.api.{Configuration, Environment}
 import services.http.FakeSimpleHttp
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http.HttpResponse

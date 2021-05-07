@@ -24,16 +24,16 @@ import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
 import services.partials.FormPartialService
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 import util.BaseSpec
 import util.Fixtures._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class FormPartialServiceSpec extends BaseSpec {
+
+  lazy implicit val ec = injected[ExecutionContext]
 
   trait LocalSetup {
     val timer = MockitoSugar.mock[Timer.Context]
@@ -41,7 +41,7 @@ class FormPartialServiceSpec extends BaseSpec {
       MockitoSugar.mock[DefaultHttpClient],
       MockitoSugar.mock[Metrics],
       MockitoSugar.mock[ConfigDecorator],
-      injected[SessionCookieCrypto]
+      injected[HeaderCarrierForPartialsConverter]
     ) {
       override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
@@ -52,20 +52,20 @@ class FormPartialServiceSpec extends BaseSpec {
 
     "return form list for National insurance" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
+      when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
       formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(), any(), any())
+      verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
 
     "return form list for Self-assessment" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
+      when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
       formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(), any(), any())
+      verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
 
   }

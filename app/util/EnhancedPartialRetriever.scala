@@ -19,26 +19,23 @@ package util
 import com.google.inject.Inject
 import metrics.HasMetrics
 import play.api.Logger
-import uk.gov.hmrc.http.{HeaderCarrier, HttpException, HttpGet}
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
+import play.api.mvc.RequestHeader
+import uk.gov.hmrc.http.{HttpException, HttpGet}
 import uk.gov.hmrc.play.partials.HtmlPartial._
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/*
- * This is a PartialRetriever with a HeaderCarrierForPartialsConverter to forward request headers on
- */
-abstract class EnhancedPartialRetriever @Inject()(sessionCookieCrypto: SessionCookieCrypto)(
+abstract class EnhancedPartialRetriever @Inject()(headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter)(
   implicit executionContext: ExecutionContext)
-    extends HeaderCarrierForPartialsConverter with HasMetrics {
+    extends HasMetrics {
 
   def http: HttpGet
 
-  override def crypto: String => String = cookie => cookie
-
-  def loadPartial(url: String)(implicit hc: HeaderCarrier): Future[HtmlPartial] =
+  def loadPartial(url: String)(implicit request: RequestHeader): Future[HtmlPartial] =
     withMetricsTimer("load-partial") { timer =>
+      implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+
       http.GET[HtmlPartial](url) map {
         case partial: HtmlPartial.Success =>
           timer.completeTimerAndIncrementSuccessCounter()

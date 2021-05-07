@@ -81,7 +81,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
       await(result) shouldBe
         HtmlPartial.Success(Some("Title"), Html("<title/>"))
 
-      verify(messageFrontendService.http, times(1)).GET[Html](any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
   }
 
@@ -94,7 +94,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
       val partial = messageFrontendService.getMessageDetailPartial("")(FakeRequest())
       await(partial) shouldBe HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
@@ -107,7 +107,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
       val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest())
       await(partial) shouldBe HtmlPartial.Success(None, Html("link to messages"))
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
@@ -116,42 +116,42 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
 
     "return None unread messages when http client throws an exception" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
+      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.failed(new HttpException("bad", 413))
 
       await(messageCount) shouldBe None
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
 
     "return None unread messages when http client does not return a usable response" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
+      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](None)
 
       await(messageCount) shouldBe None
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
 
     "return Some(0) unread messages when http client returns 0 unrread messages" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
+      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(0)))
 
       await(messageCount) shouldBe Some(0)
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
 
     "return Some(10) unread messages when http client returns 10 unrread messages" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any())(any(), any(), any())) thenReturn
+      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(10)))
 
       await(messageCount) shouldBe Some(10)
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 }

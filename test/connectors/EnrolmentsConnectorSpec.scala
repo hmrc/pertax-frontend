@@ -41,14 +41,14 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "Return the error message for a BAD_REQUEST response" in {
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
       connector.getUserIdsWithEnrolments(utr).futureValue.left.value should include(BAD_REQUEST.toString)
     }
 
     "NO_CONTENT response should return no enrolments" in {
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
       connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
@@ -61,7 +61,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
                               |     "delegatedUserIds": []
                               |}""".stripMargin)
 
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
 
       connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
@@ -79,7 +79,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
                               |    ]
                               |}""".stripMargin)
 
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
 
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")

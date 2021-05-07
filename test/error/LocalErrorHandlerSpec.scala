@@ -16,7 +16,6 @@
 
 package error
 import config.ConfigDecorator
-import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer

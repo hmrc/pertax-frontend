@@ -24,7 +24,7 @@ import metrics.HasMetrics
 import models.{SaEnrolmentRequest, SaEnrolmentResponse}
 import play.api.http.Status.{BAD_REQUEST, OK}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 

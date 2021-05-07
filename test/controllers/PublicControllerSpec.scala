@@ -25,6 +25,7 @@ import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.BaseSpec
 import util.Fixtures._
+import views.html.public.SessionTimeoutView
 
 import scala.concurrent.ExecutionContext
 
@@ -33,7 +34,7 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
   private val mockTemplateRenderer = mock[TemplateRenderer]
   private val configDecorator = injected[ConfigDecorator]
 
-  private def controller = new PublicController(injected[MessagesControllerComponents])(
+  private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
     mockLocalPartialRetriever,
     configDecorator,
     mockTemplateRenderer,

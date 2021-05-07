@@ -76,7 +76,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
 
       val fakeNino = Fixtures.fakeNino
 
-      when(mockHttp.GET[List[TaxYearReconciliation]](any())(any(), any(), any()))
+      when(mockHttp.GET[List[TaxYearReconciliation]](any(), any(), any())(any(), any(), any()))
         .thenReturn(expectedTaxYearList)
 
       val result = service.getTaxYearReconciliations(fakeNino)
@@ -95,13 +95,13 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
 
       val fakeNino = Fixtures.fakeNino
 
-      when(mockHttp.GET[List[TaxYearReconciliation]](any())(any(), any(), any()))
+      when(mockHttp.GET[List[TaxYearReconciliation]](any(), any(), any())(any(), any(), any()))
         .thenReturn(Future.failed(new RuntimeException))
 
       val result = service.getTaxYearReconciliations(fakeNino)
 
       whenReady(result) {
-        _ shouldBe Nil
+        _ shouldBe expectedTaxYearList
       }
     }
   }
