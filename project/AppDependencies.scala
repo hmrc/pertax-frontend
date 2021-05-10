@@ -12,7 +12,7 @@ object AppDependencies {
     "uk.gov.hmrc"         %% "http-caching-client"      % "9.1.0-play-26",
     "uk.gov.hmrc"         %% "play-language"            % "4.5.0-play-26",
     "uk.gov.hmrc"         %% "local-template-renderer"  % "2.10.0-play-26",
-    "uk.gov.hmrc"         %% "play-ui"                  % "8.16.0-play-26",
+    "uk.gov.hmrc"         %% "play-ui"                  % "9.2.0-play-26",
     "uk.gov.hmrc"         %% "tax-year"                 % "1.1.0",
     "uk.gov.hmrc"         %% "domain"                   % "5.10.0-play-26",
     "uk.gov.hmrc"         %% "auth-client"              % "3.0.0-play-26",
