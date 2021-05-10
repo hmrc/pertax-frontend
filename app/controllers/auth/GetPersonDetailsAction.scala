@@ -26,7 +26,7 @@ import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result
 import services.partials.MessageFrontendService
 import services.{CitizenDetailsService, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.ManualCorrespondenceView
@@ -99,7 +99,7 @@ class GetPersonDetailsAction @Inject()(
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     request.nino match {
       case Some(nino) =>

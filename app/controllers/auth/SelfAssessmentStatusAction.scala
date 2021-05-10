@@ -23,7 +23,7 @@ import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result
 import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDetailsSuccessResponse}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -59,7 +59,7 @@ class SelfAssessmentStatusAction @Inject()(
 
   override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, UserRequest[A]]] = {
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     getSelfAssessmentUserType(hc, request).map { saType =>
       Right(
         UserRequest(
