@@ -245,9 +245,9 @@ class ConfigDecorator @Inject()(
   lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration
     .get[String](s"assets.version") + '/'
 
-  lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("session.timeout").getOrElse(900)
+  lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(900)
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
-  lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("session.countdown").getOrElse(120)
+  lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
