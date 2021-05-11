@@ -29,6 +29,7 @@ import uk.gov.hmrc.http.cache.client.{CacheMap, KeyStoreEntryValidationException
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
 class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)(implicit ec: ExecutionContext)
@@ -56,7 +57,7 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case e: KeyStoreEntryValidationException =>
         Logger.error(s"Failed to read cached address page visited")
         block(None)
-      case e => throw (e)
+      case NonFatal(e) => throw e
     }
 
   def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =
@@ -68,7 +69,7 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case e: KeyStoreEntryValidationException =>
         Logger.error(s"Failed to read cached address lookup service down")
         block(None)
-      case e => throw (e)
+      case NonFatal(e) => throw e
     }
 
   def gettingCachedTaxCreditsChoiceDto[T](block: Option[TaxCreditsChoiceDto] => T)(
@@ -81,7 +82,7 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case e: KeyStoreEntryValidationException =>
         Logger.error(s"Failed to read cached tax credits choice")
         block(None)
-      case e => throw (e)
+      case NonFatal(e) => throw e
     }
 
   def gettingCachedJourneyData[T](typ: AddrType)(block: AddressJourneyData => Future[T])(
@@ -107,7 +108,7 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case e: KeyStoreEntryValidationException =>
         Logger.error(s"Failed to read cached address")
         block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
-      case e => throw (e)
+      case NonFatal(e) => throw e
     }
 
   def enforceDisplayAddressPageVisited(addressPageVisitedDto: Option[AddressPageVisitedDto])(block: => Future[Result])(
