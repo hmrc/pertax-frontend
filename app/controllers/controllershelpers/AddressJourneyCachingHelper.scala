@@ -21,10 +21,11 @@ import controllers.bindable.AddrType
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
 import models._
+import play.api.Logger
 import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
 import services.LocalSessionCache
-import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.cache.client.{CacheMap, KeyStoreEntryValidationException}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -51,6 +52,11 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
         block(cacheMap.getEntry[AddressPageVisitedDto](AddressPageVisitedDtoId.id))
       case None =>
         block(None)
+    } recoverWith {
+      case e: KeyStoreEntryValidationException =>
+        Logger.error(s"Failed to read cached address page visited")
+        block(None)
+      case e => throw (e)
     }
 
   def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =
@@ -58,6 +64,11 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       {
         block(cacheMap.flatMap(_.getEntry[Boolean](addressLookupServiceDownKey)))
       }
+    } recover {
+      case e: KeyStoreEntryValidationException =>
+        Logger.error(s"Failed to read cached address lookup service down")
+        block(None)
+      case e => throw (e)
     }
 
   def gettingCachedTaxCreditsChoiceDto[T](block: Option[TaxCreditsChoiceDto] => T)(
@@ -66,6 +77,11 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       {
         block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](SubmittedTaxCreditsChoiceId.id)))
       }
+    } recover {
+      case e: KeyStoreEntryValidationException =>
+        Logger.error(s"Failed to read cached tax credits choice")
+        block(None)
+      case e => throw (e)
     }
 
   def gettingCachedJourneyData[T](typ: AddrType)(block: AddressJourneyData => Future[T])(
@@ -87,6 +103,11 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
         )
       case None =>
         block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
+    } recoverWith {
+      case e: KeyStoreEntryValidationException =>
+        Logger.error(s"Failed to read cached address")
+        block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
+      case e => throw (e)
     }
 
   def enforceDisplayAddressPageVisited(addressPageVisitedDto: Option[AddressPageVisitedDto])(block: => Future[Result])(
