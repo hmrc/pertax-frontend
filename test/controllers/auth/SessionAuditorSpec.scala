@@ -20,11 +20,11 @@ import controllers.auth.SessionAuditor.UserSessionAuditEvent
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
 import org.mockito.Matchers._
-import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, MustMatchers}
-import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
+import org.scalatestplus.play.PlaySpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc.{Request, Result}
@@ -40,8 +40,7 @@ import util.{AuditServiceTools, Fixtures}
 import scala.concurrent.{ExecutionContext, Future}
 
 class SessionAuditorSpec
-    extends PlaySpec with MustMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures with BeforeAndAfterEach
-    with AuditTags {
+    extends PlaySpec with GuiceOneAppPerSuite with ScalaFutures with BeforeAndAfterEach with AuditTags {
 
   override def beforeEach(): Unit = {
     super.beforeEach()

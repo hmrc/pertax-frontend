@@ -24,10 +24,9 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto.AddressDto
 import org.joda.time.LocalDate
 import org.mockito.Matchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{mock, when}
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.{BeforeAndAfterEach, OptionValues, Suite}
-import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -333,7 +332,7 @@ trait BaseSpec
 
   implicit val mockLocalPartialRetriever: LocalPartialRetriever = {
     val pr = mock[LocalPartialRetriever]
-    when(pr.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
+    when(pr(any(), any(), any())(any(), any())) thenReturn Html("")
     pr
   }
 

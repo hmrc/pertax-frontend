@@ -19,8 +19,6 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
@@ -35,7 +33,7 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home._
 
-class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
+class HomeCardGeneratorSpec extends ViewSpec {
 
   implicit val configDecorator = config
 
