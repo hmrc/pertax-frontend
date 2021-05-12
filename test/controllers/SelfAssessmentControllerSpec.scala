@@ -25,6 +25,7 @@ import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{reset, when}
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatest.exceptions.TestFailedException
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
@@ -39,7 +40,6 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.BaseSpec
 import util.Fixtures.buildFakeRequestWithAuth
-import views.html.{ErrorView, NotFoundView}
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -96,12 +96,12 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
     }
   }
 
-  "Calling SelfAssessmentController.handleSelfAssessment" should {
+  "Calling SelfAssessmentController.handleSelfAssessment" must {
 
     "return 303 when called with a GG user that needs to activate their SA enrolment." in new LocalSetup {
       val result = controller.handleSelfAssessment()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(
         "http://localhost:9555/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account")
     }
 
@@ -109,26 +109,26 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(WrongCredentialsSelfAssessmentUser(saUtr))
 
       val result = controller.handleSelfAssessment()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.landingPage().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(await(result)) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
 
     "return 200 when called with a GG user that is has a UTR but no enrolment" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NotEnrolledSelfAssessmentUser(saUtr))
 
       val result = controller.handleSelfAssessment()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(routes.SelfAssessmentController.requestAccess().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(await(result)) mustBe Some(routes.SelfAssessmentController.requestAccess().url)
     }
   }
 
-  "Calling SelfAssessmentController.ivExemptLandingPage" should {
+  "Calling SelfAssessmentController.ivExemptLandingPage" must {
     "return 303 for a user who has logged in with GG linked and has a full SA enrollment" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
     }
 
     "redirect to the SA activation page on the portal for a user logged in with GG linked to SA which is not yet activated" in new LocalSetup {
@@ -137,12 +137,12 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
       val doc = Jsoup.parse(contentAsString(result))
-      status(result) shouldBe OK
+      status(result) mustBe OK
 
       doc
         .getElementsByClass("heading-large")
         .toString()
-        .contains("Activate your Self Assessment registration") shouldBe true
+        .contains("Activate your Self Assessment registration") mustBe true
     }
 
     "redirect to 'Find out how to access your Self Assessment' page for a user who has a SAUtr but logged into the wrong GG account" in new LocalSetup {
@@ -150,16 +150,16 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
       val doc = Jsoup.parse(contentAsString(result))
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(routes.SaWrongCredentialsController.landingPage().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
 
     "render the page for a user who has a SAUtr but has never enrolled" in new LocalSetup {
       override def fakeAuthJourney: FakeAuthJourney = new FakeAuthJourney(NotEnrolledSelfAssessmentUser(saUtr))
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(routes.SelfAssessmentController.requestAccess().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(await(result)) mustBe Some(routes.SelfAssessmentController.requestAccess().url)
     }
 
     "redirect to 'We cannot confirm your identity' page for a user who has no SAUTR" in new LocalSetup {
@@ -167,7 +167,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
       val doc = Jsoup.parse(contentAsString(result))
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "return bad request when continueUrl is not relative" in new LocalSetup {
@@ -177,11 +177,11 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
         routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/sa-continue?continueUrl=http://example.com"))
           .getOrElse(throw new TestFailedException("Failed to route", 0))
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 
-  "redirectToEnrolForSa" should {
+  "redirectToEnrolForSa" must {
 
     "redirect to the url returned by the SelfAssessmentService" in new LocalSetup {
 
@@ -189,14 +189,14 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(Some(redirectUrl))
 
-      redirectLocation(controller.redirectToEnrolForSa(FakeRequest())) shouldBe Some(redirectUrl)
+      redirectLocation(controller.redirectToEnrolForSa(FakeRequest())) mustBe Some(redirectUrl)
     }
 
     "show an error page if no url is returned" in new LocalSetup {
 
       when(mockSelfAssessmentService.getSaEnrolmentUrl(any(), any())) thenReturn Future.successful(None)
 
-      status(controller.redirectToEnrolForSa(FakeRequest())) shouldBe INTERNAL_SERVER_ERROR
+      status(controller.redirectToEnrolForSa(FakeRequest())) mustBe INTERNAL_SERVER_ERROR
     }
   }
 }

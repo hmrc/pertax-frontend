@@ -22,6 +22,7 @@ import config.ConfigDecorator
 import models.addresslookup.RecordSet
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
@@ -35,7 +36,7 @@ import util.{BaseSpec, Tools}
 import scala.concurrent.Future
 import scala.io.Source
 
-class AddressLookupServiceSpec extends BaseSpec {
+class AddressLookupServiceSpec extends BaseSpec with ScalaFutures {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
@@ -88,41 +89,41 @@ class AddressLookupServiceSpec extends BaseSpec {
 
   }
 
-  "Calling AddressLookupService.lookup" should {
+  "Calling AddressLookupService.lookup" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "address-lookup"
       lazy val simulateAddressLookupServiceIsDown = false
-      lazy val r = service.lookup("ZZ11ZZ")
+      lazy val result = service.lookup("ZZ11ZZ")
       lazy val httpResponse = HttpResponse(OK, Some(expectedRecordSetJson))
     }
 
     "contain valid X-Hmrc-Origin in extra headers when lookup service is called" in new LocalSetup {
-      await(r)
-      headerCarrier.extraHeaders.contains(("X-Hmrc-Origin", "PERTAX")) shouldBe true
+      result.futureValue
+      headerCarrier.extraHeaders.contains(("X-Hmrc-Origin", "PERTAX")) mustBe true
     }
 
     "return a List of addresses matching the given postcode, if any matching record exists" in new LocalSetup {
-      await(r) shouldBe AddressLookupSuccessResponse(expectedRecordSet)
+      result.futureValue mustBe AddressLookupSuccessResponse(expectedRecordSet)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
     }
 
     "return a List of addresses matching the given postcode and house name/number, if any matching record exists" in new LocalSetup {
-      override lazy val r = service.lookup("ZZ11ZZ", Some("2"))
+      override lazy val result = service.lookup("ZZ11ZZ", Some("2"))
 
-      await(r) shouldBe AddressLookupSuccessResponse(expectedRecordSet)
+      result.futureValue mustBe AddressLookupSuccessResponse(expectedRecordSet)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
     }
 
     "return a List of addresses filtering addresse out with no lines" in new LocalSetup {
-      override lazy val r: Future[AddressLookupResponse] = service.lookup("ZZ11ZZ", Some("2"))
+      override lazy val result: Future[AddressLookupResponse] = service.lookup("ZZ11ZZ", Some("2"))
       override lazy val httpResponse = HttpResponse(OK, Some(expectedRecordSetMissingLinesJson))
 
-      await(r) shouldBe AddressLookupSuccessResponse(twoOtherPlaceRecordSet)
+      result.futureValue mustBe AddressLookupSuccessResponse(twoOtherPlaceRecordSet)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -131,7 +132,7 @@ class AddressLookupServiceSpec extends BaseSpec {
     "return an empty response for the given house name/number and postcode, if matching record doesn't exist" in new LocalSetup {
       override lazy val httpResponse = HttpResponse(OK, Some(emptyRecordSetJson))
 
-      await(r) shouldBe AddressLookupSuccessResponse(emptyRecordSet)
+      result.futureValue mustBe AddressLookupSuccessResponse(emptyRecordSet)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -140,7 +141,7 @@ class AddressLookupServiceSpec extends BaseSpec {
     "return AddressLookupUnexpectedResponse response, when called and service returns not found" in new LocalSetup {
       override lazy val httpResponse = HttpResponse(NOT_FOUND)
 
-      await(r) shouldBe AddressLookupUnexpectedResponse(httpResponse)
+      result.futureValue mustBe AddressLookupUnexpectedResponse(httpResponse)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -150,7 +151,7 @@ class AddressLookupServiceSpec extends BaseSpec {
       override lazy val simulateAddressLookupServiceIsDown = true
       override lazy val httpResponse = ???
 
-      await(r) shouldBe AddressLookupErrorResponse(anException)
+      result.futureValue mustBe AddressLookupErrorResponse(anException)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()

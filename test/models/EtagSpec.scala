@@ -17,13 +17,13 @@
 package models
 
 import play.api.libs.json.{JsResultException, JsValue, Json}
-import uk.gov.hmrc.play.test.UnitSpec
+import util.BaseSpec
 
-class EtagSpec extends UnitSpec {
+class EtagSpec extends BaseSpec {
 
   val etag = "123"
 
-  "Etag" should {
+  "Etag" must {
 
     "be instantiated" when {
 
@@ -35,7 +35,7 @@ class EtagSpec extends UnitSpec {
                                           |}
     """.stripMargin)
 
-        json.as[ETag] shouldBe ETag(etag)
+        json.as[ETag] mustBe ETag(etag)
       }
     }
 
@@ -49,7 +49,7 @@ class EtagSpec extends UnitSpec {
                                           |}
     """.stripMargin)
 
-        a[JsResultException] shouldBe thrownBy(json.as[ETag])
+        a[JsResultException] mustBe thrownBy(json.as[ETag])
       }
     }
   }

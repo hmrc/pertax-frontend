@@ -16,13 +16,14 @@
 
 package models
 
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.libs.json.{JsError, Json}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.BaseSpec
 
 class SelfAssessmentUserTypeSpec extends BaseSpec {
 
-  "SelfAssessmentUserType" should {
+  "SelfAssessmentUserType" must {
 
     val utr = new SaUtrGenerator().nextSaUtr.utr
 
@@ -39,7 +40,7 @@ class SelfAssessmentUserTypeSpec extends BaseSpec {
 
           val converted = Json.toJson(obj)
 
-          converted.as[SelfAssessmentUserType] shouldBe obj
+          converted.as[SelfAssessmentUserType] mustBe obj
         }
     }
 
@@ -47,7 +48,7 @@ class SelfAssessmentUserTypeSpec extends BaseSpec {
 
       val converted = Json.toJson(NonFilerSelfAssessmentUser)
 
-      converted.as[SelfAssessmentUserType] shouldBe NonFilerSelfAssessmentUser
+      converted.as[SelfAssessmentUserType] mustBe NonFilerSelfAssessmentUser
     }
 
     "return a JsError" when {
@@ -56,7 +57,7 @@ class SelfAssessmentUserTypeSpec extends BaseSpec {
 
         val json = Json.parse(s"""{"_type": "TestObject", "utr": "$utr"}""")
 
-        json.validate[SelfAssessmentUserType] shouldBe JsError("Could not read SelfAssessmentUserType")
+        json.validate[SelfAssessmentUserType] mustBe JsError("Could not read SelfAssessmentUserType")
       }
     }
   }

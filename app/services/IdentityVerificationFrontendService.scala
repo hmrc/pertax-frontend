@@ -51,6 +51,8 @@ class IdentityVerificationFrontendService @Inject()(
   servicesConfig: ServicesConfig)
     extends HasMetrics {
 
+  private val logger = Logger(this.getClass)
+
   lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
 
   def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
@@ -65,19 +67,19 @@ class IdentityVerificationFrontendService @Inject()(
 
           case r if r.status == NOT_FOUND =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Unable to get IV journey status from identity-verification-frontend-service")
+            logger.warn("Unable to get IV journey status from identity-verification-frontend-service")
             IdentityVerificationNotFoundResponse
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(
+            logger.warn(
               s"Unexpected ${r.status} response getting IV journey status from identity-verification-frontend-service")
             IdentityVerificationUnexpectedResponse(r)
         },
         onError = {
           case e =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting IV journey status from identity-verification-frontend-service", e)
+            logger.warn("Error getting IV journey status from identity-verification-frontend-service", e)
             IdentityVerificationErrorResponse(e)
         }
       )

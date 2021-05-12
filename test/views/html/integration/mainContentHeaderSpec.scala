@@ -18,6 +18,7 @@ package views.html.integration
 
 import config.ConfigDecorator
 import org.joda.time.DateTime
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import util.BaseSpec
 import views.html.ViewSpec
@@ -26,7 +27,7 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
-  "Rendering mainContentHeader.scala.html" should {
+  "Rendering mainContentHeader.scala.html" must {
 
     "show last logged in details with name when a name is present and a lastLogin is supplied" in {
       val millis = DateTime.parse("1982-04-30T00:00:00.000+01:00")
@@ -34,7 +35,7 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
         views.html.integration
           .mainContentHeader(Some("Firstname"), Some(millis), Nil, false, None, None)
           .toString)
-      document.select(".last-login > p").text shouldBe "Firstname, you last signed in 12:00am, Friday 30 April 1982"
+      document.select(".last-login > p").text mustBe "Firstname, you last signed in 12:00am, Friday 30 April 1982"
     }
 
     "show last logged in details without name when no name is present and a lastLogin is supplied" in {
@@ -43,7 +44,7 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
         views.html.integration
           .mainContentHeader(None, Some(millis), Nil, false, None, None)
           .toString)
-      document.select(".last-login > p").text shouldBe "You last signed in 12:00am, Friday 30 April 1982"
+      document.select(".last-login > p").text mustBe "You last signed in 12:00am, Friday 30 April 1982"
     }
 
     "not show last logged in details when lastLogin is not supplied" in {
@@ -51,7 +52,7 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
         views.html.integration
           .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
-      document.select(".last-login").isEmpty shouldBe true
+      document.select(".last-login").isEmpty mustBe true
     }
 
     "show breadcrumb when one is passed" in {
@@ -61,18 +62,18 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
           .toString)
       val doc = asDocument(document.select("#global-breadcrumb").toString)
 
-      doc.select("a").size() shouldBe 2
-      document.select("#global-breadcrumb").isEmpty shouldBe false
+      doc.select("a").size() mustBe 2
+      document.select("#global-breadcrumb").isEmpty mustBe false
     }
 
     "hide breadcrumb when none is passed" in {
       val document = asDocument(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
-      document.select("#global-breadcrumb").isEmpty shouldBe true
+      document.select("#global-breadcrumb").isEmpty mustBe true
     }
 
     "show BETA banner showBetaBanner is true" in {
       val document = asDocument(views.html.integration.mainContentHeader(None, None, Nil, true, None, None).toString)
-      document.select(".beta-banner .phase-tag").text shouldBe "BETA"
+      document.select(".beta-banner .phase-tag").text mustBe "BETA"
     }
 
     "hide BETA banner showBetaBanner is false" in {
@@ -80,7 +81,7 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
         views.html.integration
           .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
-      document.select(".beta-banner .phase-tag").isEmpty shouldBe true
+      document.select(".beta-banner .phase-tag").isEmpty mustBe true
     }
 
     "show feedback link in BETA banner when passed deskProToken with PTA" in {
@@ -90,7 +91,7 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
           .toString)
       document
         .select(".beta-banner .feedback")
-        .text shouldBe "This is a new service - your feedback will help us to improve it."
+        .text mustBe "This is a new service - your feedback will help us to improve it."
     }
 
     "hide feedback link in BETA banner when not passed any deskProToken" in {
@@ -98,7 +99,7 @@ class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
         views.html.integration
           .mainContentHeader(None, None, Nil, false, None, None)
           .toString)
-      document.select(".beta-banner .feedback").isEmpty shouldBe true
+      document.select(".beta-banner .feedback").isEmpty mustBe true
     }
 
   }

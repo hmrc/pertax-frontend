@@ -21,6 +21,8 @@ import com.kenshoo.play.metrics.Metrics
 import models.TaxComponents
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -29,7 +31,9 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{BaseSpec, Fixtures}
 
-class TaiServiceSpec extends BaseSpec {
+import scala.concurrent.Future
+
+class TaiServiceSpec extends BaseSpec with ScalaFutures {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
@@ -74,7 +78,7 @@ class TaiServiceSpec extends BaseSpec {
     }
   }
 
-  "Calling TaiService.taxSummary" should {
+  "Calling TaiService.taxSummary" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-tax-components"
@@ -85,9 +89,9 @@ class TaiServiceSpec extends BaseSpec {
       override lazy val simulateTaiServiceIsDown = false
       override lazy val httpResponse = HttpResponse(OK, Some(taxComponentsJson))
 
-      val r = service.taxComponents(Fixtures.fakeNino, 2014)
+      val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
-      await(r) shouldBe TaxComponentsSuccessResponse(
+      result mustBe TaxComponentsSuccessResponse(
         TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
@@ -100,9 +104,9 @@ class TaiServiceSpec extends BaseSpec {
       val seeOtherResponse = HttpResponse(SEE_OTHER)
       override lazy val httpResponse = seeOtherResponse //For example
 
-      val r = service.taxComponents(Fixtures.fakeNino, 2014)
+      val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
-      await(r) shouldBe TaxComponentsUnexpectedResponse(seeOtherResponse)
+      result mustBe TaxComponentsUnexpectedResponse(seeOtherResponse)
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -113,9 +117,9 @@ class TaiServiceSpec extends BaseSpec {
       override lazy val simulateTaiServiceIsDown = false
       override lazy val httpResponse = HttpResponse(NOT_FOUND)
 
-      val r = service.taxComponents(Fixtures.fakeNino, 2014)
+      val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
-      await(r) shouldBe TaxComponentsUnavailableResponse
+      result mustBe TaxComponentsUnavailableResponse
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -126,9 +130,9 @@ class TaiServiceSpec extends BaseSpec {
       override lazy val simulateTaiServiceIsDown = false
       override lazy val httpResponse = HttpResponse(BAD_REQUEST)
 
-      val r = service.taxComponents(Fixtures.fakeNino, 2014)
+      val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
-      await(r) shouldBe TaxComponentsUnavailableResponse
+      result mustBe TaxComponentsUnavailableResponse
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -139,9 +143,9 @@ class TaiServiceSpec extends BaseSpec {
       override lazy val simulateTaiServiceIsDown = true
       override lazy val httpResponse = ???
 
-      val r = service.taxComponents(Fixtures.fakeNino, 2014)
+      val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
-      await(r) shouldBe TaxComponentsErrorResponse(anException)
+      result mustBe TaxComponentsErrorResponse(anException)
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()

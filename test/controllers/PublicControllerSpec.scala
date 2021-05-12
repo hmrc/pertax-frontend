@@ -17,7 +17,8 @@
 package controllers
 
 import config.ConfigDecorator
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.mock
+import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.mvc.{MessagesControllerComponents, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -29,7 +30,7 @@ import views.html.public.SessionTimeoutView
 
 import scala.concurrent.ExecutionContext
 
-class PublicControllerSpec extends BaseSpec with MockitoSugar {
+class PublicControllerSpec extends BaseSpec {
 
   private val mockTemplateRenderer = mock[TemplateRenderer]
   private val configDecorator = injected[ConfigDecorator]
@@ -41,66 +42,66 @@ class PublicControllerSpec extends BaseSpec with MockitoSugar {
     injected[ExecutionContext]
   )
 
-  "Calling PublicController.sessionTimeout" should {
+  "Calling PublicController.sessionTimeout" must {
 
     "return 200" in {
 
       val r = controller.sessionTimeout(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe OK
+      status(r) mustBe OK
     }
   }
 
-  "Calling PublicController.redirectToExitSurvey" should {
+  "Calling PublicController.redirectToExitSurvey" must {
 
     "return 303" in {
 
       val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("http://localhost:9514/feedback/PERTAX")
+      status(r) mustBe SEE_OTHER
+      redirectLocation(r) mustBe Some("http://localhost:9514/feedback/PERTAX")
     }
   }
 
-  "Calling PublicController.redirectToTaxCreditsService" should {
+  "Calling PublicController.redirectToTaxCreditsService" must {
 
     "redirect to tax-credits-service/renewals/service-router" in {
 
       val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
-      status(r) shouldBe MOVED_PERMANENTLY
-      redirectLocation(r) shouldBe Some("http://localhost:9362/tax-credits-service/renewals/service-router")
+      status(r) mustBe MOVED_PERMANENTLY
+      redirectLocation(r) mustBe Some("http://localhost:9362/tax-credits-service/renewals/service-router")
     }
   }
 
-  "Calling PublicController.redirectToPersonalDetails" should {
+  "Calling PublicController.redirectToPersonalDetails" must {
 
     "redirect to /personal-details page" in {
       val r = controller.redirectToPersonalDetails()(buildFakeRequestWithAuth("GET"))
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account/personal-details")
+      status(r) mustBe SEE_OTHER
+      redirectLocation(r) mustBe Some("/personal-account/personal-details")
     }
   }
 
-  "Calling PublicController.verifyEntryPoint" should {
+  "Calling PublicController.verifyEntryPoint" must {
 
     "redirect to /personal-account page with Verify auth provider" in {
       val request = FakeRequest("GET", "/personal-account/start-verify")
       val r = controller.verifyEntryPoint()(request)
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderVerify))
+      status(r) mustBe SEE_OTHER
+      redirectLocation(r) mustBe Some("/personal-account")
+      session(r) mustBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderVerify))
     }
   }
 
-  "Calling PublicController.governmentGatewayEntryPoint" should {
+  "Calling PublicController.governmentGatewayEntryPoint" must {
 
     "redirect to /personal-account page with GG auth provider" in {
       val request = FakeRequest("GET", "/personal-account/start-government-gateway")
       val r = controller.governmentGatewayEntryPoint()(request)
 
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("/personal-account")
-      session(r) shouldBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderGG))
+      status(r) mustBe SEE_OTHER
+      redirectLocation(r) mustBe Some("/personal-account")
+      session(r) mustBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderGG))
     }
   }
 }

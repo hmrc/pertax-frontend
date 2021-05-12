@@ -21,16 +21,15 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
-import models.dto.AddressDto
 import models._
-import org.mockito.Matchers.any
+import models.dto.AddressDto
+import org.mockito.Matchers._
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
-import reactivemongo.bson.BSONDateTime
 import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
@@ -42,13 +41,12 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
-import views.html.{ErrorView, NotFoundView}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressConfirmationView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfterEach {
+trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   val mockAuthJourney: AuthJourney = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]

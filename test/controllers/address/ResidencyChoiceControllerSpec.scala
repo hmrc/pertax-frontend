@@ -19,6 +19,7 @@ package controllers.address
 import models.dto.TaxCreditsChoiceDto
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify}
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
@@ -46,13 +47,13 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return OK when the user has indicated that they do not receive tax credits on the previous page" in new LocalSetup {
 
       val result = controller.onPageLoad(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -62,8 +63,8 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -72,13 +73,13 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "redirect to find address page with primary type when supplied value=primary" in new LocalSetup {
 
@@ -89,8 +90,8 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
     }
 
     "redirect to find address page with sole type when supplied value=sole" in new LocalSetup {
@@ -102,8 +103,8 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
     }
 
     "return a bad request when supplied value=bad" in new LocalSetup {
@@ -115,7 +116,7 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
@@ -124,7 +125,7 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

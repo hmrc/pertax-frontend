@@ -18,12 +18,13 @@ package models.dto
 
 import models.Address
 import org.joda.time.LocalDate
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import uk.gov.hmrc.time.DateTimeUtils.now
 import util.BaseSpec
 
 class AddressDtoSpec extends BaseSpec {
 
-  "Posting the updateAddressForm" should {
+  "Posting the updateAddressForm" must {
 
     "bind an AddressDto correctly" in {
 
@@ -41,7 +42,7 @@ class AddressDtoSpec extends BaseSpec {
         .fold(
           formWithErrors => {},
           success => {
-            success shouldBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
+            success mustBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
           }
         )
     }
@@ -62,7 +63,7 @@ class AddressDtoSpec extends BaseSpec {
         .fold(
           formWithErrors => {},
           success => {
-            success shouldBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA11AA"), None, None)
+            success mustBe AddressDto("Line 1", "Line 2", None, None, None, Some("AA11AA"), None, None)
           }
         )
     }
@@ -82,10 +83,10 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 0
+            formWithErrors.errors.length mustBe 0
           },
           success => {
-            success shouldBe AddressDto("A-Za-z0-9&',-./", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
+            success mustBe AddressDto("A-Za-z0-9&',-./", "Line 2", None, None, None, Some("AA1 1AA"), None, None)
           }
         )
     }
@@ -102,8 +103,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line1_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line1_required"
           },
           success => {
             fail("Form should give an error")
@@ -123,8 +124,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line1_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line1_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -144,8 +145,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line1_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line1_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -165,8 +166,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line2_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line2_required"
           },
           success => {
             fail("Form should give an error")
@@ -186,8 +187,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line2_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line2_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -207,8 +208,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line2_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line2_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -229,8 +230,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line3_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line3_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -251,8 +252,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line3_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line3_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -274,8 +275,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line3_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line3_required"
           },
           success => {
             fail("Form should give an error")
@@ -298,8 +299,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line4_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line4_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -321,8 +322,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line4_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line4_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -345,8 +346,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line4_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line4_required"
           },
           success => {
             fail("Form should give an error")
@@ -369,9 +370,9 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 2
-            formWithErrors.errors(0).message shouldBe "error.line3_required"
-            formWithErrors.errors(1).message shouldBe "error.line4_required"
+            formWithErrors.errors.length mustBe 2
+            formWithErrors.errors(0).message mustBe "error.line3_required"
+            formWithErrors.errors(1).message mustBe "error.line4_required"
           },
           success => {
             fail("Form should give an error")
@@ -394,8 +395,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line5_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line5_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -418,8 +419,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line5_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -442,9 +443,9 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 2
-            formWithErrors.errors(1).message shouldBe "error.line5_invalid_characters"
-            formWithErrors.errors(0).message shouldBe "error.line4_required"
+            formWithErrors.errors.length mustBe 2
+            formWithErrors.errors(1).message mustBe "error.line5_invalid_characters"
+            formWithErrors.errors(0).message mustBe "error.line4_required"
           },
           success => {
             fail("Form should give an error")
@@ -463,8 +464,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
           success => {
             fail("Form should give an error")
@@ -483,8 +484,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.enter_a_valid_uk_postcode"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
           success => {
             fail("Form should give an error")
@@ -493,7 +494,7 @@ class AddressDtoSpec extends BaseSpec {
     }
   }
 
-  "Posting the updateInternationalAddressForm" should {
+  "Posting the updateInternationalAddressForm" must {
 
     "bind an AddressDto correctly" in {
 
@@ -511,7 +512,7 @@ class AddressDtoSpec extends BaseSpec {
         .fold(
           formWithErrors => {},
           success => {
-            success shouldBe AddressDto("Line 1", "Line 2", None, None, None, None, Some("Gibraltar"), None)
+            success mustBe AddressDto("Line 1", "Line 2", None, None, None, None, Some("Gibraltar"), None)
           }
         )
     }
@@ -531,10 +532,10 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 0
+            formWithErrors.errors.length mustBe 0
           },
           success => {
-            success shouldBe AddressDto("A-Za-z0-9&',-./", "Line 2", None, None, None, None, Some("Gibraltar"), None)
+            success mustBe AddressDto("A-Za-z0-9&',-./", "Line 2", None, None, None, None, Some("Gibraltar"), None)
           }
         )
     }
@@ -551,8 +552,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line1_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line1_required"
           },
           success => {
             fail("Form should give an error")
@@ -572,8 +573,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line1_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line1_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -593,8 +594,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line1_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line1_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -614,8 +615,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line2_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line2_required"
           },
           success => {
             fail("Form should give an error")
@@ -635,8 +636,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line2_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line2_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -656,8 +657,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line2_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line2_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -678,8 +679,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line3_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line3_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -700,8 +701,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line3_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line3_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -724,8 +725,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line4_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line4_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -747,8 +748,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line4_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line4_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -771,8 +772,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line5_contains_more_than_35_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line5_contains_more_than_35_characters"
           },
           success => {
             fail("Form should give an error")
@@ -795,8 +796,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.line5_invalid_characters"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
           },
           success => {
             fail("Form should give an error")
@@ -819,8 +820,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.country_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.country_required"
           },
           success => {
             fail("Form should give an error")
@@ -839,8 +840,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.country_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.country_required"
           },
           success => {
             fail("Form should give an error")
@@ -849,32 +850,32 @@ class AddressDtoSpec extends BaseSpec {
     }
   }
 
-  "Calling AddressDto.toList" should {
+  "Calling AddressDto.toList" must {
 
     "return address with postcode and not country" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
 
-      addressDto.toList shouldBe Seq("Line 1", "Line 2", "Line 3", "AA1 1AA")
+      addressDto.toList mustBe Seq("Line 1", "Line 2", "Line 3", "AA1 1AA")
     }
   }
 
-  "Calling AddressDto.toListWithCountry" should {
+  "Calling AddressDto.toListWithCountry" must {
 
     "return address with country and not postcode" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
 
-      addressDto.toListWithCountry shouldBe Seq("Line 1", "Line 2", "Line 3", "UK")
+      addressDto.toListWithCountry mustBe Seq("Line 1", "Line 2", "Line 3", "UK")
     }
   }
 
-  "Calling AddressDto.toAddress" should {
+  "Calling AddressDto.toAddress" must {
 
     "return address with postcode and not country when postcode exists" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
       val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
-      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+      addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
@@ -892,7 +893,7 @@ class AddressDtoSpec extends BaseSpec {
       val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
-      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+      addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
@@ -906,7 +907,7 @@ class AddressDtoSpec extends BaseSpec {
     }
   }
 
-  "Calling AddressDto.toCloseAdress" should {
+  "Calling AddressDto.toCloseAdress" must {
 
     "return address with country and an end date" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, None, Some("SPAIN"), None)
@@ -914,7 +915,7 @@ class AddressDtoSpec extends BaseSpec {
       val startDate = new LocalDate(2018, 1, 1)
       val endDate = new LocalDate(now)
 
-      addressDto.toCloseAddress(addressTye, startDate, endDate) shouldBe Address(
+      addressDto.toCloseAddress(addressTye, startDate, endDate) mustBe Address(
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
@@ -934,7 +935,7 @@ class AddressDtoSpec extends BaseSpec {
       val startDate = new LocalDate(2018, 1, 1)
       val endDate = new LocalDate(now)
 
-      addressDto.toCloseAddress(addressTye, startDate, endDate) shouldBe Address(
+      addressDto.toCloseAddress(addressTye, startDate, endDate) mustBe Address(
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
@@ -949,14 +950,14 @@ class AddressDtoSpec extends BaseSpec {
     }
   }
 
-  "Calling AddressDto.toAddress" should {
+  "Calling AddressDto.toAddress" must {
 
     "return formatted postcode when it contains 7 characters" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA9A9AA"), Some("UK"), None)
       val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
-      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+      addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
@@ -974,7 +975,7 @@ class AddressDtoSpec extends BaseSpec {
       val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
-      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+      addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
@@ -992,7 +993,7 @@ class AddressDtoSpec extends BaseSpec {
       val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
-      addressDto.toAddress(addressTye, startDate) shouldBe Address(
+      addressDto.toAddress(addressTye, startDate) mustBe Address(
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),

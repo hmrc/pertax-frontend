@@ -21,6 +21,7 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
 import services.partials.FormPartialService
@@ -48,14 +49,14 @@ class FormPartialServiceSpec extends BaseSpec {
     }
   }
 
-  "Calling FormPartialServiceSpec" should {
+  "Calling FormPartialServiceSpec" must {
 
     "return form list for National insurance" in new LocalSetup {
 
       when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
+      formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
       verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
 
@@ -64,7 +65,7 @@ class FormPartialServiceSpec extends BaseSpec {
       when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
+      formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
       verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
 

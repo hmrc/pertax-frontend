@@ -24,6 +24,7 @@ import error.ErrorRenderer
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
@@ -79,7 +80,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
     }
 
-  "Calling NiLetterController.printNationalInsuranceNumber" should {
+  "Calling NiLetterController.printNationalInsuranceNumber" must {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -91,7 +92,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
 
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
 
-      status(r) shouldBe OK
+      status(r) mustBe OK
     }
 
     "call printNationalInsuranceNumber should return OK when called by a verify user" in {
@@ -107,19 +108,19 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
 
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
 
-      status(r) shouldBe OK
+      status(r) mustBe OK
       val doc = Jsoup.parse(contentAsString(r))
-      doc.getElementById("page-title").text() shouldBe "Your National Insurance letter"
+      doc.getElementById("page-title").text() mustBe "Your National Insurance letter"
       doc
         .getElementById("keep-ni-number-safe")
-        .text() shouldBe "Keep this number in a safe place. Do not destroy this letter."
-      doc.getElementById("available-information-text-relay").text() should include(
+        .text() mustBe "Keep this number in a safe place. Do not destroy this letter."
+      doc.getElementById("available-information-text-relay").text() must include(
         "Information is available in large print, audio tape and Braille formats.")
-      doc.getElementById("available-information-text-relay").text() should include(
+      doc.getElementById("available-information-text-relay").text() must include(
         "Text Relay service prefix number - 18001")
       doc
         .getElementById("your-ni-number-unique")
-        .text() shouldBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, do not share it with anyone who does not need it."
+        .text() mustBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, do not share it with anyone who does not need it."
     }
   }
 }

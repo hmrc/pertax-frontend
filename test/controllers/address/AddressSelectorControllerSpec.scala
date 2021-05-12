@@ -16,25 +16,21 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.address
-import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import error.ErrorRenderer
 import models.dto.DateDto
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
-import play.api.mvc.{MessagesControllerComponents, Request}
+import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures.{oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord}
-import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.AddressSelectorView
 
@@ -73,7 +69,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
         val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-        status(result) shouldBe OK
+        status(result) mustBe OK
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
     }
@@ -89,8 +85,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
         val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(address.routes.PostcodeLookupController.onPageLoad(SoleAddrType).url)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(address.routes.PostcodeLookupController.onPageLoad(SoleAddrType).url)
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
     }
@@ -115,7 +111,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
         val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
 
@@ -136,7 +132,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
         val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
 
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
@@ -159,8 +155,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
       verify(mockLocalSessionCache, times(1))
         .cache(meq("postalSelectedAddressRecord"), meq(oneOtherPlacePafAddressRecord))(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -175,7 +171,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
@@ -196,8 +192,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/enter-start-date")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/enter-start-date")
     }
 
     "redirect to check and submit page if postcode is not different to currently held postcode" in new LocalSetup {
@@ -217,8 +213,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
       verify(mockLocalSessionCache, times(1))
         .cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
     }

@@ -16,6 +16,7 @@
 
 package error
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import play.api.Play

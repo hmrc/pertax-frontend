@@ -19,6 +19,7 @@ package services
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpResponse
@@ -26,7 +27,7 @@ import util.BaseSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
+class AddressMovedServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   implicit val executionContext = injected[ExecutionContext]
   val addressLookupService = mock[AddressLookupService]
@@ -48,30 +49,30 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
 
   val service = new AddressMovedService(addressLookupService)
 
-  "moved" should {
+  "moved" must {
     "be AnyOtherMove" when {
       "the AddressLookUpService gives an AddressLookupUnexpectedResponse" in {
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(Future.successful(AddressLookupUnexpectedResponse(HttpResponse(BAD_REQUEST))))
-        await(service.moved(fromPostcode, fromPostcode)) shouldBe AnyOtherMove
+        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
       }
 
       "the AddressLookUpService gives an AddressLookupErrorResponse" in {
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(Future.successful(AddressLookupErrorResponse(new RuntimeException(":("))))
-        await(service.moved(fromPostcode, fromPostcode)) shouldBe AnyOtherMove
+        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
       }
 
       "the post code is the same" in {
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(Future.successful(AddressLookupSuccessResponse(englandRecordSet)))
-        await(service.moved(fromPostcode, fromPostcode)) shouldBe AnyOtherMove
+        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the previous address" in {
         when(addressLookupService.lookup(fromPostcode))
           .thenReturn(Future.successful(AddressLookupSuccessResponse(RecordSet(Seq.empty))))
-        await(service.moved(fromPostcode, fromPostcode)) shouldBe AnyOtherMove
+        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the new address" in {
@@ -81,19 +82,19 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
         when(addressLookupService.lookup(toPostcode))
           .thenReturn(Future.successful(AddressLookupSuccessResponse(RecordSet(Seq.empty))))
 
-        await(service.moved(fromPostcode, toPostcode)) shouldBe AnyOtherMove
+        service.moved(fromPostcode, toPostcode).futureValue mustBe AnyOtherMove
       }
 
       "there is no postcode for the moving to address" in {
-        await(service.moved(fromPostcode, "")) shouldBe AnyOtherMove
+        service.moved(fromPostcode, "").futureValue mustBe AnyOtherMove
       }
 
       "there is no postcode for the moving from address" in {
-        await(service.moved("", toPostcode)) shouldBe AnyOtherMove
+        service.moved("", toPostcode).futureValue mustBe AnyOtherMove
       }
 
       "there is no postcode for both the moving to and moving from address" in {
-        await(service.moved("", "")) shouldBe AnyOtherMove
+        service.moved("", "").futureValue mustBe AnyOtherMove
       }
     }
 
@@ -103,7 +104,7 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
       when(addressLookupService.lookup(toPostcode))
         .thenReturn(Future.successful(AddressLookupSuccessResponse(scotlandRecordSet)))
 
-      await(service.moved(fromPostcode, toPostcode)) shouldBe MovedToScotland
+      service.moved(fromPostcode, toPostcode).futureValue mustBe MovedToScotland
     }
 
     "be MovedFromScotland when they have moved from Scotland" in {
@@ -112,7 +113,7 @@ class AddressMovedServiceSpec extends BaseSpec with MockitoSugar {
       when(addressLookupService.lookup(toPostcode))
         .thenReturn(Future.successful(AddressLookupSuccessResponse(englandRecordSet)))
 
-      await(service.moved(fromPostcode, toPostcode)) shouldBe MovedFromScotland
+      service.moved(fromPostcode, toPostcode).futureValue mustBe MovedFromScotland
     }
   }
 }

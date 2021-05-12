@@ -39,6 +39,8 @@ class MessageFrontendService @Inject()(
 
   lazy val messageFrontendUrl: String = servicesConfig.baseUrl("message-frontend")
 
+  private val logger = Logger(this.getClass)
+
   def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(messageFrontendUrl + "/messages")
 
@@ -64,7 +66,7 @@ class MessageFrontendService @Inject()(
       }) recover {
         case e =>
           t.completeTimerAndIncrementFailedCounter()
-          Logger.warn(s"Failed to load json", e)
+          logger.warn(s"Failed to load json", e)
           None
       }
     }

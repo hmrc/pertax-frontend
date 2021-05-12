@@ -30,7 +30,9 @@ import uk.gov.hmrc.http.HttpResponse
 import util.UserRequestFixture.buildUserRequest
 import util.BaseSpec
 
-class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSugar {
+import scala.concurrent.Future
+
+class UpdateAddressResponseSpec extends BaseSpec with MockitoSugar with I18nSupport {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
@@ -46,27 +48,27 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport with MockitoSu
   def genericFunc(): Result =
     Ok
 
-  "UpdateAddressResponse.response" should {
+  "UpdateAddressResponse.response" must {
     "return the block result for UpdateAddressSuccessResponse" in {
-      val result = UpdateAddressSuccessResponse.response(genericFunc)
-      status(result) shouldBe OK
+      val result = Future(UpdateAddressSuccessResponse.response(genericFunc))
+      status(result) mustBe OK
     }
 
     "return BAD_REQUEST for UpdateAddressBadRequestResponse" in {
-      val result = UpdateAddressBadRequestResponse.response(genericFunc)
-      status(result) shouldBe BAD_REQUEST
+      val result = Future(UpdateAddressBadRequestResponse.response(genericFunc))
+      status(result) mustBe BAD_REQUEST
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
       val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123))
-      val result = updateAddressResponse.response(genericFunc)
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      val result = Future(updateAddressResponse.response(genericFunc))
+      status(result) mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
       val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
-      val result = updateAddressResponse.response(genericFunc)
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      val result = Future(updateAddressResponse.response(genericFunc))
+      status(result) mustBe INTERNAL_SERVER_ERROR
     }
   }
 }

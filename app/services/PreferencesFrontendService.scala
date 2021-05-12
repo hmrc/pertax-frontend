@@ -42,6 +42,8 @@ class PreferencesFrontendService @Inject()(
   servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport {
 
+  private val logger = Logger(this.getClass)
+
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
   def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
@@ -69,7 +71,7 @@ class PreferencesFrontendService @Inject()(
         } recover {
           case e =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
+            logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
             ActivatePaperlessNotAllowedResponse
         }
       }

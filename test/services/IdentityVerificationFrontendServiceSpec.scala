@@ -20,6 +20,8 @@ import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
@@ -28,7 +30,7 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.BaseSpec
 
-class IdentityVerificationFrontendServiceSpec extends BaseSpec {
+class IdentityVerificationFrontendServiceSpec extends BaseSpec with ScalaFutures {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
@@ -56,15 +58,15 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
     }
   }
 
-  "Calling IdentityVerificationFrontend.getIVJourneyStatus" should {
+  "Calling IdentityVerificationFrontend.getIVJourneyStatus" must {
 
     "return an IdentityVerificationSuccessResponse containing a journey status object when called with a journeyId" in new SpecSetup {
       override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("token" -> "1234", "result" -> "LockedOut")))
       override lazy val simulateIdentityVerificationFrontendIsDown = false
 
-      val r = service.getIVJourneyStatus("1234")
+      val result = service.getIVJourneyStatus("1234").futureValue
 
-      await(r) shouldBe IdentityVerificationSuccessResponse("LockedOut")
+      result mustBe IdentityVerificationSuccessResponse("LockedOut")
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -74,9 +76,9 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
       override lazy val httpResponse = HttpResponse(NOT_FOUND)
       override lazy val simulateIdentityVerificationFrontendIsDown = false
 
-      val r = service.getIVJourneyStatus("4321")
+      val result = service.getIVJourneyStatus("4321").futureValue
 
-      await(r) shouldBe IdentityVerificationNotFoundResponse
+      result mustBe IdentityVerificationNotFoundResponse
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -87,9 +89,9 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
       override lazy val httpResponse = seeOtherResponse
       override lazy val simulateIdentityVerificationFrontendIsDown = false
 
-      val r = service.getIVJourneyStatus("1234")
+      val result = service.getIVJourneyStatus("1234").futureValue
 
-      await(r) shouldBe IdentityVerificationUnexpectedResponse(seeOtherResponse)
+      result mustBe IdentityVerificationUnexpectedResponse(seeOtherResponse)
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -99,9 +101,9 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
       override lazy val httpResponse = ???
       override lazy val simulateIdentityVerificationFrontendIsDown = true
 
-      val r = service.getIVJourneyStatus("1234")
+      val result = service.getIVJourneyStatus("1234").futureValue
 
-      await(r) shouldBe IdentityVerificationErrorResponse(anException)
+      result mustBe IdentityVerificationErrorResponse(anException)
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()

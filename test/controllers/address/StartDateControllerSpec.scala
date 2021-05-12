@@ -23,6 +23,7 @@ import models.dto.{AddressPageVisitedDto, DateDto}
 import org.joda.time.LocalDate
 import org.mockito.Matchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
@@ -58,7 +59,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return 200 when passed PrimaryAddrType and submittedAddressDto is in keystore" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = Some(
@@ -68,7 +69,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -80,7 +81,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -90,8 +91,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PostalAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/edit-address")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
       verify(mockLocalSessionCache, times(0)).fetch()(any(), any())
     }
 
@@ -100,13 +101,13 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "return 303 when passed PrimaryAddrType and a valid form with low numbers" in new LocalSetup {
 
@@ -118,8 +119,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
       verify(mockLocalSessionCache, times(1))
         .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
     }
@@ -134,8 +135,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
       verify(mockLocalSessionCache, times(1))
         .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
     }
@@ -150,8 +151,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
       verify(mockLocalSessionCache, times(1))
         .cache(meq("soleSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2019)))(any(), any(), any())
     }
@@ -165,7 +166,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result =
         controller.onSubmit(PrimaryAddrType)(currentRequest)
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
@@ -178,7 +179,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         .withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr).asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
@@ -192,7 +193,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
@@ -205,7 +206,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "0", "startDate.year" -> thisYearStr).asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
@@ -218,7 +219,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "13", "startDate.year" -> thisYearStr).asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
@@ -240,7 +241,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
       })
 
       val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
     }
 
@@ -254,7 +255,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
 
     "return a 400 when startDate is the same as recorded with sole address type" in new LocalSetup {
@@ -267,7 +268,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
 
     "return a 400 when startDate is earlier than recorded with primary address type" in new LocalSetup {
@@ -280,7 +281,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
 
     "return a 400 when startDate is the same as recorded with primary address type" in new LocalSetup {
@@ -293,7 +294,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
 
     "redirect to correct successful url when supplied with startDate after recorded with sole address type" in new LocalSetup {
@@ -306,8 +307,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
     }
 
     "redirect to correct successful url when supplied with startDate after startDate on record with primary address" in new LocalSetup {
@@ -320,8 +321,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
     }
 
     "redirect to success page when no startDate is on record" in new LocalSetup {
@@ -334,8 +335,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
     }
 
     "redirect to success page when no address is on record" in new LocalSetup {
@@ -348,8 +349,8 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/primary/changes")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
     }
   }
 }

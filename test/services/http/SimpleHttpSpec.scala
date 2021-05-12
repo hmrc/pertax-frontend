@@ -17,10 +17,10 @@
 package services.http
 
 import java.util.concurrent.LinkedBlockingQueue
-
 import com.codahale.metrics.Timer
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
@@ -28,9 +28,8 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.BaseSpec
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
-class SimpleHttpSpec extends BaseSpec {
+class SimpleHttpSpec extends BaseSpec with ScalaFutures {
 
   trait Setup {
 
@@ -57,7 +56,7 @@ class SimpleHttpSpec extends BaseSpec {
     lazy val simpleHttp = new SimpleHttp(http)
   }
 
-  "Calling SimpleHttpSpec.get" should {
+  "Calling SimpleHttpSpec.get" must {
 
     trait LocalSetup extends Setup {
 
@@ -67,7 +66,7 @@ class SimpleHttpSpec extends BaseSpec {
         h
       }
 
-      def makeDummyRequest() = await(simpleHttp.get("/")(dummyCallbacks.complete, dummyCallbacks.exception))
+      def makeDummyRequest() = simpleHttp.get("/")(dummyCallbacks.complete, dummyCallbacks.exception).futureValue
     }
 
     "Call onSuccess if the http call returned successfully" in new LocalSetup {
@@ -85,7 +84,7 @@ class SimpleHttpSpec extends BaseSpec {
     }
   }
 
-  "Calling SimpleHttpSpec.post" should {
+  "Calling SimpleHttpSpec.post" must {
 
     trait LocalSetup extends Setup {
 
@@ -95,7 +94,7 @@ class SimpleHttpSpec extends BaseSpec {
         h
       }
 
-      def makeDummyRequest = await(simpleHttp.post("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception))
+      def makeDummyRequest = simpleHttp.post("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception).futureValue
     }
 
     "Call onSuccess if the http call returned successfully" in new LocalSetup {
@@ -113,7 +112,7 @@ class SimpleHttpSpec extends BaseSpec {
     }
   }
 
-  "Calling SimpleHttpSpec.put" should {
+  "Calling SimpleHttpSpec.put" must {
 
     trait LocalSetup extends Setup {
 
@@ -123,7 +122,7 @@ class SimpleHttpSpec extends BaseSpec {
         h
       }
 
-      def makeDummyRequest = await(simpleHttp.put("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception))
+      def makeDummyRequest = simpleHttp.put("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception).futureValue
     }
 
     "Call onSuccess if the http call returned successfully" in new LocalSetup {

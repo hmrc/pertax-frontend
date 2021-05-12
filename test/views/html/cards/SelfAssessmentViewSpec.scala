@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
@@ -45,7 +46,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
       .asScala
       .head
 
-    URLDecoder.decode(link, "UTF-8") should include(href)
+    URLDecoder.decode(link, "UTF-8") must include(href)
   }
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
@@ -65,7 +66,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
     def doc: Document = asDocument(selfAssessment(user, thisYear, nextYear).toString)
   }
 
-  "Self Assessment Card" should {
+  "Self Assessment Card" must {
 
     "render the correct card link" when {
 
@@ -98,7 +99,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
         override val user: SelfAssessmentUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr)
 
-        doc.text() should include(
+        doc.text() must include(
           messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_", nextYear)
         )
 

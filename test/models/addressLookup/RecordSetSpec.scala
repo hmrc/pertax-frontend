@@ -18,14 +18,14 @@ package models.addressLookup
 
 import models.addresslookup.RecordSet
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
+import util.BaseSpec
 import util.Fixtures._
 
 import scala.io.Source
 
-class RecordSetSpec extends UnitSpec {
+class RecordSetSpec extends BaseSpec {
 
-  "calling fromJsonAddressLookupService" should {
+  "calling fromJsonAddressLookupService" must {
     "filter out all addresses with addressLines missing" in {
       val addressesWithMissingLinesJson: String =
         Source
@@ -33,7 +33,7 @@ class RecordSetSpec extends UnitSpec {
           .mkString
       val result = RecordSet.fromJsonAddressLookupService(Json.parse(addressesWithMissingLinesJson))
 
-      result shouldBe twoOtherPlaceRecordSet
+      result mustBe twoOtherPlaceRecordSet
     }
 
     "return all addresses with where the addressLines are present" in {
@@ -41,7 +41,7 @@ class RecordSetSpec extends UnitSpec {
         Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
       val result = RecordSet.fromJsonAddressLookupService(Json.parse(addressesWhichAllContainLinesJson))
 
-      result shouldBe oneAndTwoOtherPlacePafRecordSet
+      result mustBe oneAndTwoOtherPlacePafRecordSet
     }
   }
 }

@@ -50,6 +50,8 @@ class ApplicationController @Inject()(
   ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
 
+  private val logger = Logger(this.getClass)
+
   override def now: () => DateTime = () => DateTime.now()
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
@@ -98,21 +100,21 @@ class ApplicationController @Inject()(
               InternalServerError(timeOutView(retryUrl))
 
             case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-              Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
               InternalServerError(technicalIssuesView(retryUrl))
 
             case r =>
-              Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
+              logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
               InternalServerError(technicalIssuesView(retryUrl))
           }
         case None =>
-          Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
+          logger.error(s"No journeyId present when displaying IV uplift journey outcome")
           Future.successful(BadRequest(technicalIssuesView(retryUrl)))
       }
     }
 
   private def logErrorMessage(reason: String): Unit =
-    Logger.warn(s"Unable to confirm user identity: $reason")
+    logger.warn(s"Unable to confirm user identity: $reason")
 
   def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>

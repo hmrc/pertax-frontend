@@ -23,6 +23,7 @@ import models._
 import org.joda.time.DateTime
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
@@ -110,7 +111,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
     }
   }
 
-  "Calling ApplicationController.uplift" should {
+  "Calling ApplicationController.uplift" must {
 
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
 
@@ -126,13 +127,13 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       val result =
         routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
 
-      status(result) shouldBe BAD_REQUEST
-      redirectLocation(result) shouldBe None
+      status(result) mustBe BAD_REQUEST
+      redirectLocation(result) mustBe None
 
     }
   }
 
-  "Calling ApplicationController.showUpliftJourneyOutcome" should {
+  "Calling ApplicationController.showUpliftJourneyOutcome" must {
 
     "return 200 when IV journey outcome was Success" in new LocalSetup {
 
@@ -147,7 +148,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       val result = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) shouldBe OK
+      status(result) mustBe OK
 
     }
 
@@ -163,7 +164,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("LockedOut")
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) shouldBe UNAUTHORIZED
+      status(result) mustBe UNAUTHORIZED
 
     }
 
@@ -179,8 +180,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("InsufficientEvidence")
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/sa-continue")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/sa-continue")
     }
 
     "return 401 when IV journey outcome was UserAborted" in new LocalSetup {
@@ -195,7 +196,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("UserAborted")
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) shouldBe UNAUTHORIZED
+      status(result) mustBe UNAUTHORIZED
 
     }
 
@@ -211,7 +212,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("TechnicalIssues")
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
 
     }
 
@@ -227,7 +228,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Timeout")
 
       val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
 
     }
 
@@ -247,13 +248,13 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
           "GET",
           "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX")).get
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
 
     }
 
   }
 
-  "Calling ApplicationController.signout" should {
+  "Calling ApplicationController.signout" must {
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with a continue URL and no origin" in new LocalSetup {
 
@@ -265,8 +266,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       })
 
       val result = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account")
     }
     "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
@@ -282,9 +283,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       })
 
       val result = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("http://localhost:9949/ida/signout")
-      session(result).get("postLogoutPage") shouldBe Some("/personal-account")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("http://localhost:9949/ida/signout")
+      session(result).get("postLogoutPage") mustBe Some("/personal-account")
     }
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with no continue URL but an origin" in new LocalSetup {
@@ -297,8 +298,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       })
 
       val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/PERTAX")
     }
 
@@ -314,7 +315,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
 
       val result = controller.signout(None, None)(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
 
     }
 
@@ -331,9 +332,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       })
 
       val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("http://localhost:9949/ida/signout")
-      session(result).get("postLogoutPage") shouldBe Some("http://localhost:9514/feedback/PERTAX")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("http://localhost:9949/ida/signout")
+      session(result).get("postLogoutPage") mustBe Some("http://localhost:9514/feedback/PERTAX")
     }
 
     "return 'Bad Request' when signed in with verify and supplied no continue URL and no origin" in new LocalSetup {
@@ -349,7 +350,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
       })
 
       val result = controller.signout(None, None)(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
 
     }
 
@@ -377,7 +378,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with Mockit
 
       val result = routeWrapper(
         buildFakeRequestWithAuth("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
 
     }
   }

@@ -21,6 +21,7 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
@@ -53,7 +54,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       injected[Tools]
     )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {}
 
-  "Calling PaperlessPreferencesController.managePreferences" should {
+  "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -64,7 +65,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       })
 
       val r = controller.managePreferences(FakeRequest())
-      status(r) shouldBe SEE_OTHER
+      status(r) mustBe SEE_OTHER
 
       val redirectUrl = redirectLocation(r).getValue
       val configDecorator = app.injector.instanceOf[ConfigDecorator]
@@ -84,7 +85,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       })
 
       val r = controller.managePreferences(FakeRequest())
-      status(r) shouldBe BAD_REQUEST
+      status(r) mustBe BAD_REQUEST
     }
   }
 }

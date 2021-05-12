@@ -18,6 +18,7 @@ package controllers
 
 import controllers.auth.FakeAuthJourney
 import models.WrongCredentialsSelfAssessmentUser
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
@@ -46,13 +47,13 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
       injected[FindYourUserIdView]
     )(injected[LocalPartialRetriever], config, injected[TemplateRenderer], injected[ExecutionContext])
 
-  "processDoYouKnowOtherCredentials" should {
+  "processDoYouKnowOtherCredentials" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
       val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
 
       val result = controller.processDoYouKnowOtherCredentials(request)
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.signInAgain().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(await(result)) mustBe Some(routes.SaWrongCredentialsController.signInAgain().url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
@@ -60,45 +61,45 @@ class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = controller.processDoYouKnowOtherCredentials(request)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.doYouKnowUserId().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(await(result)) mustBe Some(routes.SaWrongCredentialsController.doYouKnowUserId().url)
     }
 
     "return a bad request when supplied no value" in {
       val request = FakeRequest("POST", "")
 
       val result = controller.processDoYouKnowOtherCredentials(request)
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 
-  "processDoYouKnowUserId" should {
+  "processDoYouKnowUserId" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
       val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
 
       val result = controller.processDoYouKnowUserId(request)
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.needToResetPassword().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(await(result)) mustBe Some(routes.SaWrongCredentialsController.needToResetPassword().url)
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
       val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
       val result = controller.processDoYouKnowUserId(request)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(await(result)) shouldBe Some(routes.SaWrongCredentialsController.findYourUserId().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(await(result)) mustBe Some(routes.SaWrongCredentialsController.findYourUserId().url)
     }
 
     "return a bad request when supplied no value" in {
       val request = FakeRequest("POST", "")
       val result = controller.processDoYouKnowUserId(request)
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 
-  "ggSignInUrl" should {
+  "ggSignInUrl" must {
     "be the gg-sign in url" in {
-      controller.ggSignInUrl shouldBe "http://localhost:9553/bas-gateway/sign-in?continue_url=http://localhost:9232/personal-account&accountType=individual&origin=PERTAX"
+      controller.ggSignInUrl mustBe "http://localhost:9553/bas-gateway/sign-in?continue_url=http://localhost:9232/personal-account&accountType=individual&origin=PERTAX"
     }
   }
 }

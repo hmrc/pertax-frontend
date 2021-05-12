@@ -21,6 +21,8 @@ import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.twirl.api.Html
@@ -29,7 +31,7 @@ import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnhancedPartialRetrieverSpec extends BaseSpec {
+class EnhancedPartialRetrieverSpec extends BaseSpec with ScalaFutures {
 
   lazy implicit val fakeRequest = FakeRequest("", "")
 
@@ -44,8 +46,6 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
     lazy val (epr, metrics, timer) = {
 
       val timer = MockitoSugar.mock[Timer.Context]
-
-      lazy implicit val ec = injected[ExecutionContext]
 
       val epr = new EnhancedPartialRetriever(injected[HeaderCarrierForPartialsConverter]) with HasMetrics {
 
@@ -67,14 +67,14 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
 
   }
 
-  "Calling EnhancedPartialRetriever.loadPartial" should {
+  "Calling EnhancedPartialRetriever.loadPartial" must {
 
     "return a successful partial and log the right metrics" in new LocalSetup {
 
       override val simulateCallFailed = false
       override val returnPartial = HtmlPartial.Success.apply(Some("my title"), Html("my body content"))
 
-      await(epr.loadPartial("/")) shouldBe returnPartial
+      epr.loadPartial("/").futureValue mustBe returnPartial
 
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
@@ -88,7 +88,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
       override val simulateCallFailed = false
       override val returnPartial = HtmlPartial.Failure(Some(404), "Not Found")
 
-      await(epr.loadPartial("/")) shouldBe returnPartial
+      epr.loadPartial("/").futureValue mustBe returnPartial
 
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(0)).incrementSuccessCounter(metricId)
@@ -101,7 +101,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
       override val simulateCallFailed = true
       override def returnPartial = ???
 
-      await(epr.loadPartial("/"))
+      epr.loadPartial("/").futureValue
 
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(0)).incrementSuccessCounter(metricId)

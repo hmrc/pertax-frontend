@@ -30,6 +30,8 @@ abstract class EnhancedPartialRetriever @Inject()(headerCarrierForPartialsConver
   implicit executionContext: ExecutionContext)
     extends HasMetrics {
 
+  private val logger = Logger(this.getClass)
+
   def http: HttpGet
 
   def loadPartial(url: String)(implicit request: RequestHeader): Future[HtmlPartial] =
@@ -41,13 +43,13 @@ abstract class EnhancedPartialRetriever @Inject()(headerCarrierForPartialsConver
           timer.completeTimerAndIncrementSuccessCounter()
           partial
         case partial: HtmlPartial.Failure =>
-          Logger.error(s"Failed to load partial from $url, partial info: $partial")
+          logger.error(s"Failed to load partial from $url, partial info: $partial")
           timer.completeTimerAndIncrementFailedCounter()
           partial
       } recover {
         case e =>
           timer.completeTimerAndIncrementFailedCounter()
-          Logger.error(s"Failed to load partial from $url", e)
+          logger.error(s"Failed to load partial from $url", e)
           e match {
             case ex: HttpException =>
               HtmlPartial.Failure(Some(ex.responseCode))

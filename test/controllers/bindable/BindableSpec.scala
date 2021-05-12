@@ -16,6 +16,7 @@
 
 package controllers.bindable
 
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import util.BaseSpec
 
@@ -23,42 +24,42 @@ class BindableSpec extends BaseSpec {
 
   trait LocalSetup {}
 
-  "Calling continueUrlBinder.unbind" should {
+  "Calling continueUrlBinder.unbind" must {
 
     "return the key and the ContinueUrl" in {
 
       controllers.bindable.continueUrlBinder
-        .unbind("continue", SafeRedirectUrl("/relative/url")) shouldBe "continue=%2Frelative%2Furl"
+        .unbind("continue", SafeRedirectUrl("/relative/url")) mustBe "continue=%2Frelative%2Furl"
     }
   }
 
-  "Calling continueUrlBinder.bind" should {
+  "Calling continueUrlBinder.bind" must {
 
     "return an url when called with a relative url" in {
 
       val url = "/relative/url"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Right(SafeRedirectUrl(url)))
     }
 
     "return error when not url" in {
 
       val url = "gtuygyg"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for urls with /\\" in {
 
       val url = "/\\www.example.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for none relative urls" in {
 
       val url = "http://nonrelativeurl.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) shouldBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"Provided URL [$url] doesn't comply with redirect policy"))
     }
   }

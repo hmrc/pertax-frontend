@@ -23,6 +23,7 @@ import error.ErrorRenderer
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
@@ -95,7 +96,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       }
   }
 
-  "Calling displayNationalInsurance" should {
+  "Calling displayNationalInsurance" must {
 
     "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user " in new LocalSetup {
 
@@ -116,13 +117,13 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = testController.displayNationalInsurance(fakeRequest)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
 
       verify(testController.formPartialService, times(1)).getNationalInsurancePartial(any())
     }
   }
 
-  "Calling displayChildBenefits" should {
+  "Calling displayChildBenefits" must {
 
     "call FormPartialService.getChildBenefitPartial and return 200 when called by authorised user" in new LocalSetup {
 
@@ -143,12 +144,12 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
       val result = controller.displayChildBenefits(fakeRequestWithPath)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
 
     }
   }
 
-  "Calling viewSelfAssessmentSummary" should {
+  "Calling viewSelfAssessmentSummary" must {
 
     "call FormPartialService.getSelfAssessmentPartial and return 200 when called by a high GG user" in new LocalSetup {
 
@@ -166,7 +167,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       val testController = controller
       val r = testController.displaySelfAssessment(fakeRequest)
 
-      status(r) shouldBe OK
+      status(r) mustBe OK
 
       verify(testController.formPartialService, times(1))
         .getSelfAssessmentPartial(any())
@@ -190,7 +191,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       val testController = controller
 
       val r = testController.displaySelfAssessment(fakeRequest)
-      status(r) shouldBe UNAUTHORIZED
+      status(r) mustBe UNAUTHORIZED
     }
 
     "call FormPartialService.getSelfAssessmentPartial and return 401 for a user not logged in via GG" in new LocalSetup {
@@ -212,10 +213,10 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
       val testController = controller
 
       val r = testController.displaySelfAssessment(fakeRequest)
-      status(r) shouldBe UNAUTHORIZED
+      status(r) mustBe UNAUTHORIZED
     }
 
-    "Calling getSa302" should {
+    "Calling getSa302" must {
 
       "should return OK response when accessing with an SA user with a valid tax year" in new LocalSetup {
 
@@ -241,8 +242,8 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
 
         val r = testController.displaySa302Interrupt(2018)(fakeRequest)
 
-        status(r) shouldBe OK
-        contentAsString(r) should include(saUtr.utr)
+        status(r) mustBe OK
+        contentAsString(r) must include(saUtr.utr)
       }
 
       "should return UNAUTHORIZED response when accessing with a non SA user with a valid tax year" in new LocalSetup {
@@ -263,7 +264,7 @@ class InterstitialControllerSpec extends BaseSpec with MockitoSugar {
         val testController = controller
         val r = testController.displaySa302Interrupt(2018)(fakeRequest)
 
-        status(r) shouldBe UNAUTHORIZED
+        status(r) mustBe UNAUTHORIZED
       }
     }
   }

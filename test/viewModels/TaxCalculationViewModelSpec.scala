@@ -45,23 +45,23 @@ class TaxCalculationViewModelSpec extends ViewSpec {
     "not render any content" when {
 
       "status is BalancedSA" in {
-        view(BalancedSa) shouldBe None
+        view(BalancedSa) mustBe None
       }
 
       "status is Underpaid Unknown" in {
-        view(Underpaid(None, None, UnderpaidUnknown)) shouldBe None
+        view(Underpaid(None, None, UnderpaidUnknown)) mustBe None
       }
 
       "status is Overpaid Unknown" in {
-        view(Overpaid(None, OverpaidUnknown)) shouldBe None
+        view(Overpaid(None, OverpaidUnknown)) mustBe None
       }
 
       "status is Underpaid PaymentsDown" in {
-        view(Underpaid(None, None, PaymentsDown)) shouldBe None
+        view(Underpaid(None, None, PaymentsDown)) mustBe None
       }
 
       "status is Missing" in {
-        view(Missing) shouldBe None
+        view(Missing) mustBe None
       }
     }
 

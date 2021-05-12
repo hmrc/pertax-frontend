@@ -39,19 +39,19 @@ class LocalErrorHandlerSpec extends ViewSpec with MockitoSugar {
           "Service unavailable",
           "Sorry, we are currently experiencing technical issues.").toString())
 
-    doc.getElementsByTag("h1").toString should include(messages("label.service_unavailable"))
-    doc.getElementsByTag("p").toString should include(
+    doc.getElementsByTag("h1").toString must include(messages("label.service_unavailable"))
+    doc.getElementsByTag("p").toString must include(
       messages("label.sorry_we_are_currently_experiencing_technical_issues"))
 
   }
 
   "internalServerErrorTemplate" in {
     val doc = asDocument(internalServerError().toString())
-    doc.getElementsByTag("h1").toString should include(messages("global.error.InternalServerError500.pta.title"))
-    doc.getElementsByTag("p").toString should include(messages(
-      "global.error.InternalServerError500.pta.message.you.can") + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
-      "global.error.InternalServerError500.pta.message.contact.hmrc") + "</a> " + messages(
-      "global.error.InternalServerError500.pta.message.by.phone.post"))
+    doc.getElementsByTag("h1").toString must include(messages("global.error.InternalServerError500.pta.title"))
+    doc.getElementsByTag("p").toString must include(
+      messages("global.error.InternalServerError500.pta.message.you.can") + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
+        "global.error.InternalServerError500.pta.message.contact.hmrc") + "</a> " + messages(
+        "global.error.InternalServerError500.pta.message.by.phone.post"))
 
   }
 

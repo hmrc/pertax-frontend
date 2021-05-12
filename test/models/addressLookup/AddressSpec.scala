@@ -17,19 +17,19 @@
 package models.addressLookup
 
 import models.addresslookup.{Address, Country}
-import uk.gov.hmrc.play.test.UnitSpec
+import util.BaseSpec
 
-class classAddressModelSpec extends UnitSpec {
+class classAddressModelSpec extends BaseSpec {
 
-  "calling hasAddressLines" should {
+  "calling hasAddressLines" must {
     "return true where the address has at least one line" in {
       val addressLines = List("some line")
-      Address(addressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom")).isValid shouldBe true
+      Address(addressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom")).isValid mustBe true
     }
 
     "return false where the address has no lines" in {
       val noAddressLines = List()
-      Address(noAddressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom")).isValid shouldBe false
+      Address(noAddressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom")).isValid mustBe false
     }
   }
 }

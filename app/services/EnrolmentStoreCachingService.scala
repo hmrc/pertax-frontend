@@ -29,6 +29,8 @@ class EnrolmentStoreCachingService @Inject()(
   val sessionCache: LocalSessionCache,
   enrolmentsConnector: EnrolmentsConnector) {
 
+  private val logger = Logger(this.getClass)
+
   private def addSaUserTypeToCache(
     user: SelfAssessmentUserType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
     sessionCache.cache[SelfAssessmentUserType](SelfAssessmentUserType.cacheId, user).map(_ => user)
@@ -46,7 +48,7 @@ class EnrolmentStoreCachingService @Inject()(
             (response: Either[String, Seq[String]]) =>
               response.fold(
                 error => {
-                  Logger.warn(error)
+                  logger.warn(error)
                   addSaUserTypeToCache(NonFilerSelfAssessmentUser)
                 },
                 ids =>

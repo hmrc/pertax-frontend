@@ -21,6 +21,7 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
@@ -78,7 +79,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             sut
               .enrolForSelfAssessment(
                 SaEnrolmentRequest(origin, Some(utr), providerId)
-              )) shouldBe Some(SaEnrolmentResponse(redirectUrl))
+              )) mustBe Some(SaEnrolmentResponse(redirectUrl))
         }
 
         "the correct payload is submitted (excluding UTR)" in {
@@ -99,7 +100,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             sut
               .enrolForSelfAssessment(
                 SaEnrolmentRequest(origin, None, providerId)
-              )) shouldBe Some(SaEnrolmentResponse(redirectUrl))
+              )) mustBe Some(SaEnrolmentResponse(redirectUrl))
         }
       }
 
@@ -117,7 +118,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             sut
               .enrolForSelfAssessment(
                 SaEnrolmentRequest(invalidOrigin, Some(utr), providerId)
-              )) shouldBe None
+              )) mustBe None
         }
 
         "an invalid utr is submitted" in {
@@ -132,7 +133,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             sut
               .enrolForSelfAssessment(
                 SaEnrolmentRequest(origin, Some(SaUtr(invalidUtr)), providerId)
-              )) shouldBe None
+              )) mustBe None
         }
 
         "multiple invalid fields are submitted" in {
@@ -149,7 +150,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             sut
               .enrolForSelfAssessment(
                 SaEnrolmentRequest(invalidOrigin, Some(SaUtr(invalidUtr)), providerId)
-              )) shouldBe None
+              )) mustBe None
         }
 
         "an upstream error occurs" in {
@@ -162,7 +163,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             sut
               .enrolForSelfAssessment(
                 SaEnrolmentRequest(origin, Some(utr), providerId)
-              )) shouldBe None
+              )) mustBe None
         }
 
         "an exception is thrown" in {
@@ -175,7 +176,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             sut
               .enrolForSelfAssessment(
                 SaEnrolmentRequest(origin, Some(utr), providerId)
-              )) shouldBe None
+              )) mustBe None
         }
       }
     }

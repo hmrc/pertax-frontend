@@ -86,7 +86,7 @@ class SessionAuditorSpec
   }
 
   "auditOnce" when {
-    "the audit is successful" should {
+    "the audit is successful" must {
       "call audit and update the session" in {
         mockSendExtendedEvent(Future.successful(Success))
         val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)

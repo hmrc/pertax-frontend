@@ -31,7 +31,6 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.{BaseSpec, Fixtures}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoSugar {
@@ -65,7 +64,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
     }
   }
 
-  "Calling TaxCalculationService.getTaxYearReconciliations" should {
+  "Calling TaxCalculationService.getTaxYearReconciliations" must {
 
     "return a list of TaxYearReconciliations when given a valid nino" in new SpecSetup {
       override def httpResponse: HttpResponse = HttpResponse(OK, Some(jsonTaxCalcDetails))
@@ -82,7 +81,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
       val result = service.getTaxYearReconciliations(fakeNino)
 
       whenReady(result) {
-        _ shouldBe expectedTaxYearList
+        _ mustBe expectedTaxYearList
       }
 
     }
@@ -101,7 +100,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
       val result = service.getTaxYearReconciliations(fakeNino)
 
       whenReady(result) {
-        _ shouldBe expectedTaxYearList
+        _ mustBe expectedTaxYearList
       }
     }
   }

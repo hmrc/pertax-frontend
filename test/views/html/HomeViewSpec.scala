@@ -19,6 +19,7 @@ package views.html
 import config.ConfigDecorator
 import models._
 import org.jsoup.nodes.Document
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
@@ -47,8 +48,8 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
-      document.select("h1").exists(e => e.text == "Your account") shouldBe false
+      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
+      document.select("h1").exists(e => e.text == "Your account") mustBe false
     }
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
@@ -60,8 +61,8 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
-      document.select("h1").exists(e => e.text == "Your account") shouldBe false
+      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
+      document.select("h1").exists(e => e.text == "Your account") mustBe false
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
@@ -69,7 +70,7 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Your account") shouldBe true
+      document.select("h1").exists(e => e.text == "Your account") mustBe true
     }
 
     "should not show the UTR if the user is not a self assessment user" in {

@@ -20,11 +20,11 @@ import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import org.joda.time.LocalDate
 import play.api.libs.json.{JsError, JsString, Json}
-import uk.gov.hmrc.play.test.UnitSpec
+import util.BaseSpec
 
-class TaxYearReconciliationSpec extends UnitSpec {
+class TaxYearReconciliationSpec extends BaseSpec {
 
-  "TaxYearReconciliations" should {
+  "TaxYearReconciliations" must {
 
     val testList = List(
       ("balanced", Balanced),
@@ -42,7 +42,7 @@ class TaxYearReconciliationSpec extends UnitSpec {
 
           val rec = Json.parse(s"""{"_type": "$name"}""")
 
-          rec.as[Reconciliation] shouldBe recType
+          rec.as[Reconciliation] mustBe recType
         }
     }
 
@@ -50,7 +50,7 @@ class TaxYearReconciliationSpec extends UnitSpec {
 
       val rec = Json.parse("""{"_type": "overpaid", "amount": 100, "status": "refund"}""")
 
-      rec.as[Reconciliation] shouldBe Overpaid(Some(100), Refund)
+      rec.as[Reconciliation] mustBe Overpaid(Some(100), Refund)
     }
 
     "deserialise an underpaid type" in {
@@ -58,14 +58,14 @@ class TaxYearReconciliationSpec extends UnitSpec {
       val rec =
         Json.parse("""{"_type": "underpaid", "amount": 100, "dueDate": "2019-10-10", "status": "payment_due"}""")
 
-      rec.as[Reconciliation] shouldBe Underpaid(Some(100), Some(new LocalDate(2019, 10, 10)), PaymentDue)
+      rec.as[Reconciliation] mustBe Underpaid(Some(100), Some(new LocalDate(2019, 10, 10)), PaymentDue)
     }
 
     "fail to deserialise another value" in {
 
       val rec = Json.parse("""{"_type": "abc123", "amount": 100, "dueDate": "2019-10-10", "status": "payment_due"}""")
 
-      rec.validate[Reconciliation] shouldBe JsError("Could not parse Reconciliation")
+      rec.validate[Reconciliation] mustBe JsError("Could not parse Reconciliation")
     }
 
     val overpaidList = List(
@@ -84,7 +84,7 @@ class TaxYearReconciliationSpec extends UnitSpec {
 
           val rec = JsString(name)
 
-          rec.as[OverpaidStatus] shouldBe overpaidType
+          rec.as[OverpaidStatus] mustBe overpaidType
         }
     }
 
@@ -92,7 +92,7 @@ class TaxYearReconciliationSpec extends UnitSpec {
 
       val rec = JsString("abc123")
 
-      rec.validate[OverpaidStatus] shouldBe JsError("Could not parse Overpaid status")
+      rec.validate[OverpaidStatus] mustBe JsError("Could not parse Overpaid status")
     }
 
     val underpaidList = List(
@@ -109,7 +109,7 @@ class TaxYearReconciliationSpec extends UnitSpec {
 
           val rec = JsString(name)
 
-          rec.as[UnderpaidStatus] shouldBe underpaidType
+          rec.as[UnderpaidStatus] mustBe underpaidType
         }
     }
 
@@ -117,7 +117,7 @@ class TaxYearReconciliationSpec extends UnitSpec {
 
       val rec = JsString("abc123")
 
-      rec.validate[UnderpaidStatus] shouldBe JsError("Could not parse Underpaid status")
+      rec.validate[UnderpaidStatus] mustBe JsError("Could not parse Underpaid status")
     }
   }
 }

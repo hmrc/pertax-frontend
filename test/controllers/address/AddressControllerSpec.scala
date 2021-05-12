@@ -18,6 +18,7 @@ package controllers.address
 
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
@@ -49,8 +50,8 @@ class AddressControllerSpec extends AddressBaseSpec {
           Ok(expectedContent)
         }(userRequest)
 
-        status(result) shouldBe OK
-        contentAsString(result) shouldBe expectedContent
+        status(result) mustBe OK
+        contentAsString(result) mustBe expectedContent
       }
     }
 
@@ -65,7 +66,7 @@ class AddressControllerSpec extends AddressBaseSpec {
           Ok("Success")
         }(userRequest)
 
-        status(result) shouldBe OK
+        status(result) mustBe OK
         contentAsString(result) should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
       }
 
@@ -77,7 +78,7 @@ class AddressControllerSpec extends AddressBaseSpec {
           Ok("Success")
         }
 
-        status(result) shouldBe OK
+        status(result) mustBe OK
         contentAsString(result) should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
 
       }

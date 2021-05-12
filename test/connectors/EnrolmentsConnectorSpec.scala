@@ -19,6 +19,7 @@ package connectors
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
@@ -51,7 +52,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
       when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
     }
 
     "query users with no principal enrolment returns empty enrolments" in {
@@ -64,7 +65,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
       when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
     }
 
     "query users with assigned enrolment return two principleIds" in {
@@ -84,7 +85,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
 
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe expected
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe expected
     }
   }
 }

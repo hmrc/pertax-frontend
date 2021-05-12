@@ -24,6 +24,8 @@ import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.MustMatchers.convertToAnyMustWrapper
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
@@ -33,13 +35,16 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers.CONTENT_TYPE
+import play.api.test.Helpers.{CONTENT_TYPE, await}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 
-class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with WireMockHelper {
+import scala.concurrent.Future
+
+class PreferencesFrontendServiceSpec
+    extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with WireMockHelper with ScalaFutures {
 
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]
@@ -63,7 +68,7 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
   when(mockContext.stop()).thenReturn(1L)
 
   //TODO: Find a way to mock metrics in a testable way
-  "PreferencesFrontend" should {
+  "PreferencesFrontend" must {
 
     "return ActivatePaperlessActivatedResponse if it is successful, and user is Government GateWay" in {
 
@@ -92,9 +97,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
               .withBody(jsonBody)
           ))
 
-      val result = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference().futureValue
 
-      await(result) shouldBe ActivatePaperlessActivatedResponse
+      result mustBe ActivatePaperlessActivatedResponse
 
     }
 
@@ -109,9 +114,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
 
       implicit val service = app.injector.instanceOf[PreferencesFrontendService]
 
-      val result = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference().futureValue
 
-      await(result) shouldBe ActivatePaperlessNotAllowedResponse
+      result mustBe ActivatePaperlessNotAllowedResponse
 
     }
 
@@ -136,9 +141,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
               .withStatus(303)
           ))
 
-      val result = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference().futureValue
 
-      await(result) shouldBe ActivatePaperlessNotAllowedResponse
+      result mustBe ActivatePaperlessNotAllowedResponse
     }
 
     "return ActivatePaperlessNotAllowedResponse if BadRequestException is thrown" in {
@@ -162,9 +167,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
               .withStatus(400)
           ))
 
-      val result = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference().futureValue
 
-      await(result) shouldBe ActivatePaperlessNotAllowedResponse
+      result mustBe ActivatePaperlessNotAllowedResponse
     }
 
     "return ActivatePaperlessRequiresUserActionResponse if Precondition failed with 412 response" in {
@@ -193,9 +198,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
               .withBody(jsonBody)
           ))
 
-      val result = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference().futureValue
 
-      await(result) shouldBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
+      result mustBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
     }
 
     "return ActivatePaperlessNotAllowedResponse when called and service is down" in {
@@ -219,9 +224,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with GuiceOneAppPerSuite w
               .withStatus(500)
           ))
 
-      val result = service.getPaperlessPreference()
+      val result = service.getPaperlessPreference().futureValue
 
-      await(result) shouldBe ActivatePaperlessNotAllowedResponse
+      result mustBe ActivatePaperlessNotAllowedResponse
     }
   }
 }

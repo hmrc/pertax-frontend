@@ -23,6 +23,7 @@ import controllers.auth.requests.UserRequest
 import models.MessageCount
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
@@ -39,7 +40,7 @@ import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
-class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
+class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
   lazy val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(
@@ -70,48 +71,50 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
 
   when(mockTimer.time()).thenReturn(mockContext)
 
-  "Calling getMessageListPartial" should {
+  "Calling getMessageListPartial" must {
     "return message partial for list of messages" in {
 
       when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      val result = messageFrontendService.getMessageListPartial(FakeRequest())
+      val result = messageFrontendService.getMessageListPartial(FakeRequest()).futureValue
 
-      await(result) shouldBe
+      result mustBe
         HtmlPartial.Success(Some("Title"), Html("<title/>"))
 
       verify(messageFrontendService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
   }
 
-  "Calling getMessageDetailPartial" should {
+  "Calling getMessageDetailPartial" must {
     "return message partial for message details" in {
 
       when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String")))
 
-      val partial = messageFrontendService.getMessageDetailPartial("")(FakeRequest())
-      await(partial) shouldBe HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
+      val partial = messageFrontendService.getMessageDetailPartial("")(FakeRequest()).futureValue
+
+      partial mustBe HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
-  "Calling getMessageInboxLinkPartial" should {
+  "Calling getMessageInboxLinkPartial" must {
     "return message inbox link partial" in {
 
       when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
 
-      val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest())
-      await(partial) shouldBe HtmlPartial.Success(None, Html("link to messages"))
+      val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest()).futureValue
+
+      partial mustBe HtmlPartial.Success(None, Html("link to messages"))
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
-  "Calling getMessageCount" should {
+  "Calling getMessageCount" must {
     def messageCount = messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
 
     "return None unread messages when http client throws an exception" in {
@@ -119,7 +122,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
       when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.failed(new HttpException("bad", 413))
 
-      await(messageCount) shouldBe None
+      messageCount.futureValue mustBe None
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
@@ -129,7 +132,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
       when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](None)
 
-      await(messageCount) shouldBe None
+      messageCount.futureValue mustBe None
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
@@ -139,7 +142,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
       when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(0)))
 
-      await(messageCount) shouldBe Some(0)
+      messageCount.futureValue mustBe Some(0)
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
@@ -149,7 +152,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar {
       when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(10)))
 
-      await(messageCount) shouldBe Some(10)
+      messageCount.futureValue mustBe Some(10)
 
       verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }

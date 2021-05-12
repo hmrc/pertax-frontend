@@ -40,7 +40,7 @@ class ReviewChangesViewSpec extends ViewSpec with MockitoSugar {
 
   def result(addressType: AddrType) = asDocument(view(addressType, address, "yes.label", true, None, false).toString)
 
-  "rendering ReviewChangesView" should {
+  "rendering ReviewChangesView" must {
     "when postal address has been changed display 'is your address in the uk'" in {
 
       assertContainsText(result(PostalAddrType), messages("label.is_your_postal_address_in_the_uk"))

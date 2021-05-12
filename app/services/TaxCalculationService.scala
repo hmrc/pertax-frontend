@@ -43,6 +43,8 @@ class TaxCalculationService @Inject()(
   servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
     extends HasMetrics {
 
+  private val logger = Logger(this.getClass)
+
   lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
 
   def getTaxYearReconciliations(nino: Nino)(
@@ -55,7 +57,7 @@ class TaxCalculationService @Inject()(
       } recover {
         case NonFatal(e) =>
           t.completeTimerAndIncrementFailedCounter()
-          Logger.error(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
+          logger.error(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
           Nil
       }
     }
