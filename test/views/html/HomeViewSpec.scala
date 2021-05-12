@@ -19,7 +19,6 @@ package views.html
 import config.ConfigDecorator
 import models._
 import org.jsoup.nodes.Document
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
@@ -40,7 +39,7 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
 
   val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None)
 
-  "Rendering HomeView.scala.html" should {
+  "Rendering HomeView.scala.html" must {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest =
@@ -73,21 +72,21 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
       document.select("h1").exists(e => e.text == "Your account") mustBe true
     }
 
-    "should not show the UTR if the user is not a self assessment user" in {
+    "must not show the UTR if the user is not a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
 
       val view = home(homeViewModel).toString
 
-      view should not contain messages("label.home_page.utr")
+      view must not contain messages("label.home_page.utr")
     }
 
-    "should show the UTR if the user is a self assessment user" in {
+    "must show the UTR if the user is a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
       val utr = new SaUtrGenerator().nextSaUtr.utr
       val view = home(homeViewModel.copy(saUtr = Some(utr))).toString
 
-      view should include(messages("label.home_page.utr"))
-      view should include(utr)
+      view must include(messages("label.home_page.utr"))
+      view must include(utr)
     }
   }
 }

@@ -144,7 +144,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       }
 
       val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
-      val body = bodyOf(r)
+      val body = contentAsString(r)
       val doc = Jsoup.parse(body)
 
       Option(doc.getElementsByTag("article").text()).get must include(

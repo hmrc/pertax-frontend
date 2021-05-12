@@ -71,7 +71,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures {
       override def simulateTaxCalculationServiceIsDown: Boolean = false
 
       val expectedTaxYearList =
-        List(TaxYearReconciliation(2019, Reconciliation.overpaid(Some(100), OverpaidStatus.Refund)))
+        Future(List(TaxYearReconciliation(2019, Reconciliation.overpaid(Some(100), OverpaidStatus.Refund))))
 
       val fakeNino = Fixtures.fakeNino
 
@@ -81,7 +81,7 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures {
       val result = service.getTaxYearReconciliations(fakeNino)
 
       whenReady(result) {
-        _ mustBe expectedTaxYearList
+        _ mustBe expectedTaxYearList.futureValue
       }
 
     }
