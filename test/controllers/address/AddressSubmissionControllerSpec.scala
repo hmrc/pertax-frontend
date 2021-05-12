@@ -66,7 +66,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return 200 if both SubmittedAddressDto and SubmittedStartDateDto are present in keystore for non-postal" in new LocalSetup {
       override def sessionCacheResponse =
@@ -144,7 +144,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) shouldNot include(controller.messagesApi("label.when_this_became_your_main_home"))
+      contentAsString(result) mustNot include(controller.messagesApi("label.when_this_became_your_main_home"))
     }
 
     "display no message relating to the date the address started when the primary address has not changed when the postcode is in lower case" in new LocalSetup {
@@ -161,7 +161,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) shouldNot include(Messages("label.when_this_became_your_main_home"))
+      contentAsString(result) mustNot include(Messages("label.when_this_became_your_main_home"))
     }
 
     "display no message relating to the date the address started when the primary address has not changed when the postcode entered has no space" in new LocalSetup {
@@ -178,7 +178,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) shouldNot include(Messages("label.when_this_became_your_main_home"))
+      contentAsString(result) mustNot include(Messages("label.when_this_became_your_main_home"))
     }
 
     "display a message relating to the date the address started when the primary address has changed" in new LocalSetup {
@@ -194,7 +194,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) should include(Messages("label.when_this_became_your_main_home"))
+      contentAsString(result) must include(Messages("label.when_this_became_your_main_home"))
     }
 
     "display the appropriate label for address when the sole address has changed" in new LocalSetup {
@@ -210,8 +210,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-      contentAsString(result) should include(Messages("label.your_new_address"))
-      contentAsString(result) should include(Messages("label.when_you_started_living_here"))
+      contentAsString(result) must include(Messages("label.your_new_address"))
+      contentAsString(result) must include(Messages("label.when_you_started_living_here"))
     }
 
     "display the appropriate label for address when the sole address has not changed" in new LocalSetup {
@@ -227,12 +227,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-      contentAsString(result) should include(Messages("label.your_address"))
-      contentAsString(result) shouldNot include(Messages("label.when_you_started_living_here"))
+      contentAsString(result) must include(Messages("label.your_address"))
+      contentAsString(result) mustNot include(Messages("label.when_you_started_living_here"))
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     def comparatorDataEvent(
       dataEvent: DataEvent,

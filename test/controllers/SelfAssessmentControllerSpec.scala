@@ -110,7 +110,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(await(result)) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
+      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.landingPage().url)
     }
 
     "return 200 when called with a GG user that is has a UTR but no enrolment" in new LocalSetup {
@@ -118,7 +118,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       val result = controller.handleSelfAssessment()(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(await(result)) mustBe Some(routes.SelfAssessmentController.requestAccess().url)
+      redirectLocation(result) mustBe Some(routes.SelfAssessmentController.requestAccess().url)
     }
   }
 
@@ -159,7 +159,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with Moc
 
       val result = controller.ivExemptLandingPage(None)(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(await(result)) mustBe Some(routes.SelfAssessmentController.requestAccess().url)
+      redirectLocation(result) mustBe Some(routes.SelfAssessmentController.requestAccess().url)
     }
 
     "redirect to 'We cannot confirm your identity' page for a user who has no SAUTR" in new LocalSetup {

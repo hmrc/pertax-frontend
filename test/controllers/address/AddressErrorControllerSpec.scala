@@ -18,7 +18,6 @@ package controllers.address
 
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import models.dto._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -47,24 +46,24 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
       )
   }
 
-  "cannotUseThisService" should {
+  "cannotUseThisService" must {
 
     "display the cannot use this service page" in new LocalSetup {
       val result = controller.cannotUseThisService(SoleAddrType)(currentRequest)
 
       status(result) mustBe OK
-      contentAsString(result) should include("You cannot use this service to update your address")
+      contentAsString(result) must include("You cannot use this service to update your address")
     }
   }
 
-  "showAddressAlreadyUpdated" should {
+  "showAddressAlreadyUpdated" must {
 
     "display the showAddressAlreadyUpdated page" in new LocalSetup {
 
       val result = controller.showAddressAlreadyUpdated(PostalAddrType)(currentRequest)
 
       status(result) mustBe OK
-      contentAsString(result) should include("Your address has already been updated")
+      contentAsString(result) must include("Your address has already been updated")
     }
   }
 }

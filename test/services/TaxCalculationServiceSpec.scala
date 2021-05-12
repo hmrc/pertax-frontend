@@ -19,10 +19,10 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models.{OverpaidStatus, Reconciliation, TaxYearReconciliation}
-import org.mockito.Matchers._
-import org.mockito.Mockito._
+import org.mockito.Matchers.any
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status._
 import play.api.libs.json.Json
 import services.http.FakeSimpleHttp
@@ -33,7 +33,7 @@ import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
-class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoSugar {
+class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
@@ -52,11 +52,11 @@ class TaxCalculationServiceSpec extends BaseSpec with ScalaFutures with MockitoS
       }
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
-      val timer = MockitoSugar.mock[Timer.Context]
+      val timer = mock[Timer.Context]
       val taxCalculationService: TaxCalculationService =
-        new TaxCalculationService(fakeSimpleHttp, MockitoSugar.mock[Metrics], mockHttp, serviceConfig) {
+        new TaxCalculationService(fakeSimpleHttp, mock[Metrics], mockHttp, serviceConfig) {
 
-          override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer
         }
 

@@ -25,6 +25,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import util.UserRequestFixture.buildUserRequest
 
+import scala.concurrent.Future
+
 class AddressControllerSpec extends AddressBaseSpec {
 
   object SUT
@@ -35,7 +37,7 @@ class AddressControllerSpec extends AddressBaseSpec {
         displayAddressInterstitialView
       )
 
-  "addressJourneyEnforcer" should {
+  "addressJourneyEnforcer" must {
 
     "complete given block" when {
 
@@ -47,7 +49,7 @@ class AddressControllerSpec extends AddressBaseSpec {
         val expectedContent = "Success"
 
         val result = SUT.addressJourneyEnforcer { _ => _ =>
-          Ok(expectedContent)
+          Future(Ok(expectedContent))
         }(userRequest)
 
         status(result) mustBe OK
@@ -63,11 +65,11 @@ class AddressControllerSpec extends AddressBaseSpec {
           buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
 
         val result = SUT.addressJourneyEnforcer { _ => _ =>
-          Ok("Success")
+          Future(Ok("Success"))
         }(userRequest)
 
         status(result) mustBe OK
-        contentAsString(result) should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
+        contentAsString(result) must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
       }
 
       "person details cannot be found in the request" in {
@@ -75,11 +77,11 @@ class AddressControllerSpec extends AddressBaseSpec {
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
 
         val result = SUT.addressJourneyEnforcer { _ => _ =>
-          Ok("Success")
+          Future(Ok("Success"))
         }
 
         status(result) mustBe OK
-        contentAsString(result) should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
+        contentAsString(result) must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
 
       }
     }

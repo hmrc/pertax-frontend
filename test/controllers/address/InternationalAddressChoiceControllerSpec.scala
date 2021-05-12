@@ -22,6 +22,7 @@ import models.dto.AddressPageVisitedDto
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.MustMatchers.convertToAnyMustWrapper
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
@@ -87,9 +88,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
 
-      lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
-
-      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
+      when(config.updateInternationalAddressInPta).thenReturn(false)
 
       override def controller: InternationalAddressChoiceController =
         new InternationalAddressChoiceController(
@@ -99,7 +98,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           cc,
           injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
+        )(partialRetriever, config, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

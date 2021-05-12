@@ -16,9 +16,7 @@
 
 package controllers
 
-import config.ConfigDecorator
-import org.mockito.Mockito.mock
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.{MessagesControllerComponents, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -33,11 +31,10 @@ import scala.concurrent.ExecutionContext
 class PublicControllerSpec extends BaseSpec {
 
   private val mockTemplateRenderer = mock[TemplateRenderer]
-  private val configDecorator = injected[ConfigDecorator]
 
   private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
     mockLocalPartialRetriever,
-    configDecorator,
+    config,
     mockTemplateRenderer,
     injected[ExecutionContext]
   )
@@ -89,7 +86,7 @@ class PublicControllerSpec extends BaseSpec {
 
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("/personal-account")
-      session(r) mustBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderVerify))
+      session(r) mustBe new Session(Map(config.authProviderKey -> config.authProviderVerify))
     }
   }
 
@@ -101,7 +98,7 @@ class PublicControllerSpec extends BaseSpec {
 
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("/personal-account")
-      session(r) mustBe new Session(Map(configDecorator.authProviderKey -> configDecorator.authProviderGG))
+      session(r) mustBe new Session(Map(config.authProviderKey -> config.authProviderGG))
     }
   }
 }

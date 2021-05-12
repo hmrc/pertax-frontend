@@ -24,8 +24,8 @@ import error.ErrorRenderer
 import models.CreatePayment
 import org.joda.time.DateTime
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{mock, when}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -35,7 +35,6 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec}
-import views.html.{ErrorView, NotFoundView}
 
 import scala.concurrent.{ExecutionContext, Future}
 

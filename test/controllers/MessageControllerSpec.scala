@@ -22,8 +22,6 @@ import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import org.jsoup.Jsoup
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatest.MustMatchers.not.include
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
@@ -37,8 +35,7 @@ import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.message.{MessageDetailView, MessageInboxView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
@@ -61,7 +58,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       injected[MessagesControllerComponents],
       injected[MessageInboxView],
       injected[MessageDetailView]
-    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
+    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }

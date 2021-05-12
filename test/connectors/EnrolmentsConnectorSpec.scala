@@ -19,7 +19,6 @@ package connectors
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
@@ -28,7 +27,6 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.{BaseSpec, NullMetrics}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures with EitherValues {
@@ -37,7 +35,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
   val connector = new EnrolmentsConnector(http, config, new NullMetrics)
   val baseUrl = config.enrolmentStoreProxyUrl
 
-  "getAssignedEnrolments" should {
+  "getAssignedEnrolments" must {
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
@@ -45,7 +43,7 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
       when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.left.value should include(BAD_REQUEST.toString)
+      connector.getUserIdsWithEnrolments(utr).futureValue.left.value must include(BAD_REQUEST.toString)
     }
 
     "NO_CONTENT response should return no enrolments" in {

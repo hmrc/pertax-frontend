@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.BaseSpec
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SimpleHttpSpec extends BaseSpec with ScalaFutures {
 
@@ -142,7 +142,7 @@ class SimpleHttpSpec extends BaseSpec with ScalaFutures {
 }
 
 //Mock client for use in other tests
-class FakeSimpleHttp(response: Either[HttpResponse, Exception])
+class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: ExecutionContext)
     extends SimpleHttp(MockitoSugar.mock[DefaultHttpClient]) {
 
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
