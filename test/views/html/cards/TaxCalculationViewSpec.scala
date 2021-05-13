@@ -25,7 +25,7 @@ import viewmodels.{Heading, TaxCalculationViewModel, TaxYears, UnderpaidUrl}
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView
 
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.JavaConverters._
 
 class TaxCalculationViewSpec extends ViewSpec {
 
@@ -34,7 +34,7 @@ class TaxCalculationViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).attr("href", "").asScala must contain(href)
+    document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   "TaxCalculation card" must {
 

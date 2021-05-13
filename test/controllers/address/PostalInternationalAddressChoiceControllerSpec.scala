@@ -29,8 +29,6 @@ import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
-  val mockConfigDecorator = mock[ConfigDecorator]
-
   trait LocalSetup extends AddressControllerSetup {
 
     def controller: PostalInternationalAddressChoiceController =
@@ -100,6 +98,8 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
 
+      lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
 
       override def controller: PostalInternationalAddressChoiceController =
@@ -110,7 +110,7 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           cc,
           injected[PostalInternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(partialRetriever, config, templateRenderer, ec)
+        )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

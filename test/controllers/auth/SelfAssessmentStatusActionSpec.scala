@@ -19,7 +19,12 @@ package controllers.auth
 import controllers.auth.requests._
 import models._
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -31,11 +36,11 @@ import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDe
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
-import util.BaseSpec
 
 import scala.concurrent.Future
 
-class SelfAssessmentStatusActionSpec extends BaseSpec {
+class SelfAssessmentStatusActionSpec
+    extends AnyFreeSpec with Matchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -80,7 +85,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
       FakeRequest()
     )
 
-  "An SA user with an activated enrolment must" must {
+  "An SA user with an activated enrolment must" - {
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
       val saEnrolment = Some(SelfAssessmentEnrolment(saUtr, Activated))
       implicit val request = createAuthenticatedRequest(saEnrolment)
@@ -91,7 +96,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
     }
   }
 
-  "An SA user with a not yet activated enrolment must" must {
+  "An SA user with a not yet activated enrolment must" - {
     "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
       val saEnrolment = Some(SelfAssessmentEnrolment(saUtr, NotYetActivated))
       implicit val request = createAuthenticatedRequest(saEnrolment)
@@ -102,8 +107,8 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
     }
   }
 
-  "A user without an SA enrolment must" must {
-    "when CitizenDetails has a matching SA account" in {
+  "A user without an SA enrolment must" - {
+    "when CitizenDetails has a matching SA account" - {
 
       val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -132,7 +137,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
     }
   }
 
-  "when CitizenDetails has no matching SA account" must {
+  "when CitizenDetails has no matching SA account" - {
     "return NonFilerSelfAssessmentUser" in {
       implicit val request = createAuthenticatedRequest(None)
 
@@ -144,7 +149,7 @@ class SelfAssessmentStatusActionSpec extends BaseSpec {
     }
   }
 
-  "when user has no Nino" must {
+  "when user has no Nino" - {
     "return NonFilerSelfAssessmentUser" in {
       implicit val request = createAuthenticatedRequest(None, None)
 

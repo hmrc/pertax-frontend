@@ -18,15 +18,14 @@ package views.html.interstitial
 
 import config.ConfigDecorator
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
-class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec with MockitoSugar {
-
-  override implicit lazy val app = localGuiceApplicationBuilder().build()
+class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
 
   lazy val view = injected[ViewNationalInsuranceInterstitialHomeView]
 

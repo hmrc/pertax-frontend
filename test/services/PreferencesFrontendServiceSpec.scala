@@ -24,6 +24,7 @@ import controllers.auth.requests.UserRequest
 import models._
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.ContentTypes
 import play.api.http.Status._
@@ -37,7 +38,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 
-class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper {
+class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]
@@ -90,9 +91,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper {
               .withBody(jsonBody)
           ))
 
-      val result = service.getPaperlessPreference().futureValue
+      val result = service.getPaperlessPreference()
 
-      result mustBe ActivatePaperlessActivatedResponse
+      result.futureValue mustBe ActivatePaperlessActivatedResponse
 
     }
 

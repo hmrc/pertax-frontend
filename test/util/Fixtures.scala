@@ -29,6 +29,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterEach, Suite}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -298,8 +299,8 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-    extends AnyWordSpec with Matchers with PatienceConfiguration with BeforeAndAfterEach with MockitoSugar
-    with ScalaFutures {
+    extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with PatienceConfiguration with BeforeAndAfterEach
+    with MockitoSugar with ScalaFutures {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()
@@ -320,7 +321,7 @@ trait BaseSpec
       )
       .configure(configValues)
 
-  implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 

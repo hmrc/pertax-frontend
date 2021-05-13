@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import config.ConfigDecorator
 import controllers.bindable.SoleAddrType
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
@@ -47,7 +48,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
@@ -68,7 +69,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
 
@@ -85,7 +86,9 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
 
-      when(config.updateInternationalAddressInPta).thenReturn(false)
+      lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+
+      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
 
       override def controller: InternationalAddressChoiceController =
         new InternationalAddressChoiceController(
@@ -95,7 +98,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           cc,
           injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(partialRetriever, config, templateRenderer, ec)
+        )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

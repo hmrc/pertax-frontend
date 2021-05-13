@@ -87,11 +87,11 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     actionProvider.invokeBlock(request, block)
   }
 
-  "GetPersonDetailsAction must" must {
+  "GetPersonDetailsAction" when {
     when(mockMessageFrontendService.getUnreadMessageCount(any()))
       .thenReturn(Future.successful(Some(1)))
 
-    "when a user has PersonDetails in CitizenDetails" in {
+    "a user has PersonDetails in CitizenDetails" must {
 
       "add the PersonDetails to the request" in {
         when(mockCitizenDetailsService.personDetails(any())(any()))
