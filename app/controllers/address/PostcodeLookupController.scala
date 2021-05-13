@@ -28,6 +28,7 @@ import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId,
 import play.api.Logger
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -35,7 +36,7 @@ import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
 import util.LocalPartialRetriever
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.PostcodeLookupView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, PostcodeLookupView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,16 +48,24 @@ class PostcodeLookupController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
           cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, InternationalAddressChoiceDto(true))
           typ match {
@@ -82,7 +91,7 @@ class PostcodeLookupController @Inject()(
 
   def onSubmit(typ: AddrType, back: Option[Boolean] = None): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
+      addressJourneyEnforcer(typ) { _ => _ =>
         AddressFinderDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(BadRequest(postcodeLookupView(formWithErrors, typ)))

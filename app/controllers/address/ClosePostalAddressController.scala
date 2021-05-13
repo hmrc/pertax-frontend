@@ -24,8 +24,8 @@ import controllers.bindable.PostalAddrType
 import controllers.controllershelpers.AddressJourneyAuditingHelper.auditForClosingPostalAddress
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
-import models.{Address, AddressJourneyTTLModel, EditCorrespondenceAddress, PersonDetails}
 import models.dto.ClosePostalAddressChoiceDto
+import models.{Address, EditCorrespondenceAddress, PersonDetails}
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -37,7 +37,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,24 +54,32 @@ class ClosePostalAddressController @Inject()(
   closeCorrespondenceAddressChoiceView: CloseCorrespondenceAddressChoiceView,
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
         Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
       }
+
     }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personalDetails =>
+      addressJourneyEnforcer(PostalAddrType) { _ => personalDetails =>
         ClosePostalAddressChoiceDto.form.bindFromRequest.fold(
           formWithErrors => {
             Future.successful(
@@ -88,11 +96,12 @@ class ClosePostalAddressController @Inject()(
           }
         )
       }
+
     }
 
   def confirmPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
         Future.successful(Ok(confirmCloseCorrespondenceAddressView(address)))
       }
@@ -100,7 +109,7 @@ class ClosePostalAddressController @Inject()(
 
   def confirmSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { nino => personDetails =>
+      addressJourneyEnforcer(PostalAddrType) { nino => personDetails =>
         for {
           addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
           result <- {

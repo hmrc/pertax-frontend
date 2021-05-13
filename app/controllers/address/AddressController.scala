@@ -21,12 +21,16 @@ import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import models.PersonDetails
+import controllers.bindable.AddrType
+import models._
+import play.api.Logger
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
+import views.html.personaldetails.AddressAlreadyUpdatedView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,30 +38,45 @@ abstract class AddressController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
+  val logger = Logger(this.getClass)
+
   def authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withActiveTabAction
       .addActiveTab(ActiveTabYourAccount)
 
-  def addressJourneyEnforcer(block: Nino => PersonDetails => Future[Result])(
+  def addressJourneyEnforcer(typ: AddrType)(block: Nino => PersonDetails => Future[Result])(
     implicit request: UserRequest[_]): Future[Result] =
-    (for {
-      payeAccount   <- request.nino
-      personDetails <- request.personDetails
-    } yield {
-      block(payeAccount)(personDetails)
-    }).getOrElse {
-      Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
-          .onPageLoad()
-          .url
-        Ok(displayAddressInterstitialView(continueUrl))
+    lockedTileEnforcer(typ) {
+      (for {
+        payeAccount   <- request.nino
+        personDetails <- request.personDetails
+      } yield {
+        block(payeAccount)(personDetails)
+      }).getOrElse {
+        Future.successful {
+          val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
+            .onPageLoad()
+            .url
+          Ok(displayAddressInterstitialView(continueUrl))
+        }
       }
+    }
+
+  def lockedTileEnforcer(typ: AddrType)(block: => Future[Result])(implicit request: UserRequest[_]): Future[Result] =
+    editAddressLockRepository.isLockPresent(typ)(request).flatMap { lockPresent =>
+      if (lockPresent) {
+        logger.warn("Trying to access locked page")
+        Future.successful(Ok(addressAlreadyUpdatedView()))
+      } else
+        block
     }
 }

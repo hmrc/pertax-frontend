@@ -25,8 +25,9 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
-import views.html.personaldetails.InternationalAddressChoiceView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, InternationalAddressChoiceView}
 
 class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
@@ -39,7 +40,9 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[InternationalAddressChoiceView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =
@@ -97,7 +100,9 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           withActiveTabAction,
           cc,
           injected[InternationalAddressChoiceView],
-          displayAddressInterstitialView
+          displayAddressInterstitialView,
+          injected[EditAddressLockRepository],
+          injected[AddressAlreadyUpdatedView]
         )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =

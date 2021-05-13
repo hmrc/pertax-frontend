@@ -27,13 +27,14 @@ import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.ActionBuilderFixture
 import util.Fixtures.fakeStreetTupleListAddressForUnmodified
 import util.UserRequestFixture.buildUserRequest
 import util.fixtures.AddressFixture.{address => addressFixture}
 import util.fixtures.PersonFixture.emptyPerson
-import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUpdateAddressView, EnterStartDateView}
 
 import scala.concurrent.Future
 
@@ -49,7 +50,9 @@ class StartDateControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         injected[EnterStartDateView],
         injected[CannotUpdateAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

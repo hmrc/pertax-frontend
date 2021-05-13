@@ -27,10 +27,11 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.Fixtures
 import util.Fixtures.{fakeStreetPafAddressRecord, fakeStreetTupleListAddressForUnmodified}
-import views.html.personaldetails.UpdateAddressView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, UpdateAddressView}
 
 class UpdateAddressControllerSpec extends AddressBaseSpec {
 
@@ -43,7 +44,9 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         injected[UpdateAddressView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        injected[EditAddressLockRepository],
+        injected[AddressAlreadyUpdatedView]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

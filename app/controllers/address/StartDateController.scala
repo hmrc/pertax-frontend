@@ -25,10 +25,11 @@ import models.dto.DateDto
 import models.{Address, SubmittedStartDateId}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.{LanguageHelper, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUpdateAddressView, EnterStartDateView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,16 +40,24 @@ class StartDateController @Inject()(
   cachingHelper: AddressJourneyCachingHelper,
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
             val newPostcode = journeyData.submittedAddressDto.map(_.postcode).getOrElse("").toString
@@ -68,11 +77,12 @@ class StartDateController @Inject()(
           }
         }
       }
+
     }
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm.bindFromRequest.fold(
             formWithErrors => {
@@ -99,7 +109,6 @@ class StartDateController @Inject()(
         }
       }
     }
-
   private def dateDtoForm: Form[DateDto] = DateDto.form(configDecorator.currentLocalDate)
 
   private def nonPostalJourneyEnforcer(typ: AddrType)(block: => Future[Result]): Future[Result] =

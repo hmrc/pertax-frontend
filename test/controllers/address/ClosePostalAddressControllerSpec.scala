@@ -34,7 +34,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures
 import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import util.UserRequestFixture.buildUserRequest
-import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
@@ -63,7 +63,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         injected[CloseCorrespondenceAddressChoiceView],
         injected[ConfirmCloseCorrespondenceAddressView],
         injected[UpdateAddressConfirmationView],
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        injected[AddressAlreadyUpdatedView]
       )
 
     def comparatorDataEvent(

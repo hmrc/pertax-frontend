@@ -37,7 +37,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
+import views.html.personaldetails.{AddressAlreadyUpdatedView, ReviewChangesView, UpdateAddressConfirmationView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,16 +53,23 @@ class AddressSubmissionController @Inject()(
   errorRenderer: ErrorRenderer,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
           val isUkAddress: Boolean = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
           val doYouLiveInTheUK: String =
@@ -121,8 +128,7 @@ class AddressSubmissionController @Inject()(
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       val addressType = mapAddressType(typ)
-
-      addressJourneyEnforcer { nino => personDetails =>
+      addressJourneyEnforcer(typ) { nino => personDetails =>
         citizenDetailsService.getEtag(nino.nino) flatMap {
           case None =>
             Logger.error("Failed to retrieve Etag from citizen-details")

@@ -29,11 +29,12 @@ import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDat
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.AddressSelectorView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, AddressSelectorView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,37 +45,47 @@ class AddressSelectorController @Inject()(
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-        journeyData.recordSet match {
-          case Some(set) =>
-            Future.successful(
-              Ok(
-                addressSelectorView(
-                  AddressSelectorDto.form,
-                  set,
-                  typ,
-                  postcodeFromRequest,
-                  filterFromRequest
+      lockedTileEnforcer(typ) {
+        cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
+          journeyData.recordSet match {
+            case Some(set) =>
+              Future.successful(
+                Ok(
+                  addressSelectorView(
+                    AddressSelectorDto.form,
+                    set,
+                    typ,
+                    postcodeFromRequest,
+                    filterFromRequest
+                  )
                 )
               )
-            )
-          case _ => Future.successful(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
+            case _ => Future.successful(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
+          }
         }
       }
     }
 
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => personDetails =>
+      addressJourneyEnforcer(typ) { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors => {

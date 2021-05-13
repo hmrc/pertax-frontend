@@ -16,14 +16,20 @@
 
 package controllers.address
 
+import controllers.address
 import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
+import controllers.bindable.{MainAddrType, PostalAddrType}
+import org.mockito.Matchers.any
+import org.mockito.Mockito.when
 import play.api.mvc.Request
 import play.api.mvc.Results._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import util.UserRequestFixture.buildUserRequest
+import views.html.personaldetails.AddressAlreadyUpdatedView
 
+import scala.concurrent.Future
 class AddressControllerSpec extends AddressBaseSpec {
 
   object SUT
@@ -31,7 +37,9 @@ class AddressControllerSpec extends AddressBaseSpec {
         injected[AuthJourney],
         withActiveTabAction,
         cc,
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        mockEditAddressLockRepository,
+        injected[AddressAlreadyUpdatedView]
       )
 
   "addressJourneyEnforcer" should {
@@ -40,12 +48,16 @@ class AddressControllerSpec extends AddressBaseSpec {
 
       "a nino and person details are present in the request" in {
 
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(false)
+        }
+
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(request = FakeRequest().asInstanceOf[Request[A]])
 
         val expectedContent = "Success"
 
-        val result = SUT.addressJourneyEnforcer { _ => _ =>
+        val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
           Ok(expectedContent)
         }(userRequest)
 
@@ -61,7 +73,11 @@ class AddressControllerSpec extends AddressBaseSpec {
         def userRequest[A]: UserRequest[A] =
           buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
 
-        val result = SUT.addressJourneyEnforcer { _ => _ =>
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(false)
+        }
+
+        val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
           Ok("Success")
         }(userRequest)
 
@@ -73,7 +89,10 @@ class AddressControllerSpec extends AddressBaseSpec {
         implicit def userRequest[A]: UserRequest[A] =
           buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
 
-        val result = SUT.addressJourneyEnforcer { _ => _ =>
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(false)
+        }
+        val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
           Ok("Success")
         }
 
@@ -81,6 +100,61 @@ class AddressControllerSpec extends AddressBaseSpec {
         contentAsString(result) should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
 
       }
+    }
+
+    "Show the Personal Details page" when {
+      "when a lock is persent for the given journey" in {
+        when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+          Future.successful(true)
+        }
+
+        val expectedContent = "Your address has already been updated"
+
+        def userRequest[A]: UserRequest[A] =
+          buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
+
+        val result = SUT.addressJourneyEnforcer(MainAddrType) { _ => _ =>
+          Ok("Should not get here")
+        }(userRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include(expectedContent)
+      }
+    }
+  }
+  "EditLockEnforcer" should {
+
+    def userRequest[A]: UserRequest[A] =
+      buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
+
+    "complete given block when no lock" in {
+      when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+        Future.successful(false)
+      }
+      val expectedContent = "success"
+      val result = SUT.lockedTileEnforcer(PostalAddrType) {
+        Ok("success")
+      }(userRequest)
+
+      status(result) shouldBe OK
+      contentAsString(result) shouldBe expectedContent
+
+    }
+
+    "show you already updated page if a relevant lock is present" in {
+      when(mockEditAddressLockRepository.isLockPresent(any())(any())) thenReturn {
+        Future.successful(true)
+      }
+
+      val expectedContent = "Your address has already been updated"
+
+      val result = SUT.lockedTileEnforcer(PostalAddrType) {
+        Ok("Should not get here")
+      }(userRequest)
+
+      status(result) shouldBe OK
+      contentAsString(result) should include(expectedContent)
+
     }
   }
 }

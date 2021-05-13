@@ -25,12 +25,13 @@ import models.dto.{AddressDto, DateDto}
 import models.{SubmittedAddressDtoId, SubmittedStartDateId}
 import org.joda.time.LocalDate
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildAddressChangeEvent
 import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.UpdateInternationalAddressView
+import views.html.personaldetails.{AddressAlreadyUpdatedView, UpdateInternationalAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,17 +43,25 @@ class UpdateInternationalAddressController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   updateInternationalAddressView: UpdateInternationalAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  editAddressLockRepository: EditAddressLockRepository,
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView,
+      editAddressLockRepository,
+      addressAlreadyUpdatedView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        addressJourneyEnforcer { _ => personDetails =>
+        addressJourneyEnforcer(typ) { _ => personDetails =>
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(
@@ -88,7 +97,7 @@ class UpdateInternationalAddressController @Inject()(
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { _ =>
-        addressJourneyEnforcer { _ => _ =>
+        addressJourneyEnforcer(typ) { _ => _ =>
           AddressDto.internationalForm.bindFromRequest.fold(
             formWithErrors => {
               Future.successful(
