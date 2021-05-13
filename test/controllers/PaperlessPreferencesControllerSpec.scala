@@ -21,7 +21,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest

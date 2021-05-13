@@ -21,10 +21,8 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
 import org.joda.time.DateTime
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
 import play.api.mvc._
@@ -42,12 +40,12 @@ import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
-import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvIncompleteView, LockedOutView, TechnicalIssuesView, TimeOutView}
+import views.html.iv.failure._
 import views.html.iv.success.SuccessView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
+class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   val mockAuditConnector = mock[AuditConnector]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]

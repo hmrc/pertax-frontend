@@ -19,12 +19,9 @@ package controllers.auth
 import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
@@ -39,13 +36,12 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
-import util.Fixtures
 import util.RetrievalOps._
+import util.{BaseSpec, Fixtures}
 
-import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 
-class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
+class AuthActionSpec extends BaseSpec {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
@@ -98,8 +94,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
   val ivRedirectUrl =
     "http://localhost:9948/iv-stub/uplift?origin=PERTAX&confidenceLevel=200&completionURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account&failureURL=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fidentity-check-complete%3FcontinueUrl%3D%252Fpersonal-account"
 
-  "A user without a L200 confidence level must" - {
-    "be redirected to the IV uplift endpoint when" - {
+  "A user without a L200 confidence level must" when {
+    "be redirected to the IV uplift endpoint when" must {
       "the user is an Individual" in {
 
         val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
@@ -126,8 +122,8 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user without a credential strength of Strong must" - {
-    "be redirected to the MFA uplift endpoint when" - {
+  "A user without a credential strength of Strong must" when {
+    "be redirected to the MFA uplift endpoint when" must {
 
       val mfaRedirectUrl =
         Some(
@@ -161,7 +157,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user with a Credential Strength of 'none' must" - {
+  "A user with a Credential Strength of 'none' must" must {
     "be redirected to the auth provider choice page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
@@ -174,7 +170,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user with no active session must" - {
+  "A user with no active session must" must {
     "be redirected to the auth provider choice page if unknown provider" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
@@ -220,7 +216,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user with insufficient enrolments must" - {
+  "A user with insufficient enrolments must" must {
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
@@ -235,7 +231,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user with nino and no SA enrolment must" - {
+  "A user with nino and no SA enrolment must" must {
     "create an authenticated request" in {
 
       val controller = retrievals()
@@ -246,7 +242,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user with no nino but an SA enrolment must" - {
+  "A user with no nino but an SA enrolment must" must {
     "create an authenticated request" in {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
@@ -259,7 +255,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user with a nino and an SA enrolment must" - {
+  "A user with a nino and an SA enrolment must" must {
     "create an authenticated request" in {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
@@ -273,7 +269,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     }
   }
 
-  "A user with trustedHelper must" - {
+  "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
 
       val fakePrincipalNino = Fixtures.fakeNino.toString()
@@ -314,7 +310,7 @@ class AuthActionSpec extends FreeSpec with MustMatchers with MockitoSugar with G
     contentAsString(result) mustNot include(configDecorator.pertaxFrontendBackLink)
   }
 
-  "A user that has logged in with Verify must" - {
+  "A user that has logged in with Verify must" must {
     "create an authenticated request" in {
 
       val controller = retrievals(

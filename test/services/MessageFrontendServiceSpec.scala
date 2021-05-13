@@ -21,10 +21,8 @@ import com.codahale.metrics.{Counter, MetricRegistry, Timer}
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models.MessageCount
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.{any, _}
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
 import play.api.mvc.AnyContentAsEmpty
@@ -40,7 +38,7 @@ import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
-class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class MessageFrontendServiceSpec extends BaseSpec {
 
   lazy val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(
@@ -54,7 +52,7 @@ class MessageFrontendServiceSpec extends BaseSpec with MockitoSugar with ScalaFu
   val mockContext = mock[Context]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(bind[DefaultHttpClient].toInstance(MockitoSugar.mock[DefaultHttpClient]))
+    .overrides(bind[DefaultHttpClient].toInstance(mock[DefaultHttpClient]))
     .overrides(bind[Metrics].toInstance(mockMetrics))
     .build()
 

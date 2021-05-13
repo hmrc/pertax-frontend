@@ -18,12 +18,10 @@ package views.html.integration
 
 import config.ConfigDecorator
 import org.joda.time.DateTime
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
-import util.BaseSpec
+import org.mockito.Mockito.mock
 import views.html.ViewSpec
 
-class mainContentHeaderSpec extends ViewSpec with MockitoSugar {
+class mainContentHeaderSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 

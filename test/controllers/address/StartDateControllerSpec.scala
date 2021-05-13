@@ -21,9 +21,8 @@ import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.PersonDetails
 import models.dto.{AddressPageVisitedDto, DateDto}
 import org.joda.time.LocalDate
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest

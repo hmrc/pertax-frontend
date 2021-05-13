@@ -16,7 +16,6 @@
 
 package models
 
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.libs.json.Json
 import util.{BaseSpec, CitizenDetailsFixtures, Fixtures}
 

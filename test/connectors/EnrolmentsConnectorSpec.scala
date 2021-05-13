@@ -16,11 +16,10 @@
 
 package connectors
 
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
@@ -29,7 +28,7 @@ import util.{BaseSpec, NullMetrics}
 
 import scala.concurrent.Future
 
-class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures with EitherValues {
+class EnrolmentsConnectorSpec extends BaseSpec with EitherValues {
 
   val http = mock[DefaultHttpClient]
   val connector = new EnrolmentsConnector(http, config, new NullMetrics)

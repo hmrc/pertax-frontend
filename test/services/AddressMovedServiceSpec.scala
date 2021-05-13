@@ -18,16 +18,15 @@ package services
 
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
 import models.{AnyOtherMove, MovedFromScotland, MovedToScotland}
-import org.mockito.Mockito._
+import org.mockito.Mockito.{mock, when}
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpResponse
 import util.BaseSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressMovedServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class AddressMovedServiceSpec extends BaseSpec {
 
   implicit val executionContext = injected[ExecutionContext]
   val addressLookupService = mock[AddressLookupService]

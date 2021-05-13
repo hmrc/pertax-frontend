@@ -19,11 +19,8 @@ package controllers.address
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
-import org.scalatest.Matchers.have
-import org.scalatest.MustMatchers.not.include
-import org.scalatest.MustMatchers.{convertToAnyMustWrapper, the}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request

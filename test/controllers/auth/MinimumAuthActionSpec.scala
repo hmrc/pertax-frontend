@@ -19,12 +19,8 @@ package controllers.auth
 import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers}
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
@@ -37,15 +33,13 @@ import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import util.Fixtures
 import util.RetrievalOps._
+import util.{BaseSpec, Fixtures}
 
-import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.language.postfixOps
 
-class MinimumAuthActionSpec
-    extends FreeSpec with MustMatchers with MockitoSugar with GuiceOneAppPerSuite with ScalaFutures {
+class MinimumAuthActionSpec extends BaseSpec {
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[AuthConnector].toInstance(mockAuthConnector))
@@ -65,7 +59,7 @@ class MinimumAuthActionSpec
     }
   }
 
-  "A user with no active session must" - {
+  "A user with no active session must" must {
     "be redirected to the session timeout page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
@@ -82,7 +76,7 @@ class MinimumAuthActionSpec
     }
   }
 
-  "A user with insufficient enrolments must" - {
+  "A user with insufficient enrolments must" must {
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
@@ -110,7 +104,7 @@ class MinimumAuthActionSpec
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
-  "A user with nino and no SA enrolment must" - {
+  "A user with nino and no SA enrolment must" must {
     "create an authenticated request" in {
 
       val nino = Fixtures.fakeNino.nino
@@ -137,7 +131,7 @@ class MinimumAuthActionSpec
     }
   }
 
-  "A user with no nino but an SA enrolment must" - {
+  "A user with no nino but an SA enrolment must" must {
     "create an authenticated request" in {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
@@ -166,7 +160,7 @@ class MinimumAuthActionSpec
     }
   }
 
-  "A user with a nino and an SA enrolment must" - {
+  "A user with a nino and an SA enrolment must" must {
     "create an authenticated request" in {
 
       val nino = Fixtures.fakeNino.nino
@@ -197,7 +191,7 @@ class MinimumAuthActionSpec
     }
   }
 
-  "A user with trustedHelper must" - {
+  "A user with trustedHelper must" must {
     "create an authenticated request containing the trustedHelper" in {
 
       val fakePrincipalNino = Fixtures.fakeNino.toString()

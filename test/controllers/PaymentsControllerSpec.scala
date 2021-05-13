@@ -23,9 +23,8 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.CreatePayment
 import org.joda.time.DateTime
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}

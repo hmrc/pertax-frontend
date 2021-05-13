@@ -16,7 +16,6 @@
 
 package controllers
 
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.{MessagesControllerComponents, Session}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

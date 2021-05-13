@@ -17,10 +17,9 @@
 package connectors
 
 import models.{CreatePayment, PaymentRequest}
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsResultException, Json}
 import uk.gov.hmrc.http.HttpResponse
@@ -29,7 +28,7 @@ import util.{BaseSpec, NullMetrics}
 
 import scala.concurrent.Future
 
-class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class PayApiConnectorSpec extends BaseSpec {
 
   val http = mock[DefaultHttpClient]
   val connector = new PayApiConnector(http, config, new NullMetrics)

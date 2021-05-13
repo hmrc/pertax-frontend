@@ -16,7 +16,6 @@
 
 package util
 
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import uk.gov.hmrc.crypto.ApplicationCrypto
 
 class ToolsSpec extends BaseSpec {

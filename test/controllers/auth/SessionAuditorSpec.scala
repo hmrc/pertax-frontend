@@ -19,12 +19,9 @@ package controllers.auth
 import controllers.auth.SessionAuditor.UserSessionAuditEvent
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.mockito.hamcrest.MockitoHamcrest.argThat
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc.{Request, Result}
@@ -35,20 +32,16 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Failure, Success}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import util.{AuditServiceTools, Fixtures}
+import util.{AuditServiceTools, BaseSpec, Fixtures}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionAuditorSpec
-    extends PlaySpec with GuiceOneAppPerSuite with ScalaFutures with BeforeAndAfterEach with AuditTags {
+class SessionAuditorSpec extends BaseSpec with AuditTags {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(auditConnector)
   }
-
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-  implicit val hc = HeaderCarrier()
 
   val auditConnector = mock[AuditConnector]
   val sessionAuditor = new SessionAuditor(auditConnector)

@@ -19,10 +19,8 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
 import services.partials.FormPartialService
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
@@ -30,21 +28,19 @@ import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial
 import util.BaseSpec
 import util.Fixtures._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class FormPartialServiceSpec extends BaseSpec {
 
-  lazy implicit val ec = injected[ExecutionContext]
-
   trait LocalSetup {
-    val timer = MockitoSugar.mock[Timer.Context]
+    val timer = mock[Timer.Context]
     val formPartialService: FormPartialService = new FormPartialService(
-      MockitoSugar.mock[DefaultHttpClient],
-      MockitoSugar.mock[Metrics],
-      MockitoSugar.mock[ConfigDecorator],
+      mock[DefaultHttpClient],
+      mock[Metrics],
+      mock[ConfigDecorator],
       injected[HeaderCarrierForPartialsConverter]
     ) {
-      override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+      override val metricsOperator: MetricsOperator = mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
     }
   }

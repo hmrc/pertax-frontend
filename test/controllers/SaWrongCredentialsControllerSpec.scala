@@ -18,8 +18,6 @@ package controllers
 
 import controllers.auth.FakeAuthJourney
 import models.WrongCredentialsSelfAssessmentUser
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -30,7 +28,7 @@ import views.html.selfassessment._
 
 import scala.concurrent.ExecutionContext
 
-class SaWrongCredentialsControllerSpec extends BaseSpec with MockitoSugar {
+class SaWrongCredentialsControllerSpec extends BaseSpec {
 
   val fakeAuthJourney = new FakeAuthJourney(
     WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))

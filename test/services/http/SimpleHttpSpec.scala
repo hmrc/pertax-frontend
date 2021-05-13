@@ -16,28 +16,25 @@
 
 package services.http
 
-import java.util.concurrent.LinkedBlockingQueue
 import com.codahale.metrics.Timer
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.BaseSpec
 
+import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.{ExecutionContext, Future}
 
-class SimpleHttpSpec extends BaseSpec with ScalaFutures {
+class SimpleHttpSpec extends BaseSpec {
 
   trait Setup {
 
-    implicit val hc = HeaderCarrier()
-
     def httpResponse: Future[HttpResponse]
 
-    lazy val timer = MockitoSugar.mock[Timer.Context]
+    lazy val timer = mock[Timer.Context]
 
     def makeDummyRequest(): Unit
 
@@ -46,9 +43,9 @@ class SimpleHttpSpec extends BaseSpec with ScalaFutures {
       def exception(e: Exception): String
     }
 
-    lazy val dummyCallbacks = MockitoSugar.mock[DummyCallbacks]
+    lazy val dummyCallbacks = mock[DummyCallbacks]
     lazy val http = {
-      val h = MockitoSugar.mock[DefaultHttpClient]
+      val h = mock[DefaultHttpClient]
       when(h.GET[HttpResponse](any(), any(), any())(any(), any(), any())) thenReturn httpResponse
       h
     }
@@ -61,7 +58,7 @@ class SimpleHttpSpec extends BaseSpec with ScalaFutures {
     trait LocalSetup extends Setup {
 
       override lazy val http = {
-        val h = MockitoSugar.mock[DefaultHttpClient]
+        val h = mock[DefaultHttpClient]
         when(h.GET[HttpResponse](any(), any(), any())(any(), any(), any())) thenReturn httpResponse
         h
       }
@@ -89,7 +86,7 @@ class SimpleHttpSpec extends BaseSpec with ScalaFutures {
     trait LocalSetup extends Setup {
 
       override lazy val http = {
-        val h = MockitoSugar.mock[DefaultHttpClient]
+        val h = mock[DefaultHttpClient]
         when(h.POST[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
         h
       }
@@ -117,7 +114,7 @@ class SimpleHttpSpec extends BaseSpec with ScalaFutures {
     trait LocalSetup extends Setup {
 
       override lazy val http = {
-        val h = MockitoSugar.mock[DefaultHttpClient]
+        val h = mock[DefaultHttpClient]
         when(h.PUT[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
         h
       }
@@ -143,7 +140,7 @@ class SimpleHttpSpec extends BaseSpec with ScalaFutures {
 
 //Mock client for use in other tests
 class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: ExecutionContext)
-    extends SimpleHttp(MockitoSugar.mock[DefaultHttpClient]) {
+    extends SimpleHttp(mock[DefaultHttpClient]) {
 
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
   def getLastHeaderCarrier = headerCarrierQueue.take

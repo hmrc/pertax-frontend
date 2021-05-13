@@ -15,14 +15,14 @@
  */
 
 package error
+
 import config.ConfigDecorator
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.{InternalServerErrorView, ViewSpec, unauthenticatedError}
 
-class LocalErrorHandlerSpec extends ViewSpec with MockitoSugar {
+class LocalErrorHandlerSpec extends ViewSpec {
 
   lazy val internalServerError = injected[InternalServerErrorView]
   lazy val standardError = injected[unauthenticatedError]

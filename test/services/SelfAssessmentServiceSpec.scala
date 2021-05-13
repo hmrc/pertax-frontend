@@ -18,10 +18,9 @@ package services
 
 import connectors.SelfAssessmentConnector
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentResponse, UserDetails}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
@@ -31,7 +30,7 @@ import util.UserRequestFixture.buildUserRequest
 import java.util.UUID
 import scala.concurrent.Future
 
-class SelfAssessmentServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class SelfAssessmentServiceSpec extends BaseSpec {
 
   val mockSelfAssessmentConnector: SelfAssessmentConnector = mock[SelfAssessmentConnector]
 

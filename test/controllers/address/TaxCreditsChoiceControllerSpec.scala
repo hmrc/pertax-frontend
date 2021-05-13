@@ -17,9 +17,8 @@
 package controllers.address
 
 import models.dto.AddressPageVisitedDto
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request

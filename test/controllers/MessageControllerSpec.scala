@@ -20,9 +20,8 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import org.jsoup.Jsoup
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -37,7 +36,7 @@ import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.Future
 
-class MessageControllerSpec extends BaseSpec with MockitoSugar {
+class MessageControllerSpec extends BaseSpec {
 
   override def beforeEach: Unit =
     reset(mockMessageFrontendService, mock[CitizenDetailsService])

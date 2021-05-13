@@ -20,9 +20,8 @@ import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import models.addresslookup.RecordSet
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
@@ -36,7 +35,7 @@ import util.{BaseSpec, Tools}
 import scala.concurrent.Future
 import scala.io.Source
 
-class AddressLookupServiceSpec extends BaseSpec with ScalaFutures {
+class AddressLookupServiceSpec extends BaseSpec {
 
   trait SpecSetup {
     def httpResponse: HttpResponse
@@ -72,15 +71,11 @@ class AddressLookupServiceSpec extends BaseSpec with ScalaFutures {
       val fakeTools = new Tools(injected[ApplicationCrypto])
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
-      val addressLookupService: AddressLookupService = new AddressLookupService(
-        injected[ConfigDecorator],
-        fakeSimpleHttp,
-        MockitoSugar.mock[Metrics],
-        fakeTools,
-        serviceConfig) {
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
-        when(metricsOperator.startTimer(any())) thenReturn timer
-      }
+      val addressLookupService: AddressLookupService =
+        new AddressLookupService(injected[ConfigDecorator], fakeSimpleHttp, mock[Metrics], fakeTools, serviceConfig) {
+          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
+          when(metricsOperator.startTimer(any())) thenReturn timer
+        }
 
       (addressLookupService, addressLookupService.metricsOperator, timer, fakeSimpleHttp)
     }

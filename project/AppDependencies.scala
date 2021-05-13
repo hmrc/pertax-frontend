@@ -1,4 +1,5 @@
 import play.core.PlayVersion
+import play.core.PlayVersion.current
 import play.sbt.PlayImport._
 import sbt._
 
@@ -22,14 +23,14 @@ object AppDependencies {
   )
 
   val test = Seq(
-    "uk.gov.hmrc"             %% "hmrctest"             % "3.10.0-play-26",
-    "org.scalatest"           %% "scalatest"            % "3.1.0",
-    "org.mockito"              % "mockito-all"          % "2.0.2-beta",
-    "org.scalatestplus.play"  %% "scalatestplus-play"   % "3.1.3",
-    "org.pegdown"              % "pegdown"              % "1.6.0",
-    "org.jsoup"                % "jsoup"                % "1.11.3",
-    "com.github.tomakehurst"   % "wiremock-standalone"  % "2.17.0",
-    "com.typesafe.play"       %% "play-test"            % PlayVersion.current
+    "org.scalatest"           %% "scalatest"                % "3.2.3",
+    "com.typesafe.play"       %% "play-test"                % current,
+    "org.scalatestplus.play"  %% "scalatestplus-play"       % "3.1.3",
+    "org.scalatestplus"       %% "mockito-3-4"              % "3.2.3.0",
+    "org.mockito"             %  "mockito-core"             % "3.6.28",
+    "org.scalacheck"          %% "scalacheck"               % "1.15.1",
+    "com.github.tomakehurst"  %  "wiremock-standalone"      % "2.27.2",
+    "com.vladsch.flexmark"    % "flexmark-all"              % "0.36.8"
   ).map(_ % "test,it")
 
   val all: Seq[ModuleID] = compile ++ test

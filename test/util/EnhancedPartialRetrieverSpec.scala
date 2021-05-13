@@ -19,19 +19,17 @@ package util
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
 import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class EnhancedPartialRetrieverSpec extends BaseSpec with ScalaFutures {
+class EnhancedPartialRetrieverSpec extends BaseSpec {
 
   lazy implicit val fakeRequest = FakeRequest("", "")
 
@@ -45,11 +43,11 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with ScalaFutures {
 
     lazy val (epr, metrics, timer) = {
 
-      val timer = MockitoSugar.mock[Timer.Context]
+      val timer = mock[Timer.Context]
 
       val epr = new EnhancedPartialRetriever(injected[HeaderCarrierForPartialsConverter]) with HasMetrics {
 
-        override val http: HttpGet = MockitoSugar.mock[HttpGet]
+        override val http: HttpGet = mock[HttpGet]
         if (simulateCallFailed)
           when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.failed(
             new GatewayTimeoutException("Gateway timeout"))
@@ -57,8 +55,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec with ScalaFutures {
           when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.successful(
             returnPartial)
 
-        override val metrics: Metrics = MockitoSugar.mock[Metrics]
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+        override val metrics: Metrics = mock[Metrics]
+        override val metricsOperator: MetricsOperator = mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }
 

@@ -16,11 +16,10 @@
 
 package repositories
 
+import util.BaseSpec
+
 import java.time.{LocalDateTime, OffsetDateTime, ZoneOffset}
 import java.util.TimeZone
-
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import util.BaseSpec
 
 class EditAddressLockRepositorySpec extends BaseSpec {
 

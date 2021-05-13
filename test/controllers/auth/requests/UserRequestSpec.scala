@@ -16,13 +16,14 @@
 
 package controllers.auth.requests
 
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
-import util.UserRequestFixture._
-import org.scalatestplus.play.PlaySpec
+import models._
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
+import util.UserRequestFixture._
 
-class UserRequestSpec extends PlaySpec {
+class UserRequestSpec extends AnyWordSpec with Matchers {
 
   val saUtr: SaUtr = SaUtr("test utr")
 

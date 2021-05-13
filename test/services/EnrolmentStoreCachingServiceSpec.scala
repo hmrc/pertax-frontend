@@ -18,17 +18,15 @@ package services
 
 import connectors.EnrolmentsConnector
 import models._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.BaseSpec
 
 import scala.concurrent.Future
 
-class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
   trait LocalSetup {
 

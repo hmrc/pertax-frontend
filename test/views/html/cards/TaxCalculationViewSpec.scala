@@ -19,14 +19,13 @@ package views.html.cards
 import config.ConfigDecorator
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.i18n.Messages
 import viewmodels.Message.text
 import viewmodels.{Heading, TaxCalculationViewModel, TaxYears, UnderpaidUrl}
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 class TaxCalculationViewSpec extends ViewSpec {
 
@@ -35,7 +34,7 @@ class TaxCalculationViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).eachAttr("href").asScala must contain(href)
+    document.getElementsMatchingText(content).attr("href", "").asScala must contain(href)
 
   "TaxCalculation card" must {
 

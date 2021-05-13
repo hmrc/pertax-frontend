@@ -16,19 +16,19 @@
 
 package util
 
-import java.util.UUID
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.joda.time.LocalDate
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, when}
-import org.scalatest.concurrent.PatienceConfiguration
-import org.scalatest.{BeforeAndAfterEach, OptionValues, Suite}
-import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{BeforeAndAfterEach, Suite}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -41,6 +41,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 import scala.util.Random
@@ -279,8 +280,6 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   def buildUnusedAllowance = UnusedAllowance(BigDecimal(4000.00))
 
-  def buildFakeHeaderCarrier = mock[HeaderCarrier]
-
   def buildFakePersonDetails = PersonDetails(buildFakePerson, None, None)
 
   def buildFakePerson =
@@ -299,7 +298,8 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-    extends PlaySpec with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach with OptionValues {
+    extends AnyWordSpec with Matchers with PatienceConfiguration with BeforeAndAfterEach with MockitoSugar
+    with ScalaFutures {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()
@@ -320,7 +320,7 @@ trait BaseSpec
       )
       .configure(configValues)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
@@ -332,7 +332,7 @@ trait BaseSpec
 
   implicit val mockLocalPartialRetriever: LocalPartialRetriever = {
     val pr = mock[LocalPartialRetriever]
-    when(pr(any(), any(), any())(any(), any())) thenReturn Html("")
+    when(pr.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
     pr
   }
 

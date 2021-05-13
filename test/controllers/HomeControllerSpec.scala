@@ -22,10 +22,8 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models._
 import org.joda.time.DateTime
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.JsBoolean
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -46,7 +44,7 @@ import views.html.HomeView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
+class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   val mockConfigDecorator = mock[ConfigDecorator]
   val mockTaxCalculationService = mock[TaxCalculationService]

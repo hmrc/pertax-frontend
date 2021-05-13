@@ -19,6 +19,7 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
+import org.mockito.Mockito.mock
 import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
@@ -35,7 +36,7 @@ import views.html.cards.home._
 
 class HomeCardGeneratorSpec extends ViewSpec {
 
-  implicit val configDecorator = config
+  implicit val configDecorator = mock[ConfigDecorator]
 
   val payAsYouEarn = injected[PayAsYouEarnView]
   val taxCalculation = injected[TaxCalculationView]

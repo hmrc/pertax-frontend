@@ -18,7 +18,7 @@ package controllers.address
 
 import config.ConfigDecorator
 import models.dto.AddressPageVisitedDto
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
 import play.api.mvc.Request
@@ -28,6 +28,8 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
+
+  val mockConfigDecorator = mock[ConfigDecorator]
 
   trait LocalSetup extends AddressControllerSetup {
 
@@ -98,7 +100,7 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
 
-      when(config.updateInternationalAddressInPta).thenReturn(false)
+      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
 
       override def controller: PostalInternationalAddressChoiceController =
         new PostalInternationalAddressChoiceController(

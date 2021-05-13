@@ -18,7 +18,6 @@ package services
 
 import config.ConfigDecorator
 import models.NonFilerSelfAssessmentUser
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
@@ -32,7 +31,7 @@ import util.BaseSpec
 
 import scala.concurrent.Future
 
-class UpdateAddressResponseSpec extends BaseSpec with MockitoSugar with I18nSupport {
+class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 

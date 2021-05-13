@@ -21,8 +21,6 @@ import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.LocalDate
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -30,7 +28,7 @@ import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
 
-class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I18nSupport {
+class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
   implicit val mockConfigDecorator = mock[ConfigDecorator]
   override def messagesApi: MessagesApi = injected[MessagesApi]

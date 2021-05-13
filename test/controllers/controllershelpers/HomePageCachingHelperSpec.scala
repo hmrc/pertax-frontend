@@ -16,8 +16,8 @@
 
 package controllers.controllershelpers
 
-import org.mockito.Matchers.{eq => meq, _}
-import org.mockito.Mockito.{mock, reset, times, verify, when}
+import org.mockito.ArgumentMatchers.{any, eq => meq, _}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.inject.bind
@@ -28,7 +28,7 @@ import util.BaseSpec
 
 import scala.concurrent.Future
 
-class HomePageCachingHelperSpec extends BaseSpec with ScalaFutures {
+class HomePageCachingHelperSpec extends BaseSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
     .overrides(bind[LocalSessionCache].toInstance(mock[LocalSessionCache]))

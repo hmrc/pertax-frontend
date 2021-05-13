@@ -21,9 +21,8 @@ import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.DateDto
 import org.joda.time.LocalDate
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.mvc.Request

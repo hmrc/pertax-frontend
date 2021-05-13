@@ -23,10 +23,9 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
 import models._
 import models.dto.AddressDto
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -44,9 +43,9 @@ import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressConfirmationView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
+trait AddressBaseSpec extends BaseSpec {
 
   val mockAuthJourney: AuthJourney = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
@@ -71,7 +70,6 @@ trait AddressBaseSpec extends BaseSpec with GuiceOneAppPerSuite with BeforeAndAf
   implicit lazy val partialRetriever: LocalPartialRetriever = injected[LocalPartialRetriever]
   implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit lazy val templateRenderer: TemplateRenderer = injected[TemplateRenderer]
-  implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
 
   override def beforeEach: Unit =
     reset(

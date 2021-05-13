@@ -22,9 +22,8 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.jsoup.Jsoup
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.Matchers.any
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject._
@@ -37,7 +36,6 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures, Fixtures}
-import views.html.{ErrorView, NotFoundView}
 import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}

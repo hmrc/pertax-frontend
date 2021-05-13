@@ -17,7 +17,6 @@
 package models
 
 import models.dto.AddressDto
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import util.BaseSpec
 import util.Fixtures._
 

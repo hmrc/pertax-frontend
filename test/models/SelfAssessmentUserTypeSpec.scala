@@ -16,7 +16,6 @@
 
 package models
 
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.libs.json.{JsError, Json}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.BaseSpec

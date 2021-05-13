@@ -18,13 +18,12 @@ package metrics
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{times, when}
-import org.scalatestplus.mockito.MockitoSugar
 import util.BaseSpec
 
-class HasMetricsSpec extends BaseSpec with MockitoSugar {
+class HasMetricsSpec extends BaseSpec {
 
   trait SetUp {
     class TestHasMetrics extends HasMetrics {

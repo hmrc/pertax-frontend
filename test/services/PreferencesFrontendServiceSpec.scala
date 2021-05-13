@@ -22,12 +22,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.kenshoo.play.metrics.Metrics
 import controllers.auth.requests.UserRequest
 import models._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.http.ContentTypes
 import play.api.http.Status._
@@ -35,16 +31,13 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{CONTENT_TYPE, await}
+import play.api.test.Helpers.CONTENT_TYPE
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 
-import scala.concurrent.Future
-
-class PreferencesFrontendServiceSpec
-    extends BaseSpec with GuiceOneAppPerSuite with MockitoSugar with WireMockHelper with ScalaFutures {
+class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper {
 
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]

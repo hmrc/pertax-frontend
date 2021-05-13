@@ -19,9 +19,7 @@ package models
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import org.joda.time.LocalDate
-import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.Mockito.{mock, when}
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
@@ -49,7 +47,7 @@ class TaxCalculationStateSpec extends BaseSpec {
   )
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[ConfigDecorator].toInstance(MockitoSugar.mock[ConfigDecorator]))
+    .overrides(bind[ConfigDecorator].toInstance(mock[ConfigDecorator]))
     .build()
 
   "Calling buildFromTaxCalcSummary without a P302 business reason" must {

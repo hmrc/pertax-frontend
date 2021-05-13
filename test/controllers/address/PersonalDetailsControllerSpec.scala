@@ -19,10 +19,8 @@ package controllers.address
 import controllers.controllershelpers.PersonalDetailsCardGenerator
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.Request

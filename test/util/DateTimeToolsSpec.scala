@@ -16,10 +16,9 @@
 
 package util
 
-import java.time.LocalDateTime
-
 import org.joda.time.{LocalDate => JodaLocalDate}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
+
+import java.time.LocalDateTime
 
 class DateTimeToolsSpec extends BaseSpec {
 

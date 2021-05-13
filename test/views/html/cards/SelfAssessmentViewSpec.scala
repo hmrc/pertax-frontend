@@ -16,14 +16,11 @@
 
 package views.html.cards
 
-import java.net.URLDecoder
-
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
+import models._
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
@@ -31,7 +28,7 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home.SelfAssessmentView
 
-import scala.collection.JavaConverters._
+import java.net.URLDecoder
 
 class SelfAssessmentViewSpec extends ViewSpec {
 
@@ -42,9 +39,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion = {
     val link = document
       .getElementsMatchingText(content)
-      .eachAttr("href")
-      .asScala
-      .head
+      .attr("href")
 
     URLDecoder.decode(link, "UTF-8") must include(href)
   }

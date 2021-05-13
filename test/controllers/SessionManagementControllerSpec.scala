@@ -16,7 +16,6 @@
 
 package controllers
 
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import util.BaseSpec

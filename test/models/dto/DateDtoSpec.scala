@@ -17,7 +17,6 @@
 package models.dto
 
 import org.joda.time.LocalDate
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import util.BaseSpec
 
 class DateDtoSpec extends BaseSpec {

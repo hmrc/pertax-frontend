@@ -19,15 +19,14 @@ package views.html.address
 import config.ConfigDecorator
 import controllers.address.routes
 import models.Country
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{BaseSpec, Fixtures}
+import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
-import views.html.cards.personaldetails.{PostalAddressView}
+import views.html.cards.personaldetails.PostalAddressView
 
-class PostalAddressViewSpec extends ViewSpec with MockitoSugar {
+class PostalAddressViewSpec extends ViewSpec {
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   lazy val view = injected[PostalAddressView]

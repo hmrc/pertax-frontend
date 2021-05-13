@@ -16,13 +16,10 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.bindable.SoleAddrType
 import models.dto.AddressPageVisitedDto
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest

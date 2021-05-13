@@ -18,14 +18,13 @@ package views.html.address
 
 import config.ConfigDecorator
 import models.dto.InternationalAddressChoiceDto
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 
-class PostalInternationalAddressChoiceViewSpec extends ViewSpec with MockitoSugar {
+class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 

@@ -18,7 +18,6 @@ package models.dto
 
 import models.Address
 import org.joda.time.LocalDate
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import uk.gov.hmrc.time.DateTimeUtils.now
 import util.BaseSpec
 

@@ -19,7 +19,6 @@ package views.html
 import config.ConfigDecorator
 import models._
 import org.jsoup.nodes.Document
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.SaUtrGenerator
@@ -30,7 +29,7 @@ import viewmodels.HomeViewModel
 
 import scala.collection.JavaConversions._
 
-class HomeViewSpec extends ViewSpec with MockitoSugar {
+class HomeViewSpec extends ViewSpec {
 
   lazy val home = injected[HomeView]
 

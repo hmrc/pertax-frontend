@@ -16,7 +16,6 @@
 
 package models.dto
 
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import util.BaseSpec
 
 class AddressFinderDtoSpec extends BaseSpec {

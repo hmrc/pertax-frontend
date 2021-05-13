@@ -18,17 +18,15 @@ package views.html.address
 
 import config.ConfigDecorator
 import controllers.address.routes
-import controllers.bindable.SoleAddrType
-import models.{Country}
-import org.scalatestplus.mockito.MockitoSugar
+import models.Country
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{BaseSpec, Fixtures}
+import util.Fixtures
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.personaldetails.MainAddressView
 
-class MainAddressViewSpec extends ViewSpec with MockitoSugar {
+class MainAddressViewSpec extends ViewSpec {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 

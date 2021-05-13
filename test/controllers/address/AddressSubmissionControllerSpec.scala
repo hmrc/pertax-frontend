@@ -24,9 +24,8 @@ import models.ETag
 import models.dto.DateDto
 import org.joda.time.LocalDate
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.i18n.{Lang, Messages}
 import play.api.libs.json.Json

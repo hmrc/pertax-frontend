@@ -19,10 +19,9 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
@@ -34,7 +33,7 @@ import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
-class PaperlessInterruptHelperSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class PaperlessInterruptHelperSpec extends BaseSpec {
 
   val paperlessInterruptHelper = new PaperlessInterruptHelper {
     override val preferencesFrontendService: PreferencesFrontendService = mock[PreferencesFrontendService]

@@ -20,11 +20,8 @@ import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models._
 import org.joda.time.LocalDate
-import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.{any, eq => meq, _}
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import services.http.FakeSimpleHttp
@@ -33,9 +30,7 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{BaseSpec, Fixtures}
 
-import scala.concurrent.Future
-
-class CitizenDetailsServiceSpec extends BaseSpec with ScalaFutures {
+class CitizenDetailsServiceSpec extends BaseSpec {
 
   trait SpecSetup {
 
@@ -83,10 +78,10 @@ class CitizenDetailsServiceSpec extends BaseSpec with ScalaFutures {
       }
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
-      val timer = MockitoSugar.mock[Timer.Context]
+      val timer = mock[Timer.Context]
       val citizenDetailsService: CitizenDetailsService =
-        new CitizenDetailsService(fakeSimpleHttp, MockitoSugar.mock[Metrics], serviceConfig) {
-          override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+        new CitizenDetailsService(fakeSimpleHttp, mock[Metrics], serviceConfig) {
+          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer
         }
 

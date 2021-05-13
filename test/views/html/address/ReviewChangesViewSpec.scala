@@ -20,14 +20,13 @@ import config.ConfigDecorator
 import controllers.address.routes
 import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.dto.AddressDto
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.ReviewChangesView
 
-class ReviewChangesViewSpec extends ViewSpec with MockitoSugar {
+class ReviewChangesViewSpec extends ViewSpec {
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   lazy val view = injected[ReviewChangesView]

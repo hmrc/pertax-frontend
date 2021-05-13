@@ -17,8 +17,7 @@
 package config
 
 import java.net.{MalformedURLException, URL}
-
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Configuration
 import play.api.i18n.Langs
 import uk.gov.hmrc.domain.SaUtrGenerator
@@ -28,7 +27,7 @@ import util.BaseSpec
 class ConfigDecoratorSpec extends BaseSpec {
   val saUtr = new SaUtrGenerator().nextSaUtr.utr
 
-  "Converting urls to sso" should {
+  "Converting urls to sso" must {
     "return a properly encoded sso url when calling transformUrlForSso" in {
       config.transformUrlForSso(new URL("http://example.com/some/path?key=val")) mustBe
         "http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
@@ -45,7 +44,7 @@ class ConfigDecoratorSpec extends BaseSpec {
     }
   }
 
-  "Calling toPortalUrl" should {
+  "Calling toPortalUrl" must {
 
     trait LocalSetup {
 
@@ -68,7 +67,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = None
 
-      a[MalformedURLException] should be thrownBy {
+      a[MalformedURLException] must be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }
@@ -77,7 +76,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("/")
 
-      a[MalformedURLException] should be thrownBy {
+      a[MalformedURLException] must be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }
@@ -86,7 +85,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("//portal.service")
 
-      a[MalformedURLException] should be thrownBy {
+      a[MalformedURLException] must be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }

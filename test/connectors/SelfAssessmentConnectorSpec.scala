@@ -20,7 +20,6 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -30,7 +29,7 @@ import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 
-class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper with ScalaFutures {
+class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
@@ -57,7 +56,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper with Scal
 
   "SelfAssessmentConnector" when {
 
-    "enrolForSelfAssessment is called" should {
+    "enrolForSelfAssessment is called" must {
 
       "return a redirect Url" when {
 

@@ -23,11 +23,9 @@ import error.ErrorRenderer
 import models._
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import org.scalatest.exceptions.TestFailedException
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
@@ -45,7 +43,7 @@ import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
+class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
   override def now: () => DateTime = DateTime.now
 
   val mockAuditConnector = mock[AuditConnector]

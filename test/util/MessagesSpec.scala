@@ -16,16 +16,13 @@
 
 package util
 
-import org.scalatest.Matchers.contain
-import org.scalatest.MustMatchers.convertToAnyMustWrapper
 import play.api.i18n.MessagesApi
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.util.matching.Regex
 
-class MessagesSpec extends BaseSpec with WithFakeApplication {
+class MessagesSpec extends BaseSpec {
 
-  lazy val messagesAPI = fakeApplication.injector.instanceOf[MessagesApi]
+  lazy val messagesAPI = app.injector.instanceOf[MessagesApi]
 
   val matchSingleQuoteOnly: Regex = """\w+'{1}\w+""".r
   val matchBacktickQuoteOnly: Regex = """`+""".r
