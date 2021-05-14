@@ -25,15 +25,15 @@ import uk.gov.hmrc.http.HttpResponse
 import util.LocalPartialRetriever
 
 sealed trait UpdateAddressResponse {
-  def response(successResponseBlock: () => Result)(
+  def response(genericErrors: GenericErrors, successResponseBlock: () => Result)(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,
     partialRetriever: LocalPartialRetriever,
     messages: Messages): Result =
     this match {
-      case UpdateAddressBadRequestResponse    => GenericErrors.badRequest
-      case UpdateAddressUnexpectedResponse(_) => GenericErrors.internalServerError
-      case UpdateAddressErrorResponse(_)      => GenericErrors.internalServerError
+      case UpdateAddressBadRequestResponse    => genericErrors.badRequest
+      case UpdateAddressUnexpectedResponse(_) => genericErrors.internalServerError
+      case UpdateAddressErrorResponse(_)      => genericErrors.internalServerError
       case UpdateAddressSuccessResponse       => successResponseBlock()
     }
 }

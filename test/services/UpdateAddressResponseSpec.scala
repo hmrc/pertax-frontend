@@ -17,6 +17,7 @@
 package services
 
 import config.ConfigDecorator
+import error.GenericErrors
 import models.NonFilerSelfAssessmentUser
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
@@ -34,6 +35,7 @@ import scala.concurrent.Future
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  lazy val genericErrors = injected[GenericErrors]
 
   override def messagesApi: MessagesApi = injected[MessagesApi]
 
@@ -49,24 +51,24 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
   "UpdateAddressResponse.response" must {
     "return the block result for UpdateAddressSuccessResponse" in {
-      val result = Future(UpdateAddressSuccessResponse.response(genericFunc))
+      val result = Future(UpdateAddressSuccessResponse.response(genericErrors, genericFunc))
       status(result) mustBe OK
     }
 
     "return BAD_REQUEST for UpdateAddressBadRequestResponse" in {
-      val result = Future(UpdateAddressBadRequestResponse.response(genericFunc))
+      val result = Future(UpdateAddressBadRequestResponse.response(genericErrors, genericFunc))
       status(result) mustBe BAD_REQUEST
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
       val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123))
-      val result = Future(updateAddressResponse.response(genericFunc))
+      val result = Future(updateAddressResponse.response(genericErrors, genericFunc))
       status(result) mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
       val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
-      val result = Future(updateAddressResponse.response(genericFunc))
+      val result = Future(updateAddressResponse.response(genericErrors, genericFunc))
       status(result) mustBe INTERNAL_SERVER_ERROR
     }
   }

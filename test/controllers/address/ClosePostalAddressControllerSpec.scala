@@ -47,7 +47,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
       None
-    )(buildUserRequest(request = FakeRequest()), configDecorator, partialRetriever, templateRenderer, messages).toString
+    )(buildUserRequest(request = FakeRequest()), configDecorator, partialRetriever, templateRenderer, messages, ec).toString
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(

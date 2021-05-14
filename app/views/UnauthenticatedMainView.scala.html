@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
 @import uk.gov.hmrc.renderer._
 @import util.LocalPartialRetriever
+@import scala.concurrent.ExecutionContext
 
 @this(getHelpFormView: GetHelpFormView)
 
@@ -39,7 +40,7 @@
         printableDocument: Boolean = false,
         displayTimeoutDialog: Boolean = true
 )(mainContent: Html)(implicit request: Request[_], configDecorator: ConfigDecorator,
-        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
     @inlineScript = {
 

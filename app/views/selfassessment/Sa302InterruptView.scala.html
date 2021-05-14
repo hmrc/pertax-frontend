@@ -18,10 +18,11 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
+@import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView)
 
-@(year: String, saUtr: SaUtr)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(year: String, saUtr: SaUtr)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("label.get_your_sa302_calculation"), Some(messages("label.your_personal_tax_account"))) {
     <div class="grid-row">

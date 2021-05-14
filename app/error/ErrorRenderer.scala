@@ -26,7 +26,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.{ErrorView, NotFoundView, unauthenticatedError}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ErrorRenderer @Inject()(
   notFoundView: NotFoundView,
@@ -35,7 +35,8 @@ class ErrorRenderer @Inject()(
 )(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer)
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
     extends Results {
 
   def futureError(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Future[Result] =

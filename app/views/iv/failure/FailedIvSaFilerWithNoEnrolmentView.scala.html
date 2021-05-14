@@ -20,9 +20,11 @@
 @import util.LocalPartialRetriever
 
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+@import scala.concurrent.ExecutionContext
+
 @this(mainView: MainView)
 @(lostCredentialsChooseAccountUrl: String, webChatPartial: Html)(implicit request: UserRequest[_],
-        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @scriptElem = {
     <script>

@@ -20,6 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.GenericErrors
 import models.ETag
 import models.dto.DateDto
 import org.joda.time.LocalDate
@@ -61,7 +62,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         errorRenderer,
         injected[UpdateAddressConfirmationView],
         injected[ReviewChangesView],
-        injected[DisplayAddressInterstitialView]
+        injected[DisplayAddressInterstitialView],
+        injected[GenericErrors]
       )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
   }
 

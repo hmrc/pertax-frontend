@@ -18,8 +18,10 @@
 @import controllers.auth.requests.UserRequest
 @import util.LocalPartialRetriever
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import scala.concurrent.ExecutionContext
+
 @this(mainView: MainView)
-@(typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(typ: AddrType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(title = messages("label.your_address_cannot_be_updated"),
 pageName = Some(messages("label.your_personal_tax_account"))

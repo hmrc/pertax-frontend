@@ -23,7 +23,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import error.ErrorRenderer
+import error.{ErrorRenderer, GenericErrors}
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
 import org.joda.time.LocalDate
@@ -53,7 +53,8 @@ class AddressSubmissionController @Inject()(
   errorRenderer: ErrorRenderer,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  genericErrors: GenericErrors)(
   implicit partialRetriever: LocalPartialRetriever,
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -169,7 +170,7 @@ class AddressSubmissionController @Inject()(
                         _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
                         result <- citizenDetailsService.updateAddress(nino, version.etag, address)
                       } yield {
-                        result.response(successResponseBlock)
+                        result.response(genericErrors, successResponseBlock)
                       }
                   }
                 }

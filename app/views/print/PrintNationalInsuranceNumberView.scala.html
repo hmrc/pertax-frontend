@@ -18,11 +18,12 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import util.LocalPartialRetriever
+@import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView, niLetter: views.html.print.NiLetterView)
 
 @(personDetails: models.PersonDetails, dateString: String, saveNiLetterAsPdfLinkEnabled: Boolean, nino : Option[Nino])(implicit request: UserRequest[_],
-        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("label.print_your_national_insurance_summary"), Some(messages("label.national_insurance")), printableDocument = true) {
 

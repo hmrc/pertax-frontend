@@ -20,10 +20,11 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import views.html.selfassessment.selfAssessmentHeading
 @import views.html.selfassessment.selfAssessmentUtr
+@import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView)
 
-@(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("title.find_your_user_id.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowUserId().url)) {
     <div class="grid-row">

@@ -27,6 +27,8 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.{InternalServerErrorView, unauthenticatedError}
 
+import scala.concurrent.ExecutionContext
+
 @Singleton
 class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
@@ -35,7 +37,8 @@ class LocalErrorHandler @Inject()(
   unauthenticatedErrorTemplate: unauthenticatedError)(
   implicit val partialRetriever: LocalPartialRetriever,
   val configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer)
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext)
     extends FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(

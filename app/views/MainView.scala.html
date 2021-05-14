@@ -26,6 +26,7 @@
 
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+@import scala.concurrent.ExecutionContext
 
 @this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet, getHelpFormView: GetHelpFormView)
 @(title: String,
@@ -43,7 +44,7 @@
         printableDocument: Boolean = false,
         displayTimeoutDialog: Boolean = true
 )(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
     @links = @{
         var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()

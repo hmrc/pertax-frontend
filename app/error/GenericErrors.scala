@@ -19,7 +19,6 @@ package error
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import play.api.Play
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
@@ -27,10 +26,9 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.LocalPartialRetriever
 import views.html.ErrorView
 
-object GenericErrors {
+import scala.concurrent.ExecutionContext
 
-  implicit val templateRenderer: TemplateRenderer = Play.current.injector.instanceOf[TemplateRenderer]
-  val errorView: ErrorView = Play.current.injector.instanceOf[ErrorView]
+class GenericErrors @Inject()(errorView: ErrorView)(implicit templateRenderer: TemplateRenderer, ec: ExecutionContext) {
 
   def badRequest(
     implicit request: UserRequest[_],

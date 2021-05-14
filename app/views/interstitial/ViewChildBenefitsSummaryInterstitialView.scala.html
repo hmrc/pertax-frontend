@@ -21,10 +21,11 @@
 
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import views.html.interstitial.InterstitialWrapperView
+@import scala.concurrent.ExecutionContext
 
 @this(interstitialWrapperView: InterstitialWrapperView)
 
-@(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(redirectUrl: String, taxCreditsEnabled: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @interstitialWrapperView(messages("label.report_changes_that_affect_your_child_benefit"), messages("label.report_changes_that_affect_your_child_benefit")) {
     <div class="column-two-thirds child-benefit-partial pta-panel">
