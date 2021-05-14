@@ -32,12 +32,13 @@
     ) {
         @if(viewModel.links.nonEmpty) {
             <ul>
-            @viewModel.links.map { case Link(label, url, trackingLabel) =>
-            <li>
-                <a class="ga-track-anchor-click" href="@fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
-                @fromMessage(label)
-            </a>
-            </li>
+            @viewModel.links.map { case Link(label, url, trackingLabel) => {
+                    <li>
+                        <a class="ga-track-anchor-click" href="@fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
+                        @fromMessage(label)
+                    </a>
+                    </li>
+                }
             }
             </ul>
         }

@@ -17,8 +17,6 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -29,8 +27,8 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
 
   lazy val view = injected[ViewNationalInsuranceInterstitialHomeView]
 
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  lazy implicit val templateRenderer = injected[TemplateRenderer]
+  lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
