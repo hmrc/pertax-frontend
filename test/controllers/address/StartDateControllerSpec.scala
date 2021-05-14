@@ -28,6 +28,7 @@ import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.play.language.LanguageUtils
 import util.ActionBuilderFixture
 import util.Fixtures.fakeStreetTupleListAddressForUnmodified
 import util.UserRequestFixture.buildUserRequest
@@ -47,6 +48,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         addressJourneyCachingHelper,
+        injected[LanguageUtils],
         injected[EnterStartDateView],
         injected[CannotUpdateAddressView],
         displayAddressInterstitialView

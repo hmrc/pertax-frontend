@@ -17,25 +17,26 @@
 @import config.ConfigDecorator
 @import tags._
 @import viewmodels.{Link, TaxCalculationViewModel}
-@import views.util.ViewUtils._
-@this()
+@import views.util.ViewUtils
+
+@this(viewUtils: ViewUtils)
 @(viewModel: TaxCalculationViewModel)(implicit messages: play.api.i18n.Messages, configDecorator: ConfigDecorator)
 
     @card(
         id = Some(s"taxcalc-${viewModel.taxYears.previousTaxYear}-${viewModel.taxYears.currentTaxYear}-card"),
-        url = Some(fromUrl(viewModel.heading.url)),
+        url = Some(viewUtils.fromUrl(viewModel.heading.url)),
         gaAction = Some("Income"),
-        gaLabel = Some(fromMessage(viewModel.heading.label)),
-        heading = fromMessage(viewModel.heading.label),
+        gaLabel = Some(viewUtils.fromMessage(viewModel.heading.label)),
+        heading = viewUtils.fromMessage(viewModel.heading.label),
         headingTag = "h3",
-        bodyContent = Some(Html(viewModel.content.map(content => s"<p>${fromMessage(content)}</p>").mkString))
+        bodyContent = Some(Html(viewModel.content.map(content => s"<p>${viewUtils.fromMessage(content)}</p>").mkString))
     ) {
         @if(viewModel.links.nonEmpty) {
             <ul>
             @viewModel.links.map { case Link(label, url, trackingLabel) => {
                     <li>
-                        <a class="ga-track-anchor-click" href="@fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
-                        @fromMessage(label)
+                        <a class="ga-track-anchor-click" href="@viewUtils.fromUrl(url)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="@trackingLabel">
+                        @viewUtils.fromMessage(label)
                     </a>
                     </li>
                 }
