@@ -28,7 +28,6 @@ import services.{CitizenDetailsService, PersonDetailsHiddenResponse, PersonDetai
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.ManualCorrespondenceView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +39,6 @@ class GetPersonDetailsAction @Inject()(
   val messagesApi: MessagesApi,
   manualCorrespondenceView: ManualCorrespondenceView)(
   implicit configDecorator: ConfigDecorator,
-  partialRetriever: LocalPartialRetriever,
   ec: ExecutionContext,
   templateRenderer: TemplateRenderer)
     extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {

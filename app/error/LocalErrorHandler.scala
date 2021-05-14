@@ -24,7 +24,6 @@ import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.{InternalServerErrorView, unauthenticatedError}
 
 import scala.concurrent.ExecutionContext
@@ -35,8 +34,7 @@ class LocalErrorHandler @Inject()(
   val materializer: Materializer,
   internalServerErrorView: InternalServerErrorView,
   unauthenticatedErrorTemplate: unauthenticatedError)(
-  implicit val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
+  implicit val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends FrontendErrorHandler with I18nSupport {

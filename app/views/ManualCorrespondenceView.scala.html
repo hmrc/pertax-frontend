@@ -17,11 +17,11 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
-@import util.LocalPartialRetriever
+
 @import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView)
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("label.there_is_a_problem_logging_you_in"), Some(messages("label.your_personal_tax_account"))) {
 

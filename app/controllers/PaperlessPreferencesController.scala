@@ -25,7 +25,7 @@ import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.partials.PreferencesFrontendPartialService
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
-import util.{LocalPartialRetriever, Tools}
+import util.Tools
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,11 +36,7 @@ class PaperlessPreferencesController @Inject()(
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
-  tools: Tools)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  tools: Tools)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def managePreferences: Action[AnyContent] =
