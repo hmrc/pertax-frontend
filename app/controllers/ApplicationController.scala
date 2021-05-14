@@ -28,7 +28,6 @@ import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.LocalPartialRetriever
 import views.html.iv.success.SuccessView
 import views.html.iv.failure._
 
@@ -44,8 +43,7 @@ class ApplicationController @Inject()(
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
   technicalIssuesView: TechnicalIssuesView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {

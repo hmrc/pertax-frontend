@@ -31,7 +31,7 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.AuditServiceTools.buildEvent
-import util.{DateTimeTools, LocalPartialRetriever}
+import util.DateTimeTools
 import views.html.iv.failure.{CannotConfirmIdentityView, FailedIvContinueToActivateSaView}
 import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
@@ -47,8 +47,7 @@ class SelfAssessmentController @Inject()(
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
   requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {

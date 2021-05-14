@@ -22,13 +22,11 @@ import error.GenericErrors
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HttpResponse
-import util.LocalPartialRetriever
 
 sealed trait UpdateAddressResponse {
   def response(genericErrors: GenericErrors, successResponseBlock: () => Result)(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
     messages: Messages): Result =
     this match {
       case UpdateAddressBadRequestResponse    => genericErrors.badRequest

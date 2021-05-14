@@ -36,12 +36,7 @@ class UserResearchDismissalController @Inject()(
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
-  auditConnector: AuditConnector,
-  authConnector: AuthConnector,
-  cc: MessagesControllerComponents)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
-  ec: ExecutionContext)
+  cc: MessagesControllerComponents)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>

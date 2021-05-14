@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.NinoDisplayService
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.print._
 
 import scala.concurrent.ExecutionContext
@@ -43,8 +42,7 @@ class NiLetterController @Inject()(
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
   niLetterView: NiLetterView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) {

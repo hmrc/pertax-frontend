@@ -31,7 +31,6 @@ import services.{NinoDisplayService, PreferencesFrontendService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
-import util.LocalPartialRetriever
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
@@ -51,8 +50,7 @@ class InterstitialController @Inject()(
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper {

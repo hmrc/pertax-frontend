@@ -27,7 +27,6 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.language.LanguageUtils
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
@@ -42,8 +41,7 @@ class StartDateController @Inject()(
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {

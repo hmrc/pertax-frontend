@@ -25,7 +25,6 @@ import models.SelfAssessmentUser
 import models.dto.SAWrongCredentialsDto
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.selfassessment._
 
 import scala.concurrent.ExecutionContext
@@ -40,8 +39,7 @@ class SaWrongCredentialsController @Inject()(
   needToResetPasswordView: NeedToResetPasswordView,
   findYourUserIdView: FindYourUserIdView
 )(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) extends PertaxBaseController(cc) {
