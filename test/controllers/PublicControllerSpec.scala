@@ -32,7 +32,6 @@ class PublicControllerSpec extends BaseSpec {
   private val mockTemplateRenderer = mock[TemplateRenderer]
 
   private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
-    mockLocalPartialRetriever,
     config,
     mockTemplateRenderer,
     injected[ExecutionContext]

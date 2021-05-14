@@ -96,7 +96,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[HomeView]
-      )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
+      )(mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))

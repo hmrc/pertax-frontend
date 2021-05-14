@@ -36,7 +36,6 @@ import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.MainView
 
 import scala.util.Random
@@ -91,7 +90,6 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
   lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   implicit val configDecorator: ConfigDecorator = app.injector.instanceOf[ConfigDecorator]
-  implicit val partialRetriever: LocalPartialRetriever = app.injector.instanceOf[LocalPartialRetriever]
   implicit val templateRenderer: TemplateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val messages: Messages = MessagesImpl(Lang("en"), messagesApi).messages
 

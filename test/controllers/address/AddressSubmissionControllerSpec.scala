@@ -37,7 +37,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
-import util.{Fixtures, LocalPartialRetriever}
+import util.Fixtures
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
@@ -64,7 +64,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         injected[ReviewChangesView],
         injected[DisplayAddressInterstitialView],
         injected[GenericErrors]
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
+      )(injected[ConfigDecorator], injected[TemplateRenderer], ec)
   }
 
   "onPageLoad" must {
