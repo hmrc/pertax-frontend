@@ -54,6 +54,8 @@ class PostcodeLookupController @Inject()(
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
+  private val logger = Logger(this.getClass)
+
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
@@ -90,7 +92,7 @@ class PostcodeLookupController @Inject()(
           addressFinderDto => {
 
             if (addressFinderDto.postcode.isEmpty)
-              Logger.warn("post code is empty for processPostCodeLookupForm")
+              logger.warn("post code is empty for processPostCodeLookupForm")
 
             for {
               _ <- cachingHelper.addToCache(AddressFinderDtoId(typ), addressFinderDto)

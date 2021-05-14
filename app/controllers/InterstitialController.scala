@@ -61,6 +61,8 @@ class InterstitialController @Inject()(
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::
       baseBreadcrumb
 
+  private val logger = Logger(this.getClass)
+
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
@@ -118,7 +120,7 @@ class InterstitialController @Inject()(
       case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
         Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
       case _ =>
-        Logger.warn("User had no sa account when one was required")
+        logger.warn("User had no sa account when one was required")
         errorRenderer.error(UNAUTHORIZED)
     }
   }

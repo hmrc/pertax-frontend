@@ -61,6 +61,8 @@ class ClosePostalAddressController @Inject()(
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
+  private val logger = Logger(this.getClass)
+
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
@@ -123,7 +125,7 @@ class ClosePostalAddressController @Inject()(
 
     citizenDetailsService.getEtag(nino.nino) flatMap {
       case None =>
-        Logger.error("Failed to retrieve Etag from citizen-details")
+        logger.error("Failed to retrieve Etag from citizen-details")
         errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
       case Some(version) =>

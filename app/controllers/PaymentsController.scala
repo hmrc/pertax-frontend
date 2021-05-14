@@ -45,6 +45,8 @@ class PaymentsController @Inject()(
 
   override def now: () => DateTime = () => DateTime.now()
 
+  private val logger = Logger(this.getClass)
+
   def makePayment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
@@ -62,12 +64,12 @@ class PaymentsController @Inject()(
               }
             }
             case NonFilerSelfAssessmentUser => {
-              Logger.warn("User had no sa account when one was required")
+              logger.warn("User had no sa account when one was required")
               errorRenderer.futureError(INTERNAL_SERVER_ERROR)
             }
           }
         } else {
-          Logger.warn("User had no sa account when one was required")
+          logger.warn("User had no sa account when one was required")
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
     }
