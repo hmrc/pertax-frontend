@@ -51,6 +51,8 @@ class AddressSelectorController @Inject()(
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
+  private val logger = Logger(this.getClass)
+
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
@@ -92,7 +94,7 @@ class AddressSelectorController @Inject()(
                       )
                     ))
                 case _ =>
-                  Logger.warn("Failed to retrieve Address Record Set from cache")
+                  logger.warn("Failed to retrieve Address Record Set from cache")
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }
             },
@@ -119,7 +121,7 @@ class AddressSelectorController @Inject()(
                     }
                   }
                 case _ =>
-                  Logger.warn("Address selector was unable to find address using the id returned by a previous request")
+                  logger.warn("Address selector was unable to find address using the id returned by a previous request")
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }
             }

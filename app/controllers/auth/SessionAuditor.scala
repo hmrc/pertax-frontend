@@ -55,7 +55,7 @@ private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector)(imp
           )
           .recover {
             case e: Exception =>
-              Logger.warn(s"Unable to audit: ${e.getMessage}")
+              logger.warn(s"Unable to audit: ${e.getMessage}")
               Failure("UserSessionAuditor.auditOncePerSession exception occurred whilst auditing", Some(e))
           }
 
