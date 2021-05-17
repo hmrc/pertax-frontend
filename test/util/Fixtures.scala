@@ -39,6 +39,7 @@ import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
@@ -305,6 +306,10 @@ trait BaseSpec
 
   implicit val hc = HeaderCarrier()
 
+  val mockPartialRetriever = mock[FormPartialRetriever]
+
+  when(mockPartialRetriever.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
+
   val configValues =
     Map(
       "cookie.encryption.key"         -> "gvBoGdgzqG1AarzF1LY0zQ==",
@@ -317,7 +322,8 @@ trait BaseSpec
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
-        bind[TemplateRenderer].toInstance(MockTemplateRenderer)
+        bind[TemplateRenderer].toInstance(MockTemplateRenderer),
+        bind[FormPartialRetriever].toInstance(mockPartialRetriever)
       )
       .configure(configValues)
 
