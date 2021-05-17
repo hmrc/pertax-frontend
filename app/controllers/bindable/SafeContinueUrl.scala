@@ -18,28 +18,20 @@ package controllers.bindable
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import play.api.mvc.{PathBindable, QueryStringBindable}
-import play.api.{Environment, Mode, Play}
+import play.api.mvc.QueryStringBindable
+import play.api.{Environment, Mode}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id
 import uk.gov.hmrc.play.bootstrap.binders._
 
 class SafeContinueUrl @Inject()(environment: Environment, configDecorator: ConfigDecorator) {
 
-  implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]) = new PathBindable[AddrType] {
-
-    def bind(key: String, value: String): Either[String, AddrType] =
-      AddrType(value).map(Right(_)).getOrElse(Left("Invalid address type in path"))
-
-    def unbind(key: String, addrType: AddrType): String = addrType.toString
-  }
-
   implicit val continueUrlBinder: QueryStringBindable[SafeRedirectUrl] = new QueryStringBindable[SafeRedirectUrl] {
 
     val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
 
     private val runningMode: Mode =
-      if (configDecorator.serviceManagerRunModeFlag && environment.mode == Mode.Prod) Mode.Dev else environment.mode
+      if (configDecorator.serviceManagerRunModeFlag & environment.mode == Mode.Prod) Mode.Dev else environment.mode
 
     val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = runningMode))
 

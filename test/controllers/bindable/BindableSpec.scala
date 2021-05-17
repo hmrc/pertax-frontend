@@ -16,10 +16,13 @@
 
 package controllers.bindable
 
+import play.api.test.Injecting
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import util.BaseSpec
 
-class BindableSpec extends BaseSpec {
+class BindableSpec extends BaseSpec with Injecting {
+
+  val safeContinueUrl = inject[SafeContinueUrl]
 
   trait LocalSetup {}
 
@@ -27,7 +30,7 @@ class BindableSpec extends BaseSpec {
 
     "return the key and the ContinueUrl" in {
 
-      controllers.bindable.continueUrlBinder
+      safeContinueUrl.continueUrlBinder
         .unbind("continue", SafeRedirectUrl("/relative/url")) mustBe "continue=%2Frelative%2Furl"
     }
   }
@@ -37,28 +40,28 @@ class BindableSpec extends BaseSpec {
     "return an url when called with a relative url" in {
 
       val url = "/relative/url"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Right(SafeRedirectUrl(url)))
     }
 
     "return error when not url" in {
 
       val url = "gtuygyg"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for urls with /\\" in {
 
       val url = "/\\www.example.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for none relative urls" in {
 
       val url = "http://nonrelativeurl.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"Provided URL [$url] doesn't comply with redirect policy"))
     }
   }
