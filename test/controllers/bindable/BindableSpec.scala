@@ -22,46 +22,44 @@ import util.BaseSpec
 
 class BindableSpec extends BaseSpec with Injecting {
 
-  val safeContinueUrl = inject[SafeContinueUrl]
-
   trait LocalSetup {}
 
-  "Calling continueUrlBinder.unbind" must {
+  "Calling continueUrlBinder.unbind" should {
 
     "return the key and the ContinueUrl" in {
 
-      safeContinueUrl.continueUrlBinder
+      controllers.bindable.continueUrlBinder
         .unbind("continue", SafeRedirectUrl("/relative/url")) mustBe "continue=%2Frelative%2Furl"
     }
   }
 
-  "Calling continueUrlBinder.bind" must {
+  "Calling continueUrlBinder.bind" should {
 
     "return an url when called with a relative url" in {
 
       val url = "/relative/url"
-      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Right(SafeRedirectUrl(url)))
     }
 
     "return error when not url" in {
 
       val url = "gtuygyg"
-      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for urls with /\\" in {
 
       val url = "/\\www.example.com"
-      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL"))
     }
 
     "return error for none relative urls" in {
 
       val url = "http://nonrelativeurl.com"
-      safeContinueUrl.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"Provided URL [$url] doesn't comply with redirect policy"))
     }
   }

@@ -16,7 +16,10 @@
 
 package controllers
 
-import play.api.mvc.PathBindable
+import play.api.mvc.{PathBindable, QueryStringBindable}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id
+import uk.gov.hmrc.play.bootstrap.binders._
 
 package object bindable {
 
@@ -26,5 +29,21 @@ package object bindable {
       AddrType(value).map(Right(_)).getOrElse(Left("Invalid address type in path"))
 
     def unbind(key: String, addrType: AddrType): String = addrType.toString
+  }
+
+  implicit val continueUrlBinder: QueryStringBindable[SafeRedirectUrl] = new QueryStringBindable[SafeRedirectUrl] {
+
+    val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
+
+    val policy: RedirectUrlPolicy[Id] = OnlyRelative
+
+    def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SafeRedirectUrl]] =
+      parentBinder.bind(key, params).map {
+        case Right(redirectUrl) => redirectUrl.getEither(policy)
+        case Left(error)        => Left(error)
+      }
+
+    def unbind(key: String, value: SafeRedirectUrl): String = parentBinder.unbind(key, RedirectUrl(value.url))
+
   }
 }

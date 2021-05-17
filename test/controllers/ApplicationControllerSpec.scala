@@ -111,6 +111,25 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "Calling ApplicationController.uplift" must {
 
+    "return BAD_REQUEST status when completionURL is empty" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              request = request
+            ))
+      })
+
+      val result =
+        routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=")).get
+
+      status(result) mustBe BAD_REQUEST
+      redirectLocation(result) mustBe None
+
+    }
+
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

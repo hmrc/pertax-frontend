@@ -190,9 +190,6 @@ class ConfigDecorator @Inject()(
 
   lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
 
-  lazy val serviceManagerRunModeFlag =
-    runModeConfiguration.getOptional[Boolean]("safeRedirectUrl.allowAbsolute").getOrElse(false)
-
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
   lazy val pertaxFrontendBackLink = runModeConfiguration
