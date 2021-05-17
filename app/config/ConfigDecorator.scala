@@ -17,11 +17,10 @@
 package config
 
 import java.net.{URL, URLEncoder}
-
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
 import org.joda.time.LocalDate
-import play.api.Configuration
+import play.api.{Configuration, Play}
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -189,6 +188,9 @@ class ConfigDecorator @Inject()(
   lazy val nationalInsuranceRecordUrl = s"$nispFrontendHost/check-your-state-pension/account/nirecord/pta"
 
   lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
+
+  lazy val serviceManagerRunModeFlag =
+    runModeConfiguration.getOptional[Boolean]("safeRedirectUrl.allowAbsolute").getOrElse(false)
 
   // Links back to pertax
   lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url

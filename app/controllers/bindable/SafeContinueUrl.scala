@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.bindable
 
+import com.google.inject.Inject
+import config.ConfigDecorator
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import play.api.{Environment, Mode, Play}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id
 import uk.gov.hmrc.play.bootstrap.binders._
 
-package object bindable {
+class SafeContinueUrl @Inject()(environment: Environment, configDecorator: ConfigDecorator) {
 
   implicit def addrTypeBinder(implicit stringBinder: PathBindable[String]) = new PathBindable[AddrType] {
 
@@ -36,7 +38,10 @@ package object bindable {
 
     val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
 
-    val policy: RedirectUrlPolicy[Id] = UnsafePermitAll
+    private val runningMode: Mode =
+      if (configDecorator.serviceManagerRunModeFlag && environment.mode == Mode.Prod) Mode.Dev else environment.mode
+
+    val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = runningMode))
 
     def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SafeRedirectUrl]] =
       parentBinder.bind(key, params).map {
@@ -47,4 +52,5 @@ package object bindable {
     def unbind(key: String, value: SafeRedirectUrl): String = parentBinder.unbind(key, RedirectUrl(value.url))
 
   }
+
 }
