@@ -18,14 +18,12 @@ package connectors
 
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import controllers.auth.requests.{AuthenticatedRequest, UserRequest}
-import javax.inject.Inject
+import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
 import models.{SaEnrolmentRequest, SaEnrolmentResponse}
-import play.api.http.Status.{BAD_REQUEST, OK}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(

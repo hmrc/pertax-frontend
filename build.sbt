@@ -19,7 +19,7 @@ scalaVersion := "2.12.11"
 val silencerVersion = "1.7.0"
 
 lazy val plugins: Seq[Plugins] =
-  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, PlayNettyServer)
+  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin, PlayNettyServer)
 
 lazy val playSettings: Seq[Setting[_]] = Seq(
   pipelineStages := Seq(digest)

@@ -16,15 +16,16 @@
 
 package config
 
-import java.net.{URL, URLEncoder}
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
 import org.joda.time.LocalDate
-import play.api.{Configuration, Play}
+import play.api.Configuration
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import java.net.{URL, URLEncoder}
 
 @Singleton
 class ConfigDecorator @Inject()(
