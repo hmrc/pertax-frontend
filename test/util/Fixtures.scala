@@ -331,12 +331,6 @@ trait BaseSpec
 
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
 
-  implicit val mockLocalPartialRetriever: LocalPartialRetriever = {
-    val pr = mock[LocalPartialRetriever]
-    when(pr.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
-    pr
-  }
-
 }
 trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {
   override def invokeBlock[A](a: Request[A], block: UserRequest[A] => Future[Result]): Future[Result]

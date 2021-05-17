@@ -98,7 +98,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           cc,
           injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

@@ -51,7 +51,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       injected[MessagesControllerComponents],
       injected[ErrorRenderer],
       injected[Tools]
-    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {}
+    )(injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {}
 
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {

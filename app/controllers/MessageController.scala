@@ -26,7 +26,6 @@ import play.twirl.api.Html
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.{ActiveTabMessages, TemplateRenderer}
-import util.LocalPartialRetriever
 import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.ExecutionContext
@@ -39,8 +38,7 @@ class MessageController @Inject()(
   cc: MessagesControllerComponents,
   messageInboxView: MessageInboxView,
   messageDetailView: MessageDetailView)(
-  implicit val partialRetriever: LocalPartialRetriever,
-  val configDecorator: ConfigDecorator,
+  implicit val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) {

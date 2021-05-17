@@ -21,14 +21,12 @@ import config.ConfigDecorator
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.public.SessionTimeoutView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PublicController @Inject()(cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) {

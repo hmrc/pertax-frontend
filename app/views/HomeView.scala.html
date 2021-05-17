@@ -17,12 +17,12 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
-@import util.LocalPartialRetriever
+
 @import viewmodels.HomeViewModel
 @import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView)
-@(viewModel: HomeViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(viewModel: HomeViewModel)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
     @mainView(messages("label.account_home"), Some(messages("label.your_personal_tax_account")), viewModel.showUserResearchBanner) {
 

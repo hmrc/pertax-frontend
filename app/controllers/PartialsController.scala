@@ -22,7 +22,6 @@ import error.LocalErrorHandler
 import models.Breadcrumb
 import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import util.LocalPartialRetriever
 import views.html.integration.MainContentHeaderView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,10 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class PartialsController @Inject()(
   val localErrorHandler: LocalErrorHandler,
   cc: MessagesControllerComponents,
-  mainContentHeaderView: MainContentHeaderView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
-  ex: ExecutionContext)
+  mainContentHeaderView: MainContentHeaderView)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def mainContentHeader(

@@ -82,7 +82,7 @@ class SelfAssessmentControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[FailedIvContinueToActivateSaView],
         injected[CannotConfirmIdentityView],
         injected[RequestAccessToSelfAssessmentView]
-      )(mockLocalPartialRetriever, injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
+      )(injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)

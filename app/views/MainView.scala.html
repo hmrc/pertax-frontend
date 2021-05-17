@@ -23,7 +23,6 @@
 @import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner, TrackingConsentSnippet}
 @import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
 @import uk.gov.hmrc.renderer._
-@import util.LocalPartialRetriever
 
 @import scala.concurrent.ExecutionContext
 
@@ -44,7 +43,7 @@
         printableDocument: Boolean = false,
         displayTimeoutDialog: Boolean = true
 )(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+       templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
     @links = @{
         var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()

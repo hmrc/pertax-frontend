@@ -39,7 +39,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, LocalPartialRetriever}
+import util.{ActionBuilderFixture, BaseSpec}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateAddressConfirmationView
 
@@ -67,7 +67,6 @@ trait AddressBaseSpec extends BaseSpec {
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
-  implicit lazy val partialRetriever: LocalPartialRetriever = injected[LocalPartialRetriever]
   implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit lazy val templateRenderer: TemplateRenderer = injected[TemplateRenderer]
 

@@ -23,18 +23,13 @@ import play.api.i18n.Messages
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, InternalServerError}
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.LocalPartialRetriever
 import views.html.ErrorView
 
 import scala.concurrent.ExecutionContext
 
 class GenericErrors @Inject()(errorView: ErrorView)(implicit templateRenderer: TemplateRenderer, ec: ExecutionContext) {
 
-  def badRequest(
-    implicit request: UserRequest[_],
-    configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
-    messages: Messages): Result =
+  def badRequest(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: Messages): Result =
     BadRequest(
       errorView(
         "global.error.BadRequest.title",
@@ -44,7 +39,6 @@ class GenericErrors @Inject()(errorView: ErrorView)(implicit templateRenderer: T
   def internalServerError(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
     messages: Messages): Result =
     InternalServerError(
       errorView(
