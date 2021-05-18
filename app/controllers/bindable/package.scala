@@ -16,7 +16,6 @@
 
 package controllers
 
-import play.api.{Environment, Mode, Play}
 import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id

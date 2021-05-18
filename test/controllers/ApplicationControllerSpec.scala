@@ -23,7 +23,7 @@ import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import play.api.{Application, Environment}
+import play.api.Application
 import play.api.inject._
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -96,8 +96,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[FailedIvIncompleteView],
         injected[LockedOutView],
         injected[TimeOutView],
-        injected[TechnicalIssuesView],
-        injected[Environment]
+        injected[TechnicalIssuesView]
       )(injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
@@ -315,10 +314,10 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
+      val result = controller.signout(None, Some(Origin("TESTORIGIN")))(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
-        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/PERTAX")
+        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/TESTORIGIN")
     }
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
@@ -372,7 +371,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     }
 
-    "return bad request when supplied with a none relative url" in new LocalSetup {
+    "return see other when supplied with an absolute url" in new LocalSetup {
 
       when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -384,11 +383,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
             ))
       })
 
-      val result = routeWrapper(
-        buildFakeRequestWithAuth("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
+      val result = controller.signout(Some(RedirectUrl("http://example.com&origin=PERTAX")), None)(FakeRequest())
+
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(config.citizenAuthFrontendSignOut)
-
+      session(result).get("postLogoutPage") mustBe Some("http://localhost:9514/feedback/PERTAX")
     }
   }
 
