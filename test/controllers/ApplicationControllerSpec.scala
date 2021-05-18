@@ -23,7 +23,7 @@ import models._
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import play.api.Application
+import play.api.{Application, Environment}
 import play.api.inject._
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -96,7 +96,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[FailedIvIncompleteView],
         injected[LockedOutView],
         injected[TimeOutView],
-        injected[TechnicalIssuesView]
+        injected[TechnicalIssuesView],
+        injected[Environment]
       )(injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
@@ -373,17 +374,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return bad request when supplied with a none relative url" in new LocalSetup {
 
-      when(mockAuthJourney.authWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
-            ))
-      })
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
@@ -395,7 +386,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val result = routeWrapper(
         buildFakeRequestWithAuth("GET", "/personal-account/signout?continueUrl=http://example.com&origin=PERTAX")).get
-      status(result) mustBe BAD_REQUEST
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(config.citizenAuthFrontendSignOut)
 
     }
   }

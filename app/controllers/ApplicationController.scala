@@ -20,13 +20,14 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import org.joda.time.DateTime
-import play.api.Logger
+import play.api.{Environment, Logger, Mode, Play}
 import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
-import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, PermitAllOnDev, RedirectUrl, RedirectUrlPolicy, SafeRedirectUrl}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.success.SuccessView
@@ -43,7 +44,8 @@ class ApplicationController @Inject()(
   failedIvIncompleteView: FailedIvIncompleteView,
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
-  technicalIssuesView: TechnicalIssuesView)(
+  technicalIssuesView: TechnicalIssuesView,
+  environment: Environment)(
   implicit configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
@@ -118,7 +120,7 @@ class ApplicationController @Inject()(
   def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
       val safeUrl = continueUrl.flatMap { x =>
-        x.getEither(OnlyRelative) match {
+        x.getEither(getPolicy) match {
           case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)
           case _                      => Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
         }
@@ -133,4 +135,11 @@ class ApplicationController @Inject()(
           }
         }
     }
+
+  private def getPolicy: RedirectUrlPolicy[Id] = {
+    val runningMode: Mode =
+      if (configDecorator.serviceManagerRunModeFlag & environment.mode == Mode.Prod) Mode.Dev else environment.mode
+
+    OnlyRelative | PermitAllOnDev(Environment.simple(mode = runningMode))
+  }
 }
