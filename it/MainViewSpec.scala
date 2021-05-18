@@ -21,6 +21,8 @@ import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
 import org.scalatest.Assertion
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -33,14 +35,14 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.MainView
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
+class MainViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite {
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
@@ -131,7 +133,7 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
     val backLinkUrl = "/personal-details/test"
     val content = "Main page content"
 
-    def main: Html =
+    def main: Html = {
       view(
         title,
         Some(heading),
@@ -147,6 +149,7 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
         Some(Html("AdditionalGaCalls")),
         printableDocument = true
       )(Html(content))
+    }
 
     def doc: Document = Jsoup.parse(main.toString)
 
@@ -161,9 +164,9 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
 
   "Main" when {
 
-    "rendering the view" should {
+    "rendering the view" must {
       "render the correct title" in new LocalSetup {
-        doc.title() shouldBe s"$title - ${messages("label.your_personal_tax_account_gov_uk")}"
+        doc.title() mustBe s"$title - ${messages("label.your_personal_tax_account_gov_uk")}"
       }
 
       "render the correct heading" in new LocalSetup {
@@ -184,7 +187,7 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
       }
     }
 
-    "rendering the nav bar" should {
+    "rendering the nav bar" must {
 
       "render the Account home button" in new LocalSetup {
         assertContainsLink(doc, messages("label.account_home"), "/personal-account")
@@ -201,7 +204,7 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), messageCount = Some(msgCount))
 
-          doc.getElementsByAttributeValueMatching("aria-label", "Number of unread messages").text() should include(
+          doc.getElementsByAttributeValueMatching("aria-label", "Number of unread messages").text() must include(
             msgCount.toString)
         }
       }
@@ -254,21 +257,21 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
       "render the sign out link" in new LocalSetup {
 
         val href = controllers.routes.ApplicationController
-          .signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None)
+          .signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None)
           .url
 
         assertContainsLink(doc, messages("global.label.sign_out"), href)
       }
     }
 
-    "displaying the page body" should {
+    "displaying the page body" must {
 
       "render the back link" in new LocalSetup {
 
         val backLink = doc.getElementsByClass("link-back").first()
 
-        backLink.attr("href") shouldBe backLinkUrl
-        backLink.text() shouldBe messages("label.back")
+        backLink.attr("href") mustBe backLinkUrl
+        backLink.text() mustBe messages("label.back")
       }
 
       "render the trusted helpers banner" when {
@@ -285,7 +288,7 @@ class MainViewSpec extends UnitSpec with GuiceOneAppPerSuite {
           override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
             buildUserRequest(request = FakeRequest(), trustedHelper = Some(helper))
 
-          doc.getElementById("attorneyBanner") shouldBe an[Element]
+          doc.getElementById("attorneyBanner") mustBe an[Element]
 
           assertContainsText(doc, principalName)
           assertContainsLink(doc, "Return to your own account", "/return-url")

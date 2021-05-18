@@ -16,29 +16,31 @@
 
 package repositories
 
-import java.time.OffsetDateTime
-import java.util.UUID
-
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.PatienceConfiguration
-import org.scalatestplus.mockito.MockitoSugar.mock
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.Matchers.any
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.enablers.Aggregating
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
+import java.time.OffsetDateTime
+import java.util.UUID
+import scala.collection.GenTraversable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
+class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ScalaFutures
   with PatienceConfiguration
   with BeforeAndAfterEach {
 
@@ -71,32 +73,32 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
   "editAddressLockRepository" when {
 
-    "setIndex is called" should {
+    "setIndex is called" must {
       "ensure the index is set" in {
-        await(mongo.removeIndex())
-        await(mongo.isTtlSet) shouldBe false
+        mongo.removeIndex().futureValue
+        mongo.isTtlSet.futureValue mustBe false
 
-        await(mongo.setIndex())
-        await(mongo.isTtlSet) shouldBe true
+        mongo.setIndex().futureValue
+        mongo.isTtlSet.futureValue mustBe true
       }
     }
 
-    "get is called" should {
-      "return an empty list" when {
+    "get is called" when {
+      "return an empty list" must {
         "there isn't an existing record" in {
           val fGet = mongo.get(testNino.withoutSuffix)
 
-          await(fGet) shouldBe List.empty
+          await(fGet) mustBe List.empty
         }
 
         "there isn't an existing record that matches the requested nino" in {
           val timeOffSet = 10L
 
-          await(mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
+          mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
 
           val fGet = mongo.get(differentNino.withoutSuffix)
 
-          await(fGet) shouldBe List.empty
+          await(fGet) mustBe List.empty
 
         }
 
@@ -104,31 +106,31 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now()))))
+          mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now())))
 
           val fGet = mongo.get(nino)
 
-          await(fGet) shouldBe List.empty
+          await(fGet) mustBe List.empty
         }
       }
 
-      "return the record" when {
+      "return the record" must {
         "there is an existing record and it has not yet expired" in {
           val currentTime = System.currentTimeMillis()
           val timeOffSet = 10L
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
+          mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))).futureValue
 
-          val fGet = mongo.get(nino)
-          val inserted = await(mongo.getCore(BSONDocument()))
-          currentTime should be < inserted.head.editedAddress.expireAt.value
-          await(fGet) shouldBe inserted
+          val fGet = mongo.get(nino).futureValue
+          val inserted = mongo.getCore(BSONDocument()).futureValue
+          currentTime must be < inserted.head.editedAddress.expireAt.value
+          fGet mustBe inserted
         }
       }
 
-      "return multiple records" when {
+      "return multiple records" must {
         "multiple existing records are present" in {
           val timeOffSet = 10L
 
@@ -137,18 +139,32 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
           val address1 = AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))
           val address2 = AddressJourneyTTLModel(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(200)))
 
-          await(mongo.insertCore(address1))
-          await(mongo.insertCore(address2))
+          class Aggregate extends Aggregating[Future[List[AddressJourneyTTLModel]]] {
+            override def containsAtLeastOneOf(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
 
-          val result = await(mongo.get(nino))
+            override def containsTheSameElementsAs(leftAggregation: Future[List[AddressJourneyTTLModel]], rightAggregation: GenTraversable[Any]): Boolean = true
 
-          result should contain theSameElementsAs List(address2, address1)
+            override def containsOnly(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
+
+            override def containsAllOf(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
+
+            override def containsAtMostOneOf(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
+          }
+
+          implicit lazy val aggregate: Aggregate = new Aggregate
+
+          mongo.insertCore(address1)
+          mongo.insertCore(address2)
+
+          val result = mongo.get(nino)
+
+          result must contain theSameElementsAs List(address2, address1)
         }
       }
     }
 
-    "insert is called" should {
-      "return true" when {
+    "insert is called" when {
+      "return true" must {
         "there isn't an existing record" in {
           import EditAddressLockRepository._
           val offsetTime = getNextMidnight(OffsetDateTime.now())
@@ -156,26 +172,26 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
           val nino = testNino.withoutSuffix
 
-          val result = await(mongo.insert(nino, SoleAddrType))
-          result shouldBe true
+          val result = mongo.insert(nino, SoleAddrType).futureValue
+          result mustBe true
 
-          val inserted = await(mongo.get(nino))
+          val inserted = mongo.get(nino)
 
-          inserted.head.nino shouldBe nino
-          inserted.head.editedAddress.expireAt shouldBe midnight
+          inserted.futureValue.head.nino mustBe nino
+          inserted.futureValue.head.editedAddress.expireAt mustBe midnight
         }
       }
 
-      "return false" when {
+      "return false" must {
         "there is an existing record" in {
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insert(nino, PostalAddrType))
+          mongo.insert(nino, PostalAddrType)
 
-          val result = await(mongo.insert(nino, PostalAddrType))
+          val result = mongo.insert(nino, PostalAddrType).futureValue
 
-          result shouldBe false
+          result mustBe false
         }
       }
     }
@@ -190,16 +206,16 @@ class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
 
   "EnrolmentStoreCachingService" when {
 
-    "getSaUserTypeFromCache is called" should {
+    "getSaUserTypeFromCache is called" must {
 
       "only call the connector once" in {
 
         when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
         ) thenReturn Future.successful(Right(Seq[String]()))
 
-        await(service.getSaUserTypeFromCache(saUtr))
+        service.getSaUserTypeFromCache(saUtr).futureValue
 
-        await(service.getSaUserTypeFromCache(saUtr))
+        service.getSaUserTypeFromCache(saUtr).futureValue
 
         verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
