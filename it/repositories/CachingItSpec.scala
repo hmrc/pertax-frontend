@@ -23,7 +23,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.enablers.Aggregating
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -36,7 +35,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
 import java.time.OffsetDateTime
 import java.util.UUID
-import scala.collection.GenTraversable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
@@ -142,7 +140,7 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
           mongo.insertCore(address1)
           mongo.insertCore(address2)
 
-          val result = mongo.get(nino)
+          val result = mongo.get(nino).futureValue
 
           result must contain theSameElementsAs List(address2, address1)
         }
@@ -173,7 +171,7 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
 
           val nino = testNino.withoutSuffix
 
-          mongo.insert(nino, PostalAddrType)
+          mongo.insert(nino, PostalAddrType).futureValue
 
           val result = mongo.insert(nino, PostalAddrType).futureValue
 
