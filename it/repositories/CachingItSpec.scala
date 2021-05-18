@@ -139,20 +139,6 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
           val address1 = AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))
           val address2 = AddressJourneyTTLModel(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(200)))
 
-          class Aggregate extends Aggregating[Future[List[AddressJourneyTTLModel]]] {
-            override def containsAtLeastOneOf(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
-
-            override def containsTheSameElementsAs(leftAggregation: Future[List[AddressJourneyTTLModel]], rightAggregation: GenTraversable[Any]): Boolean = true
-
-            override def containsOnly(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
-
-            override def containsAllOf(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
-
-            override def containsAtMostOneOf(aggregation: Future[List[AddressJourneyTTLModel]], eles: Seq[Any]): Boolean = false
-          }
-
-          implicit lazy val aggregate: Aggregate = new Aggregate
-
           mongo.insertCore(address1)
           mongo.insertCore(address2)
 

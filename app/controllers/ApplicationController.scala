@@ -25,7 +25,8 @@ import play.api.mvc._
 import services.IdentityVerificationSuccessResponse._
 import services._
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import views.html.iv.success.SuccessView
@@ -114,10 +115,15 @@ class ApplicationController @Inject()(
   private def logErrorMessage(reason: String): Unit =
     logger.warn(s"Unable to confirm user identity: $reason")
 
-  def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
+  def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
-      continueUrl
-        .map(_.url)
+      val safeUrl = continueUrl.flatMap { x =>
+        x.getEither(OnlyRelative) match {
+          case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)
+          case _                      => Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
+        }
+      }
+      safeUrl
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         .fold(BadRequest("Missing origin")) { url: String =>
           if (request.isGovernmentGateway) {

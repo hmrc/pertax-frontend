@@ -34,7 +34,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
@@ -282,7 +282,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      val result = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(FakeRequest())
+      val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account")
@@ -299,7 +299,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
             ))
       })
 
-      val result = controller.signout(Some(SafeRedirectUrl("/personal-account")), None)(FakeRequest())
+      val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("http://localhost:9949/ida/signout")
       session(result).get("postLogoutPage") mustBe Some("/personal-account")

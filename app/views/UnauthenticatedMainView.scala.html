@@ -16,7 +16,6 @@
 
 @import config.ConfigDecorator
 @import controllers.controllershelpers.WelshWarningHelper
-@import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 @import uk.gov.hmrc.play.views.html.layouts
 @import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
 @import uk.gov.hmrc.renderer._
@@ -89,7 +88,7 @@
                         controllers.routes.LanguageSwitchController.enGb().url,
                         controllers.routes.LanguageSwitchController.cyGb().url
                 )),
-                signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
+                signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = None,
                 hideAccountMenu = true
             )),

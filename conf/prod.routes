@@ -14,7 +14,7 @@ GET         /personal-account/full                                              
 GET         /personal-account/identity-check-complete                                  controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
 GET         /personal-account/identity-check-failed                                    controllers.ApplicationController.showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl])
 
-GET         /personal-account/signout                                                  controllers.ApplicationController.signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin])
+GET         /personal-account/signout                                                  controllers.ApplicationController.signout(continueUrl: Option[RedirectUrl], origin: Option[Origin])
 
 GET         /personal-account/dismiss-ur-banner                                        controllers.UserResearchDismissalController.dismissUrBanner
 
