@@ -29,10 +29,9 @@ sealed trait UpdateAddressResponse {
     configDecorator: ConfigDecorator,
     messages: Messages): Result =
     this match {
-      case UpdateAddressBadRequestResponse    => genericErrors.badRequest
-      case UpdateAddressUnexpectedResponse(_) => genericErrors.internalServerError
-      case UpdateAddressErrorResponse(_)      => genericErrors.internalServerError
-      case UpdateAddressSuccessResponse       => successResponseBlock()
+      case UpdateAddressBadRequestResponse => genericErrors.badRequest
+      case UpdateAddressSuccessResponse    => successResponseBlock()
+      case _                               => genericErrors.internalServerError
     }
 }
 case object UpdateAddressSuccessResponse extends UpdateAddressResponse

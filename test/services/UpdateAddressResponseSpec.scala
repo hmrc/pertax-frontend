@@ -21,7 +21,7 @@ import error.GenericErrors
 import models.NonFilerSelfAssessmentUser
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Result
-import play.api.mvc.Results.Ok
+import play.api.mvc.Results.{BadRequest, InternalServerError, Ok}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -29,8 +29,6 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HttpResponse
 import util.UserRequestFixture.buildUserRequest
 import util.BaseSpec
-
-import scala.concurrent.Future
 
 class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
@@ -51,25 +49,25 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
   "UpdateAddressResponse.response" must {
     "return the block result for UpdateAddressSuccessResponse" in {
-      val result = Future(UpdateAddressSuccessResponse.response(genericErrors, genericFunc))
-      status(result) mustBe OK
+      val result = UpdateAddressSuccessResponse.response(genericErrors, genericFunc)
+      result.header.status mustBe OK
     }
 
     "return BAD_REQUEST for UpdateAddressBadRequestResponse" in {
-      val result = Future(UpdateAddressBadRequestResponse.response(genericErrors, genericFunc))
-      status(result) mustBe BAD_REQUEST
+      val result = UpdateAddressBadRequestResponse.response(genericErrors, genericFunc)
+      result.header.status mustBe BAD_REQUEST
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
-      val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123))
-      val result = Future(updateAddressResponse.response(genericErrors, genericFunc))
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123, ""))
+      val result = updateAddressResponse.response(genericErrors, genericFunc)
+      result.header.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
       val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
-      val result = Future(updateAddressResponse.response(genericErrors, genericFunc))
-      status(result) mustBe INTERNAL_SERVER_ERROR
+      val result = updateAddressResponse.response(genericErrors, genericFunc)
+      result.header.status mustBe INTERNAL_SERVER_ERROR
     }
   }
 }

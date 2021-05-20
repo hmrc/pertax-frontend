@@ -19,7 +19,7 @@ scalaVersion := "2.12.11"
 val silencerVersion = "1.7.0"
 
 lazy val plugins: Seq[Plugins] =
-  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin, PlayNettyServer)
+  Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
 
 lazy val playSettings: Seq[Setting[_]] = Seq(
   pipelineStages := Seq(digest)
@@ -85,7 +85,6 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.http.HeaderCarrier"
     )
   )
-  .settings(PlayKeys.devSettings += "play.server.provider" -> "play.core.server.NettyServerProvider")
 
 lazy val testSettings = Seq(
   unmanagedSourceDirectories ++= Seq(

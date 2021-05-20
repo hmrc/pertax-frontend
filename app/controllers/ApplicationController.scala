@@ -117,8 +117,8 @@ class ApplicationController @Inject()(
 
   def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
-      val safeUrl = continueUrl.flatMap { x =>
-        x.getEither(OnlyRelative) match {
+      val safeUrl = continueUrl.flatMap { redirectUrl =>
+        redirectUrl.getEither(OnlyRelative) match {
           case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)
           case _                      => Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
         }

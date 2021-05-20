@@ -47,7 +47,7 @@ case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetail
 class CitizenDetailsService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
     extends HasMetrics {
 
-  val logger = Logger(this.getClass)
+  private val logger = Logger(this.getClass)
 
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 

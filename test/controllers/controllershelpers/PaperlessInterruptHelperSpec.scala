@@ -21,7 +21,6 @@ import controllers.auth.requests.UserRequest
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, NonFilerSelfAssessmentUser, UserName}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
@@ -77,8 +76,8 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
           Future.successful(ActivatePaperlessNotAllowedResponse)
         }
 
-        val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock))
-        result.futureValue mustBe okBlock
+        val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock)).futureValue
+        result mustBe okBlock
       }
     }
 

@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import org.joda.time.DateTime
 import views.html.ViewSpec
 
-class mainContentHeaderSpec extends ViewSpec {
+class MainContentHeaderSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 

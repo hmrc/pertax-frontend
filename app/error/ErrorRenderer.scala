@@ -23,14 +23,14 @@ import play.api.http.Status.{BAD_REQUEST, NOT_FOUND}
 import play.api.i18n.Messages
 import play.api.mvc._
 import uk.gov.hmrc.renderer.TemplateRenderer
-import views.html.{ErrorView, NotFoundView, unauthenticatedError}
+import views.html.{ErrorView, NotFoundView, UnauthenticatedErrorView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ErrorRenderer @Inject()(
   notFoundView: NotFoundView,
   errorView: ErrorView,
-  unauthenticatedErrorTemplate: unauthenticatedError
+  unauthenticatedErrorTemplate: UnauthenticatedErrorView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends Results {
 

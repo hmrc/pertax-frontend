@@ -17,7 +17,6 @@
 package config
 
 import java.net.{MalformedURLException, URL}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Configuration
 import play.api.i18n.Langs
 import uk.gov.hmrc.domain.SaUtrGenerator

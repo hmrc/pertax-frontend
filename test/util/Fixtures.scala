@@ -316,7 +316,7 @@ trait BaseSpec
       "sso.encryption.key"            -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "queryParameter.encryption.key" -> "gvBoGdgzqG1AarzF1LY0zQ==",
       "json.encryption.key"           -> "gvBoGdgzqG1AarzF1LY0zQ==",
-      "metrics.enabled"               -> "false"
+      "metrics.enabled"               -> false
     )
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =

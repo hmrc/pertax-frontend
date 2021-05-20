@@ -20,12 +20,12 @@ import config.ConfigDecorator
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import views.html.{InternalServerErrorView, ViewSpec, unauthenticatedError}
+import views.html.{InternalServerErrorView, UnauthenticatedErrorView, ViewSpec}
 
 class LocalErrorHandlerSpec extends ViewSpec {
 
   lazy val internalServerError = injected[InternalServerErrorView]
-  lazy val standardError = injected[unauthenticatedError]
+  lazy val standardError = injected[UnauthenticatedErrorView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val templateRenderer = injected[TemplateRenderer]

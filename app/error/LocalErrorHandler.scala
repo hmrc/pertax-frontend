@@ -19,12 +19,12 @@ package error
 import akka.stream.Materializer
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 import uk.gov.hmrc.renderer.TemplateRenderer
-import views.html.{InternalServerErrorView, unauthenticatedError}
+import views.html.{InternalServerErrorView, UnauthenticatedErrorView}
 
 import scala.concurrent.ExecutionContext
 
@@ -33,7 +33,7 @@ class LocalErrorHandler @Inject()(
   val messagesApi: MessagesApi,
   val materializer: Materializer,
   internalServerErrorView: InternalServerErrorView,
-  unauthenticatedErrorTemplate: unauthenticatedError)(
+  unauthenticatedErrorTemplate: UnauthenticatedErrorView)(
   implicit val configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)

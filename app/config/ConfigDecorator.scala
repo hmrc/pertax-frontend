@@ -249,9 +249,6 @@ class ConfigDecorator @Inject()(
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
 
-  lazy val serviceManagerRunModeFlag =
-    runModeConfiguration.getOptional[Boolean]("safeRedirectUrl.allowAbsolute").getOrElse(false)
-
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
 
