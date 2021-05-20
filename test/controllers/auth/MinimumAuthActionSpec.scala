@@ -16,7 +16,6 @@
 
 package controllers.auth
 
-import config.ConfigDecorator
 import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.mockito.ArgumentMatchers.any
@@ -47,7 +46,6 @@ class MinimumAuthActionSpec extends BaseSpec {
     .build()
 
   val mockAuthConnector = mock[AuthConnector]
-  val configDecorator = app.injector.instanceOf[ConfigDecorator]
   val controllerComponents = app.injector.instanceOf[ControllerComponents]
   val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
@@ -63,12 +61,8 @@ class MinimumAuthActionSpec extends BaseSpec {
     "be redirected to the session timeout page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
-      val authAction = new MinimumAuthAction(
-        mockAuthConnector,
-        app.configuration,
-        configDecorator,
-        sessionAuditor,
-        controllerComponents)
+      val authAction =
+        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -80,12 +74,8 @@ class MinimumAuthActionSpec extends BaseSpec {
     "be redirected to the Sorry there is a problem page" in {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
-      val authAction = new MinimumAuthAction(
-        mockAuthConnector,
-        app.configuration,
-        configDecorator,
-        sessionAuditor,
-        controllerComponents)
+      val authAction =
+        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -117,12 +107,8 @@ class MinimumAuthActionSpec extends BaseSpec {
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(
-        mockAuthConnector,
-        app.configuration,
-        configDecorator,
-        sessionAuditor,
-        controllerComponents)
+      val authAction =
+        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -146,12 +132,8 @@ class MinimumAuthActionSpec extends BaseSpec {
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(
-        mockAuthConnector,
-        app.configuration,
-        configDecorator,
-        sessionAuditor,
-        controllerComponents)
+      val authAction =
+        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -176,12 +158,8 @@ class MinimumAuthActionSpec extends BaseSpec {
           .authorise[AuthRetrievals](any(), any())(any(), any()))
         .thenReturn(retrievalResult)
 
-      val authAction = new MinimumAuthAction(
-        mockAuthConnector,
-        app.configuration,
-        configDecorator,
-        sessionAuditor,
-        controllerComponents)
+      val authAction =
+        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -208,7 +186,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       val authAction = new MinimumAuthAction(
         mockAuthConnector,
         app.configuration,
-        configDecorator,
+        config,
         sessionAuditor,
         controllerComponents
       )

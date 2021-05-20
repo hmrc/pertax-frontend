@@ -19,7 +19,6 @@ package views.html.address
 import config.ConfigDecorator
 import models.dto.InternationalAddressChoiceDto
 import play.api.test.FakeRequest
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.PostalInternationalAddressChoiceView
@@ -30,7 +29,6 @@ class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
 
   lazy val view = injected[PostalInternationalAddressChoiceView]
 
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 

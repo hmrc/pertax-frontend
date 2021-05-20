@@ -51,7 +51,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       injected[MessagesControllerComponents],
       injected[ErrorRenderer],
       injected[Tools]
-    )(injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {}
+    )(config, templateRenderer, ec) {}
 
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {
@@ -67,8 +67,7 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
       status(r) mustBe SEE_OTHER
 
       val redirectUrl = redirectLocation(r).getValue
-      val configDecorator = app.injector.instanceOf[ConfigDecorator]
-      redirectUrl must include regex s"${configDecorator.preferencesFrontendService}/paperless/check-settings\\?returnUrl=.*\\&returnLinkText=.*"
+      redirectUrl must include regex s"${config.preferencesFrontendService}/paperless/check-settings\\?returnUrl=.*\\&returnLinkText=.*"
     }
 
     "Return 400 for Verify users" in {

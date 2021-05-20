@@ -21,7 +21,6 @@ import controllers.auth.requests.AuthenticatedRequest
 import models.UserName
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
@@ -49,7 +48,6 @@ class AuthActionSpec extends BaseSpec {
     .build()
 
   val mockAuthConnector = mock[AuthConnector]
-  def configDecorator = app.injector.instanceOf[ConfigDecorator]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
   val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
@@ -86,7 +84,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     val authAction =
-      new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
+      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
 
     new Harness(authAction)
   }
@@ -162,7 +160,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -175,7 +173,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -186,10 +184,10 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
-        FakeRequest("GET", "/foo").withSession(configDecorator.authProviderKey -> configDecorator.authProviderVerify)
+        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderVerify)
       val result = controller.onPageLoad()(request)
       status(result) mustBe SEE_OTHER
       session(result) mustBe new Session(
@@ -204,10 +202,10 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val request =
-        FakeRequest("GET", "/foo").withSession(configDecorator.authProviderKey -> configDecorator.authProviderGG)
+        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
       val result = controller.onPageLoad()(request)
       status(result) mustBe SEE_OTHER
 
@@ -221,7 +219,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, configDecorator, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -289,8 +287,7 @@ class AuthActionSpec extends BaseSpec {
 
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
-    contentAsString(result) must include(
-      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendBackLink}")
+    contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
@@ -298,8 +295,7 @@ class AuthActionSpec extends BaseSpec {
 
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
-    contentAsString(result) mustNot include(
-      s"http://www.google.com/?redirect_uri=${configDecorator.pertaxFrontendBackLink}")
+    contentAsString(result) mustNot include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
   }
 
   "A user with a SCP Profile Url that is not valid must strip out the SCP Profile Url" in {
@@ -307,7 +303,7 @@ class AuthActionSpec extends BaseSpec {
 
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
-    contentAsString(result) mustNot include(configDecorator.pertaxFrontendBackLink)
+    contentAsString(result) mustNot include(config.pertaxFrontendBackLink)
   }
 
   "A user that has logged in with Verify must" must {

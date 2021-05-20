@@ -19,7 +19,6 @@ package connectors
 import models.{CreatePayment, PaymentRequest}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
 import play.api.http.Status._
 import play.api.libs.json.{JsResultException, Json}
 import uk.gov.hmrc.http.HttpResponse

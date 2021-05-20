@@ -70,9 +70,9 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       injected[NiLetterPDfWrapperView],
       injected[NiLetterView]
     )(
-      injected[ConfigDecorator],
-      injected[TemplateRenderer],
-      injected[ExecutionContext]
+      config,
+      templateRenderer,
+      ec
     ) {
       when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
     }

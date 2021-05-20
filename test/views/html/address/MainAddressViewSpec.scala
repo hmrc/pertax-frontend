@@ -32,7 +32,6 @@ class MainAddressViewSpec extends ViewSpec {
 
   lazy val view = injected[MainAddressView]
 
-  implicit val templateRenderer = injected[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
   val result = asDocument(view(Fixtures.buildFakePersonDetails, true, false, false, List[Country]()).toString)

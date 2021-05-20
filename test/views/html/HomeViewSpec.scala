@@ -34,7 +34,6 @@ class HomeViewSpec extends ViewSpec {
   lazy val home = injected[HomeView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val templateRenderer = injected[TemplateRenderer]
 
   val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None)
 

@@ -25,8 +25,6 @@ import models._
 import models.dto.AddressDto
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
-import org.scalatest.BeforeAndAfterEach
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import repositories.EditAddressLockRepository
@@ -36,7 +34,6 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec}
@@ -68,7 +65,6 @@ trait AddressBaseSpec extends BaseSpec {
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   implicit lazy val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit lazy val templateRenderer: TemplateRenderer = injected[TemplateRenderer]
 
   override def beforeEach: Unit =
     reset(

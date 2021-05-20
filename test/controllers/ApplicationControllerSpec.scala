@@ -97,7 +97,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[LockedOutView],
         injected[TimeOutView],
         injected[TechnicalIssuesView]
-      )(injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext])
+      )(config, templateRenderer, ec)
 
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
       Future.successful(getIVJourneyStatusResponse)

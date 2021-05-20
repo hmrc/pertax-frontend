@@ -18,8 +18,8 @@ package controllers.auth
 
 import controllers.auth.requests._
 import models._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers

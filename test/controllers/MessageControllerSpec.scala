@@ -57,7 +57,7 @@ class MessageControllerSpec extends BaseSpec {
       injected[MessagesControllerComponents],
       injected[MessageInboxView],
       injected[MessageDetailView]
-    )(injected[ConfigDecorator], injected[TemplateRenderer], ec) {
+    )(config, templateRenderer, ec) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }

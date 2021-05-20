@@ -96,7 +96,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[HomeView]
-      )(mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
+      )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
@@ -144,7 +144,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   "Calling HomeController.index" must {
 
-    val configDecorator = injected[ConfigDecorator]
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -157,9 +156,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe OK
 
-      if (configDecorator.taxComponentsEnabled)
+      if (config.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (configDecorator.taxcalcEnabled)
+      if (config.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -177,9 +176,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe OK
 
-      if (configDecorator.taxComponentsEnabled)
+      if (config.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (configDecorator.taxcalcEnabled)
+      if (config.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -230,7 +229,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe OK
 
-      if (configDecorator.taxcalcEnabled)
+      if (config.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 

@@ -71,7 +71,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
         injected[Sa302InterruptView]
-      )(injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
+      )(config, templateRenderer, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))

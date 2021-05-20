@@ -21,7 +21,6 @@ import controllers.address.routes
 import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.dto.AddressDto
 import play.api.test.FakeRequest
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.ReviewChangesView
@@ -31,7 +30,6 @@ class ReviewChangesViewSpec extends ViewSpec {
 
   lazy val view = injected[ReviewChangesView]
 
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
   val address =

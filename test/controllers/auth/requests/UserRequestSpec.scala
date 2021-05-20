@@ -17,8 +17,6 @@
 package controllers.auth.requests
 
 import models._
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
 import util.BaseSpec

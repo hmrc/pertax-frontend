@@ -31,7 +31,6 @@ class PostalAddressViewSpec extends ViewSpec {
 
   lazy val view = injected[PostalAddressView]
 
-  implicit val templateRenderer = injected[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
   val result = asDocument(view(Fixtures.buildFakePersonDetails, false, List[Country](), true).toString)

@@ -43,7 +43,7 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
       injected[DoYouKnowUserIdView],
       injected[NeedToResetPasswordView],
       injected[FindYourUserIdView]
-    )(config, injected[TemplateRenderer], injected[ExecutionContext])
+    )(config, templateRenderer, ec)
 
   "processDoYouKnowOtherCredentials" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {

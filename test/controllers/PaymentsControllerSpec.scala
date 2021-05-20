@@ -60,7 +60,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[ErrorRenderer]
-    )(injected[ConfigDecorator], mock[TemplateRenderer], injected[ExecutionContext])
+    )(config, templateRenderer, ec)
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =

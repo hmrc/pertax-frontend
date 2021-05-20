@@ -23,7 +23,7 @@ import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAd
 import models.dto.AddressDto
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{mock, when}
+import org.mockito.Mockito.when
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -332,6 +332,8 @@ trait BaseSpec
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
   lazy val config = app.injector.instanceOf[ConfigDecorator]
+
+  implicit lazy val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
 

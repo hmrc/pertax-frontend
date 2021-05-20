@@ -34,7 +34,7 @@ class PublicControllerSpec extends BaseSpec {
   private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
     config,
     mockTemplateRenderer,
-    injected[ExecutionContext]
+    ec
   )
 
   "Calling PublicController.sessionTimeout" must {

@@ -16,11 +16,9 @@
 
 package connectors
 
-import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
-import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
@@ -28,6 +26,8 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
+
+import java.util.UUID
 
 class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
 
