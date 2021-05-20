@@ -32,7 +32,7 @@ class FormPartialService @Inject()(
   override val http: HttpClient,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
-  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
+  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 )(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
 
