@@ -21,9 +21,10 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.FakeRequest
 import uk.gov.hmrc.domain.SaUtr
+import util.BaseSpec
 import util.UserRequestFixture._
 
-class UserRequestSpec extends AnyWordSpec with Matchers {
+class UserRequestSpec extends BaseSpec {
 
   val saUtr: SaUtr = SaUtr("test utr")
 
