@@ -22,9 +22,8 @@ import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddres
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -40,13 +39,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ScalaFutures
-  with PatienceConfiguration
+  with IntegrationPatience
   with BeforeAndAfterEach {
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
-
-  implicit override val patienceConfig = PatienceConfig(scaled(Span(5, Seconds)), scaled(Span(100, Millis)))
 
   def mongo: EditAddressLockRepository = app.injector.instanceOf[EditAddressLockRepository]
 
