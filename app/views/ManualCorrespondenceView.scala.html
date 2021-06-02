@@ -21,7 +21,7 @@
 @this(mainView: MainView)
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
 
-@mainView(messages("label.there_is_a_problem_logging_you_in"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(messages("label.you_cannot_access_your_account"), Some(messages("label.your_personal_tax_account"))) {
 
     <div class="grid-row pertax-error">
         <div class="column-two-thirds">

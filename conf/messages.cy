@@ -140,7 +140,6 @@ label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_be
 label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol
 label.view_your_national_insurance_record=Bwrw golwg ar eich cofnod Yswiriant Gwladol
-label.there_is_a_problem_logging_you_in=Mae problem wedi codi wrth i chi fewngofnodi
 label.how_to_contact_us=Gallwch ein ffonio er mwyn
 label.self_assessment_summary=Crynodeb Hunanasesiad
 label.back_to_account_home=Yn ôl i hafan y cyfrif
