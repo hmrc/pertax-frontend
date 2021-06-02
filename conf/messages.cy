@@ -141,7 +141,7 @@ label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol
 label.view_your_national_insurance_record=Bwrw golwg ar eich cofnod Yswiriant Gwladol
 label.there_is_a_problem_logging_you_in=Mae problem wedi codi wrth i chi fewngofnodi
-label.how_to_contact_us=Sut i gysylltu â ni
+label.how_to_contact_us=Gallwch ein ffonio er mwyn
 label.self_assessment_summary=Crynodeb Hunanasesiad
 label.back_to_account_home=Yn ôl i hafan y cyfrif
 label.return_to_your_account_home=Yn ôl i hafan eich cyfrif
@@ -183,14 +183,15 @@ label.sorry_we_are_currently_experiencing_technical_issues=Mae’n ddrwg gennym.
 label.we_cannot_confirm_your_identity=Ni allwn gadarnhau pwy ydych
 label.you_can_still_complete_your_sa=Gallwch lenwi’ch Ffurflen Dreth Hunanasesiad o hyd.
 
-label.you_cannot_access_your_account_right_now=Ni allwch gyrchu’ch cyfrif ar hyn o bryd
-label.we_need_to_speak_to_you_about_an_mci_error_=Mae angen i ni siarad â chi am wall MCI cyn y gallwch fewngofnodi.
+label.you_cannot_access_your_account=Ni allwn gael at eich manylion
+label.we_need_to_speak_to_you_about_an_mci_error_=Mae hyn oherwydd problem MCI. Mae’n golygu bod angen i ni wirio rhai manylion gyda chi, cyn i chi allu mewngofnodi eto.
 label.8am_to_8pm_monday_to_friday=8am i 8pm, Dydd Llun i Dydd Gwener
 label.8am_to_4pm_saturdays=8am i 4pm, Dydd Sadwrn
 label.8am_to_5pm_sundays=9am i 5pm, Dydd Sul
 label.closed_bank_holidays=Ar gau ar wyliau’r banc.
 label.find_out_about_call_charges=Dod i wybod am yr hyn a godir am alwadau
 label.phone_lines_are_open=Llinellau ffôn ar agor:
+label.resolve.mci.issue=datrys y broblem MCI gydag ymgynghorydd.
 
 label.to_continue_you_can=I fynd yn eich blaen, gallwch wneud y canlynol:
 label.see_your_current_address_text_before_link=gweld eich
