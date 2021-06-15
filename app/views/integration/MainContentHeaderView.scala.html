@@ -15,7 +15,9 @@
  *@
 
 @import config.ConfigDecorator
-@import util.LanguageHelper
+@import uk.gov.hmrc.play.language.LanguageUtils
+
+@this(languageUtils: LanguageUtils)
 
 @(name: Option[String],
         lastLogin: Option[org.joda.time.DateTime],
@@ -49,9 +51,9 @@
         <div class="last-login mobile-hidden">
             <p class="service-info-p">
             @name.map { name =>
-                @messages("global.label._last_signed_in", name, LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
+                @messages("global.label._last_signed_in", name, languageUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
             }.getOrElse {
-                @messages("global.label.you_last_signed_in", LanguageHelper.langUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
+                @messages("global.label.you_last_signed_in", languageUtils.Dates.formatEasyReadingTimestamp(Some(lastLogin), ""))
             }
             </p>
         </div>
@@ -63,7 +65,7 @@
         <div id="global-breadcrumb" class="header-context">
             <nav>
                 <ol class="group">
-                @breadcrumb.toList.map { item =>
+                @breadcrumb.map { item =>
                     <li><a href="@item._2">@messages(item._1)</a></li>
                 }
                 </ol>

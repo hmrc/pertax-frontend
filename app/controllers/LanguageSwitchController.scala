@@ -18,17 +18,15 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
 class LanguageSwitchController @Inject()(
   configDecorator: ConfigDecorator,
-  configuration: Configuration,
   languageUtils: LanguageUtils,
   cc: ControllerComponents)
-    extends LanguageController(configuration, languageUtils, cc) {
+    extends LanguageController(languageUtils, cc) {
 
   def enGb(): Action[AnyContent] = switchToLanguage(language = "english")
   def cyGb(): Action[AnyContent] = switchToLanguage(language = "cymraeg")

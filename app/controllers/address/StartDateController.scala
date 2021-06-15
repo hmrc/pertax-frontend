@@ -25,8 +25,8 @@ import models.dto.DateDto
 import models.{Address, SubmittedStartDateId}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import uk.gov.hmrc.play.language.LanguageUtils
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.{LanguageHelper, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
@@ -37,11 +37,11 @@ class StartDateController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
+  languageUtils: LanguageUtils,
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
@@ -86,8 +86,7 @@ class StartDateController @Inject()(
                   personDetails.address match {
                     case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
                       if (!currentStartDate.isBefore(proposedStartDate)) {
-                        BadRequest(
-                          cannotUpdateAddressView(typ, LanguageHelper.langUtils.Dates.formatDate(proposedStartDate)))
+                        BadRequest(cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate)))
                       } else {
                         Redirect(routes.AddressSubmissionController.onPageLoad(typ))
                       }

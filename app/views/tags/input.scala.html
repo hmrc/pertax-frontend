@@ -30,7 +30,7 @@
     <label for="@elements.field.name" class="@if( elements.args.get('_labelClass) ){ @elements.args.get('_labelClass) }" @if(elements.args.contains('_labelDataAttributes)){@elements.args.get('_labelDataAttributes)}>
 
         @if(parentElements.isDefined) {
-            @parentElements.get.errors.map { error => <span class="error-notification">@Messages(error)</span>}
+            @parentElements.get.errors.map { error => <span class="error-notification">@Messages(error.toString)</span>}
         }
 
         @if(!labelAfter && elements.args.contains('_label)) {
@@ -60,7 +60,7 @@
                 } else { id="@elements.field.name-error" }
                 data-journey="search-page:error:@elements.field.name">
                 <span class="visually-hidden">@messages("error.message.error") </span>
-                @Messages(error)
+                @Messages(error.toString)
             </span>
             }
         }

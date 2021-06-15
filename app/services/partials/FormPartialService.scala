@@ -21,9 +21,8 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 import util.EnhancedPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,9 +32,9 @@ class FormPartialService @Inject()(
   override val http: HttpClient,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
-  sessionCookieCrypto: SessionCookieCrypto
+  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
 
   def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)

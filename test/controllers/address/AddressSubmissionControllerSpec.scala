@@ -20,11 +20,12 @@ import config.ConfigDecorator
 import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.GenericErrors
 import models.ETag
 import models.dto.DateDto
 import org.joda.time.LocalDate
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.i18n.{Lang, Messages}
@@ -35,8 +36,8 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import uk.gov.hmrc.renderer.TemplateRenderer
+import util.Fixtures
 import util.Fixtures._
-import util.{Fixtures, LocalPartialRetriever}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
@@ -61,11 +62,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         errorRenderer,
         injected[UpdateAddressConfirmationView],
         injected[ReviewChangesView],
-        injected[DisplayAddressInterstitialView]
-      )(injected[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], ec)
+        injected[DisplayAddressInterstitialView],
+        injected[GenericErrors]
+      )(config, templateRenderer, ec)
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return 200 if both SubmittedAddressDto and SubmittedStartDateDto are present in keystore for non-postal" in new LocalSetup {
       override def sessionCacheResponse =
@@ -80,7 +82,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -95,7 +97,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -110,8 +112,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -125,8 +127,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -143,7 +145,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) shouldNot include(controller.messagesApi("label.when_this_became_your_main_home"))
+      contentAsString(result) mustNot include(controller.messagesApi("label.when_this_became_your_main_home"))
     }
 
     "display no message relating to the date the address started when the primary address has not changed when the postcode is in lower case" in new LocalSetup {
@@ -160,7 +162,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) shouldNot include(Messages("label.when_this_became_your_main_home"))
+      contentAsString(result) mustNot include(Messages("label.when_this_became_your_main_home"))
     }
 
     "display no message relating to the date the address started when the primary address has not changed when the postcode entered has no space" in new LocalSetup {
@@ -177,7 +179,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) shouldNot include(Messages("label.when_this_became_your_main_home"))
+      contentAsString(result) mustNot include(Messages("label.when_this_became_your_main_home"))
     }
 
     "display a message relating to the date the address started when the primary address has changed" in new LocalSetup {
@@ -193,7 +195,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
-      contentAsString(result) should include(Messages("label.when_this_became_your_main_home"))
+      contentAsString(result) must include(Messages("label.when_this_became_your_main_home"))
     }
 
     "display the appropriate label for address when the sole address has changed" in new LocalSetup {
@@ -209,8 +211,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-      contentAsString(result) should include(Messages("label.your_new_address"))
-      contentAsString(result) should include(Messages("label.when_you_started_living_here"))
+      contentAsString(result) must include(Messages("label.your_new_address"))
+      contentAsString(result) must include(Messages("label.when_you_started_living_here"))
     }
 
     "display the appropriate label for address when the sole address has not changed" in new LocalSetup {
@@ -226,12 +228,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-      contentAsString(result) should include(Messages("label.your_address"))
-      contentAsString(result) shouldNot include(Messages("label.when_you_started_living_here"))
+      contentAsString(result) must include(Messages("label.your_address"))
+      contentAsString(result) mustNot include(Messages("label.when_you_started_living_here"))
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     def comparatorDataEvent(
       dataEvent: DataEvent,
@@ -279,8 +281,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -303,8 +305,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -327,7 +329,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
@@ -347,8 +349,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -370,15 +372,11 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
-      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(
-        dataEvent,
-        "postcodeAddressSubmitted",
-        Some("GB101"),
-        false)
+      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "postcodeAddressSubmitted", Some("GB101"), false)
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
@@ -403,11 +401,11 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
-      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(
+      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(
         dataEvent,
         "postcodeAddressSubmitted",
         Some("GB101"),
@@ -434,11 +432,11 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
-      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
+      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(dataEvent, "manualAddressSubmitted", None, false)
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
@@ -462,11 +460,11 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
-      pruneDataEvent(dataEvent) shouldBe comparatorDataEvent(
+      pruneDataEvent(dataEvent) mustBe comparatorDataEvent(
         dataEvent,
         "postcodeAddressModifiedSubmitted",
         Some("GB101"),
@@ -496,7 +494,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
     }
   }
 }

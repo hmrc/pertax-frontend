@@ -22,9 +22,8 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models._
 import org.joda.time.DateTime
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.JsBoolean
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -45,7 +44,7 @@ import views.html.HomeView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
+class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
   val mockConfigDecorator = mock[ConfigDecorator]
   val mockTaxCalculationService = mock[TaxCalculationService]
@@ -97,7 +96,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[HomeView]
-      )(mockLocalPartialRetriever, mockConfigDecorator, mockTemplateRenderer, injected[ExecutionContext])
+      )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
@@ -143,9 +142,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
   }
 
-  "Calling HomeController.index" should {
+  "Calling HomeController.index" must {
 
-    val configDecorator = injected[ConfigDecorator]
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -156,11 +154,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) shouldBe OK
+      status(r) mustBe OK
 
-      if (configDecorator.taxComponentsEnabled)
+      if (config.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (configDecorator.taxcalcEnabled)
+      if (config.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -176,11 +174,11 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) shouldBe OK
+      status(r) mustBe OK
 
-      if (configDecorator.taxComponentsEnabled)
+      if (config.taxComponentsEnabled)
         verify(controller.taiService, times(1)).taxComponents(meq(Fixtures.fakeNino), meq(current.currentYear))(any())
-      if (configDecorator.taxcalcEnabled)
+      if (config.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -197,7 +195,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
 
       val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) shouldBe OK
+      status(r) mustBe OK
 
     }
 
@@ -214,8 +212,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
         ActivatePaperlessRequiresUserActionResponse("http://www.example.com")
 
       val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) shouldBe SEE_OTHER
-      redirectLocation(r) shouldBe Some("http://www.example.com")
+      status(r) mustBe SEE_OTHER
+      redirectLocation(r) mustBe Some("http://www.example.com")
     }
 
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {
@@ -229,9 +227,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       override lazy val getTaxCalculationResponse = TaxCalculationNotFoundResponse
 
       val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) shouldBe OK
+      status(r) mustBe OK
 
-      if (configDecorator.taxcalcEnabled)
+      if (config.taxcalcEnabled)
         verify(controller.taxCalculationService, times(1)).getTaxYearReconciliations(meq(Fixtures.fakeNino))(any())
     }
 
@@ -245,13 +243,13 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) shouldBe OK
+      status(r) mustBe OK
 
     }
 
   }
 
-  "Calling serviceCallResponses" should {
+  "Calling serviceCallResponses" must {
 
     val userNino = Some(fakeNino)
 
@@ -269,7 +267,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
-      result shouldBe TaxComponentsDisabledState
+      result mustBe TaxComponentsDisabledState
 
     }
 
@@ -283,7 +281,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
       })
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
-      result shouldBe TaxComponentsAvailableState(
+      result mustBe TaxComponentsAvailableState(
         TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
 
     }
@@ -303,7 +301,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
-      result shouldBe TaxComponentsNotAvailableState
+      result mustBe TaxComponentsNotAvailableState
     }
 
     "return TaxComponentsUnreachableState status when there is TaxComponents returns an unexpected response" in new LocalSetup {
@@ -321,7 +319,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
 
-      result shouldBe TaxComponentsUnreachableState
+      result mustBe TaxComponentsUnreachableState
     }
 
     "return None where TaxCalculation service is not enabled" in new LocalSetup {
@@ -335,8 +333,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val (_, resultCYm1, resultCYm2) = await(controller.serviceCallResponses(userNino, year))
 
-      resultCYm1 shouldBe None
-      resultCYm2 shouldBe None
+      resultCYm1 mustBe None
+      resultCYm2 mustBe None
     }
 
     "return only  CY-1 None and CY-2 None when get TaxYearReconcillation returns Nil" in new LocalSetup {
@@ -352,8 +350,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
 
-      resultCYM1 shouldBe None
-      resultCYM2 shouldBe None
+      resultCYM1 mustBe None
+      resultCYM2 mustBe None
     }
 
     "return taxCalculation for CY1 and CY2 status from list returned from TaxCalculation Service." in new LocalSetup {
@@ -367,8 +365,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar 
 
       val (_, resultCYM1, resultCYM2) = await(controller.serviceCallResponses(userNino, year))
 
-      resultCYM1 shouldBe Some(TaxYearReconciliation(2016, Balanced))
-      resultCYM2 shouldBe Some(TaxYearReconciliation(2015, Balanced))
+      resultCYM1 mustBe Some(TaxYearReconciliation(2016, Balanced))
+      resultCYM2 mustBe Some(TaxYearReconciliation(2015, Balanced))
     }
   }
 }

@@ -86,7 +86,7 @@ class EditAddressLockRepository @Inject()(
       }
       .recover {
         case e: Exception =>
-          Logger.error(s"Unable to find document: ${e.getMessage}")
+          logger.error(s"Unable to find document: ${e.getMessage}")
           List[AddressJourneyTTLModel]()
       }
 

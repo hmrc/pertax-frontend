@@ -19,7 +19,7 @@ package controllers.address
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
@@ -47,7 +47,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       closedPostalAddress = true,
       Some(fakeAddress.fullAddress),
       None
-    )(buildUserRequest(request = FakeRequest()), configDecorator, partialRetriever, templateRenderer, messages).toString
+    )(buildUserRequest(request = FakeRequest()), configDecorator, templateRenderer, messages, ec).toString
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
@@ -105,14 +105,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "display the closeCorrespondenceAddressChoice form that contains the view address" in new LocalSetup {
       val result = controller.onPageLoad(FakeRequest())
 
-      contentAsString(result) should include(buildFakeAddress.line1.getOrElse("line6"))
+      contentAsString(result) must include(buildFakeAddress.line1.getOrElse("line6"))
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "throw an Exception if person details does not contain an address" in new LocalSetup {
@@ -122,11 +122,11 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       the[Exception] thrownBy {
         await(controller.onPageLoad(FakeRequest()))
-      } should have message addressExceptionMessage
+      } must have message addressExceptionMessage
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "redirect to expected confirm close correspondence confirmation page when supplied with value = Yes (true)" in new LocalSetup {
 
@@ -137,8 +137,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/close-correspondence-address-confirm")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/close-correspondence-address-confirm")
     }
 
     "redirect to personal details page when supplied with value = No (false)" in new LocalSetup {
@@ -149,14 +149,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
 
     "throw an Exception if person details does not contain an address" in new LocalSetup {
@@ -166,7 +166,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       the[Exception] thrownBy {
         await(controller.onSubmit(FakeRequest()))
-      } should have message addressExceptionMessage
+      } must have message addressExceptionMessage
     }
   }
 
@@ -174,7 +174,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
     "return OK when confirmPageLoad is called" in new LocalSetup {
       val result = controller.confirmPageLoad(FakeRequest())
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "throw an Exception if person details does not contain an address" in new LocalSetup {
@@ -184,7 +184,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       the[Exception] thrownBy {
         await(controller.confirmPageLoad(FakeRequest()))
-      } should have message addressExceptionMessage
+      } must have message addressExceptionMessage
     }
   }
 
@@ -215,14 +215,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.confirmSubmit(FakeRequest())
 
-      status(result) shouldBe OK
-      contentAsString(result) shouldBe expectedAddressConfirmationView
+      status(result) mustBe OK
+      contentAsString(result) mustBe expectedAddressConfirmationView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
-      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
@@ -234,8 +234,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(BSONDateTime(0))))
       val result = controller.confirmSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(routes.PersonalDetailsController.onPageLoad().url)
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad().url)
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
@@ -249,14 +249,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.confirmSubmit(FakeRequest())
 
-      status(result) shouldBe OK
-      contentAsString(result) shouldBe expectedAddressConfirmationView
+      status(result) mustBe OK
+      contentAsString(result) mustBe expectedAddressConfirmationView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
-      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
@@ -268,14 +268,14 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
         List(AddressJourneyTTLModel("SomeNino", EditSoleAddress(BSONDateTime(0))))
       val result = controller.confirmSubmit(FakeRequest())
 
-      status(result) shouldBe OK
-      contentAsString(result) shouldBe expectedAddressConfirmationView
+      status(result) mustBe OK
+      contentAsString(result) mustBe expectedAddressConfirmationView
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
-      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
@@ -286,7 +286,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.confirmSubmit()(FakeRequest())
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
       verify(mockCitizenDetailsService, times(1))
         .updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
@@ -297,7 +297,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.confirmSubmit()(FakeRequest())
 
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1))
         .updateAddress(meq(Fixtures.fakeNino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
@@ -310,7 +310,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.confirmSubmit()(FakeRequest())
 
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
@@ -322,13 +322,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.confirmSubmit(currentRequest)
 
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
 
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
       verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
       val dataEvent = arg.getValue
 
-      pruneDataEvent(dataEvent) shouldBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
+      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
@@ -340,7 +340,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       val result = controller.confirmSubmit(currentRequest)
 
-      status(result) shouldBe INTERNAL_SERVER_ERROR
+      status(result) mustBe INTERNAL_SERVER_ERROR
     }
 
     "throw an Exception when person details does not contain a correspondence address" in new LocalSetup {
@@ -350,7 +350,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       the[Exception] thrownBy {
         await(controller.confirmSubmit(currentRequest))
-      } should have message addressExceptionMessage
+      } must have message addressExceptionMessage
 
     }
   }

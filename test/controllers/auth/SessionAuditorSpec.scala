@@ -19,37 +19,28 @@ package controllers.auth
 import controllers.auth.SessionAuditor.UserSessionAuditEvent
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
-import org.mockito.Matchers._
-import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, MustMatchers}
-import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito._
+import org.mockito.hamcrest.MockitoHamcrest.argThat
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc.{Request, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Failure, Success}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import util.{AuditServiceTools, Fixtures}
+import util.{AuditServiceTools, BaseSpec, Fixtures}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class SessionAuditorSpec
-    extends PlaySpec with MustMatchers with MockitoSugar with OneAppPerSuite with ScalaFutures with BeforeAndAfterEach
-    with AuditTags {
+class SessionAuditorSpec extends BaseSpec with AuditTags {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(auditConnector)
   }
-
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-  implicit val hc = HeaderCarrier()
 
   val auditConnector = mock[AuditConnector]
   val sessionAuditor = new SessionAuditor(auditConnector)
@@ -86,7 +77,7 @@ class SessionAuditorSpec
   }
 
   "auditOnce" when {
-    "the audit is successful" should {
+    "the audit is successful" must {
       "call audit and update the session" in {
         mockSendExtendedEvent(Future.successful(Success))
         val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)

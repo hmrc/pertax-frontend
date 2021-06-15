@@ -34,6 +34,8 @@ object DateTimeTools extends CurrentTaxYear {
   val unixDateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"
   val humanDateFormat = "dd MMMMM yyyy"
 
+  private val logger = Logger(this.getClass)
+
   //Returns for example 1516 in March 2016
   def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(current.currentYear)
 
@@ -51,7 +53,7 @@ object DateTimeTools extends CurrentTaxYear {
     Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
       case Success(v) => v
       case Failure(e) => {
-        Logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
+        logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
         unixDate
       }
     }

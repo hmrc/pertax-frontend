@@ -18,11 +18,13 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
-@import util.{LanguageHelper, LocalPartialRetriever}
-@this(mainView: MainView, form: FormWithCSRF)
+@import uk.gov.hmrc.play.language.LanguageUtils
+
+@import scala.concurrent.ExecutionContext
+
+@this(mainView: MainView, form: FormWithCSRF, languageUtils: LanguageUtils)
 @(typ: AddrType, addressDto: AddressDto, doYouLiveInTheUK: String, isUkAddress: Boolean,  startDateDto: Option[DateDto],
-displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(title = messages("label.check_your_details"),
   pageName = Some(messages("label.your_personal_tax_account"))
@@ -87,7 +89,7 @@ partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, mes
                 <dt class="cya-question">
                   @typ.ifIs(primary = messages("label.when_this_became_your_main_home"), sole = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
-                <dd class="cya-answer">@LanguageHelper.langUtils.Dates.formatDate(startDateDto.startDate)</dd>
+                <dd class="cya-answer">@languageUtils.Dates.formatDate(startDateDto.startDate)</dd>
                 <dd class="cya-change"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.when_you_started_living_here.change")</span></a></dd>
               }
             </div>

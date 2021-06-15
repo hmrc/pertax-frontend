@@ -19,7 +19,7 @@ package controllers.address
 import config.ConfigDecorator
 import controllers.bindable.SoleAddrType
 import models.dto.AddressPageVisitedDto
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
 import play.api.mvc.Request
@@ -48,13 +48,13 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
       val result = controller.onPageLoad(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -63,13 +63,13 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
 
@@ -80,8 +80,8 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/find-address")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/find-address")
     }
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
@@ -98,7 +98,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           cc,
           injected[InternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
@@ -107,8 +107,8 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/sole/cannot-use-the-service")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/cannot-use-the-service")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
@@ -117,7 +117,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

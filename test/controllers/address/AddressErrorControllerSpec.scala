@@ -46,24 +46,24 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
       )
   }
 
-  "cannotUseThisService" should {
+  "cannotUseThisService" must {
 
     "display the cannot use this service page" in new LocalSetup {
       val result = controller.cannotUseThisService(SoleAddrType)(currentRequest)
 
-      status(result) shouldBe OK
-      contentAsString(result) should include("You cannot use this service to update your address")
+      status(result) mustBe OK
+      contentAsString(result) must include("You cannot use this service to update your address")
     }
   }
 
-  "showAddressAlreadyUpdated" should {
+  "showAddressAlreadyUpdated" must {
 
     "display the showAddressAlreadyUpdated page" in new LocalSetup {
 
       val result = controller.showAddressAlreadyUpdated(PostalAddrType)(currentRequest)
 
-      status(result) shouldBe OK
-      contentAsString(result) should include("Your address has already been updated")
+      status(result) mustBe OK
+      contentAsString(result) must include("Your address has already been updated")
     }
   }
 }

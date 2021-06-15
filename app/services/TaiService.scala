@@ -38,6 +38,8 @@ case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsRes
 class TaiService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
     extends HasMetrics {
 
+  private val logger = Logger(this.getClass)
+
   lazy val taiUrl = servicesConfig.baseUrl("tai")
 
   /**
@@ -53,18 +55,18 @@ class TaiService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, ser
 
           case r if r.status == NOT_FOUND | r.status == BAD_REQUEST =>
             t.completeTimerAndIncrementSuccessCounter()
-            Logger.warn("Unable to find tax components from the tai-service")
+            logger.warn("Unable to find tax components from the tai-service")
             TaxComponentsUnavailableResponse
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
+            logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
             TaxComponentsUnexpectedResponse(r)
         },
         onError = {
           case e =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.error("Error getting tax components from the tai-service", e)
+            logger.error("Error getting tax components from the tai-service", e)
             TaxComponentsErrorResponse(e)
         }
       )

@@ -31,7 +31,7 @@ import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -68,7 +68,7 @@ class AuthActionImpl @Inject()(
         CredentialStrength(CredentialStrength.strong)
 
     implicit val hc: HeaderCarrier =
-      HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     authorised(compositePredicate)
       .retrieve(
         Retrievals.nino and

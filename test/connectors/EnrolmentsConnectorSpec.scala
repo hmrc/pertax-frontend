@@ -16,42 +16,39 @@
 
 package connectors
 
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.{BaseSpec, NullMetrics}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures with EitherValues {
+class EnrolmentsConnectorSpec extends BaseSpec with EitherValues {
 
   val http = mock[DefaultHttpClient]
   val connector = new EnrolmentsConnector(http, config, new NullMetrics)
   val baseUrl = config.enrolmentStoreProxyUrl
 
-  "getAssignedEnrolments" should {
+  "getAssignedEnrolments" must {
     val utr = "1234500000"
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$utr/users"
 
     "Return the error message for a BAD_REQUEST response" in {
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.left.value should include(BAD_REQUEST.toString)
+      connector.getUserIdsWithEnrolments(utr).futureValue.left.value must include(BAD_REQUEST.toString)
     }
 
     "NO_CONTENT response should return no enrolments" in {
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
     }
 
     "query users with no principal enrolment returns empty enrolments" in {
@@ -61,10 +58,10 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
                               |     "delegatedUserIds": []
                               |}""".stripMargin)
 
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe Seq.empty
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
     }
 
     "query users with assigned enrolment return two principleIds" in {
@@ -79,12 +76,12 @@ class EnrolmentsConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutur
                               |    ]
                               |}""".stripMargin)
 
-      when(http.GET[HttpResponse](eqTo(url))(any(), any(), any()))
+      when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
 
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value shouldBe expected
+      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe expected
     }
   }
 }

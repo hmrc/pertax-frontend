@@ -16,9 +16,9 @@
 
 package controllers.controllershelpers
 
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.ArgumentMatchers.{any, eq => meq, _}
 import org.mockito.Mockito.{reset, times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.JsBoolean
@@ -31,13 +31,13 @@ import scala.concurrent.Future
 class HomePageCachingHelperSpec extends BaseSpec {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder
-    .overrides(bind[LocalSessionCache].toInstance(MockitoSugar.mock[LocalSessionCache]))
+    .overrides(bind[LocalSessionCache].toInstance(mock[LocalSessionCache]))
     .build()
 
   override def beforeEach: Unit =
     reset(injected[LocalSessionCache])
 
-  "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" should {
+  "Calling HomePageCachingHelper.hasUserDismissedUrInvitation" must {
     trait LocalSetup {
 
       def urBannerDismissedValueInSessionCache: Option[Boolean]
@@ -57,13 +57,13 @@ class HomePageCachingHelperSpec extends BaseSpec {
         c
       }
 
-      lazy val hasUserDismissedUrInvitationResult: Boolean = await(cachingHelper.hasUserDismissedUrInvitation)
+      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedUrInvitation.futureValue
     }
 
     "return true if cached value returns true" in new LocalSetup {
       lazy val urBannerDismissedValueInSessionCache = Some(true)
 
-      hasUserDismissedUrInvitationResult shouldBe true
+      hasUserDismissedUrInvitationResult mustBe true
 
       verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
     }
@@ -71,7 +71,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
     "return false if cached value returns false" in new LocalSetup {
       lazy val urBannerDismissedValueInSessionCache = Some(false)
 
-      hasUserDismissedUrInvitationResult shouldBe false
+      hasUserDismissedUrInvitationResult mustBe false
 
       verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
     }
@@ -79,13 +79,13 @@ class HomePageCachingHelperSpec extends BaseSpec {
     "return false if cache returns no record" in new LocalSetup {
       lazy val urBannerDismissedValueInSessionCache = None
 
-      hasUserDismissedUrInvitationResult shouldBe false
+      hasUserDismissedUrInvitationResult mustBe false
 
       verify(cachingHelper.sessionCache, times(1)).fetch()(any(), any())
     }
   }
 
-  "Calling HomePageCachingHelper.StoreUserUrDismissal" should {
+  "Calling HomePageCachingHelper.StoreUserUrDismissal" must {
 
     trait LocalSetup {
 

@@ -19,7 +19,6 @@ package views.html
 import config.ConfigDecorator
 import models._
 import org.jsoup.nodes.Document
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Name
 import uk.gov.hmrc.domain.SaUtrGenerator
@@ -30,16 +29,15 @@ import viewmodels.HomeViewModel
 
 import scala.collection.JavaConversions._
 
-class HomeViewSpec extends ViewSpec with MockitoSugar {
+class HomeViewSpec extends ViewSpec {
 
   lazy val home = injected[HomeView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val templateRenderer = injected[TemplateRenderer]
 
   val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, None)
 
-  "Rendering HomeView.scala.html" should {
+  "Rendering HomeView.scala.html" must {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest =
@@ -47,8 +45,8 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
-      document.select("h1").exists(e => e.text == "Your account") shouldBe false
+      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
+      document.select("h1").exists(e => e.text == "Your account") mustBe false
     }
 
     "show the users name and not 'Your account' when the user has no details but is a GG user" in {
@@ -60,8 +58,8 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") shouldBe true
-      document.select("h1").exists(e => e.text == "Your account") shouldBe false
+      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
+      document.select("h1").exists(e => e.text == "Your account") mustBe false
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
@@ -69,24 +67,24 @@ class HomeViewSpec extends ViewSpec with MockitoSugar {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Your account") shouldBe true
+      document.select("h1").exists(e => e.text == "Your account") mustBe true
     }
 
-    "should not show the UTR if the user is not a self assessment user" in {
+    "must not show the UTR if the user is not a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
 
       val view = home(homeViewModel).toString
 
-      view should not contain messages("label.home_page.utr")
+      view must not contain messages("label.home_page.utr")
     }
 
-    "should show the UTR if the user is a self assessment user" in {
+    "must show the UTR if the user is a self assessment user" in {
       implicit val userRequest = buildUserRequest(request = FakeRequest())
       val utr = new SaUtrGenerator().nextSaUtr.utr
       val view = home(homeViewModel.copy(saUtr = Some(utr))).toString
 
-      view should include(messages("label.home_page.utr"))
-      view should include(utr)
+      view must include(messages("label.home_page.utr"))
+      view must include(utr)
     }
   }
 }

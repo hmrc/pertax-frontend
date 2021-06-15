@@ -17,34 +17,30 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
-class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec with MockitoSugar {
-
-  override implicit lazy val app = localGuiceApplicationBuilder().build()
+class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
 
   lazy val view = injected[ViewNationalInsuranceInterstitialHomeView]
 
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
-  implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
+  lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-  "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" should {
+  "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
 
     "show NINO section when a nino is present" in {
       val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
-      Option(document.select(".nino").first).isDefined shouldBe true
+      Option(document.select(".nino").first).isDefined mustBe true
     }
 
     "show incomplete when there is no NINO" in {
       val document = asDocument(view(Html(""), "http://google.com", None).toString)
-      Option(document.select(".nino").first).isDefined shouldBe false
-      document.body().toString should include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
+      Option(document.select(".nino").first).isDefined mustBe false
+      document.body().toString must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
     }
 
   }

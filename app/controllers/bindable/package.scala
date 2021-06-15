@@ -17,7 +17,6 @@
 package controllers
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
-import play.api.{Environment, Mode, Play}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrlPolicy.Id
 import uk.gov.hmrc.play.bootstrap.binders._
@@ -36,13 +35,7 @@ package object bindable {
 
     val parentBinder: QueryStringBindable[RedirectUrl] = RedirectUrl.queryBinder
 
-    private val serviceManagerRunModeFlag =
-      Play.current.configuration.getBoolean("safeRedirectUrl.allowAbsolute").getOrElse(false)
-
-    private val runningMode: Mode.Mode =
-      if (serviceManagerRunModeFlag & Play.current.mode == Mode.Prod) Mode.Dev else Play.current.mode
-
-    val policy: RedirectUrlPolicy[Id] = OnlyRelative | PermitAllOnDev(Environment.simple(mode = runningMode))
+    val policy: RedirectUrlPolicy[Id] = OnlyRelative
 
     def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SafeRedirectUrl]] =
       parentBinder.bind(key, params).map {

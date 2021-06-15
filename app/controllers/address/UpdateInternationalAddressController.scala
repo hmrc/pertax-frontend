@@ -28,7 +28,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildAddressChangeEvent
-import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.UpdateInternationalAddressView
 
@@ -43,8 +42,7 @@ class UpdateInternationalAddressController @Inject()(
   cc: MessagesControllerComponents,
   updateInternationalAddressView: UpdateInternationalAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {

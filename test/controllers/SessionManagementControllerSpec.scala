@@ -32,7 +32,7 @@ class SessionManagementControllerSpec extends BaseSpec {
 
       val result = controller.keepAlive()(FakeRequest("GET", ""))
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 
@@ -42,7 +42,7 @@ class SessionManagementControllerSpec extends BaseSpec {
 
       val result = controller.timeOut()(FakeRequest("GET", ""))
 
-      status(result) shouldBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
 
     }
 
@@ -50,14 +50,14 @@ class SessionManagementControllerSpec extends BaseSpec {
 
       val result = controller.timeOut()(FakeRequest("GET", ""))
 
-      redirectLocation(result).getOrElse("Unable to complete") shouldBe routes.PublicController.sessionTimeout().url
+      redirectLocation(result).getOrElse("Unable to complete") mustBe routes.PublicController.sessionTimeout().url
     }
 
     "clear the session upon redirect" in new LocalSetup {
 
       val result = controller.timeOut()(FakeRequest("GET", "").withSession("test" -> "session"))
 
-      session(result) shouldBe empty
+      session(result) mustBe empty
     }
   }
 

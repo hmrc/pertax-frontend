@@ -34,9 +34,9 @@ class TaxCalculationViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
-    document.getElementsMatchingText(content).eachAttr("href").asScala should contain(href)
+    document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
-  "TaxCalculation card" should {
+  "TaxCalculation card" must {
 
     val previousTaxYear = 2017
 
@@ -54,7 +54,7 @@ class TaxCalculationViewSpec extends ViewSpec {
 
     "render the given heading correctly" in {
 
-      doc.text() should include(
+      doc.text() must include(
         Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, previousTaxYear + 1 toString)
       )
     }
@@ -70,7 +70,7 @@ class TaxCalculationViewSpec extends ViewSpec {
 
     "render the given content correctly" in {
 
-      doc.text() should include(Messages("label.you_have_no_payments_to_make_to_hmrc"))
+      doc.text() must include(Messages("label.you_have_no_payments_to_make_to_hmrc"))
     }
   }
 }

@@ -18,14 +18,14 @@ package controllers.address
 
 import config.ConfigDecorator
 import models.dto.AddressPageVisitedDto
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
-import views.html.personaldetails.{PostalInternationalAddressChoiceView}
+import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
@@ -47,13 +47,13 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
       val result = controller.onPageLoad(currentRequest)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -62,13 +62,13 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
 
@@ -79,8 +79,8 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/find-address")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
     }
 
     "redirect to enter international address page when supplied with value = No (false)" in new LocalSetup {
@@ -92,8 +92,8 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/enter-international-address")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/enter-international-address")
     }
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
@@ -110,7 +110,7 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           cc,
           injected[PostalInternationalAddressChoiceView],
           displayAddressInterstitialView
-        )(partialRetriever, mockConfigDecorator, templateRenderer, ec)
+        )(mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
@@ -119,8 +119,8 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/postal/cannot-use-the-service")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/cannot-use-the-service")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
@@ -129,7 +129,7 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(currentRequest)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

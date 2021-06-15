@@ -20,17 +20,17 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
 import org.joda.time.DateTime
-import play.api.Logger
 import play.api.mvc._
+import play.api.{Environment, Logger}
 import services.IdentityVerificationSuccessResponse._
 import services._
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl, SafeRedirectUrl}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.LocalPartialRetriever
-import views.html.iv.success.SuccessView
 import views.html.iv.failure._
+import views.html.iv.success.SuccessView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,11 +44,12 @@ class ApplicationController @Inject()(
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
   technicalIssuesView: TechnicalIssuesView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
+
+  private val logger = Logger(this.getClass)
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -98,26 +99,31 @@ class ApplicationController @Inject()(
               InternalServerError(timeOutView(retryUrl))
 
             case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-              Logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
               InternalServerError(technicalIssuesView(retryUrl))
 
             case r =>
-              Logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
+              logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
               InternalServerError(technicalIssuesView(retryUrl))
           }
         case None =>
-          Logger.error(s"No journeyId present when displaying IV uplift journey outcome")
+          logger.error(s"No journeyId present when displaying IV uplift journey outcome")
           Future.successful(BadRequest(technicalIssuesView(retryUrl)))
       }
     }
 
   private def logErrorMessage(reason: String): Unit =
-    Logger.warn(s"Unable to confirm user identity: $reason")
+    logger.warn(s"Unable to confirm user identity: $reason")
 
-  def signout(continueUrl: Option[SafeRedirectUrl], origin: Option[Origin]): Action[AnyContent] =
+  def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
-      continueUrl
-        .map(_.url)
+      val safeUrl = continueUrl.flatMap { redirectUrl =>
+        redirectUrl.getEither(OnlyRelative) match {
+          case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)
+          case _                      => Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
+        }
+      }
+      safeUrl
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         .fold(BadRequest("Missing origin")) { url: String =>
           if (request.isGovernmentGateway) {

@@ -20,9 +20,8 @@ import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models._
 import org.joda.time.LocalDate
-import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.{any, eq => meq, _}
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import services.http.FakeSimpleHttp
@@ -79,10 +78,10 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       }
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
-      val timer = MockitoSugar.mock[Timer.Context]
+      val timer = mock[Timer.Context]
       val citizenDetailsService: CitizenDetailsService =
-        new CitizenDetailsService(fakeSimpleHttp, MockitoSugar.mock[Metrics], serviceConfig) {
-          override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+        new CitizenDetailsService(fakeSimpleHttp, mock[Metrics], serviceConfig) {
+          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer
         }
 
@@ -90,7 +89,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
     }
   }
 
-  "Calling CitizenDetailsService.fakePersonDetails" should {
+  "Calling CitizenDetailsService.fakePersonDetails" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-person-details"
@@ -101,9 +100,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(OK, Some(jsonPersonDetails))
 
-      val r = service.personDetails(nino)
+      val result = service.personDetails(nino).futureValue
 
-      await(r) shouldBe PersonDetailsSuccessResponse(personDetails)
+      result mustBe PersonDetailsSuccessResponse(personDetails)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -114,9 +113,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(NOT_FOUND)
 
-      val r = service.personDetails(nino)
+      val result = service.personDetails(nino).futureValue
 
-      await(r) shouldBe PersonDetailsNotFoundResponse
+      result mustBe PersonDetailsNotFoundResponse
 
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
@@ -128,9 +127,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(LOCKED)
 
-      val r = service.personDetails(nino)
+      val result = service.personDetails(nino).futureValue
 
-      await(r) shouldBe PersonDetailsHiddenResponse
+      result mustBe PersonDetailsHiddenResponse
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -142,9 +141,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       val seeOtherResponse = HttpResponse(SEE_OTHER)
       override lazy val httpResponse = seeOtherResponse //For example
 
-      val r = service.personDetails(nino)
+      val result = service.personDetails(nino).futureValue
 
-      await(r) shouldBe PersonDetailsUnexpectedResponse(seeOtherResponse)
+      result mustBe PersonDetailsUnexpectedResponse(seeOtherResponse)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -155,16 +154,16 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = true
       override lazy val httpResponse = ???
 
-      val r = service.personDetails(nino)
+      val result = service.personDetails(nino).futureValue
 
-      await(r) shouldBe PersonDetailsErrorResponse(anException)
+      result mustBe PersonDetailsErrorResponse(anException)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
     }
   }
 
-  "calling CitizenDetailsService.updateAddress" should {
+  "calling CitizenDetailsService.updateAddress" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "update-address"
@@ -175,9 +174,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(CREATED)
 
-      val r = service.updateAddress(nino, "115", address)
+      val result = service.updateAddress(nino, "115", address).futureValue
 
-      await(r) shouldBe UpdateAddressSuccessResponse
+      result mustBe UpdateAddressSuccessResponse
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -187,9 +186,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(CREATED)
 
-      val r = service.updateAddress(nino, "115", correspondenceAddress)
+      val result = service.updateAddress(nino, "115", correspondenceAddress).futureValue
 
-      await(r) shouldBe UpdateAddressSuccessResponse
+      result mustBe UpdateAddressSuccessResponse
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -200,9 +199,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(BAD_REQUEST)
 
-      val r = service.updateAddress(nino, "115", address)
+      val result = service.updateAddress(nino, "115", address).futureValue
 
-      await(r) shouldBe UpdateAddressBadRequestResponse
+      result mustBe UpdateAddressBadRequestResponse
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -214,9 +213,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       val seeOtherResponse = HttpResponse(SEE_OTHER)
       override lazy val httpResponse = seeOtherResponse //For example
 
-      val r = service.updateAddress(nino, "115", address)
+      val result = service.updateAddress(nino, "115", address).futureValue
 
-      await(r) shouldBe UpdateAddressUnexpectedResponse(seeOtherResponse)
+      result mustBe UpdateAddressUnexpectedResponse(seeOtherResponse)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -227,16 +226,16 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = true
       override lazy val httpResponse = ???
 
-      val r = service.updateAddress(nino, "115", address)
+      val result = service.updateAddress(nino, "115", address).futureValue
 
-      await(r) shouldBe UpdateAddressErrorResponse(anException)
+      result mustBe UpdateAddressErrorResponse(anException)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
     }
   }
 
-  "Calling CitizenDetailsService.getMatchingDetails" should {
+  "Calling CitizenDetailsService.getMatchingDetails" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-matching-details"
@@ -248,9 +247,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr))))
 
-      val r = service.getMatchingDetails(nino)
+      val result = service.getMatchingDetails(nino).futureValue
 
-      await(r) shouldBe MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(saUtr))))
+      result mustBe MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(saUtr))))
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -261,9 +260,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull))))
 
-      val r = service.getMatchingDetails(nino)
+      val result = service.getMatchingDetails(nino).futureValue
 
-      await(r) shouldBe MatchingDetailsSuccessResponse(MatchingDetails(None))
+      result mustBe MatchingDetailsSuccessResponse(MatchingDetails(None))
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -274,9 +273,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(NOT_FOUND)
 
-      val r = service.getMatchingDetails(nino)
+      val result = service.getMatchingDetails(nino).futureValue
 
-      await(r) shouldBe MatchingDetailsNotFoundResponse
+      result mustBe MatchingDetailsNotFoundResponse
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -288,9 +287,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       val seeOtherResponse = HttpResponse(SEE_OTHER)
       override lazy val httpResponse = seeOtherResponse //For example
 
-      val r = service.getMatchingDetails(nino)
+      val result = service.getMatchingDetails(nino).futureValue
 
-      await(r) shouldBe MatchingDetailsUnexpectedResponse(seeOtherResponse)
+      result mustBe MatchingDetailsUnexpectedResponse(seeOtherResponse)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -301,9 +300,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = true
       override lazy val httpResponse = ???
 
-      val r = service.getMatchingDetails(nino)
+      val result = service.getMatchingDetails(nino).futureValue
 
-      await(r) shouldBe MatchingDetailsErrorResponse(anException)
+      result mustBe MatchingDetailsErrorResponse(anException)
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementFailedCounter(metricId)
       verify(timer, times(1)).stop()
@@ -311,7 +310,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
   }
 
-  "Calling CitizenDetailsService.getEtag" should {
+  "Calling CitizenDetailsService.getEtag" must {
 
     trait LocalSetup extends SpecSetup {
       val metricId = "get-etag"
@@ -323,9 +322,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
       override def simulateCitizenDetailsServiceIsDown: Boolean = false
 
-      val r = service.getEtag(nino.nino)
+      val result = service.getEtag(nino.nino).futureValue
 
-      await(r) shouldBe Some(ETag("115"))
+      result mustBe Some(ETag("115"))
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -338,9 +337,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
         override def simulateCitizenDetailsServiceIsDown: Boolean = false
 
-        val r = service.getEtag(nino.nino)
+        val result = service.getEtag(nino.nino).futureValue
 
-        await(r) shouldBe None
+        result mustBe None
         verify(met, times(1)).startTimer(metricId)
         verify(met, times(1)).incrementFailedCounter(metricId)
         verify(timer, times(1)).stop()
@@ -351,9 +350,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
         override def simulateCitizenDetailsServiceIsDown: Boolean = false
 
-        val r = service.getEtag(nino.nino)
+        val result = service.getEtag(nino.nino).futureValue
 
-        await(r) shouldBe None
+        result mustBe None
         verify(met, times(1)).startTimer(metricId)
         verify(met, times(1)).incrementFailedCounter(metricId)
         verify(timer, times(1)).stop()
@@ -364,9 +363,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
         override def simulateCitizenDetailsServiceIsDown: Boolean = false
 
-        val r = service.getEtag(nino.nino)
+        val result = service.getEtag(nino.nino).futureValue
 
-        await(r) shouldBe None
+        result mustBe None
         verify(met, times(1)).startTimer(metricId)
         verify(met, times(1)).incrementFailedCounter(metricId)
         verify(timer, times(1)).stop()
@@ -377,9 +376,9 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
         override def simulateCitizenDetailsServiceIsDown: Boolean = true
 
-        val r = service.getEtag(nino.nino)
+        val result = service.getEtag(nino.nino).futureValue
 
-        await(r) shouldBe None
+        result mustBe None
         verify(met, times(1)).startTimer(metricId)
         verify(met, times(1)).incrementFailedCounter(metricId)
         verify(timer, times(1)).stop()

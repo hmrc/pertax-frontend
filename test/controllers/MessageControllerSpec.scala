@@ -20,9 +20,8 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import org.jsoup.Jsoup
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -35,10 +34,9 @@ import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.message.{MessageDetailView, MessageInboxView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class MessageControllerSpec extends BaseSpec with MockitoSugar {
+class MessageControllerSpec extends BaseSpec {
 
   override def beforeEach: Unit =
     reset(mockMessageFrontendService, mock[CitizenDetailsService])
@@ -59,13 +57,13 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       injected[MessagesControllerComponents],
       injected[MessageInboxView],
       injected[MessageDetailView]
-    )(mock[LocalPartialRetriever], injected[ConfigDecorator], injected[TemplateRenderer], injected[ExecutionContext]) {
+    )(config, templateRenderer, ec) {
       when(mockMessageFrontendService.getUnreadMessageCount(any())) thenReturn {
         Future.successful(None)
       }
     }
 
-  "Calling MessageController.messageList" should {
+  "Calling MessageController.messageList" must {
     "call messages and return 200 when called by a high GG user" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -83,13 +81,13 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       val r = controller.messageList(FakeRequest())
       val body = contentAsString(r)
 
-      status(r) shouldBe OK
+      status(r) mustBe OK
       verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
-      body should include("Message List")
+      body must include("Message List")
     }
   }
 
-  "Calling MessageController.messageDetail" should {
+  "Calling MessageController.messageDetail" must {
     "call messages and return 200 when called by a GovernmentGateway user" in {
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -106,7 +104,7 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
 
       val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
 
-      status(r) shouldBe OK
+      status(r) mustBe OK
       verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
     }
 
@@ -126,9 +124,9 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
       val body = contentAsString(r)
 
-      status(r) shouldBe OK
+      status(r) mustBe OK
       verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
-      body should include("List")
+      body must include("List")
     }
 
     "call messages and return 200 with default messages when called by a high GG user" in {
@@ -145,13 +143,13 @@ class MessageControllerSpec extends BaseSpec with MockitoSugar {
       }
 
       val r = controller.messageDetail("SOME_MESSAGE_TOKEN")(FakeRequest())
-      val body = bodyOf(r)
+      val body = contentAsString(r)
       val doc = Jsoup.parse(body)
 
-      Option(doc.getElementsByTag("article").text()).get should include(
+      Option(doc.getElementsByTag("article").text()).get must include(
         "Sorry, there has been a technical problem retrieving your message")
 
-      status(r) shouldBe OK
+      status(r) mustBe OK
       verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
     }
   }

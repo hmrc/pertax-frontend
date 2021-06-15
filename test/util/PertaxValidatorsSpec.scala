@@ -22,7 +22,7 @@ import util.PertaxValidators._
 
 class PertaxValidatorsSpec extends BaseSpec {
 
-  "Binding data to a simple address structure" should {
+  "Binding data to a simple address structure" must {
 
     trait LocalSetup
 
@@ -49,7 +49,7 @@ class PertaxValidatorsSpec extends BaseSpec {
             fail("Form should give an error")
           },
           success => {
-            success shouldBe SimpleAddress(Some("Line 1"), Some("Line 2"))
+            success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
           }
         )
     }
@@ -74,9 +74,9 @@ class PertaxValidatorsSpec extends BaseSpec {
       f.copy(errors = f.errors.distinct)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors(0).key shouldBe "line1"
-            formWithErrors.errors(0).message shouldBe "error.line1_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors(0).key mustBe "line1"
+            formWithErrors.errors(0).message mustBe "error.line1_required"
           },
           success => {
             fail("Form should give an error")
@@ -106,11 +106,11 @@ class PertaxValidatorsSpec extends BaseSpec {
       f.copy(errors = f.errors.distinct)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 2
-            formWithErrors.errors(0).key shouldBe "line1"
-            formWithErrors.errors(0).message shouldBe "error.line1_required"
-            formWithErrors.errors(1).key shouldBe "line2"
-            formWithErrors.errors(1).message shouldBe "error.line2_required"
+            formWithErrors.errors.length mustBe 2
+            formWithErrors.errors(0).key mustBe "line1"
+            formWithErrors.errors(0).message mustBe "error.line1_required"
+            formWithErrors.errors(1).key mustBe "line2"
+            formWithErrors.errors(1).message mustBe "error.line2_required"
           },
           success => {
             fail("Form should give an error")
@@ -119,20 +119,20 @@ class PertaxValidatorsSpec extends BaseSpec {
     }
   }
 
-  "validateAddressLineCharacters" should {
+  "validateAddressLineCharacters" must {
 
     "return false when an illegal character is used" in {
       for (char <- """£!#$%*+:;<=>?@[\]^_"{|}~""") {
-        validateAddressLineCharacters(Some(char.toString)) shouldBe false
+        validateAddressLineCharacters(Some(char.toString)) mustBe false
       }
     }
 
     "return false when illegal characters are used" in {
-      validateAddressLineCharacters(Some("""45b Mühlendamm NE32 5RS""")) shouldBe false
+      validateAddressLineCharacters(Some("""45b Mühlendamm NE32 5RS""")) mustBe false
     }
 
     "return true when no illegal characters are used" in {
-      validateAddressLineCharacters(Some("""48/- Williams Park, Tyne & Wear NE32-5RS""")) shouldBe true
+      validateAddressLineCharacters(Some("""48/- Williams Park, Tyne & Wear NE32-5RS""")) mustBe true
     }
 
   }

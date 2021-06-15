@@ -16,30 +16,31 @@
 
 package util
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class TemplateFunctionSpec extends WordSpec with Matchers {
-  "TemplateFunctions.upperCaseToTitleCase" should {
+class TemplateFunctionSpec extends AnyWordSpec with Matchers {
+  "TemplateFunctions.upperCaseToTitleCase" must {
     "convert a name string which is all uppercase" in {
-      TemplateFunctions.upperCaseToTitleCase("FIRSTNAME LASTNAME") should be("Firstname Lastname")
+      TemplateFunctions.upperCaseToTitleCase("FIRSTNAME LASTNAME") must be("Firstname Lastname")
     }
 
     "should not convert a name string in which the first name is uppercase and surname is lowercase" in {
-      TemplateFunctions.upperCaseToTitleCase("FIRSTNAME lastname") should be("FIRSTNAME lastname")
+      TemplateFunctions.upperCaseToTitleCase("FIRSTNAME lastname") must be("FIRSTNAME lastname")
     }
 
     "should not convert a name in which the first name is lowercase and the surname is uppercase" in {
-      TemplateFunctions.upperCaseToTitleCase("firstname LASTNAME") should be("firstname LASTNAME")
+      TemplateFunctions.upperCaseToTitleCase("firstname LASTNAME") must be("firstname LASTNAME")
     }
 
     "should not convert a name string which the name contains a combination of lower and uppercase" in {
-      TemplateFunctions.upperCaseToTitleCase("FiRsTnAmE lAsTnAmE") should be("FiRsTnAmE lAsTnAmE")
+      TemplateFunctions.upperCaseToTitleCase("FiRsTnAmE lAsTnAmE") must be("FiRsTnAmE lAsTnAmE")
     }
   }
 
-  "TemplateFunctions.formatCurrency" should {
+  "TemplateFunctions.formatCurrency" must {
     "convert a big decimal into currency format" in {
-      TemplateFunctions.formatCurrency(1000.0) should be("1,000.00")
+      TemplateFunctions.formatCurrency(1000.0) must be("1,000.00")
     }
   }
 }

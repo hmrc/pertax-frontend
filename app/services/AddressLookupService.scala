@@ -44,6 +44,8 @@ class AddressLookupService @Inject()(
   servicesConfig: ServicesConfig)
     extends HasMetrics {
 
+  private val logger = Logger(this.getClass)
+
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
   def lookup(postcode: String, filter: Option[String] = None)(
@@ -61,13 +63,13 @@ class AddressLookupService @Inject()(
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn(s"Unexpected ${r.status} response getting address record from address lookup service")
+            logger.warn(s"Unexpected ${r.status} response getting address record from address lookup service")
             AddressLookupUnexpectedResponse(r)
         },
         onError = {
           case e =>
             t.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting address record from address lookup service", e)
+            logger.warn("Error getting address record from address lookup service", e)
             AddressLookupErrorResponse(e)
         }
       )(newHc)

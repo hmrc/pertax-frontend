@@ -23,7 +23,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import error.ErrorRenderer
+import error.{ErrorRenderer, GenericErrors}
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
 import org.joda.time.LocalDate
@@ -35,7 +35,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
-import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationView}
 
@@ -53,12 +52,14 @@ class AddressSubmissionController @Inject()(
   errorRenderer: ErrorRenderer,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  genericErrors: GenericErrors)(
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+
+  private val logger = Logger(this.getClass)
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -125,7 +126,7 @@ class AddressSubmissionController @Inject()(
       addressJourneyEnforcer { nino => personDetails =>
         citizenDetailsService.getEtag(nino.nino) flatMap {
           case None =>
-            Logger.error("Failed to retrieve Etag from citizen-details")
+            logger.error("Failed to retrieve Etag from citizen-details")
             errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
           case Some(version) =>
@@ -169,7 +170,7 @@ class AddressSubmissionController @Inject()(
                         _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
                         result <- citizenDetailsService.updateAddress(nino, version.etag, address)
                       } yield {
-                        result.response(successResponseBlock)
+                        result.response(genericErrors, successResponseBlock)
                       }
                   }
                 }
