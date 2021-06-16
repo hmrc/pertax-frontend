@@ -16,131 +16,113 @@
 
 package services.http
 
-import com.codahale.metrics.Timer
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, put, urlEqualTo}
+import com.github.tomakehurst.wiremock.http.Fault
+import org.scalatest.concurrent.IntegrationPatience
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.http.Status._
 import play.api.libs.json.Writes
-import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import util.BaseSpec
+import play.api.test.Injecting
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import util.{BaseSpec, WireMockHelper}
 
 import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.{ExecutionContext, Future}
 
-class SimpleHttpSpec extends BaseSpec {
+class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with IntegrationPatience {
 
-  trait Setup {
-
-    def httpResponse: Future[HttpResponse]
-
-    lazy val timer = mock[Timer.Context]
-
-    def makeDummyRequest(): Unit
-
-    trait DummyCallbacks {
-      def complete(r: HttpResponse): String
-      def exception(e: Exception): String
-    }
-
-    lazy val dummyCallbacks = mock[DummyCallbacks]
-    lazy val http = {
-      val h = mock[DefaultHttpClient]
-      when(h.GET[HttpResponse](any(), any(), any())(any(), any(), any())) thenReturn httpResponse
-      h
-    }
-
-    lazy val simpleHttp = new SimpleHttp(http)
-  }
+  lazy val simpleHttp = inject[SimpleHttp]
+  lazy val url = s"http://localhost:${server.port}"
+  val magicErrorCode = 123456789
 
   "Calling SimpleHttpSpec.get" must {
+    List(OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { httpStatus =>
+      s"act as a pass through for a HttpResponse with status $httpStatus" in {
+        server.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-    trait LocalSetup extends Setup {
+        val result: Future[Int] = simpleHttp.get(url)(onComplete = { r =>
+          r.status
+        }, onError = { _ =>
+          magicErrorCode
+        })
 
-      override lazy val http = {
-        val h = mock[DefaultHttpClient]
-        when(h.GET[HttpResponse](any(), any(), any())(any(), any(), any())) thenReturn httpResponse
-        h
+        result.futureValue mustBe httpStatus
       }
-
-      def makeDummyRequest() = simpleHttp.get("/")(dummyCallbacks.complete, dummyCallbacks.exception).futureValue
     }
 
-    "Call onSuccess if the http call returned successfully" in new LocalSetup {
-      lazy val httpResponse = Future.successful(HttpResponse(200))
-      makeDummyRequest
-      verify(dummyCallbacks, times(0)).exception(any())
-      verify(dummyCallbacks, times(1)).complete(any())
-    }
+    "calls the onError function if there is a fault" in {
+      server.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
 
-    "Call onFail if the http call resulted in an exception" in new LocalSetup {
-      lazy val httpResponse = Future.failed(new BadGatewayException("Bad Gateway"))
-      makeDummyRequest
-      verify(dummyCallbacks, times(1)).exception(any())
-      verify(dummyCallbacks, times(0)).complete(any())
-    }
-  }
+      val result: Future[Int] = simpleHttp.get(url)(onComplete = { r =>
+        r.status
+      }, onError = { _ =>
+        magicErrorCode
+      })
 
-  "Calling SimpleHttpSpec.post" must {
-
-    trait LocalSetup extends Setup {
-
-      override lazy val http = {
-        val h = mock[DefaultHttpClient]
-        when(h.POST[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
-        h
-      }
-
-      def makeDummyRequest = simpleHttp.post("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception).futureValue
-    }
-
-    "Call onSuccess if the http call returned successfully" in new LocalSetup {
-      lazy val httpResponse = Future.successful(HttpResponse(200))
-      makeDummyRequest
-      verify(dummyCallbacks, times(0)).exception(any())
-      verify(dummyCallbacks, times(1)).complete(any())
-    }
-
-    "Call onFail if the http call resulted in an exception" in new LocalSetup {
-      lazy val httpResponse = Future.failed(new BadGatewayException("Bad Gateway"))
-      makeDummyRequest
-      verify(dummyCallbacks, times(1)).exception(any())
-      verify(dummyCallbacks, times(0)).complete(any())
+      result.futureValue mustBe magicErrorCode
     }
   }
 
   "Calling SimpleHttpSpec.put" must {
+    List(OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { httpStatus =>
+      s"act as a pass through for a HttpResponse with status $httpStatus" in {
+        server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-    trait LocalSetup extends Setup {
+        val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
+          r.status
+        }, onError = { _ =>
+          magicErrorCode
+        })
 
-      override lazy val http = {
-        val h = mock[DefaultHttpClient]
-        when(h.PUT[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
-        h
+        result.futureValue mustBe httpStatus
       }
-
-      def makeDummyRequest = simpleHttp.put("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception).futureValue
     }
 
-    "Call onSuccess if the http call returned successfully" in new LocalSetup {
-      lazy val httpResponse = Future.successful(HttpResponse(200))
-      makeDummyRequest
-      verify(dummyCallbacks, times(0)).exception(any())
-      verify(dummyCallbacks, times(1)).complete(any())
+    "calls the onError function if there is a fault" in {
+      server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
+
+      val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
+        r.status
+      }, onError = { _ =>
+        magicErrorCode
+      })
+
+      result.futureValue mustBe magicErrorCode
+    }
+  }
+
+  "Calling SimpleHttpSpec.post" must {
+    List(OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { httpStatus =>
+      s"act as a pass through for a HttpResponse with status $httpStatus" in {
+        server.stubFor(post(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
+
+        val result: Future[Int] = simpleHttp.post(url, "")(onComplete = { r =>
+          r.status
+        }, onError = { _ =>
+          magicErrorCode
+        })
+
+        result.futureValue mustBe httpStatus
+      }
     }
 
-    "Call onFail if the http call resulted in an exception" in new LocalSetup {
-      lazy val httpResponse = Future.failed(new BadGatewayException("Bad Gateway"))
-      makeDummyRequest
-      verify(dummyCallbacks, times(1)).exception(any())
-      verify(dummyCallbacks, times(0)).complete(any())
+    "calls the onError function if there is a fault" in {
+      server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
+
+      val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
+        r.status
+      }, onError = { _ =>
+        magicErrorCode
+      })
+
+      result.futureValue mustBe magicErrorCode
     }
   }
 }
 
 //Mock client for use in other tests
 class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: ExecutionContext)
-    extends SimpleHttp(mock[DefaultHttpClient]) {
+    extends SimpleHttp(mock[HttpClient]) {
 
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
   def getLastHeaderCarrier = headerCarrierQueue.take
