@@ -22,12 +22,12 @@ import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddres
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.concurrent.PatienceConfiguration
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.test.Helpers.{await, defaultAwaitTimeout}
+import play.api.test.Helpers._
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
@@ -38,8 +38,8 @@ import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ScalaFutures
-  with IntegrationPatience
+class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite
+  with PatienceConfiguration
   with BeforeAndAfterEach {
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
@@ -71,32 +71,32 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
 
   "editAddressLockRepository" when {
 
-    "setIndex is called" must {
+    "setIndex is called" should {
       "ensure the index is set" in {
-        mongo.removeIndex().futureValue
-        mongo.isTtlSet.futureValue mustBe false
+        await(mongo.removeIndex())
+        await(mongo.isTtlSet) shouldBe false
 
-        mongo.setIndex().futureValue
-        mongo.isTtlSet.futureValue mustBe true
+        await(mongo.setIndex())
+        await(mongo.isTtlSet) shouldBe true
       }
     }
 
-    "get is called" when {
-      "return an empty list" must {
+    "get is called" should {
+      "return an empty list" when {
         "there isn't an existing record" in {
           val fGet = mongo.get(testNino.withoutSuffix)
 
-          await(fGet) mustBe List.empty
+          await(fGet) shouldBe List.empty
         }
 
         "there isn't an existing record that matches the requested nino" in {
           val timeOffSet = 10L
 
-          mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet))))
+          await(mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
 
           val fGet = mongo.get(differentNino.withoutSuffix)
 
-          await(fGet) mustBe List.empty
+          await(fGet) shouldBe List.empty
 
         }
 
@@ -104,31 +104,31 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
 
           val nino = testNino.withoutSuffix
 
-          mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now()))).futureValue
+          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now()))))
 
-          val fGet = mongo.get(nino).futureValue
+          val fGet = mongo.get(nino)
 
-          fGet mustBe List.empty
+          await(fGet) shouldBe List.empty
         }
       }
 
-      "return the record" must {
+      "return the record" when {
         "there is an existing record and it has not yet expired" in {
           val currentTime = System.currentTimeMillis()
           val timeOffSet = 10L
 
           val nino = testNino.withoutSuffix
 
-          mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))).futureValue
+          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
 
-          val fGet = mongo.get(nino).futureValue
-          val inserted = mongo.getCore(BSONDocument()).futureValue
-          currentTime must be < inserted.head.editedAddress.expireAt.value
-          fGet mustBe inserted
+          val fGet = mongo.get(nino)
+          val inserted = await(mongo.getCore(BSONDocument()))
+          currentTime should be < inserted.head.editedAddress.expireAt.value
+          await(fGet) shouldBe inserted
         }
       }
 
-      "return multiple records" must {
+      "return multiple records" when {
         "multiple existing records are present" in {
           val timeOffSet = 10L
 
@@ -137,18 +137,18 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
           val address1 = AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))
           val address2 = AddressJourneyTTLModel(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(200)))
 
-          mongo.insertCore(address1)
-          mongo.insertCore(address2)
+          await(mongo.insertCore(address1))
+          await(mongo.insertCore(address2))
 
-          val result = mongo.get(nino).futureValue
+          val result = await(mongo.get(nino))
 
-          result must contain theSameElementsAs List(address2, address1)
+          result should contain theSameElementsAs List(address2, address1)
         }
       }
     }
 
-    "insert is called" when {
-      "return true" must {
+    "insert is called" should {
+      "return true" when {
         "there isn't an existing record" in {
           import EditAddressLockRepository._
           val offsetTime = getNextMidnight(OffsetDateTime.now())
@@ -156,26 +156,26 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
 
           val nino = testNino.withoutSuffix
 
-          val result = mongo.insert(nino, SoleAddrType).futureValue
-          result mustBe true
+          val result = await(mongo.insert(nino, SoleAddrType))
+          result shouldBe true
 
-          val inserted = mongo.get(nino)
+          val inserted = await(mongo.get(nino))
 
-          inserted.futureValue.head.nino mustBe nino
-          inserted.futureValue.head.editedAddress.expireAt mustBe midnight
+          inserted.head.nino shouldBe nino
+          inserted.head.editedAddress.expireAt shouldBe midnight
         }
       }
 
-      "return false" must {
+      "return false" when {
         "there is an existing record" in {
 
           val nino = testNino.withoutSuffix
 
-          mongo.insert(nino, PostalAddrType).futureValue
+          await(mongo.insert(nino, PostalAddrType))
 
-          val result = mongo.insert(nino, PostalAddrType).futureValue
+          val result = await(mongo.insert(nino, PostalAddrType))
 
-          result mustBe false
+          result shouldBe false
         }
       }
     }
@@ -190,16 +190,16 @@ class CachingItSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite w
 
   "EnrolmentStoreCachingService" when {
 
-    "getSaUserTypeFromCache is called" must {
+    "getSaUserTypeFromCache is called" should {
 
       "only call the connector once" in {
 
         when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
         ) thenReturn Future.successful(Right(Seq[String]()))
 
-        service.getSaUserTypeFromCache(saUtr).futureValue
+        await(service.getSaUserTypeFromCache(saUtr))
 
-        service.getSaUserTypeFromCache(saUtr).futureValue
+        await(service.getSaUserTypeFromCache(saUtr))
 
         verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
