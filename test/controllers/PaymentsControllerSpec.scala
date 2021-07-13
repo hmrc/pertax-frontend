@@ -23,9 +23,8 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.CreatePayment
 import org.joda.time.DateTime
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
@@ -35,11 +34,10 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec}
-import views.html.{ErrorView, NotFoundView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSugar {
+class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override def now: () => DateTime = DateTime.now
 
@@ -62,7 +60,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
       injected[ErrorRenderer]
-    )(mockLocalPartialRetriever, injected[ConfigDecorator], mock[TemplateRenderer], injected[ExecutionContext])
+    )(config, templateRenderer, ec)
 
   when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
     override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -72,7 +70,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
         ))
   })
 
-  "makePayment" should {
+  "makePayment" must {
     "redirect to the response's nextUrl" in {
 
       val expectedNextUrl = "someNextUrl"
@@ -82,8 +80,8 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
         .thenReturn(Future.successful(Some(createPaymentResponse)))
 
       val result = controller.makePayment()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("someNextUrl")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("someNextUrl")
     }
 
     "redirect to a BAD_REQUEST page if createPayment failed" in {
@@ -92,7 +90,7 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear with MockitoSu
         .thenReturn(Future.successful(None))
 
       val result = controller.makePayment()(FakeRequest())
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

@@ -19,53 +19,50 @@ package services
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.twirl.api.Html
 import services.partials.FormPartialService
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 import util.BaseSpec
 import util.Fixtures._
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class FormPartialServiceSpec extends BaseSpec {
 
   trait LocalSetup {
-    val timer = MockitoSugar.mock[Timer.Context]
+    val timer = mock[Timer.Context]
     val formPartialService: FormPartialService = new FormPartialService(
-      MockitoSugar.mock[DefaultHttpClient],
-      MockitoSugar.mock[Metrics],
-      MockitoSugar.mock[ConfigDecorator],
-      injected[SessionCookieCrypto]
+      mock[DefaultHttpClient],
+      mock[Metrics],
+      mock[ConfigDecorator],
+      injected[HeaderCarrierForPartialsConverter]
     ) {
-      override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+      override val metricsOperator: MetricsOperator = mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
     }
   }
 
-  "Calling FormPartialServiceSpec" should {
+  "Calling FormPartialServiceSpec" must {
 
     "return form list for National insurance" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
+      when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(), any(), any())
+      formPartialService.getNationalInsurancePartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
+      verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
 
     "return form list for Self-assessment" in new LocalSetup {
 
-      when(formPartialService.http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn
+      when(formPartialService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
         Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
 
-      formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p shouldBe "<title/>")
-      verify(formPartialService.http, times(1)).GET[Html](any())(any(), any(), any())
+      formPartialService.getSelfAssessmentPartial(buildFakeRequestWithAuth("GET")).map(p => p mustBe "<title/>")
+      verify(formPartialService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
     }
 
   }

@@ -26,19 +26,19 @@ class LanguageControllerSpec extends BaseSpec {
     val c = app.injector.instanceOf[LanguageSwitchController]
   }
 
-  "Calling LanguageController.enGb" should {
+  "Calling LanguageController.enGb" must {
     "change the language to English and return 303" in new LocalSetup {
       val r = c.enGb()(FakeRequest("GET", ""))
-      cookies(r).get("PLAY_LANG").get.value shouldBe "en"
-      status(r) shouldBe SEE_OTHER
+      cookies(r).get("PLAY_LANG").get.value mustBe "en"
+      status(r) mustBe SEE_OTHER
     }
   }
 
-  "Calling LanguageController.cyGb" should {
+  "Calling LanguageController.cyGb" must {
     "change the language to Welsh and return 303" in new LocalSetup {
       val r = c.cyGb()(FakeRequest("GET", ""))
-      cookies(r).get("PLAY_LANG").get.value shouldBe "cy"
-      status(r) shouldBe SEE_OTHER
+      cookies(r).get("PLAY_LANG").get.value mustBe "cy"
+      status(r) mustBe SEE_OTHER
     }
   }
 }

@@ -19,10 +19,11 @@ package services
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{Person, PersonDetails}
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FreeSpec, MustMatchers}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status.SEE_OTHER
@@ -36,7 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class NinoDisplayServiceSpec
-    extends FreeSpec with MustMatchers with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+    extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   val citizenDetailsService = mock[CitizenDetailsService]
   val aDifferentNinoToAuth = Nino(new Generator(new Random()).nextNino.nino)

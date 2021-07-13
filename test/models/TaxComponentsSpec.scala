@@ -21,7 +21,7 @@ import util.BaseSpec
 
 class TaxComponentsSpec extends BaseSpec {
 
-  "Calling TaxComponents.fromJsonTaxComponents" should {
+  "Calling TaxComponents.fromJsonTaxComponents" must {
 
     "produce a valid TaxComponents object when supplied good json" in {
 
@@ -43,35 +43,35 @@ class TaxComponentsSpec extends BaseSpec {
                                            |}""".stripMargin)
 
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
-      tc shouldBe TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+      tc mustBe TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
     }
   }
 
-  "Checking marriage allowance status" should {
+  "Checking marriage allowance status" must {
 
     "indicate a recipient but not a transferor if the tax code ends in M" in {
       val tc = TaxComponents(Seq("MarriageAllowanceReceived"))
-      tc.isMarriageAllowanceRecipient shouldBe true
-      tc.isMarriageAllowanceTransferor shouldBe false
-      tc.notMarriageAllowanceCustomer shouldBe false
+      tc.isMarriageAllowanceRecipient mustBe true
+      tc.isMarriageAllowanceTransferor mustBe false
+      tc.notMarriageAllowanceCustomer mustBe false
     }
 
     "indicate a transferor but not a transferee if the tax code ends in N" in {
       val tc = TaxComponents(Seq("MarriageAllowanceTransferred"))
-      tc.isMarriageAllowanceRecipient shouldBe false
-      tc.isMarriageAllowanceTransferor shouldBe true
-      tc.notMarriageAllowanceCustomer shouldBe false
+      tc.isMarriageAllowanceRecipient mustBe false
+      tc.isMarriageAllowanceTransferor mustBe true
+      tc.notMarriageAllowanceCustomer mustBe false
     }
 
     "indicate neither a transferor or a transferee if the tax code does not end in N or M" in {
       val tc = TaxComponents(Seq("MedicalInsurance"))
-      tc.isMarriageAllowanceRecipient shouldBe false
-      tc.isMarriageAllowanceTransferor shouldBe false
-      tc.notMarriageAllowanceCustomer shouldBe true
+      tc.isMarriageAllowanceRecipient mustBe false
+      tc.isMarriageAllowanceTransferor mustBe false
+      tc.notMarriageAllowanceCustomer mustBe true
     }
   }
 
-  "Calling TaxComponents.isCompanyBenefitRecipient" should {
+  "Calling TaxComponents.isCompanyBenefitRecipient" must {
 
     "return true if both Medical Insurance and Car Benefit exists when supplied with good json" in {
 
@@ -94,7 +94,7 @@ class TaxComponentsSpec extends BaseSpec {
 
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
-      isCompanyBenefit shouldBe true
+      isCompanyBenefit mustBe true
     }
 
     "return false if no Iabd type is supplied with good json" in {
@@ -118,7 +118,7 @@ class TaxComponentsSpec extends BaseSpec {
 
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
-      isCompanyBenefit shouldBe false
+      isCompanyBenefit mustBe false
     }
 
     "return true if there is only one Iabd type equal to 30 (Medical Insurance) when supplied with good json" in {
@@ -142,7 +142,7 @@ class TaxComponentsSpec extends BaseSpec {
 
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
-      isCompanyBenefit shouldBe true
+      isCompanyBenefit mustBe true
     }
 
     "return true if there is only one Iabd type equal to 31 (Car Benefit) when supplied with good json" in {
@@ -166,7 +166,7 @@ class TaxComponentsSpec extends BaseSpec {
 
       val tc = TaxComponents.fromJsonTaxComponents(taxComponentsJson)
       val isCompanyBenefit = tc.isCompanyBenefitRecipient
-      isCompanyBenefit shouldBe true
+      isCompanyBenefit mustBe true
     }
 
   }

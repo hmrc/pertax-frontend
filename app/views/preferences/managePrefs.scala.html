@@ -17,9 +17,11 @@
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
-@import util.LocalPartialRetriever
+
+@import scala.concurrent.ExecutionContext
+
 @this(mainView: MainView)
-@(managePrefsPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+@(managePrefsPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(title = messages("label.manage_your_paperless_settings"), Some(messages("label.your_personal_tax_account"))) {
 

@@ -21,7 +21,7 @@ import util.BaseSpec
 
 class PayApiModelsSpec extends BaseSpec {
 
-  "CreatePayment" should {
+  "CreatePayment" must {
 
     "serialise and de-serialise json" in {
 
@@ -29,7 +29,7 @@ class PayApiModelsSpec extends BaseSpec {
 
       val json = Json.toJson(obj)
 
-      json.as[CreatePayment] shouldBe obj
+      json.as[CreatePayment] mustBe obj
     }
   }
 }

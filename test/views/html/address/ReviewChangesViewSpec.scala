@@ -20,19 +20,16 @@ import config.ConfigDecorator
 import controllers.address.routes
 import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.dto.AddressDto
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.ReviewChangesView
 
-class ReviewChangesViewSpec extends ViewSpec with MockitoSugar {
+class ReviewChangesViewSpec extends ViewSpec {
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   lazy val view = injected[ReviewChangesView]
 
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
   val address =
@@ -40,7 +37,7 @@ class ReviewChangesViewSpec extends ViewSpec with MockitoSugar {
 
   def result(addressType: AddrType) = asDocument(view(addressType, address, "yes.label", true, None, false).toString)
 
-  "rendering ReviewChangesView" should {
+  "rendering ReviewChangesView" must {
     "when postal address has been changed display 'is your address in the uk'" in {
 
       assertContainsText(result(PostalAddrType), messages("label.is_your_postal_address_in_the_uk"))

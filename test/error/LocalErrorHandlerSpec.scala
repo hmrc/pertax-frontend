@@ -15,21 +15,19 @@
  */
 
 package error
+
 import config.ConfigDecorator
-import org.jsoup.Jsoup
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import views.html.{InternalServerErrorView, ViewSpec, unauthenticatedError}
+import views.html.{InternalServerErrorView, UnauthenticatedErrorView, ViewSpec}
 
-class LocalErrorHandlerSpec extends ViewSpec with MockitoSugar {
+class LocalErrorHandlerSpec extends ViewSpec {
 
   lazy val internalServerError = injected[InternalServerErrorView]
-  lazy val standardError = injected[unauthenticatedError]
+  lazy val standardError = injected[UnauthenticatedErrorView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
-  implicit val templateRenderer = injected[TemplateRenderer]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
   "standardErrorTemplate" in {
@@ -40,19 +38,19 @@ class LocalErrorHandlerSpec extends ViewSpec with MockitoSugar {
           "Service unavailable",
           "Sorry, we are currently experiencing technical issues.").toString())
 
-    doc.getElementsByTag("h1").toString should include(messages("label.service_unavailable"))
-    doc.getElementsByTag("p").toString should include(
+    doc.getElementsByTag("h1").toString must include(messages("label.service_unavailable"))
+    doc.getElementsByTag("p").toString must include(
       messages("label.sorry_we_are_currently_experiencing_technical_issues"))
 
   }
 
   "internalServerErrorTemplate" in {
     val doc = asDocument(internalServerError().toString())
-    doc.getElementsByTag("h1").toString should include(messages("global.error.InternalServerError500.pta.title"))
-    doc.getElementsByTag("p").toString should include(messages(
-      "global.error.InternalServerError500.pta.message.you.can") + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
-      "global.error.InternalServerError500.pta.message.contact.hmrc") + "</a> " + messages(
-      "global.error.InternalServerError500.pta.message.by.phone.post"))
+    doc.getElementsByTag("h1").toString must include(messages("global.error.InternalServerError500.pta.title"))
+    doc.getElementsByTag("p").toString must include(
+      messages("global.error.InternalServerError500.pta.message.you.can") + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
+        "global.error.InternalServerError500.pta.message.contact.hmrc") + "</a> " + messages(
+        "global.error.InternalServerError500.pta.message.by.phone.post"))
 
   }
 

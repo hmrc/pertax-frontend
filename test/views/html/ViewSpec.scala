@@ -18,7 +18,7 @@ package views.html
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.scalatest.Assertion
+import org.scalatest.compatible.Assertion
 import play.api.i18n._
 import util.BaseSpec
 

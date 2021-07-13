@@ -18,24 +18,21 @@ package views.html.address
 
 import config.ConfigDecorator
 import models.dto.InternationalAddressChoiceDto
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 
-class PostalInternationalAddressChoiceViewSpec extends ViewSpec with MockitoSugar {
+class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
   lazy val view = injected[PostalInternationalAddressChoiceView]
 
-  implicit val templateRenderer = app.injector.instanceOf[TemplateRenderer]
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
-  "rendering PostalInternationalAddressChoiceView" should {
+  "rendering PostalInternationalAddressChoiceView" must {
     "must render the correct h1 appropriate to postal address" in {
       val result = asDocument(view(InternationalAddressChoiceDto.form).toString)
       assertContainsText(result, messages("label.is_your_postal_address_in_the_uk"))

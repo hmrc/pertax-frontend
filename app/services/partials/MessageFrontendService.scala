@@ -23,9 +23,8 @@ import models.MessageCount
 import play.api.Logger
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 import util.EnhancedPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,11 +33,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class MessageFrontendService @Inject()(
   override val http: HttpClient,
   val metrics: Metrics,
-  val sessionCookieCrypto: SessionCookieCrypto,
+  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   servicesConfig: ServicesConfig)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(sessionCookieCrypto) with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
 
   lazy val messageFrontendUrl: String = servicesConfig.baseUrl("message-frontend")
+
+  private val logger = Logger(this.getClass)
 
   def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(messageFrontendUrl + "/messages")
@@ -55,6 +56,8 @@ class MessageFrontendService @Inject()(
     val url = messageFrontendUrl + "/messages/count?read=No"
 
     withMetricsTimer("get-unread-message-count") { t =>
+      implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+
       (for {
         messageCount <- http.GET[Option[MessageCount]](url)
       } yield {
@@ -63,7 +66,7 @@ class MessageFrontendService @Inject()(
       }) recover {
         case e =>
           t.completeTimerAndIncrementFailedCounter()
-          Logger.warn(s"Failed to load json", e)
+          logger.warn(s"Failed to load json", e)
           None
       }
     }

@@ -19,18 +19,19 @@ package util
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.concurrent.ScalaFutures
+import play.api.test.FakeRequest
 import play.twirl.api.Html
 import uk.gov.hmrc.http.{GatewayTimeoutException, HttpGet}
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
-import uk.gov.hmrc.play.partials.HtmlPartial
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnhancedPartialRetrieverSpec extends BaseSpec {
+
+  lazy implicit val fakeRequest = FakeRequest("", "")
 
   trait LocalSetup {
 
@@ -42,18 +43,20 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
 
     lazy val (epr, metrics, timer) = {
 
-      val timer = MockitoSugar.mock[Timer.Context]
+      val timer = mock[Timer.Context]
 
-      val epr = new EnhancedPartialRetriever(injected[SessionCookieCrypto]) with HasMetrics {
+      val epr = new EnhancedPartialRetriever(injected[HeaderCarrierForPartialsConverter]) with HasMetrics {
 
-        override val http: HttpGet = MockitoSugar.mock[HttpGet]
+        override val http: HttpGet = mock[HttpGet]
         if (simulateCallFailed)
-          when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.failed(
+          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.failed(
             new GatewayTimeoutException("Gateway timeout"))
-        else when(http.GET[HtmlPartial](any())(any(), any(), any())) thenReturn Future.successful(returnPartial)
+        else
+          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.successful(
+            returnPartial)
 
-        override val metrics: Metrics = MockitoSugar.mock[Metrics]
-        override val metricsOperator: MetricsOperator = MockitoSugar.mock[MetricsOperator]
+        override val metrics: Metrics = mock[Metrics]
+        override val metricsOperator: MetricsOperator = mock[MetricsOperator]
         when(metricsOperator.startTimer(any())) thenReturn timer
       }
 
@@ -62,14 +65,14 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
 
   }
 
-  "Calling EnhancedPartialRetriever.loadPartial" should {
+  "Calling EnhancedPartialRetriever.loadPartial" must {
 
     "return a successful partial and log the right metrics" in new LocalSetup {
 
       override val simulateCallFailed = false
       override val returnPartial = HtmlPartial.Success.apply(Some("my title"), Html("my body content"))
 
-      await(epr.loadPartial("/")) shouldBe returnPartial
+      epr.loadPartial("/").futureValue mustBe returnPartial
 
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
@@ -83,7 +86,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
       override val simulateCallFailed = false
       override val returnPartial = HtmlPartial.Failure(Some(404), "Not Found")
 
-      await(epr.loadPartial("/")) shouldBe returnPartial
+      epr.loadPartial("/").futureValue mustBe returnPartial
 
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(0)).incrementSuccessCounter(metricId)
@@ -96,7 +99,7 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
       override val simulateCallFailed = true
       override def returnPartial = ???
 
-      await(epr.loadPartial("/"))
+      epr.loadPartial("/").futureValue
 
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(0)).incrementSuccessCounter(metricId)

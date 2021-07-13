@@ -17,7 +17,7 @@
 package controllers.address
 
 import models.dto.AddressPageVisitedDto
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify}
 import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
 import play.api.libs.json.Json
@@ -47,13 +47,13 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
 
-  "onPageLoad" should {
+  "onPageLoad" must {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
       val result = controller.onPageLoad(currentRequest)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -62,13 +62,13 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onPageLoad(currentRequest)
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/personal-details")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/personal-details")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }
 
-  "onSubmit" should {
+  "onSubmit" must {
 
     "redirect to expected tax credits page when supplied with value = Yes (true)" in new LocalSetup {
 
@@ -80,8 +80,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
       val result =
         controller.onSubmit()(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
     }
 
     "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
@@ -93,8 +93,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/personal-account/your-address/residency-choice")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/residency-choice")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
@@ -105,7 +105,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
       val result = controller.onSubmit(FakeRequest())
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

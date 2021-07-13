@@ -19,13 +19,14 @@
 @import tags._
 @import uk.gov.hmrc.play.views.html.helpers._
 @import uk.gov.hmrc.renderer.TemplateRenderer
-@import util.LocalPartialRetriever
+
+@import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView, form: FormWithCSRF, input: Input)
 
 @(updateAddressForm: Form[models.dto.AddressDto], typ: AddrType, addressFinderDto: Option[AddressFinderDto],
 addressLookupServiceDown: Boolean, showEnterAddressHeader: Boolean)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @getYourAddressLabels = {
   @if(showEnterAddressHeader) {

@@ -16,16 +16,16 @@
 
 package config
 
-import java.net.{URL, URLEncoder}
-
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
 import org.joda.time.LocalDate
-import play.api.Configuration
+import play.api.{Configuration, Play}
 import play.api.i18n.{Lang, Langs}
 import uk.gov.hmrc.play.binders.Origin
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import java.net.{URL, URLEncoder}
 
 @Singleton
 class ConfigDecorator @Inject()(
@@ -245,9 +245,9 @@ class ConfigDecorator @Inject()(
   lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration
     .get[String](s"assets.version") + '/'
 
-  lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("session.timeout").getOrElse(900)
+  lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(900)
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
-  lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("session.countdown").getOrElse(120)
+  lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)

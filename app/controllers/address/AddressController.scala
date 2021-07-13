@@ -25,7 +25,6 @@ import models.PersonDetails
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
-import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,8 +34,7 @@ abstract class AddressController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) {

@@ -16,26 +16,23 @@
 
 package services
 
-import java.util.UUID
-
 import connectors.SelfAssessmentConnector
 import models.{NotEnrolledSelfAssessmentUser, SaEnrolmentResponse, UserDetails}
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.concurrent.ScalaFutures
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import util.BaseSpec
 import util.UserRequestFixture.buildUserRequest
 
-import scala.concurrent.{ExecutionContext, Future}
+import java.util.UUID
+import scala.concurrent.Future
 
-class SelfAssessmentServiceSpec extends BaseSpec with MockitoSugar {
+class SelfAssessmentServiceSpec extends BaseSpec {
 
   val mockSelfAssessmentConnector: SelfAssessmentConnector = mock[SelfAssessmentConnector]
-
-  implicit lazy val ec: ExecutionContext = injected[ExecutionContext]
 
   def sut: SelfAssessmentService = new SelfAssessmentService(mockSelfAssessmentConnector, config)
 
@@ -52,7 +49,7 @@ class SelfAssessmentServiceSpec extends BaseSpec with MockitoSugar {
 
   "SelfAssessmentService" when {
 
-    "getSaEnrolmentUrl is called" should {
+    "getSaEnrolmentUrl is called" must {
 
       "return a redirect Url" when {
 
@@ -63,7 +60,7 @@ class SelfAssessmentServiceSpec extends BaseSpec with MockitoSugar {
           when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
             Some(SaEnrolmentResponse(redirectUrl)))
 
-          await(sut.getSaEnrolmentUrl) shouldBe Some(redirectUrl)
+          sut.getSaEnrolmentUrl.futureValue mustBe Some(redirectUrl)
         }
       }
 
@@ -74,7 +71,7 @@ class SelfAssessmentServiceSpec extends BaseSpec with MockitoSugar {
           when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
             None)
 
-          await(sut.getSaEnrolmentUrl) shouldBe None
+          sut.getSaEnrolmentUrl.futureValue mustBe None
         }
       }
     }

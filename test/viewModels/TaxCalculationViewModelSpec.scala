@@ -21,7 +21,8 @@ import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}
 import models._
 import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
-import util.{BetterOptionValues, LanguageHelper}
+import uk.gov.hmrc.play.language.LanguageUtils
+import util.BetterOptionValues
 import viewmodels.TaxCalculationViewModel
 import views.html.ViewSpec
 import views.html.cards.home.TaxCalculationView
@@ -38,30 +39,30 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         asDocument(taxCalculation(taxRec)(messages, config).toString)
     }
 
-  def formatDate(date: LocalDate) = LanguageHelper.langUtils.Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
+  def formatDate(date: LocalDate) = injected[LanguageUtils].Dates.formatDate(Some(date), "dd MMMM yyyy")(messages)
 
   "taxCalculation" should {
 
     "not render any content" when {
 
       "status is BalancedSA" in {
-        view(BalancedSa) shouldBe None
+        view(BalancedSa) mustBe None
       }
 
       "status is Underpaid Unknown" in {
-        view(Underpaid(None, None, UnderpaidUnknown)) shouldBe None
+        view(Underpaid(None, None, UnderpaidUnknown)) mustBe None
       }
 
       "status is Overpaid Unknown" in {
-        view(Overpaid(None, OverpaidUnknown)) shouldBe None
+        view(Overpaid(None, OverpaidUnknown)) mustBe None
       }
 
       "status is Underpaid PaymentsDown" in {
-        view(Underpaid(None, None, PaymentsDown)) shouldBe None
+        view(Underpaid(None, None, PaymentsDown)) mustBe None
       }
 
       "status is Missing" in {
-        view(Missing) shouldBe None
+        view(Missing) mustBe None
       }
     }
 

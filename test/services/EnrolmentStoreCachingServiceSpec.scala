@@ -18,18 +18,15 @@ package services
 
 import connectors.EnrolmentsConnector
 import models._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.BaseSpec
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
   trait LocalSetup {
 
@@ -63,25 +60,25 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec with MockitoSugar with S
 
   "EnrolmentStoreCachingService" when {
 
-    "the cache is empty and the connector is called" should {
+    "the cache is empty and the connector is called" must {
 
       "return NonFilerSelfAssessmentUser when the connector returns a Left" in new LocalSetup {
 
         override val connectorResult: Either[String, Seq[String]] = Left("An error has occurred")
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe NonFilerSelfAssessmentUser
+        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe NonFilerSelfAssessmentUser
       }
 
       "return NotEnrolledSelfAssessmentUser when the connector returns a Right with an empty sequence" in new LocalSetup {
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe NotEnrolledSelfAssessmentUser(saUtr)
+        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe NotEnrolledSelfAssessmentUser(saUtr)
       }
 
       "return WrongCredentialsSelfAssessmentUser when the connector returns a Right with a non-empty sequence" in new LocalSetup {
 
         override val connectorResult: Either[String, Seq[String]] = Right(Seq[String]("Hello there"))
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue shouldBe WrongCredentialsSelfAssessmentUser(saUtr)
+        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe WrongCredentialsSelfAssessmentUser(saUtr)
       }
     }
   }

@@ -14,20 +14,19 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner, TrackingConsentSnippet}
-@import uk.gov.hmrc.play.views.helpers.AttorneyRegime
-@import util.LanguageHelper
-@import uk.gov.hmrc.renderer._
-@import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import controllers.controllershelpers.WelshWarningHelper
-@import util.LocalPartialRetriever
-
 @import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-@import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+@import uk.gov.hmrc.play.views.helpers.AttorneyRegime
+@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner, TrackingConsentSnippet}
+@import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
+@import uk.gov.hmrc.renderer._
 
-@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet)
+@import scala.concurrent.ExecutionContext
+
+@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet, getHelpFormView: GetHelpFormView)
+
 @(title: String,
         pageName: Option[String] = None,
         showUserResearchBanner: Boolean = false,
@@ -43,7 +42,7 @@
         printableDocument: Boolean = false,
         displayTimeoutDialog: Boolean = true
 )(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
-        partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+       templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
     @links = @{
         var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()
@@ -53,7 +52,7 @@
                 seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
             }
             seq += Map("url" -> configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
-            seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
+            seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
         }
         seq
     }
@@ -110,7 +109,7 @@
                         controllers.routes.LanguageSwitchController.enGb().url,
                         controllers.routes.LanguageSwitchController.cyGb().url
                 )),
-                signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(SafeRedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
+                signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,
                 profileUrl = request.profile,
                 hideAccountMenu = request.personDetails.isEmpty
@@ -129,7 +128,7 @@
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
-            Some(GetHelpFormComponent(get_help_form(supportLinkEnabled, includeGridWrapper))),
+            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, includeGridWrapper))),
             Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
             Some(UserPropertiesComponent(

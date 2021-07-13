@@ -16,19 +16,19 @@
 
 package util
 
-import java.util.UUID
-
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models._
 import models.addresslookup.{AddressRecord, Country, RecordSet, Address => PafAddress}
 import models.dto.AddressDto
 import org.joda.time.LocalDate
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatest.concurrent.PatienceConfiguration
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{BeforeAndAfterEach, Suite}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
@@ -39,10 +39,11 @@ import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.partials.FormPartialRetriever
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.DateTimeUtils._
 
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 import scala.util.Random
@@ -281,8 +282,6 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   def buildUnusedAllowance = UnusedAllowance(BigDecimal(4000.00))
 
-  def buildFakeHeaderCarrier = MockitoSugar.mock[HeaderCarrier]
-
   def buildFakePersonDetails = PersonDetails(buildFakePerson, None, None)
 
   def buildFakePerson =
@@ -300,10 +299,16 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
 }
 
-trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach {
+trait BaseSpec
+    extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with PatienceConfiguration with BeforeAndAfterEach
+    with MockitoSugar with ScalaFutures {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()
+
+  val mockPartialRetriever = mock[FormPartialRetriever]
+
+  when(mockPartialRetriever.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
 
   val configValues =
     Map(
@@ -317,23 +322,22 @@ trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with PatienceConfigurat
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
       .overrides(
-        bind[TemplateRenderer].toInstance(MockTemplateRenderer)
+        bind[TemplateRenderer].toInstance(MockTemplateRenderer),
+        bind[FormPartialRetriever].toInstance(mockPartialRetriever)
       )
       .configure(configValues)
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
 
+  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+
   lazy val config = app.injector.instanceOf[ConfigDecorator]
+
+  implicit lazy val templateRenderer = app.injector.instanceOf[TemplateRenderer]
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
 
   def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
-
-  implicit val mockLocalPartialRetriever: LocalPartialRetriever = {
-    val pr = MockitoSugar.mock[LocalPartialRetriever]
-    when(pr.getPartialContent(any(), any(), any())(any())) thenReturn Html("")
-    pr
-  }
 
 }
 trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {

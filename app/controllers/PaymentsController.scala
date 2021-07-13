@@ -27,7 +27,6 @@ import play.api.Logger
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
-import util.LocalPartialRetriever
 
 import scala.concurrent.ExecutionContext
 
@@ -37,13 +36,14 @@ class PaymentsController @Inject()(
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   val templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
+
+  private val logger = Logger(this.getClass)
 
   def makePayment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
@@ -62,12 +62,12 @@ class PaymentsController @Inject()(
               }
             }
             case NonFilerSelfAssessmentUser => {
-              Logger.warn("User had no sa account when one was required")
+              logger.warn("User had no sa account when one was required")
               errorRenderer.futureError(INTERNAL_SERVER_ERROR)
             }
           }
         } else {
-          Logger.warn("User had no sa account when one was required")
+          logger.warn("User had no sa account when one was required")
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
     }

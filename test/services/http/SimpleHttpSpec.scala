@@ -16,135 +16,113 @@
 
 package services.http
 
-import java.util.concurrent.LinkedBlockingQueue
-
-import com.codahale.metrics.Timer
-import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, put, urlEqualTo}
+import com.github.tomakehurst.wiremock.http.Fault
+import org.scalatest.concurrent.IntegrationPatience
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.http.Status._
 import play.api.libs.json.Writes
-import uk.gov.hmrc.http.{BadGatewayException, HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import util.BaseSpec
+import play.api.test.Injecting
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import util.{BaseSpec, WireMockHelper}
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.concurrent.LinkedBlockingQueue
+import scala.concurrent.{ExecutionContext, Future}
 
-class SimpleHttpSpec extends BaseSpec {
+class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with IntegrationPatience {
 
-  trait Setup {
+  lazy val simpleHttp = inject[SimpleHttp]
+  lazy val url = s"http://localhost:${server.port}"
+  val magicErrorCode = 123456789
 
-    implicit val hc = HeaderCarrier()
+  "Calling SimpleHttpSpec.get" must {
+    List(OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { httpStatus =>
+      s"act as a pass through for a HttpResponse with status $httpStatus" in {
+        server.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-    def httpResponse: Future[HttpResponse]
+        val result: Future[Int] = simpleHttp.get(url)(onComplete = { r =>
+          r.status
+        }, onError = { _ =>
+          magicErrorCode
+        })
 
-    lazy val timer = MockitoSugar.mock[Timer.Context]
-
-    def makeDummyRequest(): Unit
-
-    trait DummyCallbacks {
-      def complete(r: HttpResponse): String
-      def exception(e: Exception): String
-    }
-
-    lazy val dummyCallbacks = MockitoSugar.mock[DummyCallbacks]
-    lazy val http = {
-      val h = MockitoSugar.mock[DefaultHttpClient]
-      when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
-      h
-    }
-
-    lazy val simpleHttp = new SimpleHttp(http)
-  }
-
-  "Calling SimpleHttpSpec.get" should {
-
-    trait LocalSetup extends Setup {
-
-      override lazy val http = {
-        val h = MockitoSugar.mock[DefaultHttpClient]
-        when(h.GET[HttpResponse](any())(any(), any(), any())) thenReturn httpResponse
-        h
+        result.futureValue mustBe httpStatus
       }
-
-      def makeDummyRequest() = await(simpleHttp.get("/")(dummyCallbacks.complete, dummyCallbacks.exception))
     }
 
-    "Call onSuccess if the http call returned successfully" in new LocalSetup {
-      lazy val httpResponse = Future.successful(HttpResponse(200))
-      makeDummyRequest
-      verify(dummyCallbacks, times(0)).exception(any())
-      verify(dummyCallbacks, times(1)).complete(any())
-    }
+    "calls the onError function if there is a fault" in {
+      server.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
 
-    "Call onFail if the http call resulted in an exception" in new LocalSetup {
-      lazy val httpResponse = Future.failed(new BadGatewayException("Bad Gateway"))
-      makeDummyRequest
-      verify(dummyCallbacks, times(1)).exception(any())
-      verify(dummyCallbacks, times(0)).complete(any())
+      val result: Future[Int] = simpleHttp.get(url)(onComplete = { r =>
+        r.status
+      }, onError = { _ =>
+        magicErrorCode
+      })
+
+      result.futureValue mustBe magicErrorCode
     }
   }
 
-  "Calling SimpleHttpSpec.post" should {
+  "Calling SimpleHttpSpec.put" must {
+    List(OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { httpStatus =>
+      s"act as a pass through for a HttpResponse with status $httpStatus" in {
+        server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-    trait LocalSetup extends Setup {
+        val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
+          r.status
+        }, onError = { _ =>
+          magicErrorCode
+        })
 
-      override lazy val http = {
-        val h = MockitoSugar.mock[DefaultHttpClient]
-        when(h.POST[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
-        h
+        result.futureValue mustBe httpStatus
       }
-
-      def makeDummyRequest = await(simpleHttp.post("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception))
     }
 
-    "Call onSuccess if the http call returned successfully" in new LocalSetup {
-      lazy val httpResponse = Future.successful(HttpResponse(200))
-      makeDummyRequest
-      verify(dummyCallbacks, times(0)).exception(any())
-      verify(dummyCallbacks, times(1)).complete(any())
-    }
+    "calls the onError function if there is a fault" in {
+      server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
 
-    "Call onFail if the http call resulted in an exception" in new LocalSetup {
-      lazy val httpResponse = Future.failed(new BadGatewayException("Bad Gateway"))
-      makeDummyRequest
-      verify(dummyCallbacks, times(1)).exception(any())
-      verify(dummyCallbacks, times(0)).complete(any())
+      val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
+        r.status
+      }, onError = { _ =>
+        magicErrorCode
+      })
+
+      result.futureValue mustBe magicErrorCode
     }
   }
 
-  "Calling SimpleHttpSpec.put" should {
+  "Calling SimpleHttpSpec.post" must {
+    List(OK, BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { httpStatus =>
+      s"act as a pass through for a HttpResponse with status $httpStatus" in {
+        server.stubFor(post(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-    trait LocalSetup extends Setup {
+        val result: Future[Int] = simpleHttp.post(url, "")(onComplete = { r =>
+          r.status
+        }, onError = { _ =>
+          magicErrorCode
+        })
 
-      override lazy val http = {
-        val h = MockitoSugar.mock[DefaultHttpClient]
-        when(h.PUT[String, HttpResponse](any(), any(), any())(any(), any(), any(), any())) thenReturn httpResponse
-        h
+        result.futureValue mustBe httpStatus
       }
-
-      def makeDummyRequest = await(simpleHttp.put("/", "Body")(dummyCallbacks.complete, dummyCallbacks.exception))
     }
 
-    "Call onSuccess if the http call returned successfully" in new LocalSetup {
-      lazy val httpResponse = Future.successful(HttpResponse(200))
-      makeDummyRequest
-      verify(dummyCallbacks, times(0)).exception(any())
-      verify(dummyCallbacks, times(1)).complete(any())
-    }
+    "calls the onError function if there is a fault" in {
+      server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
 
-    "Call onFail if the http call resulted in an exception" in new LocalSetup {
-      lazy val httpResponse = Future.failed(new BadGatewayException("Bad Gateway"))
-      makeDummyRequest
-      verify(dummyCallbacks, times(1)).exception(any())
-      verify(dummyCallbacks, times(0)).complete(any())
+      val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
+        r.status
+      }, onError = { _ =>
+        magicErrorCode
+      })
+
+      result.futureValue mustBe magicErrorCode
     }
   }
 }
 
 //Mock client for use in other tests
-class FakeSimpleHttp(response: Either[HttpResponse, Exception])
-    extends SimpleHttp(MockitoSugar.mock[DefaultHttpClient]) {
+class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: ExecutionContext)
+    extends SimpleHttp(mock[HttpClient]) {
 
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
   def getLastHeaderCarrier = headerCarrierQueue.take

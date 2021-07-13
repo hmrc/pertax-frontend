@@ -17,20 +17,17 @@
 package connectors
 
 import models.{CreatePayment, PaymentRequest}
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsResultException, Json}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import util.{BaseSpec, NullMetrics}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
+class PayApiConnectorSpec extends BaseSpec {
 
   val http = mock[DefaultHttpClient]
   val connector = new PayApiConnector(http, config, new NullMetrics)
@@ -48,8 +45,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
         http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(CREATED, Some(json))))
 
-      connector.createPayment(paymentRequest).futureValue shouldBe Some(
-        CreatePayment("exampleJourneyId", "testNextUrl"))
+      connector.createPayment(paymentRequest).futureValue mustBe Some(CreatePayment("exampleJourneyId", "testNextUrl"))
     }
 
     "Returns a None when the status code is not CREATED" in {
@@ -57,7 +53,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
         http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
-      connector.createPayment(paymentRequest).futureValue shouldBe None
+      connector.createPayment(paymentRequest).futureValue mustBe None
     }
 
     "Throws a JsResultException when given bad json" in {
@@ -69,7 +65,7 @@ class PayApiConnectorSpec extends BaseSpec with MockitoSugar with ScalaFutures {
 
       val f = connector.createPayment(paymentRequest)
       whenReady(f.failed) { e =>
-        e shouldBe a[JsResultException]
+        e mustBe a[JsResultException]
       }
     }
   }

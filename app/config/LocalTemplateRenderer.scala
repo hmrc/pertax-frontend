@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import play.api.Configuration
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.duration._

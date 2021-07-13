@@ -21,7 +21,6 @@ import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.LocalDate
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -29,7 +28,7 @@ import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, Fixtures}
 import views.html.cards.personaldetails._
 
-class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I18nSupport {
+class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
   implicit val mockConfigDecorator = mock[ConfigDecorator]
   override def messagesApi: MessagesApi = injected[MessagesApi]
@@ -94,7 +93,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
     Country("NORTHERN IRELAND")
   )
 
-  "Calling getMainAddressCard" should {
+  "Calling getMainAddressCard" must {
 
     "return nothing when there are no person details" in new MainAddressSetup {
       override lazy val taxCreditsEnabled = true
@@ -106,7 +105,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = None, request = FakeRequest())
 
-      cardBody shouldBe None
+      cardBody mustBe None
 
     }
 
@@ -120,10 +119,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(
+      cardBody mustBe Some(
         mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
 
-      cardBody.map(_.body).get should not include "Change where we send your letters"
+      cardBody.map(_.body).get must not include "Change where we send your letters"
     }
 
     "return the correct markup when there are person details and the user does not have a correspondence address" in new MainAddressSetup {
@@ -136,10 +135,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(
+      cardBody mustBe Some(
         mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
 
-      cardBody.map(_.body).get should include("Change where we send your letters")
+      cardBody.map(_.body).get must include("Change where we send your letters")
     }
 
     "return the correct markup when there are person details and the user does not have a correspondence address and there is a correspondence address lock" in new MainAddressSetup {
@@ -152,10 +151,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(
+      cardBody mustBe Some(
         mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
 
-      cardBody.map(_.body).get should not include "Change where we send your letters"
+      cardBody.map(_.body).get must not include "Change where we send your letters"
     }
 
     "return the correct markup when there are person details and the user has edited their view address" in new MainAddressSetup {
@@ -168,10 +167,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(
+      cardBody mustBe Some(
         mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
 
-      cardBody.map(_.body).get should include("You can only change this address once a day. Please try again tomorrow.")
+      cardBody.map(_.body).get must include("You can only change this address once a day. Please try again tomorrow.")
     }
 
     "return the correct markup when tax credits is enabled" in new MainAddressSetup {
@@ -184,10 +183,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(
+      cardBody mustBe Some(
         mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
 
-      cardBody.map(_.body).get should not include "Change where we send your letters"
+      cardBody.map(_.body).get must not include "Change where we send your letters"
     }
 
     "return the correct markup when tax credits is disabled" in new MainAddressSetup {
@@ -200,10 +199,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(
+      cardBody mustBe Some(
         mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
 
-      cardBody.map(_.body).get should not include "Change where we send your letters"
+      cardBody.map(_.body).get must not include "Change where we send your letters"
     }
   }
 
@@ -279,7 +278,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
     )
   }
 
-  "Calling getPostalAddressCard" should {
+  "Calling getPostalAddressCard" must {
 
     "return nothing when there are no person details" in new PostalAddressSetup {
       override lazy val userHasPersonDetails = false
@@ -291,7 +290,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = None, request = FakeRequest())
 
-      cardBody shouldBe None
+      cardBody mustBe None
     }
 
     "return nothing when there are person details but no correspondence address" in new PostalAddressSetup {
@@ -304,7 +303,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe None
+      cardBody mustBe None
     }
 
     "return the correct markup when there is a correspondence address and the postal address can be updated when closePostalAddressToggle is off" in new PostalAddressSetup {
@@ -317,7 +316,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, closePostalAddressEnabled))
+      cardBody mustBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, closePostalAddressEnabled))
 
     }
 
@@ -331,7 +330,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, closePostalAddressEnabled))
+      cardBody mustBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, closePostalAddressEnabled))
 
     }
 
@@ -345,7 +344,7 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, false))
+      cardBody mustBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, false))
 
     }
 
@@ -359,11 +358,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe None
+      cardBody mustBe None
     }
   }
 
-  "Calling getNationalInsuranceCard" should {
+  "Calling getNationalInsuranceCard" must {
 
     trait LocalSetup {
       implicit def userRequest: UserRequest[_]
@@ -375,11 +374,11 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
 
-      cardBody shouldBe Some(nationalInsurance(userRequest.nino.get))
+      cardBody mustBe Some(nationalInsurance(userRequest.nino.get))
     }
   }
 
-  "Calling getChangeNameCard" should {
+  "Calling getChangeNameCard" must {
 
     trait LocalSetup {
 
@@ -410,14 +409,14 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with MockitoSugar with I
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
-      cardBody shouldBe Some(changeName())
+      cardBody mustBe Some(changeName())
     }
 
     "always return None when user does not have a name available" in new LocalSetup {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
 
-      cardBody shouldBe None
+      cardBody mustBe None
     }
   }
 }

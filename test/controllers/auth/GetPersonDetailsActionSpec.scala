@@ -19,11 +19,8 @@ package controllers.auth
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
-import org.scalatest.{FreeSpec, MustMatchers}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -36,11 +33,11 @@ import services.{CitizenDetailsService, PersonDetailsNotFoundResponse, PersonDet
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.Fixtures
+import util.{BaseSpec, Fixtures}
 
 import scala.concurrent.Future
 
-class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with MockitoSugar with GuiceOneAppPerSuite {
+class GetPersonDetailsActionSpec extends BaseSpec {
 
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockCitizenDetailsService = mock[CitizenDetailsService]
@@ -90,11 +87,11 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
     actionProvider.invokeBlock(request, block)
   }
 
-  "GetPersonDetailsAction must" - {
+  "GetPersonDetailsAction" when {
     when(mockMessageFrontendService.getUnreadMessageCount(any()))
       .thenReturn(Future.successful(Some(1)))
 
-    "when a user has PersonDetails in CitizenDetails" - {
+    "a user has PersonDetails in CitizenDetails" must {
 
       "add the PersonDetails to the request" in {
         when(mockCitizenDetailsService.personDetails(any())(any()))
@@ -106,7 +103,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
       }
     }
 
-    "when a user has no PersonDetails in CitizenDetails" - {
+    "when a user has no PersonDetails in CitizenDetails" must {
       "return the request it was passed" in {
         when(mockCitizenDetailsService.personDetails(any())(any()))
           .thenReturn(Future.successful(PersonDetailsNotFoundResponse))
@@ -118,7 +115,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
 
     }
 
-    "when the person details message count toggle is set to true" - {
+    "when the person details message count toggle is set to true" must {
       "return a request with the unread message count" in {
         when(mockCitizenDetailsService.personDetails(any())(any()))
           .thenReturn(Future.successful(personDetailsSuccessResponse))
@@ -131,7 +128,7 @@ class GetPersonDetailsActionSpec extends FreeSpec with MustMatchers with Mockito
       }
     }
 
-    "when the person details message count toggle is set to false" - {
+    "when the person details message count toggle is set to false" must {
       "return a request with the unread message count" in {
         when(mockCitizenDetailsService.personDetails(any())(any()))
           .thenReturn(Future.successful(personDetailsSuccessResponse))

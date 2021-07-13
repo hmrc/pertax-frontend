@@ -26,7 +26,6 @@ import play.api.Logger
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.filters.frontend.crypto.SessionCookieCrypto
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.play.partials.HeaderCarrierForPartialsConverter
 import util.Tools
@@ -39,14 +38,14 @@ class PreferencesFrontendService @Inject()(
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
-  val sessionCookieCrypto: SessionCookieCrypto,
   val tools: Tools,
   servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport {
 
+  private val logger = Logger(this.getClass)
+
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-  override def crypto: String => String = cookie => cookie
   def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
@@ -72,7 +71,7 @@ class PreferencesFrontendService @Inject()(
         } recover {
           case e =>
             timer.completeTimerAndIncrementFailedCounter()
-            Logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
+            logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
             ActivatePaperlessNotAllowedResponse
         }
       }

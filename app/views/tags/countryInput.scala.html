@@ -42,7 +42,7 @@
         <p>@elements.args.get('_additionalTitleText)</p>
     }
     @if(elements.args.contains('_errorsAboveInput)) {
-        @elements.errors.map { error => <span style="display: block"  id="@elements.args.get('_errorId)" class="error-message">@messages(error)</span> }
+        @elements.errors.map { error => <span style="display: block"  id="@elements.args.get('_errorId)" class="error-message">@messages(error.toString)</span> }
     }
     <select id="@elements.field.name" name="@elements.field.name" class="@elements.args.get('_selectClass)">
         @if(displayEmptyValue) {
@@ -58,7 +58,7 @@
         }
     </select>
     @if(!elements.args.contains('_errorsAboveInput)) {
-        @elements.errors.map { error => <span style="display: block" class="error-notification">@messages(error)</span> }
+        @elements.errors.map { error => <span style="display: block" class="error-notification">@messages(error.toString)</span> }
     }
 
 </div>

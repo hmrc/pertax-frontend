@@ -16,29 +16,29 @@
 
 package repositories
 
-import java.time.OffsetDateTime
-import java.util.UUID
-
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, SoleAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
-import org.mockito.Mockito._
-import org.mockito.Matchers.any
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.test.Helpers._
 import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 
+import java.time.OffsetDateTime
+import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class CachingItSpec extends UnitSpec with GuiceOneAppPerSuite
+class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite
   with PatienceConfiguration
   with BeforeAndAfterEach {
 

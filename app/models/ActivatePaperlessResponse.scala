@@ -27,6 +27,8 @@ case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) exte
 
 object ActivatePaperlessResponse {
 
+  private val logger = Logger(this.getClass)
+
   implicit lazy val httpReads: HttpReads[ActivatePaperlessResponse] =
     new HttpReads[ActivatePaperlessResponse] {
       override def read(method: String, url: String, response: HttpResponse): ActivatePaperlessResponse =
@@ -36,12 +38,12 @@ object ActivatePaperlessResponse {
 
           case PRECONDITION_FAILED =>
             val redirectUrl = (response.json \ "redirectUserTo")
-            Logger.warn(
+            logger.warn(
               "Precondition failed when getting paperless preference record from preferences-frontend-service")
             ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
 
           case r =>
-            Logger.warn(s"Unexpected $r response getting paperless preference record from preferences-frontend-service")
+            logger.warn(s"Unexpected $r response getting paperless preference record from preferences-frontend-service")
             ActivatePaperlessNotAllowedResponse
         }
     }

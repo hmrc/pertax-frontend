@@ -21,7 +21,7 @@ import util.BaseSpec
 
 class DateDtoSpec extends BaseSpec {
 
-  "Posting the enterStartDateForm" should {
+  "Posting the enterStartDateForm" must {
 
     "bind DateDto correctly when given valid data" in {
       val formData = Map(
@@ -37,10 +37,10 @@ class DateDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 0
+            formWithErrors.errors.length mustBe 0
           },
           success => {
-            success shouldBe DateDto(previousYear)
+            success mustBe DateDto(previousYear)
           }
         )
 
@@ -59,8 +59,8 @@ class DateDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.date_in_future"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.date_in_future"
           },
           success => {
             fail("Form should give an error")
@@ -81,8 +81,8 @@ class DateDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length shouldBe 1
-            formWithErrors.errors.head.message shouldBe "error.enter_valid_date"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.enter_valid_date"
           },
           success => {
             fail("Form should give an error")

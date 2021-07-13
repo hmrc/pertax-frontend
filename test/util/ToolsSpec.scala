@@ -22,52 +22,52 @@ class ToolsSpec extends BaseSpec {
 
   val tools = new Tools(injected[ApplicationCrypto])
 
-  "Calling urlEncode" should {
+  "Calling urlEncode" must {
 
     "return encoded url for http://www.gov.uk?paramOne=1&paramTwo=2" in {
-      tools.urlEncode("http://www.gov.uk?paramOne=1&paramTwo=2") shouldBe "http%3A%2F%2Fwww.gov.uk%3FparamOne%3D1%26paramTwo%3D2"
+      tools.urlEncode("http://www.gov.uk?paramOne=1&paramTwo=2") mustBe "http%3A%2F%2Fwww.gov.uk%3FparamOne%3D1%26paramTwo%3D2"
     }
   }
 
-  "Calling encryptAndEncode" should {
+  "Calling encryptAndEncode" must {
 
     "return encrypted and encoded url for http://www.gov.uk?paramOne=1&paramTwo=2" in {
-      tools.encryptAndEncode("http://www.gov.uk?paramOne=1&paramTwo=2") shouldBe "gxiBIOGIbn6eyoQ1PgijeECP4%2F8Ws7lUHnpPikndMN76jtk0UZawzrY2sYqwHMJU"
+      tools.encryptAndEncode("http://www.gov.uk?paramOne=1&paramTwo=2") mustBe "gxiBIOGIbn6eyoQ1PgijeECP4%2F8Ws7lUHnpPikndMN76jtk0UZawzrY2sYqwHMJU"
     }
   }
 
-  "Calling isRelative" should {
+  "Calling isRelative" must {
 
     "return true for /" in {
-      tools.isRelative("/") shouldBe true
+      tools.isRelative("/") mustBe true
     }
 
     "return true for /personal-account" in {
-      tools.isRelative("/personal-account") shouldBe true
+      tools.isRelative("/personal-account") mustBe true
     }
 
     "return true for /personal-account/tax-credits-summary" in {
-      tools.isRelative("/personal-account/tax-credits-summary") shouldBe true
+      tools.isRelative("/personal-account/tax-credits-summary") mustBe true
     }
 
     "return true for /123" in {
-      tools.isRelative("/123") shouldBe true
+      tools.isRelative("/123") mustBe true
     }
 
     "return true for ''" in {
-      tools.isRelative("") shouldBe true
+      tools.isRelative("") mustBe true
     }
 
     "return false for //protocolUrl" in {
-      tools.isRelative("//protocolUrl") shouldBe false
+      tools.isRelative("//protocolUrl") mustBe false
     }
 
     "return false for http://www.gov.uk" in {
-      tools.isRelative("http://www.gov.uk") shouldBe false
+      tools.isRelative("http://www.gov.uk") mustBe false
     }
 
     "return false for https://www.gov.uk" in {
-      tools.isRelative("https://www.gov.uk") shouldBe false
+      tools.isRelative("https://www.gov.uk") mustBe false
     }
   }
 }

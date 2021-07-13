@@ -14,16 +14,16 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html._
 @import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
-@import util.LocalPartialRetriever
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import scala.concurrent.ExecutionContext
+
 @this(mainView: MainView, form: FormWithCSRF, input: Input)
 @(addressFinderForm: Form[models.dto.AddressFinderDto], typ: AddrType)(implicit request: UserRequest[_],
-configDecorator: ConfigDecorator, partialRetriever: LocalPartialRetriever, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages)
+configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(
   title = typ.ifIs(

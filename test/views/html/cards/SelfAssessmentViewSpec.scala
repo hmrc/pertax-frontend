@@ -16,11 +16,9 @@
 
 package views.html.cards
 
-import java.net.URLDecoder
-
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
+import models._
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
@@ -30,7 +28,8 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home.SelfAssessmentView
 
-import scala.collection.JavaConverters._
+import java.net.URLDecoder
+import scala.collection.JavaConverters.asScalaBufferConverter
 
 class SelfAssessmentViewSpec extends ViewSpec {
 
@@ -41,11 +40,9 @@ class SelfAssessmentViewSpec extends ViewSpec {
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion = {
     val link = document
       .getElementsMatchingText(content)
-      .eachAttr("href")
-      .asScala
-      .head
+      .attr("href")
 
-    URLDecoder.decode(link, "UTF-8") should include(href)
+    URLDecoder.decode(link, "UTF-8") must include(href)
   }
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
@@ -65,7 +62,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
     def doc: Document = asDocument(selfAssessment(user, thisYear, nextYear).toString)
   }
 
-  "Self Assessment Card" should {
+  "Self Assessment Card" must {
 
     "render the correct card link" when {
 
@@ -98,7 +95,7 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
         override val user: SelfAssessmentUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr)
 
-        doc.text() should include(
+        doc.text() must include(
           messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_", nextYear)
         )
 

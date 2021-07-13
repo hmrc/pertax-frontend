@@ -32,7 +32,6 @@ import services._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.{buildAddressChangeEvent, buildEvent}
-import util.LocalPartialRetriever
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PostcodeLookupView
@@ -48,11 +47,12 @@ class PostcodeLookupController @Inject()(
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+
+  private val logger = Logger(this.getClass)
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -90,7 +90,7 @@ class PostcodeLookupController @Inject()(
           addressFinderDto => {
 
             if (addressFinderDto.postcode.isEmpty)
-              Logger.warn("post code is empty for processPostCodeLookupForm")
+              logger.warn("post code is empty for processPostCodeLookupForm")
 
             for {
               _ <- cachingHelper.addToCache(AddressFinderDtoId(typ), addressFinderDto)

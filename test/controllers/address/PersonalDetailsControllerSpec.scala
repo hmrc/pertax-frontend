@@ -19,12 +19,13 @@ package controllers.address
 import controllers.controllershelpers.PersonalDetailsCardGenerator
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{eq => meq, _}
+import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
+import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import services.NinoDisplayService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
@@ -59,7 +60,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         injected[PersonalDetailsView]
       ) {}
 
-    "Calling AddressController.onPageLoad" should {
+    "Calling AddressController.onPageLoad" must {
 
       "call citizenDetailsService.fakePersonDetails and return 200" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] =
@@ -67,7 +68,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
         val result = controller.onPageLoad()(FakeRequest())
 
-        status(result) shouldBe OK
+        status(result) mustBe OK
         verify(mockLocalSessionCache, times(1))
           .cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
         verify(mockEditAddressLockRepository, times(1)).get(any())
@@ -80,7 +81,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         val result = controller.onPageLoad()(FakeRequest())
         val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
 
-        status(result) shouldBe OK
+        status(result) mustBe OK
         verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
       }
     }

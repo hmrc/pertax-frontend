@@ -35,7 +35,6 @@ import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildEvent
-import util.LocalPartialRetriever
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
 
@@ -55,11 +54,12 @@ class ClosePostalAddressController @Inject()(
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+
+  private val logger = Logger(this.getClass)
 
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -123,7 +123,7 @@ class ClosePostalAddressController @Inject()(
 
     citizenDetailsService.getEtag(nino.nino) flatMap {
       case None =>
-        Logger.error("Failed to retrieve Etag from citizen-details")
+        logger.error("Failed to retrieve Etag from citizen-details")
         errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
       case Some(version) =>

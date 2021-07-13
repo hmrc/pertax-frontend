@@ -17,9 +17,8 @@
 package config
 
 import java.net.{MalformedURLException, URL}
-
-import play.api.i18n.Langs
 import play.api.Configuration
+import play.api.i18n.Langs
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.BaseSpec
@@ -27,24 +26,24 @@ import util.BaseSpec
 class ConfigDecoratorSpec extends BaseSpec {
   val saUtr = new SaUtrGenerator().nextSaUtr.utr
 
-  "Converting urls to sso" should {
+  "Converting urls to sso" must {
     "return a properly encoded sso url when calling transformUrlForSso" in {
-      config.transformUrlForSso(new URL("http://example.com/some/path?key=val")) shouldBe
+      config.transformUrlForSso(new URL("http://example.com/some/path?key=val")) mustBe
         "http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
     }
 
     "return a properly formatted sa302 url when calling sa302Url" in {
-      config.sa302Url(saUtr, "1516") shouldBe
+      config.sa302Url(saUtr, "1516") mustBe
         s"/self-assessment-file/1516/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
     }
 
     "return a properly formatted SA Account Summary Url url when calling ssoToSaAccountSummaryUrl" in {
-      config.ssoToSaAccountSummaryUrl(saUtr, "1516") shouldBe
+      config.ssoToSaAccountSummaryUrl(saUtr, "1516") mustBe
         s"http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Flocalhost%3A9237%2Fself-assessment%2Find%2F$saUtr%2Ftaxreturn%2F1516%2Foptions"
     }
   }
 
-  "Calling toPortalUrl" should {
+  "Calling toPortalUrl" must {
 
     trait LocalSetup {
 
@@ -60,14 +59,14 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("http://portal.service")
 
-      configDecorator.toPortalUrl("/some/path").toString shouldBe "http://portal.service/some/path"
+      configDecorator.toPortalUrl("/some/path").toString mustBe "http://portal.service/some/path"
     }
 
     "fail with a MalformedURLException if portalBaseUrl is not present" in new LocalSetup {
 
       val portalBaseUrlToTest = None
 
-      a[MalformedURLException] should be thrownBy {
+      a[MalformedURLException] must be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }
@@ -76,7 +75,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("/")
 
-      a[MalformedURLException] should be thrownBy {
+      a[MalformedURLException] must be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }
@@ -85,7 +84,7 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("//portal.service")
 
-      a[MalformedURLException] should be thrownBy {
+      a[MalformedURLException] must be thrownBy {
         configDecorator.toPortalUrl("/some/path")
       }
     }

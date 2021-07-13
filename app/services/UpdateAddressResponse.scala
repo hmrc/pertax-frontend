@@ -22,19 +22,16 @@ import error.GenericErrors
 import play.api.i18n.Messages
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HttpResponse
-import util.LocalPartialRetriever
 
 sealed trait UpdateAddressResponse {
-  def response(successResponseBlock: () => Result)(
+  def response(genericErrors: GenericErrors, successResponseBlock: () => Result)(
     implicit request: UserRequest[_],
     configDecorator: ConfigDecorator,
-    partialRetriever: LocalPartialRetriever,
     messages: Messages): Result =
     this match {
-      case UpdateAddressBadRequestResponse    => GenericErrors.badRequest
-      case UpdateAddressUnexpectedResponse(_) => GenericErrors.internalServerError
-      case UpdateAddressErrorResponse(_)      => GenericErrors.internalServerError
-      case UpdateAddressSuccessResponse       => successResponseBlock()
+      case UpdateAddressBadRequestResponse => genericErrors.badRequest
+      case UpdateAddressSuccessResponse    => successResponseBlock()
+      case _                               => genericErrors.internalServerError
     }
 }
 case object UpdateAddressSuccessResponse extends UpdateAddressResponse

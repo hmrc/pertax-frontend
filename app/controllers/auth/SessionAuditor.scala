@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext)
     extends AuditTags {
 
-  val logger = Logger(this.getClass)
+  private val logger = Logger(this.getClass)
 
   def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit hc: HeaderCarrier): Future[Result] =
     request.session.get(sessionKey) match {
@@ -55,7 +55,7 @@ private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector)(imp
           )
           .recover {
             case e: Exception =>
-              Logger.warn(s"Unable to audit: ${e.getMessage}")
+              logger.warn(s"Unable to audit: ${e.getMessage}")
               Failure("UserSessionAuditor.auditOncePerSession exception occurred whilst auditing", Some(e))
           }
 

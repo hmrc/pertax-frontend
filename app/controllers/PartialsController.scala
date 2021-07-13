@@ -16,26 +16,20 @@
 
 package controllers
 
+import com.google.inject.Inject
 import config.ConfigDecorator
 import error.LocalErrorHandler
-import com.google.inject.Inject
 import models.Breadcrumb
 import org.joda.time.DateTime
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import util.LocalPartialRetriever
+import views.html.integration.MainContentHeaderView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PartialsController @Inject()(
   val localErrorHandler: LocalErrorHandler,
-  auditConnector: AuditConnector,
-  authConnector: AuthConnector,
-  cc: MessagesControllerComponents)(
-  implicit partialRetriever: LocalPartialRetriever,
-  configDecorator: ConfigDecorator,
-  ex: ExecutionContext)
+  cc: MessagesControllerComponents,
+  mainContentHeaderView: MainContentHeaderView)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def mainContentHeader(
@@ -53,7 +47,7 @@ class PartialsController @Inject()(
       val breadcrumb: Breadcrumb = (itemText zip itemUrl).dropRight(if (showLastItem) 0 else 1)
 
       Ok(
-        views.html.integration.mainContentHeader(
+        mainContentHeaderView(
           name,
           lastLogin.map(new DateTime(_)),
           breadcrumb,
