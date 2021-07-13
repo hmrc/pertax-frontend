@@ -66,7 +66,7 @@ class TaiService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, ser
         onError = {
           case e =>
             t.completeTimerAndIncrementFailedCounter()
-            logger.error("Error getting tax components from the tai-service", e)
+            logger.error("Error getting tax components from the tai-service")
             TaxComponentsErrorResponse(e)
         }
       )
