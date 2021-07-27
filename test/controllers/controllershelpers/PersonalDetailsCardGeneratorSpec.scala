@@ -120,7 +120,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
+        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+      )
 
       cardBody.map(_.body).get must not include "Change where we send your letters"
     }
@@ -136,7 +137,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
+        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+      )
 
       cardBody.map(_.body).get must include("Change where we send your letters")
     }
@@ -152,7 +154,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
+        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+      )
 
       cardBody.map(_.body).get must not include "Change where we send your letters"
     }
@@ -168,7 +171,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
+        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+      )
 
       cardBody.map(_.body).get must include("You can only change this address once a day. Please try again tomorrow.")
     }
@@ -184,7 +188,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
+        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+      )
 
       cardBody.map(_.body).get must not include "Change where we send your letters"
     }
@@ -200,7 +205,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
         buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries))
+        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+      )
 
       cardBody.map(_.body).get must not include "Change where we send your letters"
     }

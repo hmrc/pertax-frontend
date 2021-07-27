@@ -34,7 +34,7 @@ import views.html.iv.success.SuccessView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ApplicationController @Inject()(
+class ApplicationController @Inject() (
   val identityVerificationFrontendService: IdentityVerificationFrontendService,
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
@@ -43,10 +43,8 @@ class ApplicationController @Inject()(
   failedIvIncompleteView: FailedIvIncompleteView,
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
-  technicalIssuesView: TechnicalIssuesView)(
-  implicit configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  technicalIssuesView: TechnicalIssuesView
+)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
 
   private val logger = Logger(this.getClass)

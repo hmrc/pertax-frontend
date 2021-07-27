@@ -31,8 +31,9 @@ case class TaxCalculationViewModel(
 
 object TaxCalculationViewModel {
 
-  def fromTaxYearReconciliation(reconciliationModel: TaxYearReconciliation)(
-    implicit configDecorator: ConfigDecorator): Option[TaxCalculationViewModel] = {
+  def fromTaxYearReconciliation(
+    reconciliationModel: TaxYearReconciliation
+  )(implicit configDecorator: ConfigDecorator): Option[TaxCalculationViewModel] = {
 
     val taxYears = TaxYears(reconciliationModel.taxYear, reconciliationModel.taxYear + 1)
 
@@ -40,8 +41,9 @@ object TaxCalculationViewModel {
       .lift((reconciliationModel.reconciliation, taxYears))
   }
 
-  private def underpaidViewModel(
-    implicit configDecorator: ConfigDecorator): PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
+  private def underpaidViewModel(implicit
+    configDecorator: ConfigDecorator
+  ): PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
     case (Underpaid(_, _, PaidAll), taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
       TaxCalculationViewModel(
@@ -55,8 +57,9 @@ object TaxCalculationViewModel {
       )
 
     case (
-        status @ Underpaid(Some(amount), Some(dueDate), PaymentDue),
-        taxYears @ TaxYears(previousTaxYear, currentTaxYear)) if status.hasDeadlinePassed =>
+          status @ Underpaid(Some(amount), Some(dueDate), PaymentDue),
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) if status.hasDeadlinePassed =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
@@ -67,7 +70,9 @@ object TaxCalculationViewModel {
           text(
             "label.you_owe_hmrc_you_should_have_paid_",
             Literal("%,.2f".format(amount)),
-            viewmodels.Date(Some(dueDate)))),
+            viewmodels.Date(Some(dueDate))
+          )
+        ),
         List(
           Link(text("label.make_a_payment"), MakePaymentUrl, "You missed the deadline to pay your tax")
         )
@@ -88,13 +93,15 @@ object TaxCalculationViewModel {
           Link(
             text("label.find_out_why_you_paid_too_little"),
             UnderpaidReasonsUrl(previousTaxYear),
-            "Find out why you paid too little")
+            "Find out why you paid too little"
+          )
         )
       )
 
     case (
-        status @ Underpaid(Some(amount), Some(dueDate), PartPaid),
-        taxYears @ TaxYears(previousTaxYear, currentTaxYear)) if status.isDeadlineApproaching =>
+          status @ Underpaid(Some(amount), Some(dueDate), PartPaid),
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) if status.isDeadlineApproaching =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
@@ -105,20 +112,23 @@ object TaxCalculationViewModel {
           text(
             "label.you_still_owe_hmrc_you_must_pay_by_",
             Literal("%,.2f".format(amount)),
-            viewmodels.Date(Some(dueDate)))
+            viewmodels.Date(Some(dueDate))
+          )
         ),
         List(
           Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment"),
           Link(
             text("label.find_out_why_you_paid_too_little"),
             UnderpaidReasonsUrl(previousTaxYear),
-            "Find out why you paid too little")
+            "Find out why you paid too little"
+          )
         )
       )
 
     case (
-        status @ Underpaid(Some(amount), Some(dueDate), PartPaid),
-        taxYears @ TaxYears(previousTaxYear, currentTaxYear)) if status.hasDeadlinePassed =>
+          status @ Underpaid(Some(amount), Some(dueDate), PartPaid),
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) if status.hasDeadlinePassed =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
@@ -129,7 +139,8 @@ object TaxCalculationViewModel {
           text(
             "label.you_still_owe_hmrc_you_should_have_paid_",
             Literal("%,.2f".format(amount)),
-            viewmodels.Date(Some(dueDate)))
+            viewmodels.Date(Some(dueDate))
+          )
         ),
         List(
           Link(text("label.make_a_payment"), MakePaymentUrl, "You missed the deadline to pay your tax")
@@ -147,14 +158,16 @@ object TaxCalculationViewModel {
           text(
             "label.you_still_owe_hmrc_you_must_pay_by_",
             Literal("%,.2f".format(amount)),
-            viewmodels.Date(Some(dueDate)))
+            viewmodels.Date(Some(dueDate))
+          )
         ),
         List(
           Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment"),
           Link(
             text("label.find_out_why_you_paid_too_little"),
             UnderpaidReasonsUrl(previousTaxYear),
-            "Find out why you paid too little")
+            "Find out why you paid too little"
+          )
         )
       )
 
@@ -173,7 +186,8 @@ object TaxCalculationViewModel {
           Link(
             text("label.find_out_why_you_paid_too_little"),
             UnderpaidReasonsUrl(previousTaxYear),
-            "Find out why you paid too little")
+            "Find out why you paid too little"
+          )
         )
       )
   }
@@ -211,7 +225,8 @@ object TaxCalculationViewModel {
         Link(
           text("label.find_out_why_you_paid_too_much"),
           OverpaidReasonsUrl(taxYears.previousTaxYear),
-          "Find out why you paid too much")
+          "Find out why you paid too much"
+        )
     )
 
   private val otherViewModels: PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {

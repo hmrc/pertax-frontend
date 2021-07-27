@@ -25,9 +25,10 @@ object AuditServiceTools {
 
   val auditSource = "pertax-frontend"
 
-  def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(
-    implicit hc: HeaderCarrier,
-    request: UserRequest[_]): DataEvent = {
+  def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(implicit
+    hc: HeaderCarrier,
+    request: UserRequest[_]
+  ): DataEvent = {
     val customTags = Map(
       "clientIP"        -> hc.trueClientIp,
       "clientPort"      -> hc.trueClientPort,
@@ -58,9 +59,10 @@ object AuditServiceTools {
     )
   }
 
-  def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(
-    implicit hc: HeaderCarrier,
-    request: UserRequest[_]): DataEvent =
+  def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(implicit
+    hc: HeaderCarrier,
+    request: UserRequest[_]
+  ): DataEvent =
     buildEvent(
       auditType,
       "change_address",
@@ -74,13 +76,15 @@ object AuditServiceTools {
         "startDate" -> Some(personDetails.address.flatMap(_.startDate).getOrElse(None).toString),
         "type"      -> Some(personDetails.address.flatMap(_.`type`).getOrElse(None).toString),
         "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(Some("false"))(address =>
-          Some(address.isWelshLanguageUnit.toString))
+          Some(address.isWelshLanguageUnit.toString)
+        )
       )
     )
 
-  def buildAddressChangeEvent(auditType: String, personDetails: PersonDetails, isInternationalAddress: Boolean)(
-    implicit hc: HeaderCarrier,
-    request: UserRequest[_]): DataEvent =
+  def buildAddressChangeEvent(auditType: String, personDetails: PersonDetails, isInternationalAddress: Boolean)(implicit
+    hc: HeaderCarrier,
+    request: UserRequest[_]
+  ): DataEvent =
     buildEvent(
       auditType,
       "change_address",
@@ -94,7 +98,8 @@ object AuditServiceTools {
         "startDate" -> Some(personDetails.address.flatMap(_.startDate).getOrElse(None).toString),
         "type"      -> Some(personDetails.address.flatMap(_.`type`).getOrElse(None).toString),
         "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(Some("false"))(address =>
-          Some(address.isWelshLanguageUnit.toString)),
+          Some(address.isWelshLanguageUnit.toString)
+        ),
         "isInternationalAddress" -> Some(isInternationalAddress.toString)
       )
     )

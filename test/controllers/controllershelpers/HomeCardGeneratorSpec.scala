@@ -346,7 +346,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
             saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-            request = FakeRequest())
+            request = FakeRequest()
+          )
 
         lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
 

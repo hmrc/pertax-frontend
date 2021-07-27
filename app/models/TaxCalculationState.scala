@@ -42,15 +42,15 @@ case class TaxCalculationUnderpaidPaymentDueState(
   startOfTaxYear: Int,
   endOfTaxYear: Int,
   dueDate: Option[LocalDate],
-  saDeadLineStatus: Option[SaDeadlineStatus])
-    extends TaxCalculationUnderpaidState with SaDeadlineStatus
+  saDeadLineStatus: Option[SaDeadlineStatus]
+) extends TaxCalculationUnderpaidState with SaDeadlineStatus
 case class TaxCalculationUnderpaidPartPaidState(
   amount: BigDecimal,
   startOfTaxYear: Int,
   endOfTaxYear: Int,
   dueDate: Option[LocalDate],
-  saDeadlineStatus: Option[SaDeadlineStatus])
-    extends TaxCalculationUnderpaidState with SaDeadlineStatus
+  saDeadlineStatus: Option[SaDeadlineStatus]
+) extends TaxCalculationUnderpaidState with SaDeadlineStatus
 case class TaxCalculationUnderpaidPaidAllState(startOfTaxYear: Int, endOfTaxYear: Int, dueDate: Option[LocalDate])
     extends TaxCalculationUnderpaidState
 case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTaxYear: Int)
@@ -59,14 +59,15 @@ case class TaxCalculationUnderpaidPaymentsDownState(startOfTaxYear: Int, endOfTa
 case object TaxCalculationUnkownState extends TaxCalculationState
 
 @Singleton
-class TaxCalculationStateFactory @Inject()(
-  implicit val configDecorator: ConfigDecorator,
+class TaxCalculationStateFactory @Inject() (implicit
+  val configDecorator: ConfigDecorator,
   val localTaxYearResolver: LocalTaxYearResolver
 ) {
 
   def buildFromTaxCalculation(
     taxCalculation: Option[TaxCalculation],
-    includeOverPaidPayments: Boolean = true): TaxCalculationState =
+    includeOverPaidPayments: Boolean = true
+  ): TaxCalculationState =
     (taxCalculation, includeOverPaidPayments) match {
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAYMENT_DUE"), _, _, None)), _) =>
         TaxCalculationUnderpaidPaymentDueState(amount, taxYear, taxYear + 1, None, None)
@@ -77,7 +78,8 @@ class TaxCalculationStateFactory @Inject()(
           taxYear,
           taxYear + 1,
           Some(new LocalDate(dueDate)),
-          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate)))
+          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate))
+        )
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PART_PAID"), _, _, None)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)
@@ -88,7 +90,8 @@ class TaxCalculationStateFactory @Inject()(
           taxYear,
           taxYear + 1,
           Some(new LocalDate(dueDate)),
-          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate)))
+          SaDeadlineStatusCalculator.getSaDeadlineStatus(new LocalDate(dueDate))
+        )
 
       case (Some(TaxCalculation("Underpaid", amount, taxYear, Some("PAID_PART"), _, Some("P302"), _)), _) =>
         TaxCalculationUnderpaidPartPaidState(amount, taxYear, taxYear + 1, None, None)

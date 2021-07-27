@@ -55,13 +55,15 @@ class AuthActionSpec extends BaseSpec {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
-          s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}")
+          s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
+      )
     }
   }
 
   type AuthRetrievals =
-    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[String] ~ ConfidenceLevel ~ Option[
-      UserName] ~ Option[TrustedHelper] ~ Option[String]
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
+      String
+    ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
 
   val nino = Fixtures.fakeNino.nino
   val fakeCredentials = Credentials("foo", "bar")
@@ -77,10 +79,13 @@ class AuthActionSpec extends BaseSpec {
     credentialStrength: String = CredentialStrength.strong,
     confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
     trustedHelper: Option[TrustedHelper] = None,
-    profileUrl: Option[String] = None): Harness = {
+    profileUrl: Option[String] = None
+  ): Harness = {
 
     when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
-      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(credentialStrength) ~ confidenceLevel ~ None ~ trustedHelper ~ profileUrl
+      nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(
+        credentialStrength
+      ) ~ confidenceLevel ~ None ~ trustedHelper ~ profileUrl
     )
 
     val authAction =
@@ -125,7 +130,8 @@ class AuthActionSpec extends BaseSpec {
 
       val mfaRedirectUrl =
         Some(
-          "http://localhost:9553/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account")
+          "http://localhost:9553/bas-gateway/uplift-mfa?origin=PERTAX&continueUrl=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account"
+        )
 
       "the user in an Individual" in {
 
@@ -194,7 +200,8 @@ class AuthActionSpec extends BaseSpec {
         Map(
           "loginOrigin"    -> Origin("PERTAX").origin,
           "login_redirect" -> "http://localhost:9232/personal-account/do-uplift?redirectUrl=http%3A%2F%2Flocalhost%3A9232%2Ffoo"
-        ))
+        )
+      )
       redirectLocation(result).get must endWith("/ida/login")
     }
 
@@ -210,7 +217,8 @@ class AuthActionSpec extends BaseSpec {
       status(result) mustBe SEE_OTHER
 
       redirectLocation(result).get must endWith(
-        "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3Dhttp%253A%252F%252Flocalhost%253A9232%252Ffoo&accountType=individual&origin=PERTAX")
+        "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9232%2Fpersonal-account%2Fdo-uplift%3FredirectUrl%3Dhttp%253A%252F%252Flocalhost%253A9232%252Ffoo&accountType=individual&origin=PERTAX"
+      )
     }
   }
 
@@ -278,7 +286,8 @@ class AuthActionSpec extends BaseSpec {
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
-        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
+        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))"
+      )
     }
   }
 

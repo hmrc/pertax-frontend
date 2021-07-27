@@ -89,7 +89,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
             aResponse()
               .withStatus(200)
               .withBody(jsonBody)
-          ))
+          )
+      )
 
       val result = service.getPaperlessPreference()
 
@@ -133,7 +134,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           .willReturn(
             aResponse()
               .withStatus(303)
-          ))
+          )
+      )
 
       val result = service.getPaperlessPreference().futureValue
 
@@ -159,7 +161,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           .willReturn(
             aResponse()
               .withStatus(400)
-          ))
+          )
+      )
 
       val result = service.getPaperlessPreference().futureValue
 
@@ -190,7 +193,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
             aResponse()
               .withStatus(PRECONDITION_FAILED)
               .withBody(jsonBody)
-          ))
+          )
+      )
 
       val result = service.getPaperlessPreference().futureValue
 
@@ -216,7 +220,8 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
           .willReturn(
             aResponse()
               .withStatus(500)
-          ))
+          )
+      )
 
       val result = service.getPaperlessPreference().futureValue
 

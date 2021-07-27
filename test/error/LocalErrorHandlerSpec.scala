@@ -36,11 +36,14 @@ class LocalErrorHandlerSpec extends ViewSpec {
         standardError(
           "Service unavailable",
           "Service unavailable",
-          "Sorry, we are currently experiencing technical issues.").toString())
+          "Sorry, we are currently experiencing technical issues."
+        ).toString()
+      )
 
     doc.getElementsByTag("h1").toString must include(messages("label.service_unavailable"))
     doc.getElementsByTag("p").toString must include(
-      messages("label.sorry_we_are_currently_experiencing_technical_issues"))
+      messages("label.sorry_we_are_currently_experiencing_technical_issues")
+    )
 
   }
 
@@ -48,9 +51,12 @@ class LocalErrorHandlerSpec extends ViewSpec {
     val doc = asDocument(internalServerError().toString())
     doc.getElementsByTag("h1").toString must include(messages("global.error.InternalServerError500.pta.title"))
     doc.getElementsByTag("p").toString must include(
-      messages("global.error.InternalServerError500.pta.message.you.can") + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
-        "global.error.InternalServerError500.pta.message.contact.hmrc") + "</a> " + messages(
-        "global.error.InternalServerError500.pta.message.by.phone.post"))
+      messages(
+        "global.error.InternalServerError500.pta.message.you.can"
+      ) + " <a href=\"https://www.gov.uk/contact-hmrc\">" + messages(
+        "global.error.InternalServerError500.pta.message.contact.hmrc"
+      ) + "</a> " + messages("global.error.InternalServerError500.pta.message.by.phone.post")
+    )
 
   }
 

@@ -18,8 +18,7 @@ package models.addresslookup
 
 import play.api.libs.json.Json
 
-/**
-  * Represents one address record. Arrays of these are returned from the address-lookup microservice.
+/** Represents one address record. Arrays of these are returned from the address-lookup microservice.
   */
 case class AddressRecord(id: String, address: Address, language: String) {
 

@@ -36,7 +36,8 @@ object UserRequestFixture {
     trustedHelper: Option[TrustedHelper] = None,
     profile: Option[String] = None,
     messageCount: Option[Int] = None,
-    request: Request[A]): UserRequest[A] =
+    request: Request[A]
+  ): UserRequest[A] =
     UserRequest(
       nino,
       userName,
@@ -49,5 +50,6 @@ object UserRequestFixture {
       messageCount,
       None,
       None,
-      request)
+      request
+    )
 }

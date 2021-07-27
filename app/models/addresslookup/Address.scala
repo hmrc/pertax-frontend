@@ -21,8 +21,7 @@ import java.util.regex.Pattern
 import com.fasterxml.jackson.annotation.JsonIgnore
 import play.api.libs.json.Json
 
-/**
-  * Address typically represents a postal address.
+/** Address typically represents a postal address.
   * For UK addresses, 'town' will always be present.
   * For non-UK addresses, 'town' may be absent and there may be an extra line instead.
   */
@@ -32,7 +31,8 @@ case class Address(
   county: Option[String],
   postcode: String,
   subdivision: Option[Country],
-  country: Country) {
+  country: Country
+) {
 
   import Address._
 
@@ -65,7 +65,8 @@ case class Address(
       county.map(limit(_, maxLen)),
       postcode,
       subdivision,
-      country)
+      country
+    )
 
 }
 
@@ -76,9 +77,8 @@ object Address {
 
   private def limit(str: String, max: Int): String = {
     var s = str
-    while (s.length > max && s.indexOf(", ") > 0) {
+    while (s.length > max && s.indexOf(", ") > 0)
       s = s.replaceFirst(", ", ",")
-    }
     if (s.length > max) {
       s = s.substring(0, max).trim
       if (Address.danglingLetter.matcher(s).matches()) {

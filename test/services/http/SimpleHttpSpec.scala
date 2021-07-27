@@ -40,11 +40,14 @@ class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with In
       s"act as a pass through for a HttpResponse with status $httpStatus" in {
         server.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-        val result: Future[Int] = simpleHttp.get(url)(onComplete = { r =>
-          r.status
-        }, onError = { _ =>
-          magicErrorCode
-        })
+        val result: Future[Int] = simpleHttp.get(url)(
+          onComplete = { r =>
+            r.status
+          },
+          onError = { _ =>
+            magicErrorCode
+          }
+        )
 
         result.futureValue mustBe httpStatus
       }
@@ -53,11 +56,14 @@ class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with In
     "calls the onError function if there is a fault" in {
       server.stubFor(get(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
 
-      val result: Future[Int] = simpleHttp.get(url)(onComplete = { r =>
-        r.status
-      }, onError = { _ =>
-        magicErrorCode
-      })
+      val result: Future[Int] = simpleHttp.get(url)(
+        onComplete = { r =>
+          r.status
+        },
+        onError = { _ =>
+          magicErrorCode
+        }
+      )
 
       result.futureValue mustBe magicErrorCode
     }
@@ -68,11 +74,14 @@ class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with In
       s"act as a pass through for a HttpResponse with status $httpStatus" in {
         server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-        val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
-          r.status
-        }, onError = { _ =>
-          magicErrorCode
-        })
+        val result: Future[Int] = simpleHttp.put(url, "")(
+          onComplete = { r =>
+            r.status
+          },
+          onError = { _ =>
+            magicErrorCode
+          }
+        )
 
         result.futureValue mustBe httpStatus
       }
@@ -81,11 +90,14 @@ class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with In
     "calls the onError function if there is a fault" in {
       server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
 
-      val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
-        r.status
-      }, onError = { _ =>
-        magicErrorCode
-      })
+      val result: Future[Int] = simpleHttp.put(url, "")(
+        onComplete = { r =>
+          r.status
+        },
+        onError = { _ =>
+          magicErrorCode
+        }
+      )
 
       result.futureValue mustBe magicErrorCode
     }
@@ -96,11 +108,14 @@ class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with In
       s"act as a pass through for a HttpResponse with status $httpStatus" in {
         server.stubFor(post(urlEqualTo("/")).willReturn(aResponse().withStatus(httpStatus)))
 
-        val result: Future[Int] = simpleHttp.post(url, "")(onComplete = { r =>
-          r.status
-        }, onError = { _ =>
-          magicErrorCode
-        })
+        val result: Future[Int] = simpleHttp.post(url, "")(
+          onComplete = { r =>
+            r.status
+          },
+          onError = { _ =>
+            magicErrorCode
+          }
+        )
 
         result.futureValue mustBe httpStatus
       }
@@ -109,11 +124,14 @@ class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with In
     "calls the onError function if there is a fault" in {
       server.stubFor(put(urlEqualTo("/")).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)))
 
-      val result: Future[Int] = simpleHttp.put(url, "")(onComplete = { r =>
-        r.status
-      }, onError = { _ =>
-        magicErrorCode
-      })
+      val result: Future[Int] = simpleHttp.put(url, "")(
+        onComplete = { r =>
+          r.status
+        },
+        onError = { _ =>
+          magicErrorCode
+        }
+      )
 
       result.futureValue mustBe magicErrorCode
     }
@@ -127,8 +145,9 @@ class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: Exe
   private val headerCarrierQueue = new LinkedBlockingQueue[HeaderCarrier]
   def getLastHeaderCarrier = headerCarrierQueue.take
 
-  override def get[T](url: String)(onComplete: HttpResponse => T, onError: Exception => T)(
-    implicit hc: HeaderCarrier): Future[T] = {
+  override def get[T](
+    url: String
+  )(onComplete: HttpResponse => T, onError: Exception => T)(implicit hc: HeaderCarrier): Future[T] = {
     headerCarrierQueue.put(hc)
     Future.successful {
       response match {
@@ -138,9 +157,10 @@ class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: Exe
     }
   }
 
-  override def post[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(
-    implicit hc: HeaderCarrier,
-    w: Writes[I]): Future[T] = {
+  override def post[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(implicit
+    hc: HeaderCarrier,
+    w: Writes[I]
+  ): Future[T] = {
     headerCarrierQueue.put(hc)
     Future.successful {
       response match {
@@ -150,9 +170,10 @@ class FakeSimpleHttp(response: Either[HttpResponse, Exception])(implicit ec: Exe
     }
   }
 
-  override def put[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(
-    implicit hc: HeaderCarrier,
-    w: Writes[I]): Future[T] = {
+  override def put[I, T](url: String, body: I)(onComplete: HttpResponse => T, onError: Exception => T)(implicit
+    hc: HeaderCarrier,
+    w: Writes[I]
+  ): Future[T] = {
     headerCarrierQueue.put(hc)
     Future.successful {
       response match {

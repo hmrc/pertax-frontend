@@ -33,14 +33,13 @@ class SelfAssessmentUserTypeSpec extends BaseSpec {
       ("NotEnrolledSelfAssessmentUser", NotEnrolledSelfAssessmentUser(SaUtr(utr)))
     )
 
-    testList.foreach {
-      case (key, obj) =>
-        s"serialise and deserialise a $key" in {
+    testList.foreach { case (key, obj) =>
+      s"serialise and deserialise a $key" in {
 
-          val converted = Json.toJson(obj)
+        val converted = Json.toJson(obj)
 
-          converted.as[SelfAssessmentUserType] mustBe obj
-        }
+        converted.as[SelfAssessmentUserType] mustBe obj
+      }
     }
 
     "serialise and deserialise a NonFilerSelfAssessmentUser" in {

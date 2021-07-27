@@ -45,11 +45,11 @@ object IdentityVerificationSuccessResponse {
   val PrecondFailed = "PreconditionFailed"
 }
 @Singleton
-class IdentityVerificationFrontendService @Inject()(
+class IdentityVerificationFrontendService @Inject() (
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
-  servicesConfig: ServicesConfig)
-    extends HasMetrics {
+  servicesConfig: ServicesConfig
+) extends HasMetrics {
 
   private val logger = Logger(this.getClass)
 
@@ -58,11 +58,16 @@ class IdentityVerificationFrontendService @Inject()(
   def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
     withMetricsTimer("get-iv-journey-status") { t =>
       simpleHttp.get[IdentityVerificationResponse](
-        s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId")(
+        s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId"
+      )(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()
-            val result = List((r.json \ "journeyResult").asOpt[String], (r.json \ "result").asOpt[String]).flatten.head //FIXME - dont use head
+            val result =
+              List(
+                (r.json \ "journeyResult").asOpt[String],
+                (r.json \ "result").asOpt[String]
+              ).flatten.head //FIXME - dont use head
             IdentityVerificationSuccessResponse(result)
 
           case r if r.status == NOT_FOUND =>
@@ -73,14 +78,14 @@ class IdentityVerificationFrontendService @Inject()(
           case r =>
             t.completeTimerAndIncrementFailedCounter()
             logger.warn(
-              s"Unexpected ${r.status} response getting IV journey status from identity-verification-frontend-service")
+              s"Unexpected ${r.status} response getting IV journey status from identity-verification-frontend-service"
+            )
             IdentityVerificationUnexpectedResponse(r)
         },
-        onError = {
-          case e =>
-            t.completeTimerAndIncrementFailedCounter()
-            logger.warn("Error getting IV journey status from identity-verification-frontend-service", e)
-            IdentityVerificationErrorResponse(e)
+        onError = { case e =>
+          t.completeTimerAndIncrementFailedCounter()
+          logger.warn("Error getting IV journey status from identity-verification-frontend-service", e)
+          IdentityVerificationErrorResponse(e)
         }
       )
 

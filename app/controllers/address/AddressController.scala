@@ -29,28 +29,25 @@ import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class AddressController @Inject()(
+abstract class AddressController @Inject() (
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withActiveTabAction
       .addActiveTab(ActiveTabYourAccount)
 
-  def addressJourneyEnforcer(block: Nino => PersonDetails => Future[Result])(
-    implicit request: UserRequest[_]): Future[Result] =
+  def addressJourneyEnforcer(
+    block: Nino => PersonDetails => Future[Result]
+  )(implicit request: UserRequest[_]): Future[Result] =
     (for {
       payeAccount   <- request.nino
       personDetails <- request.personDetails
-    } yield {
-      block(payeAccount)(personDetails)
-    }).getOrElse {
+    } yield block(payeAccount)(personDetails)).getOrElse {
       Future.successful {
         val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
           .onPageLoad()

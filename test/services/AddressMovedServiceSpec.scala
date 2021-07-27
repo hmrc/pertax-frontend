@@ -38,13 +38,19 @@ class AddressMovedServiceSpec extends BaseSpec {
       AddressRecord(
         "some id",
         Address(List.empty, None, None, fromPostcode, Some(Country("GB-ENG", "England")), Country("eng", "England")),
-        "en")))
+        "en"
+      )
+    )
+  )
   val scotlandRecordSet = RecordSet(
     Seq(
       AddressRecord(
         "some id",
         Address(List.empty, None, None, fromPostcode, Some(Country("GB-SCT", "Scotland")), Country("blah", "blah")),
-        "en")))
+        "en"
+      )
+    )
+  )
 
   val service = new AddressMovedService(addressLookupService)
 

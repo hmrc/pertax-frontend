@@ -29,14 +29,15 @@ import util.Tools
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PaperlessPreferencesController @Inject()(
+class PaperlessPreferencesController @Inject() (
   val preferencesFrontendPartialService: PreferencesFrontendPartialService,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
-  tools: Tools)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+  tools: Tools
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def managePreferences: Action[AnyContent] =
@@ -48,7 +49,9 @@ class PaperlessPreferencesController @Inject()(
         } else {
           Future.successful(
             Redirect(
-              getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))))
+              getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
+            )
+          )
         }
     }
 

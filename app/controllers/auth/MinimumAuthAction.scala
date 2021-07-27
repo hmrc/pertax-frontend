@@ -33,12 +33,13 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MinimumAuthAction @Inject()(
+class MinimumAuthAction @Inject() (
   val authConnector: AuthConnector,
   configuration: Configuration,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents)(implicit ec: ExecutionContext)
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
@@ -53,7 +54,8 @@ class MinimumAuthAction @Inject()(
           Retrievals.confidenceLevel and
           Retrievals.name and
           Retrievals.trustedHelper and
-          Retrievals.profile) {
+          Retrievals.profile
+      ) {
         case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ trustedHelper ~ profile =>
           val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
             enrolment.identifiers
@@ -64,8 +66,8 @@ class MinimumAuthAction @Inject()(
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map {
-                  case (key, vals) => (key, vals.map(_.trim))
+                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
+                  (key, vals.map(_.trim))
                 })
               case b => b
             }

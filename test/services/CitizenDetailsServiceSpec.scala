@@ -65,7 +65,7 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       Some("Correspondence")
     )
 
-    val jsonAddress = Json.obj("etag"               -> "115", "address" -> Json.toJson(address))
+    val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
     val jsonCorrespondenceAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(correspondenceAddress))
     val nino: Nino = Fixtures.fakeNino
     val anException = new RuntimeException("Any")

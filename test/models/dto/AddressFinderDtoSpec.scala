@@ -33,9 +33,7 @@ class AddressFinderDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {},
-          success => {
-            success mustBe AddressFinderDto("AA1 1AA", Some("6"))
-          }
+          success => success mustBe AddressFinderDto("AA1 1AA", Some("6"))
         )
     }
 
@@ -53,9 +51,7 @@ class AddressFinderDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
 
@@ -73,9 +69,7 @@ class AddressFinderDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_valid_characters"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
 
@@ -94,9 +88,7 @@ class AddressFinderDtoSpec extends BaseSpec {
             formWithErrors.errors(0).message mustBe "error.enter_a_valid_uk_postcode"
             formWithErrors.errors(1).message mustBe "error.enter_valid_characters"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
 
@@ -109,12 +101,8 @@ class AddressFinderDtoSpec extends BaseSpec {
       AddressFinderDto.form
         .bind(formData)
         .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 0
-          },
-          success => {
-            success mustBe AddressFinderDto("AA1 1AA", None)
-          }
+          formWithErrors => formWithErrors.errors.length mustBe 0,
+          success => success mustBe AddressFinderDto("AA1 1AA", None)
         )
     }
 
@@ -131,9 +119,7 @@ class AddressFinderDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_a_valid_uk_postcode"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
   }

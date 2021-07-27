@@ -84,7 +84,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
     lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+      SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+    )
 
     def controller: ApplicationController =
       new ApplicationController(
@@ -119,7 +120,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = request
-            ))
+            )
+          )
       })
 
       val result =
@@ -138,7 +140,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = request
-            ))
+            )
+          )
       })
 
       val result =
@@ -164,7 +167,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
 
       val result = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(
-        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
+      )
       status(result) mustBe OK
 
     }
@@ -263,7 +267,9 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       val result = routeWrapper(
         buildFakeRequestWithAuth(
           "GET",
-          "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX")).get
+          "/personal-account/identity-check-complete?continueUrl=http://example.com&journeyId=XXXXX"
+        )
+      ).get
 
       status(result) mustBe BAD_REQUEST
 
@@ -285,7 +291,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
-        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account")
+        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account"
+      )
     }
     "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
 
@@ -296,7 +303,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
               credentials = Credentials("", "Verify"),
               confidenceLevel = ConfidenceLevel.L500,
               request = request
-            ))
+            )
+          )
       })
 
       val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
@@ -317,7 +325,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       val result = controller.signout(None, Some(Origin("TESTORIGIN")))(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
-        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/TESTORIGIN")
+        "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/TESTORIGIN"
+      )
     }
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
@@ -345,7 +354,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
               credentials = Credentials("", "Verify"),
               confidenceLevel = ConfidenceLevel.L500,
               request = request
-            ))
+            )
+          )
       })
 
       val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
@@ -363,7 +373,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
               credentials = Credentials("", "Verify"),
               confidenceLevel = ConfidenceLevel.L500,
               request = request
-            ))
+            )
+          )
       })
 
       val result = controller.signout(None, None)(FakeRequest())
@@ -380,7 +391,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
               credentials = Credentials("", "Verify"),
               confidenceLevel = ConfidenceLevel.L500,
               request = request
-            ))
+            )
+          )
       })
 
       val result = controller.signout(Some(RedirectUrl("http://example.com&origin=PERTAX")), None)(FakeRequest())

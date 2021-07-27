@@ -25,18 +25,21 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentStoreCachingService @Inject()(
+class EnrolmentStoreCachingService @Inject() (
   val sessionCache: LocalSessionCache,
-  enrolmentsConnector: EnrolmentsConnector) {
+  enrolmentsConnector: EnrolmentsConnector
+) {
 
   private val logger = Logger(this.getClass)
 
   private def addSaUserTypeToCache(
-    user: SelfAssessmentUserType)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
+    user: SelfAssessmentUserType
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
     sessionCache.cache[SelfAssessmentUserType](SelfAssessmentUserType.cacheId, user).map(_ => user)
 
   def getSaUserTypeFromCache(
-    saUtr: SaUtr)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
+    saUtr: SaUtr
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[SelfAssessmentUserType] =
     sessionCache.fetchAndGetEntry[SelfAssessmentUserType](SelfAssessmentUserType.cacheId).flatMap {
 
       case Some(user) => Future.successful(user)
@@ -44,18 +47,17 @@ class EnrolmentStoreCachingService @Inject()(
       case _ =>
         enrolmentsConnector
           .getUserIdsWithEnrolments(saUtr.utr)
-          .flatMap[SelfAssessmentUserType](
-            (response: Either[String, Seq[String]]) =>
-              response.fold(
-                error => {
-                  logger.warn(error)
-                  addSaUserTypeToCache(NonFilerSelfAssessmentUser)
-                },
-                ids =>
-                  if (ids.nonEmpty) {
-                    addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
-                  } else {
-                    addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
+          .flatMap[SelfAssessmentUserType]((response: Either[String, Seq[String]]) =>
+            response.fold(
+              error => {
+                logger.warn(error)
+                addSaUserTypeToCache(NonFilerSelfAssessmentUser)
+              },
+              ids =>
+                if (ids.nonEmpty) {
+                  addSaUserTypeToCache(WrongCredentialsSelfAssessmentUser(saUtr))
+                } else {
+                  addSaUserTypeToCache(NotEnrolledSelfAssessmentUser(saUtr))
                 }
             )
           )

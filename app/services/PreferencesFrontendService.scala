@@ -33,13 +33,14 @@ import util.Tools
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PreferencesFrontendService @Inject()(
+class PreferencesFrontendService @Inject() (
   val simpleHttp: DefaultHttpClient,
   val messagesApi: MessagesApi,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
   val tools: Tools,
-  servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
+  servicesConfig: ServicesConfig
+)(implicit ec: ExecutionContext)
     extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport {
 
   private val logger = Logger(this.getClass)
@@ -68,11 +69,10 @@ class PreferencesFrontendService @Inject()(
           case ActivatePaperlessNotAllowedResponse =>
             timer.completeTimerAndIncrementFailedCounter()
             ActivatePaperlessNotAllowedResponse
-        } recover {
-          case e =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
-            ActivatePaperlessNotAllowedResponse
+        } recover { case e =>
+          timer.completeTimerAndIncrementFailedCounter()
+          logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
+          ActivatePaperlessNotAllowedResponse
         }
       }
 

@@ -30,11 +30,12 @@ import util.EnhancedPartialRetriever
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class MessageFrontendService @Inject()(
+class MessageFrontendService @Inject() (
   override val http: HttpClient,
   val metrics: Metrics,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
-  servicesConfig: ServicesConfig)(implicit executionContext: ExecutionContext)
+  servicesConfig: ServicesConfig
+)(implicit executionContext: ExecutionContext)
     extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
 
   lazy val messageFrontendUrl: String = servicesConfig.baseUrl("message-frontend")
@@ -50,7 +51,8 @@ class MessageFrontendService @Inject()(
   def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(
       messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController
-        .messageList())
+        .messageList()
+    )
 
   def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] = {
     val url = messageFrontendUrl + "/messages/count?read=No"
@@ -63,11 +65,10 @@ class MessageFrontendService @Inject()(
       } yield {
         t.completeTimerAndIncrementSuccessCounter()
         messageCount.map(_.count)
-      }) recover {
-        case e =>
-          t.completeTimerAndIncrementFailedCounter()
-          logger.warn(s"Failed to load json", e)
-          None
+      }) recover { case e =>
+        t.completeTimerAndIncrementFailedCounter()
+        logger.warn(s"Failed to load json", e)
+        None
       }
     }
   }

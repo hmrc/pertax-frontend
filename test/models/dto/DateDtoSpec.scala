@@ -36,12 +36,8 @@ class DateDtoSpec extends BaseSpec {
         .form(LocalDate.now())
         .bind(formData)
         .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 0
-          },
-          success => {
-            success mustBe DateDto(previousYear)
-          }
+          formWithErrors => formWithErrors.errors.length mustBe 0,
+          success => success mustBe DateDto(previousYear)
         )
 
     }
@@ -62,9 +58,7 @@ class DateDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.date_in_future"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
 
@@ -84,9 +78,7 @@ class DateDtoSpec extends BaseSpec {
             formWithErrors.errors.length mustBe 1
             formWithErrors.errors.head.message mustBe "error.enter_valid_date"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
   }

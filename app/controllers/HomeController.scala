@@ -35,7 +35,7 @@ import views.html.HomeView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HomeController @Inject()(
+class HomeController @Inject() (
   val preferencesFrontendService: PreferencesFrontendService,
   val taiService: TaiService,
   val taxCalculationService: TaxCalculationService,
@@ -44,22 +44,21 @@ class HomeController @Inject()(
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  homeView: HomeView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  homeView: HomeView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
-  private val authenticate
-    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withActiveTabAction
-    .addActiveTab(ActiveTabHome)
+  private val authenticate: ActionBuilder[UserRequest, AnyContent] =
+    authJourney.authWithPersonalDetails andThen withActiveTabAction
+      .addActiveTab(ActiveTabHome)
 
   def index: Action[AnyContent] = authenticate.async { implicit request =>
     val showUserResearchBanner: Future[Boolean] =
       configDecorator.bannerLinkUrl.fold(Future.successful(false))(_ =>
-        homePageCachingHelper.hasUserDismissedUrInvitation.map(!_))
+        homePageCachingHelper.hasUserDismissedUrInvitation.map(!_)
+      )
 
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)
@@ -76,7 +75,8 @@ class HomeController @Inject()(
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
             saUserType,
-            current.currentYear)
+            current.currentYear
+          )
 
           val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
@@ -88,10 +88,12 @@ class HomeController @Inject()(
     }
   }
 
-  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int)(implicit hc: HeaderCarrier)
-    : Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
+  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
     ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
-      Future.successful((TaxComponentsDisabledState, None, None))) { nino =>
+      Future.successful((TaxComponentsDisabledState, None, None))
+    ) { nino =>
       val taxYr = if (configDecorator.taxcalcEnabled) {
         taxCalculationService.getTaxYearReconciliations(nino)
       } else {
@@ -118,9 +120,6 @@ class HomeController @Inject()(
         taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
         taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
         taxSummaryState               <- taxSummaryState
-      } yield {
-
-        (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
-      }
+      } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
     }
 }

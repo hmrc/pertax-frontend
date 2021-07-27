@@ -35,7 +35,8 @@ object AddressFinderDto {
             e match {
               case PostcodeRegex(_*) => true
               case _                 => false
-          }),
+            }
+        ),
       "filter" -> optional(nonEmptyText)
         .verifying("error.enter_valid_characters", e => validateAddressLineCharacters(e))
     )(AddressFinderDto.apply)(AddressFinderDto.unapply)

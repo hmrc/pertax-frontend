@@ -29,16 +29,14 @@ import views.html.personaldetails.ResidencyChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ResidencyChoiceController @Inject()(
+class ResidencyChoiceController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   residencyChoiceView: ResidencyChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
@@ -60,16 +58,13 @@ class ResidencyChoiceController @Inject()(
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         ResidencyChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(residencyChoiceView(formWithErrors)))
-          },
-          residencyChoiceDto => {
+          formWithErrors => Future.successful(BadRequest(residencyChoiceView(formWithErrors))),
+          residencyChoiceDto =>
             cachingHelper
               .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
               _ =>
                 Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
             }
-          }
         )
 
       }

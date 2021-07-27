@@ -27,22 +27,30 @@ import views.html.ErrorView
 
 import scala.concurrent.ExecutionContext
 
-class GenericErrors @Inject()(errorView: ErrorView)(implicit templateRenderer: TemplateRenderer, ec: ExecutionContext) {
+class GenericErrors @Inject() (errorView: ErrorView)(implicit
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) {
 
   def badRequest(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: Messages): Result =
     BadRequest(
       errorView(
         "global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),
-        List("global.error.BadRequest.message1", "global.error.BadRequest.message2")))
+        List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
+      )
+    )
 
-  def internalServerError(
-    implicit request: UserRequest[_],
+  def internalServerError(implicit
+    request: UserRequest[_],
     configDecorator: ConfigDecorator,
-    messages: Messages): Result =
+    messages: Messages
+  ): Result =
     InternalServerError(
       errorView(
         "global.error.InternalServerError500.title",
         Some("global.error.InternalServerError500.title"),
-        List("global.error.InternalServerError500.message")))
+        List("global.error.InternalServerError500.message")
+      )
+    )
 }

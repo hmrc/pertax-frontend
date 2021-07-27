@@ -50,10 +50,12 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
         override val http: HttpGet = mock[HttpGet]
         if (simulateCallFailed)
           when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.failed(
-            new GatewayTimeoutException("Gateway timeout"))
+            new GatewayTimeoutException("Gateway timeout")
+          )
         else
           when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.successful(
-            returnPartial)
+            returnPartial
+          )
 
         override val metrics: Metrics = mock[Metrics]
         override val metricsOperator: MetricsOperator = mock[MetricsOperator]

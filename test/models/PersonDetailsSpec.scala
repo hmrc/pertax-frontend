@@ -67,32 +67,34 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
   "Converting json to a PersonDetails Object" must {
 
     "convert correctly when json is in the new citizen-details api format (string date)" in {
-      Json.parse(s"""
-                    |{
-                    |  "etag" : "115",
-                    |  "person" : {
-                    |    "firstName" : "Firstname",
-                    |    "middleName" : "Middlename",
-                    |    "lastName" : "Lastname",
-                    |    "initials" : "FML",
-                    |    "title" : "Dr",
-                    |    "honours" : "Phd.",
-                    |    "sex" : "M",
-                    |    "dateOfBirth" : "1945-03-18",
-                    |    "nino" : "${Fixtures.fakeNino}"
-                    |  },
-                    |  "address" : {
-                    |    "line1" : "1 Fake Street",
-                    |    "line2" : "Fake Town",
-                    |    "line3" : "Fake City",
-                    |    "line4" : "Fake Region",
-                    |    "postcode" : "AA1 1AA",
-                    |    "startDate" : "2015-03-15",
-                    |    "type" : "Residential"
-                    |  }
-                    |}
-                    |
-        """.stripMargin).as[PersonDetails] mustBe buildPersonDetails
+      Json
+        .parse(s"""
+                  |{
+                  |  "etag" : "115",
+                  |  "person" : {
+                  |    "firstName" : "Firstname",
+                  |    "middleName" : "Middlename",
+                  |    "lastName" : "Lastname",
+                  |    "initials" : "FML",
+                  |    "title" : "Dr",
+                  |    "honours" : "Phd.",
+                  |    "sex" : "M",
+                  |    "dateOfBirth" : "1945-03-18",
+                  |    "nino" : "${Fixtures.fakeNino}"
+                  |  },
+                  |  "address" : {
+                  |    "line1" : "1 Fake Street",
+                  |    "line2" : "Fake Town",
+                  |    "line3" : "Fake City",
+                  |    "line4" : "Fake Region",
+                  |    "postcode" : "AA1 1AA",
+                  |    "startDate" : "2015-03-15",
+                  |    "type" : "Residential"
+                  |  }
+                  |}
+                  |
+        """.stripMargin)
+        .as[PersonDetails] mustBe buildPersonDetails
     }
 
   }

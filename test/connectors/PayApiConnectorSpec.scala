@@ -42,7 +42,8 @@ class PayApiConnectorSpec extends BaseSpec {
       )
 
       when(
-        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
+        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any())
+      )
         .thenReturn(Future.successful(HttpResponse(CREATED, Some(json))))
 
       connector.createPayment(paymentRequest).futureValue mustBe Some(CreatePayment("exampleJourneyId", "testNextUrl"))
@@ -50,7 +51,8 @@ class PayApiConnectorSpec extends BaseSpec {
 
     "Returns a None when the status code is not CREATED" in {
       when(
-        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
+        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any())
+      )
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
       connector.createPayment(paymentRequest).futureValue mustBe None
@@ -60,7 +62,8 @@ class PayApiConnectorSpec extends BaseSpec {
       val badJson = Json.obj("abc" -> "invalidData")
 
       when(
-        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any()))
+        http.POST[PaymentRequest, HttpResponse](eqTo(postUrl), eqTo(paymentRequest), any())(any(), any(), any(), any())
+      )
         .thenReturn(Future.successful(HttpResponse(CREATED, Some(badJson))))
 
       val f = connector.createPayment(paymentRequest)
