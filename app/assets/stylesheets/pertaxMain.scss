@@ -1,34 +1,35 @@
-@import 'modules/_colors.scss';
-@import 'modules/_conditionals.scss';
-@import 'card';
-@import 'flexbox';
-@import 'af-upgrade';
-@import 'bta-partial';
-@import 'partials/_print-this-document.scss';
-@import 'partials/_vertical-spacing.scss';
-@import 'partials/_grid.scss';
-@import 'partials/_panel.scss';
-@import 'partials/_errors.scss';
-@import 'partials/_home.scss';
+@import "modules/colors";
+@import "modules/conditionals";
+@import "card";
+@import "flexbox";
+@import "af-upgrade";
+@import "bta-partial";
+@import "partials/print-this-document";
+@import "partials/vertical-spacing";
+@import "partials/grid";
+@import "partials/panel";
+@import "partials/errors";
+@import "partials/home";
+@import "partials/summary-list";
 
 //Global
 .grid-row {
   margin: 0 -15px;
 
-  &:after {
+  &::after {
     clear: both;
-    content: '';
+    content: "";
     display: block;
   }
 }
 
 .page-heading {
   margin-bottom: 20px;
-  padding-bottom: 20px;
   margin-top: 0;
+  padding-bottom: 20px;
 }
 
-@media(max-width: 800px) {
+@media (max-width: 800px) {
   span {
     .nino {
       display: block;
@@ -94,7 +95,7 @@ address {
 
 .service-info-p {
   color: $grey-1;
-  font-family: nta,Arial,sans-serif;
+  font-family: nta, Arial, sans-serif;
   font-size: 16px;
   font-weight: 300;
   line-height: 1.25;
@@ -137,97 +138,98 @@ input[type="text"].autocomplete__input {
 }
 
 .covid-banner {
-    border-top: 10px solid #ffe114;
-    background-color: #0b0c0c;
-    padding: 20px 0;
-
+  background-color: #0b0c0c;
+  border-top: 10px solid #ffe114;
+  padding: 20px 0;
 }
 
 .covid-banner a {
-    color: #fff;
+  color: #fff;
 
-   &:focus {
+  &:focus {
     color: $black;
-   }
+  }
 }
 
 .covid-banner__title {
-    font-weight: 700;
-    float: left;
+  font-weight: 700;
+  float: left;
 
-    display: inline-block;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-align: center;
-    align-items: center;
-    box-sizing: border-box;
-    padding-left: 50px;
-    min-height: 45px;
-    background-image: url(../images/covid-icon.png);
-    background-image: url(../images/covid-icon.svg);
-    background-repeat: no-repeat;
-    background-position: 0 50%;
-    background-size: 37px auto
+  display: inline-block;
+  display: flexbox;
+  display: flex;
+  flex-align: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding-left: 50px;
+  min-height: 45px;
+  background-image: url( ../images/covid-icon.png );
+  background-image: url( ../images/covid-icon.svg );
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  background-size: 37px auto;
 }
 
 .covid-banner__close {
-    font-size: 19px;
-    float: right;
-    margin-top: 0.5em;
+  float: right;
+  font-size: 19px;
+  margin-top: 0.5em;
 }
 
-@media screen and (max-width:900px) {
-    .covid-banner__title, .covid-banner__close {
-        float: none;
-    }
-    .covid-banner__close {
-        font-size: 16px;
-    }
-}
+@media screen and (max-width: 900px) {
+  .covid-banner__title,
+  .covid-banner__close {
+    float: none;
+  }
 
+  .covid-banner__close {
+    font-size: 16px;
+  }
+}
 
 .heading-xlarge {
-    margin: 0 0 0.5em 0;
+  margin: 0 0 0.5em;
 }
 
 .form-group {
-    margin-top: 1.8em;
+  margin-top: 1.8em;
 }
 
 .error-message {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .form-date .form-group {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .govuk-box-highlight {
-  background-color: #00703c
+  background-color: #00703c;
 }
 
 .form-group.form-field--error {
-    padding-top: 0;
-    padding-bottom: 0;
+  padding-bottom: 0;
+  padding-top: 0;
 }
 
 #pertaxHome {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 
-    + .pertax-home {
-        margin-top: 20px;
-    }
+  + .pertax-home {
+    margin-top: 20px;
+  }
 }
 
 #utrNo {
-    margin-bottom: 2em;
-    border-left: 8px solid #bfc1c3;
-    span {
-        font-weight: 700;
-    }
+  border-left: 8px solid #bfc1c3;
+  margin-bottom: 2em;
+
+  span {
+    font-weight: 700;
+  }
 }
 
-.banner-panel a:focus, .banner-panel a:visited:focus {
-    color: #0b0c0c;
+.banner-panel a:focus,
+.banner-panel a:visited:focus {
+  color: #0b0c0c;
 }
-

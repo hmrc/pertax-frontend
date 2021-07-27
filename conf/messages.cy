@@ -31,6 +31,7 @@ label.hm_revenue_customs_ni_print.customs=Thollau EM
 label.continue=Parhau
 label.your_personal_tax_account=Cyfrif treth personol
 label.your_personal_tax_account_gov_uk=Cyfrif treth personol - GOV.UK
+label.your_profile=Eich proffil
 label.personal_details=Manylion personol
 label.track_your_forms=Dilyn eich ffurflenni
 label.your_national_insurance_number_is=Eich rhif Yswiriant Gwladol yw
