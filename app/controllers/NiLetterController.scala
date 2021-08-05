@@ -32,7 +32,7 @@ import views.html.print._
 import scala.concurrent.ExecutionContext
 import scala.io.Source
 
-class NiLetterController @Inject()(
+class NiLetterController @Inject() (
   val pdfGeneratorConnector: PdfGeneratorConnector,
   ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
@@ -41,10 +41,8 @@ class NiLetterController @Inject()(
   errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView)(
-  implicit configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  niLetterView: NiLetterView
+)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
@@ -53,16 +51,14 @@ class NiLetterController @Inject()(
         if (request.personDetails.isDefined) {
           for {
             nino <- ninoDisplayService.getNino
-          } yield {
-            Ok(
-              printNiNumberView(
-                request.personDetails.get,
-                LocalDate.now.toString("MM/YY"),
-                configDecorator.saveNiLetterAsPdfLinkEnabled,
-                nino
-              )
+          } yield Ok(
+            printNiNumberView(
+              request.personDetails.get,
+              LocalDate.now.toString("MM/YY"),
+              configDecorator.saveNiLetterAsPdfLinkEnabled,
+              nino
             )
-          }
+          )
         } else {
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
@@ -98,17 +94,18 @@ class NiLetterController @Inject()(
             for {
               htmlPayload <- htmlPayloadF
               response    <- pdfGeneratorConnector.generatePdf(htmlPayload)
-            } yield {
+            } yield
               if (response.status != OK) {
                 throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
               } else {
 
                 Ok(response.bodyAsBytes.toArray)
                   .as("application/pdf")
-                  .withHeaders("Content-Disposition" -> s"attachment; filename=${Messages(
-                    "label.your_national_insurance_letter").replaceAll(" ", "-")}.pdf")
+                  .withHeaders(
+                    "Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter")
+                      .replaceAll(" ", "-")}.pdf"
+                  )
               }
-            }
 
           } else {
             errorRenderer.futureError(INTERNAL_SERVER_ERROR)

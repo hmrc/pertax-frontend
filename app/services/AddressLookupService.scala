@@ -36,20 +36,21 @@ final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends Addres
 final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
 
 @Singleton
-class AddressLookupService @Inject()(
+class AddressLookupService @Inject() (
   configDecorator: ConfigDecorator,
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   val tools: Tools,
-  servicesConfig: ServicesConfig)
-    extends HasMetrics {
+  servicesConfig: ServicesConfig
+) extends HasMetrics {
 
   private val logger = Logger(this.getClass)
 
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
-  def lookup(postcode: String, filter: Option[String] = None)(
-    implicit hc: HeaderCarrier): Future[AddressLookupResponse] =
+  def lookup(postcode: String, filter: Option[String] = None)(implicit
+    hc: HeaderCarrier
+  ): Future[AddressLookupResponse] =
     withMetricsTimer("address-lookup") { t =>
       val hn = tools.urlEncode(filter.getOrElse(""))
       val pc = postcode.replaceAll(" ", "")
@@ -66,11 +67,10 @@ class AddressLookupService @Inject()(
             logger.warn(s"Unexpected ${r.status} response getting address record from address lookup service")
             AddressLookupUnexpectedResponse(r)
         },
-        onError = {
-          case e =>
-            t.completeTimerAndIncrementFailedCounter()
-            logger.warn("Error getting address record from address lookup service", e)
-            AddressLookupErrorResponse(e)
+        onError = { case e =>
+          t.completeTimerAndIncrementFailedCounter()
+          logger.warn("Error getting address record from address lookup service", e)
+          AddressLookupErrorResponse(e)
         }
       )(newHc)
     }

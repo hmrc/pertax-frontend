@@ -53,7 +53,8 @@ class MinimumAuthActionSpec extends BaseSpec {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
-          s"trustedHelper: ${request.trustedHelper}")
+          s"trustedHelper: ${request.trustedHelper}"
+      )
     }
   }
 
@@ -86,8 +87,9 @@ class MinimumAuthActionSpec extends BaseSpec {
   }
 
   type AuthRetrievals =
-    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[
-      String]
+    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ Option[
+      TrustedHelper
+    ] ~ Option[String]
 
   val fakeCredentials = Credentials("foo", "bar")
   val fakeConfidenceLevel = ConfidenceLevel.L200
@@ -100,11 +102,13 @@ class MinimumAuthActionSpec extends BaseSpec {
       val nino = Fixtures.fakeNino.nino
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None)
+          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
+        )
 
       when(
         mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
+          .authorise[AuthRetrievals](any(), any())(any(), any())
+      )
         .thenReturn(retrievalResult)
 
       val authAction =
@@ -129,7 +133,8 @@ class MinimumAuthActionSpec extends BaseSpec {
 
       when(
         mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
+          .authorise[AuthRetrievals](any(), any())(any(), any())
+      )
         .thenReturn(retrievalResult)
 
       val authAction =
@@ -150,12 +155,15 @@ class MinimumAuthActionSpec extends BaseSpec {
 
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(nino) ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
+          Some(nino) ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(
+            fakeCredentials
+          ) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
 
       when(
         mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
+          .authorise[AuthRetrievals](any(), any())(any(), any())
+      )
         .thenReturn(retrievalResult)
 
       val authAction =
@@ -175,12 +183,17 @@ class MinimumAuthActionSpec extends BaseSpec {
       val fakePrincipalNino = Fixtures.fakeNino.toString()
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ Some(
-            TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)) ~ None)
+          Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(
+            fakeCredentials
+          ) ~ fakeConfidenceLevel ~ None ~ Some(
+            TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)
+          ) ~ None
+        )
 
       when(
         mockAuthConnector
-          .authorise[AuthRetrievals](any(), any())(any(), any()))
+          .authorise[AuthRetrievals](any(), any())(any(), any())
+      )
         .thenReturn(retrievalResult)
 
       val authAction = new MinimumAuthAction(
@@ -195,7 +208,8 @@ class MinimumAuthActionSpec extends BaseSpec {
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
-        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))")
+        s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))"
+      )
     }
   }
 }

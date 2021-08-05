@@ -1,10 +1,10 @@
 .flex-container {
-  display: -ms-flexbox;
-  display: -webkit-flex;
+  display: flexbox;
   display: flex;
-  -ms-flex-direction: row;
+  display: flex;
   flex-direction: row;
-  -ms-flex-wrap: wrap;
+  flex-direction: row;
+  flex-wrap: wrap;
   flex-wrap: wrap;
   justify-content: flex-start;
   padding: 0 15px;

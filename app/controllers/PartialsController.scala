@@ -26,10 +26,11 @@ import views.html.integration.MainContentHeaderView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PartialsController @Inject()(
+class PartialsController @Inject() (
   val localErrorHandler: LocalErrorHandler,
   cc: MessagesControllerComponents,
-  mainContentHeaderView: MainContentHeaderView)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
+  mainContentHeaderView: MainContentHeaderView
+)(implicit configDecorator: ConfigDecorator, ex: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def mainContentHeader(
@@ -41,7 +42,8 @@ class PartialsController @Inject()(
     deskProToken: Option[String],
     langReturnUrl: Option[String],
     lang: Option[String],
-    showLastItem: Boolean): Action[AnyContent] = Action.async { implicit request =>
+    showLastItem: Boolean
+  ): Action[AnyContent] = Action.async { implicit request =>
     Future.successful {
 
       val breadcrumb: Breadcrumb = (itemText zip itemUrl).dropRight(if (showLastItem) 0 else 1)

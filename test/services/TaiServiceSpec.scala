@@ -87,7 +87,8 @@ class TaiServiceSpec extends BaseSpec {
       val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
       result mustBe TaxComponentsSuccessResponse(
-        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+      )
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()

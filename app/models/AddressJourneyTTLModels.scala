@@ -58,12 +58,11 @@ object EditedAddress {
       for {
         addressType <- (json \ addressType).validate[String]
         expireAt    <- (json \ expireAt).validate[BSONDateTime]
-      } yield
-        addressType match {
-          case `editSoleAddress`           => EditSoleAddress(expireAt)
-          case `editPrimaryAddress`        => EditPrimaryAddress(expireAt)
-          case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
-        }
+      } yield addressType match {
+        case `editSoleAddress`           => EditSoleAddress(expireAt)
+        case `editPrimaryAddress`        => EditPrimaryAddress(expireAt)
+        case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
+      }
   }
 }
 

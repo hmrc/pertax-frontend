@@ -32,7 +32,7 @@ import views.html.personaldetails.{CannotUpdateAddressView, EnterStartDateView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class StartDateController @Inject()(
+class StartDateController @Inject() (
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
@@ -40,10 +40,8 @@ class StartDateController @Inject()(
   languageUtils: LanguageUtils,
   enterStartDateView: EnterStartDateView,
   cannotUpdateAddressView: CannotUpdateAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
@@ -75,25 +73,21 @@ class StartDateController @Inject()(
       addressJourneyEnforcer { _ => personDetails =>
         nonPostalJourneyEnforcer(typ) {
           dateDtoForm.bindFromRequest.fold(
-            formWithErrors => {
-              Future.successful(BadRequest(enterStartDateView(formWithErrors, typ)))
-            },
-            dateDto => {
-              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map {
-                _ =>
-                  val proposedStartDate = dateDto.startDate
+            formWithErrors => Future.successful(BadRequest(enterStartDateView(formWithErrors, typ))),
+            dateDto =>
+              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
+                val proposedStartDate = dateDto.startDate
 
-                  personDetails.address match {
-                    case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
-                      if (!currentStartDate.isBefore(proposedStartDate)) {
-                        BadRequest(cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate)))
-                      } else {
-                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                      }
-                    case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                  }
+                personDetails.address match {
+                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
+                    if (!currentStartDate.isBefore(proposedStartDate)) {
+                      BadRequest(cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate)))
+                    } else {
+                      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                    }
+                  case _ => Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                }
               }
-            }
           )
         }
       }

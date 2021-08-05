@@ -36,10 +36,8 @@
   }
 
   .logged-out-page {
-    .block-label {
-      &.horizontal-radio-button {
-       margin-right: 1%;
-      }
+    .block-label.horizontal-radio-button {
+      margin-right: 1%;
     }
   }
 

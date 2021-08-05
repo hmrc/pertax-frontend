@@ -27,7 +27,7 @@ import util.{EnhancedPartialRetriever, Tools}
 
 import scala.concurrent.{ExecutionContext, Future}
 @Singleton
-class SaPartialService @Inject()(
+class SaPartialService @Inject() (
   override val http: HttpClient,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,
@@ -42,6 +42,7 @@ class SaPartialService @Inject()(
   def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(
       configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${tools
-        .urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}")
+        .urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}"
+    )
 
 }

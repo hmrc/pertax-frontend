@@ -78,7 +78,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
@@ -93,7 +94,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
-            )))
+            )
+          )
+        )
 
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -108,7 +111,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
-            )))
+            )
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -141,7 +146,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
@@ -155,10 +161,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "primarySubmittedAddressDto" -> Json.toJson(
-                asAddressDto(fakeStreetTupleListAddressForUnmodifiedLowerCase)),
+                asAddressDto(fakeStreetTupleListAddressForUnmodifiedLowerCase)
+              ),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
@@ -172,10 +180,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "primarySubmittedAddressDto" -> Json.toJson(
-                asAddressDto(fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode)),
+                asAddressDto(fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode)
+              ),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
@@ -191,7 +201,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
 
@@ -207,7 +218,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
               "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -224,7 +236,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -241,7 +254,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       uprn: Option[String],
       includeOriginals: Boolean,
       submittedLine1: Option[String] = Some("1 Fake Street"),
-      addressType: Option[String] = Some("Residential")) = DataEvent(
+      addressType: Option[String] = Some("Residential")
+    ) = DataEvent(
       "pertax-frontend",
       auditType,
       dataEvent.eventId,
@@ -275,7 +289,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
-            )))
+            )
+          )
+        )
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
@@ -297,7 +313,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
-            )))
+            )
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -321,7 +339,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
-            )))
+            )
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -341,7 +361,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-            )))
+            )
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -366,7 +388,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
@@ -392,7 +415,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "postalSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
               "postalSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
             )
-          ))
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -410,7 +434,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         "postcodeAddressSubmitted",
         Some("GB101"),
         false,
-        addressType = Some("Correspondence"))
+        addressType = Some("Correspondence")
+      )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
@@ -424,7 +449,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForManualyEntered)),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -452,7 +478,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
               "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
               "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
-          ))
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")
@@ -469,7 +496,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         "postcodeAddressModifiedSubmitted",
         Some("GB101"),
         true,
-        Some("11 Fake Street"))
+        Some("11 Fake Street")
+      )
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
@@ -486,7 +514,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "postalSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
-            )))
+            )
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")

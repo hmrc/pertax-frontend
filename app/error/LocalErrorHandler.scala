@@ -29,14 +29,12 @@ import views.html.{InternalServerErrorView, UnauthenticatedErrorView}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class LocalErrorHandler @Inject()(
+class LocalErrorHandler @Inject() (
   val messagesApi: MessagesApi,
   val materializer: Materializer,
   internalServerErrorView: InternalServerErrorView,
-  unauthenticatedErrorTemplate: UnauthenticatedErrorView)(
-  implicit val configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  unauthenticatedErrorTemplate: UnauthenticatedErrorView
+)(implicit val configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(

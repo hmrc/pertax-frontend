@@ -72,35 +72,40 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsLink(
           view(Balanced).getValue,
           messages("label.tax_year_heading", "2017", "2018"),
-          config.rightAmountUrl(2017))
+          config.rightAmountUrl(2017)
+        )
       }
 
       "status is OverpaidTolerance" in {
         assertContainsLink(
           view(OverpaidTolerance).getValue,
           messages("label.tax_year_heading", "2017", "2018"),
-          config.rightAmountUrl(2017))
+          config.rightAmountUrl(2017)
+        )
       }
 
       "status is underpaidTolerance" in {
         assertContainsLink(
           view(UnderpaidTolerance).getValue,
           messages("label.tax_year_heading", "2017", "2018"),
-          config.rightAmountUrl(2017))
+          config.rightAmountUrl(2017)
+        )
       }
 
       "status is Balanced No Employment" in {
         assertContainsLink(
           view(BalancedNoEmployment).getValue,
           messages("label.tax_year_heading", "2017", "2018"),
-          config.notEmployedUrl(2017))
+          config.notEmployedUrl(2017)
+        )
       }
 
       "status is Not Reconciled" in {
         assertContainsLink(
           view(NotReconciled).getValue,
           messages("label.tax_year_heading", "2017", "2018"),
-          config.notCalculatedUrl(2017))
+          config.notCalculatedUrl(2017)
+        )
       }
 
       "status is Underpaid PaidAll" in {
@@ -123,7 +128,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
         assertContainsText(
           view(status).getValue,
-          messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018"))
+          messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018")
+        )
       }
 
       "status is Underpaid PartPaid" in {
@@ -139,7 +145,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
         assertContainsText(
           view(status).getValue,
-          messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018"))
+          messages("label.you_missed_the_deadline_to_pay_your_tax", "2017", "2018")
+        )
       }
 
       "status is Overpaid Refund" in {
@@ -207,7 +214,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_little"),
-          config.underpaidUrlReasons(2017))
+          config.underpaidUrlReasons(2017)
+        )
       }
 
       "status is UnderpaidPaymentDue with due date" in {
@@ -218,12 +226,14 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
         assertContainsText(
           view(status).getValue,
-          messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+          messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}")
+        )
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), config.makePaymentUrl)
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_little"),
-          config.underpaidUrlReasons(2017))
+          config.underpaidUrlReasons(2017)
+        )
       }
 
       "status is Underpaid PaymentDue with due date and sa date approaching" in {
@@ -234,12 +244,14 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
         assertContainsText(
           view(status).getValue,
-          messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+          messages("label.you_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}")
+        )
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), config.makePaymentUrl)
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_little"),
-          config.underpaidUrlReasons(2017))
+          config.underpaidUrlReasons(2017)
+        )
       }
 
       "status is Underpaid PaymentDue with due date and sa date has passed" in {
@@ -250,7 +262,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
         assertContainsText(
           view(status).getValue,
-          messages("label.you_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}"))
+          messages("label.you_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}")
+        )
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), config.makePaymentUrl)
       }
 
@@ -263,7 +276,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_little"),
-          config.underpaidUrlReasons(2017))
+          config.underpaidUrlReasons(2017)
+        )
       }
 
       "status is Underpaid PartPaid with due date" in {
@@ -274,12 +288,14 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
         assertContainsText(
           view(status).getValue,
-          messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+          messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}")
+        )
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), config.makePaymentUrl)
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_little"),
-          config.underpaidUrlReasons(2017))
+          config.underpaidUrlReasons(2017)
+        )
       }
 
       "status is Underpaid PartPaid with due date and sa date approaching" in {
@@ -291,12 +307,14 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsText(view(status).getValue, messages("label.you_paid_too_little_tax", "2017", "2018"))
         assertContainsText(
           view(status).getValue,
-          messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}"))
+          messages("label.you_still_owe_hmrc_you_must_pay_by_", "100.00", s"${formatDate(date)}")
+        )
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), config.makePaymentUrl)
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_little"),
-          config.underpaidUrlReasons(2017))
+          config.underpaidUrlReasons(2017)
+        )
       }
 
       "status is Underpaid PartPaid with due date and sa date has passed" in {
@@ -307,7 +325,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
 
         assertContainsText(
           view(status).getValue,
-          messages("label.you_still_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}"))
+          messages("label.you_still_owe_hmrc_you_should_have_paid_", "100.00", s"${formatDate(date)}")
+        )
         assertContainsLink(view(status).getValue, messages("label.make_a_payment"), config.makePaymentUrl)
       }
 
@@ -327,7 +346,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_much"),
-          config.overpaidUrlReasons(2017))
+          config.overpaidUrlReasons(2017)
+        )
       }
 
       "status is Overpaid PaymentProcessing" in {
@@ -338,7 +358,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_much"),
-          config.overpaidUrlReasons(2017))
+          config.overpaidUrlReasons(2017)
+        )
       }
 
       "status is Overpaid PaymentPaid" in {
@@ -349,7 +370,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_much"),
-          config.overpaidUrlReasons(2017))
+          config.overpaidUrlReasons(2017)
+        )
       }
 
       "status is Overpaid PaymentChequeSent" in {
@@ -360,7 +382,8 @@ class TaxCalculationViewModelSpec extends ViewSpec {
         assertContainsLink(
           view(status).getValue,
           messages("label.find_out_why_you_paid_too_much"),
-          config.overpaidUrlReasons(2017))
+          config.overpaidUrlReasons(2017)
+        )
       }
     }
   }

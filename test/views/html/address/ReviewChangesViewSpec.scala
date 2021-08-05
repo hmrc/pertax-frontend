@@ -49,12 +49,14 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertContainsLink(
         result(PostalAddrType),
         messages("label.change"),
-        routes.PostalInternationalAddressChoiceController.onPageLoad().url)
+        routes.PostalInternationalAddressChoiceController.onPageLoad().url
+      )
 
       assertNotContainLink(
         result(PostalAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType).url)
+        routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType).url
+      )
     }
 
     "when sole address has been changed display 'do you live in the uk'" in {
@@ -69,12 +71,14 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertContainsLink(
         result(SoleAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(SoleAddrType).url)
+        routes.InternationalAddressChoiceController.onPageLoad(SoleAddrType).url
+      )
 
       assertNotContainLink(
         result(SoleAddrType),
         messages("label.change"),
-        routes.PostalInternationalAddressChoiceController.onPageLoad().url)
+        routes.PostalInternationalAddressChoiceController.onPageLoad().url
+      )
     }
 
     "when primary address has been changed display 'is your address in the uk'" in {
@@ -89,12 +93,14 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertContainsLink(
         result(PrimaryAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(PrimaryAddrType).url)
+        routes.InternationalAddressChoiceController.onPageLoad(PrimaryAddrType).url
+      )
 
       assertNotContainLink(
         result(PrimaryAddrType),
         messages("label.change"),
-        routes.PostalInternationalAddressChoiceController.onPageLoad().url)
+        routes.PostalInternationalAddressChoiceController.onPageLoad().url
+      )
     }
   }
 }

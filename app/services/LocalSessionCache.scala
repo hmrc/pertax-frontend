@@ -25,15 +25,15 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpClient
 
 @Singleton
-class LocalSessionCache @Inject()(
+class LocalSessionCache @Inject() (
   environment: Environment,
   configuration: Configuration,
   val appNameConfiguration: Configuration,
   override val http: HttpClient,
   configDecorator: ConfigDecorator,
   servicesConfig: ServicesConfig,
-  @Named("appName") appName: String)
-    extends SessionCache {
+  @Named("appName") appName: String
+) extends SessionCache {
   override lazy val defaultSource = appName
   override lazy val baseUri = servicesConfig.baseUrl("cachable.session-cache")
   override lazy val domain = servicesConfig.getConfString("cachable.session-cache.domain", "keystore")

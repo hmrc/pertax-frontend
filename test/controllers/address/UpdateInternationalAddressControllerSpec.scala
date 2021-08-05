@@ -75,7 +75,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "selectedAddressRecord"  -> Json.toJson(fakeStreetPafAddressRecord),
-              "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType)))))
+              "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType))
+            )
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -124,7 +127,10 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)),
-              "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
+              "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord)
+            )
+          )
+        )
 
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -165,7 +171,8 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
               "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "soleResidencyChoiceDto"    -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -183,7 +190,8 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
               "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "soleResidencyChoiceDto"  -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -274,7 +282,8 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/changes")
       verify(mockLocalSessionCache, times(1)).cache(
         meq("postalSubmittedAddressDto"),
-        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
+        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress))
+      )(any(), any(), any())
       verify(mockLocalSessionCache, times(1))
         .cache(meq("postalSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -296,7 +305,8 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/sole/enter-start-date")
       verify(mockLocalSessionCache, times(1)).cache(
         meq("soleSubmittedAddressDto"),
-        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress)))(any(), any(), any())
+        meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress))
+      )(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
   }

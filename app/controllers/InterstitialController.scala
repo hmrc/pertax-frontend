@@ -37,7 +37,7 @@ import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class InterstitialController @Inject()(
+class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
   val preferencesFrontendService: PreferencesFrontendService,
@@ -49,10 +49,8 @@ class InterstitialController @Inject()(
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
-  sa302InterruptView: Sa302InterruptView)(
-  implicit configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  sa302InterruptView: Sa302InterruptView
+)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper {
 
   val saBreadcrumb: Breadcrumb =
@@ -64,12 +62,12 @@ class InterstitialController @Inject()(
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path
 
-  private val authenticate
-    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withBreadcrumbAction
-    .addBreadcrumb(baseBreadcrumb)
-  private val authenticateSa
-    : ActionBuilder[UserRequest, AnyContent] = authJourney.authWithPersonalDetails andThen withBreadcrumbAction
-    .addBreadcrumb(saBreadcrumb)
+  private val authenticate: ActionBuilder[UserRequest, AnyContent] =
+    authJourney.authWithPersonalDetails andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)
+  private val authenticateSa: ActionBuilder[UserRequest, AnyContent] =
+    authJourney.authWithPersonalDetails andThen withBreadcrumbAction
+      .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
     formPartialService.getNationalInsurancePartial.flatMap { p =>
@@ -78,7 +76,9 @@ class InterstitialController @Inject()(
           viewNationalInsuranceInterstitialHomeView(
             formPartial = p successfulContentOrElse Html(""),
             redirectUrl = currentUrl,
-            nino))
+            nino
+          )
+        )
       }
     }
   }
@@ -87,28 +87,29 @@ class InterstitialController @Inject()(
     Ok(
       viewChildBenefitsSummaryInterstitialView(
         redirectUrl = currentUrl,
-        taxCreditsEnabled = configDecorator.taxCreditsEnabled))
+        taxCreditsEnabled = configDecorator.taxCreditsEnabled
+      )
+    )
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
     if (request.isSaUserLoggedIntoCorrectAccount && request.isGovernmentGateway) {
-      val formPartial = formPartialService.getSelfAssessmentPartial recoverWith {
-        case _ => Future.successful(HtmlPartial.Failure(None, ""))
+      val formPartial = formPartialService.getSelfAssessmentPartial recoverWith { case _ =>
+        Future.successful(HtmlPartial.Failure(None, ""))
       }
-      val saPartial = saPartialService.getSaAccountSummary recoverWith {
-        case _ => Future.successful(HtmlPartial.Failure(None, ""))
+      val saPartial = saPartialService.getSaAccountSummary recoverWith { case _ =>
+        Future.successful(HtmlPartial.Failure(None, ""))
       }
 
       for {
         formPartial <- formPartial
         saPartial   <- saPartial
-      } yield {
-        Ok(
-          selfAssessmentSummaryView(
-            formPartial successfulContentOrElse Html(""),
-            saPartial successfulContentOrElse Html("")
-          ))
-      }
+      } yield Ok(
+        selfAssessmentSummaryView(
+          formPartial successfulContentOrElse Html(""),
+          saPartial successfulContentOrElse Html("")
+        )
+      )
     } else errorRenderer.futureError(UNAUTHORIZED)
 
   }

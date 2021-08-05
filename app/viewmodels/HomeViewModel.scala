@@ -24,7 +24,8 @@ final case class HomeViewModel(
   benefitCards: Seq[Html],
   pensionCards: Seq[Html],
   showUserResearchBanner: Boolean,
-  saUtr: Option[String])
+  saUtr: Option[String]
+)
 
 object HomeViewModel {
   def apply(
@@ -32,7 +33,8 @@ object HomeViewModel {
     benefitCards: Seq[Html],
     pensionCards: Seq[Html],
     showUserResearchBanner: Boolean,
-    selfAssessmentUserType: SelfAssessmentUserType): HomeViewModel = {
+    selfAssessmentUserType: SelfAssessmentUserType
+  ): HomeViewModel = {
 
     val utr: Option[String] = selfAssessmentUserType match {
       case saUser: SelfAssessmentUser => Some(saUser.saUtr.toString())

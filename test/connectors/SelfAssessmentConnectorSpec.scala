@@ -51,7 +51,7 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
     buildUserRequest(
       request = FakeRequest(),
       saUser = NotEnrolledSelfAssessmentUser(utr),
-      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider),
+      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
     )
 
   "SelfAssessmentConnector" when {

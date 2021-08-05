@@ -29,13 +29,14 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.ExecutionContext
 
-class UserResearchDismissalController @Inject()(
+class UserResearchDismissalController @Inject() (
   val citizenDetailsService: CitizenDetailsService,
   val messageFrontendService: MessageFrontendService,
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,
   authJourney: AuthJourney,
-  cc: MessagesControllerComponents)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
+  cc: MessagesControllerComponents
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>

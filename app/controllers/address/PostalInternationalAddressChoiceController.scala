@@ -30,16 +30,14 @@ import views.html.personaldetails.{PostalInternationalAddressChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PostalInternationalAddressChoiceController @Inject()(
+class PostalInternationalAddressChoiceController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   postalInternationalAddressChoiceView: PostalInternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad: Action[AnyContent] =
@@ -59,10 +57,8 @@ class PostalInternationalAddressChoiceController @Inject()(
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors)))
-          },
-          internationalAddressChoiceDto => {
+          formWithErrors => Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors))),
+          internationalAddressChoiceDto =>
             cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
               if (internationalAddressChoiceDto.value) {
                 Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
@@ -74,7 +70,6 @@ class PostalInternationalAddressChoiceController @Inject()(
                 }
               }
             }
-          }
         )
 
       }

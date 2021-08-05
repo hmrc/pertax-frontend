@@ -26,8 +26,9 @@ import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class EnhancedPartialRetriever @Inject()(headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter)(
-  implicit executionContext: ExecutionContext)
+abstract class EnhancedPartialRetriever @Inject() (
+  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
+)(implicit executionContext: ExecutionContext)
     extends HasMetrics {
 
   private val logger = Logger(this.getClass)
@@ -46,16 +47,15 @@ abstract class EnhancedPartialRetriever @Inject()(headerCarrierForPartialsConver
           logger.error(s"Failed to load partial from $url, partial info: $partial")
           timer.completeTimerAndIncrementFailedCounter()
           partial
-      } recover {
-        case e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.error(s"Failed to load partial from $url", e)
-          e match {
-            case ex: HttpException =>
-              HtmlPartial.Failure(Some(ex.responseCode))
-            case _ =>
-              HtmlPartial.Failure(None)
-          }
+      } recover { case e =>
+        timer.completeTimerAndIncrementFailedCounter()
+        logger.error(s"Failed to load partial from $url", e)
+        e match {
+          case ex: HttpException =>
+            HtmlPartial.Failure(Some(ex.responseCode))
+          case _ =>
+            HtmlPartial.Failure(None)
+        }
       }
 
     }

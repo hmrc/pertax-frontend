@@ -46,7 +46,8 @@ case class AddressDto(
       country,
       Some(startDate),
       Some(endDate),
-      Some(`type`))
+      Some(`type`)
+    )
   def toAddress(`type`: String, startDate: LocalDate) = postcode match {
     case Some(postcode) =>
       Address(
@@ -59,7 +60,8 @@ case class AddressDto(
         None,
         Some(startDate),
         None,
-        Some(`type`))
+        Some(`type`)
+      )
     case None =>
       Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
   }
@@ -89,7 +91,8 @@ object AddressDto extends CountryHelper {
       line5,
       Some(address.postcode),
       Some(address.country.toString),
-      Some(addressRecord.id))
+      Some(addressRecord.id)
+    )
   }
 
   val ukForm = Form(
@@ -118,7 +121,8 @@ object AddressDto extends CountryHelper {
             e match {
               case Some(PostcodeRegex(_*)) => true
               case _                       => false
-          }),
+            }
+        ),
       "country"       -> optional(text),
       "propertyRefNo" -> optional(nonEmptyText)
     )(AddressDto.apply)(AddressDto.unapply)

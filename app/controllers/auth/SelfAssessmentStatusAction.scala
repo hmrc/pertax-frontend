@@ -27,10 +27,11 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentStatusAction @Inject()(
+class SelfAssessmentStatusAction @Inject() (
   citizenDetailsService: CitizenDetailsService,
   enrolmentsCachingService: EnrolmentStoreCachingService,
-  cc: ControllerComponents)(implicit ec: ExecutionContext)
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
@@ -39,9 +40,10 @@ class SelfAssessmentStatusAction @Inject()(
       case _                                               => None
     }
 
-  private def getSelfAssessmentUserType[A](
-    implicit hc: HeaderCarrier,
-    request: AuthenticatedRequest[A]): Future[SelfAssessmentUserType] =
+  private def getSelfAssessmentUserType[A](implicit
+    hc: HeaderCarrier,
+    request: AuthenticatedRequest[A]
+  ): Future[SelfAssessmentUserType] =
     request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
       request.saEnrolment match {
         case Some(SelfAssessmentEnrolment(saUtr, Activated)) =>

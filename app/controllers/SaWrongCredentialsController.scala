@@ -29,7 +29,7 @@ import views.html.selfassessment._
 
 import scala.concurrent.ExecutionContext
 
-class SaWrongCredentialsController @Inject()(
+class SaWrongCredentialsController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   signedInWrongAccountView: SignedInWrongAccountView,
@@ -38,8 +38,8 @@ class SaWrongCredentialsController @Inject()(
   doYouKnowUserIdView: DoYouKnowUserIdView,
   needToResetPasswordView: NeedToResetPasswordView,
   findYourUserIdView: FindYourUserIdView
-)(
-  implicit configDecorator: ConfigDecorator,
+)(implicit
+  configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) extends PertaxBaseController(cc) {
@@ -55,7 +55,8 @@ class SaWrongCredentialsController @Inject()(
       query = QueryString.fromPairs(
         "continue_url" -> continueUrl,
         "accountType"  -> "individual",
-        "origin"       -> configDecorator.defaultOrigin.origin)
+        "origin"       -> configDecorator.defaultOrigin.origin
+      )
     ).toString()
   }
 
@@ -91,31 +92,25 @@ class SaWrongCredentialsController @Inject()(
 
   def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
     SAWrongCredentialsDto.form.bindFromRequest.fold(
-      formWithErrors => {
-        BadRequest(doYouKnowOtherCredentialsView(formWithErrors))
-      },
-      wrongCredentialsDto => {
+      formWithErrors => BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
+      wrongCredentialsDto =>
         if (wrongCredentialsDto.value) {
           Redirect(routes.SaWrongCredentialsController.signInAgain())
         } else {
           Redirect(routes.SaWrongCredentialsController.doYouKnowUserId())
         }
-      }
     )
   }
 
   def processDoYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
     SAWrongCredentialsDto.form.bindFromRequest.fold(
-      formWithErrors => {
-        BadRequest(doYouKnowUserIdView(formWithErrors))
-      },
-      wrongCredentialsDto => {
+      formWithErrors => BadRequest(doYouKnowUserIdView(formWithErrors)),
+      wrongCredentialsDto =>
         if (wrongCredentialsDto.value) {
           Redirect(routes.SaWrongCredentialsController.needToResetPassword())
         } else {
           Redirect(routes.SaWrongCredentialsController.findYourUserId())
         }
-      }
     )
   }
 }

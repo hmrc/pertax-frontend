@@ -33,8 +33,9 @@ will be treated in the HODs/DES layer.
  */
 
 @Singleton
-class NinoDisplayService @Inject()(configDecorator: ConfigDecorator, citizenDetailsService: CitizenDetailsService)(
-  implicit ec: ExecutionContext) {
+class NinoDisplayService @Inject() (configDecorator: ConfigDecorator, citizenDetailsService: CitizenDetailsService)(
+  implicit ec: ExecutionContext
+) {
 
   def getNino(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Option[Nino]] =
     if (configDecorator.getNinoFromCID) {
@@ -42,11 +43,9 @@ class NinoDisplayService @Inject()(configDecorator: ConfigDecorator, citizenDeta
         case Some(nino) =>
           for {
             result <- citizenDetailsService.personDetails(nino)
-          } yield {
-            result match {
-              case PersonDetailsSuccessResponse(personDetails) => personDetails.person.nino
-              case _                                           => None
-            }
+          } yield result match {
+            case PersonDetailsSuccessResponse(personDetails) => personDetails.person.nino
+            case _                                           => None
           }
         case _ => Future.successful(None)
       }

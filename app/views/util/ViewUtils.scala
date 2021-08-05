@@ -23,7 +23,7 @@ import viewmodels._
 
 import javax.inject.Inject
 
-class ViewUtils @Inject()(languageUtils: LanguageUtils) {
+class ViewUtils @Inject() (languageUtils: LanguageUtils) {
 
   def fromMessage(message: Message)(implicit messages: Messages): String =
     message match {

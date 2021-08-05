@@ -31,7 +31,8 @@ import scala.concurrent.ExecutionContext
 class SaWrongCredentialsControllerSpec extends BaseSpec {
 
   val fakeAuthJourney = new FakeAuthJourney(
-    WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)))
+    WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+  )
 
   def controller =
     new SaWrongCredentialsController(

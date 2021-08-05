@@ -67,7 +67,8 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       block(
         buildUserRequest(
           request = request
-        ))
+        )
+      )
   })
 
   "makePayment" must {

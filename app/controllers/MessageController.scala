@@ -30,17 +30,15 @@ import views.html.message.{MessageDetailView, MessageInboxView}
 
 import scala.concurrent.ExecutionContext
 
-class MessageController @Inject()(
+class MessageController @Inject() (
   val messageFrontendService: MessageFrontendService,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   messageInboxView: MessageInboxView,
-  messageDetailView: MessageDetailView)(
-  implicit val configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  messageDetailView: MessageDetailView
+)(implicit val configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def messageBreadcrumb: Breadcrumb =
@@ -48,19 +46,25 @@ class MessageController @Inject()(
       baseBreadcrumb
 
   def messageList: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(
+      ActiveTabMessages
+    ) andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageListPartial map { p =>
         Ok(
           messageInboxView(
             messageListPartial = p successfulContentOrElse Html(
-              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")))
+              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")
+            )
+          )
         )
       }
     }
 
   def messageDetail(messageToken: String): Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(
+      ActiveTabMessages
+    ) andThen withBreadcrumbAction
       .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageDetailPartial(messageToken).map {
         case HtmlPartial.Success(Some(title), content) =>

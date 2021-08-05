@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class HomePageCachingHelper @Inject()(
+class HomePageCachingHelper @Inject() (
   val sessionCache: LocalSessionCache
 ) {
 

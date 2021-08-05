@@ -1,4 +1,3 @@
-import com.lucidchart.sbt.scalafmt.ScalafmtCorePlugin.autoImport.scalafmtOnCompile
 import com.typesafe.sbt.digest.Import.digest
 import com.typesafe.sbt.web.Import.pipelineStages
 import play.sbt.PlayImport.PlayKeys

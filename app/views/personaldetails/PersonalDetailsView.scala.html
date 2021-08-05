@@ -29,11 +29,21 @@
 
       <header class="page-heading">
         <h1 class="heading-xlarge">
-            @request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account"))
+          @request.name.map(upperCaseToTitleCase).getOrElse(messages("label.your_account"))
         </h1>
-        <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.personal_details")</p>
+        <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.your_profile")</p>
       </header>
 
+    </div>
+
+  </div>
+
+  <div class="grid-row">
+    <div class="column-two-thirds">
+      <div class="pertax-personal-details">
+        <h2>@messages("label.personal_details")</h2>
+        <!-- summaryList -->
+      </div>
     </div>
   </div>
 

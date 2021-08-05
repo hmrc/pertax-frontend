@@ -37,9 +37,10 @@ object ActivatePaperlessResponse {
             ActivatePaperlessActivatedResponse
 
           case PRECONDITION_FAILED =>
-            val redirectUrl = (response.json \ "redirectUserTo")
+            val redirectUrl = response.json \ "redirectUserTo"
             logger.warn(
-              "Precondition failed when getting paperless preference record from preferences-frontend-service")
+              "Precondition failed when getting paperless preference record from preferences-frontend-service"
+            )
             ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
 
           case r =>

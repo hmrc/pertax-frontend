@@ -75,12 +75,14 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     lazy val withPaye: Boolean = true
     lazy val year = 2017
     lazy val getTaxCalculationResponse: TaxCalculationResponse = TaxCalculationSuccessResponse(
-      TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None))
+      TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
+    )
     lazy val getPaperlessPreferenceResponse: ActivatePaperlessResponse = ActivatePaperlessActivatedResponse
     lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
     lazy val selfAssessmentUserType: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+      SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+    )
     lazy val getLtaServiceResponse = Future.successful(true)
 
     lazy val allowLowConfidenceSA = false
@@ -126,12 +128,18 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockConfigDecorator.allowLowConfidenceSAEnabled) thenReturn allowLowConfidenceSA
     when(mockConfigDecorator.identityVerificationUpliftUrl) thenReturn "/mdtp/uplift"
     when(mockConfigDecorator.pertaxFrontendHost) thenReturn ""
-    when(mockConfigDecorator.getBasGatewayFrontendSignOutUrl("/personal-account")) thenReturn "/bas-gateway/sign-out-without-state?continue=/personal-account"
-    when(mockConfigDecorator.getBasGatewayFrontendSignOutUrl("/feedback/PERTAX")) thenReturn "/bas-gateway/sign-out-without-state?continue=/feedback/PERTAX"
+    when(
+      mockConfigDecorator.getBasGatewayFrontendSignOutUrl("/personal-account")
+    ) thenReturn "/bas-gateway/sign-out-without-state?continue=/personal-account"
+    when(
+      mockConfigDecorator.getBasGatewayFrontendSignOutUrl("/feedback/PERTAX")
+    ) thenReturn "/bas-gateway/sign-out-without-state?continue=/feedback/PERTAX"
     when(mockConfigDecorator.citizenAuthFrontendSignOut) thenReturn "/ida/signout"
     when(mockConfigDecorator.defaultOrigin) thenReturn Origin("PERTAX")
     when(mockConfigDecorator.getFeedbackSurveyUrl(Origin("PERTAX"))) thenReturn "/feedback/PERTAX"
-    when(mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
+    when(
+      mockConfigDecorator.ssoToActivateSaEnrolmentPinUrl
+    ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerLinkUrl) thenReturn None
 
@@ -170,7 +178,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = request
-            ))
+            )
+          )
       })
 
       val r: Future[Result] = controller.index()(FakeRequest())
@@ -189,7 +198,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           block(
             buildUserRequest(
               request = request
-            ))
+            )
+          )
       })
 
       override lazy val getPaperlessPreferenceResponse = ActivatePaperlessNotAllowedResponse
@@ -260,7 +270,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           block(
             buildUserRequest(
               request = request
-            ))
+            )
+          )
       })
 
       when(mockConfigDecorator.taxComponentsEnabled) thenReturn false
@@ -282,7 +293,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val (result, _, _) = await(controller.serviceCallResponses(userNino, year))
       result mustBe TaxComponentsAvailableState(
-        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments")))
+        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+      )
 
     }
 

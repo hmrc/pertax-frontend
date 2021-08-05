@@ -71,7 +71,10 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "selectedAddressRecord"  -> Json.toJson(fakeStreetPafAddressRecord),
-              "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType)))))
+              "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType))
+            )
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -120,7 +123,10 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)),
-              "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
+              "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord)
+            )
+          )
+        )
 
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -161,7 +167,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
               "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "soleResidencyChoiceDto"    -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -179,7 +186,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
               "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
               "soleResidencyChoiceDto"  -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -223,7 +231,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
               "addressPageVisitedDto"       -> Json.toJson(AddressPageVisitedDto(true)),
               "postalSelectedAddressRecord" -> Json.toJson(Fixtures.fakeStreetPafAddressRecord)
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
@@ -243,7 +252,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
               "soleResidencyChoiceDto"    -> Json.toJson(ResidencyChoiceDto(SoleAddrType)),
               "soleSelectedAddressRecord" -> Json.toJson(Fixtures.fakeStreetPafAddressRecord)
             )
-          ))
+          )
+        )
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -283,7 +293,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/changes")
       verify(mockLocalSessionCache, times(1)).cache(
         meq("postalSubmittedAddressDto"),
-        meq(asAddressDto(fakeStreetTupleListAddressForUnmodified)))(any(), any(), any())
+        meq(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+      )(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -303,7 +314,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
       verify(mockLocalSessionCache, times(1)).cache(
         meq("soleSubmittedAddressDto"),
-        meq(asAddressDto(fakeStreetTupleListAddressForUnmodified)))(any(), any(), any())
+        meq(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+      )(any(), any(), any())
       verify(mockLocalSessionCache, times(1))
         .cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())

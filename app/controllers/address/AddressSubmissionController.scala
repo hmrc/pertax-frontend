@@ -40,7 +40,7 @@ import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationV
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressSubmissionController @Inject()(
+class AddressSubmissionController @Inject() (
   val citizenDetailsService: CitizenDetailsService,
   val addressMovedService: AddressMovedService,
   val editAddressLockRepository: EditAddressLockRepository,
@@ -53,10 +53,8 @@ class AddressSubmissionController @Inject()(
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   reviewChangesView: ReviewChangesView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  genericErrors: GenericErrors)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  genericErrors: GenericErrors
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   private val logger = Logger(this.getClass)
@@ -81,7 +79,8 @@ class AddressSubmissionController @Inject()(
               !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
             ensuringSubmissionRequirements(typ, journeyData) {
               journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+              ) { addressDto =>
                 Future.successful(
                   Ok(
                     reviewChangesView(
@@ -99,7 +98,8 @@ class AddressSubmissionController @Inject()(
           } else {
             ensuringSubmissionRequirements(typ, journeyData) {
               journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+              ) { addressDto =>
                 Future.successful(
                   Ok(
                     reviewChangesView(
@@ -134,7 +134,8 @@ class AddressSubmissionController @Inject()(
               ensuringSubmissionRequirements(typ, journeyData) {
 
                 journeyData.submittedAddressDto.fold(
-                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))) { addressDto =>
+                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                ) { addressDto =>
                   val address =
                     addressDto
                       .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
@@ -153,7 +154,8 @@ class AddressSubmissionController @Inject()(
                           originalAddressDto,
                           addressDtowithFormattedPostCode,
                           version,
-                          addressType)
+                          addressType
+                        )
                         cachingHelper.clearCache()
 
                         Ok(
@@ -169,9 +171,7 @@ class AddressSubmissionController @Inject()(
                       for {
                         _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
                         result <- citizenDetailsService.updateAddress(nino, version.etag, address)
-                      } yield {
-                        result.response(genericErrors, successResponseBlock)
-                      }
+                      } yield result.response(genericErrors, successResponseBlock)
                   }
                 }
               }
@@ -186,7 +186,8 @@ class AddressSubmissionController @Inject()(
   }
 
   private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
-    block: => Future[Result]): Future[Result] =
+    block: => Future[Result]
+  ): Future[Result] =
     if (journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType)) {
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
     } else {
@@ -197,7 +198,8 @@ class AddressSubmissionController @Inject()(
     originalAddressDto: Option[AddressDto],
     addressDto: AddressDto,
     version: ETag,
-    addressType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]) =
+    addressType: String
+  )(implicit hc: HeaderCarrier, request: UserRequest[_]) =
     if (addressWasUnmodified(originalAddressDto, addressDto))
       auditConnector.sendEvent(
         buildEvent(
@@ -205,7 +207,8 @@ class AddressSubmissionController @Inject()(
           "change_of_address",
           dataToAudit(addressDto, version.etag, addressType, None, originalAddressDto.flatMap(_.propertyRefNo))
             .filter(!_._1.startsWith("originalLine")) - "originalPostcode"
-        ))
+        )
+      )
     else if (addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto))
       auditConnector.sendEvent(
         buildEvent(

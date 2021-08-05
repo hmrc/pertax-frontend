@@ -39,28 +39,32 @@ class BindableSpec extends BaseSpec with Injecting {
 
       val url = "/relative/url"
       controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
-        Right(SafeRedirectUrl(url)))
+        Right(SafeRedirectUrl(url))
+      )
     }
 
     "return error when not url" in {
 
       val url = "gtuygyg"
       controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
-        Left(s"'$url' is not a valid continue URL"))
+        Left(s"'$url' is not a valid continue URL")
+      )
     }
 
     "return error for urls with /\\" in {
 
       val url = "/\\www.example.com"
       controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
-        Left(s"'$url' is not a valid continue URL"))
+        Left(s"'$url' is not a valid continue URL")
+      )
     }
 
     "return error for none relative urls" in {
 
       val url = "http://nonrelativeurl.com"
       controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
-        Left(s"Provided URL [$url] doesn't comply with redirect policy"))
+        Left(s"Provided URL [$url] doesn't comply with redirect policy")
+      )
     }
   }
 }
