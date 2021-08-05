@@ -36,6 +36,7 @@ GET         /personal-account/lang/enGb                                         
 GET         /personal-account/lang/cyGb                                                controllers.LanguageSwitchController.cyGb()
 
 GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.onPageLoad
+GET         /personal-account/personal-details-v2                                      controllers.address.PersonalDetailsController.onPageLoadv2
 GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
 POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
 GET         /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onPageLoad

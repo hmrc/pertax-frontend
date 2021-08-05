@@ -28,13 +28,16 @@ import services.NinoDisplayService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
+import viewmodels.{PersonalDetailsTableRowModel, PersonalDetailsViewModel}
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.PersonalDetailsView
+import views.html.personaldetails.{PersonalDetailsView, PersonalDetailsViewV2}
+import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalDetailsController @Inject()(
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
+  val personalDetailsViewModel: PersonalDetailsViewModel,
   val editAddressLockRepository: EditAddressLockRepository,
   ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
@@ -43,7 +46,10 @@ class PersonalDetailsController @Inject()(
   auditConnector: AuditConnector,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  personalDetailsView: PersonalDetailsView
+  personalDetailsView: PersonalDetailsView,
+  personalDetailsViewV2: PersonalDetailsViewV2,
+  addressView: AddressView,
+  correspondenceAddressView: CorrespondenceAddressView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
@@ -69,5 +75,29 @@ class PersonalDetailsController @Inject()(
       _ <- cachingHelper.addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
     } yield Ok(personalDetailsView(personalDetailsCards))
+  }
+
+  def onPageLoadv2: Action[AnyContent] = authenticate.async { implicit request =>
+    import models.dto.AddressPageVisitedDto
+
+    for {
+      addressModel <- request.nino
+                       .map { nino =>
+                         editAddressLockRepository.get(nino.withoutSuffix)
+                       }
+                       .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
+      ninoToDisplay <- ninoDisplayService.getNino
+
+      personalDetailsModel = personalDetailsViewModel.getPersonDetailsTable(addressModel, ninoToDisplay)
+      personDetails: Option[PersonDetails] = request.personDetails
+
+      _ <- personDetails
+            .map { details =>
+              auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
+            }
+            .getOrElse(Future.successful(Unit))
+      _ <- cachingHelper.addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+
+    } yield Ok(personalDetailsViewV2(personalDetailsModel))
   }
 }
