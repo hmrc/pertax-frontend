@@ -19,6 +19,7 @@ package controllers.auth
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
+import error.GenericErrors
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
@@ -37,7 +38,8 @@ class GetPersonDetailsAction @Inject()(
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView)(
+  manualCorrespondenceView: ManualCorrespondenceView,
+  genericErrors: GenericErrors)(
   implicit configDecorator: ConfigDecorator,
   ec: ExecutionContext,
   templateRenderer: TemplateRenderer)
@@ -103,9 +105,8 @@ class GetPersonDetailsAction @Inject()(
       case Some(nino) =>
         citizenDetailsService.personDetails(nino).map {
           case PersonDetailsSuccessResponse(pd) => Right(Some(pd))
-          case PersonDetailsHiddenResponse =>
-            Left(Locked(manualCorrespondenceView()))
-          case _ => Right(None)
+          case PersonDetailsHiddenResponse      => Left(Locked(manualCorrespondenceView()))
+          case _                                => Right(None)
         }
       case _ => Future.successful(Right(None))
     }

@@ -49,7 +49,7 @@ class HomeViewSpec extends ViewSpec {
       document.select("h1").exists(e => e.text == "Your account") mustBe false
     }
 
-    "show the users name and not 'Your account' when the user has no details but is a GG user" in {
+    "show 'Your account' when the user has no details" in {
       implicit val userRequest = buildUserRequest(
         personDetails = None,
         userName = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
