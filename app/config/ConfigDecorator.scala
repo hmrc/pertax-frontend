@@ -47,6 +47,7 @@ class ConfigDecorator @Inject() (
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = servicesConfig.baseUrl("business-tax-account")
+  lazy val fandfFrontendService = servicesConfig.baseUrl("fandf-frontend")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
@@ -263,6 +264,8 @@ class ConfigDecorator @Inject() (
       .getOptional[String]("feature.national-insurance-tile.enabled")
       .getOrElse("false")
       .toBoolean
+
+  lazy val manageTrustedHelpersUrl = s"$fandfFrontendService/trusted-helpers/select-a-service"
 }
 
 trait TaxcalcUrls {
