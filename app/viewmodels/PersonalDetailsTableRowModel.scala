@@ -19,6 +19,7 @@ package viewmodels
 import play.twirl.api.HtmlFormat
 
 case class PersonalDetailsTableRowModel(
+  id: String,
   titleMessage: String,
   content: HtmlFormat.Appendable,
   linkTextMessage: String,

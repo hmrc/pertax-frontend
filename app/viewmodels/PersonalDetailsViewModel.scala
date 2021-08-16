@@ -34,23 +34,31 @@ class PersonalDetailsViewModel @Inject() (
   correspondenceAddressView: CorrespondenceAddressView
 ) {
 
-  val changeMainAddressUrl = if (configDecorator.taxCreditsEnabled) {
+  private val changeMainAddressUrl = if (configDecorator.taxCreditsEnabled) {
     controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
   } else { controllers.address.routes.ResidencyChoiceController.onPageLoad.url }
-  val changePostalAddressUrl = controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url
-  val viewNinoUrl = controllers.routes.InterstitialController.displayNationalInsurance.url
-  val changeNameUrl = configDecorator.changeNameLinkUrl
-  val paperlessSettingsUrl = controllers.routes.PaperlessPreferencesController.managePreferences.url
-  val trustedHelpersUrl = configDecorator.manageTrustedHelpersUrl
+  private val changePostalAddressUrl =
+    controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url
+  private val viewNinoUrl = controllers.routes.InterstitialController.displayNationalInsurance.url
+  private val changeNameUrl = configDecorator.changeNameLinkUrl
+  private val paperlessSettingsUrl = controllers.routes.PaperlessPreferencesController.managePreferences.url
+  private val trustedHelpersUrl = configDecorator.manageTrustedHelpersUrl
 
   private def getName(implicit request: UserRequest[_]) =
     request.name.map(n =>
-      PersonalDetailsTableRowModel("label.name", HtmlFormat.raw(n), "label.change_your_name", Some(changeNameUrl))
+      PersonalDetailsTableRowModel(
+        "name",
+        "label.name",
+        HtmlFormat.raw(n),
+        "label.change_your_name",
+        Some(changeNameUrl)
+      )
     )
 
   private def getNationalInsurance(ninoToDisplay: Option[Nino])(implicit request: UserRequest[_]) =
     ninoToDisplay.map(n =>
       PersonalDetailsTableRowModel(
+        "national_insurance",
         "label.national_insurance",
         formattedNino(n),
         "label.view_your_national_insurance_letter",
@@ -64,6 +72,7 @@ class PersonalDetailsViewModel @Inject() (
     personDetails.address.map { address =>
       if (isMainAddressChangeLocked) {
         PersonalDetailsTableRowModel(
+          "main_address",
           "label.main_address",
           addressView(address, countryHelper.excludedCountries),
           "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
@@ -71,6 +80,7 @@ class PersonalDetailsViewModel @Inject() (
         )
       } else {
         PersonalDetailsTableRowModel(
+          "main_address",
           "label.main_address",
           addressView(address, countryHelper.excludedCountries),
           "label.change_your_main_address",
@@ -86,6 +96,7 @@ class PersonalDetailsViewModel @Inject() (
     if (optionalPostalAddress.isEmpty && personDetails.address.isDefined) {
       Some(
         PersonalDetailsTableRowModel(
+          "postal_address",
           "label.postal_address",
           correspondenceAddressView(None, countryHelper.excludedCountries),
           "label.change_your_postal_address",
@@ -104,6 +115,7 @@ class PersonalDetailsViewModel @Inject() (
       personDetails.correspondenceAddress.map { correspondenceAddress =>
         if (isCorrespondenceChangeLocked) {
           PersonalDetailsTableRowModel(
+            "postal_address",
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
             "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
@@ -111,6 +123,7 @@ class PersonalDetailsViewModel @Inject() (
           )
         } else {
           PersonalDetailsTableRowModel(
+            "postal_address",
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
             "label.change_your_postal_address",
@@ -152,6 +165,7 @@ class PersonalDetailsViewModel @Inject() (
   ) {
     Some(
       PersonalDetailsTableRowModel(
+        "trusted_helpers",
         "label.trusted_helpers",
         HtmlFormat.raw("label.manage_trusted_helpers"),
         "label.change_trusted_helpers",
@@ -165,6 +179,7 @@ class PersonalDetailsViewModel @Inject() (
   ) {
     Some(
       PersonalDetailsTableRowModel(
+        "paperless",
         "label.go_paperless",
         HtmlFormat.raw("label.go_paperless_content"),
         "label.go_paperless_change",
@@ -178,6 +193,7 @@ class PersonalDetailsViewModel @Inject() (
   ) {
     request.profile.map(profileUrl =>
       PersonalDetailsTableRowModel(
+        "sign_in_details",
         "label.sign_in_details",
         HtmlFormat.raw("label.sign_in_details_content"),
         "label.sign_in_details_change",

@@ -47,9 +47,7 @@ class PersonalDetailsController @Inject() (
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView,
-  personalDetailsViewV2: PersonalDetailsViewV2,
-  addressView: AddressView,
-  correspondenceAddressView: CorrespondenceAddressView
+  personalDetailsViewV2: PersonalDetailsViewV2
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 

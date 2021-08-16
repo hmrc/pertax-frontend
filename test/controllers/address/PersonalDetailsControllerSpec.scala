@@ -30,7 +30,8 @@ import services.NinoDisplayService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures
-import views.html.personaldetails.PersonalDetailsView
+import viewmodels.PersonalDetailsViewModel
+import views.html.personaldetails.{PersonalDetailsView, PersonalDetailsViewV2}
 
 import scala.concurrent.Future
 
@@ -49,6 +50,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     def controller =
       new PersonalDetailsController(
         injected[PersonalDetailsCardGenerator],
+        injected[PersonalDetailsViewModel],
         mockEditAddressLockRepository,
         ninoDisplayService,
         mockAuthJourney,
@@ -57,7 +59,8 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         mockAuditConnector,
         cc,
         displayAddressInterstitialView,
-        injected[PersonalDetailsView]
+        injected[PersonalDetailsView],
+        injected[PersonalDetailsViewV2]
       ) {}
 
     "Calling AddressController.onPageLoad" must {
