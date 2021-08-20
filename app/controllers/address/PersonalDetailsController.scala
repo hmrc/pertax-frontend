@@ -86,7 +86,10 @@ class PersonalDetailsController @Inject() (
                         .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
       ninoToDisplay <- ninoDisplayService.getNino
 
-      personalDetailsModel = personalDetailsViewModel.getPersonDetailsTable(addressModel, ninoToDisplay)
+      personalDetails = personalDetailsViewModel.getPersonDetailsTable(addressModel, ninoToDisplay)
+      trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
+      paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
+      signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
       personDetails: Option[PersonDetails] = request.personDetails
 
       _ <- personDetails
@@ -96,6 +99,6 @@ class PersonalDetailsController @Inject() (
              .getOrElse(Future.successful(Unit))
       _ <- cachingHelper.addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
-    } yield Ok(personalDetailsViewV2(personalDetailsModel))
+    } yield Ok(personalDetailsViewV2(personalDetails, trustedHelpers, paperlessHelpers, signinDetailsHelpers))
   }
 }

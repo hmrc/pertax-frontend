@@ -50,7 +50,8 @@ class PersonalDetailsViewModel @Inject() (
         "name",
         "label.name",
         HtmlFormat.raw(n),
-        "label.change_your_name",
+        "label.change",
+        "label.your_name",
         Some(changeNameUrl)
       )
     )
@@ -62,6 +63,7 @@ class PersonalDetailsViewModel @Inject() (
         "label.national_insurance",
         formattedNino(n),
         "label.view_your_national_insurance_letter",
+        "nino",
         Some(viewNinoUrl)
       )
     )
@@ -76,6 +78,7 @@ class PersonalDetailsViewModel @Inject() (
           "label.main_address",
           addressView(address, countryHelper.excludedCountries),
           "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
+          "address",
           None
         )
       } else {
@@ -84,6 +87,7 @@ class PersonalDetailsViewModel @Inject() (
           "label.main_address",
           addressView(address, countryHelper.excludedCountries),
           "label.change_your_main_address",
+          "address",
           Some(changeMainAddressUrl)
         )
       }
@@ -100,6 +104,7 @@ class PersonalDetailsViewModel @Inject() (
           "label.postal_address",
           correspondenceAddressView(None, countryHelper.excludedCountries),
           "label.change_your_postal_address",
+          "address",
           Some(changePostalAddressUrl)
         )
       )
@@ -119,6 +124,7 @@ class PersonalDetailsViewModel @Inject() (
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
             "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
+            "address",
             None
           )
         } else {
@@ -127,6 +133,7 @@ class PersonalDetailsViewModel @Inject() (
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
             "label.change_your_postal_address",
+            "address",
             Some(changePostalAddressUrl)
           )
         }
@@ -160,43 +167,49 @@ class PersonalDetailsViewModel @Inject() (
 
   }
 
-  def getTrustedHelpersRow(implicit request: UserRequest[_]): Option[PersonalDetailsTableRowModel] = if (
-    request.isVerify
-  ) {
+  def getTrustedHelpersRow(implicit
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages
+  ): Option[PersonalDetailsTableRowModel] = if (request.isVerify) {
     Some(
       PersonalDetailsTableRowModel(
         "trusted_helpers",
         "label.trusted_helpers",
-        HtmlFormat.raw("label.manage_trusted_helpers"),
+        HtmlFormat.raw(messages("label.manage_trusted_helpers")),
         "label.change_trusted_helpers",
+        "address",
         Some(trustedHelpersUrl)
       )
     )
   } else { None }
 
-  def getPaperlessSettingsRow(implicit request: UserRequest[_]): Option[PersonalDetailsTableRowModel] = if (
-    request.isGovernmentGateway
-  ) {
+  def getPaperlessSettingsRow(implicit
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages
+  ): Option[PersonalDetailsTableRowModel] = if (request.isGovernmentGateway) {
     Some(
       PersonalDetailsTableRowModel(
         "paperless",
         "label.go_paperless",
-        HtmlFormat.raw("label.go_paperless_content"),
+        HtmlFormat.raw(messages("label.go_paperless_content")),
         "label.go_paperless_change",
+        "address",
         Some(paperlessSettingsUrl)
       )
     )
   } else { None }
 
-  def getSignInDetailsRow(implicit request: UserRequest[_]): Option[PersonalDetailsTableRowModel] = if (
-    request.isGovernmentGateway
-  ) {
+  def getSignInDetailsRow(implicit
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages
+  ): Option[PersonalDetailsTableRowModel] = if (request.isGovernmentGateway) {
     request.profile.map(profileUrl =>
       PersonalDetailsTableRowModel(
         "sign_in_details",
         "label.sign_in_details",
-        HtmlFormat.raw("label.sign_in_details_content"),
+        HtmlFormat.raw(messages("label.sign_in_details_content")),
         "label.sign_in_details_change",
+        "address",
         Some(profileUrl)
       )
     )

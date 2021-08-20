@@ -23,5 +23,6 @@ case class PersonalDetailsTableRowModel(
   titleMessage: String,
   content: HtmlFormat.Appendable,
   linkTextMessage: String,
+  visuallyhiddenText: String,
   linkUrl: Option[String]
 )

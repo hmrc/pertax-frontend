@@ -120,6 +120,7 @@ label.welsh_content_warning=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu 
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.name=Enw
 label.change_your_name=Newid eich enw
+label.your_name=eich enw
 label.back=Yn ôl
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
