@@ -104,18 +104,18 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return None" when {
       "user is not GG and profile URL is defined" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"), profile = Some("example.com"))
-        val actual = viewModel.getSignInDetailsRow(request)
+        val actual = viewModel.getSignInDetailsRow(request, messages)
         actual mustBe None
       }
 
       "user is GG and profile URL is not defined" in {
-        val actual = viewModel.getSignInDetailsRow(userRequest)
+        val actual = viewModel.getSignInDetailsRow(userRequest, messages)
         actual mustBe None
       }
 
       "user is not GG and profile URL is not defined" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = viewModel.getSignInDetailsRow(request)
+        val actual = viewModel.getSignInDetailsRow(request, messages)
         actual mustBe None
       }
 
@@ -127,12 +127,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val expected = PersonalDetailsTableRowModel(
           "sign_in_details",
           "label.sign_in_details",
-          HtmlFormat.raw("label.sign_in_details_content"),
+          HtmlFormat.raw("Government Gateway user ID and password you use to sign-in"),
           "label.sign_in_details_change",
+          "your sign in details",
           Some(profileUrl)
         )
         val request = userRequest.copy(profile = Some(profileUrl))
-        val actual = viewModel.getSignInDetailsRow(request)
+        val actual = viewModel.getSignInDetailsRow(request, messages)
         actual mustBe Some(expected)
 
       }
@@ -144,7 +145,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return None" when {
       "user is not gg" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = viewModel.getPaperlessSettingsRow(request)
+        val actual = viewModel.getPaperlessSettingsRow(request, messages)
         actual mustBe None
       }
     }
@@ -155,12 +156,13 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           PersonalDetailsTableRowModel(
             "paperless",
             "label.go_paperless",
-            HtmlFormat.raw("label.go_paperless_content"),
+            HtmlFormat.raw("Replace the letters you get about taxes with emails"),
             "label.go_paperless_change",
+            "your paperless setting",
             Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
           )
         )
-        val actual = viewModel.getPaperlessSettingsRow(userRequest)
+        val actual = viewModel.getPaperlessSettingsRow(userRequest, messages)
         actual mustBe expected
       }
     }
@@ -169,7 +171,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getTrustedHelpersRow" must {
     "return None" when {
       "user is not verify" in {
-        val actual = viewModel.getTrustedHelpersRow(userRequest)
+        val actual = viewModel.getTrustedHelpersRow(userRequest, messages)
         actual mustBe None
       }
     }
@@ -177,13 +179,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return PersonalDetailsTableRowModel" when {
       "user is verify" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = viewModel.getTrustedHelpersRow(request)
+        val actual = viewModel.getTrustedHelpersRow(request, messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",
             "label.trusted_helpers",
-            HtmlFormat.raw("label.manage_trusted_helpers"),
+            HtmlFormat.raw("Manage your Trusted helpers"),
             "label.change_trusted_helpers",
+            "your trusted helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
         )
@@ -201,7 +204,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "name",
             "label.name",
             HtmlFormat.raw("Example User"),
-            "label.change_your_name",
+            "label.change",
+            "label.your_name",
             Some(configDecorator.changeNameLinkUrl)
           )
         val actual = viewModel.getPersonDetailsTable(List.empty, None)(request, messages)
@@ -234,6 +238,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           "label.national_insurance",
           formattedNino(testNino),
           "label.view_your_national_insurance_letter",
+          "",
           Some(controllers.routes.InterstitialController.displayNationalInsurance.url)
         )
         actual.contains(expected) mustBe true
@@ -259,7 +264,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "main_address",
         "label.main_address",
         addressView(testAddress, countryHelper.excludedCountries),
-        "label.change_your_main_address",
+        "label.change",
+        "label.your_main_home",
         Some(controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url)
       )
 
@@ -279,6 +285,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "label.main_address",
         addressView(testAddress, countryHelper.excludedCountries),
         "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
+        "label.your_main_home",
         None
       )
 
@@ -312,6 +319,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "label.postal_address",
         correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
         "label.change_your_postal_address",
+        "your postal address",
         Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
       )
 
@@ -331,6 +339,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "label.postal_address",
         correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
         "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
+        "your postal address",
         None
       )
 
@@ -346,7 +355,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "postal_address",
         "label.postal_address",
         correspondenceAddressView(None, countryHelper.excludedCountries),
-        "label.change_your_postal_address",
+        "label.change",
+        "your postal address",
         Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
       )
 
