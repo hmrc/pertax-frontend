@@ -23,6 +23,7 @@ import javax.inject.{Inject, Singleton}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, PersonDetails}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
+import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
@@ -45,11 +46,11 @@ class PersonalDetailsViewModel @Inject() (
   private val trustedHelpersUrl = configDecorator.manageTrustedHelpersUrl
 
   private def getName(implicit request: UserRequest[_]) =
-    request.name.map(n =>
+    request.name.map(name =>
       PersonalDetailsTableRowModel(
         "name",
         "label.name",
-        HtmlFormat.raw(n),
+        HtmlFormat.raw(TemplateFunctions.upperCaseToTitleCase(name)),
         "label.change",
         "label.your_name",
         Some(changeNameUrl)
@@ -63,7 +64,7 @@ class PersonalDetailsViewModel @Inject() (
         "label.national_insurance",
         formattedNino(n),
         "label.view_your_national_insurance_letter",
-        "nino",
+        "",
         Some(viewNinoUrl)
       )
     )
@@ -78,7 +79,7 @@ class PersonalDetailsViewModel @Inject() (
           "label.main_address",
           addressView(address, countryHelper.excludedCountries),
           "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
-          "address",
+          "label.your_main_home",
           None
         )
       } else {
@@ -86,8 +87,8 @@ class PersonalDetailsViewModel @Inject() (
           "main_address",
           "label.main_address",
           addressView(address, countryHelper.excludedCountries),
-          "label.change_your_main_address",
-          "address",
+          "label.change",
+          "label.your_main_home",
           Some(changeMainAddressUrl)
         )
       }
@@ -103,8 +104,8 @@ class PersonalDetailsViewModel @Inject() (
           "postal_address",
           "label.postal_address",
           correspondenceAddressView(None, countryHelper.excludedCountries),
-          "label.change_your_postal_address",
-          "address",
+          "label.change",
+          "label.enter_the_address",
           Some(changePostalAddressUrl)
         )
       )

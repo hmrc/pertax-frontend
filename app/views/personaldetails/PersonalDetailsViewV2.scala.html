@@ -45,13 +45,9 @@
     <div class="column-two-thirds">
       <div class="pertax-personal-details">
         <h2>@messages("label.personal_details")</h2>
-
           <dl class="govuk-summary-list">
-
-
-
               @personalDetails.map { row =>
-                  <div class="govuk-summary-list__row">
+                  <div class="govuk-summary-list__row" id="@row.id">
                       <dt class="govuk-summary-list__key">
                           @messages(row.titleMessage)
                       </dt>
@@ -60,10 +56,32 @@
                       </dd>
                       <dd class="govuk-summary-list__actions">
                           @row.linkUrl.map { url=>
-                            <a class="govuk-link" href=@url>
+                            <a class="govuk-link" href="@url">
 
-                                @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                                @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {<span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>}
                             </a>
+                          }.getOrElse(
+                            <p>@messages(row.linkTextMessage)</p>
+                          )
+                      </dd>
+                  </div>
+              }
+
+
+              @trustedHelpers.map { row =>
+                  <div class="govuk-summary-list__row" id="@row.id">
+                      <dt class="govuk-summary-list__key">
+                          @messages(row.titleMessage)
+                      </dt>
+                      <dd class="govuk-summary-list__value">
+                          @row.content
+                      </dd>
+                      <dd class="govuk-summary-list__actions">
+                          @row.linkUrl.map { url=>
+                          <a class="govuk-link" href=@url>
+
+                              @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                          </a>
                           }.getOrElse(
                           <p>@messages(row.linkTextMessage)</p>
 
@@ -71,80 +89,54 @@
 
                       </dd>
                   </div>
-                }
-
-
-              @trustedHelpers.map { row =>
-              <div class="govuk-summary-list__row">
-                  <dt class="govuk-summary-list__key">
-                      @messages(row.titleMessage)
-                  </dt>
-                  <dd class="govuk-summary-list__value">
-                      @row.content
-                  </dd>
-                  <dd class="govuk-summary-list__actions">
-                      @row.linkUrl.map { url=>
-                      <a class="govuk-link" href=@url>
-
-                          @messages(row.linkTextMessage) <span class="visuallyhidden">@row.visuallyhiddenText</span>
-                      </a>
-                      }.getOrElse(
-                      <p>@messages(row.linkTextMessage)</p>
-
-                      )
-
-                  </dd>
-              </div>
               }
 
               @paperlessHelpers.map { row =>
-              <div class="govuk-summary-list__row">
-                  <dt class="govuk-summary-list__key">
-                      @messages(row.titleMessage)
-                  </dt>
-                  <dd class="govuk-summary-list__value">
-                      @row.content
-                  </dd>
-                  <dd class="govuk-summary-list__actions">
-                      @row.linkUrl.map { url=>
-                      <a class="govuk-link" href=@url>
+                  <div class="govuk-summary-list__row" id="@row.id">
+                      <dt class="govuk-summary-list__key">
+                          @messages(row.titleMessage)
+                      </dt>
+                      <dd class="govuk-summary-list__value">
+                          @row.content
+                      </dd>
+                      <dd class="govuk-summary-list__actions">
+                          @row.linkUrl.map { url=>
+                          <a class="govuk-link" href=@url>
 
-                          @messages(row.linkTextMessage) <span class="visuallyhidden">@row.visuallyhiddenText</span>
-                      </a>
-                      }.getOrElse(
-                      <p>@messages(row.linkTextMessage)</p>
+                              @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                          </a>
+                          }.getOrElse(
+                          s"<p>$messages(row.linkTextMessage)</p>"
 
-                      )
+                          )
 
-                  </dd>
-              </div>
+                      </dd>
+                  </div>
               }
 
               @signinDetailsHelpers.map { row =>
-              <div class="govuk-summary-list__row">
-                  <dt class="govuk-summary-list__key">
-                      @messages(row.titleMessage)
-                  </dt>
-                  <dd class="govuk-summary-list__value">
-                      @row.content
-                  </dd>
-                  <dd class="govuk-summary-list__actions">
-                      @row.linkUrl.map { url=>
-                      <a class="govuk-link" href=@url>
+                  <div class="govuk-summary-list__row" id="@row.id">
+                      <dt class="govuk-summary-list__key">
+                          @messages(row.titleMessage)
+                      </dt>
+                      <dd class="govuk-summary-list__value">
+                          @row.content
+                      </dd>
+                      <dd class="govuk-summary-list__actions">
+                          @row.linkUrl.map { url=>
+                          <a class="govuk-link" href=@url>
 
-                          @messages(row.linkTextMessage) <span class="visuallyhidden">@row.visuallyhiddenText</span>
-                      </a>
-                      }.getOrElse(
-                      <p>@messages(row.linkTextMessage)</p>
+                              @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                          </a>
+                          }.getOrElse(
+                          <p>@messages(row.linkTextMessage)</p>
 
-                      )
+                          )
 
-                  </dd>
-              </div>
+                      </dd>
+                  </div>
               }
-
           </dl>
-
       </div>
     </div>
   </div>
