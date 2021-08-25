@@ -105,7 +105,7 @@ class PersonalDetailsViewModel @Inject() (
           "label.postal_address",
           correspondenceAddressView(None, countryHelper.excludedCountries),
           "label.change",
-          "label.enter_the_address",
+          "your postal address",
           Some(changePostalAddressUrl)
         )
       )
@@ -125,7 +125,7 @@ class PersonalDetailsViewModel @Inject() (
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
             "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
-            "address",
+            "your postal address",
             None
           )
         } else {
@@ -134,7 +134,7 @@ class PersonalDetailsViewModel @Inject() (
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
             "label.change_your_postal_address",
-            "address",
+            "your postal address",
             Some(changePostalAddressUrl)
           )
         }
@@ -178,7 +178,7 @@ class PersonalDetailsViewModel @Inject() (
         "label.trusted_helpers",
         HtmlFormat.raw(messages("label.manage_trusted_helpers")),
         "label.change_trusted_helpers",
-        "address",
+        "your trusted helpers",
         Some(trustedHelpersUrl)
       )
     )
@@ -194,7 +194,7 @@ class PersonalDetailsViewModel @Inject() (
         "label.go_paperless",
         HtmlFormat.raw(messages("label.go_paperless_content")),
         "label.go_paperless_change",
-        "address",
+        "your paperless setting",
         Some(paperlessSettingsUrl)
       )
     )
@@ -210,7 +210,7 @@ class PersonalDetailsViewModel @Inject() (
         "label.sign_in_details",
         HtmlFormat.raw(messages("label.sign_in_details_content")),
         "label.sign_in_details_change",
-        "address",
+        "your sign in details",
         Some(profileUrl)
       )
     )
