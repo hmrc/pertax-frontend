@@ -61,7 +61,7 @@
                                 @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {<span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>}
                             </a>
                           }.getOrElse(
-                            <p>@messages(row.linkTextMessage)</p>
+                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
                           )
                       </dd>
                   </div>
@@ -83,7 +83,7 @@
                               @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
                           </a>
                           }.getOrElse(
-                          <p>@messages(row.linkTextMessage)</p>
+                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
 
                           )
 
@@ -106,7 +106,7 @@
                               @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
                           </a>
                           }.getOrElse(
-                          s"<p>$messages(row.linkTextMessage)</p>"
+                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
 
                           )
 
@@ -129,7 +129,7 @@
                               @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
                           </a>
                           }.getOrElse(
-                          <p>@messages(row.linkTextMessage)</p>
+                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
 
                           )
 
