@@ -57,6 +57,10 @@ label.update_your_address=Diweddaru’ch cyfeiriad
 label.change_your_main_address=Newid eich prif gyfeiriad
 label.change_your_postal_address=Newid eich cyfeiriad post
 label.postal_address=Cyfeiriad post
+label.your.postal_address=eich cyfeiriad post
+label.trusted_helpers=Cynorthwywyr y Gellir Ymddiried Ynddynt
+label.your_trusted_helpers=eich cynorthwywyr y gellir ymddiried ynddynt
+label.your_gg_details=eich manylion Porth y Llywodraeth
 label.do_you_live_in_the_uk=A ydych yn byw yn y DU?
 label.do_you_live_in_the_uk.change=a ydych yn byw yn y DU?
 label.is_your_postal_address_in_the_uk = A yw’ch cyfeiriad post yn y DU?
@@ -416,6 +420,7 @@ label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_
 label.your_national_insurance_number_is_your_unique_identifier=Eich rhif Yswiriant Gwladol yw’ch dynodydd unigryw.
 
 label.view_your_national_insurance_letter=Bwrw golwg ar eich llythyr Yswiriant Gwladol
+label.view_national_insurance_letter=Bwrw golwg dros y llythyr Yswiriant Gwladol
 label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
@@ -452,6 +457,7 @@ label.your_account=Eich Cyfrif
 label.messages=Negeseuon
 label.message=Neges
 
+label.your_paperless_settings=eich gosodiadau di-bapur
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
 
 #

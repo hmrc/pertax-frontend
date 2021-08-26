@@ -63,7 +63,7 @@ class PersonalDetailsViewModel @Inject() (
         "national_insurance",
         "label.national_insurance",
         formattedNino(n),
-        "label.view_your_national_insurance_letter",
+        "label.view_national_insurance_letter",
         "",
         Some(viewNinoUrl)
       )
@@ -105,7 +105,7 @@ class PersonalDetailsViewModel @Inject() (
           "label.postal_address",
           correspondenceAddressView(None, countryHelper.excludedCountries),
           "label.change",
-          "your postal address",
+          "label.your.postal_address",
           Some(changePostalAddressUrl)
         )
       )
@@ -125,7 +125,7 @@ class PersonalDetailsViewModel @Inject() (
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
             "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
-            "your postal address",
+            "label.your.postal_address",
             None
           )
         } else {
@@ -133,8 +133,8 @@ class PersonalDetailsViewModel @Inject() (
             "postal_address",
             "label.postal_address",
             correspondenceAddressView(Some(correspondenceAddress), countryHelper.excludedCountries),
-            "label.change_your_postal_address",
-            "your postal address",
+            "label.change",
+            "label.your.postal_address",
             Some(changePostalAddressUrl)
           )
         }
@@ -177,8 +177,8 @@ class PersonalDetailsViewModel @Inject() (
         "trusted_helpers",
         "label.trusted_helpers",
         HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-        "label.change_trusted_helpers",
-        "your trusted helpers",
+        "label.change",
+        "label.your_trusted_helpers",
         Some(trustedHelpersUrl)
       )
     )
@@ -193,8 +193,8 @@ class PersonalDetailsViewModel @Inject() (
         "paperless",
         "label.go_paperless",
         HtmlFormat.raw(messages("label.go_paperless_content")),
-        "label.go_paperless_change",
-        "your paperless setting",
+        "label.change",
+        "label.your_paperless_settings",
         Some(paperlessSettingsUrl)
       )
     )
@@ -209,8 +209,8 @@ class PersonalDetailsViewModel @Inject() (
         "sign_in_details",
         "label.sign_in_details",
         HtmlFormat.raw(messages("label.sign_in_details_content")),
-        "label.sign_in_details_change",
-        "your sign in details",
+        "label.change",
+        "label.your_gg_details",
         Some(profileUrl)
       )
     )

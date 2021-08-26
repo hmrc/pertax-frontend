@@ -157,7 +157,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "paperless",
             "label.go_paperless",
             HtmlFormat.raw("Replace the letters you get about taxes with emails"),
-            "label.go_paperless_change",
+            "label.change",
             "your paperless setting",
             Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
           )
@@ -185,7 +185,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "trusted_helpers",
             "label.trusted_helpers",
             HtmlFormat.raw("Manage your Trusted helpers"),
-            "label.change_trusted_helpers",
+            "label.change",
             "your trusted helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
