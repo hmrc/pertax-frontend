@@ -38,7 +38,7 @@
                         residencyChoiceForm("residencyChoice"),
                         Seq("primary" -> messages("label.yes"), "sole" -> messages("label.no")),
                         '_labelClass -> "block-label inputLabelBeforeError",
-                        '_error -> residencyChoiceForm("residencyChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
+                        '_error -> residencyChoiceForm("residencyChoice").error.map(e => {messages(e.message)}).getOrElse(""),
                         '_legend -> messages("label.do_you_live_in_more_than_one_place")
                     )
                 </div>

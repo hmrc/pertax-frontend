@@ -348,8 +348,8 @@ error.line2_invalid_characters=Your address can include letters a to z, numbers,
 error.line3_invalid_characters=Your address can include letters a to z, numbers, spaces, hyphens (-), apostrophes (‘), commas (,), forward slashes (/) , full stops (.) and ampersands (&).
 error.line4_invalid_characters=Your address can include letters a to z, numbers, spaces, hyphens (-), apostrophes (‘), commas (,), forward slashes (/) , full stops (.) and ampersands (&).
 error.line5_invalid_characters=Your address can include letters a to z, numbers, spaces, hyphens (-), apostrophes (‘), commas (,), forward slashes (/) , full stops (.) and ampersands (&).
-head.error.enter_a_valid_uk_postcode=Enter a valid UK postcode
-error.enter_a_valid_uk_postcode=Enter a valid UK postcode
+head.error.enter_a_valid_uk_postcode=Enter a postcode
+error.enter_a_valid_uk_postcode=Enter a postcode
 error.enter_valid_characters=Enter valid characters
 error.enter_valid_date=Enter a valid date
 error.address_doesnt_exist_try_to_enter_manually=Your address cannot be found. You can try again or enter your address manually.
@@ -363,8 +363,8 @@ error.range.month=Month out of range
 error.range.year=Year out of range
 error.date.invalid=Invalid date entered
 error.invalid.date.format=Enter a valid date
-error.enter_a_date=Enter a date
-head.error.enter_a_date=You need to enter a date
+error.enter_a_date=Enter the date you started to live here
+head.error.enter_a_date=Enter the date you started to live here
 head.error.enter_valid_date=Check the date you entered
 head.error.invalid.date.format=Check the date you entered
 head.error.date_in_future=You cannot enter a date in the future
@@ -529,6 +529,21 @@ label.next_page_forgotten_password=On the next page, go to ‘Problems signing i
 label.next_page_forgotten_userid=On the next page, go to ‘Problems signing in’ and at the bottom of the page, select ‘I have forgotten my Government Gateway user ID’.
 
 label.home_page.utr=Your Self Assessment Unique Taxpayer Reference (UTR) is
+
+#*************************************************************
+# Form error messages radio
+#*************************************************************
+
+error.tax_credits_select = Select yes if you get tax credits
+head.error.tax_credits_select = Select yes if you get tax credits
+error.multiple_address_select = Select yes if you live in more than one place
+head.error.multiple_address_select = Select yes if you live in more than one place
+error.uk_address_select = Select yes if you live in the UK
+head.error.uk_address_select = Select yes if you live in the UK
+error.address_select = Select an address
+head.error.address_select = Select an address
+error.postal_address_uk_select = Select yes if your postal address is in the UK
+head.error.postal_address_uk_select = Select yes if your postal address is in the UK
 
 #*************************************************************
 # Service unavailable

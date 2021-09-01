@@ -48,7 +48,9 @@ class PostalInternationalAddressChoiceController @Inject()(
         cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(
-              Ok(postalInternationalAddressChoiceView(InternationalAddressChoiceDto.form))
+              Ok(
+                postalInternationalAddressChoiceView(
+                  InternationalAddressChoiceDto.form(Some("error.postal_address_uk_select"))))
             )
           }
         }
@@ -58,24 +60,27 @@ class PostalInternationalAddressChoiceController @Inject()(
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        InternationalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors)))
-          },
-          internationalAddressChoiceDto => {
-            cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-              if (internationalAddressChoiceDto.value) {
-                Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
-              } else {
-                if (configDecorator.updateInternationalAddressInPta) {
-                  Redirect(routes.UpdateInternationalAddressController.onPageLoad(PostalAddrType))
+        InternationalAddressChoiceDto
+          .form(Some("error.postal_address_uk_select"))
+          .bindFromRequest
+          .fold(
+            formWithErrors => {
+              Future.successful(BadRequest(postalInternationalAddressChoiceView(formWithErrors)))
+            },
+            internationalAddressChoiceDto => {
+              cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
+                if (internationalAddressChoiceDto.value) {
+                  Redirect(routes.PostcodeLookupController.onPageLoad(PostalAddrType))
                 } else {
-                  Redirect(routes.AddressErrorController.cannotUseThisService(PostalAddrType))
+                  if (configDecorator.updateInternationalAddressInPta) {
+                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(PostalAddrType))
+                  } else {
+                    Redirect(routes.AddressErrorController.cannotUseThisService(PostalAddrType))
+                  }
                 }
               }
             }
-          }
-        )
+          )
 
       }
     }

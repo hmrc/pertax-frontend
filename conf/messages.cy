@@ -312,8 +312,8 @@ error.line2_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rh
 error.line3_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line4_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line5_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
-head.error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
-error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
+head.error.enter_a_valid_uk_postcode=Nodwch god post
+error.enter_a_valid_uk_postcode=Nodwch god post
 error.enter_valid_characters=Nodwch gymeriadau dilys
 error.enter_valid_date=Nodwch ddyddiad dilys
 error.address_doesnt_exist_try_to_enter_manually=Ni ellir canfod eich cyfeiriad. Gallwch roi cynnig arall arni neu nodi’r cyfeiriad eich hun.
@@ -533,6 +533,21 @@ label.next_page_forgotten_password=Ar y dudalen nesaf, ewch i ‘Problemau wrth 
 label.next_page_forgotten_userid=Ar y dudalen nesaf, ewch i ‘Problemau wrth fewngofnodi’, ac, ar waelod y dudalen, dewiswch ‘Rwyf wedi anghofio’m Dynodydd Defnyddiwr (ID) Porth y Llywodraeth’.
 
 label.home_page.utr=Eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Hunanasesiad yw
+
+#*************************************************************
+# Form error messages radio
+#*************************************************************
+
+error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
+head.error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
+error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
+head.error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
+error.uk_address_select = Dewiswch ‘Iawn’ os ydych yn byw yn y DU
+head.error.uk_address_select = Dewiswch ‘Iawn’ os ydych yn byw yn y DU
+error.address_select = Dewiswch gyfeiriad
+head.error.address_select = Dewiswch gyfeiriad
+error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
+head.error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
 
 #*************************************************************
 # Service unavailable

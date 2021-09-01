@@ -44,7 +44,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
                             "false" -> messages("label.no")
                         ),
                         '_labelClass -> "block-label inputLabelBeforeError",
-                        '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.map(_.withMessage({messages("label.select_an_answer")})),
+                        '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.map(e => {messages(e.message)}).getOrElse(""),
                         '_legend -> messages("label.is_your_postal_address_in_the_uk"),
                         '_hint -> hint
                     )
