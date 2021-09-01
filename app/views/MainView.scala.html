@@ -83,12 +83,6 @@
         }
     }
 
-    @mainContentHeader = {
-        @if(WelshWarningHelper.usingWelsh) {
-            @tags.welshContentWarning()
-        }
-    }
-
     @accessibilityFooterUrl = {
         @configDecorator.accessibilityStatementUrl(request.uri)
     }
@@ -129,7 +123,6 @@
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
             Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, includeGridWrapper))),
-            Some(MainContentHeaderComponent(mainContentHeader)),
             backlinkUrl.map(BackLinkUrlComponent(_)),
             Some(UserPropertiesComponent(
                 isGovernmentGateway = request.isGovernmentGateway,

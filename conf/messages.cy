@@ -115,7 +115,6 @@ label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEM
 label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch cyfeiriad
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
-label.welsh_content_warning=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu i’r Gymraeg eto.
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.name=Enw
 label.change_your_name=Newid eich enw
