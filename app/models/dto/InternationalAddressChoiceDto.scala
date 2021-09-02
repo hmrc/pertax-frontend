@@ -29,7 +29,7 @@ object InternationalAddressChoiceDto {
   def form(errorMessageKey: Option[String] = None) = Form(
     mapping(
       "internationalAddressChoice" -> optional(boolean)
-        .verifying(errorMessageKey.getOrElse("error.uk_address_select"), _.isDefined)
+        .verifying(errorMessageKey.getOrElse("error.international_address_select.required"), _.isDefined)
         .transform[Boolean](_.getOrElse(false), Some(_))
     )(InternationalAddressChoiceDto.apply)(InternationalAddressChoiceDto.unapply)
   )
