@@ -362,11 +362,11 @@ error.range.day=Day out of range
 error.range.month=Month out of range
 error.range.year=Year out of range
 error.date.invalid=Invalid date entered
-error.invalid.date.format=Enter a valid date
+error.invalid.date.format=Date you started to live here must be a real date
 error.enter_a_date=Enter the date you started to live here
 head.error.enter_a_date=Enter the date you started to live here
 head.error.enter_valid_date=Check the date you entered
-head.error.invalid.date.format=Check the date you entered
+head.error.invalid.date.format=Date you started to live here must be a real date
 head.error.date_in_future=You cannot enter a date in the future
 error.date_in_future=Enter today’s date or a date in the past
 head.error.country_required=Enter a country
@@ -545,6 +545,15 @@ head.error.address_select = Select an address
 error.postal_address_uk_select = Select yes if your postal address is in the UK
 head.error.postal_address_uk_select = Select yes if your postal address is in the UK
 
+#*************************************************************
+# Form error date validation
+#*************************************************************
+error.date.required.day = The date you started to live here must include a day
+head.error.date.required.day = The date you started to live here must include a day
+error.date.required.month = The date you started to live here must include a month
+head.error.date.required.month = The date you started to live here must include a month
+error.date.required.year = The date you started to live here must include a year
+head.error.date.required.year = The date you started to live here must include a year
 #*************************************************************
 # Service unavailable
 #*************************************************************

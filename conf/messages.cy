@@ -326,11 +326,11 @@ error.range.day=Mae’r diwrnod y tu allan i’r ystod
 error.range.month=Mae’r mis y tu allan i’r ystod
 error.range.year=Mae’r flwyddyn y tu allan i’r ystod
 error.date.invalid=Dyddiad annilys wedi’i nodi
-error.invalid.date.format=odwch ddyddiad dilys
-error.enter_a_date=Mae angen i chi nodi dyddiad
-head.error.enter_a_date=Mae angen i chi nodi dyddiad
+error.invalid.date.format=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma fod yn ddyddiad go iawn
+error.enter_a_date=Nodwch y dyddiad y gwnaethoch ddechrau byw yma
+head.error.enter_a_date=Nodwch y dyddiad y gwnaethoch ddechrau byw yma
 head.error.enter_valid_date=Gwirio’r dyddiad a nodwyd gennych
-head.error.invalid.date.format=Gwirio’r dyddiad a nodwyd gennych
+head.error.invalid.date.format=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma fod yn ddyddiad go iawn
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
 error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
 head.error.country_required=Nodwch wlad
@@ -548,6 +548,16 @@ error.address_select = Dewiswch gyfeiriad
 head.error.address_select = Dewiswch gyfeiriad
 error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
 head.error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
+
+#*************************************************************
+# Form error date validation
+#*************************************************************
+error.date.required.day = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys diwrnod
+head.error.date.required.day = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys diwrnod
+error.date.required.month = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys mis
+head.error.date.required.month = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys mis
+error.date.required.year = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys blwyddyn
+head.error.date.required.year = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys blwyddyn
 
 #*************************************************************
 # Service unavailable
