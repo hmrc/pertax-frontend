@@ -118,29 +118,6 @@ trait DateTuple {
             case _       => (None, None, None)
         }
       )
-
-  def validDateTuple: Mapping[DateTime] = {
-
-    def verifyDigits(triple: (String, String, String)) =
-      triple._1.forall(_.isDigit) && triple._2.forall(_.isDigit) && triple._3.forall(_.isDigit)
-
-    tuple(
-      "year"  -> optional(text),
-      "month" -> optional(text),
-      "day"   -> optional(text)
-    ).verifying("error.enter_a_date", x => x._1.isDefined && x._2.isDefined && x._3.isDefined)
-      .transform[(String, String, String)](
-        x => (x._1.get.trim, x._2.get.trim, x._3.get.trim),
-        x => (Some(x._1), Some(x._2), Some(x._3)))
-      .verifying("error.enter_numbers", verifyDigits _)
-      .verifying(
-        "error.enter_valid_date",
-        x => !verifyDigits(x) || Try(new DateTime(x._1.toInt, x._2.toInt, x._3.toInt, 0, 0)).isSuccess)
-      .transform[DateTime](
-        x => new DateTime(x._1.toInt, x._2.toInt, x._3.toInt, 0, 0).withTimeAtStartOfDay,
-        x => (x.getYear.toString, x.getMonthOfYear.toString, x.getDayOfMonth.toString))
-  }
-
 }
 
 object DateFields {
