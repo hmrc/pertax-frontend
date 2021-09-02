@@ -45,7 +45,7 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
                   "false" -> messages("label.no")
                 ),
                 '_labelClass -> "block-label",
-                '_error -> taxCreditsChoiceForm("taxCreditsChoice").error.map(e => {messages(e.message)}).getOrElse(""),
+                '_error -> taxCreditsChoiceForm("taxCreditsChoice").error.fold("")(e => {messages(e.message)}),
                 '_legend -> messages("label.do_you_get_tax_credits")
               )
           </div>
