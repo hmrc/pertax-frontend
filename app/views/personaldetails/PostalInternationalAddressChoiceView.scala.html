@@ -14,15 +14,18 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers._
 @import tags._
+
 @import views.html.back_link
 @import config.ConfigDecorator
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+
 @import scala.concurrent.ExecutionContext
 
-@this(mainView: MainView, form: FormWithCSRF, inputRadioGroup: InputRadioGroup)
+@this(mainView: MainView, formWithCSRF: FormWithCSRF, inputRadioGroup: InputRadioGroup)
 @(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @hint = {<p>@messages("label.the_uk_is_england_")</p>}
@@ -35,7 +38,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
         <div class="grid-row">
             <div class="column-two-thirds">
                 @errors(internationalAddressChoiceForm)
-                @form(action = controllers.address.routes.PostalInternationalAddressChoiceController.onSubmit) {
+                @formWithCSRF(action = controllers.address.routes.PostalInternationalAddressChoiceController.onSubmit) {
                 <div class="form-group inline">
                     @input_yes_no(
                         internationalAddressChoiceForm("internationalAddressChoice"),
