@@ -104,6 +104,7 @@ label.manage_trusted_helpers=Manage your Trusted helpers
 label.go_paperless=Go paperless
 label.go_paperless_content=Replace the letters you get about taxes with emails
 label.sign_in_details=Sign-in details
+label.your_sign_in_details=Your sign-in details
 label.sign_in_details_content=Government Gateway user ID and password you use to sign-in
 label.your_gg_details=your Government Gateway details
 label.do_you_live_in_the_uk=Do you live in the UK?

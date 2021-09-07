@@ -127,9 +127,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val expected = PersonalDetailsTableRowModel(
           "sign_in_details",
           "label.sign_in_details",
-          HtmlFormat.raw("Government Gateway user ID and password you use to sign-in"),
-          "label.sign_in_details_change",
-          "your sign in details",
+          HtmlFormat.raw(messages("label.sign_in_details_content")),
+          "label.change",
+          "label.your_gg_details",
           Some(profileUrl)
         )
         val request = userRequest.copy(profile = Some(profileUrl))
@@ -156,9 +156,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           PersonalDetailsTableRowModel(
             "paperless",
             "label.go_paperless",
-            HtmlFormat.raw("Replace the letters you get about taxes with emails"),
+            HtmlFormat.raw(messages("label.go_paperless_content")),
             "label.change",
-            "your paperless setting",
+            "label.your_paperless_settings",
             Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
           )
         )
@@ -184,9 +184,9 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           PersonalDetailsTableRowModel(
             "trusted_helpers",
             "label.trusted_helpers",
-            HtmlFormat.raw("Manage your Trusted helpers"),
+            HtmlFormat.raw(messages("label.manage_trusted_helpers")),
             "label.change",
-            "your trusted helpers",
+            "label.your_trusted_helpers",
             Some(configDecorator.manageTrustedHelpersUrl)
           )
         )
@@ -237,7 +237,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           "national_insurance",
           "label.national_insurance",
           formattedNino(testNino),
-          "label.view_your_national_insurance_letter",
+          "label.view_national_insurance_letter",
           "",
           Some(controllers.routes.InterstitialController.displayNationalInsurance.url)
         )
@@ -318,8 +318,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "postal_address",
         "label.postal_address",
         correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
-        "label.change_your_postal_address",
-        "your postal address",
+        "label.change",
+        "label.your.postal_address",
         Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
       )
 
@@ -339,7 +339,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "label.postal_address",
         correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
         "label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow",
-        "your postal address",
+        "label.your.postal_address",
         None
       )
 
@@ -356,7 +356,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         "label.postal_address",
         correspondenceAddressView(None, countryHelper.excludedCountries),
         "label.change",
-        "your postal address",
+        "label.your.postal_address",
         Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
       )
 
