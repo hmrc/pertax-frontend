@@ -37,25 +37,35 @@ class PaperlessPreferencesController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   tools: Tools
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) {
 
   def managePreferences: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+      .addActiveTab(ActiveTabMessages) andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)).async {
       implicit request: UserRequest[_] =>
-        if (request.isVerify) {
+        if (request.isVerify)
           errorRenderer.futureError(BAD_REQUEST)
-        } else {
+        else
           Future.successful(
             Redirect(
-              getManagePreferencesUrl(configDecorator.pertaxFrontendHomeUrl, Messages("label.back_to_account_home"))
+              getManagePreferencesUrl(
+                configDecorator.pertaxFrontendHomeUrl,
+                Messages("label.back_to_account_home")
+              )
             )
           )
-        }
     }
 
-  private def getManagePreferencesUrl(returnUrl: String, returnLinkText: String): String =
-    s"${configDecorator.preferencesFrontendService}/paperless/check-settings?returnUrl=${tools.encryptAndEncode(returnUrl)}&returnLinkText=${tools
+  private def getManagePreferencesUrl(
+    returnUrl: String,
+    returnLinkText: String
+  ): String =
+    s"${configDecorator.preferencesFrontendService}/paperless/check-settings?returnUrl=${tools
+      .encryptAndEncode(returnUrl)}&returnLinkText=${tools
       .encryptAndEncode(returnLinkText)}"
 }

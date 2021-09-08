@@ -31,13 +31,20 @@ class ErrorRenderer @Inject() (
   notFoundView: NotFoundView,
   errorView: ErrorView,
   unauthenticatedErrorTemplate: UnauthenticatedErrorView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends Results {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends Results {
 
-  def futureError(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Future[Result] =
+  def futureError(
+    statusCode: Int
+  )(implicit request: UserRequest[_], messages: Messages): Future[Result] =
     Future.successful(error(statusCode))
 
-  def error(statusCode: Int)(implicit request: UserRequest[_], messages: Messages): Result = {
+  def error(
+    statusCode: Int
+  )(implicit request: UserRequest[_], messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"
@@ -53,10 +60,14 @@ class ErrorRenderer @Inject() (
     )
   }
 
-  def unauthenticatedFutureError(statusCode: Int)(implicit request: Request[_], messages: Messages): Future[Result] =
+  def unauthenticatedFutureError(
+    statusCode: Int
+  )(implicit request: Request[_], messages: Messages): Future[Result] =
     Future.successful(unauthenticatedError(statusCode))
 
-  def unauthenticatedError(statusCode: Int)(implicit request: Request[_], messages: Messages): Result = {
+  def unauthenticatedError(
+    statusCode: Int
+  )(implicit request: Request[_], messages: Messages): Result = {
 
     val errorKey = statusCode match {
       case BAD_REQUEST => "badRequest400"
@@ -74,7 +85,10 @@ class ErrorRenderer @Inject() (
 
   }
 
-  def notFoundFutureError(implicit request: UserRequest[_], messages: Messages): Future[Result] =
+  def notFoundFutureError(implicit
+    request: UserRequest[_],
+    messages: Messages
+  ): Future[Result] =
     Future.successful(NotFound(notFoundView()))
 
 }

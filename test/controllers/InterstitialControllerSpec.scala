@@ -72,12 +72,17 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[SelfAssessmentSummaryView],
         injected[Sa302InterruptView]
       )(config, templateRenderer, ec) {
-        private def formPartialServiceResponse = Future.successful {
-          if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
-          else HtmlPartial.Success(Some("Success"), Html("any"))
-        }
-        when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
-        when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
+        private def formPartialServiceResponse =
+          Future.successful {
+            if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
+            else HtmlPartial.Success(Some("Success"), Html("any"))
+          }
+        when(
+          formPartialService.getSelfAssessmentPartial(any())
+        ) thenReturn formPartialServiceResponse
+        when(
+          formPartialService.getNationalInsurancePartial(any())
+        ) thenReturn formPartialServiceResponse
 
         when(saPartialService.getSaAccountSummary(any())) thenReturn {
           Future.successful {
@@ -86,11 +91,14 @@ class InterstitialControllerSpec extends BaseSpec {
           }
         }
 
-        when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+        when(
+          preferencesFrontendService.getPaperlessPreference()(any())
+        ) thenReturn {
           Future.successful(paperlessResponse)
         }
 
-        when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
+        when(ninoDisplayService.getNino(any(), any()))
+          .thenReturn(Future.successful(Some(Fixtures.fakeNino)))
       }
   }
 
@@ -98,16 +106,20 @@ class InterstitialControllerSpec extends BaseSpec {
 
     "call FormPartialService.getNationalInsurancePartial and return 200 when called by authorised user " in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
+                credentials = Credentials("", "Verify"),
+                request = request
+              )
             )
-          )
-      })
+        })
 
       lazy val simulateFormPartialServiceFailure = false
       lazy val simulateSaPartialServiceFailure = false
@@ -119,7 +131,8 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
 
-      verify(testController.formPartialService, times(1)).getNationalInsurancePartial(any())
+      verify(testController.formPartialService, times(1))
+        .getNationalInsurancePartial(any())
     }
   }
 
@@ -133,16 +146,20 @@ class InterstitialControllerSpec extends BaseSpec {
 
       val fakeRequestWithPath = FakeRequest("GET", "/foo")
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
+                credentials = Credentials("", "Verify"),
+                request = request
+              )
             )
-          )
-      })
+        })
 
       val result = controller.displayChildBenefits(fakeRequestWithPath)
 
@@ -159,12 +176,16 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = false
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
       val testController = controller
       val r = testController.displaySelfAssessment(fakeRequest)
@@ -181,15 +202,19 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
+                request = request
+              )
             )
-          )
-      })
+        })
 
       val testController = controller
 
@@ -203,17 +228,21 @@ class InterstitialControllerSpec extends BaseSpec {
       lazy val simulateSaPartialServiceFailure = true
       lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              )
             )
-          )
-      })
+        })
 
       val testController = controller
 
@@ -231,17 +260,22 @@ class InterstitialControllerSpec extends BaseSpec {
 
         val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
-        def userRequest[A](request: Request[A]) = buildUserRequest(
-          saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
-          request = request
-        )
+        def userRequest[A](request: Request[A]) =
+          buildUserRequest(
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
+            request = request
+          )
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              userRequest(request = request)
-            )
-        })
+        when(mockAuthJourney.authWithPersonalDetails)
+          .thenReturn(new ActionBuilderFixture {
+            override def invokeBlock[A](
+              request: Request[A],
+              block: UserRequest[A] => Future[Result]
+            ): Future[Result] =
+              block(
+                userRequest(request = request)
+              )
+          })
 
         val testController = controller
 
@@ -257,15 +291,19 @@ class InterstitialControllerSpec extends BaseSpec {
         lazy val simulateSaPartialServiceFailure = false
         lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
 
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(
-                saUser = NonFilerSelfAssessmentUser,
-                request = request
+        when(mockAuthJourney.authWithPersonalDetails)
+          .thenReturn(new ActionBuilderFixture {
+            override def invokeBlock[A](
+              request: Request[A],
+              block: UserRequest[A] => Future[Result]
+            ): Future[Result] =
+              block(
+                buildUserRequest(
+                  saUser = NonFilerSelfAssessmentUser,
+                  request = request
+                )
               )
-            )
-        })
+          })
 
         val testController = controller
         val r = testController.displaySa302Interrupt(2018)(fakeRequest)

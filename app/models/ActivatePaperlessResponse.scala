@@ -22,8 +22,10 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 sealed trait ActivatePaperlessResponse
 case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
-case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
-case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse
+case object ActivatePaperlessNotAllowedResponse
+    extends ActivatePaperlessResponse
+case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String)
+    extends ActivatePaperlessResponse
 
 object ActivatePaperlessResponse {
 
@@ -31,7 +33,11 @@ object ActivatePaperlessResponse {
 
   implicit lazy val httpReads: HttpReads[ActivatePaperlessResponse] =
     new HttpReads[ActivatePaperlessResponse] {
-      override def read(method: String, url: String, response: HttpResponse): ActivatePaperlessResponse =
+      override def read(
+        method: String,
+        url: String,
+        response: HttpResponse
+      ): ActivatePaperlessResponse =
         response.status match {
           case r if r >= 200 && r < 300 =>
             ActivatePaperlessActivatedResponse
@@ -44,7 +50,9 @@ object ActivatePaperlessResponse {
             ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])
 
           case r =>
-            logger.warn(s"Unexpected $r response getting paperless preference record from preferences-frontend-service")
+            logger.warn(
+              s"Unexpected $r response getting paperless preference record from preferences-frontend-service"
+            )
             ActivatePaperlessNotAllowedResponse
         }
     }

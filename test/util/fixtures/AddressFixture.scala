@@ -33,6 +33,17 @@ object AddressFixture {
     endDate: Option[LocalDate] = None,
     `type`: Option[String] = None
   ) =
-    Address(line1, line2, line3, line4, line5, postcode, country, startDate, endDate, `type`)
+    Address(
+      line1,
+      line2,
+      line3,
+      line4,
+      line5,
+      postcode,
+      country,
+      startDate,
+      endDate,
+      `type`
+    )
 
 }

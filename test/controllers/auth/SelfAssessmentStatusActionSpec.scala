@@ -40,31 +40,42 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import scala.concurrent.Future
 
 class SelfAssessmentStatusActionSpec
-    extends AnyFreeSpec with Matchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
+    extends AnyFreeSpec with Matchers with MockitoSugar with BeforeAndAfterEach
+    with GuiceOneAppPerSuite {
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockCitizenDetailsService: CitizenDetailsService =
+    mock[CitizenDetailsService]
   val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
-    .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
+    .overrides(
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
+    )
+    .overrides(
+      bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService)
+    )
     .configure(Map("metrics.enabled" -> false))
     .build()
 
   override def beforeEach: Unit =
     reset(mockCitizenDetailsService)
 
-  def harness[A]()(implicit request: AuthenticatedRequest[A]): Future[Result] = {
+  def harness[A]()(implicit
+    request: AuthenticatedRequest[A]
+  ): Future[Result] = {
 
-    lazy val actionProvider = app.injector.instanceOf[SelfAssessmentStatusAction]
+    lazy val actionProvider =
+      app.injector.instanceOf[SelfAssessmentStatusAction]
 
     actionProvider.invokeBlock(
       request,
       { userRequest: UserRequest[_] =>
         Future.successful(
-          Ok(s"Nino: ${userRequest.nino.getOrElse("fail").toString}, SaUtr: ${userRequest.saUserType.toString}")
+          Ok(
+            s"Nino: ${userRequest.nino.getOrElse("fail").toString}, SaUtr: ${userRequest.saUserType.toString}"
+          )
         )
       }
     )
@@ -93,8 +104,11 @@ class SelfAssessmentStatusActionSpec
       implicit val request = createAuthenticatedRequest(saEnrolment)
 
       val result = harness()(request)
-      contentAsString(result) must include(s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+      contentAsString(result) must include(
+        s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})"
+      )
+      verify(mockCitizenDetailsService, times(0))
+        .getMatchingDetails(any())(any())
     }
   }
 
@@ -104,8 +118,11 @@ class SelfAssessmentStatusActionSpec
       implicit val request = createAuthenticatedRequest(saEnrolment)
 
       val result = harness()(request)
-      contentAsString(result) must include(s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+      contentAsString(result) must include(
+        s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})"
+      )
+      verify(mockCitizenDetailsService, times(0))
+        .getMatchingDetails(any())(any())
     }
   }
 
@@ -115,25 +132,35 @@ class SelfAssessmentStatusActionSpec
       val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
       val userTypeList: List[(SelfAssessmentUserType, String)] = List(
-        (WrongCredentialsSelfAssessmentUser(saUtr), "a Wrong credentials SA user"),
+        (
+          WrongCredentialsSelfAssessmentUser(saUtr),
+          "a Wrong credentials SA user"
+        ),
         (NotEnrolledSelfAssessmentUser(saUtr), "a Not Enrolled SA user"),
         (NonFilerSelfAssessmentUser, "a Non Filer SA user")
       )
 
       implicit val request = createAuthenticatedRequest(None)
 
-      userTypeList.foreach { case (userType, key) =>
-        s"return $key when the enrolments caching service returns ${userType.toString}" in {
+      userTypeList.foreach {
+        case (userType, key) =>
+          s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
-          when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
-            .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
+            when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+              .thenReturn(
+                Future.successful(
+                  MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))
+                )
+              )
 
-          when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
-            .thenReturn(Future.successful(userType))
+            when(
+              enrolmentsCachingService
+                .getSaUserTypeFromCache(any())(any(), any())
+            ).thenReturn(Future.successful(userType))
 
-          val result = harness()(request)
-          contentAsString(result) must include(s"${userType.toString}")
-        }
+            val result = harness()(request)
+            contentAsString(result) must include(s"${userType.toString}")
+          }
       }
     }
   }
@@ -146,7 +173,8 @@ class SelfAssessmentStatusActionSpec
         .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsService, times(1))
+        .getMatchingDetails(any())(any())
     }
   }
 
@@ -156,7 +184,8 @@ class SelfAssessmentStatusActionSpec
 
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsService, times(0))
+        .getMatchingDetails(any())(any())
     }
   }
 }

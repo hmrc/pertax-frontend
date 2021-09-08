@@ -20,18 +20,20 @@ import models.{EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, E
 import reactivemongo.bson.BSONDateTime
 
 object AddrType {
-  def apply(value: String): Option[AddrType] = value match {
-    case "sole"    => Some(SoleAddrType)
-    case "primary" => Some(PrimaryAddrType)
-    case "postal"  => Some(PostalAddrType)
-    case _         => None
-  }
+  def apply(value: String): Option[AddrType] =
+    value match {
+      case "sole"    => Some(SoleAddrType)
+      case "primary" => Some(PrimaryAddrType)
+      case "postal"  => Some(PostalAddrType)
+      case _         => None
+    }
 
-  def toEditedAddress(addrType: AddrType, date: BSONDateTime): EditedAddress = addrType match {
-    case PostalAddrType  => EditCorrespondenceAddress(date)
-    case SoleAddrType    => EditSoleAddress(date)
-    case PrimaryAddrType => EditPrimaryAddress(date)
-  }
+  def toEditedAddress(addrType: AddrType, date: BSONDateTime): EditedAddress =
+    addrType match {
+      case PostalAddrType  => EditCorrespondenceAddress(date)
+      case SoleAddrType    => EditSoleAddress(date)
+      case PrimaryAddrType => EditPrimaryAddress(date)
+    }
 }
 sealed trait AddrType {
   override def toString = ifIs("primary", "sole", "postal")
@@ -42,11 +44,12 @@ sealed trait AddrType {
 
   def ifIsPostal[T](value: T): Option[T] = ifIs(None, None, Some(value))
 
-  def ifIs[T](primary: => T, sole: => T, postal: => T): T = this match {
-    case PrimaryAddrType => primary
-    case SoleAddrType    => sole
-    case PostalAddrType  => postal
-  }
+  def ifIs[T](primary: => T, sole: => T, postal: => T): T =
+    this match {
+      case PrimaryAddrType => primary
+      case SoleAddrType    => sole
+      case PostalAddrType  => postal
+    }
 
 }
 case object PostalAddrType extends AddrType

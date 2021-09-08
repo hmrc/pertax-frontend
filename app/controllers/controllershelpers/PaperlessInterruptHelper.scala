@@ -33,13 +33,17 @@ trait PaperlessInterruptHelper {
 
   def enforcePaperlessPreference(
     block: => Future[Result]
-  )(implicit request: UserRequest[_], hc: HeaderCarrier, configDecorator: ConfigDecorator): Future[Result] =
-    if (configDecorator.enforcePaperlessPreferenceEnabled) {
+  )(implicit
+    request: UserRequest[_],
+    hc: HeaderCarrier,
+    configDecorator: ConfigDecorator
+  ): Future[Result] =
+    if (configDecorator.enforcePaperlessPreferenceEnabled)
       preferencesFrontendService.getPaperlessPreference().flatMap {
-        case ActivatePaperlessRequiresUserActionResponse(redirectUrl) => Future.successful(Redirect(redirectUrl))
-        case _                                                        => block
+        case ActivatePaperlessRequiresUserActionResponse(redirectUrl) =>
+          Future.successful(Redirect(redirectUrl))
+        case _ => block
       }
-    } else {
+    else
       block
-    }
 }

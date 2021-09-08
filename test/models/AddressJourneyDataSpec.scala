@@ -25,16 +25,37 @@ class AddressJourneyDataSpec extends BaseSpec {
   "Calling getAddressToDisplay " must {
 
     "return none when there is no address journey data" in {
-      val journeyData = AddressJourneyData(None, None, None, None, None, None, None, None, false)
+      val journeyData = AddressJourneyData(
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        false
+      )
       val result = journeyData.getAddressToDisplay
       result mustBe None
     }
 
     "return selected Address record when there is only a selected Address in the journey data" in {
       val journeyData =
-        AddressJourneyData(None, None, None, None, Some(fakeStreetPafAddressRecord), None, None, None, false)
+        AddressJourneyData(
+          None,
+          None,
+          None,
+          None,
+          Some(fakeStreetPafAddressRecord),
+          None,
+          None,
+          None,
+          false
+        )
       val result = journeyData.getAddressToDisplay
-      val selectedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
+      val selectedAddress =
+        AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result mustBe Some(selectedAddress)
     }
 
@@ -52,7 +73,8 @@ class AddressJourneyDataSpec extends BaseSpec {
         false
       )
       val result = journeyData.getAddressToDisplay
-      val submittedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
+      val submittedAddress =
+        AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result mustBe Some(submittedAddress)
     }
 
@@ -70,7 +92,8 @@ class AddressJourneyDataSpec extends BaseSpec {
         false
       )
       val result = journeyData.getAddressToDisplay
-      val submittedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
+      val submittedAddress =
+        AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result mustBe Some(submittedAddress)
     }
 

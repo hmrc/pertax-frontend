@@ -39,8 +39,9 @@ class UserResearchDismissalController @Inject() (
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
-  def dismissUrBanner: Action[AnyContent] = authJourney.authWithPersonalDetails { implicit request =>
-    homePageCachingHelper.storeUserUrDismissal()
-    NoContent
-  }
+  def dismissUrBanner: Action[AnyContent] =
+    authJourney.authWithPersonalDetails { implicit request =>
+      homePageCachingHelper.storeUserUrDismissal()
+      NoContent
+    }
 }

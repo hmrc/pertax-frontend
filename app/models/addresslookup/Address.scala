@@ -37,9 +37,11 @@ case class Address(
   import Address._
 
   @JsonIgnore // needed because the name starts 'is...'
-  def isValid: Boolean = lines.nonEmpty && lines.size <= (if (town.isEmpty) 4 else 3)
+  def isValid: Boolean =
+    lines.nonEmpty && lines.size <= (if (town.isEmpty) 4 else 3)
 
-  def nonEmptyFields: List[String] = lines ::: town.toList ::: county.toList ::: List(postcode)
+  def nonEmptyFields: List[String] =
+    lines ::: town.toList ::: county.toList ::: List(postcode)
 
   /** Gets a conjoined representation, excluding the country. */
   def printable(separator: String): String = nonEmptyFields.mkString(separator)
@@ -80,9 +82,8 @@ object Address {
     while (s.length > max && s.indexOf(", ") > 0) s = s.replaceFirst(", ", ",")
     if (s.length > max) {
       s = s.substring(0, max).trim
-      if (Address.danglingLetter.matcher(s).matches()) {
+      if (Address.danglingLetter.matcher(s).matches())
         s = s.substring(0, s.length - 2)
-      }
       s
     } else s
   }

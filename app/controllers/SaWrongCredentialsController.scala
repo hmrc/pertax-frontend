@@ -38,14 +38,20 @@ class SaWrongCredentialsController @Inject() (
   doYouKnowUserIdView: DoYouKnowUserIdView,
   needToResetPasswordView: NeedToResetPasswordView,
   findYourUserIdView: FindYourUserIdView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
-  private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithSelfAssessment
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) {
+  private val authenticate: ActionBuilder[UserRequest, AnyContent] =
+    authJourney.authWithSelfAssessment
 
   def ggSignInUrl: String = {
-    lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
+    lazy val ggSignIn =
+      s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
 
-    val continueUrl = configDecorator.pertaxFrontendHost + configDecorator.personalAccount
+    val continueUrl =
+      configDecorator.pertaxFrontendHost + configDecorator.personalAccount
 
     Url(
       path = ggSignIn,
@@ -57,21 +63,25 @@ class SaWrongCredentialsController @Inject() (
     ).toString()
   }
 
-  def landingPage: Action[AnyContent] = authenticate { implicit request =>
-    Ok(signedInWrongAccountView())
-  }
+  def landingPage: Action[AnyContent] =
+    authenticate { implicit request =>
+      Ok(signedInWrongAccountView())
+    }
 
-  def doYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
-    Ok(doYouKnowOtherCredentialsView(SAWrongCredentialsDto.form))
-  }
+  def doYouKnowOtherCredentials: Action[AnyContent] =
+    authenticate { implicit request =>
+      Ok(doYouKnowOtherCredentialsView(SAWrongCredentialsDto.form))
+    }
 
-  def signInAgain: Action[AnyContent] = authenticate { implicit request =>
-    Ok(signInAgainView(ggSignInUrl))
-  }
+  def signInAgain: Action[AnyContent] =
+    authenticate { implicit request =>
+      Ok(signInAgainView(ggSignInUrl))
+    }
 
-  def doYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(doYouKnowUserIdView(SAWrongCredentialsDto.form))
-  }
+  def doYouKnowUserId: Action[AnyContent] =
+    authenticate { implicit request =>
+      Ok(doYouKnowUserIdView(SAWrongCredentialsDto.form))
+    }
 
   private def getSaUtr(implicit request: UserRequest[AnyContent]) =
     request.saUserType match {
@@ -79,35 +89,38 @@ class SaWrongCredentialsController @Inject() (
       case _                          => None
     }
 
-  def needToResetPassword: Action[AnyContent] = authenticate { implicit request =>
-    Ok(needToResetPasswordView(getSaUtr, ggSignInUrl))
-  }
+  def needToResetPassword: Action[AnyContent] =
+    authenticate { implicit request =>
+      Ok(needToResetPasswordView(getSaUtr, ggSignInUrl))
+    }
 
-  def findYourUserId: Action[AnyContent] = authenticate { implicit request =>
-    Ok(findYourUserIdView(getSaUtr, ggSignInUrl))
-  }
+  def findYourUserId: Action[AnyContent] =
+    authenticate { implicit request =>
+      Ok(findYourUserIdView(getSaUtr, ggSignInUrl))
+    }
 
-  def processDoYouKnowOtherCredentials: Action[AnyContent] = authenticate { implicit request =>
-    SAWrongCredentialsDto.form.bindFromRequest.fold(
-      formWithErrors => BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
-      wrongCredentialsDto =>
-        if (wrongCredentialsDto.value) {
-          Redirect(routes.SaWrongCredentialsController.signInAgain())
-        } else {
-          Redirect(routes.SaWrongCredentialsController.doYouKnowUserId())
-        }
-    )
-  }
+  def processDoYouKnowOtherCredentials: Action[AnyContent] =
+    authenticate { implicit request =>
+      SAWrongCredentialsDto.form.bindFromRequest.fold(
+        formWithErrors =>
+          BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
+        wrongCredentialsDto =>
+          if (wrongCredentialsDto.value)
+            Redirect(routes.SaWrongCredentialsController.signInAgain())
+          else
+            Redirect(routes.SaWrongCredentialsController.doYouKnowUserId())
+      )
+    }
 
-  def processDoYouKnowUserId: Action[AnyContent] = authenticate { implicit request =>
-    SAWrongCredentialsDto.form.bindFromRequest.fold(
-      formWithErrors => BadRequest(doYouKnowUserIdView(formWithErrors)),
-      wrongCredentialsDto =>
-        if (wrongCredentialsDto.value) {
-          Redirect(routes.SaWrongCredentialsController.needToResetPassword())
-        } else {
-          Redirect(routes.SaWrongCredentialsController.findYourUserId())
-        }
-    )
-  }
+  def processDoYouKnowUserId: Action[AnyContent] =
+    authenticate { implicit request =>
+      SAWrongCredentialsDto.form.bindFromRequest.fold(
+        formWithErrors => BadRequest(doYouKnowUserIdView(formWithErrors)),
+        wrongCredentialsDto =>
+          if (wrongCredentialsDto.value)
+            Redirect(routes.SaWrongCredentialsController.needToResetPassword())
+          else
+            Redirect(routes.SaWrongCredentialsController.findYourUserId())
+      )
+    }
 }

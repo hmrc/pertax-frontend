@@ -38,7 +38,10 @@ object AddressFinderDto {
             }
         ),
       "filter" -> optional(nonEmptyText)
-        .verifying("error.enter_valid_characters", e => validateAddressLineCharacters(e))
+        .verifying(
+          "error.enter_valid_characters",
+          e => validateAddressLineCharacters(e)
+        )
     )(AddressFinderDto.apply)(AddressFinderDto.unapply)
   )
 }

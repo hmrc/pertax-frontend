@@ -37,11 +37,17 @@ class PersonalDetailsCardGenerator @Inject() (
   def getPersonalDetailsCards(
     changedAddressIndicator: List[AddressJourneyTTLModel],
     ninoToDisplay: Option[Nino]
-  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages): Seq[Html] = {
+  )(implicit
+    request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    messages: play.api.i18n.Messages
+  ): Seq[Html] = {
 
     val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
 
-    val mainAddressChangeIndicator = optionalEditAddress.exists(_.isInstanceOf[EditSoleAddress]) || optionalEditAddress
+    val mainAddressChangeIndicator = optionalEditAddress.exists(
+      _.isInstanceOf[EditSoleAddress]
+    ) || optionalEditAddress
       .exists(_.isInstanceOf[EditPrimaryAddress])
     val correspondenceAddressChangeIndicator =
       optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
@@ -64,7 +70,10 @@ class PersonalDetailsCardGenerator @Inject() (
 
   def getMainAddressCard(
     isLocked: Boolean
-  )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+  )(implicit
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages
+  ): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
         Some(
@@ -81,11 +90,17 @@ class PersonalDetailsCardGenerator @Inject() (
 
   def getPostalAddressCard(
     isLocked: Boolean
-  )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+  )(implicit
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages
+  ): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
         hasCorrespondenceAddress match {
-          case true if !personDetails.correspondenceAddress.exists(_.isWelshLanguageUnit) =>
+          case true
+              if !personDetails.correspondenceAddress.exists(
+                _.isWelshLanguageUnit
+              ) =>
             Some(
               postalAddress(
                 personDetails = personDetails,
@@ -101,7 +116,10 @@ class PersonalDetailsCardGenerator @Inject() (
 
   def getNationalInsuranceCard(
     ninoToDisplay: Option[Nino]
-  )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+  )(implicit
+    request: UserRequest[_],
+    messages: play.api.i18n.Messages
+  ): Option[HtmlFormat.Appendable] =
     ninoToDisplay.map(n => nationalInsurance(n))
 
   def getChangeNameCard()(implicit

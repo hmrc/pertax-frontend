@@ -26,7 +26,8 @@ class HomeViewModelSpec extends BaseSpec {
   val utr = new SaUtrGenerator().nextSaUtr.utr
 
   "have no UTR for a non SA user" in {
-    val homeViewModel = HomeViewModel(Nil, Nil, Nil, true, NonFilerSelfAssessmentUser)
+    val homeViewModel =
+      HomeViewModel(Nil, Nil, Nil, true, NonFilerSelfAssessmentUser)
     homeViewModel mustBe new HomeViewModel(Nil, Nil, Nil, true, None)
   }
 

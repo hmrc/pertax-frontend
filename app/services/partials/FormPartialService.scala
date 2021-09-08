@@ -34,12 +34,17 @@ class FormPartialService @Inject() (
   val configDecorator: ConfigDecorator,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter)
+    with HasMetrics {
 
-  def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
+  def getNationalInsurancePartial(implicit
+    request: RequestHeader
+  ): Future[HtmlPartial] =
     loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
 
-  def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] =
+  def getSelfAssessmentPartial(implicit
+    request: RequestHeader
+  ): Future[HtmlPartial] =
     loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
 
 }

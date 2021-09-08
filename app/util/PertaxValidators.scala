@@ -30,19 +30,32 @@ object PertaxValidators {
     formData.getOrElse(key, "") match {
       case "" =>
         val anyCheckedFieldContainsData =
-          fieldsToCheck.foldLeft[Boolean](false)((dataFound, rf) => dataFound || !formData.getOrElse(rf, "").isEmpty)
-        if (anyCheckedFieldContainsData) Seq(FormError(key, s"error.${key}_required")) else Nil
+          fieldsToCheck.foldLeft[Boolean](false)((dataFound, rf) =>
+            dataFound || !formData.getOrElse(rf, "").isEmpty
+          )
+        if (anyCheckedFieldContainsData)
+          Seq(FormError(key, s"error.${key}_required"))
+        else Nil
       case _ =>
         Nil
     }
 
   def optionalTextIfFieldsHaveContent(requiredFields: String*) =
-    optionalTextIfFormDataValidatesMapping(fieldsArePresentIfCurrentFieldIsMissingFormDataValidator(requiredFields: _*))
+    optionalTextIfFormDataValidatesMapping(
+      fieldsArePresentIfCurrentFieldIsMissingFormDataValidator(
+        requiredFields: _*
+      )
+    )
 
-  def optionalTextIfFormDataValidatesMapping(formDataValidator: FormDataValidator): FieldMapping[Option[String]] =
+  def optionalTextIfFormDataValidatesMapping(
+    formDataValidator: FormDataValidator
+  ): FieldMapping[Option[String]] =
     of(new Formatter[Option[String]] {
 
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Option[String]] = {
+      override def bind(
+        key: String,
+        data: Map[String, String]
+      ): Either[Seq[FormError], Option[String]] = {
 
         def formValueUnlessEmptyString: Option[String] = {
           val v = data.get(key)
@@ -63,14 +76,15 @@ object PertaxValidators {
   val PostcodeRegex =
     """^(GIR ?0AA|[A-PR-UWYZa-pr-uwyz]([0-9]{1,2}|([A-HK-Ya-jk-y][0-9]([0-9ABEHMNPRV-Yabehmnprv-y])?)|[0-9][A-HJKPS-UWa-hjkps-u])\s?[0-9][ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2})$""".r
 
-  def validateAddressLineCharacters(addressLine: Option[String]) = addressLine match {
-    case Some(line) =>
-      line match {
-        case AddressLineRegex() => true
-        case ""                 => true
-        case _                  => false
-      }
-    case None => true
-  }
+  def validateAddressLineCharacters(addressLine: Option[String]) =
+    addressLine match {
+      case Some(line) =>
+        line match {
+          case AddressLineRegex() => true
+          case ""                 => true
+          case _                  => false
+        }
+      case None => true
+    }
 
 }

@@ -39,7 +39,8 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
   override implicit lazy val app = localGuiceApplicationBuilder().build()
 
-  val mockPreferencesFrontendPartialService = mock[PreferencesFrontendPartialService]
+  val mockPreferencesFrontendPartialService =
+    mock[PreferencesFrontendPartialService]
   val mockAuthJourney = mock[AuthJourney]
 
   def controller: PaperlessPreferencesController =
@@ -56,12 +57,16 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
   "Calling PaperlessPreferencesController.managePreferences" must {
     "Redirect to  preferences-frontend manage paperless url when a user is logged in using GG" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
       val r = controller.managePreferences(FakeRequest())
       status(r) mustBe SEE_OTHER
@@ -72,16 +77,20 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
 
     "Return 400 for Verify users" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              )
             )
-          )
-      })
+        })
 
       val r = controller.managePreferences(FakeRequest())
       status(r) mustBe BAD_REQUEST

@@ -32,12 +32,19 @@ class GenericErrors @Inject() (errorView: ErrorView)(implicit
   ec: ExecutionContext
 ) {
 
-  def badRequest(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: Messages): Result =
+  def badRequest(implicit
+    request: UserRequest[_],
+    configDecorator: ConfigDecorator,
+    messages: Messages
+  ): Result =
     BadRequest(
       errorView(
         "global.error.BadRequest.title",
         Some("global.error.BadRequest.title"),
-        List("global.error.BadRequest.message1", "global.error.BadRequest.message2")
+        List(
+          "global.error.BadRequest.message1",
+          "global.error.BadRequest.message2"
+        )
       )
     )
 

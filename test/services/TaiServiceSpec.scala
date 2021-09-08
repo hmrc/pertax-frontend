@@ -34,22 +34,23 @@ class TaiServiceSpec extends BaseSpec {
     def httpResponse: HttpResponse
     def simulateTaiServiceIsDown: Boolean
 
-    val taxComponentsJson = Json.parse("""{
-                                         |   "data" : [ {
-                                         |      "componentType" : "EmployerProvidedServices",
-                                         |      "employmentId" : 12,
-                                         |      "amount" : 12321,
-                                         |      "description" : "Some Description",
-                                         |      "iabdCategory" : "Benefit"
-                                         |   }, {
-                                         |      "componentType" : "PersonalPensionPayments",
-                                         |      "employmentId" : 31,
-                                         |      "amount" : 12345,
-                                         |      "description" : "Some Description Some",
-                                         |      "iabdCategory" : "Allowance"
-                                         |   } ],
-                                         |   "links" : [ ]
-                                         |}""".stripMargin)
+    val taxComponentsJson =
+      Json.parse("""{
+                   |   "data" : [ {
+                   |      "componentType" : "EmployerProvidedServices",
+                   |      "employmentId" : 12,
+                   |      "amount" : 12321,
+                   |      "description" : "Some Description",
+                   |      "iabdCategory" : "Benefit"
+                   |   }, {
+                   |      "componentType" : "PersonalPensionPayments",
+                   |      "employmentId" : 31,
+                   |      "amount" : 12345,
+                   |      "description" : "Some Description Some",
+                   |      "iabdCategory" : "Allowance"
+                   |   } ],
+                   |   "links" : [ ]
+                   |}""".stripMargin)
 
     val anException = new RuntimeException("Any")
 
@@ -87,7 +88,9 @@ class TaiServiceSpec extends BaseSpec {
       val result = service.taxComponents(Fixtures.fakeNino, 2014).futureValue
 
       result mustBe TaxComponentsSuccessResponse(
-        TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+        TaxComponents(
+          Seq("EmployerProvidedServices", "PersonalPensionPayments")
+        )
       )
       verify(metrics, times(1)).startTimer(metricId)
       verify(metrics, times(1)).incrementSuccessCounter(metricId)

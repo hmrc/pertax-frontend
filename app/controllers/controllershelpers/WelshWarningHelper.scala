@@ -18,5 +18,6 @@ package controllers.controllershelpers
 
 object WelshWarningHelper {
 
-  def usingWelsh(implicit messages: play.api.i18n.Messages): Boolean = messages.lang.code == "cy"
+  def usingWelsh(implicit messages: play.api.i18n.Messages): Boolean =
+    messages.lang.code == "cy"
 }

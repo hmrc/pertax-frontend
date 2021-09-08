@@ -51,7 +51,8 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
     buildUserRequest(
       request = FakeRequest(),
       saUser = NotEnrolledSelfAssessmentUser(utr),
-      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
+      credentials =
+        Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
     )
 
   "SelfAssessmentConnector" when {
@@ -110,10 +111,16 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
           val invalidOrigin = "an_invalid_origin"
 
           server.stubFor(
-            post(urlEqualTo(url)).willReturn(badRequest().withBody(s"Invalid origin: $invalidOrigin"))
+            post(urlEqualTo(url)).willReturn(
+              badRequest().withBody(s"Invalid origin: $invalidOrigin")
+            )
           )
 
-          sut.enrolForSelfAssessment(SaEnrolmentRequest(invalidOrigin, Some(utr), providerId)).futureValue mustBe None
+          sut
+            .enrolForSelfAssessment(
+              SaEnrolmentRequest(invalidOrigin, Some(utr), providerId)
+            )
+            .futureValue mustBe None
         }
 
         "an invalid utr is submitted" in {
@@ -121,7 +128,8 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
           val invalidUtr = s"&${utr.utr}"
 
           server.stubFor(
-            post(urlEqualTo(url)).willReturn(badRequest().withBody(s"Invalid utr: $invalidUtr"))
+            post(urlEqualTo(url))
+              .willReturn(badRequest().withBody(s"Invalid utr: $invalidUtr"))
           )
 
           sut
@@ -138,12 +146,20 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
 
           server.stubFor(
             post(urlEqualTo(url))
-              .willReturn(badRequest().withBody(s"Invalid origin: $invalidOrigin, Invalid utr: $invalidUtr"))
+              .willReturn(
+                badRequest().withBody(
+                  s"Invalid origin: $invalidOrigin, Invalid utr: $invalidUtr"
+                )
+              )
           )
 
           sut
             .enrolForSelfAssessment(
-              SaEnrolmentRequest(invalidOrigin, Some(SaUtr(invalidUtr)), providerId)
+              SaEnrolmentRequest(
+                invalidOrigin,
+                Some(SaUtr(invalidUtr)),
+                providerId
+              )
             )
             .futureValue mustBe None
         }
@@ -154,16 +170,25 @@ class SelfAssessmentConnectorSpec extends BaseSpec with WireMockHelper {
             post(urlEqualTo(url)).willReturn(serverError())
           )
 
-          sut.enrolForSelfAssessment(SaEnrolmentRequest(origin, Some(utr), providerId)).futureValue mustBe None
+          sut
+            .enrolForSelfAssessment(
+              SaEnrolmentRequest(origin, Some(utr), providerId)
+            )
+            .futureValue mustBe None
         }
 
         "an exception is thrown" in {
 
           server.stubFor(
-            post(urlEqualTo(url)).willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK))
+            post(urlEqualTo(url))
+              .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK))
           )
 
-          sut.enrolForSelfAssessment(SaEnrolmentRequest(origin, Some(utr), providerId)).futureValue mustBe None
+          sut
+            .enrolForSelfAssessment(
+              SaEnrolmentRequest(origin, Some(utr), providerId)
+            )
+            .futureValue mustBe None
         }
       }
     }

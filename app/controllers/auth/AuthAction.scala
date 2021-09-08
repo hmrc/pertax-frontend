@@ -47,20 +47,28 @@ class AuthActionImpl @Inject() (
   def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
       url <- profileUrl
-      res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
-    } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
+      res <-
+        Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
+    } yield res
+      .replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink)
+      .toString()
 
   object LT200 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
-      if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel) else None
+      if (confLevel.level < ConfidenceLevel.L200.level) Some(confLevel)
+      else None
   }
 
   object GTOE200 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
-      if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel) else None
+      if (confLevel.level >= ConfidenceLevel.L200.level) Some(confLevel)
+      else None
   }
 
-  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](
+    request: Request[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  ): Future[Result] = {
 
     val compositePredicate =
       CredentialStrength(CredentialStrength.weak) or
@@ -81,26 +89,34 @@ class AuthActionImpl @Inject() (
           Retrievals.profile
       ) {
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) |
+            None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ _ ~ LT200(
+              _
+            ) ~ _ ~ _ ~ _ =>
           upliftConfidenceLevel(request)
 
-        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(
+              CredentialStrength.weak
+            ) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GTOE200(
+        case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(
+              CredentialStrength.strong
+            ) ~ GTOE200(
               confidenceLevel
             ) ~ name ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
-                  (key, vals.map(_.trim))
+                AnyContentAsFormUrlEncoded(data.map {
+                  case (key, vals) =>
+                    (key, vals.map(_.trim))
                 })
               case b => b
             }
@@ -113,18 +129,25 @@ class AuthActionImpl @Inject() (
                 enrolment.identifiers
                   .find(id => id.key == "UTR")
                   .map(key =>
-                    SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state))
+                    SelfAssessmentEnrolment(
+                      SaUtr(key.value),
+                      SelfAssessmentStatus.fromString(enrolment.state)
+                    )
                   )
               }
 
           val authenticatedRequest = AuthenticatedRequest[A](
-            trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
+            trustedHelper.fold(nino.map(domain.Nino))(helper =>
+              Some(domain.Nino(helper.principalNino))
+            ),
             saEnrolment,
             credentials,
             confidenceLevel,
             Some(
               UserName(
-                trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
+                trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
+                  Name(Some(helper.principalName), None)
+                )
               )
             ),
             trustedHelper,
@@ -134,8 +157,9 @@ class AuthActionImpl @Inject() (
           )
 
           for {
-            result        <- block(authenticatedRequest)
-            updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
+            result <- block(authenticatedRequest)
+            updatedResult <-
+              sessionAuditor.auditOnce(authenticatedRequest, result)
           } yield updatedResult
 
         case _ => throw new RuntimeException("Can't find credentials for user")
@@ -144,7 +168,13 @@ class AuthActionImpl @Inject() (
     case _: NoActiveSession =>
       def postSignInRedirectUrl(implicit request: Request[_]) =
         configDecorator.pertaxFrontendForAuthHost + controllers.routes.ApplicationController
-          .uplift(Some(SafeRedirectUrl(configDecorator.pertaxFrontendForAuthHost + request.path)))
+          .uplift(
+            Some(
+              SafeRedirectUrl(
+                configDecorator.pertaxFrontendForAuthHost + request.path
+              )
+            )
+          )
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
@@ -155,7 +185,8 @@ class AuthActionImpl @Inject() (
             "login_redirect" -> postSignInRedirectUrl(request)
           )
         case Some(configDecorator.authProviderGG) =>
-          lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
+          lazy val ggSignIn =
+            s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
           Redirect(
             ggSignIn,
             Map(
@@ -167,7 +198,8 @@ class AuthActionImpl @Inject() (
         case _ => Redirect(configDecorator.authProviderChoice)
       }
 
-    case _: IncorrectCredentialStrength => Redirect(configDecorator.authProviderChoice)
+    case _: IncorrectCredentialStrength =>
+      Redirect(configDecorator.authProviderChoice)
 
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }
@@ -177,8 +209,10 @@ class AuthActionImpl @Inject() (
       Redirect(
         configDecorator.multiFactorAuthenticationUpliftUrl,
         Map(
-          "origin"      -> Seq(configDecorator.origin),
-          "continueUrl" -> Seq(configDecorator.pertaxFrontendForAuthHost + configDecorator.personalAccount)
+          "origin" -> Seq(configDecorator.origin),
+          "continueUrl" -> Seq(
+            configDecorator.pertaxFrontendForAuthHost + configDecorator.personalAccount
+          )
         )
       )
     )
@@ -204,9 +238,11 @@ class AuthActionImpl @Inject() (
 
   override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
 
-  override protected def executionContext: ExecutionContext = cc.executionContext
+  override protected def executionContext: ExecutionContext =
+    cc.executionContext
 }
 
 @ImplementedBy(classOf[AuthActionImpl])
 trait AuthAction
-    extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
+    extends ActionBuilder[AuthenticatedRequest, AnyContent]
+    with ActionFunction[Request, AuthenticatedRequest]

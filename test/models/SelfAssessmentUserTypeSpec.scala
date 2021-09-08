@@ -27,19 +27,32 @@ class SelfAssessmentUserTypeSpec extends BaseSpec {
     val utr = new SaUtrGenerator().nextSaUtr.utr
 
     val testList: List[(String, SelfAssessmentUser)] = List(
-      ("ActivatedOnlineFilerSelfAssessmentUser", ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr))),
-      ("NotYetActivatedOnlineFilerSelfAssessmentUser", NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr))),
-      ("WrongCredentialsSelfAssessmentUser", WrongCredentialsSelfAssessmentUser(SaUtr(utr))),
-      ("NotEnrolledSelfAssessmentUser", NotEnrolledSelfAssessmentUser(SaUtr(utr)))
+      (
+        "ActivatedOnlineFilerSelfAssessmentUser",
+        ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr))
+      ),
+      (
+        "NotYetActivatedOnlineFilerSelfAssessmentUser",
+        NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr))
+      ),
+      (
+        "WrongCredentialsSelfAssessmentUser",
+        WrongCredentialsSelfAssessmentUser(SaUtr(utr))
+      ),
+      (
+        "NotEnrolledSelfAssessmentUser",
+        NotEnrolledSelfAssessmentUser(SaUtr(utr))
+      )
     )
 
-    testList.foreach { case (key, obj) =>
-      s"serialise and deserialise a $key" in {
+    testList.foreach {
+      case (key, obj) =>
+        s"serialise and deserialise a $key" in {
 
-        val converted = Json.toJson(obj)
+          val converted = Json.toJson(obj)
 
-        converted.as[SelfAssessmentUserType] mustBe obj
-      }
+          converted.as[SelfAssessmentUserType] mustBe obj
+        }
     }
 
     "serialise and deserialise a NonFilerSelfAssessmentUser" in {
@@ -55,7 +68,9 @@ class SelfAssessmentUserTypeSpec extends BaseSpec {
 
         val json = Json.parse(s"""{"_type": "TestObject", "utr": "$utr"}""")
 
-        json.validate[SelfAssessmentUserType] mustBe JsError("Could not read SelfAssessmentUserType")
+        json.validate[SelfAssessmentUserType] mustBe JsError(
+          "Could not read SelfAssessmentUserType"
+        )
       }
     }
   }

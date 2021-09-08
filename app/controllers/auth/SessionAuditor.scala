@@ -33,12 +33,15 @@ import util.AuditServiceTools
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(implicit ec: ExecutionContext)
-    extends AuditTags {
+private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(
+  implicit ec: ExecutionContext
+) extends AuditTags {
 
   private val logger = Logger(this.getClass)
 
-  def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit hc: HeaderCarrier): Future[Result] =
+  def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit
+    hc: HeaderCarrier
+  ): Future[Result] =
     request.session.get(sessionKey) match {
       case None =>
         logger.info(request.profile.toString)
@@ -54,9 +57,13 @@ private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(im
               tags = buildTags(request)
             )
           )
-          .recover { case e: Exception =>
-            logger.warn(s"Unable to audit: ${e.getMessage}")
-            Failure("UserSessionAuditor.auditOncePerSession exception occurred whilst auditing", Some(e))
+          .recover {
+            case e: Exception =>
+              logger.warn(s"Unable to audit: ${e.getMessage}")
+              Failure(
+                "UserSessionAuditor.auditOncePerSession exception occurred whilst auditing",
+                Some(e)
+              )
           }
 
         sendAuditEvent.map {
@@ -92,11 +99,19 @@ object SessionAuditor {
       val saUtr = request.saEnrolment map (_.saUtr)
       val enrolments = request.enrolments
 
-      UserSessionAuditEvent(nino, credentials, confidenceLevel, name, saUtr, enrolments)
+      UserSessionAuditEvent(
+        nino,
+        credentials,
+        confidenceLevel,
+        name,
+        saUtr,
+        enrolments
+      )
     }
 
     implicit val credentialsFormats = Json.format[Credentials]
-    implicit val formats: Format[UserSessionAuditEvent] = Json.format[UserSessionAuditEvent]
+    implicit val formats: Format[UserSessionAuditEvent] =
+      Json.format[UserSessionAuditEvent]
   }
 
 }

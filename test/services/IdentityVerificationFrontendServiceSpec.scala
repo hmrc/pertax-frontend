@@ -38,27 +38,40 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
 
     lazy val (service, metrics, timer) = {
       val fakeSimpleHttp = {
-        if (simulateIdentityVerificationFrontendIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulateIdentityVerificationFrontendIsDown)
+          new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
 
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
       val timer = mock[Timer.Context]
-      val identityVerificationFrontendService: IdentityVerificationFrontendService =
-        new IdentityVerificationFrontendService(fakeSimpleHttp, mock[Metrics], serviceConfig) {
+      val identityVerificationFrontendService
+        : IdentityVerificationFrontendService =
+        new IdentityVerificationFrontendService(
+          fakeSimpleHttp,
+          mock[Metrics],
+          serviceConfig
+        ) {
 
           override val metricsOperator: MetricsOperator = mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer
         }
 
-      (identityVerificationFrontendService, identityVerificationFrontendService.metricsOperator, timer)
+      (
+        identityVerificationFrontendService,
+        identityVerificationFrontendService.metricsOperator,
+        timer
+      )
     }
   }
 
   "Calling IdentityVerificationFrontend.getIVJourneyStatus" must {
 
     "return an IdentityVerificationSuccessResponse containing a journey status object when called with a journeyId" in new SpecSetup {
-      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("token" -> "1234", "result" -> "LockedOut")))
+      override lazy val httpResponse = HttpResponse(
+        OK,
+        Some(Json.obj("token" -> "1234", "result" -> "LockedOut"))
+      )
       override lazy val simulateIdentityVerificationFrontendIsDown = false
 
       val result = service.getIVJourneyStatus("1234").futureValue

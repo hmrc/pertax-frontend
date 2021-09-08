@@ -32,9 +32,11 @@ import scala.concurrent.Future
 
 class SelfAssessmentServiceSpec extends BaseSpec {
 
-  val mockSelfAssessmentConnector: SelfAssessmentConnector = mock[SelfAssessmentConnector]
+  val mockSelfAssessmentConnector: SelfAssessmentConnector =
+    mock[SelfAssessmentConnector]
 
-  def sut: SelfAssessmentService = new SelfAssessmentService(mockSelfAssessmentConnector, config)
+  def sut: SelfAssessmentService =
+    new SelfAssessmentService(mockSelfAssessmentConnector, config)
 
   val utr: SaUtr = new SaUtrGenerator().nextSaUtr
 
@@ -44,7 +46,8 @@ class SelfAssessmentServiceSpec extends BaseSpec {
     buildUserRequest(
       request = FakeRequest(),
       saUser = NotEnrolledSelfAssessmentUser(utr),
-      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
+      credentials =
+        Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
     )
 
   "SelfAssessmentService" when {
@@ -57,7 +60,10 @@ class SelfAssessmentServiceSpec extends BaseSpec {
 
           val redirectUrl = "/foo"
 
-          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
+          when(
+            mockSelfAssessmentConnector
+              .enrolForSelfAssessment(any())(any(), any())
+          ) thenReturn Future.successful(
             Some(SaEnrolmentResponse(redirectUrl))
           )
 
@@ -69,7 +75,10 @@ class SelfAssessmentServiceSpec extends BaseSpec {
 
         "the connector returns a failure response" in {
 
-          when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
+          when(
+            mockSelfAssessmentConnector
+              .enrolForSelfAssessment(any())(any(), any())
+          ) thenReturn Future.successful(
             None
           )
 

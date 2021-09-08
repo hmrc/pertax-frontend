@@ -61,26 +61,40 @@ class AddressControllerSpec extends AddressBaseSpec {
       "a nino cannot be found in the request" in {
 
         def userRequest[A]: UserRequest[A] =
-          buildUserRequest(nino = None, request = FakeRequest().asInstanceOf[Request[A]])
+          buildUserRequest(
+            nino = None,
+            request = FakeRequest().asInstanceOf[Request[A]]
+          )
 
         val result = SUT.addressJourneyEnforcer { _ => _ =>
           Future(Ok("Success"))
         }(userRequest)
 
         status(result) mustBe OK
-        contentAsString(result) must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
+        contentAsString(result) must include(
+          messages(
+            "label.you_can_see_this_part_of_your_account_if_you_complete"
+          )
+        )
       }
 
       "person details cannot be found in the request" in {
         implicit def userRequest[A]: UserRequest[A] =
-          buildUserRequest(personDetails = None, request = FakeRequest().asInstanceOf[Request[A]])
+          buildUserRequest(
+            personDetails = None,
+            request = FakeRequest().asInstanceOf[Request[A]]
+          )
 
         val result = SUT.addressJourneyEnforcer { _ => _ =>
           Future(Ok("Success"))
         }
 
         status(result) mustBe OK
-        contentAsString(result) must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
+        contentAsString(result) must include(
+          messages(
+            "label.you_can_see_this_part_of_your_account_if_you_complete"
+          )
+        )
 
       }
     }

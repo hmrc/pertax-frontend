@@ -20,7 +20,9 @@ import play.api.mvc.Request
 import uk.gov.hmrc.http.HeaderCarrier
 
 private[auth] trait AuditTags {
-  def buildTags(request: Request[_])(implicit hc: HeaderCarrier): Map[String, String] =
+  def buildTags(
+    request: Request[_]
+  )(implicit hc: HeaderCarrier): Map[String, String] =
     Map(
       "X-Request-Id" -> hc.requestId.map(_.value).getOrElse(""),
       "X-Session-Id" -> hc.sessionId.map(_.value).getOrElse(""),

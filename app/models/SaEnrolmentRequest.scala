@@ -19,14 +19,20 @@ package models
 import play.api.libs.json.{Json, Reads, Writes}
 import uk.gov.hmrc.domain.SaUtr
 
-case class SaEnrolmentRequest(origin: String, utr: Option[SaUtr], providerId: String)
+case class SaEnrolmentRequest(
+  origin: String,
+  utr: Option[SaUtr],
+  providerId: String
+)
 
 object SaEnrolmentRequest {
-  implicit val writes: Writes[SaEnrolmentRequest] = Json.writes[SaEnrolmentRequest]
+  implicit val writes: Writes[SaEnrolmentRequest] =
+    Json.writes[SaEnrolmentRequest]
 }
 
 case class SaEnrolmentResponse(redirectUrl: String)
 
 object SaEnrolmentResponse {
-  implicit val reads: Reads[SaEnrolmentResponse] = Json.reads[SaEnrolmentResponse]
+  implicit val reads: Reads[SaEnrolmentResponse] =
+    Json.reads[SaEnrolmentResponse]
 }

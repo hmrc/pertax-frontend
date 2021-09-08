@@ -39,18 +39,31 @@ class UpdateAddressController @Inject() (
   cc: MessagesControllerComponents,
   updateAddressView: UpdateAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        val showEnterAddressHeader =
+          journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => _ =>
           typ match {
             case PostalAddrType =>
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
+              cachingHelper.enforceDisplayAddressPageVisited(
+                journeyData.addressPageVisitedDto
+              ) {
+                val addressForm = journeyData.getAddressToDisplay.fold(
+                  AddressDto.ukForm
+                )(AddressDto.ukForm.fill)
                 Future.successful(
                   Ok(
                     updateAddressView(
@@ -64,19 +77,22 @@ class UpdateAddressController @Inject() (
                 )
               }
             case _ =>
-              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
-                val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
-                Future.successful(
-                  Ok(
-                    updateAddressView(
-                      addressForm.discardingErrors,
-                      typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader
+              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) {
+                journeyData =>
+                  val addressForm = journeyData.getAddressToDisplay.fold(
+                    AddressDto.ukForm
+                  )(AddressDto.ukForm.fill)
+                  Future.successful(
+                    Ok(
+                      updateAddressView(
+                        addressForm.discardingErrors,
+                        typ,
+                        journeyData.addressFinderDto,
+                        journeyData.addressLookupServiceDown,
+                        showEnterAddressHeader
+                      )
                     )
                   )
-                )
               }
           }
         }
@@ -86,7 +102,8 @@ class UpdateAddressController @Inject() (
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
-        val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
+        val showEnterAddressHeader =
+          journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => personDetails =>
           AddressDto.ukForm.bindFromRequest.fold(
             formWithErrors =>
@@ -102,31 +119,49 @@ class UpdateAddressController @Inject() (
                 )
               ),
             addressDto =>
-              cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
-                val postCodeHasChanged = !addressDto.postcode
-                  .getOrElse("")
-                  .replace(" ", "")
-                  .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
-                (typ, postCodeHasChanged) match {
-                  case (PostalAddrType, _) =>
-                    cacheStartDate(
-                      typ,
-                      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+              cachingHelper
+                .addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap {
+                _ =>
+                  val postCodeHasChanged = !addressDto.postcode
+                    .getOrElse("")
+                    .replace(" ", "")
+                    .equalsIgnoreCase(
+                      personDetails.address
+                        .flatMap(_.postcode)
+                        .getOrElse("")
+                        .replace(" ", "")
                     )
-                  case (_, false) =>
-                    cacheStartDate(
-                      typ,
-                      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                    )
-                  case (_, true) =>
-                    Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
-                }
+                  (typ, postCodeHasChanged) match {
+                    case (PostalAddrType, _) =>
+                      cacheStartDate(
+                        typ,
+                        Redirect(
+                          routes.AddressSubmissionController.onPageLoad(typ)
+                        )
+                      )
+                    case (_, false) =>
+                      cacheStartDate(
+                        typ,
+                        Redirect(
+                          routes.AddressSubmissionController.onPageLoad(typ)
+                        )
+                      )
+                    case (_, true) =>
+                      Future.successful(
+                        Redirect(routes.StartDateController.onPageLoad(typ))
+                      )
+                  }
               }
           )
         }
       }
     }
 
-  private def cacheStartDate(typ: AddrType, redirect: Result)(implicit hc: HeaderCarrier): Future[Result] =
-    cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now())) map (_ => redirect)
+  private def cacheStartDate(typ: AddrType, redirect: Result)(implicit
+    hc: HeaderCarrier
+  ): Future[Result] =
+    cachingHelper
+      .addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now())) map (_ =>
+      redirect
+    )
 }

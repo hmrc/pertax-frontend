@@ -31,29 +31,42 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 sealed trait PersonDetailsResponse
-case class PersonDetailsSuccessResponse(personDetails: PersonDetails) extends PersonDetailsResponse
+case class PersonDetailsSuccessResponse(personDetails: PersonDetails)
+    extends PersonDetailsResponse
 case object PersonDetailsNotFoundResponse extends PersonDetailsResponse
 case object PersonDetailsHiddenResponse extends PersonDetailsResponse
-case class PersonDetailsUnexpectedResponse(r: HttpResponse) extends PersonDetailsResponse
-case class PersonDetailsErrorResponse(cause: Exception) extends PersonDetailsResponse
+case class PersonDetailsUnexpectedResponse(r: HttpResponse)
+    extends PersonDetailsResponse
+case class PersonDetailsErrorResponse(cause: Exception)
+    extends PersonDetailsResponse
 
 sealed trait MatchingDetailsResponse
-case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse
+case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails)
+    extends MatchingDetailsResponse
 case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
-case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
-case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
+case class MatchingDetailsUnexpectedResponse(r: HttpResponse)
+    extends MatchingDetailsResponse
+case class MatchingDetailsErrorResponse(cause: Exception)
+    extends MatchingDetailsResponse
 
 @Singleton
-class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
-    extends HasMetrics {
+class CitizenDetailsService @Inject() (
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics,
+  servicesConfig: ServicesConfig
+) extends HasMetrics {
 
   private val logger = Logger(this.getClass)
 
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 
-  def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
+  def personDetails(
+    nino: Nino
+  )(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
     withMetricsTimer("get-person-details") { timer =>
-      simpleHttp.get[PersonDetailsResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details")(
+      simpleHttp.get[PersonDetailsResponse](
+        s"$citizenDetailsUrl/citizen-details/$nino/designatory-details"
+      )(
         onComplete = {
           case response if response.status >= 200 && response.status < 300 =>
             timer.completeTimerAndIncrementSuccessCounter()
@@ -66,17 +79,24 @@ class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: 
 
           case response if response.status == NOT_FOUND =>
             timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Unable to find personal details record in citizen-details")
+            logger.warn(
+              "Unable to find personal details record in citizen-details"
+            )
             PersonDetailsNotFoundResponse
 
           case response =>
             timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(s"Unexpected ${response.status} response getting personal details record from citizen-details")
+            logger.warn(
+              s"Unexpected ${response.status} response getting personal details record from citizen-details"
+            )
             PersonDetailsUnexpectedResponse(response)
         },
         onError = { e =>
           timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting personal details record from citizen-details", e)
+          logger.warn(
+            "Error getting personal details record from citizen-details",
+            e
+          )
           PersonDetailsErrorResponse(e)
         }
       )
@@ -119,20 +139,28 @@ class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: 
     }
   }
 
-  def getMatchingDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[MatchingDetailsResponse] =
+  def getMatchingDetails(
+    nino: Nino
+  )(implicit hc: HeaderCarrier): Future[MatchingDetailsResponse] =
     withMetricsTimer("get-matching-details") { timer =>
-      simpleHttp.get[MatchingDetailsResponse](s"$citizenDetailsUrl/citizen-details/nino/$nino")(
+      simpleHttp.get[MatchingDetailsResponse](
+        s"$citizenDetailsUrl/citizen-details/nino/$nino"
+      )(
         onComplete = {
           case response if response.status >= 200 && response.status < 300 =>
             timer.completeTimerAndIncrementSuccessCounter()
-            MatchingDetailsSuccessResponse(MatchingDetails.fromJsonMatchingDetails(response.json))
+            MatchingDetailsSuccessResponse(
+              MatchingDetails.fromJsonMatchingDetails(response.json)
+            )
           case response if response.status == NOT_FOUND =>
             timer.completeTimerAndIncrementFailedCounter()
             logger.warn("Unable to find matching details in citizen-details")
             MatchingDetailsNotFoundResponse
           case response =>
             timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(s"Unexpected ${response.status} response getting matching details from citizen-details")
+            logger.warn(
+              s"Unexpected ${response.status} response getting matching details from citizen-details"
+            )
             MatchingDetailsUnexpectedResponse(response)
         },
         onError = { e =>
@@ -145,7 +173,9 @@ class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: 
 
   def getEtag(nino: String)(implicit hc: HeaderCarrier): Future[Option[ETag]] =
     withMetricsTimer("get-etag") { timer =>
-      simpleHttp.get[Option[ETag]](s"$citizenDetailsUrl/citizen-details/$nino/etag")(
+      simpleHttp.get[Option[ETag]](
+        s"$citizenDetailsUrl/citizen-details/$nino/etag"
+      )(
         onComplete = {
           case response: HttpResponse if response.status == OK =>
             timer.completeTimerAndIncrementSuccessCounter()
@@ -165,7 +195,10 @@ class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: 
       )
     }
 
-  private def auditEtagFailure(timer: MetricsTimer, message: String): None.type = {
+  private def auditEtagFailure(
+    timer: MetricsTimer,
+    message: String
+  ): None.type = {
     timer.completeTimerAndIncrementFailedCounter()
     logger.warn(message)
     None

@@ -29,7 +29,10 @@ class BindableSpec extends BaseSpec with Injecting {
     "return the key and the ContinueUrl" in {
 
       controllers.bindable.continueUrlBinder
-        .unbind("continue", SafeRedirectUrl("/relative/url")) mustBe "continue=%2Frelative%2Furl"
+        .unbind(
+          "continue",
+          SafeRedirectUrl("/relative/url")
+        ) mustBe "continue=%2Frelative%2Furl"
     }
   }
 
@@ -38,7 +41,8 @@ class BindableSpec extends BaseSpec with Injecting {
     "return an url when called with a relative url" in {
 
       val url = "/relative/url"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder
+        .bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Right(SafeRedirectUrl(url))
       )
     }
@@ -46,7 +50,8 @@ class BindableSpec extends BaseSpec with Injecting {
     "return error when not url" in {
 
       val url = "gtuygyg"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder
+        .bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL")
       )
     }
@@ -54,7 +59,8 @@ class BindableSpec extends BaseSpec with Injecting {
     "return error for urls with /\\" in {
 
       val url = "/\\www.example.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder
+        .bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"'$url' is not a valid continue URL")
       )
     }
@@ -62,7 +68,8 @@ class BindableSpec extends BaseSpec with Injecting {
     "return error for none relative urls" in {
 
       val url = "http://nonrelativeurl.com"
-      controllers.bindable.continueUrlBinder.bind("continue", Map("continue" -> Seq(url))) mustBe Some(
+      controllers.bindable.continueUrlBinder
+        .bind("continue", Map("continue" -> Seq(url))) mustBe Some(
         Left(s"Provided URL [$url] doesn't comply with redirect policy")
       )
     }

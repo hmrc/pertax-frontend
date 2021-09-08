@@ -35,7 +35,10 @@ class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
   "rendering PostalInternationalAddressChoiceView" must {
     "must render the correct h1 appropriate to postal address" in {
       val result = asDocument(view(InternationalAddressChoiceDto.form).toString)
-      assertContainsText(result, messages("label.is_your_postal_address_in_the_uk"))
+      assertContainsText(
+        result,
+        messages("label.is_your_postal_address_in_the_uk")
+      )
     }
 
     "must not render the h1 appropriate to residential addresses" in {

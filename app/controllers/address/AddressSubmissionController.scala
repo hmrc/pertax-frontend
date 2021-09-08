@@ -54,8 +54,16 @@ class AddressSubmissionController @Inject() (
   reviewChangesView: ReviewChangesView,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   genericErrors: GenericErrors
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
   private val logger = Logger(this.getClass)
 
@@ -63,23 +71,33 @@ class AddressSubmissionController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
-          val isUkAddress: Boolean = journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
+          val isUkAddress: Boolean =
+            journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
           val doYouLiveInTheUK: String =
-            if (journeyData.submittedInternationalAddressChoiceDto.forall(_.value)) {
+            if (
+              journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
+            )
               "label.yes"
-            } else {
+            else
               "label.no"
-            }
 
           if (isUkAddress) {
-            val newPostcode: String = journeyData.submittedAddressDto.map(_.postcode).fold("")(_.getOrElse(""))
-            val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).fold("")(_.toString)
+            val newPostcode: String = journeyData.submittedAddressDto
+              .map(_.postcode)
+              .fold("")(_.getOrElse(""))
+            val oldPostcode: String = personDetails.address
+              .flatMap(add => add.postcode)
+              .fold("")(_.toString)
 
             val showAddressChangedDate: Boolean =
-              !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
+              !newPostcode
+                .replace(" ", "")
+                .equalsIgnoreCase(oldPostcode.replace(" ", ""))
             ensuringSubmissionRequirements(typ, journeyData) {
               journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                Future.successful(
+                  Redirect(routes.PersonalDetailsController.onPageLoad())
+                )
               ) { addressDto =>
                 Future.successful(
                   Ok(
@@ -95,10 +113,12 @@ class AddressSubmissionController @Inject() (
                 )
               }
             }
-          } else {
+          } else
             ensuringSubmissionRequirements(typ, journeyData) {
               journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                Future.successful(
+                  Redirect(routes.PersonalDetailsController.onPageLoad())
+                )
               ) { addressDto =>
                 Future.successful(
                   Ok(
@@ -114,7 +134,6 @@ class AddressSubmissionController @Inject() (
                 )
               }
             }
-          }
         }
       }
     }
@@ -134,22 +153,36 @@ class AddressSubmissionController @Inject() (
               ensuringSubmissionRequirements(typ, journeyData) {
 
                 journeyData.submittedAddressDto.fold(
-                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                  Future.successful(
+                    Redirect(routes.PersonalDetailsController.onPageLoad())
+                  )
                 ) { addressDto =>
                   val address =
                     addressDto
-                      .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
+                      .toAddress(
+                        addressType,
+                        journeyData.submittedStartDateDto.fold(LocalDate.now)(
+                          _.startDate
+                        )
+                      )
 
-                  val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
+                  val originalPostcode =
+                    personDetails.address.flatMap(_.postcode).getOrElse("")
 
-                  addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap {
-                    addressChanged =>
+                  addressMovedService
+                    .moved(originalPostcode, address.postcode.getOrElse(""))
+                    .flatMap { addressChanged =>
                       def successResponseBlock(): Result = {
                         val originalAddressDto: Option[AddressDto] =
-                          journeyData.selectedAddressRecord.map(AddressDto.fromAddressRecord)
+                          journeyData.selectedAddressRecord.map(
+                            AddressDto.fromAddressRecord
+                          )
 
                         val addressDtowithFormattedPostCode =
-                          addressDto.copy(postcode = addressDto.postcode.map(addressDto.formatMandatoryPostCode))
+                          addressDto.copy(postcode =
+                            addressDto.postcode
+                              .map(addressDto.formatMandatoryPostCode)
+                          )
                         handleAddressChangeAuditing(
                           originalAddressDto,
                           addressDtowithFormattedPostCode,
@@ -169,10 +202,13 @@ class AddressSubmissionController @Inject() (
                       }
 
                       for {
-                        _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
-                        result <- citizenDetailsService.updateAddress(nino, version.etag, address)
-                      } yield result.response(genericErrors, successResponseBlock)
-                  }
+                        _ <- editAddressLockRepository
+                               .insert(nino.withoutSuffix, typ)
+                        result <- citizenDetailsService
+                                    .updateAddress(nino, version.etag, address)
+                      } yield result
+                        .response(genericErrors, successResponseBlock)
+                    }
                 }
               }
             }
@@ -180,19 +216,24 @@ class AddressSubmissionController @Inject() (
       }
     }
 
-  private def mapAddressType(typ: AddrType) = typ match {
-    case PostalAddrType => "Correspondence"
-    case _              => "Residential"
-  }
+  private def mapAddressType(typ: AddrType) =
+    typ match {
+      case PostalAddrType => "Correspondence"
+      case _              => "Residential"
+    }
 
-  private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
+  private def ensuringSubmissionRequirements(
+    typ: AddrType,
+    journeyData: AddressJourneyData
+  )(
     block: => Future[Result]
   ): Future[Result] =
-    if (journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType)) {
+    if (
+      journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType)
+    )
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
-    } else {
+    else
       block
-    }
 
   private def handleAddressChangeAuditing(
     originalAddressDto: Option[AddressDto],
@@ -205,16 +246,29 @@ class AddressSubmissionController @Inject() (
         buildEvent(
           "postcodeAddressSubmitted",
           "change_of_address",
-          dataToAudit(addressDto, version.etag, addressType, None, originalAddressDto.flatMap(_.propertyRefNo))
-            .filter(!_._1.startsWith("originalLine")) - "originalPostcode"
+          dataToAudit(
+            addressDto,
+            version.etag,
+            addressType,
+            None,
+            originalAddressDto.flatMap(_.propertyRefNo)
+          ).filter(!_._1.startsWith("originalLine")) - "originalPostcode"
         )
       )
-    else if (addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto))
+    else if (
+      addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto)
+    )
       auditConnector.sendEvent(
         buildEvent(
           "manualAddressSubmitted",
           "change_of_address",
-          dataToAudit(addressDto, version.etag, addressType, None, originalAddressDto.flatMap(_.propertyRefNo))
+          dataToAudit(
+            addressDto,
+            version.etag,
+            addressType,
+            None,
+            originalAddressDto.flatMap(_.propertyRefNo)
+          )
         )
       )
     else

@@ -41,11 +41,17 @@ class HomeViewSpec extends ViewSpec {
 
     "show the users name and not 'Your account' when the user has details and is not a GG user" in {
       implicit val userRequest =
-        buildUserRequest(personDetails = Some(Fixtures.buildPersonDetails), userName = None, request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(Fixtures.buildPersonDetails),
+          userName = None,
+          request = FakeRequest()
+        )
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
+      document
+        .select("h1")
+        .exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").exists(e => e.text == "Your account") mustBe false
     }
 
@@ -58,12 +64,18 @@ class HomeViewSpec extends ViewSpec {
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 
-      document.select("h1").exists(e => e.text == "Firstname Lastname") mustBe true
+      document
+        .select("h1")
+        .exists(e => e.text == "Firstname Lastname") mustBe true
       document.select("h1").exists(e => e.text == "Your account") mustBe false
     }
 
     "show 'Your account' and not the users name when the user has no details and is not a GG user" in {
-      implicit val userRequest = buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
+      implicit val userRequest = buildUserRequest(
+        personDetails = None,
+        userName = None,
+        request = FakeRequest()
+      )
 
       lazy val document: Document = asDocument(home(homeViewModel).toString)
 

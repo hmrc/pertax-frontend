@@ -50,11 +50,16 @@ class InterstitialController @Inject() (
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper {
+)(implicit
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) with PaperlessInterruptHelper {
 
   val saBreadcrumb: Breadcrumb =
-    "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::
+    "label.self_assessment" -> routes.InterstitialController
+      .displaySelfAssessment()
+      .url ::
       baseBreadcrumb
 
   private val logger = Logger(this.getClass)
@@ -69,58 +74,72 @@ class InterstitialController @Inject() (
     authJourney.authWithPersonalDetails andThen withBreadcrumbAction
       .addBreadcrumb(saBreadcrumb)
 
-  def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.flatMap { p =>
-      ninoDisplayService.getNino.map { nino =>
-        Ok(
-          viewNationalInsuranceInterstitialHomeView(
-            formPartial = p successfulContentOrElse Html(""),
-            redirectUrl = currentUrl,
-            nino
+  def displayNationalInsurance: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      formPartialService.getNationalInsurancePartial.flatMap { p =>
+        ninoDisplayService.getNino.map { nino =>
+          Ok(
+            viewNationalInsuranceInterstitialHomeView(
+              formPartial = p successfulContentOrElse Html(""),
+              redirectUrl = currentUrl,
+              nino
+            )
+          )
+        }
+      }
+    }
+
+  def displayChildBenefits: Action[AnyContent] =
+    authenticate { implicit request =>
+      Ok(
+        viewChildBenefitsSummaryInterstitialView(
+          redirectUrl = currentUrl,
+          taxCreditsEnabled = configDecorator.taxCreditsEnabled
+        )
+      )
+    }
+
+  def displaySelfAssessment: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      if (
+        request.isSaUserLoggedIntoCorrectAccount && request.isGovernmentGateway
+      ) {
+        val formPartial =
+          formPartialService.getSelfAssessmentPartial recoverWith {
+            case _ =>
+              Future.successful(HtmlPartial.Failure(None, ""))
+          }
+        val saPartial = saPartialService.getSaAccountSummary recoverWith {
+          case _ =>
+            Future.successful(HtmlPartial.Failure(None, ""))
+        }
+
+        for {
+          formPartial <- formPartial
+          saPartial   <- saPartial
+        } yield Ok(
+          selfAssessmentSummaryView(
+            formPartial successfulContentOrElse Html(""),
+            saPartial successfulContentOrElse Html("")
           )
         )
+      } else errorRenderer.futureError(UNAUTHORIZED)
+
+    }
+
+  def displaySa302Interrupt(year: Int): Action[AnyContent] =
+    authenticateSa { implicit request =>
+      request.saUserType match {
+        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
+          Ok(
+            sa302InterruptView(
+              year = previousAndCurrentTaxYearFromGivenYear(year),
+              saUtr = saUtr
+            )
+          )
+        case _ =>
+          logger.warn("User had no sa account when one was required")
+          errorRenderer.error(UNAUTHORIZED)
       }
     }
-  }
-
-  def displayChildBenefits: Action[AnyContent] = authenticate { implicit request =>
-    Ok(
-      viewChildBenefitsSummaryInterstitialView(
-        redirectUrl = currentUrl,
-        taxCreditsEnabled = configDecorator.taxCreditsEnabled
-      )
-    )
-  }
-
-  def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
-    if (request.isSaUserLoggedIntoCorrectAccount && request.isGovernmentGateway) {
-      val formPartial = formPartialService.getSelfAssessmentPartial recoverWith { case _ =>
-        Future.successful(HtmlPartial.Failure(None, ""))
-      }
-      val saPartial = saPartialService.getSaAccountSummary recoverWith { case _ =>
-        Future.successful(HtmlPartial.Failure(None, ""))
-      }
-
-      for {
-        formPartial <- formPartial
-        saPartial   <- saPartial
-      } yield Ok(
-        selfAssessmentSummaryView(
-          formPartial successfulContentOrElse Html(""),
-          saPartial successfulContentOrElse Html("")
-        )
-      )
-    } else errorRenderer.futureError(UNAUTHORIZED)
-
-  }
-
-  def displaySa302Interrupt(year: Int): Action[AnyContent] = authenticateSa { implicit request =>
-    request.saUserType match {
-      case ActivatedOnlineFilerSelfAssessmentUser(saUtr) =>
-        Ok(sa302InterruptView(year = previousAndCurrentTaxYearFromGivenYear(year), saUtr = saUtr))
-      case _ =>
-        logger.warn("User had no sa account when one was required")
-        errorRenderer.error(UNAUTHORIZED)
-    }
-  }
 }

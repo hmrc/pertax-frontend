@@ -40,7 +40,8 @@ import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
+class NiLetterControllerSpec
+    extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
 
   val mockPdfGeneratorConnector = mock[PdfGeneratorConnector]
   val mockAuthJourney = mock[AuthJourney]
@@ -74,18 +75,23 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       templateRenderer,
       ec
     ) {
-      when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
+      when(ninoDisplayService.getNino(any(), any()))
+        .thenReturn(Future.successful(Some(Fixtures.fakeNino)))
     }
 
   "Calling NiLetterController.printNationalInsuranceNumber" must {
 
     "call printNationalInsuranceNumber should return OK when called by a high GG user" in {
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
 
@@ -93,29 +99,39 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
     }
 
     "call printNationalInsuranceNumber should return OK when called by a verify user" in {
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              )
             )
-          )
-      })
+        })
 
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
 
       status(r) mustBe OK
       val doc = Jsoup.parse(contentAsString(r))
-      doc.getElementById("page-title").text() mustBe "Your National Insurance letter"
+      doc
+        .getElementById("page-title")
+        .text() mustBe "Your National Insurance letter"
       doc
         .getElementById("keep-ni-number-safe")
         .text() mustBe "Keep this number in a safe place. Do not destroy this letter."
-      doc.getElementById("available-information-text-relay").text() must include(
+      doc
+        .getElementById("available-information-text-relay")
+        .text() must include(
         "Information is available in large print, audio tape and Braille formats."
       )
-      doc.getElementById("available-information-text-relay").text() must include(
+      doc
+        .getElementById("available-information-text-relay")
+        .text() must include(
         "Text Relay service prefix number - 18001"
       )
       doc

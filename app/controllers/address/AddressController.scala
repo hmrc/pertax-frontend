@@ -34,8 +34,11 @@ abstract class AddressController @Inject() (
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) {
 
   def authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withActiveTabAction
@@ -49,9 +52,10 @@ abstract class AddressController @Inject() (
       personDetails <- request.personDetails
     } yield block(payeAccount)(personDetails)).getOrElse {
       Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
-          .onPageLoad()
-          .url
+        val continueUrl =
+          configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
+            .onPageLoad()
+            .url
         Ok(displayAddressInterstitialView(continueUrl))
       }
     }

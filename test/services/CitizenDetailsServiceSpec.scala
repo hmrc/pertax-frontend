@@ -65,22 +65,29 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       Some("Correspondence")
     )
 
-    val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
-    val jsonCorrespondenceAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(correspondenceAddress))
+    val jsonAddress =
+      Json.obj("etag" -> "115", "address" -> Json.toJson(address))
+    val jsonCorrespondenceAddress =
+      Json.obj("etag" -> "115", "address" -> Json.toJson(correspondenceAddress))
     val nino: Nino = Fixtures.fakeNino
     val anException = new RuntimeException("Any")
 
     lazy val (service, met, timer) = {
 
       val fakeSimpleHttp = {
-        if (simulateCitizenDetailsServiceIsDown) new FakeSimpleHttp(Right(anException))
+        if (simulateCitizenDetailsServiceIsDown)
+          new FakeSimpleHttp(Right(anException))
         else new FakeSimpleHttp(Left(httpResponse))
       }
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val timer = mock[Timer.Context]
       val citizenDetailsService: CitizenDetailsService =
-        new CitizenDetailsService(fakeSimpleHttp, mock[Metrics], serviceConfig) {
+        new CitizenDetailsService(
+          fakeSimpleHttp,
+          mock[Metrics],
+          serviceConfig
+        ) {
           override val metricsOperator: MetricsOperator = mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer
         }
@@ -186,7 +193,8 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       override lazy val simulateCitizenDetailsServiceIsDown = false
       override lazy val httpResponse = HttpResponse(CREATED)
 
-      val result = service.updateAddress(nino, "115", correspondenceAddress).futureValue
+      val result =
+        service.updateAddress(nino, "115", correspondenceAddress).futureValue
 
       result mustBe UpdateAddressSuccessResponse
       verify(met, times(1)).startTimer(metricId)
@@ -245,11 +253,14 @@ class CitizenDetailsServiceSpec extends BaseSpec {
 
       val saUtr = new SaUtrGenerator().nextSaUtr.utr
       override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr))))
+      override lazy val httpResponse =
+        HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> saUtr))))
 
       val result = service.getMatchingDetails(nino).futureValue
 
-      result mustBe MatchingDetailsSuccessResponse(MatchingDetails(Some(SaUtr(saUtr))))
+      result mustBe MatchingDetailsSuccessResponse(
+        MatchingDetails(Some(SaUtr(saUtr)))
+      )
       verify(met, times(1)).startTimer(metricId)
       verify(met, times(1)).incrementSuccessCounter(metricId)
       verify(timer, times(1)).stop()
@@ -258,7 +269,8 @@ class CitizenDetailsServiceSpec extends BaseSpec {
     "return MatchingDetailsSuccessResponse containing no SAUTR when the service does not return an SAUTR" in new LocalSetup {
 
       override lazy val simulateCitizenDetailsServiceIsDown = false
-      override lazy val httpResponse = HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull))))
+      override lazy val httpResponse =
+        HttpResponse(OK, Some(Json.obj("ids" -> Json.obj("sautr" -> JsNull))))
 
       val result = service.getMatchingDetails(nino).futureValue
 
@@ -359,7 +371,8 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       }
 
       "citizen-details returns 500" in new LocalSetup {
-        override def httpResponse: HttpResponse = HttpResponse(INTERNAL_SERVER_ERROR)
+        override def httpResponse: HttpResponse =
+          HttpResponse(INTERNAL_SERVER_ERROR)
 
         override def simulateCitizenDetailsServiceIsDown: Boolean = false
 
@@ -372,7 +385,8 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       }
 
       "the call to citizen-details throws an exception" in new LocalSetup {
-        override def httpResponse: HttpResponse = HttpResponse(INTERNAL_SERVER_ERROR)
+        override def httpResponse: HttpResponse =
+          HttpResponse(INTERNAL_SERVER_ERROR)
 
         override def simulateCitizenDetailsServiceIsDown: Boolean = true
 

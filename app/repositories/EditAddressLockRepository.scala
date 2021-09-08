@@ -53,12 +53,16 @@ class EditAddressLockRepository @Inject() (
   def insert(nino: String, addressType: AddrType): Future[Boolean] = {
 
     val record: EditedAddress =
-      AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
+      AddrType.toEditedAddress(
+        addressType,
+        toBSONDateTime(getNextMidnight(OffsetDateTime.now()))
+      )
 
-    insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover { case e: DatabaseException =>
-      val errorCode = e.code.getOrElse("unknown code")
-      logger.error(s"Edit address lock failure with error $errorCode")
-      false
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover {
+      case e: DatabaseException =>
+        val errorCode = e.code.getOrElse("unknown code")
+        logger.error(s"Edit address lock failure with error $errorCode")
+        false
     }
   }
 
@@ -67,12 +71,18 @@ class EditAddressLockRepository @Inject() (
       BSONDocument(
         BSONDocument("nino" -> nino),
         BSONDocument(
-          BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
+          BSONDocument(
+            EXPIRE_AT -> BSONDocument(
+              "$gt" -> toBSONDateTime(OffsetDateTime.now())
+            )
+          )
         )
       )
     )
 
-  private[repositories] def getCore(selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
+  private[repositories] def getCore(
+    selector: BSONDocument
+  ): Future[List[AddressJourneyTTLModel]] =
     this.collection
       .flatMap {
         _.find(selector, None)
@@ -82,15 +92,20 @@ class EditAddressLockRepository @Inject() (
             Cursor.FailOnError[List[AddressJourneyTTLModel]]()
           )
       }
-      .recover { case e: Exception =>
-        logger.error(s"Unable to find document: ${e.getMessage}")
-        List[AddressJourneyTTLModel]()
+      .recover {
+        case e: Exception =>
+          logger.error(s"Unable to find document: ${e.getMessage}")
+          List[AddressJourneyTTLModel]()
       }
 
-  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] =
+  private[repositories] def insertCore(
+    record: AddressJourneyTTLModel
+  ): Future[WriteResult] =
     this.collection.flatMap(coll => coll.insert(ordered = false).one(record))
 
-  private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
+  private[repositories] def drop(implicit
+    ec: ExecutionContext
+  ): Future[Boolean] =
     for {
       result <- this.collection.flatMap(_.drop(failIfNotFound = false))
       _      <- setIndex()
@@ -109,7 +124,13 @@ class EditAddressLockRepository @Inject() (
   )
 
   private[repositories] lazy val editAddressIndex =
-    Index(Seq(("nino", IndexType.Ascending), ("editedAddress.addressType", IndexType.Ascending)), unique = true)
+    Index(
+      Seq(
+        ("nino", IndexType.Ascending),
+        ("editedAddress.addressType", IndexType.Ascending)
+      ),
+      unique = true
+    )
 
   private[repositories] def removeIndex(): Future[Int] =
     for {
@@ -124,9 +145,10 @@ class EditAddressLockRepository @Inject() (
 
   private[repositories] def setIndex(): Future[Boolean] =
     for {
-      _          <- removeIndex()
-      ttlResult  <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
-      editResult <- collection.flatMap(_.indexesManager.ensure(editAddressIndex))
+      _         <- removeIndex()
+      ttlResult <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
+      editResult <-
+        collection.flatMap(_.indexesManager.ensure(editAddressIndex))
     } yield ttlResult && editResult
 
   private[repositories] def isTtlSet: Future[Boolean] =
@@ -148,8 +170,11 @@ object EditAddressLockRepository {
   def toBSONDateTime(dateTime: OffsetDateTime): BSONDateTime =
     BSONDateTime(dateTime.toInstant.toEpochMilli)
 
-  private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
-    val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
+  private def nextUTCMidnightInUKDateTime(
+    offsetDateTime: OffsetDateTime
+  ): OffsetDateTime = {
+    val utcNextDay =
+      offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
     utcNextDay.toLocalDate.atStartOfDay.atZone(UK_TIME_ZONE).toOffsetDateTime
   }
 
@@ -164,12 +189,18 @@ object EditAddressLockRepository {
       case BST_OFFSET if ukDateTime.getHour == 0 =>
         utcMidnightInUkDateTime.getOffset match {
           case GMT_OFFSET => utcMidnightInUkDateTime
-          case _          => utcMidnightInUkDateTime.plusDays(1).withOffsetSameInstant(BST_OFFSET)
+          case _ =>
+            utcMidnightInUkDateTime
+              .plusDays(1)
+              .withOffsetSameInstant(BST_OFFSET)
         }
       case BST_OFFSET =>
         utcMidnightInUkDateTime.getOffset match {
           case GMT_OFFSET => utcMidnightInUkDateTime
-          case _          => utcMidnightInUkDateTime.plusHours(1).withOffsetSameInstant(BST_OFFSET)
+          case _ =>
+            utcMidnightInUkDateTime
+              .plusHours(1)
+              .withOffsetSameInstant(BST_OFFSET)
         }
       case _ =>
         utcMidnightInUkDateTime

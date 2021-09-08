@@ -33,7 +33,9 @@ class TaxCalculationViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
+  def hasLink(document: Document, content: String, href: String)(implicit
+    messages: Messages
+  ): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   "TaxCalculation card" must {
@@ -46,7 +48,11 @@ class TaxCalculationViewSpec extends ViewSpec {
           TaxCalculationViewModel(
             TaxYears(previousTaxYear, previousTaxYear + 1),
             Heading(
-              text("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, previousTaxYear + 1 toString),
+              text(
+                "label.you_do_not_owe_any_more_tax",
+                previousTaxYear.toString,
+                previousTaxYear + 1 toString
+              ),
               UnderpaidUrl(previousTaxYear)
             ),
             List(text("label.you_have_no_payments_to_make_to_hmrc")),
@@ -58,7 +64,11 @@ class TaxCalculationViewSpec extends ViewSpec {
     "render the given heading correctly" in {
 
       doc.text() must include(
-        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, previousTaxYear + 1 toString)
+        Messages(
+          "label.you_do_not_owe_any_more_tax",
+          previousTaxYear.toString,
+          previousTaxYear + 1 toString
+        )
       )
     }
 
@@ -66,14 +76,20 @@ class TaxCalculationViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, previousTaxYear + 1 toString),
+        Messages(
+          "label.you_do_not_owe_any_more_tax",
+          previousTaxYear.toString,
+          previousTaxYear + 1 toString
+        ),
         configDecorator.underpaidUrl(previousTaxYear)
       )
     }
 
     "render the given content correctly" in {
 
-      doc.text() must include(Messages("label.you_have_no_payments_to_make_to_hmrc"))
+      doc.text() must include(
+        Messages("label.you_have_no_payments_to_make_to_hmrc")
+      )
     }
   }
 }

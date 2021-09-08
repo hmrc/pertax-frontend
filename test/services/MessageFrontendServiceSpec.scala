@@ -56,11 +56,13 @@ class MessageFrontendServiceSpec extends BaseSpec {
     .overrides(bind[Metrics].toInstance(mockMetrics))
     .build()
 
-  val messageFrontendService: MessageFrontendService = injected[MessageFrontendService]
+  val messageFrontendService: MessageFrontendService =
+    injected[MessageFrontendService]
 
-  override def beforeEach: Unit = reset(
-    injected[DefaultHttpClient]
-  )
+  override def beforeEach: Unit =
+    reset(
+      injected[DefaultHttpClient]
+    )
 
   when(mockMetrics.defaultRegistry).thenReturn(mockMetricRegistry)
 
@@ -72,87 +74,131 @@ class MessageFrontendServiceSpec extends BaseSpec {
   "Calling getMessageListPartial" must {
     "return message partial for list of messages" in {
 
-      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
+      when(
+        messageFrontendService.http
+          .GET[HtmlPartial](any(), any(), any())(any(), any(), any())
+      ) thenReturn
+        Future.successful[HtmlPartial](
+          HtmlPartial.Success(Some("Title"), Html("<title/>"))
+        )
 
-      val result = messageFrontendService.getMessageListPartial(FakeRequest()).futureValue
+      val result =
+        messageFrontendService.getMessageListPartial(FakeRequest()).futureValue
 
       result mustBe
         HtmlPartial.Success(Some("Title"), Html("<title/>"))
 
-      verify(messageFrontendService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1))
+        .GET[Html](any(), any(), any())(any(), any(), any())
     }
   }
 
   "Calling getMessageDetailPartial" must {
     "return message partial for message details" in {
 
-      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String")))
+      when(
+        messageFrontendService.http
+          .GET[HtmlPartial](any(), any(), any())(any(), any(), any())
+      ) thenReturn
+        Future.successful[HtmlPartial](
+          HtmlPartial
+            .Success(Some("Test%20Title"), Html("Test Response String"))
+        )
 
-      val partial = messageFrontendService.getMessageDetailPartial("")(FakeRequest()).futureValue
+      val partial = messageFrontendService
+        .getMessageDetailPartial("")(FakeRequest())
+        .futureValue
 
-      partial mustBe HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
+      partial mustBe HtmlPartial
+        .Success(Some("Test%20Title"), Html("Test Response String"))
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1))
+        .GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
   "Calling getMessageInboxLinkPartial" must {
     "return message inbox link partial" in {
 
-      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
+      when(
+        messageFrontendService.http
+          .GET[HtmlPartial](any(), any(), any())(any(), any(), any())
+      ) thenReturn
+        Future.successful[HtmlPartial](
+          HtmlPartial.Success(None, Html("link to messages"))
+        )
 
-      val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest()).futureValue
+      val partial = messageFrontendService
+        .getMessageInboxLinkPartial(FakeRequest())
+        .futureValue
 
       partial mustBe HtmlPartial.Success(None, Html("link to messages"))
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1))
+        .GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
   "Calling getMessageCount" must {
-    def messageCount = messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
+    def messageCount =
+      messageFrontendService.getUnreadMessageCount(
+        buildFakeRequestWithAuth("GET")
+      )
 
     "return None unread messages when http client throws an exception" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
+      when(
+        messageFrontendService.http
+          .GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())
+      ) thenReturn
         Future.failed(new HttpException("bad", 413))
 
       messageCount.futureValue mustBe None
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1))
+        .GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
 
     "return None unread messages when http client does not return a usable response" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
+      when(
+        messageFrontendService.http
+          .GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())
+      ) thenReturn
         Future.successful[Option[MessageCount]](None)
 
       messageCount.futureValue mustBe None
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1))
+        .GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
 
     "return Some(0) unread messages when http client returns 0 unrread messages" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
+      when(
+        messageFrontendService.http
+          .GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())
+      ) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(0)))
 
       messageCount.futureValue mustBe Some(0)
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1))
+        .GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
 
     "return Some(10) unread messages when http client returns 10 unrread messages" in {
 
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
+      when(
+        messageFrontendService.http
+          .GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())
+      ) thenReturn
         Future.successful[Option[MessageCount]](Some(MessageCount(10)))
 
       messageCount.futureValue mustBe Some(10)
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(messageFrontendService.http, times(1))
+        .GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 }

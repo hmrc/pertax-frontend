@@ -42,7 +42,10 @@ class MinimumAuthAction @Inject() (
 )(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
-  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](
+    request: Request[A],
+    block: AuthenticatedRequest[A] => Future[Result]
+  ): Future[Result] = {
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -56,18 +59,27 @@ class MinimumAuthAction @Inject() (
           Retrievals.trustedHelper and
           Retrievals.profile
       ) {
-        case nino ~ Enrolments(enrolments) ~ Some(credentials) ~ confidenceLevel ~ name ~ trustedHelper ~ profile =>
-          val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap { enrolment =>
-            enrolment.identifiers
-              .find(id => id.key == "UTR")
-              .map(key => SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
+        case nino ~ Enrolments(enrolments) ~ Some(
+              credentials
+            ) ~ confidenceLevel ~ name ~ trustedHelper ~ profile =>
+          val saEnrolment = enrolments.find(_.key == "IR-SA").flatMap {
+            enrolment =>
+              enrolment.identifiers
+                .find(id => id.key == "UTR")
+                .map(key =>
+                  SelfAssessmentEnrolment(
+                    SaUtr(key.value),
+                    SelfAssessmentStatus.fromString(enrolment.state)
+                  )
+                )
           }
 
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
-                  (key, vals.map(_.trim))
+                AnyContentAsFormUrlEncoded(data.map {
+                  case (key, vals) =>
+                    (key, vals.map(_.trim))
                 })
               case b => b
             }
@@ -87,19 +99,22 @@ class MinimumAuthAction @Inject() (
             )
 
           for {
-            result        <- block(authenticatedRequest)
-            updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
+            result <- block(authenticatedRequest)
+            updatedResult <-
+              sessionAuditor.auditOnce(authenticatedRequest, result)
           } yield updatedResult
 
         case _ => throw new RuntimeException("Can't find credentials for user")
       }
   } recover {
-    case _: NoActiveSession => Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession
+    case _: NoActiveSession =>
+      Results.Redirect(routes.PublicController.sessionTimeout()).withNewSession
 
     case _: InsufficientEnrolments => throw InsufficientEnrolments("")
   }
 
   override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
 
-  override protected def executionContext: ExecutionContext = cc.executionContext
+  override protected def executionContext: ExecutionContext =
+    cc.executionContext
 }

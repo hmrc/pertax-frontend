@@ -49,23 +49,27 @@ class UpdateAddressResponseSpec extends BaseSpec with I18nSupport {
 
   "UpdateAddressResponse.response" must {
     "return the block result for UpdateAddressSuccessResponse" in {
-      val result = UpdateAddressSuccessResponse.response(genericErrors, genericFunc)
+      val result =
+        UpdateAddressSuccessResponse.response(genericErrors, genericFunc)
       result.header.status mustBe OK
     }
 
     "return BAD_REQUEST for UpdateAddressBadRequestResponse" in {
-      val result = UpdateAddressBadRequestResponse.response(genericErrors, genericFunc)
+      val result =
+        UpdateAddressBadRequestResponse.response(genericErrors, genericFunc)
       result.header.status mustBe BAD_REQUEST
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressUnexpectedResponse" in {
-      val updateAddressResponse = UpdateAddressUnexpectedResponse(HttpResponse(123, ""))
+      val updateAddressResponse =
+        UpdateAddressUnexpectedResponse(HttpResponse(123, ""))
       val result = updateAddressResponse.response(genericErrors, genericFunc)
       result.header.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return INTERNAL_SERVER_ERROR for UpdateAddressErrorResponse" in {
-      val updateAddressResponse = UpdateAddressErrorResponse(new RuntimeException("not used"))
+      val updateAddressResponse =
+        UpdateAddressErrorResponse(new RuntimeException("not used"))
       val result = updateAddressResponse.response(genericErrors, genericFunc)
       result.header.status mustBe INTERNAL_SERVER_ERROR
     }

@@ -25,9 +25,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
 
-  def addBreadcrumb(breadcrumb: Breadcrumb): ActionRefiner[UserRequest, UserRequest] =
+  def addBreadcrumb(
+    breadcrumb: Breadcrumb
+  ): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {
-      override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
+      override protected def refine[A](
+        request: UserRequest[A]
+      ): Future[Either[Result, UserRequest[A]]] =
         Future.successful(
           Right(
             UserRequest(

@@ -29,17 +29,29 @@ class RecordSetSpec extends BaseSpec {
     "filter out all addresses with addressLines missing" in {
       val addressesWithMissingLinesJson: String =
         Source
-          .fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSetWithMissingAddressLines.json"))
+          .fromInputStream(
+            getClass.getResourceAsStream(
+              "/address-lookup/recordSetWithMissingAddressLines.json"
+            )
+          )
           .mkString
-      val result = RecordSet.fromJsonAddressLookupService(Json.parse(addressesWithMissingLinesJson))
+      val result = RecordSet.fromJsonAddressLookupService(
+        Json.parse(addressesWithMissingLinesJson)
+      )
 
       result mustBe twoOtherPlaceRecordSet
     }
 
     "return all addresses with where the addressLines are present" in {
       val addressesWhichAllContainLinesJson: String =
-        Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
-      val result = RecordSet.fromJsonAddressLookupService(Json.parse(addressesWhichAllContainLinesJson))
+        Source
+          .fromInputStream(
+            getClass.getResourceAsStream("/address-lookup/recordSet.json")
+          )
+          .mkString
+      val result = RecordSet.fromJsonAddressLookupService(
+        Json.parse(addressesWhichAllContainLinesJson)
+      )
 
       result mustBe oneAndTwoOtherPlacePafRecordSet
     }

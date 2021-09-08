@@ -46,7 +46,8 @@ class PertaxValidatorsSpec extends BaseSpec {
       f.copy(errors = f.errors.distinct)
         .fold(
           formWithErrors => fail("Form should give an error"),
-          success => success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
+          success =>
+            success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
         )
     }
 
@@ -86,7 +87,11 @@ class PertaxValidatorsSpec extends BaseSpec {
         "line3" -> "Line 3"
       )
 
-      case class SimpleAddress(line1: Option[String], line2: Option[String], line3: Option[String])
+      case class SimpleAddress(
+        line1: Option[String],
+        line2: Option[String],
+        line3: Option[String]
+      )
 
       val simpleAddressForm = Form(
         mapping(
@@ -119,11 +124,15 @@ class PertaxValidatorsSpec extends BaseSpec {
     }
 
     "return false when illegal characters are used" in {
-      validateAddressLineCharacters(Some("""45b Mühlendamm NE32 5RS""")) mustBe false
+      validateAddressLineCharacters(
+        Some("""45b Mühlendamm NE32 5RS""")
+      ) mustBe false
     }
 
     "return true when no illegal characters are used" in {
-      validateAddressLineCharacters(Some("""48/- Williams Park, Tyne & Wear NE32-5RS""")) mustBe true
+      validateAddressLineCharacters(
+        Some("""48/- Williams Park, Tyne & Wear NE32-5RS""")
+      ) mustBe true
     }
 
   }

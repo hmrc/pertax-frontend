@@ -33,15 +33,33 @@ class ReviewChangesViewSpec extends ViewSpec {
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
   val address =
-    AddressDto("AddressLine1", "AddressLine2", None, None, None, Some("TestPostcode"), None, None)
+    AddressDto(
+      "AddressLine1",
+      "AddressLine2",
+      None,
+      None,
+      None,
+      Some("TestPostcode"),
+      None,
+      None
+    )
 
-  def result(addressType: AddrType) = asDocument(view(addressType, address, "yes.label", true, None, false).toString)
+  def result(addressType: AddrType) =
+    asDocument(
+      view(addressType, address, "yes.label", true, None, false).toString
+    )
 
   "rendering ReviewChangesView" must {
     "when postal address has been changed display 'is your address in the uk'" in {
 
-      assertContainsText(result(PostalAddrType), messages("label.is_your_postal_address_in_the_uk"))
-      assertNotContainText(result(PostalAddrType), messages("label.do_you_live_in_the_uk"))
+      assertContainsText(
+        result(PostalAddrType),
+        messages("label.is_your_postal_address_in_the_uk")
+      )
+      assertNotContainText(
+        result(PostalAddrType),
+        messages("label.do_you_live_in_the_uk")
+      )
     }
 
     "when postal address has been changed display link to PostalInternationalAddressChoiceController" in {
@@ -55,14 +73,22 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertNotContainLink(
         result(PostalAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType).url
+        routes.InternationalAddressChoiceController
+          .onPageLoad(PostalAddrType)
+          .url
       )
     }
 
     "when sole address has been changed display 'do you live in the uk'" in {
 
-      assertContainsText(result(SoleAddrType), messages("label.do_you_live_in_the_uk"))
-      assertNotContainText(result(SoleAddrType), messages("label.is_your_postal_address_in_the_uk"))
+      assertContainsText(
+        result(SoleAddrType),
+        messages("label.do_you_live_in_the_uk")
+      )
+      assertNotContainText(
+        result(SoleAddrType),
+        messages("label.is_your_postal_address_in_the_uk")
+      )
 
     }
 
@@ -83,8 +109,14 @@ class ReviewChangesViewSpec extends ViewSpec {
 
     "when primary address has been changed display 'is your address in the uk'" in {
 
-      assertContainsText(result(PrimaryAddrType), messages("label.do_you_live_in_the_uk"))
-      assertNotContainText(result(PrimaryAddrType), messages("label.is_your_postal_address_in_the_uk"))
+      assertContainsText(
+        result(PrimaryAddrType),
+        messages("label.do_you_live_in_the_uk")
+      )
+      assertNotContainText(
+        result(PrimaryAddrType),
+        messages("label.is_your_postal_address_in_the_uk")
+      )
 
     }
 
@@ -93,7 +125,9 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertContainsLink(
         result(PrimaryAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(PrimaryAddrType).url
+        routes.InternationalAddressChoiceController
+          .onPageLoad(PrimaryAddrType)
+          .url
       )
 
       assertNotContainLink(

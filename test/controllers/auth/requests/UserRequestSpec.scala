@@ -36,13 +36,17 @@ class UserRequestSpec extends BaseSpec {
 
     saUsers.foreach { saType =>
       s"be true when a user is $saType" in {
-        val userRequest = buildUserRequest(saUser = saType, request = FakeRequest())
+        val userRequest =
+          buildUserRequest(saUser = saType, request = FakeRequest())
         userRequest.isSa mustBe true
       }
     }
 
     "be false when a user is non-SA" in {
-      val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+      val userRequest = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        request = FakeRequest()
+      )
       userRequest.isSa mustBe false
     }
   }
@@ -56,19 +60,26 @@ class UserRequestSpec extends BaseSpec {
 
     saUsersWithWrongCreds.foreach { saType =>
       s"be false when a user is $saType" in {
-        val userRequest = buildUserRequest(saUser = saType, request = FakeRequest())
+        val userRequest =
+          buildUserRequest(saUser = saType, request = FakeRequest())
         userRequest.isSaUserLoggedIntoCorrectAccount mustBe false
       }
     }
 
     "be false when a user is non SA" in {
-      val userRequest = buildUserRequest(saUser = NonFilerSelfAssessmentUser, request = FakeRequest())
+      val userRequest = buildUserRequest(
+        saUser = NonFilerSelfAssessmentUser,
+        request = FakeRequest()
+      )
       userRequest.isSaUserLoggedIntoCorrectAccount mustBe false
     }
 
     "be true when a user is logged in to the correct SA account" in {
       val userRequest =
-        buildUserRequest(saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr), request = FakeRequest())
+        buildUserRequest(
+          saUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr),
+          request = FakeRequest()
+        )
       userRequest.isSaUserLoggedIntoCorrectAccount mustBe true
     }
   }

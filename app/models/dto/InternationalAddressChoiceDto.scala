@@ -31,6 +31,8 @@ object InternationalAddressChoiceDto {
       "internationalAddressChoice" -> optional(boolean)
         .verifying("error.you_must_select_an_answer", _.isDefined)
         .transform[Boolean](_.getOrElse(false), Some(_))
-    )(InternationalAddressChoiceDto.apply)(InternationalAddressChoiceDto.unapply)
+    )(InternationalAddressChoiceDto.apply)(
+      InternationalAddressChoiceDto.unapply
+    )
   )
 }

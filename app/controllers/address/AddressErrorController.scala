@@ -36,16 +36,27 @@ class AddressErrorController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
   addressAlreadyUpdatedView: AddressAlreadyUpdatedView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(Ok(cannotUseServiceView(typ)))
-          }
+        cachingHelper.gettingCachedAddressPageVisitedDto {
+          addressPageVisitedDto =>
+            cachingHelper.enforceDisplayAddressPageVisited(
+              addressPageVisitedDto
+            ) {
+              Future.successful(Ok(cannotUseServiceView(typ)))
+            }
         }
       }
     }

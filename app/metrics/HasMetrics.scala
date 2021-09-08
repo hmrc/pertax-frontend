@@ -51,8 +51,10 @@ trait HasMetrics {
 
     def startTimer(metric: Metric) = registry.timer(s"$metric-timer").time()
     def stopTimer(context: Timer.Context) = context.stop()
-    def incrementSuccessCounter(metric: Metric): Unit = registry.counter(s"$metric-success-counter").inc()
-    def incrementFailedCounter(metric: Metric): Unit = registry.counter(s"$metric-failed-counter").inc()
+    def incrementSuccessCounter(metric: Metric): Unit =
+      registry.counter(s"$metric-success-counter").inc()
+    def incrementFailedCounter(metric: Metric): Unit =
+      registry.counter(s"$metric-failed-counter").inc()
   }
 
 }

@@ -41,14 +41,22 @@ class EnrolmentsConnectorSpec extends BaseSpec with EitherValues {
       when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST)))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.left.value must include(BAD_REQUEST.toString)
+      connector
+        .getUserIdsWithEnrolments(utr)
+        .futureValue
+        .left
+        .value must include(BAD_REQUEST.toString)
     }
 
     "NO_CONTENT response should return no enrolments" in {
       when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
+      connector
+        .getUserIdsWithEnrolments(utr)
+        .futureValue
+        .right
+        .value mustBe Seq.empty
     }
 
     "query users with no principal enrolment returns empty enrolments" in {
@@ -61,7 +69,11 @@ class EnrolmentsConnectorSpec extends BaseSpec with EitherValues {
       when(http.GET[HttpResponse](eqTo(url), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe Seq.empty
+      connector
+        .getUserIdsWithEnrolments(utr)
+        .futureValue
+        .right
+        .value mustBe Seq.empty
     }
 
     "query users with assigned enrolment return two principleIds" in {
@@ -81,7 +93,11 @@ class EnrolmentsConnectorSpec extends BaseSpec with EitherValues {
 
       val expected = Seq("ABCEDEFGI1234567", "ABCEDEFGI1234568")
 
-      connector.getUserIdsWithEnrolments(utr).futureValue.right.value mustBe expected
+      connector
+        .getUserIdsWithEnrolments(utr)
+        .futureValue
+        .right
+        .value mustBe expected
     }
   }
 }

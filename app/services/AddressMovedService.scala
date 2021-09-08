@@ -23,7 +23,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressMovedService @Inject() (addressLookupService: AddressLookupService) {
+class AddressMovedService @Inject() (
+  addressLookupService: AddressLookupService
+) {
 
   def moved(fromAddressId: String, toAddressId: String)(implicit
     hc: HeaderCarrier,
@@ -35,9 +37,14 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupService)
         fromResponse <- addressLookupService.lookup(fromAddressId)
         toResponse   <- addressLookupService.lookup(toAddressId)
       } yield (fromResponse, toResponse) match {
-        case (AddressLookupSuccessResponse(fromRecordSet), AddressLookupSuccessResponse(toRecordSet)) =>
-          val fromSubdivision = fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
-          val toSubdivision = toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+        case (
+              AddressLookupSuccessResponse(fromRecordSet),
+              AddressLookupSuccessResponse(toRecordSet)
+            ) =>
+          val fromSubdivision =
+            fromRecordSet.addresses.headOption.flatMap(_.address.subdivision)
+          val toSubdivision =
+            toRecordSet.addresses.headOption.flatMap(_.address.subdivision)
 
           if (hasMovedFromScotland(fromSubdivision, toSubdivision))
             MovedFromScotland
@@ -59,17 +66,31 @@ class AddressMovedService @Inject() (addressLookupService: AddressLookupService)
 
   private val scottishSubdivision = "GB-SCT"
 
-  private def hasMovedFromScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
-    containsScottishSubdivision(fromSubdivision) && !containsScottishSubdivision(toSubdivision)
+  private def hasMovedFromScotland(
+    fromSubdivision: Option[Country],
+    toSubdivision: Option[Country]
+  ): Boolean =
+    containsScottishSubdivision(
+      fromSubdivision
+    ) && !containsScottishSubdivision(toSubdivision)
 
-  private def hasMovedToScotland(fromSubdivision: Option[Country], toSubdivision: Option[Country]): Boolean =
-    !containsScottishSubdivision(fromSubdivision) && containsScottishSubdivision(toSubdivision)
+  private def hasMovedToScotland(
+    fromSubdivision: Option[Country],
+    toSubdivision: Option[Country]
+  ): Boolean =
+    !containsScottishSubdivision(
+      fromSubdivision
+    ) && containsScottishSubdivision(toSubdivision)
 
   private def withAddressExists(fromAddressId: String, toAddressId: String)(
     f: => Future[AddressChanged]
   ): Future[AddressChanged] =
-    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty) Future.successful(AnyOtherMove) else f
+    if (fromAddressId.trim.isEmpty || toAddressId.trim.isEmpty)
+      Future.successful(AnyOtherMove)
+    else f
 
-  private def containsScottishSubdivision(subdivision: Option[Country]): Boolean =
+  private def containsScottishSubdivision(
+    subdivision: Option[Country]
+  ): Boolean =
     subdivision.fold(false)(_.code.contains(scottishSubdivision))
 }

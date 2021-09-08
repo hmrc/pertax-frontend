@@ -34,15 +34,16 @@ class ViewUtils @Inject() (languageUtils: LanguageUtils) {
 
   def fromUrl(url: Url)(implicit configDecorator: ConfigDecorator): String =
     url match {
-      case MakePaymentUrl            => configDecorator.makePaymentUrl
-      case TaxPaidUrl                => configDecorator.taxPaidUrl
-      case UnderpaidUrl(year)        => configDecorator.underpaidUrl(year)
-      case UnderpaidReasonsUrl(year) => configDecorator.underpaidUrlReasons(year)
-      case OverpaidUrl(year)         => configDecorator.overpaidUrl(year)
-      case OverpaidReasonsUrl(year)  => configDecorator.overpaidUrlReasons(year)
-      case RightAmountUrl(year)      => configDecorator.rightAmountUrl(year)
-      case NotCalculatedUrl(year)    => configDecorator.notCalculatedUrl(year)
-      case NotEmployedUrl(year)      => configDecorator.notEmployedUrl(year)
-      case Empty                     => ""
+      case MakePaymentUrl     => configDecorator.makePaymentUrl
+      case TaxPaidUrl         => configDecorator.taxPaidUrl
+      case UnderpaidUrl(year) => configDecorator.underpaidUrl(year)
+      case UnderpaidReasonsUrl(year) =>
+        configDecorator.underpaidUrlReasons(year)
+      case OverpaidUrl(year)        => configDecorator.overpaidUrl(year)
+      case OverpaidReasonsUrl(year) => configDecorator.overpaidUrlReasons(year)
+      case RightAmountUrl(year)     => configDecorator.rightAmountUrl(year)
+      case NotCalculatedUrl(year)   => configDecorator.notCalculatedUrl(year)
+      case NotEmployedUrl(year)     => configDecorator.notEmployedUrl(year)
+      case Empty                    => ""
     }
 }

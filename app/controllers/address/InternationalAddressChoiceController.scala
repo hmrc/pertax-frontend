@@ -37,18 +37,34 @@ class InternationalAddressChoiceController @Inject() (
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-          cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-            Future.successful(
-              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form, typ))
-            )
-          }
+        cachingHelper.gettingCachedAddressPageVisitedDto {
+          addressPageVisitedDto =>
+            cachingHelper.enforceDisplayAddressPageVisited(
+              addressPageVisitedDto
+            ) {
+              Future.successful(
+                Ok(
+                  internationalAddressChoiceView(
+                    InternationalAddressChoiceDto.form,
+                    typ
+                  )
+                )
+              )
+            }
         }
       }
     }
@@ -57,18 +73,25 @@ class InternationalAddressChoiceController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, typ))),
+          formWithErrors =>
+            Future.successful(
+              BadRequest(internationalAddressChoiceView(formWithErrors, typ))
+            ),
           internationalAddressChoiceDto =>
-            cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-              if (internationalAddressChoiceDto.value) {
+            cachingHelper.addToCache(
+              SubmittedInternationalAddressChoiceId,
+              internationalAddressChoiceDto
+            ) map { _ =>
+              if (internationalAddressChoiceDto.value)
                 Redirect(routes.PostcodeLookupController.onPageLoad(typ))
-              } else {
-                if (configDecorator.updateInternationalAddressInPta) {
-                  Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
-                } else {
-                  Redirect(routes.AddressErrorController.cannotUseThisService(typ))
-                }
-              }
+              else if (configDecorator.updateInternationalAddressInPta)
+                Redirect(
+                  routes.UpdateInternationalAddressController.onPageLoad(typ)
+                )
+              else
+                Redirect(
+                  routes.AddressErrorController.cannotUseThisService(typ)
+                )
             }
         )
 

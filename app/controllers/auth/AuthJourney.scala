@@ -40,7 +40,8 @@ class AuthJourneyImpl @Inject() (
   override val authWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
     authAction andThen selfAssessmentStatusAction
 
-  override val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
+  override val minimumAuthWithSelfAssessment
+    : ActionBuilder[UserRequest, AnyContent] =
     minimumAuthAction andThen selfAssessmentStatusAction
 
 }

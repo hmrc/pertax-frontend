@@ -35,18 +35,31 @@ object SelfAssessmentUserType {
   val nonFilerSa = NonFilerSelfAssessmentUser.toString
 
   implicit val writes = new Writes[SelfAssessmentUserType] {
-    override def writes(o: SelfAssessmentUserType): JsValue = o match {
-      case ActivatedOnlineFilerSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString(activatedSa), "utr" -> JsString(utr.toString))
-      case NotYetActivatedOnlineFilerSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString(notActivatedSa), "utr" -> JsString(utr.toString))
-      case WrongCredentialsSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString(wrongCredsSa), "utr" -> JsString(utr.toString))
-      case NotEnrolledSelfAssessmentUser(utr) =>
-        Json.obj("_type" -> JsString(notEnrolledSa), "utr" -> JsString(utr.toString))
-      case NonFilerSelfAssessmentUser =>
-        Json.obj("_type" -> JsString(nonFilerSa))
-    }
+    override def writes(o: SelfAssessmentUserType): JsValue =
+      o match {
+        case ActivatedOnlineFilerSelfAssessmentUser(utr) =>
+          Json.obj(
+            "_type" -> JsString(activatedSa),
+            "utr"   -> JsString(utr.toString)
+          )
+        case NotYetActivatedOnlineFilerSelfAssessmentUser(utr) =>
+          Json.obj(
+            "_type" -> JsString(notActivatedSa),
+            "utr"   -> JsString(utr.toString)
+          )
+        case WrongCredentialsSelfAssessmentUser(utr) =>
+          Json.obj(
+            "_type" -> JsString(wrongCredsSa),
+            "utr"   -> JsString(utr.toString)
+          )
+        case NotEnrolledSelfAssessmentUser(utr) =>
+          Json.obj(
+            "_type" -> JsString(notEnrolledSa),
+            "utr"   -> JsString(utr.toString)
+          )
+        case NonFilerSelfAssessmentUser =>
+          Json.obj("_type" -> JsString(nonFilerSa))
+      }
   }
 
   implicit val reads = new Reads[SelfAssessmentUserType] {
@@ -55,7 +68,10 @@ object SelfAssessmentUserType {
 
         case (JsDefined(JsString(`activatedSa`)), JsDefined(JsString(utr))) =>
           JsSuccess(ActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
-        case (JsDefined(JsString(`notActivatedSa`)), JsDefined(JsString(utr))) =>
+        case (
+              JsDefined(JsString(`notActivatedSa`)),
+              JsDefined(JsString(utr))
+            ) =>
           JsSuccess(NotYetActivatedOnlineFilerSelfAssessmentUser(SaUtr(utr)))
         case (JsDefined(JsString(`wrongCredsSa`)), JsDefined(JsString(utr))) =>
           JsSuccess(WrongCredentialsSelfAssessmentUser(SaUtr(utr)))
@@ -68,8 +84,12 @@ object SelfAssessmentUserType {
   }
 }
 
-case class ActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
-case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
-case class WrongCredentialsSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
-case class NotEnrolledSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
+case class ActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr)
+    extends SelfAssessmentUser
+case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr)
+    extends SelfAssessmentUser
+case class WrongCredentialsSelfAssessmentUser(saUtr: SaUtr)
+    extends SelfAssessmentUser
+case class NotEnrolledSelfAssessmentUser(saUtr: SaUtr)
+    extends SelfAssessmentUser
 case object NonFilerSelfAssessmentUser extends SelfAssessmentUserType

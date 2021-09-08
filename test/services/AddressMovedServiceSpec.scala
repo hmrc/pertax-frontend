@@ -37,7 +37,14 @@ class AddressMovedServiceSpec extends BaseSpec {
     Seq(
       AddressRecord(
         "some id",
-        Address(List.empty, None, None, fromPostcode, Some(Country("GB-ENG", "England")), Country("eng", "England")),
+        Address(
+          List.empty,
+          None,
+          None,
+          fromPostcode,
+          Some(Country("GB-ENG", "England")),
+          Country("eng", "England")
+        ),
         "en"
       )
     )
@@ -46,7 +53,14 @@ class AddressMovedServiceSpec extends BaseSpec {
     Seq(
       AddressRecord(
         "some id",
-        Address(List.empty, None, None, fromPostcode, Some(Country("GB-SCT", "Scotland")), Country("blah", "blah")),
+        Address(
+          List.empty,
+          None,
+          None,
+          fromPostcode,
+          Some(Country("GB-SCT", "Scotland")),
+          Country("blah", "blah")
+        ),
         "en"
       )
     )
@@ -58,34 +72,60 @@ class AddressMovedServiceSpec extends BaseSpec {
     "be AnyOtherMove" when {
       "the AddressLookUpService gives an AddressLookupUnexpectedResponse" in {
         when(addressLookupService.lookup(fromPostcode))
-          .thenReturn(Future.successful(AddressLookupUnexpectedResponse(HttpResponse(BAD_REQUEST))))
-        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
+          .thenReturn(
+            Future.successful(
+              AddressLookupUnexpectedResponse(HttpResponse(BAD_REQUEST))
+            )
+          )
+        service
+          .moved(fromPostcode, fromPostcode)
+          .futureValue mustBe AnyOtherMove
       }
 
       "the AddressLookUpService gives an AddressLookupErrorResponse" in {
         when(addressLookupService.lookup(fromPostcode))
-          .thenReturn(Future.successful(AddressLookupErrorResponse(new RuntimeException(":("))))
-        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
+          .thenReturn(
+            Future.successful(
+              AddressLookupErrorResponse(new RuntimeException(":("))
+            )
+          )
+        service
+          .moved(fromPostcode, fromPostcode)
+          .futureValue mustBe AnyOtherMove
       }
 
       "the post code is the same" in {
         when(addressLookupService.lookup(fromPostcode))
-          .thenReturn(Future.successful(AddressLookupSuccessResponse(englandRecordSet)))
-        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
+          .thenReturn(
+            Future.successful(AddressLookupSuccessResponse(englandRecordSet))
+          )
+        service
+          .moved(fromPostcode, fromPostcode)
+          .futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the previous address" in {
         when(addressLookupService.lookup(fromPostcode))
-          .thenReturn(Future.successful(AddressLookupSuccessResponse(RecordSet(Seq.empty))))
-        service.moved(fromPostcode, fromPostcode).futureValue mustBe AnyOtherMove
+          .thenReturn(
+            Future
+              .successful(AddressLookupSuccessResponse(RecordSet(Seq.empty)))
+          )
+        service
+          .moved(fromPostcode, fromPostcode)
+          .futureValue mustBe AnyOtherMove
       }
 
       "there are no addresses returned for the new address" in {
 
         when(addressLookupService.lookup(fromPostcode))
-          .thenReturn(Future.successful(AddressLookupSuccessResponse(englandRecordSet)))
+          .thenReturn(
+            Future.successful(AddressLookupSuccessResponse(englandRecordSet))
+          )
         when(addressLookupService.lookup(toPostcode))
-          .thenReturn(Future.successful(AddressLookupSuccessResponse(RecordSet(Seq.empty))))
+          .thenReturn(
+            Future
+              .successful(AddressLookupSuccessResponse(RecordSet(Seq.empty)))
+          )
 
         service.moved(fromPostcode, toPostcode).futureValue mustBe AnyOtherMove
       }
@@ -105,20 +145,30 @@ class AddressMovedServiceSpec extends BaseSpec {
 
     "be MovedToScotland when they have moved to Scotland" in {
       when(addressLookupService.lookup(fromPostcode))
-        .thenReturn(Future.successful(AddressLookupSuccessResponse(englandRecordSet)))
+        .thenReturn(
+          Future.successful(AddressLookupSuccessResponse(englandRecordSet))
+        )
       when(addressLookupService.lookup(toPostcode))
-        .thenReturn(Future.successful(AddressLookupSuccessResponse(scotlandRecordSet)))
+        .thenReturn(
+          Future.successful(AddressLookupSuccessResponse(scotlandRecordSet))
+        )
 
       service.moved(fromPostcode, toPostcode).futureValue mustBe MovedToScotland
     }
 
     "be MovedFromScotland when they have moved from Scotland" in {
       when(addressLookupService.lookup(fromPostcode))
-        .thenReturn(Future.successful(AddressLookupSuccessResponse(scotlandRecordSet)))
+        .thenReturn(
+          Future.successful(AddressLookupSuccessResponse(scotlandRecordSet))
+        )
       when(addressLookupService.lookup(toPostcode))
-        .thenReturn(Future.successful(AddressLookupSuccessResponse(englandRecordSet)))
+        .thenReturn(
+          Future.successful(AddressLookupSuccessResponse(englandRecordSet))
+        )
 
-      service.moved(fromPostcode, toPostcode).futureValue mustBe MovedFromScotland
+      service
+        .moved(fromPostcode, toPostcode)
+        .futureValue mustBe MovedFromScotland
     }
   }
 }

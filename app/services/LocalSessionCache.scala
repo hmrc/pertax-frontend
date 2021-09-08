@@ -36,5 +36,6 @@ class LocalSessionCache @Inject() (
 ) extends SessionCache {
   override lazy val defaultSource = appName
   override lazy val baseUri = servicesConfig.baseUrl("cachable.session-cache")
-  override lazy val domain = servicesConfig.getConfString("cachable.session-cache.domain", "keystore")
+  override lazy val domain =
+    servicesConfig.getConfString("cachable.session-cache.domain", "keystore")
 }

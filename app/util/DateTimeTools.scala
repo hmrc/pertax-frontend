@@ -37,7 +37,8 @@ object DateTimeTools extends CurrentTaxYear {
   private val logger = Logger(this.getClass)
 
   //Returns for example 1516 in March 2016
-  def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(current.currentYear)
+  def previousAndCurrentTaxYear =
+    previousAndCurrentTaxYearFromGivenYear(current.currentYear)
 
   def previousAndCurrentTaxYearFromGivenYear(year: Int) = {
     def y = year
@@ -45,20 +46,29 @@ object DateTimeTools extends CurrentTaxYear {
     (y - 1).toString.takeRight(2) + y.toString.takeRight(2)
   }
 
-  private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
+  private def formatter(pattern: String): DateTimeFormatter =
+    DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
 
   def short(dateTime: LocalDate) = formatter("dd/MM/yyy").print(dateTime)
 
   def asHumanDateFromUnixDate(unixDate: String): String =
-    Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
+    Try(
+      DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))
+    ) match {
       case Success(v) => v
       case Failure(e) =>
-        logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
+        logger.warn(
+          "Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e
+        )
         unixDate
     }
 
   def toPaymentDate(dateTime: JavaLDT): LocalDate =
-    new LocalDate(dateTime.getYear, dateTime.getMonthValue, dateTime.getDayOfMonth)
+    new LocalDate(
+      dateTime.getYear,
+      dateTime.getMonthValue,
+      dateTime.getDayOfMonth
+    )
 
   override def now: () => DateTime = DateTime.now
 }

@@ -38,23 +38,29 @@ class MessageController @Inject() (
   cc: MessagesControllerComponents,
   messageInboxView: MessageInboxView,
   messageDetailView: MessageDetailView
-)(implicit val configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+)(implicit
+  val configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) {
 
   def messageBreadcrumb: Breadcrumb =
     "label.all_messages" -> routes.MessageController.messageList().url ::
       baseBreadcrumb
 
   def messageList: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(
-      ActiveTabMessages
-    ) andThen withBreadcrumbAction
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction
+      .addActiveTab(
+        ActiveTabMessages
+      ) andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageListPartial map { p =>
         Ok(
           messageInboxView(
             messageListPartial = p successfulContentOrElse Html(
-              Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")
+              Messages(
+                "label.sorry_theres_been_a_technical_problem_retrieving_your_messages"
+              )
             )
           )
         )
@@ -62,19 +68,29 @@ class MessageController @Inject() (
     }
 
   def messageDetail(messageToken: String): Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withActiveTabAction.addActiveTab(
-      ActiveTabMessages
-    ) andThen withBreadcrumbAction
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction
+      .addActiveTab(
+        ActiveTabMessages
+      ) andThen withBreadcrumbAction
       .addBreadcrumb(messageBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageDetailPartial(messageToken).map {
         case HtmlPartial.Success(Some(title), content) =>
           Ok(messageDetailView(message = content, title = title))
         case HtmlPartial.Success(None, content) =>
-          Ok(messageDetailView(message = content, title = Messages("label.message")))
+          Ok(
+            messageDetailView(
+              message = content,
+              title = Messages("label.message")
+            )
+          )
         case HtmlPartial.Failure(_, _) =>
           Ok(
             messageDetailView(
-              message = Html(Messages("label.sorry_theres_been_a_techinal_problem_retrieving_your_message")),
+              message = Html(
+                Messages(
+                  "label.sorry_theres_been_a_techinal_problem_retrieving_your_message"
+                )
+              ),
               title = Messages("label.message")
             )
           )

@@ -36,34 +36,50 @@ class ResidencyChoiceController @Inject() (
   cc: MessagesControllerComponents,
   residencyChoiceView: ResidencyChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
-  def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      cachingHelper.gettingCachedTaxCreditsChoiceDto {
-        case Some(TaxCreditsChoiceDto(false)) =>
-          Ok(residencyChoiceView(ResidencyChoiceDto.form))
-        case _ =>
-          if (configDecorator.taxCreditsEnabled) {
-            Redirect(routes.PersonalDetailsController.onPageLoad())
-          } else {
+  def onPageLoad: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
+        cachingHelper.gettingCachedTaxCreditsChoiceDto {
+          case Some(TaxCreditsChoiceDto(false)) =>
             Ok(residencyChoiceView(ResidencyChoiceDto.form))
-          }
+          case _ =>
+            if (configDecorator.taxCreditsEnabled)
+              Redirect(routes.PersonalDetailsController.onPageLoad())
+            else
+              Ok(residencyChoiceView(ResidencyChoiceDto.form))
+        }
       }
     }
-  }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         ResidencyChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => Future.successful(BadRequest(residencyChoiceView(formWithErrors))),
+          formWithErrors =>
+            Future.successful(BadRequest(residencyChoiceView(formWithErrors))),
           residencyChoiceDto =>
             cachingHelper
-              .addToCache(SubmittedResidencyChoiceDtoId(residencyChoiceDto.residencyChoice), residencyChoiceDto) map {
-              _ =>
-                Redirect(routes.InternationalAddressChoiceController.onPageLoad(residencyChoiceDto.residencyChoice))
+              .addToCache(
+                SubmittedResidencyChoiceDtoId(
+                  residencyChoiceDto.residencyChoice
+                ),
+                residencyChoiceDto
+              ) map { _ =>
+              Redirect(
+                routes.InternationalAddressChoiceController
+                  .onPageLoad(residencyChoiceDto.residencyChoice)
+              )
             }
         )
 

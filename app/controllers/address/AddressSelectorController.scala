@@ -44,8 +44,16 @@ class AddressSelectorController @Inject() (
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
   private val logger = Logger(this.getClass)
 
@@ -65,7 +73,10 @@ class AddressSelectorController @Inject() (
                 )
               )
             )
-          case _ => Future.successful(Redirect(address.routes.PostcodeLookupController.onPageLoad(typ)))
+          case _ =>
+            Future.successful(
+              Redirect(address.routes.PostcodeLookupController.onPageLoad(typ))
+            )
         }
       }
     }
@@ -90,33 +101,54 @@ class AddressSelectorController @Inject() (
                     )
                   )
                 case _ =>
-                  logger.warn("Failed to retrieve Address Record Set from cache")
+                  logger.warn(
+                    "Failed to retrieve Address Record Set from cache"
+                  )
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               },
             addressSelectorDto =>
               journeyData.recordSet
-                .flatMap(_.addresses.find(_.id == addressSelectorDto.addressId.getOrElse(""))) match {
+                .flatMap(
+                  _.addresses
+                    .find(_.id == addressSelectorDto.addressId.getOrElse(""))
+                ) match {
                 case Some(addressRecord) =>
                   val addressDto = AddressDto.fromAddressRecord(addressRecord)
 
                   for {
-                    _ <- cachingHelper.addToCache(SelectedAddressRecordId(typ), addressRecord)
-                    _ <- cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto)
+                    _ <-
+                      cachingHelper
+                        .addToCache(SelectedAddressRecordId(typ), addressRecord)
+                    _ <- cachingHelper
+                           .addToCache(SubmittedAddressDtoId(typ), addressDto)
                   } yield {
                     val postCodeHasChanged = !postcodeFromRequest
                       .replace(" ", "")
-                      .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
+                      .equalsIgnoreCase(
+                        personDetails.address
+                          .flatMap(_.postcode)
+                          .getOrElse("")
+                          .replace(" ", "")
+                      )
                     (typ, postCodeHasChanged) match {
                       case (PostalAddrType, false) =>
                         Redirect(routes.UpdateAddressController.onPageLoad(typ))
-                      case (_, true) => Redirect(routes.StartDateController.onPageLoad(typ))
+                      case (_, true) =>
+                        Redirect(routes.StartDateController.onPageLoad(typ))
                       case (_, false) =>
-                        cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                        Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                        cachingHelper.addToCache(
+                          SubmittedStartDateId(typ),
+                          DateDto(LocalDate.now())
+                        )
+                        Redirect(
+                          routes.AddressSubmissionController.onPageLoad(typ)
+                        )
                     }
                   }
                 case _ =>
-                  logger.warn("Address selector was unable to find address using the id returned by a previous request")
+                  logger.warn(
+                    "Address selector was unable to find address using the id returned by a previous request"
+                  )
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }
           )
@@ -124,10 +156,16 @@ class AddressSelectorController @Inject() (
       }
     }
 
-  private def postcodeFromRequest(implicit request: UserRequest[AnyContent]): String =
-    request.body.asFormUrlEncoded.flatMap(_.get(postcode).flatMap(_.headOption)).getOrElse("")
+  private def postcodeFromRequest(implicit
+    request: UserRequest[AnyContent]
+  ): String =
+    request.body.asFormUrlEncoded
+      .flatMap(_.get(postcode).flatMap(_.headOption))
+      .getOrElse("")
 
-  private def filterFromRequest(implicit request: UserRequest[AnyContent]): Option[String] =
+  private def filterFromRequest(implicit
+    request: UserRequest[AnyContent]
+  ): Option[String] =
     request.body.asFormUrlEncoded.flatMap(_.get(filter).flatMap(_.headOption))
 
 }

@@ -57,7 +57,8 @@ class HomePageCachingHelperSpec extends BaseSpec {
         c
       }
 
-      lazy val hasUserDismissedUrInvitationResult: Boolean = cachingHelper.hasUserDismissedUrInvitation.futureValue
+      lazy val hasUserDismissedUrInvitationResult: Boolean =
+        cachingHelper.hasUserDismissedUrInvitation.futureValue
     }
 
     "return true if cached value returns true" in new LocalSetup {
@@ -93,7 +94,9 @@ class HomePageCachingHelperSpec extends BaseSpec {
 
         val c = injected[HomePageCachingHelper]
 
-        when(injected[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
+        when(
+          injected[LocalSessionCache].cache(any(), any())(any(), any(), any())
+        ) thenReturn {
           Future.successful(CacheMap("id", Map.empty))
         }
         c
@@ -103,7 +106,8 @@ class HomePageCachingHelperSpec extends BaseSpec {
     "Store true in session cache" in new LocalSetup {
 
       val r = cachingHelper.storeUserUrDismissal()
-      verify(cachingHelper.sessionCache, times(1)).cache(meq("urBannerDismissed"), meq(true))(any(), any(), any())
+      verify(cachingHelper.sessionCache, times(1))
+        .cache(meq("urBannerDismissed"), meq(true))(any(), any(), any())
     }
   }
 

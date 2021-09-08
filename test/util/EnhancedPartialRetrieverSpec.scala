@@ -45,15 +45,21 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
 
       val timer = mock[Timer.Context]
 
-      val epr = new EnhancedPartialRetriever(injected[HeaderCarrierForPartialsConverter]) with HasMetrics {
+      val epr = new EnhancedPartialRetriever(
+        injected[HeaderCarrierForPartialsConverter]
+      ) with HasMetrics {
 
         override val http: HttpGet = mock[HttpGet]
         if (simulateCallFailed)
-          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.failed(
+          when(
+            http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())
+          ) thenReturn Future.failed(
             new GatewayTimeoutException("Gateway timeout")
           )
         else
-          when(http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn Future.successful(
+          when(
+            http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())
+          ) thenReturn Future.successful(
             returnPartial
           )
 
@@ -72,7 +78,8 @@ class EnhancedPartialRetrieverSpec extends BaseSpec {
     "return a successful partial and log the right metrics" in new LocalSetup {
 
       override val simulateCallFailed = false
-      override val returnPartial = HtmlPartial.Success.apply(Some("my title"), Html("my body content"))
+      override val returnPartial =
+        HtmlPartial.Success.apply(Some("my title"), Html("my body content"))
 
       epr.loadPartial("/").futureValue mustBe returnPartial
 

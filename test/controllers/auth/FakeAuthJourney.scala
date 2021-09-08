@@ -26,7 +26,10 @@ import scala.concurrent.Future
 
 class FakeAuthJourney(saUser: SelfAssessmentUserType) extends AuthJourney {
   private val actionBuilderFixture = new ActionBuilderFixture {
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+    override def invokeBlock[A](
+      request: Request[A],
+      block: UserRequest[A] => Future[Result]
+    ): Future[Result] =
       block(
         buildUserRequest(
           saUser = saUser,
@@ -35,7 +38,10 @@ class FakeAuthJourney(saUser: SelfAssessmentUserType) extends AuthJourney {
       )
   }
 
-  override val authWithPersonalDetails: ActionBuilderFixture = actionBuilderFixture
-  override val authWithSelfAssessment: ActionBuilderFixture = actionBuilderFixture
-  override val minimumAuthWithSelfAssessment: ActionBuilderFixture = actionBuilderFixture
+  override val authWithPersonalDetails: ActionBuilderFixture =
+    actionBuilderFixture
+  override val authWithSelfAssessment: ActionBuilderFixture =
+    actionBuilderFixture
+  override val minimumAuthWithSelfAssessment: ActionBuilderFixture =
+    actionBuilderFixture
 }

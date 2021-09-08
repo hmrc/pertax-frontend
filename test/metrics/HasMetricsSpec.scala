@@ -35,25 +35,31 @@ class HasMetricsSpec extends BaseSpec {
       override val metricsOperator = mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer
 
-      def testCompleteTimerAndIncrementSuccessCounter(): Unit = withMetricsTimer(metricId) { t =>
-        t.completeTimerAndIncrementSuccessCounter()
+      def testCompleteTimerAndIncrementSuccessCounter(): Unit =
+        withMetricsTimer(metricId) { t =>
+          t.completeTimerAndIncrementSuccessCounter()
 
-        val inOrder = Mockito.inOrder(metricsOperator, timer)
+          val inOrder = Mockito.inOrder(metricsOperator, timer)
 
-        inOrder.verify(metricsOperator, times(1)).startTimer(metricId)
-        inOrder.verify(timer, times(1)).stop()
-        inOrder.verify(metricsOperator, times(1)).incrementSuccessCounter(metricId)
-      }
+          inOrder.verify(metricsOperator, times(1)).startTimer(metricId)
+          inOrder.verify(timer, times(1)).stop()
+          inOrder
+            .verify(metricsOperator, times(1))
+            .incrementSuccessCounter(metricId)
+        }
 
-      def testCompleteTimerAndIncrementFailedCounter(): Unit = withMetricsTimer(metricId) { t =>
-        t.completeTimerAndIncrementFailedCounter()
+      def testCompleteTimerAndIncrementFailedCounter(): Unit =
+        withMetricsTimer(metricId) { t =>
+          t.completeTimerAndIncrementFailedCounter()
 
-        val inOrder = Mockito.inOrder(metricsOperator, timer)
+          val inOrder = Mockito.inOrder(metricsOperator, timer)
 
-        inOrder.verify(metricsOperator, times(1)).startTimer(metricId)
-        inOrder.verify(timer, times(1)).stop()
-        inOrder.verify(metricsOperator, times(1)).incrementFailedCounter(metricId)
-      }
+          inOrder.verify(metricsOperator, times(1)).startTimer(metricId)
+          inOrder.verify(timer, times(1)).stop()
+          inOrder
+            .verify(metricsOperator, times(1))
+            .incrementFailedCounter(metricId)
+        }
     }
   }
 

@@ -27,7 +27,8 @@ object BetterOptionValues {
       catch {
         case cause: NoSuchElementException =>
           throw new TestFailedException(
-            (_: StackDepthException) => Some("The Option on which value was invoked was not defined."),
+            (_: StackDepthException) =>
+              Some("The Option on which value was invoked was not defined."),
             Some(cause),
             pos
           )

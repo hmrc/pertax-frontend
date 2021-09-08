@@ -25,49 +25,60 @@ import views.html.public.SessionTimeoutView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(implicit
+class PublicController @Inject() (
+  cc: MessagesControllerComponents,
+  sessionTimeoutView: SessionTimeoutView
+)(implicit
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) extends PertaxBaseController(cc) {
 
-  def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        configDecorator.authProviderKey -> configDecorator.authProviderVerify
-      )
+  def verifyEntryPoint: Action[AnyContent] =
+    Action.async { implicit request =>
+      Future.successful {
+        Redirect(routes.HomeController.index).withNewSession.addingToSession(
+          configDecorator.authProviderKey -> configDecorator.authProviderVerify
+        )
+      }
     }
-  }
 
-  def governmentGatewayEntryPoint: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Redirect(routes.HomeController.index).withNewSession.addingToSession(
-        configDecorator.authProviderKey -> configDecorator.authProviderGG
-      )
+  def governmentGatewayEntryPoint: Action[AnyContent] =
+    Action.async { implicit request =>
+      Future.successful {
+        Redirect(routes.HomeController.index).withNewSession.addingToSession(
+          configDecorator.authProviderKey -> configDecorator.authProviderGG
+        )
+      }
     }
-  }
 
-  def sessionTimeout: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Ok(sessionTimeoutView())
+  def sessionTimeout: Action[AnyContent] =
+    Action.async { implicit request =>
+      Future.successful {
+        Ok(sessionTimeoutView())
+      }
     }
-  }
 
-  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Redirect(configDecorator.getFeedbackSurveyUrl(origin))
+  def redirectToExitSurvey(origin: Origin): Action[AnyContent] =
+    Action.async { implicit request =>
+      Future.successful {
+        Redirect(configDecorator.getFeedbackSurveyUrl(origin))
+      }
     }
-  }
 
-  def redirectToTaxCreditsService(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Redirect(configDecorator.tcsServiceRouterUrl, MOVED_PERMANENTLY)
+  def redirectToTaxCreditsService(): Action[AnyContent] =
+    Action.async { implicit request =>
+      Future.successful {
+        Redirect(configDecorator.tcsServiceRouterUrl, MOVED_PERMANENTLY)
+      }
     }
-  }
 
-  def redirectToPersonalDetails(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
-      Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad())
+  def redirectToPersonalDetails(): Action[AnyContent] =
+    Action.async { implicit request =>
+      Future.successful {
+        Redirect(
+          controllers.address.routes.PersonalDetailsController.onPageLoad()
+        )
+      }
     }
-  }
 }

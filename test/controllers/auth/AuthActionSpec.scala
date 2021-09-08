@@ -48,29 +48,38 @@ class AuthActionSpec extends BaseSpec {
     .build()
 
   val mockAuthConnector = mock[AuthConnector]
-  def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
+  def controllerComponents: ControllerComponents =
+    app.injector.instanceOf[ControllerComponents]
+  val sessionAuditor = new SessionAuditorFake(
+    app.injector.instanceOf[AuditConnector]
+  )
 
   class Harness(authAction: AuthAction) extends InjectedController {
-    def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
-      Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
-          s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
-      )
-    }
+    def onPageLoad(): Action[AnyContent] =
+      authAction { request: AuthenticatedRequest[AnyContent] =>
+        Ok(
+          s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
+            s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
+        )
+      }
   }
 
   type AuthRetrievals =
-    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[Credentials] ~ Option[
+    Option[String] ~ Option[AffinityGroup] ~ Enrolments ~ Option[
+      Credentials
+    ] ~ Option[
       String
-    ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[String]
+    ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[TrustedHelper] ~ Option[
+      String
+    ]
 
   val nino = Fixtures.fakeNino.nino
   val fakeCredentials = Credentials("foo", "bar")
   val fakeCredentialStrength = CredentialStrength.strong
   val fakeConfidenceLevel = ConfidenceLevel.L200
 
-  def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  def fakeSaEnrolments(utr: String) =
+    Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
   def retrievals(
     nino: Option[String] = Some(nino.toString),
@@ -82,14 +91,21 @@ class AuthActionSpec extends BaseSpec {
     profileUrl: Option[String] = None
   ): Harness = {
 
-    when(mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())) thenReturn Future.successful(
+    when(
+      mockAuthConnector.authorise[AuthRetrievals](any(), any())(any(), any())
+    ) thenReturn Future.successful(
       nino ~ affinityGroup ~ saEnrolments ~ Some(fakeCredentials) ~ Some(
         credentialStrength
       ) ~ confidenceLevel ~ None ~ trustedHelper ~ profileUrl
     )
 
     val authAction =
-      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+      new AuthActionImpl(
+        mockAuthConnector,
+        config,
+        sessionAuditor,
+        controllerComponents
+      )
 
     new Harness(authAction)
   }
@@ -102,23 +118,32 @@ class AuthActionSpec extends BaseSpec {
       "the user is an Individual" in {
 
         val controller = retrievals(confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val result =
+          controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
 
       "the user is an Organisation" in {
 
-        val controller = retrievals(affinityGroup = Some(Organisation), confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val controller = retrievals(
+          affinityGroup = Some(Organisation),
+          confidenceLevel = ConfidenceLevel.L50
+        )
+        val result =
+          controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
 
       "the user is an Agent" in {
 
-        val controller = retrievals(affinityGroup = Some(Agent), confidenceLevel = ConfidenceLevel.L50)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val controller = retrievals(
+          affinityGroup = Some(Agent),
+          confidenceLevel = ConfidenceLevel.L50
+        )
+        val result =
+          controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must endWith(ivRedirectUrl)
       }
@@ -135,16 +160,22 @@ class AuthActionSpec extends BaseSpec {
 
       "the user in an Individual" in {
 
-        val controller = retrievals(credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val controller =
+          retrievals(credentialStrength = CredentialStrength.weak)
+        val result =
+          controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe mfaRedirectUrl
       }
 
       "the user in an Organisation" in {
 
-        val controller = retrievals(affinityGroup = Some(Organisation), credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val controller = retrievals(
+          affinityGroup = Some(Organisation),
+          credentialStrength = CredentialStrength.weak
+        )
+        val result =
+          controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
           mfaRedirectUrl
@@ -152,8 +183,12 @@ class AuthActionSpec extends BaseSpec {
 
       "the user in an Agent" in {
 
-        val controller = retrievals(affinityGroup = Some(Agent), credentialStrength = CredentialStrength.weak)
-        val result = controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
+        val controller = retrievals(
+          affinityGroup = Some(Agent),
+          credentialStrength = CredentialStrength.weak
+        )
+        val result =
+          controller.onPageLoad()(FakeRequest("GET", "/personal-account"))
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe
           mfaRedirectUrl
@@ -166,7 +201,12 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(
+          mockAuthConnector,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -179,7 +219,12 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(
+          mockAuthConnector,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -190,10 +235,17 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(
+          mockAuthConnector,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
       val request =
-        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderVerify)
+        FakeRequest("GET", "/foo").withSession(
+          config.authProviderKey -> config.authProviderVerify
+        )
       val result = controller.onPageLoad()(request)
       status(result) mustBe SEE_OTHER
       session(result) mustBe new Session(
@@ -209,10 +261,17 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(
+          mockAuthConnector,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
       val request =
-        FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
+        FakeRequest("GET", "/foo").withSession(
+          config.authProviderKey -> config.authProviderGG
+        )
       val result = controller.onPageLoad()(request)
       status(result) mustBe SEE_OTHER
 
@@ -227,7 +286,12 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(
+          mockAuthConnector,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -253,7 +317,10 @@ class AuthActionSpec extends BaseSpec {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      val controller = retrievals(nino = None, saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+      val controller = retrievals(
+        nino = None,
+        saEnrolments = Enrolments(fakeSaEnrolments(utr))
+      )
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -266,7 +333,8 @@ class AuthActionSpec extends BaseSpec {
 
       val utr = new SaUtrGenerator().nextSaUtr.utr
 
-      val controller = retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
+      val controller =
+        retrievals(saEnrolments = Enrolments(fakeSaEnrolments(utr)))
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -281,7 +349,16 @@ class AuthActionSpec extends BaseSpec {
       val fakePrincipalNino = Fixtures.fakeNino.toString()
 
       val controller =
-        retrievals(trustedHelper = Some(TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)))
+        retrievals(trustedHelper =
+          Some(
+            TrustedHelper(
+              "principalName",
+              "attorneyName",
+              "returnUrl",
+              fakePrincipalNino
+            )
+          )
+        )
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
       status(result) mustBe OK
@@ -296,7 +373,9 @@ class AuthActionSpec extends BaseSpec {
 
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
-    contentAsString(result) must include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
+    contentAsString(result) must include(
+      s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}"
+    )
   }
 
   "A user without a SCP Profile Url must continue to not have one" in {
@@ -304,7 +383,9 @@ class AuthActionSpec extends BaseSpec {
 
     val result = controller.onPageLoad()(FakeRequest("", ""))
     status(result) mustBe OK
-    contentAsString(result) mustNot include(s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}")
+    contentAsString(result) mustNot include(
+      s"http://www.google.com/?redirect_uri=${config.pertaxFrontendBackLink}"
+    )
   }
 
   "A user with a SCP Profile Url that is not valid must strip out the SCP Profile Url" in {

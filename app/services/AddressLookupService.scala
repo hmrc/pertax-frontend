@@ -31,9 +31,12 @@ import scala.concurrent.Future
 
 sealed trait AddressLookupResponse
 
-final case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse
-final case class AddressLookupUnexpectedResponse(r: HttpResponse) extends AddressLookupResponse
-final case class AddressLookupErrorResponse(cause: Exception) extends AddressLookupResponse
+final case class AddressLookupSuccessResponse(addressList: RecordSet)
+    extends AddressLookupResponse
+final case class AddressLookupUnexpectedResponse(r: HttpResponse)
+    extends AddressLookupResponse
+final case class AddressLookupErrorResponse(cause: Exception)
+    extends AddressLookupResponse
 
 @Singleton
 class AddressLookupService @Inject() (
@@ -56,21 +59,31 @@ class AddressLookupService @Inject() (
       val pc = postcode.replaceAll(" ", "")
       val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
 
-      simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v2/uk/addresses?postcode=$pc&filter=$hn")(
+      simpleHttp.get[AddressLookupResponse](
+        s"$addressLookupUrl/v2/uk/addresses?postcode=$pc&filter=$hn"
+      )(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()
-            AddressLookupSuccessResponse(RecordSet.fromJsonAddressLookupService(r.json))
+            AddressLookupSuccessResponse(
+              RecordSet.fromJsonAddressLookupService(r.json)
+            )
 
           case r =>
             t.completeTimerAndIncrementFailedCounter()
-            logger.warn(s"Unexpected ${r.status} response getting address record from address lookup service")
+            logger.warn(
+              s"Unexpected ${r.status} response getting address record from address lookup service"
+            )
             AddressLookupUnexpectedResponse(r)
         },
-        onError = { case e =>
-          t.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting address record from address lookup service", e)
-          AddressLookupErrorResponse(e)
+        onError = {
+          case e =>
+            t.completeTimerAndIncrementFailedCounter()
+            logger.warn(
+              "Error getting address record from address lookup service",
+              e
+            )
+            AddressLookupErrorResponse(e)
         }
       )(newHc)
     }

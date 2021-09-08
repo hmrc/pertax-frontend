@@ -32,13 +32,18 @@ object DateDto {
 
   implicit val formats = Json.format[DateDto]
 
-  def build(day: Int, month: Int, year: Int) = DateDto(new LocalDate(year, month, day))
+  def build(day: Int, month: Int, year: Int) =
+    DateDto(new LocalDate(year, month, day))
 
-  def form(today: LocalDate) = Form(
-    mapping(
-      "startDate" -> mandatoryDateTuple("error.enter_a_date")
-        .verifying("error.date_in_future", !_.isAfter(today))
-        .verifying("error.enter_valid_date", !_.isBefore(new LocalDate("1000-01-01")))
-    )(DateDto.apply)(DateDto.unapply)
-  )
+  def form(today: LocalDate) =
+    Form(
+      mapping(
+        "startDate" -> mandatoryDateTuple("error.enter_a_date")
+          .verifying("error.date_in_future", !_.isAfter(today))
+          .verifying(
+            "error.enter_valid_date",
+            !_.isBefore(new LocalDate("1000-01-01"))
+          )
+      )(DateDto.apply)(DateDto.unapply)
+    )
 }

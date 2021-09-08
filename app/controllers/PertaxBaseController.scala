@@ -23,13 +23,17 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
-    extends FrontendController(cc) with I18nSupport {
+abstract class PertaxBaseController(cc: MessagesControllerComponents)(implicit
+  ec: ExecutionContext
+) extends FrontendController(cc) with I18nSupport {
 
   implicit class SessionKeyRemover(result: Future[Result]) {
-    def removeSessionKey(key: String)(implicit request: Request[_]): Future[Result] = result.map {
-      _.withSession(request.session - key)
-    }
+    def removeSessionKey(
+      key: String
+    )(implicit request: Request[_]): Future[Result] =
+      result.map {
+        _.withSession(request.session - key)
+      }
   }
 
   val baseBreadcrumb: Breadcrumb =

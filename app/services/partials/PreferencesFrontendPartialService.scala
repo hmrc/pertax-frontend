@@ -35,14 +35,17 @@ class PreferencesFrontendPartialService @Inject() (
   val tools: Tools,
   servicesConfig: ServicesConfig
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter)
+    with HasMetrics {
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-  def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(implicit
-    request: RequestHeader
+  def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(
+    implicit request: RequestHeader
   ): Future[HtmlPartial] =
-    loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools
-      .encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}")
+    loadPartial(
+      s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools
+        .encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}"
+    )
 
 }

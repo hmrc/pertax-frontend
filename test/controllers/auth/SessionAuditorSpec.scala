@@ -48,72 +48,99 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
   def originalResult[A]: Result = Ok
 
   def mockSendExtendedEvent(result: Future[AuditResult]): Unit =
-    when(auditConnector.sendExtendedEvent(any())(any(), any())).thenReturn(result)
+    when(auditConnector.sendExtendedEvent(any())(any(), any()))
+      .thenReturn(result)
 
   val testRequest = FakeRequest()
 
-  def authenticatedRequest[A](request: Request[A]) = AuthenticatedRequest[A](
-    Some(Fixtures.fakeNino),
-    None,
-    Credentials("foo", "bar"),
-    ConfidenceLevel.L200,
-    None,
-    None,
-    None,
-    Set.empty,
-    request
-  )
+  def authenticatedRequest[A](request: Request[A]) =
+    AuthenticatedRequest[A](
+      Some(Fixtures.fakeNino),
+      None,
+      Credentials("foo", "bar"),
+      ConfidenceLevel.L200,
+      None,
+      None,
+      None,
+      Set.empty,
+      request
+    )
 
-  def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {
+  def eqExtendedDataEvent[A](
+    authenticatedRequest: AuthenticatedRequest[A]
+  ): ExtendedDataEvent = {
     val detailsJson = Json.toJson(UserSessionAuditEvent(authenticatedRequest))
     val tags = buildTags(authenticatedRequest)
-    argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
-      override def matches(o: Any): Boolean = o match {
-        case ExtendedDataEvent(AuditServiceTools.auditSource, SessionAuditor.auditType, _, `tags`, `detailsJson`, _) =>
-          true
-        case _ => false
+    argThat[ExtendedDataEvent](
+      new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
+        override def matches(o: Any): Boolean =
+          o match {
+            case ExtendedDataEvent(
+                  AuditServiceTools.auditSource,
+                  SessionAuditor.auditType,
+                  _,
+                  `tags`,
+                  `detailsJson`,
+                  _
+                ) =>
+              true
+            case _ => false
+          }
       }
-    })
+    )
   }
 
   "auditOnce" when {
     "the audit is successful" must {
       "call audit and update the session" in {
         mockSendExtendedEvent(Future.successful(Success))
-        val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)
+        val result = sessionAuditor
+          .auditOnce(authenticatedRequest(testRequest), originalResult)
 
-        result.futureValue mustBe Ok.addingToSession(SessionAuditor.sessionKey -> "true")(testRequest)
+        result.futureValue mustBe Ok.addingToSession(
+          SessionAuditor.sessionKey -> "true"
+        )(testRequest)
         verify(auditConnector, times(1))
-          .sendExtendedEvent(eqExtendedDataEvent(authenticatedRequest(testRequest)))(any(), any())
+          .sendExtendedEvent(
+            eqExtendedDataEvent(authenticatedRequest(testRequest))
+          )(any(), any())
       }
     }
 
     "should not update the session" when {
       "the audit fails" in {
         mockSendExtendedEvent(Future.successful(Failure("")))
-        val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)
+        val result = sessionAuditor
+          .auditOnce(authenticatedRequest(testRequest), originalResult)
 
         result.futureValue mustBe Ok
 
         verify(auditConnector, times(1))
-          .sendExtendedEvent(eqExtendedDataEvent(authenticatedRequest(testRequest)))(any(), any())
+          .sendExtendedEvent(
+            eqExtendedDataEvent(authenticatedRequest(testRequest))
+          )(any(), any())
       }
 
       "the audit throws" in {
         mockSendExtendedEvent(Future.failed(new RuntimeException("throws")))
 
-        val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)
+        val result = sessionAuditor
+          .auditOnce(authenticatedRequest(testRequest), originalResult)
 
         result.futureValue mustBe Ok
 
         verify(auditConnector, times(1))
-          .sendExtendedEvent(eqExtendedDataEvent(authenticatedRequest(testRequest)))(any(), any())
+          .sendExtendedEvent(
+            eqExtendedDataEvent(authenticatedRequest(testRequest))
+          )(any(), any())
       }
 
       "the sessionKey has been set" in {
-        val testRequest = FakeRequest().withSession(SessionAuditor.sessionKey -> "true")
+        val testRequest =
+          FakeRequest().withSession(SessionAuditor.sessionKey -> "true")
 
-        val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)
+        val result = sessionAuditor
+          .auditOnce(authenticatedRequest(testRequest), originalResult)
 
         result.futureValue mustBe Ok
 

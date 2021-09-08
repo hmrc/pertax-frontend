@@ -42,7 +42,14 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       )
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      Some(
+        CacheMap(
+          "id",
+          Map(
+            "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
+          )
+        )
+      )
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
@@ -80,7 +87,9 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/postal/find-address"
+      )
     }
 
     "redirect to enter international address page when supplied with value = No (false)" in new LocalSetup {
@@ -93,14 +102,17 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/enter-international-address")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/postal/enter-international-address"
+      )
     }
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
 
       lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
-      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
+      when(mockConfigDecorator.updateInternationalAddressInPta)
+        .thenReturn(false)
 
       override def controller: PostalInternationalAddressChoiceController =
         new PostalInternationalAddressChoiceController(
@@ -120,12 +132,15 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/cannot-use-the-service")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/postal/cannot-use-the-service"
+      )
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "").asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(currentRequest)
 

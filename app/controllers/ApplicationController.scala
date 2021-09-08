@@ -44,21 +44,34 @@ class ApplicationController @Inject() (
   lockedOutView: LockedOutView,
   timeOutView: TimeOutView,
   technicalIssuesView: TechnicalIssuesView
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear {
+)(implicit
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) with CurrentTaxYear {
 
   private val logger = Logger(this.getClass)
 
   override def now: () => DateTime = () => DateTime.now()
 
-  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
-    Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
-  }
+  def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+    Action.async {
+      Future.successful(
+        Redirect(
+          redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)
+        )
+      )
+    }
 
-  def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+  def showUpliftJourneyOutcome(
+    continueUrl: Option[SafeRedirectUrl]
+  ): Action[AnyContent] =
     Action.async { implicit request =>
       val journeyId =
-        List(request.getQueryString("token"), request.getQueryString("journeyId")).flatten.headOption
+        List(
+          request.getQueryString("token"),
+          request.getQueryString("journeyId")
+        ).flatten.headOption
 
       val retryUrl = routes.ApplicationController.uplift(continueUrl).url
 
@@ -67,10 +80,18 @@ class ApplicationController @Inject() (
           identityVerificationFrontendService.getIVJourneyStatus(jid).map {
 
             case IdentityVerificationSuccessResponse(Success) =>
-              Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+              Ok(
+                successView(
+                  continueUrl
+                    .map(_.url)
+                    .getOrElse(routes.HomeController.index().url)
+                )
+              )
 
             case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
-              Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
+              Redirect(
+                routes.SelfAssessmentController.ivExemptLandingPage(continueUrl)
+              )
 
             case IdentityVerificationSuccessResponse(UserAborted) =>
               logErrorMessage(UserAborted)
@@ -97,15 +118,21 @@ class ApplicationController @Inject() (
               InternalServerError(timeOutView(retryUrl))
 
             case IdentityVerificationSuccessResponse(TechnicalIssue) =>
-              logger.warn(s"TechnicalIssue response from identityVerificationFrontendService")
+              logger.warn(
+                s"TechnicalIssue response from identityVerificationFrontendService"
+              )
               InternalServerError(technicalIssuesView(retryUrl))
 
             case r =>
-              logger.error(s"Unhandled response from identityVerificationFrontendService: $r")
+              logger.error(
+                s"Unhandled response from identityVerificationFrontendService: $r"
+              )
               InternalServerError(technicalIssuesView(retryUrl))
           }
         case None =>
-          logger.error(s"No journeyId present when displaying IV uplift journey outcome")
+          logger.error(
+            s"No journeyId present when displaying IV uplift journey outcome"
+          )
           Future.successful(BadRequest(technicalIssuesView(retryUrl)))
       }
     }
@@ -113,22 +140,29 @@ class ApplicationController @Inject() (
   private def logErrorMessage(reason: String): Unit =
     logger.warn(s"Unable to confirm user identity: $reason")
 
-  def signout(continueUrl: Option[RedirectUrl], origin: Option[Origin]): Action[AnyContent] =
+  def signout(
+    continueUrl: Option[RedirectUrl],
+    origin: Option[Origin]
+  ): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
       val safeUrl = continueUrl.flatMap { redirectUrl =>
         redirectUrl.getEither(OnlyRelative) match {
           case Right(safeRedirectUrl) => Some(safeRedirectUrl.url)
-          case _                      => Some(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))
+          case _ =>
+            Some(
+              configDecorator
+                .getFeedbackSurveyUrl(configDecorator.defaultOrigin)
+            )
         }
       }
       safeUrl
         .orElse(origin.map(configDecorator.getFeedbackSurveyUrl))
         .fold(BadRequest("Missing origin")) { url: String =>
-          if (request.isGovernmentGateway) {
+          if (request.isGovernmentGateway)
             Redirect(configDecorator.getBasGatewayFrontendSignOutUrl(url))
-          } else {
-            Redirect(configDecorator.citizenAuthFrontendSignOut).withSession("postLogoutPage" -> url)
-          }
+          else
+            Redirect(configDecorator.citizenAuthFrontendSignOut)
+              .withSession("postLogoutPage" -> url)
         }
     }
 }

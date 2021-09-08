@@ -33,9 +33,12 @@ object TaxCalculationViewModel {
 
   def fromTaxYearReconciliation(
     reconciliationModel: TaxYearReconciliation
-  )(implicit configDecorator: ConfigDecorator): Option[TaxCalculationViewModel] = {
+  )(implicit
+    configDecorator: ConfigDecorator
+  ): Option[TaxCalculationViewModel] = {
 
-    val taxYears = TaxYears(reconciliationModel.taxYear, reconciliationModel.taxYear + 1)
+    val taxYears =
+      TaxYears(reconciliationModel.taxYear, reconciliationModel.taxYear + 1)
 
     (underpaidViewModel orElse overpaidViewModel orElse otherViewModels)
       .lift((reconciliationModel.reconciliation, taxYears))
@@ -45,11 +48,18 @@ object TaxCalculationViewModel {
     configDecorator: ConfigDecorator
   ): PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
-    case (Underpaid(_, _, PaidAll), taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (
+          Underpaid(_, _, PaidAll),
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.you_do_not_owe_any_more_tax",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           UnderpaidUrl(previousTaxYear)
         ),
         List(text("label.you_have_no_payments_to_make_to_hmrc")),
@@ -63,7 +73,11 @@ object TaxCalculationViewModel {
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.you_missed_the_deadline_to_pay_your_tax",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           UnderpaidUrl(previousTaxYear)
         ),
         List(
@@ -74,19 +88,34 @@ object TaxCalculationViewModel {
           )
         ),
         List(
-          Link(text("label.make_a_payment"), MakePaymentUrl, "You missed the deadline to pay your tax")
+          Link(
+            text("label.make_a_payment"),
+            MakePaymentUrl,
+            "You missed the deadline to pay your tax"
+          )
         )
       )
 
-    case (Underpaid(Some(amount), Some(dueDate), PaymentDue), taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (
+          Underpaid(Some(amount), Some(dueDate), PaymentDue),
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.you_paid_too_little_tax",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           UnderpaidUrl(previousTaxYear)
         ),
         List(
-          text("label.you_owe_hmrc_you_must_pay_by_", Literal("%,.2f".format(amount)), viewmodels.Date(Some(dueDate)))
+          text(
+            "label.you_owe_hmrc_you_must_pay_by_",
+            Literal("%,.2f".format(amount)),
+            viewmodels.Date(Some(dueDate))
+          )
         ),
         List(
           Link(text("label.make_a_payment"), MakePaymentUrl, "Make a payment"),
@@ -105,7 +134,11 @@ object TaxCalculationViewModel {
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.you_paid_too_little_tax",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           UnderpaidUrl(previousTaxYear)
         ),
         List(
@@ -132,7 +165,11 @@ object TaxCalculationViewModel {
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.you_missed_the_deadline_to_pay_your_tax", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.you_missed_the_deadline_to_pay_your_tax",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           UnderpaidUrl(previousTaxYear)
         ),
         List(
@@ -143,15 +180,26 @@ object TaxCalculationViewModel {
           )
         ),
         List(
-          Link(text("label.make_a_payment"), MakePaymentUrl, "You missed the deadline to pay your tax")
+          Link(
+            text("label.make_a_payment"),
+            MakePaymentUrl,
+            "You missed the deadline to pay your tax"
+          )
         )
       )
 
-    case (Underpaid(Some(amount), Some(dueDate), PartPaid), taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (
+          Underpaid(Some(amount), Some(dueDate), PartPaid),
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.you_paid_too_little_tax",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           UnderpaidUrl(previousTaxYear)
         ),
         List(
@@ -171,11 +219,18 @@ object TaxCalculationViewModel {
         )
       )
 
-    case (Underpaid(Some(amount), _, PartPaid | PaymentDue), taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (
+          Underpaid(Some(amount), _, PartPaid | PaymentDue),
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.you_paid_too_little_tax", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.you_paid_too_little_tax",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           UnderpaidUrl(previousTaxYear)
         ),
         List(
@@ -192,14 +247,19 @@ object TaxCalculationViewModel {
       )
   }
 
-  private val overpaidViewModel: PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
+  private val overpaidViewModel
+    : PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
     case (Overpaid(Some(amount), Refund), taxYears) =>
       overpaid(
         "label.hmrc_owes_you_a_refund",
         amount,
         taxYears,
-        Link(text("label.claim_your_tax_refund"), TaxPaidUrl, "Claim your tax refund")
+        Link(
+          text("label.claim_your_tax_refund"),
+          TaxPaidUrl,
+          "Claim your tax refund"
+        )
       )
 
     case (Overpaid(Some(amount), PaymentProcessing), taxYears) =>
@@ -213,11 +273,20 @@ object TaxCalculationViewModel {
 
   }
 
-  private def overpaid(contentKey: String, amount: Double, taxYears: TaxYears, links: Link*) =
+  private def overpaid(
+    contentKey: String,
+    amount: Double,
+    taxYears: TaxYears,
+    links: Link*
+  ) =
     TaxCalculationViewModel(
       taxYears,
       Heading(
-        text("label.you_paid_too_much_tax", taxYears.previousTaxYear.toString, taxYears.currentTaxYear.toString),
+        text(
+          "label.you_paid_too_much_tax",
+          taxYears.previousTaxYear.toString,
+          taxYears.currentTaxYear.toString
+        ),
         OverpaidUrl(taxYears.previousTaxYear)
       ),
       List(text(contentKey, "%,.2f".format(amount))),
@@ -229,13 +298,21 @@ object TaxCalculationViewModel {
         )
     )
 
-  private val otherViewModels: PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
+  private val otherViewModels
+    : PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
-    case (Balanced | OverpaidTolerance | UnderpaidTolerance, taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (
+          Balanced | OverpaidTolerance | UnderpaidTolerance,
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.tax_year_heading",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           RightAmountUrl(previousTaxYear)
         ),
         List(
@@ -245,11 +322,18 @@ object TaxCalculationViewModel {
         Nil
       )
 
-    case (BalancedNoEmployment, taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (
+          BalancedNoEmployment,
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.tax_year_heading",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           NotEmployedUrl(previousTaxYear)
         ),
         List(
@@ -259,11 +343,18 @@ object TaxCalculationViewModel {
         Nil
       )
 
-    case (NotReconciled, taxYears @ TaxYears(previousTaxYear, currentTaxYear)) =>
+    case (
+          NotReconciled,
+          taxYears @ TaxYears(previousTaxYear, currentTaxYear)
+        ) =>
       TaxCalculationViewModel(
         taxYears,
         Heading(
-          text("label.tax_year_heading", previousTaxYear.toString, currentTaxYear.toString),
+          text(
+            "label.tax_year_heading",
+            previousTaxYear.toString,
+            currentTaxYear.toString
+          ),
           NotCalculatedUrl(previousTaxYear)
         ),
         List(

@@ -37,7 +37,9 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
 
-  def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion = {
+  def hasLink(document: Document, content: String, href: String)(implicit
+    messages: Messages
+  ): Assertion = {
     val link = document
       .getElementsMatchingText(content)
       .attr("href")
@@ -59,7 +61,8 @@ class SelfAssessmentViewSpec extends ViewSpec {
     val thisYear = "2019"
     val nextYear = "2020"
 
-    def doc: Document = asDocument(selfAssessment(user, thisYear, nextYear).toString)
+    def doc: Document =
+      asDocument(selfAssessment(user, thisYear, nextYear).toString)
   }
 
   "Self Assessment Card" must {
@@ -68,7 +71,8 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
       "the user is an Activated SA user" in new LocalSetup {
 
-        override val user: SelfAssessmentUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr)
+        override val user: SelfAssessmentUser =
+          ActivatedOnlineFilerSelfAssessmentUser(saUtr)
 
         hasLink(
           doc,
@@ -79,7 +83,8 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
       "the user is not an Activated SA user" in new LocalSetup {
 
-        override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
+        override val user: SelfAssessmentUser =
+          NotEnrolledSelfAssessmentUser(saUtr)
 
         hasLink(
           doc,
@@ -93,10 +98,14 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
       "the user is an Activated SA user" in new LocalSetup {
 
-        override val user: SelfAssessmentUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr)
+        override val user: SelfAssessmentUser =
+          ActivatedOnlineFilerSelfAssessmentUser(saUtr)
 
         doc.text() must include(
-          messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_", nextYear)
+          messages(
+            "label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_",
+            nextYear
+          )
         )
 
         hasLink(
@@ -126,7 +135,8 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
       "the user is a Not-yet Activated SA user" in new LocalSetup {
 
-        override val user: SelfAssessmentUser = NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)
+        override val user: SelfAssessmentUser =
+          NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)
 
         hasLink(
           doc,
@@ -137,7 +147,8 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
       "the user is a Wrong Credentials SA user" in new LocalSetup {
 
-        override val user: SelfAssessmentUser = WrongCredentialsSelfAssessmentUser(saUtr)
+        override val user: SelfAssessmentUser =
+          WrongCredentialsSelfAssessmentUser(saUtr)
 
         hasLink(
           doc,
@@ -148,7 +159,8 @@ class SelfAssessmentViewSpec extends ViewSpec {
 
       "the user is a Not Enrolled SA user" in new LocalSetup {
 
-        override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
+        override val user: SelfAssessmentUser =
+          NotEnrolledSelfAssessmentUser(saUtr)
 
         hasLink(
           doc,

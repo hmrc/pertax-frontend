@@ -45,8 +45,12 @@ class HomeController @Inject() (
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   homeView: HomeView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) with PaperlessInterruptHelper
+    with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -54,72 +58,116 @@ class HomeController @Inject() (
     authJourney.authWithPersonalDetails andThen withActiveTabAction
       .addActiveTab(ActiveTabHome)
 
-  def index: Action[AnyContent] = authenticate.async { implicit request =>
-    val showUserResearchBanner: Future[Boolean] =
-      configDecorator.bannerLinkUrl.fold(Future.successful(false))(_ =>
-        homePageCachingHelper.hasUserDismissedUrInvitation.map(!_)
-      )
+  def index: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      val showUserResearchBanner: Future[Boolean] =
+        configDecorator.bannerLinkUrl.fold(Future.successful(false))(_ =>
+          homePageCachingHelper.hasUserDismissedUrInvitation.map(!_)
+        )
 
-    val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-      serviceCallResponses(request.nino, current.currentYear)
+      val responses: Future[
+        (
+          TaxComponentsState,
+          Option[TaxYearReconciliation],
+          Option[TaxYearReconciliation]
+        )
+      ] =
+        serviceCallResponses(request.nino, current.currentYear)
 
-    showUserResearchBanner flatMap { showUserResearchBanner =>
-      enforcePaperlessPreference {
-        for {
-          (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-        } yield {
-          val saUserType = request.saUserType
+      showUserResearchBanner flatMap { showUserResearchBanner =>
+        enforcePaperlessPreference {
+          for {
+            (
+              taxSummaryState,
+              taxCalculationStateCyMinusOne,
+              taxCalculationStateCyMinusTwo
+            ) <- responses
+          } yield {
+            val saUserType = request.saUserType
 
-          val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-            taxSummaryState,
-            taxCalculationStateCyMinusOne,
-            taxCalculationStateCyMinusTwo,
-            saUserType,
-            current.currentYear
-          )
+            val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
+              taxSummaryState,
+              taxCalculationStateCyMinusOne,
+              taxCalculationStateCyMinusTwo,
+              saUserType,
+              current.currentYear
+            )
 
-          val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
+            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(
+              taxSummaryState.getTaxComponents
+            )
 
-          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
+            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-          Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
+            Ok(
+              homeView(
+                HomeViewModel(
+                  incomeCards,
+                  benefitCards,
+                  pensionCards,
+                  showUserResearchBanner,
+                  saUserType
+                )
+              )
+            )
+          }
         }
       }
     }
-  }
 
-  private[controllers] def serviceCallResponses(ninoOpt: Option[Nino], year: Int)(implicit
+  private[controllers] def serviceCallResponses(
+    ninoOpt: Option[Nino],
+    year: Int
+  )(implicit
     hc: HeaderCarrier
-  ): Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
-    ninoOpt.fold[Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])]](
+  ): Future[
+    (
+      TaxComponentsState,
+      Option[TaxYearReconciliation],
+      Option[TaxYearReconciliation]
+    )
+  ] =
+    ninoOpt.fold[Future[
+      (
+        TaxComponentsState,
+        Option[TaxYearReconciliation],
+        Option[TaxYearReconciliation]
+      )
+    ]](
       Future.successful((TaxComponentsDisabledState, None, None))
     ) { nino =>
-      val taxYr = if (configDecorator.taxcalcEnabled) {
-        taxCalculationService.getTaxYearReconciliations(nino)
-      } else {
-        Future.successful(Nil)
-      }
+      val taxYr =
+        if (configDecorator.taxcalcEnabled)
+          taxCalculationService.getTaxYearReconciliations(nino)
+        else
+          Future.successful(Nil)
 
-      val taxCalculationStateCyMinusOne = taxYr.map(_.find(_.taxYear == year - 1))
-      val taxCalculationStateCyMinusTwo = taxYr.map(_.find(_.taxYear == year - 2))
+      val taxCalculationStateCyMinusOne =
+        taxYr.map(_.find(_.taxYear == year - 1))
+      val taxCalculationStateCyMinusTwo =
+        taxYr.map(_.find(_.taxYear == year - 2))
 
-      val taxSummaryState: Future[TaxComponentsState] = if (configDecorator.taxComponentsEnabled) {
-        taiService.taxComponents(nino, year) map {
-          case TaxComponentsSuccessResponse(ts) =>
-            TaxComponentsAvailableState(ts)
-          case TaxComponentsUnavailableResponse =>
-            TaxComponentsNotAvailableState
-          case _ =>
-            TaxComponentsUnreachableState
-        }
-      } else {
-        Future.successful(TaxComponentsDisabledState)
-      }
+      val taxSummaryState: Future[TaxComponentsState] =
+        if (configDecorator.taxComponentsEnabled)
+          taiService.taxComponents(nino, year) map {
+            case TaxComponentsSuccessResponse(ts) =>
+              TaxComponentsAvailableState(ts)
+            case TaxComponentsUnavailableResponse =>
+              TaxComponentsNotAvailableState
+            case _ =>
+              TaxComponentsUnreachableState
+          }
+        else
+          Future.successful(TaxComponentsDisabledState)
 
       for {
         taxCalculationStateCyMinusOne <- taxCalculationStateCyMinusOne
         taxCalculationStateCyMinusTwo <- taxCalculationStateCyMinusTwo
         taxSummaryState               <- taxSummaryState
-      } yield (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo)
+      } yield (
+        taxSummaryState,
+        taxCalculationStateCyMinusOne,
+        taxCalculationStateCyMinusTwo
+      )
     }
 }

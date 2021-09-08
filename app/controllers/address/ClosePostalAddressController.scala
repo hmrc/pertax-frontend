@@ -54,8 +54,16 @@ class ClosePostalAddressController @Inject() (
   confirmCloseCorrespondenceAddressView: ConfirmCloseCorrespondenceAddressView,
   updateAddressConfirmationView: UpdateAddressConfirmationView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
   private val logger = Logger(this.getClass)
 
@@ -63,7 +71,14 @@ class ClosePostalAddressController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => personDetails =>
         val address = getAddress(personDetails.address).fullAddress
-        Future.successful(Ok(closeCorrespondenceAddressChoiceView(address, ClosePostalAddressChoiceDto.form)))
+        Future.successful(
+          Ok(
+            closeCorrespondenceAddressChoiceView(
+              address,
+              ClosePostalAddressChoiceDto.form
+            )
+          )
+        )
       }
     }
 
@@ -74,15 +89,21 @@ class ClosePostalAddressController @Inject() (
           formWithErrors =>
             Future.successful(
               BadRequest(
-                closeCorrespondenceAddressChoiceView(getAddress(personalDetails.address).fullAddress, formWithErrors)
+                closeCorrespondenceAddressChoiceView(
+                  getAddress(personalDetails.address).fullAddress,
+                  formWithErrors
+                )
               )
             ),
           closePostalAddressChoiceDto =>
-            if (closePostalAddressChoiceDto.value) {
-              Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad()))
-            } else {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
-            }
+            if (closePostalAddressChoiceDto.value)
+              Future.successful(
+                Redirect(routes.ClosePostalAddressController.confirmPageLoad())
+              )
+            else
+              Future.successful(
+                Redirect(routes.PersonalDetailsController.onPageLoad())
+              )
         )
       }
     }
@@ -101,23 +122,32 @@ class ClosePostalAddressController @Inject() (
         for {
           addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
           result <- {
-            if (addressChanges.map(_.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])) {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
-            } else {
+            if (
+              addressChanges
+                .map(_.editedAddress)
+                .exists(_.isInstanceOf[EditCorrespondenceAddress])
+            )
+              Future.successful(
+                Redirect(routes.PersonalDetailsController.onPageLoad())
+              )
+            else
               submitConfirmClosePostalAddress(nino, personDetails)
-            }
           }
         } yield result
 
       }
     }
 
-  private def submitConfirmClosePostalAddress(nino: Nino, personDetails: PersonDetails)(implicit
+  private def submitConfirmClosePostalAddress(
+    nino: Nino,
+    personDetails: PersonDetails
+  )(implicit
     request: UserRequest[_]
   ): Future[Result] = {
 
     val address = getAddress(personDetails.correspondenceAddress)
-    val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
+    val closingAddress = address
+      .copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
 
     citizenDetailsService.getEtag(nino.nino) flatMap {
       case None =>
@@ -126,11 +156,13 @@ class ClosePostalAddressController @Inject() (
 
       case Some(version) =>
         for {
-          response <- citizenDetailsService.updateAddress(nino, version.etag, closingAddress)
+          response <- citizenDetailsService
+                        .updateAddress(nino, version.etag, closingAddress)
           action <- response match {
                       case UpdateAddressBadRequestResponse =>
                         errorRenderer.futureError(BAD_REQUEST)
-                      case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
+                      case UpdateAddressUnexpectedResponse(_) |
+                          UpdateAddressErrorResponse(_) =>
                         errorRenderer.futureError(INTERNAL_SERVER_ERROR)
                       case UpdateAddressSuccessResponse =>
                         for {
@@ -138,27 +170,38 @@ class ClosePostalAddressController @Inject() (
                                  buildEvent(
                                    "closedAddressSubmitted",
                                    "closure_of_correspondence",
-                                   auditForClosingPostalAddress(closingAddress, version.etag, "correspondence")
+                                   auditForClosingPostalAddress(
+                                     closingAddress,
+                                     version.etag,
+                                     "correspondence"
+                                   )
                                  )
                                )
-                          _ <- cachingHelper
-                                 .clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                          inserted <- editAddressLockRepository.insert(nino.withoutSuffix, PostalAddrType)
+                          _ <-
+                            cachingHelper
+                              .clearCache() //This clears ENTIRE session cache, no way to target individual keys
+                          inserted <-
+                            editAddressLockRepository
+                              .insert(nino.withoutSuffix, PostalAddrType)
                           _ <- addressMovedService
-                                 .moved(address.postcode.getOrElse(""), address.postcode.getOrElse(""))
+                                 .moved(
+                                   address.postcode.getOrElse(""),
+                                   address.postcode.getOrElse("")
+                                 )
                         } yield
-                          if (inserted) {
+                          if (inserted)
                             Ok(
                               updateAddressConfirmationView(
                                 PostalAddrType,
                                 closedPostalAddress = true,
-                                Some(getAddress(personDetails.address).fullAddress),
+                                Some(
+                                  getAddress(personDetails.address).fullAddress
+                                ),
                                 None
                               )
                             )
-                          } else {
+                          else
                             errorRenderer.error(INTERNAL_SERVER_ERROR)
-                          }
                     }
         } yield action
     }
@@ -167,6 +210,7 @@ class ClosePostalAddressController @Inject() (
   private def getAddress(address: Option[Address]): Address =
     address match {
       case Some(address) => address
-      case None          => throw new Exception("Address does not exist in the current context")
+      case None =>
+        throw new Exception("Address does not exist in the current context")
     }
 }

@@ -31,11 +31,15 @@ class PublicControllerSpec extends BaseSpec {
 
   private val mockTemplateRenderer = mock[TemplateRenderer]
 
-  private def controller = new PublicController(injected[MessagesControllerComponents], injected[SessionTimeoutView])(
-    config,
-    mockTemplateRenderer,
-    ec
-  )
+  private def controller =
+    new PublicController(
+      injected[MessagesControllerComponents],
+      injected[SessionTimeoutView]
+    )(
+      config,
+      mockTemplateRenderer,
+      ec
+    )
 
   "Calling PublicController.sessionTimeout" must {
 
@@ -50,7 +54,9 @@ class PublicControllerSpec extends BaseSpec {
 
     "return 303" in {
 
-      val r = controller.redirectToExitSurvey(Origin("PERTAX"))(buildFakeRequestWithAuth("GET"))
+      val r = controller.redirectToExitSurvey(Origin("PERTAX"))(
+        buildFakeRequestWithAuth("GET")
+      )
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("http://localhost:9514/feedback/PERTAX")
     }
@@ -60,16 +66,21 @@ class PublicControllerSpec extends BaseSpec {
 
     "redirect to tax-credits-service/renewals/service-router" in {
 
-      val r = controller.redirectToTaxCreditsService()(buildFakeRequestWithAuth("GET"))
+      val r = controller.redirectToTaxCreditsService()(
+        buildFakeRequestWithAuth("GET")
+      )
       status(r) mustBe MOVED_PERMANENTLY
-      redirectLocation(r) mustBe Some("http://localhost:9362/tax-credits-service/renewals/service-router")
+      redirectLocation(r) mustBe Some(
+        "http://localhost:9362/tax-credits-service/renewals/service-router"
+      )
     }
   }
 
   "Calling PublicController.redirectToPersonalDetails" must {
 
     "redirect to /personal-details page" in {
-      val r = controller.redirectToPersonalDetails()(buildFakeRequestWithAuth("GET"))
+      val r =
+        controller.redirectToPersonalDetails()(buildFakeRequestWithAuth("GET"))
 
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("/personal-account/personal-details")
@@ -84,19 +95,24 @@ class PublicControllerSpec extends BaseSpec {
 
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("/personal-account")
-      session(r) mustBe new Session(Map(config.authProviderKey -> config.authProviderVerify))
+      session(r) mustBe new Session(
+        Map(config.authProviderKey -> config.authProviderVerify)
+      )
     }
   }
 
   "Calling PublicController.governmentGatewayEntryPoint" must {
 
     "redirect to /personal-account page with GG auth provider" in {
-      val request = FakeRequest("GET", "/personal-account/start-government-gateway")
+      val request =
+        FakeRequest("GET", "/personal-account/start-government-gateway")
       val r = controller.governmentGatewayEntryPoint()(request)
 
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("/personal-account")
-      session(r) mustBe new Session(Map(config.authProviderKey -> config.authProviderGG))
+      session(r) mustBe new Session(
+        Map(config.authProviderKey -> config.authProviderGG)
+      )
     }
   }
 }

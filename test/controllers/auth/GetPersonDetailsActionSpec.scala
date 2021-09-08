@@ -44,8 +44,12 @@ class GetPersonDetailsActionSpec extends BaseSpec {
   val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
-    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
+    .overrides(
+      bind[MessageFrontendService].toInstance(mockMessageFrontendService)
+    )
+    .overrides(
+      bind[CitizenDetailsService].toInstance(mockCitizenDetailsService)
+    )
     .overrides(bind[ConfigDecorator].toInstance(configDecorator))
     .configure(Map("metrics.enabled" -> false))
     .build()
@@ -54,7 +58,9 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     UserRequest(
       Some(Fixtures.fakeNino),
       None,
-      WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+      WrongCredentialsSelfAssessmentUser(
+        SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+      ),
       Credentials("", "Verify"),
       ConfidenceLevel.L50,
       None,
@@ -67,12 +73,42 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     )
 
   val personDetailsSuccessResponse = PersonDetailsSuccessResponse(
-    PersonDetails(Person(Some("TestFirstName"), None, None, None, None, None, None, None, None), None, None)
+    PersonDetails(
+      Person(
+        Some("TestFirstName"),
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None
+      ),
+      None,
+      None
+    )
   )
 
   val personDetailsBlock: UserRequest[_] => Future[Result] = userRequest => {
     val person = userRequest.personDetails match {
-      case Some(PersonDetails(Person(Some(firstName), None, None, None, None, None, None, None, None), None, None)) =>
+      case Some(
+            PersonDetails(
+              Person(
+                Some(firstName),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None
+              ),
+              None,
+              None
+            )
+          ) =>
         firstName
       case _ => "No Person Details Defined"
     }
@@ -81,9 +117,15 @@ class GetPersonDetailsActionSpec extends BaseSpec {
   }
 
   val unreadMessageCountBlock: UserRequest[_] => Future[Result] = userRequest =>
-    Future.successful(Ok(s"Person Details: ${userRequest.unreadMessageCount.getOrElse("no message count present")}"))
+    Future.successful(
+      Ok(
+        s"Person Details: ${userRequest.unreadMessageCount.getOrElse("no message count present")}"
+      )
+    )
 
-  def harness[A](block: UserRequest[_] => Future[Result])(implicit request: UserRequest[A]): Future[Result] = {
+  def harness[A](
+    block: UserRequest[_] => Future[Result]
+  )(implicit request: UserRequest[A]): Future[Result] = {
     lazy val actionProvider = app.injector.instanceOf[GetPersonDetailsAction]
     actionProvider.invokeBlock(request, block)
   }
@@ -111,7 +153,9 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
         val result = harness(personDetailsBlock)(refinedRequest)
         status(result) mustBe OK
-        contentAsString(result) mustBe "Person Details: No Person Details Defined"
+        contentAsString(
+          result
+        ) mustBe "Person Details: No Person Details Defined"
       }
 
     }
@@ -138,7 +182,9 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
         val result = harness(unreadMessageCountBlock)(refinedRequest)
         status(result) mustBe OK
-        contentAsString(result) mustBe "Person Details: no message count present"
+        contentAsString(
+          result
+        ) mustBe "Person Details: no message count present"
       }
     }
   }

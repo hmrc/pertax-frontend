@@ -30,9 +30,17 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
   trait LocalSetup extends AddressControllerSetup {
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      Some(
+        CacheMap(
+          "id",
+          Map(
+            "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
+          )
+        )
+      )
 
-    def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
+    def currentRequest[A]: Request[A] =
+      FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
     def controller: AddressErrorController =
       new AddressErrorController(
@@ -52,7 +60,9 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
       val result = controller.cannotUseThisService(SoleAddrType)(currentRequest)
 
       status(result) mustBe OK
-      contentAsString(result) must include("You cannot use this service to update your address")
+      contentAsString(result) must include(
+        "You cannot use this service to update your address"
+      )
     }
   }
 
@@ -60,10 +70,13 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
 
     "display the showAddressAlreadyUpdated page" in new LocalSetup {
 
-      val result = controller.showAddressAlreadyUpdated(PostalAddrType)(currentRequest)
+      val result =
+        controller.showAddressAlreadyUpdated(PostalAddrType)(currentRequest)
 
       status(result) mustBe OK
-      contentAsString(result) must include("Your address has already been updated")
+      contentAsString(result) must include(
+        "Your address has already been updated"
+      )
     }
   }
 }

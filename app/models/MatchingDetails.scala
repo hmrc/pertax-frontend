@@ -23,5 +23,7 @@ case class MatchingDetails(saUtr: Option[SaUtr])
 
 object MatchingDetails {
   def fromJsonMatchingDetails(matchingDetails: JsValue): MatchingDetails =
-    MatchingDetails((matchingDetails \ "ids" \ "sautr").asOpt[String].map(SaUtr.apply))
+    MatchingDetails(
+      (matchingDetails \ "ids" \ "sautr").asOpt[String].map(SaUtr.apply)
+    )
 }

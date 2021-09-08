@@ -65,72 +65,83 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getPayAsYouEarnCard" must {
     "return nothing when called with no Pertax user" in {
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        nino = None,
-        saUser = NonFilerSelfAssessmentUser,
-        confidenceLevel = ConfidenceLevel.L50,
-        personDetails = None,
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          nino = None,
+          saUser = NonFilerSelfAssessmentUser,
+          confidenceLevel = ConfidenceLevel.L50,
+          personDetails = None,
+          request = FakeRequest()
+        )
 
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
+      lazy val cardBody =
+        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody mustBe None
     }
 
     "return no content when called with with a Pertax user that is PAYE but has no tax summary" in {
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
+      lazy val cardBody =
+        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsNotAvailableState)
 
       cardBody mustBe None
     }
 
     "return the static version of the markup (no card actions) when called with with a user that is PAYE but there was an error calling the endpoint" in {
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
+      lazy val cardBody =
+        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsUnreachableState)
 
       cardBody mustBe Some(payAsYouEarn(config))
     }
 
     "return the static version of the markup (no card actions) when called with with a Pertax user that is PAYE but the tax summary call is disabled" in {
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      lazy val cardBody = homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
+      lazy val cardBody =
+        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsDisabledState)
 
       cardBody mustBe Some(payAsYouEarn(config))
     }
 
     "return correct markup when called with with a Pertax user that is PAYE" in {
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = NonFilerSelfAssessmentUser,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = NonFilerSelfAssessmentUser,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
       lazy val cardBody =
-        homeCardGenerator.getPayAsYouEarnCard(TaxComponentsAvailableState(Fixtures.buildTaxComponents))
+        homeCardGenerator.getPayAsYouEarnCard(
+          TaxComponentsAvailableState(Fixtures.buildTaxComponents)
+        )
 
       cardBody mustBe Some(payAsYouEarn(config))
     }
@@ -146,59 +157,76 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(request = FakeRequest())
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody =
+        homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
+      cardBody mustBe Some(
+        selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString)
+      )
     }
 
     "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = NotYetActivatedOnlineFilerSelfAssessmentUser(testUtr)
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = saUserType,
+          request = FakeRequest()
+        )
+
+      lazy val cardBody =
+        homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+
+      cardBody mustBe Some(
+        selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString)
       )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
-
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
     "return correct markup when called with WrongCredentialsSelfAssessmentUser" in {
       val saUserType = WrongCredentialsSelfAssessmentUser(testUtr)
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = saUserType,
+          request = FakeRequest()
+        )
+
+      lazy val cardBody =
+        homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+
+      cardBody mustBe Some(
+        selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString)
       )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
-
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
     "return correct markup when called with NotEnrolledSelfAssessmentUser" in {
       val saUserType = NotEnrolledSelfAssessmentUser(testUtr)
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = saUserType,
+          request = FakeRequest()
+        )
+
+      lazy val cardBody =
+        homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+
+      cardBody mustBe Some(
+        selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString)
       )
-
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
-
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
     }
 
     "return nothing when called with NonFilerSelfAssessmentUser" in {
       val saUserType = NonFilerSelfAssessmentUser
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = saUserType,
+          request = FakeRequest()
+        )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody =
+        homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody mustBe None
     }
@@ -206,14 +234,16 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "return nothing for a verify user" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
-        saUser = saUserType,
-        credentials = Credentials("", "Verify"),
-        confidenceLevel = ConfidenceLevel.L500,
-        request = FakeRequest()
-      )
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(
+          saUser = saUserType,
+          credentials = Credentials("", "Verify"),
+          confidenceLevel = ConfidenceLevel.L500,
+          request = FakeRequest()
+        )
 
-      lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
+      lazy val cardBody =
+        homeCardGenerator.getSelfAssessmentCard(saUserType, 2019)
 
       cardBody mustBe None
     }
@@ -257,7 +287,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "always return the same markup when taxCreditsPaymentLinkEnabled is enabled" in {
       lazy val showTaxCreditsPaymentLink = true
 
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody =
+        homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
 
       cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
@@ -265,7 +296,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     "always return the same markup when taxCreditsPaymentLinkEnabled is disabled" in {
       lazy val showTaxCreditsPaymentLink = false
 
-      lazy val cardBody = homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
+      lazy val cardBody =
+        homeCardGenerator.getTaxCreditsCard(showTaxCreditsPaymentLink)
 
       cardBody mustBe Some(taxCredits(showTaxCreditsPaymentLink))
     }
@@ -286,7 +318,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       val taxComponents = Seq("MarriageAllowanceReceived")
 
       lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+        if (hasTaxComponents)
+          Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents))
+        else None
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
@@ -298,7 +332,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       val taxComponents = Seq("MarriageAllowanceTransferred")
 
       lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+        if (hasTaxComponents)
+          Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents))
+        else None
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
@@ -310,7 +346,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       val taxComponents = Seq()
 
       lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+        if (hasTaxComponents)
+          Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents))
+        else None
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
@@ -322,7 +360,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       val taxComponents = Seq("MedicalInsurance")
 
       lazy val tc =
-        if (hasTaxComponents) Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents)) else None
+        if (hasTaxComponents)
+          Some(Fixtures.buildTaxComponents.copy(taxComponents = taxComponents))
+        else None
 
       lazy val cardBody = homeCardGenerator.getMarriageAllowanceCard(tc)
 
@@ -345,13 +385,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       "always return the same markup for a SA user" in {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
           buildUserRequest(
-            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(
+              SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+            ),
             request = FakeRequest()
           )
 
         lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
 
-        cardBody mustBe Some(taxSummaries(configDecorator.annualTaxSaSummariesTileLink))
+        cardBody mustBe Some(
+          taxSummaries(configDecorator.annualTaxSaSummariesTileLink)
+        )
       }
 
       val saUtr: SaUtr = SaUtr("test utr")
@@ -369,7 +413,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             buildUserRequest(saUser = saType, request = FakeRequest())
 
           lazy val cardBody = homeCardGenerator.getAnnualTaxSummaryCard
-          cardBody mustBe Some(taxSummaries(configDecorator.annualTaxPayeSummariesTileLink))
+          cardBody mustBe Some(
+            taxSummaries(configDecorator.annualTaxPayeSummariesTileLink)
+          )
         }
       }
     }

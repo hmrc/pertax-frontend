@@ -39,20 +39,23 @@ final case class UserRequest[+A](
   request: Request[A]
 ) extends WrappedRequest[A](request) {
 
-  def name: Option[String] = personDetails match {
-    case Some(personDetails) => personDetails.person.shortName
-    case _                   => retrievedName.map(_.toString)
-  }
+  def name: Option[String] =
+    personDetails match {
+      case Some(personDetails) => personDetails.person.shortName
+      case _                   => retrievedName.map(_.toString)
+    }
 
-  def isGovernmentGateway: Boolean = credentials.providerType == "GovernmentGateway"
+  def isGovernmentGateway: Boolean =
+    credentials.providerType == "GovernmentGateway"
 
   def isVerify: Boolean = credentials.providerType == "Verify"
 
   def isSa: Boolean = saUserType != NonFilerSelfAssessmentUser
 
-  def isSaUserLoggedIntoCorrectAccount: Boolean = saUserType match {
-    case ActivatedOnlineFilerSelfAssessmentUser(_) => true
-    case _                                         => false
-  }
+  def isSaUserLoggedIntoCorrectAccount: Boolean =
+    saUserType match {
+      case ActivatedOnlineFilerSelfAssessmentUser(_) => true
+      case _                                         => false
+    }
 
 }

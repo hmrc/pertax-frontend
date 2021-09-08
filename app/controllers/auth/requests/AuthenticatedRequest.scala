@@ -30,11 +30,15 @@ case object NotYetActivated extends SelfAssessmentStatus
 
 object SelfAssessmentStatus {
 
-  def fromString(value: String): SelfAssessmentStatus = value match {
-    case "Activated"       => Activated
-    case "NotYetActivated" => NotYetActivated
-    case _                 => throw new RuntimeException(s"Unexpected Self Assessment enrolment status of $value was returned")
-  }
+  def fromString(value: String): SelfAssessmentStatus =
+    value match {
+      case "Activated"       => Activated
+      case "NotYetActivated" => NotYetActivated
+      case _ =>
+        throw new RuntimeException(
+          s"Unexpected Self Assessment enrolment status of $value was returned"
+        )
+    }
 }
 
 case class SelfAssessmentEnrolment(saUtr: SaUtr, status: SelfAssessmentStatus)

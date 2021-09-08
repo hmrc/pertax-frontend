@@ -32,19 +32,29 @@ case class Person(
   nino: Option[Nino]
 ) {
   lazy val initialsName =
-    initials.getOrElse(List(title, firstName.map(_.take(1)), middleName.map(_.take(1)), lastName).flatten.mkString(" "))
+    initials.getOrElse(
+      List(
+        title,
+        firstName.map(_.take(1)),
+        middleName.map(_.take(1)),
+        lastName
+      ).flatten.mkString(" ")
+    )
   lazy val shortName = for {
     f <- firstName
     l <- lastName
   } yield List(f, l).mkString(" ")
-  lazy val fullName = List(title, firstName, middleName, lastName, honours).flatten.mkString(" ")
+  lazy val fullName =
+    List(title, firstName, middleName, lastName, honours).flatten.mkString(" ")
 }
 
 object Person {
 
   implicit val localdateFormatDefault = new Format[LocalDate] {
-    override def reads(json: JsValue): JsResult[LocalDate] = JodaReads.DefaultJodaLocalDateReads.reads(json)
-    override def writes(o: LocalDate): JsValue = JodaWrites.DefaultJodaLocalDateWrites.writes(o)
+    override def reads(json: JsValue): JsResult[LocalDate] =
+      JodaReads.DefaultJodaLocalDateReads.reads(json)
+    override def writes(o: LocalDate): JsValue =
+      JodaWrites.DefaultJodaLocalDateWrites.writes(o)
   }
 
   implicit val formats = Json.format[Person]

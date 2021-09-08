@@ -85,8 +85,12 @@ class AddressFinderDtoSpec extends BaseSpec {
         .fold(
           formWithErrors => {
             formWithErrors.errors.length mustBe 2
-            formWithErrors.errors(0).message mustBe "error.enter_a_valid_uk_postcode"
-            formWithErrors.errors(1).message mustBe "error.enter_valid_characters"
+            formWithErrors
+              .errors(0)
+              .message mustBe "error.enter_a_valid_uk_postcode"
+            formWithErrors
+              .errors(1)
+              .message mustBe "error.enter_valid_characters"
           },
           success => fail("Form should give an error")
         )

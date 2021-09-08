@@ -43,7 +43,14 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       )
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      Some(
+        CacheMap(
+          "id",
+          Map(
+            "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
+          )
+        )
+      )
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
@@ -81,14 +88,17 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/find-address")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/sole/find-address"
+      )
     }
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
 
       lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
-      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
+      when(mockConfigDecorator.updateInternationalAddressInPta)
+        .thenReturn(false)
 
       override def controller: InternationalAddressChoiceController =
         new InternationalAddressChoiceController(
@@ -108,12 +118,15 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/cannot-use-the-service")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/sole/cannot-use-the-service"
+      )
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "").asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 

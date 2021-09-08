@@ -36,33 +36,37 @@ class PaymentsController @Inject() (
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear {
+)(implicit
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
   private val logger = Logger(this.getClass)
 
   def makePayment: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
-      implicit request =>
-        if (request.isSa) {
-          request.saUserType match {
-            case saUser: SelfAssessmentUser =>
-              val paymentRequest = PaymentRequest(configDecorator, saUser.saUtr.toString())
-              for {
-                response <- payApiConnector.createPayment(paymentRequest)
-              } yield response match {
-                case Some(createPayment) => Redirect(createPayment.nextUrl)
-                case None                => errorRenderer.error(BAD_REQUEST)
-              }
-            case NonFilerSelfAssessmentUser =>
-              logger.warn("User had no sa account when one was required")
-              errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-          }
-        } else {
-          logger.warn("User had no sa account when one was required")
-          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
+      if (request.isSa)
+        request.saUserType match {
+          case saUser: SelfAssessmentUser =>
+            val paymentRequest =
+              PaymentRequest(configDecorator, saUser.saUtr.toString())
+            for {
+              response <- payApiConnector.createPayment(paymentRequest)
+            } yield response match {
+              case Some(createPayment) => Redirect(createPayment.nextUrl)
+              case None                => errorRenderer.error(BAD_REQUEST)
+            }
+          case NonFilerSelfAssessmentUser =>
+            logger.warn("User had no sa account when one was required")
+            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
         }
+      else {
+        logger.warn("User had no sa account when one was required")
+        errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+      }
     }
 }

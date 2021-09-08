@@ -48,57 +48,92 @@ class PersonalDetailsController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView,
   personalDetailsViewV2: PersonalDetailsViewV2
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
-  def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    import models.dto.AddressPageVisitedDto
+  def onPageLoad: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      import models.dto.AddressPageVisitedDto
 
-    for {
-      addressModel <- request.nino
-                        .map { nino =>
-                          editAddressLockRepository.get(nino.withoutSuffix)
-                        }
-                        .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
-      ninoToDisplay <- ninoDisplayService.getNino
-      personalDetailsCards: Seq[Html] = personalDetailsCardGenerator
-                                          .getPersonalDetailsCards(addressModel, ninoToDisplay)
-      personDetails: Option[PersonDetails] = request.personDetails
+      for {
+        addressModel <- request.nino
+                          .map { nino =>
+                            editAddressLockRepository.get(nino.withoutSuffix)
+                          }
+                          .getOrElse(
+                            Future.successful(List[AddressJourneyTTLModel]())
+                          )
+        ninoToDisplay <- ninoDisplayService.getNino
+        personalDetailsCards: Seq[Html] =
+          personalDetailsCardGenerator
+            .getPersonalDetailsCards(addressModel, ninoToDisplay)
+        personDetails: Option[PersonDetails] = request.personDetails
 
-      _ <- personDetails
-             .map { details =>
-               auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
-             }
-             .getOrElse(Future.successful(Unit))
-      _ <- cachingHelper.addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+        _ <- personDetails
+               .map { details =>
+                 auditConnector.sendEvent(
+                   buildPersonDetailsEvent(
+                     "personalDetailsPageLinkClicked",
+                     details
+                   )
+                 )
+               }
+               .getOrElse(Future.successful(Unit))
+        _ <- cachingHelper
+               .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
-    } yield Ok(personalDetailsView(personalDetailsCards))
-  }
+      } yield Ok(personalDetailsView(personalDetailsCards))
+    }
 
-  def onPageLoadv2: Action[AnyContent] = authenticate.async { implicit request =>
-    import models.dto.AddressPageVisitedDto
+  def onPageLoadv2: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      import models.dto.AddressPageVisitedDto
 
-    for {
-      addressModel <- request.nino
-                        .map { nino =>
-                          editAddressLockRepository.get(nino.withoutSuffix)
-                        }
-                        .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
-      ninoToDisplay <- ninoDisplayService.getNino
+      for {
+        addressModel <- request.nino
+                          .map { nino =>
+                            editAddressLockRepository.get(nino.withoutSuffix)
+                          }
+                          .getOrElse(
+                            Future.successful(List[AddressJourneyTTLModel]())
+                          )
+        ninoToDisplay <- ninoDisplayService.getNino
 
-      personalDetails = personalDetailsViewModel.getPersonDetailsTable(addressModel, ninoToDisplay)
-      trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
-      paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
-      signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
-      personDetails: Option[PersonDetails] = request.personDetails
+        personalDetails = personalDetailsViewModel
+                            .getPersonDetailsTable(addressModel, ninoToDisplay)
+        trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
+        paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
+        signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
+        personDetails: Option[PersonDetails] = request.personDetails
 
-      _ <- personDetails
-             .map { details =>
-               auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
-             }
-             .getOrElse(Future.successful(Unit))
-      _ <- cachingHelper.addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
+        _ <- personDetails
+               .map { details =>
+                 auditConnector.sendEvent(
+                   buildPersonDetailsEvent(
+                     "personalDetailsPageLinkClicked",
+                     details
+                   )
+                 )
+               }
+               .getOrElse(Future.successful(Unit))
+        _ <- cachingHelper
+               .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
-    } yield Ok(personalDetailsViewV2(personalDetails, trustedHelpers, paperlessHelpers, signinDetailsHelpers))
-  }
+      } yield Ok(
+        personalDetailsViewV2(
+          personalDetails,
+          trustedHelpers,
+          paperlessHelpers,
+          signinDetailsHelpers
+        )
+      )
+    }
 }

@@ -35,7 +35,8 @@ import scala.concurrent.Future
 class PaperlessInterruptHelperSpec extends BaseSpec {
 
   val paperlessInterruptHelper = new PaperlessInterruptHelper {
-    override val preferencesFrontendService: PreferencesFrontendService = mock[PreferencesFrontendService]
+    override val preferencesFrontendService: PreferencesFrontendService =
+      mock[PreferencesFrontendService]
   }
 
   val okBlock: Result = Ok("Block")
@@ -60,11 +61,17 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
   "enforcePaperlessPreference" when {
     "the enforce paperless preference toggle is set to true" must {
       "Redirect to paperless interupt page for a user who has no enrolments" in {
-        when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
-          Future.successful(ActivatePaperlessRequiresUserActionResponse("/activate-paperless"))
+        when(
+          paperlessInterruptHelper.preferencesFrontendService
+            .getPaperlessPreference()(any())
+        ) thenReturn {
+          Future.successful(
+            ActivatePaperlessRequiresUserActionResponse("/activate-paperless")
+          )
         }
 
-        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(true)
+        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled)
+          .thenReturn(true)
 
         val r = paperlessInterruptHelper.enforcePaperlessPreference(Future(Ok))
         status(r) mustBe SEE_OTHER
@@ -72,20 +79,27 @@ class PaperlessInterruptHelperSpec extends BaseSpec {
       }
 
       "Return the result of the block when getPaperlessPreference does not return ActivatePaperlessRequiresUserActionResponse" in {
-        when(paperlessInterruptHelper.preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
+        when(
+          paperlessInterruptHelper.preferencesFrontendService
+            .getPaperlessPreference()(any())
+        ) thenReturn {
           Future.successful(ActivatePaperlessNotAllowedResponse)
         }
 
-        val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock)).futureValue
+        val result = paperlessInterruptHelper
+          .enforcePaperlessPreference(Future(okBlock))
+          .futureValue
         result mustBe okBlock
       }
     }
 
     "the enforce paperless preference toggle is set to false" must {
       "return the result of a passed in block" in {
-        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled).thenReturn(false)
+        when(mockConfigDecorator.enforcePaperlessPreferenceEnabled)
+          .thenReturn(false)
 
-        val result = paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock))
+        val result =
+          paperlessInterruptHelper.enforcePaperlessPreference(Future(okBlock))
         result.futureValue mustBe okBlock
       }
     }

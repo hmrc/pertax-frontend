@@ -33,14 +33,18 @@ class ViewNationalInsuranceInterstitialHomeViewSpec extends ViewSpec {
   "Rendering ViewNationalInsuranceInterstitialHomeView.scala.html" must {
 
     "show NINO section when a nino is present" in {
-      val document = asDocument(view(Html(""), "asfa", userRequest.nino).toString)
+      val document =
+        asDocument(view(Html(""), "asfa", userRequest.nino).toString)
       Option(document.select(".nino").first).isDefined mustBe true
     }
 
     "show incomplete when there is no NINO" in {
-      val document = asDocument(view(Html(""), "http://google.com", None).toString)
+      val document =
+        asDocument(view(Html(""), "http://google.com", None).toString)
       Option(document.select(".nino").first).isDefined mustBe false
-      document.body().toString must include(messages("label.you_can_see_this_part_of_your_account_if_you_complete"))
+      document.body().toString must include(
+        messages("label.you_can_see_this_part_of_your_account_if_you_complete")
+      )
     }
 
   }

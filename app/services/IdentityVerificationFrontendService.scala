@@ -28,10 +28,14 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 trait IdentityVerificationResponse
-case class IdentityVerificationSuccessResponse(result: String) extends IdentityVerificationResponse
-case object IdentityVerificationNotFoundResponse extends IdentityVerificationResponse
-case class IdentityVerificationUnexpectedResponse(r: HttpResponse) extends IdentityVerificationResponse
-case class IdentityVerificationErrorResponse(cause: Exception) extends IdentityVerificationResponse
+case class IdentityVerificationSuccessResponse(result: String)
+    extends IdentityVerificationResponse
+case object IdentityVerificationNotFoundResponse
+    extends IdentityVerificationResponse
+case class IdentityVerificationUnexpectedResponse(r: HttpResponse)
+    extends IdentityVerificationResponse
+case class IdentityVerificationErrorResponse(cause: Exception)
+    extends IdentityVerificationResponse
 
 object IdentityVerificationSuccessResponse {
   val Success = "Success"
@@ -53,9 +57,12 @@ class IdentityVerificationFrontendService @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
+  lazy val identityVerificationFrontendUrl: String =
+    servicesConfig.baseUrl("identity-verification-frontend")
 
-  def getIVJourneyStatus(journeyId: String)(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
+  def getIVJourneyStatus(
+    journeyId: String
+  )(implicit hc: HeaderCarrier): Future[IdentityVerificationResponse] =
     withMetricsTimer("get-iv-journey-status") { t =>
       simpleHttp.get[IdentityVerificationResponse](
         s"$identityVerificationFrontendUrl/mdtp/journey/journeyId/$journeyId"
@@ -72,7 +79,9 @@ class IdentityVerificationFrontendService @Inject() (
 
           case r if r.status == NOT_FOUND =>
             t.completeTimerAndIncrementFailedCounter()
-            logger.warn("Unable to get IV journey status from identity-verification-frontend-service")
+            logger.warn(
+              "Unable to get IV journey status from identity-verification-frontend-service"
+            )
             IdentityVerificationNotFoundResponse
 
           case r =>
@@ -82,10 +91,14 @@ class IdentityVerificationFrontendService @Inject() (
             )
             IdentityVerificationUnexpectedResponse(r)
         },
-        onError = { case e =>
-          t.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting IV journey status from identity-verification-frontend-service", e)
-          IdentityVerificationErrorResponse(e)
+        onError = {
+          case e =>
+            t.completeTimerAndIncrementFailedCounter()
+            logger.warn(
+              "Error getting IV journey status from identity-verification-frontend-service",
+              e
+            )
+            IdentityVerificationErrorResponse(e)
         }
       )
 

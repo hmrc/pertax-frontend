@@ -38,14 +38,15 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
   val nationalInsurance = injected[NationalInsuranceView]
   val changeName = injected[ChangeNameView]
 
-  def controller = new PersonalDetailsCardGenerator(
-    mockConfigDecorator,
-    injected[CountryHelper],
-    mainAddress,
-    postalAddress,
-    nationalInsurance,
-    changeName
-  )
+  def controller =
+    new PersonalDetailsCardGenerator(
+      mockConfigDecorator,
+      injected[CountryHelper],
+      mainAddress,
+      postalAddress,
+      nationalInsurance,
+      changeName
+    )
 
   trait MainAddressSetup {
 
@@ -75,7 +76,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
           Some(Fixtures.fakeNino)
         ),
         Some(Fixtures.buildFakeAddress),
-        if (userHasCorrespondenceAddress) Some(Fixtures.buildFakeAddress) else None
+        if (userHasCorrespondenceAddress) Some(Fixtures.buildFakeAddress)
+        else None
       )
 
     when(mockConfigDecorator.taxCreditsEnabled) thenReturn taxCreditsEnabled
@@ -117,13 +119,24 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val isLocked = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+        mainAddress(
+          buildPersonDetails,
+          taxCreditsEnabled,
+          userHasCorrespondenceAddress,
+          isLocked,
+          excludedCountries
+        )
       )
 
-      cardBody.map(_.body).get must not include "Change where we send your letters"
+      cardBody
+        .map(_.body)
+        .get must not include "Change where we send your letters"
     }
 
     "return the correct markup when there are person details and the user does not have a correspondence address" in new MainAddressSetup {
@@ -134,10 +147,19 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val isLocked = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+        mainAddress(
+          buildPersonDetails,
+          taxCreditsEnabled,
+          userHasCorrespondenceAddress,
+          isLocked,
+          excludedCountries
+        )
       )
 
       cardBody.map(_.body).get must include("Change where we send your letters")
@@ -151,13 +173,24 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val isLocked = true
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+        mainAddress(
+          buildPersonDetails,
+          taxCreditsEnabled,
+          userHasCorrespondenceAddress,
+          isLocked,
+          excludedCountries
+        )
       )
 
-      cardBody.map(_.body).get must not include "Change where we send your letters"
+      cardBody
+        .map(_.body)
+        .get must not include "Change where we send your letters"
     }
 
     "return the correct markup when there are person details and the user has edited their view address" in new MainAddressSetup {
@@ -168,13 +201,24 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val isLocked = true
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+        mainAddress(
+          buildPersonDetails,
+          taxCreditsEnabled,
+          userHasCorrespondenceAddress,
+          isLocked,
+          excludedCountries
+        )
       )
 
-      cardBody.map(_.body).get must include("You can only change this address once a day. Please try again tomorrow.")
+      cardBody.map(_.body).get must include(
+        "You can only change this address once a day. Please try again tomorrow."
+      )
     }
 
     "return the correct markup when tax credits is enabled" in new MainAddressSetup {
@@ -185,13 +229,24 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val isLocked = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+        mainAddress(
+          buildPersonDetails,
+          taxCreditsEnabled,
+          userHasCorrespondenceAddress,
+          isLocked,
+          excludedCountries
+        )
       )
 
-      cardBody.map(_.body).get must not include "Change where we send your letters"
+      cardBody
+        .map(_.body)
+        .get must not include "Change where we send your letters"
     }
 
     "return the correct markup when tax credits is disabled" in new MainAddressSetup {
@@ -202,13 +257,24 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val isLocked = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe Some(
-        mainAddress(buildPersonDetails, taxCreditsEnabled, userHasCorrespondenceAddress, isLocked, excludedCountries)
+        mainAddress(
+          buildPersonDetails,
+          taxCreditsEnabled,
+          userHasCorrespondenceAddress,
+          isLocked,
+          excludedCountries
+        )
       )
 
-      cardBody.map(_.body).get must not include "Change where we send your letters"
+      cardBody
+        .map(_.body)
+        .get must not include "Change where we send your letters"
     }
   }
 
@@ -240,40 +306,47 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
           Some(Fixtures.fakeNino)
         ),
         Some(buildFakeAddress),
-        if (userHasCorrespondenceAddress && userHasWelshLanguageUnitAddress) Some(buildFakeWLUAddress)
+        if (userHasCorrespondenceAddress && userHasWelshLanguageUnitAddress)
+          Some(buildFakeWLUAddress)
         else if (userHasCorrespondenceAddress) Some(buildFakeAddress)
         else None
       )
 
-    def buildFakeAddress = Address(
-      Some("1 Fake Street"),
-      Some("Fake Town"),
-      Some("Fake City"),
-      Some("Fake Region"),
-      None,
-      Some("AA1 1AA"),
-      None,
-      if (isLocked) Some(LocalDate.now()) else Some(LocalDate.now().minusDays(1)),
-      None,
-      Some("Residential")
-    )
+    def buildFakeAddress =
+      Address(
+        Some("1 Fake Street"),
+        Some("Fake Town"),
+        Some("Fake City"),
+        Some("Fake Region"),
+        None,
+        Some("AA1 1AA"),
+        None,
+        if (isLocked) Some(LocalDate.now())
+        else Some(LocalDate.now().minusDays(1)),
+        None,
+        Some("Residential")
+      )
 
-    def buildFakeWLUAddress = Address(
-      Some("1 Fake Street"),
-      Some("Fake Town"),
-      Some("Fake City"),
-      Some("Fake Region"),
-      None,
-      Some("CF145SH"),
-      None,
-      if (isLocked) Some(LocalDate.now()) else Some(LocalDate.now().minusDays(1)),
-      None,
-      Some("Residential")
-    )
+    def buildFakeWLUAddress =
+      Address(
+        Some("1 Fake Street"),
+        Some("Fake Town"),
+        Some("Fake City"),
+        Some("Fake Region"),
+        None,
+        Some("CF145SH"),
+        None,
+        if (isLocked) Some(LocalDate.now())
+        else Some(LocalDate.now().minusDays(1)),
+        None,
+        Some("Residential")
+      )
 
     def cardBody = controller.getPostalAddressCard(isLocked)
 
-    when(controller.configDecorator.closePostalAddressEnabled) thenReturn closePostalAddressEnabled
+    when(
+      controller.configDecorator.closePostalAddressEnabled
+    ) thenReturn closePostalAddressEnabled
 
     lazy val excludedCountries = List(
       Country("GREAT BRITAIN"),
@@ -307,7 +380,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe None
     }
@@ -320,9 +396,19 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
-      cardBody mustBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, closePostalAddressEnabled))
+      cardBody mustBe Some(
+        postalAddress(
+          buildPersonDetails,
+          isLocked,
+          excludedCountries,
+          closePostalAddressEnabled
+        )
+      )
 
     }
 
@@ -334,9 +420,19 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val closePostalAddressEnabled = true
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
-      cardBody mustBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, closePostalAddressEnabled))
+      cardBody mustBe Some(
+        postalAddress(
+          buildPersonDetails,
+          isLocked,
+          excludedCountries,
+          closePostalAddressEnabled
+        )
+      )
 
     }
 
@@ -348,9 +444,14 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
-      cardBody mustBe Some(postalAddress(buildPersonDetails, isLocked, excludedCountries, false))
+      cardBody mustBe Some(
+        postalAddress(buildPersonDetails, isLocked, excludedCountries, false)
+      )
 
     }
 
@@ -362,7 +463,10 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       override lazy val closePostalAddressEnabled = false
 
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe None
     }
@@ -378,7 +482,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
     "always return the same markup" in new LocalSetup {
 
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(request = FakeRequest())
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
 
       cardBody mustBe Some(nationalInsurance(userRequest.nino.get))
     }
@@ -413,14 +518,21 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
 
     "always return the correct markup when user has a name" in new LocalSetup {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = Some(buildPersonDetails), request = FakeRequest())
+        buildUserRequest(
+          personDetails = Some(buildPersonDetails),
+          request = FakeRequest()
+        )
 
       cardBody mustBe Some(changeName())
     }
 
     "always return None when user does not have a name available" in new LocalSetup {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(personDetails = None, userName = None, request = FakeRequest())
+        buildUserRequest(
+          personDetails = None,
+          userName = None,
+          request = FakeRequest()
+        )
 
       cardBody mustBe None
     }

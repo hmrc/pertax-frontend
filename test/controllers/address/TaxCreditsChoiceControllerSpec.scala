@@ -42,7 +42,14 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
       )
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      Some(
+        CacheMap(
+          "id",
+          Map(
+            "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
+          )
+        )
+      )
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
@@ -81,7 +88,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         controller.onSubmit()(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
+      redirectLocation(result) mustBe Some(
+        "http://localhost:9362/tax-credits-service/personal/change-address"
+      )
     }
 
     "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
@@ -94,7 +103,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residency-choice")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/residency-choice"
+      )
     }
 
     "return a bad request when supplied no value" in new LocalSetup {

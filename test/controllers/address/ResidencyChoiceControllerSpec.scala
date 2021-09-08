@@ -41,7 +41,12 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
       )
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))))
+      Some(
+        CacheMap(
+          "id",
+          Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(false)))
+        )
+      )
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
@@ -58,7 +63,12 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
     "return to the beginning of journey when the user has indicated that they receive tax credits on the previous page" in new LocalSetup {
       override def sessionCacheResponse: Some[CacheMap] =
-        Some(CacheMap("id", Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(true)))))
+        Some(
+          CacheMap(
+            "id",
+            Map("taxCreditsChoiceDto" -> Json.toJson(TaxCreditsChoiceDto(true)))
+          )
+        )
 
       val result = controller.onPageLoad(FakeRequest())
 
@@ -90,7 +100,9 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/do-you-live-in-the-uk")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/primary/do-you-live-in-the-uk"
+      )
     }
 
     "redirect to find address page with sole type when supplied value=sole" in new LocalSetup {
@@ -103,7 +115,9 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/sole/do-you-live-in-the-uk"
+      )
     }
 
     "return a bad request when supplied value=bad" in new LocalSetup {
@@ -120,7 +134,8 @@ class ResidencyChoiceControllerSpec extends AddressBaseSpec {
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "").asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(FakeRequest())
 

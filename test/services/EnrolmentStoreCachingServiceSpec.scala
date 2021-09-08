@@ -39,17 +39,24 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
     lazy val sut: EnrolmentStoreCachingService = {
 
-      val c = new EnrolmentStoreCachingService(mockSessionCache, mockEnrolmentsConnector)
+      val c = new EnrolmentStoreCachingService(
+        mockSessionCache,
+        mockEnrolmentsConnector
+      )
 
       when(
-        mockSessionCache.cache[SelfAssessmentUserType](any(), any())(any(), any(), any())
+        mockSessionCache
+          .cache[SelfAssessmentUserType](any(), any())(any(), any(), any())
       ) thenReturn Future.successful(cacheResult)
 
       when(
-        mockSessionCache.fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
+        mockSessionCache
+          .fetchAndGetEntry[SelfAssessmentUserType](any())(any(), any(), any())
       ) thenReturn Future.successful(fetchResult)
 
-      when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())) thenReturn Future.successful(
+      when(
+        mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())
+      ) thenReturn Future.successful(
         connectorResult
       )
 
@@ -65,21 +72,29 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
 
       "return NonFilerSelfAssessmentUser when the connector returns a Left" in new LocalSetup {
 
-        override val connectorResult: Either[String, Seq[String]] = Left("An error has occurred")
+        override val connectorResult: Either[String, Seq[String]] =
+          Left("An error has occurred")
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe NonFilerSelfAssessmentUser
+        sut
+          .getSaUserTypeFromCache(saUtr)
+          .futureValue mustBe NonFilerSelfAssessmentUser
       }
 
       "return NotEnrolledSelfAssessmentUser when the connector returns a Right with an empty sequence" in new LocalSetup {
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe NotEnrolledSelfAssessmentUser(saUtr)
+        sut
+          .getSaUserTypeFromCache(saUtr)
+          .futureValue mustBe NotEnrolledSelfAssessmentUser(saUtr)
       }
 
       "return WrongCredentialsSelfAssessmentUser when the connector returns a Right with a non-empty sequence" in new LocalSetup {
 
-        override val connectorResult: Either[String, Seq[String]] = Right(Seq[String]("Hello there"))
+        override val connectorResult: Either[String, Seq[String]] =
+          Right(Seq[String]("Hello there"))
 
-        sut.getSaUserTypeFromCache(saUtr).futureValue mustBe WrongCredentialsSelfAssessmentUser(saUtr)
+        sut
+          .getSaUserTypeFromCache(saUtr)
+          .futureValue mustBe WrongCredentialsSelfAssessmentUser(saUtr)
       }
     }
   }

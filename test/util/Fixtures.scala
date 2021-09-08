@@ -66,7 +66,14 @@ trait PafFixtures {
   )
 
   val oneOtherPlacePafAddress =
-    PafAddress(List("2 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", subDivision, exampleCountryUK)
+    PafAddress(
+      List("2 Other Place", "Some District"),
+      Some("Anytown"),
+      None,
+      "AA1 1AA",
+      subDivision,
+      exampleCountryUK
+    )
   val twoOtherPlacePafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
@@ -77,10 +84,19 @@ trait PafFixtures {
       exampleCountryUK
     )
   val otherPlacePafDifferentPostcodeAddress =
-    PafAddress(List("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", subDivision, exampleCountryUK)
+    PafAddress(
+      List("3 Other Place", "Some District"),
+      Some("Anytown"),
+      None,
+      "AA1 2AA",
+      subDivision,
+      exampleCountryUK
+    )
 
-  val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
-  val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
+  val oneOtherPlacePafAddressRecord =
+    AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
+  val twoOtherPlacePafAddressRecord =
+    AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
   val otherPlacePafDifferentPostcodeAddressRecord =
     AddressRecord("GB990091234516", otherPlacePafDifferentPostcodeAddress, "en")
 
@@ -104,14 +120,27 @@ trait PafFixtures {
 
 trait TaiFixtures {
 
-  def buildTaxComponents: TaxComponents = TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
+  def buildTaxComponents: TaxComponents =
+    TaxComponents(Seq("EmployerProvidedServices", "PersonalPensionPayments"))
 }
 
 trait TaxCalculationFixtures {
-  def buildTaxCalculation = TaxCalculation("Overpaid", BigDecimal(84.23), 2015, Some("REFUND"), None, None, None)
+  def buildTaxCalculation =
+    TaxCalculation(
+      "Overpaid",
+      BigDecimal(84.23),
+      2015,
+      Some("REFUND"),
+      None,
+      None,
+      None
+    )
 
   def buildTaxYearReconciliations: List[TaxYearReconciliation] =
-    List(TaxYearReconciliation(2015, Balanced), TaxYearReconciliation(2016, Balanced))
+    List(
+      TaxYearReconciliation(2015, Balanced),
+      TaxYearReconciliation(2016, Balanced)
+    )
 }
 
 trait CitizenDetailsFixtures {
@@ -149,121 +178,138 @@ trait CitizenDetailsFixtures {
       Some(buildFakeCorrespondenceAddress)
     )
 
-  def buildFakeAddress = Address(
-    Some("1 Fake Street"),
-    Some("Fake Town"),
-    Some("Fake City"),
-    Some("Fake Region"),
-    None,
-    Some("AA1 1AA"),
-    None,
-    Some(new LocalDate(2015, 3, 15)),
-    None,
-    Some("Residential")
-  )
+  def buildFakeAddress =
+    Address(
+      Some("1 Fake Street"),
+      Some("Fake Town"),
+      Some("Fake City"),
+      Some("Fake Region"),
+      None,
+      Some("AA1 1AA"),
+      None,
+      Some(new LocalDate(2015, 3, 15)),
+      None,
+      Some("Residential")
+    )
 
-  def buildFakeCorrespondenceAddress = Address(
-    Some("1 Fake Street"),
-    Some("Fake Town"),
-    Some("Fake City"),
-    Some("Fake Region"),
-    None,
-    Some("AA1 1AA"),
-    None,
-    Some(new LocalDate(2015, 3, 15)),
-    None,
-    Some("Correspondence")
-  )
+  def buildFakeCorrespondenceAddress =
+    Address(
+      Some("1 Fake Street"),
+      Some("Fake Town"),
+      Some("Fake City"),
+      Some("Fake Region"),
+      None,
+      Some("AA1 1AA"),
+      None,
+      Some(new LocalDate(2015, 3, 15)),
+      None,
+      Some("Correspondence")
+    )
 
-  def buildFakeAddressWithEndDate = Address(
-    Some("1 Fake Street"),
-    Some("Fake Town"),
-    Some("Fake City"),
-    Some("Fake Region"),
-    None,
-    Some("AA1 1AA"),
-    None,
-    Some(new LocalDate(now)),
-    Some(new LocalDate(now)),
-    Some("Correspondence")
-  )
+  def buildFakeAddressWithEndDate =
+    Address(
+      Some("1 Fake Street"),
+      Some("Fake Town"),
+      Some("Fake City"),
+      Some("Fake Region"),
+      None,
+      Some("AA1 1AA"),
+      None,
+      Some(new LocalDate(now)),
+      Some(new LocalDate(now)),
+      Some("Correspondence")
+    )
 
   def buildFakeJsonAddress = Json.toJson(buildFakeAddress)
 
-  def asAddressDto(l: List[(String, String)]) = AddressDto.ukForm.bind(l.toMap).get
+  def asAddressDto(l: List[(String, String)]) =
+    AddressDto.ukForm.bind(l.toMap).get
 
-  def asInternationalAddressDto(l: List[(String, String)]) = AddressDto.internationalForm.bind(l.toMap).get
+  def asInternationalAddressDto(l: List[(String, String)]) =
+    AddressDto.internationalForm.bind(l.toMap).get
 
-  def fakeStreetTupleListAddressForUnmodified: List[(String, String)] = List(
-    ("line1", "1 Fake Street"),
-    ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
-    ("postcode", "AA1 1AA")
-  )
+  def fakeStreetTupleListAddressForUnmodified: List[(String, String)] =
+    List(
+      ("line1", "1 Fake Street"),
+      ("line2", "Fake Town"),
+      ("line3", "Fake City"),
+      ("line4", "Fake Region"),
+      ("line5", ""),
+      ("postcode", "AA1 1AA")
+    )
 
-  def fakeStreetTupleListInternationalAddress: List[(String, String)] = List(
-    ("line1", "1 Fake Street"),
-    ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
-    ("country", "South Georgia and South Sandwich Island")
-  )
+  def fakeStreetTupleListInternationalAddress: List[(String, String)] =
+    List(
+      ("line1", "1 Fake Street"),
+      ("line2", "Fake Town"),
+      ("line3", "Fake City"),
+      ("line4", "Fake Region"),
+      ("line5", ""),
+      ("country", "South Georgia and South Sandwich Island")
+    )
 
-  def fakeStreetTupleListAddressForUnmodifiedLowerCase: List[(String, String)] = List(
-    ("line1", "1 Fake Street"),
-    ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
-    ("postcode", "aa1 1aa")
-  )
+  def fakeStreetTupleListAddressForUnmodifiedLowerCase: List[(String, String)] =
+    List(
+      ("line1", "1 Fake Street"),
+      ("line2", "Fake Town"),
+      ("line3", "Fake City"),
+      ("line4", "Fake Region"),
+      ("line5", ""),
+      ("postcode", "aa1 1aa")
+    )
 
-  def fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode: List[(String, String)] = List(
-    ("line1", "1 Fake Street"),
-    ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
-    ("postcode", "AA11AA")
-  )
+  def fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode
+    : List[(String, String)] =
+    List(
+      ("line1", "1 Fake Street"),
+      ("line2", "Fake Town"),
+      ("line3", "Fake City"),
+      ("line4", "Fake Region"),
+      ("line5", ""),
+      ("postcode", "AA11AA")
+    )
 
-  def fakeStreetTupleListAddressForManualyEntered: List[(String, String)] = List(
-    ("line1", "1 Fake Street"),
-    ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
-    ("postcode", "AA1 1AA")
-  )
+  def fakeStreetTupleListAddressForManualyEntered: List[(String, String)] =
+    List(
+      ("line1", "1 Fake Street"),
+      ("line2", "Fake Town"),
+      ("line3", "Fake City"),
+      ("line4", "Fake Region"),
+      ("line5", ""),
+      ("postcode", "AA1 1AA")
+    )
 
-  def fakeStreetTupleListAddressForModified: List[(String, String)] = List(
-    ("line1", "11 Fake Street"), //Note 11 not 1
-    ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
-    ("postcode", "AA1 1AA")
-  )
+  def fakeStreetTupleListAddressForModified: List[(String, String)] =
+    List(
+      ("line1", "11 Fake Street"), //Note 11 not 1
+      ("line2", "Fake Town"),
+      ("line3", "Fake City"),
+      ("line4", "Fake Region"),
+      ("line5", ""),
+      ("postcode", "AA1 1AA")
+    )
 
-  def fakeStreetTupleListAddressForModifiedPostcode: List[(String, String)] = List(
-    ("line1", "11 Fake Street"), //Note 11 not 1
-    ("line2", "Fake Town"),
-    ("line3", "Fake City"),
-    ("line4", "Fake Region"),
-    ("line5", ""),
-    ("postcode", "AA1 2AA")
-  )
+  def fakeStreetTupleListAddressForModifiedPostcode: List[(String, String)] =
+    List(
+      ("line1", "11 Fake Street"), //Note 11 not 1
+      ("line2", "Fake Town"),
+      ("line3", "Fake City"),
+      ("line4", "Fake Region"),
+      ("line5", ""),
+      ("postcode", "AA1 2AA")
+    )
 }
 
-object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures with TaxCalculationFixtures {
+object Fixtures
+    extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
+    with TaxCalculationFixtures {
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
   def buildFakeRequestWithSessionId(method: String) =
-    FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
+    FakeRequest(method, "/personal-account").withSession(
+      "sessionId" -> "FAKE_SESSION_ID"
+    )
 
   def buildFakeRequestWithAuth(
     method: String,
@@ -309,15 +355,18 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 }
 
 trait BaseSpec
-    extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with PatienceConfiguration with BeforeAndAfterEach
-    with MockitoSugar with ScalaFutures {
+    extends AnyWordSpec with GuiceOneAppPerSuite with Matchers
+    with PatienceConfiguration with BeforeAndAfterEach with MockitoSugar
+    with ScalaFutures {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()
 
   val mockPartialRetriever = mock[FormPartialRetriever]
 
-  when(mockPartialRetriever.getPartialContent(any(), any(), any())(any(), any())) thenReturn Html("")
+  when(
+    mockPartialRetriever.getPartialContent(any(), any(), any())(any(), any())
+  ) thenReturn Html("")
 
   val configValues =
     Map(
@@ -336,7 +385,8 @@ trait BaseSpec
       )
       .configure(configValues)
 
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+  override implicit lazy val app: Application =
+    localGuiceApplicationBuilder().build()
 
   implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
@@ -346,11 +396,16 @@ trait BaseSpec
 
   def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
 
-  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
+  def injected[T](implicit evidence: ClassTag[T]): T =
+    app.injector.instanceOf[T]
 
 }
 trait ActionBuilderFixture extends ActionBuilder[UserRequest, AnyContent] {
-  override def invokeBlock[A](a: Request[A], block: UserRequest[A] => Future[Result]): Future[Result]
+  override def invokeBlock[A](
+    a: Request[A],
+    block: UserRequest[A] => Future[Result]
+  ): Future[Result]
   override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser()
-  override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  override protected def executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
 }

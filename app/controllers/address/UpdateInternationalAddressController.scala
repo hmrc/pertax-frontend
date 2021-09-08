@@ -42,8 +42,16 @@ class UpdateInternationalAddressController @Inject() (
   cc: MessagesControllerComponents,
   updateInternationalAddressView: UpdateInternationalAddressView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -52,15 +60,22 @@ class UpdateInternationalAddressController @Inject() (
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(
-                buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = true)
+                buildAddressChangeEvent(
+                  "postalAddressChangeLinkClicked",
+                  personDetails,
+                  isInternationalAddress = true
+                )
               )
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
+              cachingHelper.enforceDisplayAddressPageVisited(
+                journeyData.addressPageVisitedDto
+              ) {
                 Future.successful(
                   Ok(
                     updateInternationalAddressView(
-                      journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(
-                        AddressDto.internationalForm.fill
-                      ),
+                      journeyData.submittedAddressDto
+                        .fold(AddressDto.internationalForm)(
+                          AddressDto.internationalForm.fill
+                        ),
                       typ,
                       countryHelper.countries
                     )
@@ -70,12 +85,20 @@ class UpdateInternationalAddressController @Inject() (
 
             case _ =>
               auditConnector.sendEvent(
-                buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true)
+                buildAddressChangeEvent(
+                  "mainAddressChangeLinkClicked",
+                  personDetails,
+                  isInternationalAddress = true
+                )
               )
               cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { _ =>
                 Future.successful(
                   Ok(
-                    updateInternationalAddressView(AddressDto.internationalForm, typ, countryHelper.countries)
+                    updateInternationalAddressView(
+                      AddressDto.internationalForm,
+                      typ,
+                      countryHelper.countries
+                    )
                   )
                 )
               }
@@ -91,17 +114,34 @@ class UpdateInternationalAddressController @Inject() (
           AddressDto.internationalForm.bindFromRequest.fold(
             formWithErrors =>
               Future.successful(
-                BadRequest(updateInternationalAddressView(formWithErrors, typ, countryHelper.countries))
+                BadRequest(
+                  updateInternationalAddressView(
+                    formWithErrors,
+                    typ,
+                    countryHelper.countries
+                  )
+                )
               ),
             addressDto =>
-              cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
-                typ match {
-                  case PostalAddrType =>
-                    cachingHelper.addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now()))
-                    Future.successful(Redirect(routes.AddressSubmissionController.onPageLoad(typ)))
-                  case _ =>
-                    Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
-                }
+              cachingHelper
+                .addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap {
+                _ =>
+                  typ match {
+                    case PostalAddrType =>
+                      cachingHelper.addToCache(
+                        SubmittedStartDateId(typ),
+                        DateDto(LocalDate.now())
+                      )
+                      Future.successful(
+                        Redirect(
+                          routes.AddressSubmissionController.onPageLoad(typ)
+                        )
+                      )
+                    case _ =>
+                      Future.successful(
+                        Redirect(routes.StartDateController.onPageLoad(typ))
+                      )
+                  }
               }
           )
         }

@@ -24,11 +24,16 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 object MockTemplateRenderer extends TemplateRenderer {
-  override lazy val templateServiceBaseUrl = "http://example.com/template/mustache"
+  override lazy val templateServiceBaseUrl =
+    "http://example.com/template/mustache"
   override val refreshAfter = 10 minutes
   override def fetchTemplate(path: String): Future[String] = ???
 
-  override def renderDefaultTemplate(path: String, content: Html, extraArgs: Map[String, Any])(implicit
+  override def renderDefaultTemplate(
+    path: String,
+    content: Html,
+    extraArgs: Map[String, Any]
+  )(implicit
     messages: Messages
   ) =
     content

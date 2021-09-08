@@ -39,7 +39,10 @@ class EditAddressLockRepositorySpec extends BaseSpec {
         val london: TimeZone = TimeZone.getTimeZone("Europe/London")
         val instantInUK = tomorrow.toInstant.atZone(london.toZoneId)
 
-        val expected = instantInUK.toLocalDate.atStartOfDay().atZone(london.toZoneId).toOffsetDateTime
+        val expected = instantInUK.toLocalDate
+          .atStartOfDay()
+          .atZone(london.toZoneId)
+          .toOffsetDateTime
 
         getNextMidnight(now) mustBe expected
       }
@@ -55,7 +58,11 @@ class EditAddressLockRepositorySpec extends BaseSpec {
         val london: TimeZone = TimeZone.getTimeZone("Europe/London")
         val instantInUK = tomorrow.toInstant.atZone(london.toZoneId)
 
-        val expected = instantInUK.toLocalDate.atStartOfDay().plusHours(1).atZone(london.toZoneId).toOffsetDateTime
+        val expected = instantInUK.toLocalDate
+          .atStartOfDay()
+          .plusHours(1)
+          .atZone(london.toZoneId)
+          .toOffsetDateTime
 
         getNextMidnight(now) mustBe expected
       }
@@ -65,7 +72,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
       "the current timezone is GMT" must {
         "return the next UK midnight for that day" when {
           "the time is 1 nanosecond before midnight" in {
-            val testDateTime = LocalDateTime.of(2018, 12, 31, 23, 59, 59, MAX_NANO_SECONDS)
+            val testDateTime =
+              LocalDateTime.of(2018, 12, 31, 23, 59, 59, MAX_NANO_SECONDS)
             val offset = UK_TIME_ZONE.getRules.getOffset(testDateTime)
             val testOffsetDateTime = testDateTime.atOffset(offset)
 
@@ -73,7 +81,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val uKNewYear = getNextMidnight(testOffsetDateTime)
 
-            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0)
+            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0,
+              0, 0)
             uKNewYear.getOffset mustBe offset
           }
           "the time is exactly midnight" in {
@@ -85,7 +94,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val uKNewYear = getNextMidnight(testOffsetDateTime)
 
-            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0)
+            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0,
+              0, 0)
             uKNewYear.getOffset mustBe offset
           }
         }
@@ -95,18 +105,23 @@ class EditAddressLockRepositorySpec extends BaseSpec {
           val testOffsetDateTime = testDateTime.atOffset(offset)
 
           offset mustBe GMT_OFFSET
-          testDateTime.plusDays(1).atZone(UK_TIME_ZONE).getOffset mustBe BST_OFFSET
+          testDateTime
+            .plusDays(1)
+            .atZone(UK_TIME_ZONE)
+            .getOffset mustBe BST_OFFSET
 
           val anHourBeforeBst = getNextMidnight(testOffsetDateTime)
 
-          anHourBeforeBst.toLocalDateTime mustBe LocalDateTime.of(2019, 3, 31, 0, 0, 0, 0)
+          anHourBeforeBst.toLocalDateTime mustBe LocalDateTime.of(2019, 3, 31,
+            0, 0, 0, 0)
           anHourBeforeBst.getOffset mustBe offset
         }
       }
       "the current timezone is BST" must {
         "return the UTC+0 midnight(1 am BST) for the next day" when {
           "the time is 1 nanosecond before BST midnight" in {
-            val testDateTime = LocalDateTime.of(2019, 4, 1, 23, 59, 59, MAX_NANO_SECONDS)
+            val testDateTime =
+              LocalDateTime.of(2019, 4, 1, 23, 59, 59, MAX_NANO_SECONDS)
             val offset = UK_TIME_ZONE.getRules.getOffset(testDateTime)
             val testOffsetDateTime = testDateTime.atOffset(offset)
 
@@ -114,7 +129,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0, 0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0,
+              0)
             result.getOffset mustBe offset
           }
           "the time is exactly 2 am and daylight saving (BST) ends at 2 am the next day" in {
@@ -123,13 +139,20 @@ class EditAddressLockRepositorySpec extends BaseSpec {
             val testOffsetDateTime = testDateTime.atOffset(offset)
 
             offset mustBe BST_OFFSET
-            testDateTime.plusDays(1).atZone(UK_TIME_ZONE).getOffset mustBe GMT_OFFSET
+            testDateTime
+              .plusDays(1)
+              .atZone(UK_TIME_ZONE)
+              .getOffset mustBe GMT_OFFSET
 
-            LocalDateTime.of(2018, 10, 28, 2, 0, 0, 0).atZone(UK_TIME_ZONE).getOffset mustBe ZoneOffset.ofHours(0)
+            LocalDateTime
+              .of(2018, 10, 28, 2, 0, 0, 0)
+              .atZone(UK_TIME_ZONE)
+              .getOffset mustBe ZoneOffset.ofHours(0)
 
             val twoHoursBeforeBstEnds = getNextMidnight(testOffsetDateTime)
 
-            twoHoursBeforeBstEnds.toLocalDateTime mustBe LocalDateTime.of(2018, 10, 28, 1, 0, 0, 0)
+            twoHoursBeforeBstEnds.toLocalDateTime mustBe LocalDateTime.of(2018,
+              10, 28, 1, 0, 0, 0)
             twoHoursBeforeBstEnds.getOffset mustBe offset
           }
         }
@@ -137,7 +160,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
       "have safe guard behaviour in daylight saving (BST) since we are not certain what time zone NPS is using" when {
         "the user enters just before midnight BST" must {
           "return the next 1 am BST as normal" in {
-            val testDateTime = LocalDateTime.of(2019, 4, 1, 23, 59, 59, MAX_NANO_SECONDS)
+            val testDateTime =
+              LocalDateTime.of(2019, 4, 1, 23, 59, 59, MAX_NANO_SECONDS)
             val offset = UK_TIME_ZONE.getRules.getOffset(testDateTime)
             val testOffsetDateTime = testDateTime.atOffset(offset)
 
@@ -145,7 +169,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0, 0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0,
+              0)
             result.getOffset mustBe offset
           }
         }
@@ -159,13 +184,15 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0, 0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0,
+              0)
             result.getOffset mustBe offset
           }
         }
         "the user enters just before 1 am BST" must {
           "return midnight BST of the following day instead" in {
-            val testDateTime = LocalDateTime.of(2019, 4, 2, 0, 59, 59, MAX_NANO_SECONDS)
+            val testDateTime =
+              LocalDateTime.of(2019, 4, 2, 0, 59, 59, MAX_NANO_SECONDS)
             val offset = UK_TIME_ZONE.getRules.getOffset(testDateTime)
             val testOffsetDateTime = testDateTime.atOffset(offset)
 
@@ -173,7 +200,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0, 0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0,
+              0)
             result.getOffset mustBe offset
           }
         }
@@ -187,7 +215,8 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 1, 0, 0, 0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 1, 0, 0,
+              0)
             result.getOffset mustBe offset
           }
         }

@@ -35,27 +35,35 @@ abstract class EnhancedPartialRetriever @Inject() (
 
   def http: HttpGet
 
-  def loadPartial(url: String)(implicit request: RequestHeader): Future[HtmlPartial] =
+  def loadPartial(
+    url: String
+  )(implicit request: RequestHeader): Future[HtmlPartial] =
     withMetricsTimer("load-partial") { timer =>
-      implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+      implicit val hc =
+        headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(
+          request
+        )
 
       http.GET[HtmlPartial](url) map {
         case partial: HtmlPartial.Success =>
           timer.completeTimerAndIncrementSuccessCounter()
           partial
         case partial: HtmlPartial.Failure =>
-          logger.error(s"Failed to load partial from $url, partial info: $partial")
+          logger.error(
+            s"Failed to load partial from $url, partial info: $partial"
+          )
           timer.completeTimerAndIncrementFailedCounter()
           partial
-      } recover { case e =>
-        timer.completeTimerAndIncrementFailedCounter()
-        logger.error(s"Failed to load partial from $url", e)
-        e match {
-          case ex: HttpException =>
-            HtmlPartial.Failure(Some(ex.responseCode))
-          case _ =>
-            HtmlPartial.Failure(None)
-        }
+      } recover {
+        case e =>
+          timer.completeTimerAndIncrementFailedCounter()
+          logger.error(s"Failed to load partial from $url", e)
+          e match {
+            case ex: HttpException =>
+              HtmlPartial.Failure(Some(ex.responseCode))
+            case _ =>
+              HtmlPartial.Failure(None)
+          }
       }
 
     }

@@ -38,12 +38,18 @@ class GetPersonDetailsAction @Inject() (
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
   manualCorrespondenceView: ManualCorrespondenceView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, templateRenderer: TemplateRenderer)
-    extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
+)(implicit
+  configDecorator: ConfigDecorator,
+  ec: ExecutionContext,
+  templateRenderer: TemplateRenderer
+) extends ActionRefiner[UserRequest, UserRequest]
+    with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
-  override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
+  override protected def refine[A](
+    request: UserRequest[A]
+  ): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
-      if (!request.uri.contains("/signout")) {
+      if (!request.uri.contains("/signout"))
         getPersonDetails()(request).map { a =>
           a.fold(
             Left(_),
@@ -66,7 +72,7 @@ class GetPersonDetailsAction @Inject() (
               )
           )
         }
-      } else {
+      else
         Future.successful(
           Right(
             UserRequest(
@@ -85,14 +91,18 @@ class GetPersonDetailsAction @Inject() (
             )
           )
         )
-      }
     }
 
-  def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    if (configDecorator.personDetailsMessageCountEnabled) messageFrontendService.getUnreadMessageCount
+  def populatingUnreadMessageCount()(implicit
+    request: UserRequest[_]
+  ): Future[Option[Int]] =
+    if (configDecorator.personDetailsMessageCountEnabled)
+      messageFrontendService.getUnreadMessageCount
     else Future.successful(None)
 
-  private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
+  private def getPersonDetails()(implicit
+    request: UserRequest[_]
+  ): Future[Either[Result, Option[PersonDetails]]] = {
 
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -109,5 +119,6 @@ class GetPersonDetailsAction @Inject() (
     }
   }
 
-  override protected def executionContext: ExecutionContext = cc.executionContext
+  override protected def executionContext: ExecutionContext =
+    cc.executionContext
 }

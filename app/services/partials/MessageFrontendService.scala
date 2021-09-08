@@ -36,39 +36,53 @@ class MessageFrontendService @Inject() (
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   servicesConfig: ServicesConfig
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter)
+    with HasMetrics {
 
-  lazy val messageFrontendUrl: String = servicesConfig.baseUrl("message-frontend")
+  lazy val messageFrontendUrl: String =
+    servicesConfig.baseUrl("message-frontend")
 
   private val logger = Logger(this.getClass)
 
-  def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] =
+  def getMessageListPartial(implicit
+    request: RequestHeader
+  ): Future[HtmlPartial] =
     loadPartial(messageFrontendUrl + "/messages")
 
-  def getMessageDetailPartial(messageToken: String)(implicit request: RequestHeader): Future[HtmlPartial] =
+  def getMessageDetailPartial(
+    messageToken: String
+  )(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(messageFrontendUrl + "/messages/" + messageToken)
 
-  def getMessageInboxLinkPartial(implicit request: RequestHeader): Future[HtmlPartial] =
+  def getMessageInboxLinkPartial(implicit
+    request: RequestHeader
+  ): Future[HtmlPartial] =
     loadPartial(
       messageFrontendUrl + "/messages/inbox-link?messagesInboxUrl=" + controllers.routes.MessageController
         .messageList()
     )
 
-  def getUnreadMessageCount(implicit request: RequestHeader): Future[Option[Int]] = {
+  def getUnreadMessageCount(implicit
+    request: RequestHeader
+  ): Future[Option[Int]] = {
     val url = messageFrontendUrl + "/messages/count?read=No"
 
     withMetricsTimer("get-unread-message-count") { t =>
-      implicit val hc = headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(request)
+      implicit val hc =
+        headerCarrierForPartialsConverter.fromRequestWithEncryptedCookie(
+          request
+        )
 
       (for {
         messageCount <- http.GET[Option[MessageCount]](url)
       } yield {
         t.completeTimerAndIncrementSuccessCounter()
         messageCount.map(_.count)
-      }) recover { case e =>
-        t.completeTimerAndIncrementFailedCounter()
-        logger.warn(s"Failed to load json", e)
-        None
+      }) recover {
+        case e =>
+          t.completeTimerAndIncrementFailedCounter()
+          logger.warn(s"Failed to load json", e)
+          None
       }
     }
   }

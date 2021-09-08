@@ -41,6 +41,12 @@ object HomeViewModel {
       case _                          => None
     }
 
-    HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, utr)
+    HomeViewModel(
+      incomeCards,
+      benefitCards,
+      pensionCards,
+      showUserResearchBanner,
+      utr
+    )
   }
 }

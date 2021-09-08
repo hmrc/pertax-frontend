@@ -36,34 +36,60 @@ class TaxCreditsChoiceController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   taxCreditsChoiceView: TaxCreditsChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(
+      authJourney,
+      withActiveTabAction,
+      cc,
+      displayAddressInterstitialView
+    ) {
 
-  def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
-      cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
-        cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          Future.successful(
-            Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
-          )
+  def onPageLoad: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      addressJourneyEnforcer { _ => _ =>
+        cachingHelper.gettingCachedAddressPageVisitedDto {
+          addressPageVisitedDto =>
+            cachingHelper.enforceDisplayAddressPageVisited(
+              addressPageVisitedDto
+            ) {
+              Future.successful(
+                Ok(
+                  taxCreditsChoiceView(
+                    TaxCreditsChoiceDto.form,
+                    configDecorator.tcsChangeAddressUrl
+                  )
+                )
+              )
+            }
         }
       }
     }
-  }
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         TaxCreditsChoiceDto.form.bindFromRequest.fold(
           formWithErrors =>
-            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
+            Future.successful(
+              BadRequest(
+                taxCreditsChoiceView(
+                  formWithErrors,
+                  configDecorator.tcsChangeAddressUrl
+                )
+              )
+            ),
           taxCreditsChoiceDto =>
-            cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-              if (taxCreditsChoiceDto.value) {
+            cachingHelper.addToCache(
+              SubmittedTaxCreditsChoiceId,
+              taxCreditsChoiceDto
+            ) map { _ =>
+              if (taxCreditsChoiceDto.value)
                 Redirect(configDecorator.tcsChangeAddressUrl)
-              } else {
+              else
                 Redirect(routes.ResidencyChoiceController.onPageLoad())
-              }
             }
         )
       }

@@ -46,21 +46,30 @@ trait AddressBaseSpec extends BaseSpec {
 
   val mockAuthJourney: AuthJourney = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
-  val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockAddressLookupService: AddressLookupService =
+    mock[AddressLookupService]
+  val mockCitizenDetailsService: CitizenDetailsService =
+    mock[CitizenDetailsService]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
+  val mockEditAddressLockRepository: EditAddressLockRepository =
+    mock[EditAddressLockRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
-  lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
+  lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(
+    mockLocalSessionCache
+  )
 
   lazy val messagesApi: MessagesApi = injected[MessagesApi]
 
-  lazy val withActiveTabAction: WithActiveTabAction = injected[WithActiveTabAction]
-  lazy val cc: MessagesControllerComponents = injected[MessagesControllerComponents]
+  lazy val withActiveTabAction: WithActiveTabAction =
+    injected[WithActiveTabAction]
+  lazy val cc: MessagesControllerComponents =
+    injected[MessagesControllerComponents]
   lazy val errorRenderer: ErrorRenderer = injected[ErrorRenderer]
-  lazy val displayAddressInterstitialView: DisplayAddressInterstitialView = injected[DisplayAddressInterstitialView]
-  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView = injected[UpdateAddressConfirmationView]
+  lazy val displayAddressInterstitialView: DisplayAddressInterstitialView =
+    injected[DisplayAddressInterstitialView]
+  lazy val updateAddressConfirmationView: UpdateAddressConfirmationView =
+    injected[UpdateAddressConfirmationView]
 
   implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
@@ -81,9 +90,13 @@ trait AddressBaseSpec extends BaseSpec {
 
   def pruneDataEvent(dataEvent: DataEvent): DataEvent =
     dataEvent
-      .copy(tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token", detail = dataEvent.detail - "credId")
+      .copy(
+        tags = dataEvent.tags - "X-Request-Chain" - "X-Session-ID" - "token",
+        detail = dataEvent.detail - "credId"
+      )
 
-  def asAddressDto(l: List[(String, String)]): AddressDto = AddressDto.ukForm.bind(l.toMap).get
+  def asAddressDto(l: List[(String, String)]): AddressDto =
+    AddressDto.ukForm.bind(l.toMap).get
 
   trait AddressControllerSetup {
 
@@ -101,21 +114,27 @@ trait AddressBaseSpec extends BaseSpec {
 
     def saUserType: SelfAssessmentUserType = NonFilerSelfAssessmentUser
 
-    def personDetailsForRequest: Option[PersonDetails] = Some(buildPersonDetailsCorrespondenceAddress)
+    def personDetailsForRequest: Option[PersonDetails] =
+      Some(buildPersonDetailsCorrespondenceAddress)
 
-    def personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(fakePersonDetails)
+    def personDetailsResponse: PersonDetailsResponse =
+      PersonDetailsSuccessResponse(fakePersonDetails)
 
     def eTagResponse: Option[ETag] = Some(ETag("115"))
 
-    def updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
+    def updateAddressResponse: UpdateAddressResponse =
+      UpdateAddressSuccessResponse
 
-    def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+    def addressLookupResponse: AddressLookupResponse =
+      AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
     def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
 
     def getEditedAddressIndicators: List[AddressJourneyTTLModel] = List.empty
 
-    when(mockLocalSessionCache.cache(any(), any())(any(), any(), any())) thenReturn {
+    when(
+      mockLocalSessionCache.cache(any(), any())(any(), any(), any())
+    ) thenReturn {
       Future.successful(CacheMap("id", Map.empty))
     }
     when(mockLocalSessionCache.fetch()(any(), any())) thenReturn {
@@ -136,7 +155,9 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockCitizenDetailsService.getEtag(any())(any())) thenReturn {
       Future.successful(eTagResponse)
     }
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any())) thenReturn {
+    when(
+      mockCitizenDetailsService.updateAddress(any(), any(), any())(any())
+    ) thenReturn {
       Future.successful(updateAddressResponse)
     }
     when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
@@ -145,22 +166,30 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockEditAddressLockRepository.get(any())) thenReturn {
       Future.successful(getEditedAddressIndicators)
     }
-    when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
+    when(
+      mockAddressMovedService.moved(any[String](), any[String]())(any(), any())
+    ) thenReturn {
       Future.successful(MovedToScotland)
     }
-    when(mockAddressMovedService.toMessageKey(any[AddressChanged]())) thenReturn {
+    when(
+      mockAddressMovedService.toMessageKey(any[AddressChanged]())
+    ) thenReturn {
       None
     }
 
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(
-            request = currentRequest[A],
-            personDetails = personDetailsForRequest,
-            saUser = saUserType
-          ).asInstanceOf[UserRequest[A]]
-        )
-    })
+    when(mockAuthJourney.authWithPersonalDetails)
+      .thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](
+          request: Request[A],
+          block: UserRequest[A] => Future[Result]
+        ): Future[Result] =
+          block(
+            buildUserRequest(
+              request = currentRequest[A],
+              personDetails = personDetailsForRequest,
+              saUser = saUserType
+            ).asInstanceOf[UserRequest[A]]
+          )
+      })
   }
 }

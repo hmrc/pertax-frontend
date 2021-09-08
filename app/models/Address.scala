@@ -36,7 +36,15 @@ case class Address(
 ) {
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
   lazy val fullAddress =
-    List(line1, line2, line3, line4, line5, postcode.map(_.toUpperCase), internationalAddressCountry(country)).flatten
+    List(
+      line1,
+      line2,
+      line3,
+      line4,
+      line5,
+      postcode.map(_.toUpperCase),
+      internationalAddressCountry(country)
+    ).flatten
 
   val excludedCountries = List(
     Country("GREAT BRITAIN"),
@@ -53,15 +61,20 @@ case class Address(
     }
 
   def isWelshLanguageUnit: Boolean = {
-    val welshLanguageUnitPostcodes = Set("CF145SH", "CF145TS", "LL499BF", "BX55AB", "LL499AB")
-    welshLanguageUnitPostcodes.contains(postcode.getOrElse("").toUpperCase.trim.replace(" ", ""))
+    val welshLanguageUnitPostcodes =
+      Set("CF145SH", "CF145TS", "LL499BF", "BX55AB", "LL499AB")
+    welshLanguageUnitPostcodes.contains(
+      postcode.getOrElse("").toUpperCase.trim.replace(" ", "")
+    )
   }
 }
 
 object Address {
   implicit val localdateFormatDefault = new Format[LocalDate] {
-    override def reads(json: JsValue): JsResult[LocalDate] = JodaReads.DefaultJodaLocalDateReads.reads(json)
-    override def writes(o: LocalDate): JsValue = JodaWrites.DefaultJodaLocalDateWrites.writes(o)
+    override def reads(json: JsValue): JsResult[LocalDate] =
+      JodaReads.DefaultJodaLocalDateReads.reads(json)
+    override def writes(o: LocalDate): JsValue =
+      JodaWrites.DefaultJodaLocalDateWrites.writes(o)
   }
   implicit val formats = Json.format[Address]
 }

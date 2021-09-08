@@ -28,7 +28,9 @@ class ConfigDecoratorSpec extends BaseSpec {
 
   "Converting urls to sso" must {
     "return a properly encoded sso url when calling transformUrlForSso" in {
-      config.transformUrlForSso(new URL("http://example.com/some/path?key=val")) mustBe
+      config.transformUrlForSso(
+        new URL("http://example.com/some/path?key=val")
+      ) mustBe
         "http://localhost:9553/bas-gateway/ssoout/non-digital?continue=http%3A%2F%2Fexample.com%2Fsome%2Fpath%3Fkey%3Dval"
     }
 
@@ -50,7 +52,11 @@ class ConfigDecoratorSpec extends BaseSpec {
       def portalBaseUrlToTest: Option[String]
 
       lazy val configDecorator =
-        new ConfigDecorator(injected[Configuration], injected[Langs], injected[ServicesConfig]) {
+        new ConfigDecorator(
+          injected[Configuration],
+          injected[Langs],
+          injected[ServicesConfig]
+        ) {
           override lazy val portalBaseUrl = portalBaseUrlToTest.getOrElse("")
         }
     }
@@ -59,7 +65,9 @@ class ConfigDecoratorSpec extends BaseSpec {
 
       val portalBaseUrlToTest = Some("http://portal.service")
 
-      configDecorator.toPortalUrl("/some/path").toString mustBe "http://portal.service/some/path"
+      configDecorator
+        .toPortalUrl("/some/path")
+        .toString mustBe "http://portal.service/some/path"
     }
 
     "fail with a MalformedURLException if portalBaseUrl is not present" in new LocalSetup {

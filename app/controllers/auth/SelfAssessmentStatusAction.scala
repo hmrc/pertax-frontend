@@ -32,19 +32,25 @@ class SelfAssessmentStatusAction @Inject() (
   enrolmentsCachingService: EnrolmentStoreCachingService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
+    extends ActionRefiner[AuthenticatedRequest, UserRequest]
+    with ActionFunction[AuthenticatedRequest, UserRequest] {
 
-  private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
+  private def getSaUtrFromCitizenDetailsService(
+    nino: Nino
+  )(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
     citizenDetailsService.getMatchingDetails(nino) map {
-      case MatchingDetailsSuccessResponse(matchingDetails) => matchingDetails.saUtr
-      case _                                               => None
+      case MatchingDetailsSuccessResponse(matchingDetails) =>
+        matchingDetails.saUtr
+      case _ => None
     }
 
   private def getSelfAssessmentUserType[A](implicit
     hc: HeaderCarrier,
     request: AuthenticatedRequest[A]
   ): Future[SelfAssessmentUserType] =
-    request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
+    request.nino.fold[Future[SelfAssessmentUserType]](
+      Future.successful(NonFilerSelfAssessmentUser)
+    ) { nino =>
       request.saEnrolment match {
         case Some(SelfAssessmentEnrolment(saUtr, Activated)) =>
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
@@ -59,7 +65,9 @@ class SelfAssessmentStatusAction @Inject() (
       }
     }
 
-  override protected def refine[A](request: AuthenticatedRequest[A]): Future[Either[Result, UserRequest[A]]] = {
+  override protected def refine[A](
+    request: AuthenticatedRequest[A]
+  ): Future[Either[Result, UserRequest[A]]] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     getSelfAssessmentUserType(hc, request).map { saType =>
@@ -82,5 +90,6 @@ class SelfAssessmentStatusAction @Inject() (
     }
   }
 
-  override protected def executionContext: ExecutionContext = cc.executionContext
+  override protected def executionContext: ExecutionContext =
+    cc.executionContext
 }

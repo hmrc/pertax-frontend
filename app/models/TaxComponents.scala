@@ -20,14 +20,19 @@ import play.api.libs.json.JsValue
 
 case class TaxComponents(taxComponents: Seq[String]) {
 
-  def isMarriageAllowanceRecipient: Boolean = taxComponents.contains("MarriageAllowanceReceived")
+  def isMarriageAllowanceRecipient: Boolean =
+    taxComponents.contains("MarriageAllowanceReceived")
 
-  def isMarriageAllowanceTransferor: Boolean = taxComponents.contains("MarriageAllowanceTransferred")
+  def isMarriageAllowanceTransferor: Boolean =
+    taxComponents.contains("MarriageAllowanceTransferred")
 
-  def notMarriageAllowanceCustomer: Boolean = !(isMarriageAllowanceRecipient || isMarriageAllowanceTransferor)
+  def notMarriageAllowanceCustomer: Boolean =
+    !(isMarriageAllowanceRecipient || isMarriageAllowanceTransferor)
 
   def isCompanyBenefitRecipient: Boolean =
-    taxComponents.exists(componentType => componentType == "CarBenefit" || componentType == "MedicalInsurance")
+    taxComponents.exists(componentType =>
+      componentType == "CarBenefit" || componentType == "MedicalInsurance"
+    )
 }
 
 object TaxComponents {

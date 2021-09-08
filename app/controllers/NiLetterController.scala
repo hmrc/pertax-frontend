@@ -42,77 +42,91 @@ class NiLetterController @Inject() (
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
   niLetterView: NiLetterView
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
-      implicit request =>
-        if (request.personDetails.isDefined) {
-          for {
-            nino <- ninoDisplayService.getNino
-          } yield Ok(
-            printNiNumberView(
-              request.personDetails.get,
-              LocalDate.now.toString("MM/YY"),
-              configDecorator.saveNiLetterAsPdfLinkEnabled,
-              nino
-            )
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
+      if (request.personDetails.isDefined)
+        for {
+          nino <- ninoDisplayService.getNino
+        } yield Ok(
+          printNiNumberView(
+            request.personDetails.get,
+            LocalDate.now.toString("MM/YY"),
+            configDecorator.saveNiLetterAsPdfLinkEnabled,
+            nino
           )
-        } else {
-          errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-        }
+        )
+      else
+        errorRenderer.futureError(INTERNAL_SERVER_ERROR)
     }
 
   def saveNationalInsuranceNumberAsPdf: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
-      implicit request =>
-        if (configDecorator.saveNiLetterAsPdfLinkEnabled) {
-          if (request.personDetails.isDefined) {
-            val applicationMinCss =
-              Source
-                .fromURL(controllers.routes.AssetsController.versioned("css/applicationMin.css").absoluteURL(true))
-                .mkString
-            val saveNiLetterAsPDFCss = Source
-              .fromURL(controllers.routes.AssetsController.versioned("css/saveNiLetterAsPDF.css").absoluteURL(true))
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
+      if (configDecorator.saveNiLetterAsPdfLinkEnabled)
+        if (request.personDetails.isDefined) {
+          val applicationMinCss =
+            Source
+              .fromURL(
+                controllers.routes.AssetsController
+                  .versioned("css/applicationMin.css")
+                  .absoluteURL(true)
+              )
               .mkString
+          val saveNiLetterAsPDFCss = Source
+            .fromURL(
+              controllers.routes.AssetsController
+                .versioned("css/saveNiLetterAsPDF.css")
+                .absoluteURL(true)
+            )
+            .mkString
 
-            val htmlPayloadF = for {
-              nino <- ninoDisplayService.getNino
-            } yield {
-              val niLetter = niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY"), nino).toString()
+          val htmlPayloadF = for {
+            nino <- ninoDisplayService.getNino
+          } yield {
+            val niLetter = niLetterView(
+              request.personDetails.get,
+              LocalDate.now.toString("MM/YY"),
+              nino
+            ).toString()
 
-              pdfWrapperView()
-                .toString()
-                .replace("<!-- minifiedCssPlaceholder -->", s"$saveNiLetterAsPDFCss$applicationMinCss")
-                .replace("<!-- niLetterPlaceHolder -->", niLetter)
-                .filter(_ >= ' ')
-                .trim
-                .replaceAll("  +", "")
-            }
-
-            for {
-              htmlPayload <- htmlPayloadF
-              response    <- pdfGeneratorConnector.generatePdf(htmlPayload)
-            } yield
-              if (response.status != OK) {
-                throw new BadRequestException("Unexpected response from pdf-generator-service : " + response.body)
-              } else {
-
-                Ok(response.bodyAsBytes.toArray)
-                  .as("application/pdf")
-                  .withHeaders(
-                    "Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter")
-                      .replaceAll(" ", "-")}.pdf"
-                  )
-              }
-
-          } else {
-            errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-
+            pdfWrapperView()
+              .toString()
+              .replace(
+                "<!-- minifiedCssPlaceholder -->",
+                s"$saveNiLetterAsPDFCss$applicationMinCss"
+              )
+              .replace("<!-- niLetterPlaceHolder -->", niLetter)
+              .filter(_ >= ' ')
+              .trim
+              .replaceAll("  +", "")
           }
-        } else {
+
+          for {
+            htmlPayload <- htmlPayloadF
+            response    <- pdfGeneratorConnector.generatePdf(htmlPayload)
+          } yield
+            if (response.status != OK)
+              throw new BadRequestException(
+                "Unexpected response from pdf-generator-service : " + response.body
+              )
+            else
+              Ok(response.bodyAsBytes.toArray)
+                .as("application/pdf")
+                .withHeaders(
+                  "Content-Disposition" -> s"attachment; filename=${Messages("label.your_national_insurance_letter")
+                    .replaceAll(" ", "-")}.pdf"
+                )
+
+        } else
           errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-        }
+      else
+        errorRenderer.futureError(INTERNAL_SERVER_ERROR)
     }
 }

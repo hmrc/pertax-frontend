@@ -26,14 +26,20 @@ import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EnrolmentsConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
-    extends HasMetrics {
+class EnrolmentsConnector @Inject() (
+  http: HttpClient,
+  configDecorator: ConfigDecorator,
+  val metrics: Metrics
+) extends HasMetrics {
 
   val baseUrl = configDecorator.enrolmentStoreProxyUrl
 
   def getUserIdsWithEnrolments(
     saUtr: String
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[String, Seq[String]]] = {
+  )(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[Either[String, Seq[String]]] = {
     val url = s"$baseUrl/enrolment-store/enrolments/IR-SA~UTR~$saUtr/users"
 
     withMetricsTimer("get-user-ids-with-enrolments") { timer =>
@@ -47,7 +53,9 @@ class EnrolmentsConnector @Inject() (http: HttpClient, configDecorator: ConfigDe
             Right(Seq.empty)
           case errorCode =>
             timer.completeTimerAndIncrementFailedCounter()
-            Left(s"HttpError: $errorCode. Invalid call for getUserIdsWithEnrolments: $response")
+            Left(
+              s"HttpError: $errorCode. Invalid call for getUserIdsWithEnrolments: $response"
+            )
         }
       }
     }

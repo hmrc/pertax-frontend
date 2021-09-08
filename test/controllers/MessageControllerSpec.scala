@@ -66,17 +66,24 @@ class MessageControllerSpec extends BaseSpec {
   "Calling MessageController.messageList" must {
     "call messages and return 200 when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                request = request
+              )
             )
-          )
-      })
+        })
 
       when(mockMessageFrontendService.getMessageListPartial(any())) thenReturn {
-        Future(HtmlPartial.Success(Some("Success"), Html("<title>Message List</title>")))
+        Future(
+          HtmlPartial
+            .Success(Some("Success"), Html("<title>Message List</title>"))
+        )
       }
 
       val r = controller.messageList(FakeRequest())
@@ -91,35 +98,50 @@ class MessageControllerSpec extends BaseSpec {
   "Calling MessageController.messageDetail" must {
     "call messages and return 200 when called by a GovernmentGateway user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                request = request
+              )
             )
-          )
-      })
+        })
 
-      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(
+        mockMessageFrontendService.getMessageDetailPartial(any())(any())
+      ) thenReturn {
         Future(HtmlPartial.Success(Some("Success"), Html("<title/>")))
       }
 
-      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(FakeRequest("GET", "/foo"))
+      val r = controller.messageDetail("SOME-MESSAGE-TOKEN")(
+        FakeRequest("GET", "/foo")
+      )
 
       status(r) mustBe OK
-      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(1))
+        .getMessageDetailPartial(any())(any())
     }
 
     "call messages and return 200 with no page title when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(
+        mockMessageFrontendService.getMessageDetailPartial(any())(any())
+      ) thenReturn {
         Future(HtmlPartial.Success(None, Html("List")))
       }
 
@@ -127,20 +149,27 @@ class MessageControllerSpec extends BaseSpec {
       val body = contentAsString(r)
 
       status(r) mustBe OK
-      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(1))
+        .getMessageDetailPartial(any())(any())
       body must include("List")
     }
 
     "call messages and return 200 with default messages when called by a high GG user" in {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
+      when(
+        mockMessageFrontendService.getMessageDetailPartial(any())(any())
+      ) thenReturn {
         Future(HtmlPartial.Failure(None, ""))
       }
 
@@ -153,7 +182,8 @@ class MessageControllerSpec extends BaseSpec {
       )
 
       status(r) mustBe OK
-      verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())
+      verify(mockMessageFrontendService, times(1))
+        .getMessageDetailPartial(any())(any())
     }
   }
 }

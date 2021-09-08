@@ -34,8 +34,11 @@ class LocalErrorHandler @Inject() (
   val materializer: Materializer,
   internalServerErrorView: InternalServerErrorView,
   unauthenticatedErrorTemplate: UnauthenticatedErrorView
-)(implicit val configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends FrontendErrorHandler with I18nSupport {
+)(implicit
+  val configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends FrontendErrorHandler with I18nSupport {
 
   override def standardErrorTemplate(
     pageTitle: String,

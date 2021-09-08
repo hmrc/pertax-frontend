@@ -34,12 +34,15 @@ class SaPartialService @Inject() (
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   val tools: Tools
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter)
+    with HasMetrics {
 
   private val returnUrl = configDecorator.pertaxFrontendHomeUrl
   private val returnLinkText = configDecorator.saPartialReturnLinkText
 
-  def getSaAccountSummary(implicit request: RequestHeader): Future[HtmlPartial] =
+  def getSaAccountSummary(implicit
+    request: RequestHeader
+  ): Future[HtmlPartial] =
     loadPartial(
       configDecorator.businessTaxAccountService + s"/business-account/partial/sa/account-summary?returnUrl=${tools
         .urlEncode(returnUrl)}&returnLinkText=${tools.urlEncode(returnLinkText)}"

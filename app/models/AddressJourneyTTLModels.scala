@@ -33,7 +33,8 @@ case class EditSoleAddress(expireAt: BSONDateTime) extends EditedAddress {
 case class EditPrimaryAddress(expireAt: BSONDateTime) extends EditedAddress {
   override def addressType: String = EditedAddress.editPrimaryAddress
 }
-case class EditCorrespondenceAddress(expireAt: BSONDateTime) extends EditedAddress {
+case class EditCorrespondenceAddress(expireAt: BSONDateTime)
+    extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
 }
 
@@ -47,10 +48,11 @@ object EditedAddress {
   val expireAt = "expireAt"
 
   implicit val writes = new OWrites[EditedAddress] {
-    def writes(model: EditedAddress): JsObject = Json.obj(
-      addressType -> model.addressType,
-      expireAt    -> model.expireAt
-    )
+    def writes(model: EditedAddress): JsObject =
+      Json.obj(
+        addressType -> model.addressType,
+        expireAt    -> model.expireAt
+      )
   }
 
   implicit val reads = new Reads[EditedAddress] {
@@ -68,5 +70,6 @@ object EditedAddress {
 
 object AddressJourneyTTLModel {
 
-  implicit val format: OFormat[AddressJourneyTTLModel] = Json.format[AddressJourneyTTLModel]
+  implicit val format: OFormat[AddressJourneyTTLModel] =
+    Json.format[AddressJourneyTTLModel]
 }

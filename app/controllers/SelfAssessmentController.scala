@@ -47,37 +47,46 @@ class SelfAssessmentController @Inject() (
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
   requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView
-)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear {
+)(implicit
+  configDecorator: ConfigDecorator,
+  val templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
   def handleSelfAssessment: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)) {
-      implicit request =>
-        if (request.isGovernmentGateway) {
-          request.saUserType match {
-            case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
-              Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
-            case WrongCredentialsSelfAssessmentUser(_) =>
-              Redirect(routes.SaWrongCredentialsController.landingPage())
-            case NotEnrolledSelfAssessmentUser(_) =>
-              Redirect(routes.SelfAssessmentController.requestAccess())
-            case _ => Redirect(routes.HomeController.index())
-          }
-        } else {
-          errorRenderer.error(INTERNAL_SERVER_ERROR)
+    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction
+      .addBreadcrumb(baseBreadcrumb)) { implicit request =>
+      if (request.isGovernmentGateway)
+        request.saUserType match {
+          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
+            Redirect(configDecorator.ssoToActivateSaEnrolmentPinUrl)
+          case WrongCredentialsSelfAssessmentUser(_) =>
+            Redirect(routes.SaWrongCredentialsController.landingPage())
+          case NotEnrolledSelfAssessmentUser(_) =>
+            Redirect(routes.SelfAssessmentController.requestAccess())
+          case _ => Redirect(routes.HomeController.index())
         }
+      else
+        errorRenderer.error(INTERNAL_SERVER_ERROR)
     }
 
-  def ivExemptLandingPage(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
+  def ivExemptLandingPage(
+    continueUrl: Option[SafeRedirectUrl]
+  ): Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
       val retryUrl = routes.ApplicationController.uplift(continueUrl).url
 
       request.saUserType match {
         case ActivatedOnlineFilerSelfAssessmentUser(x) =>
           handleIvExemptAuditing("Activated online SA filer")
-          Redirect(configDecorator.ssoToSaAccountSummaryUrl(x.toString, DateTimeTools.previousAndCurrentTaxYear))
+          Redirect(
+            configDecorator.ssoToSaAccountSummaryUrl(
+              x.toString,
+              DateTimeTools.previousAndCurrentTaxYear
+            )
+          )
         case NotYetActivatedOnlineFilerSelfAssessmentUser(_) =>
           handleIvExemptAuditing("Not yet activated SA filer")
           Ok(failedIvContinueToActivateSaView())
@@ -92,12 +101,13 @@ class SelfAssessmentController @Inject() (
       }
     }
 
-  def redirectToEnrolForSa: Action[AnyContent] = authJourney.authWithSelfAssessment.async { implicit request =>
-    selfAssessmentService.getSaEnrolmentUrl map {
-      case Some(redirectUrl) => Redirect(redirectUrl)
-      case _                 => errorRenderer.error(INTERNAL_SERVER_ERROR)
+  def redirectToEnrolForSa: Action[AnyContent] =
+    authJourney.authWithSelfAssessment.async { implicit request =>
+      selfAssessmentService.getSaEnrolmentUrl map {
+        case Some(redirectUrl) => Redirect(redirectUrl)
+        case _                 => errorRenderer.error(INTERNAL_SERVER_ERROR)
+      }
     }
-  }
 
   private def handleIvExemptAuditing(
     saUserType: String

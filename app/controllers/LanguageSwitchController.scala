@@ -31,9 +31,10 @@ class LanguageSwitchController @Inject() (
   def enGb(): Action[AnyContent] = switchToLanguage(language = "english")
   def cyGb(): Action[AnyContent] = switchToLanguage(language = "cymraeg")
   def fallbackURL: String = configDecorator.pertaxFrontendService
-  def languageMap: Map[String, Lang] = Map(
-    "english" -> Lang("en"),
-    "cymraeg" -> Lang("cy")
-  )
+  def languageMap: Map[String, Lang] =
+    Map(
+      "english" -> Lang("en"),
+      "cymraeg" -> Lang("cy")
+    )
 
 }

@@ -25,7 +25,11 @@ object AuditServiceTools {
 
   val auditSource = "pertax-frontend"
 
-  def buildEvent(auditType: String, transactionName: String, detail: Map[String, Option[String]])(implicit
+  def buildEvent(
+    auditType: String,
+    transactionName: String,
+    detail: Map[String, Option[String]]
+  )(implicit
     hc: HeaderCarrier,
     request: UserRequest[_]
   ): DataEvent = {
@@ -44,10 +48,13 @@ object AuditServiceTools {
       },
       Some("credId", request.credentials.providerId),
       hc.deviceID.map(id => ("deviceId", id)),
-      request.cookies.get("mdtpdf").map(fingerprint => ("deviceFingerprint", fingerprint.value))
+      request.cookies
+        .get("mdtpdf")
+        .map(fingerprint => ("deviceFingerprint", fingerprint.value))
     ).flatten.toMap
 
-    val customAuditData = detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
+    val customAuditData =
+      detail.map(x => x._2.map((x._1, _))).flatten.filter(_._2 != "").toMap
 
     DataEvent(
       auditSource = auditSource,
@@ -59,7 +66,8 @@ object AuditServiceTools {
     )
   }
 
-  def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(implicit
+  def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(
+    implicit
     hc: HeaderCarrier,
     request: UserRequest[_]
   ): DataEvent =
@@ -67,21 +75,41 @@ object AuditServiceTools {
       auditType,
       "change_address",
       Map(
-        "line1"     -> Some(personDetails.address.flatMap(_.line1).getOrElse(None).toString),
-        "line2"     -> Some(personDetails.address.flatMap(_.line2).getOrElse(None).toString),
-        "line3"     -> Some(personDetails.address.flatMap(_.line3).getOrElse(None).toString),
-        "line4"     -> Some(personDetails.address.flatMap(_.line4).getOrElse(None).toString),
-        "line5"     -> Some(personDetails.address.flatMap(_.line5).getOrElse(None).toString),
-        "postcode"  -> Some(personDetails.address.flatMap(_.postcode).getOrElse(None).toString),
-        "startDate" -> Some(personDetails.address.flatMap(_.startDate).getOrElse(None).toString),
-        "type"      -> Some(personDetails.address.flatMap(_.`type`).getOrElse(None).toString),
-        "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(Some("false"))(address =>
-          Some(address.isWelshLanguageUnit.toString)
-        )
+        "line1" -> Some(
+          personDetails.address.flatMap(_.line1).getOrElse(None).toString
+        ),
+        "line2" -> Some(
+          personDetails.address.flatMap(_.line2).getOrElse(None).toString
+        ),
+        "line3" -> Some(
+          personDetails.address.flatMap(_.line3).getOrElse(None).toString
+        ),
+        "line4" -> Some(
+          personDetails.address.flatMap(_.line4).getOrElse(None).toString
+        ),
+        "line5" -> Some(
+          personDetails.address.flatMap(_.line5).getOrElse(None).toString
+        ),
+        "postcode" -> Some(
+          personDetails.address.flatMap(_.postcode).getOrElse(None).toString
+        ),
+        "startDate" -> Some(
+          personDetails.address.flatMap(_.startDate).getOrElse(None).toString
+        ),
+        "type" -> Some(
+          personDetails.address.flatMap(_.`type`).getOrElse(None).toString
+        ),
+        "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(
+          Some("false")
+        )(address => Some(address.isWelshLanguageUnit.toString))
       )
     )
 
-  def buildAddressChangeEvent(auditType: String, personDetails: PersonDetails, isInternationalAddress: Boolean)(implicit
+  def buildAddressChangeEvent(
+    auditType: String,
+    personDetails: PersonDetails,
+    isInternationalAddress: Boolean
+  )(implicit
     hc: HeaderCarrier,
     request: UserRequest[_]
   ): DataEvent =
@@ -89,17 +117,33 @@ object AuditServiceTools {
       auditType,
       "change_address",
       Map(
-        "line1"     -> Some(personDetails.address.flatMap(_.line1).getOrElse(None).toString),
-        "line2"     -> Some(personDetails.address.flatMap(_.line2).getOrElse(None).toString),
-        "line3"     -> Some(personDetails.address.flatMap(_.line3).getOrElse(None).toString),
-        "line4"     -> Some(personDetails.address.flatMap(_.line4).getOrElse(None).toString),
-        "line5"     -> Some(personDetails.address.flatMap(_.line5).getOrElse(None).toString),
-        "postcode"  -> Some(personDetails.address.flatMap(_.postcode).getOrElse(None).toString),
-        "startDate" -> Some(personDetails.address.flatMap(_.startDate).getOrElse(None).toString),
-        "type"      -> Some(personDetails.address.flatMap(_.`type`).getOrElse(None).toString),
-        "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(Some("false"))(address =>
-          Some(address.isWelshLanguageUnit.toString)
+        "line1" -> Some(
+          personDetails.address.flatMap(_.line1).getOrElse(None).toString
         ),
+        "line2" -> Some(
+          personDetails.address.flatMap(_.line2).getOrElse(None).toString
+        ),
+        "line3" -> Some(
+          personDetails.address.flatMap(_.line3).getOrElse(None).toString
+        ),
+        "line4" -> Some(
+          personDetails.address.flatMap(_.line4).getOrElse(None).toString
+        ),
+        "line5" -> Some(
+          personDetails.address.flatMap(_.line5).getOrElse(None).toString
+        ),
+        "postcode" -> Some(
+          personDetails.address.flatMap(_.postcode).getOrElse(None).toString
+        ),
+        "startDate" -> Some(
+          personDetails.address.flatMap(_.startDate).getOrElse(None).toString
+        ),
+        "type" -> Some(
+          personDetails.address.flatMap(_.`type`).getOrElse(None).toString
+        ),
+        "welshLanguageUnit" -> personDetails.correspondenceAddress.fold(
+          Some("false")
+        )(address => Some(address.isWelshLanguageUnit.toString)),
         "isInternationalAddress" -> Some(isInternationalAddress.toString)
       )
     )

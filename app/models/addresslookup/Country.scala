@@ -32,7 +32,8 @@ object Country {
   implicit val formats = Json.format[Country]
   // note that "GB" is the official ISO code for UK, although "UK" is a reserved synonym and is less confusing
   val UK = Country("UK", "United Kingdom")
-  val GB = Country("GB", "United Kingdom") // special case provided for in ISO-3166
+  val GB =
+    Country("GB", "United Kingdom") // special case provided for in ISO-3166
   val GG = Country("GG", "Guernsey")
   val IM = Country("IM", "Isle of Man")
   val JE = Country("JE", "Jersey")
@@ -43,7 +44,8 @@ object Country {
   val Cymru = Country("GB-CYM", "Cymru")
   val NorthernIreland = Country("GB-NIR", "Northern Ireland")
 
-  private val all = List(UK, GB, GG, IM, JE, England, Scotland, Wales, Cymru, NorthernIreland)
+  private val all =
+    List(UK, GB, GG, IM, JE, England, Scotland, Wales, Cymru, NorthernIreland)
 
   def find(code: String): Option[Country] = all.find(_.code == code)
 

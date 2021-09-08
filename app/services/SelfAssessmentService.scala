@@ -30,11 +30,19 @@ class SelfAssessmentService @Inject() (
   configDecorator: ConfigDecorator
 )(implicit ec: ExecutionContext) {
 
-  def getSaEnrolmentUrl(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Option[String]] = {
-    def saEnrolmentRequest: SaEnrolmentRequest = request.saUserType match {
-      case saEnrolment: SelfAssessmentUser =>
-        SaEnrolmentRequest(configDecorator.addTaxesPtaOrigin, Some(saEnrolment.saUtr), request.credentials.providerId)
-    }
+  def getSaEnrolmentUrl(implicit
+    request: UserRequest[_],
+    hc: HeaderCarrier
+  ): Future[Option[String]] = {
+    def saEnrolmentRequest: SaEnrolmentRequest =
+      request.saUserType match {
+        case saEnrolment: SelfAssessmentUser =>
+          SaEnrolmentRequest(
+            configDecorator.addTaxesPtaOrigin,
+            Some(saEnrolment.saUtr),
+            request.credentials.providerId
+          )
+      }
     selfAssessmentConnector.enrolForSelfAssessment(saEnrolmentRequest) map {
       case Some(response) => Some(response.redirectUrl)
       case _              => None

@@ -48,7 +48,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   val mockAuditConnector = mock[AuditConnector]
-  val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
+  val mockIdentityVerificationFrontendService =
+    mock[IdentityVerificationFrontendService]
   val mockAuthAction = mock[AuthAction]
   val mockSelfAssessmentStatusAction = mock[SelfAssessmentStatusAction]
   val mockAuthJourney = mock[AuthJourney]
@@ -57,9 +58,11 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
-      bind[IdentityVerificationFrontendService].toInstance(mockIdentityVerificationFrontendService),
+      bind[IdentityVerificationFrontendService]
+        .toInstance(mockIdentityVerificationFrontendService),
       bind[AuthAction].toInstance(mockAuthAction),
-      bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
+      bind[SelfAssessmentStatusAction]
+        .toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[HomeController].toInstance(mockHomeController)
@@ -76,16 +79,20 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
   trait LocalSetup {
 
-    lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
+    lazy val authProviderType: String =
+      UserDetails.GovernmentGatewayAuthProvider
     lazy val nino: Nino = Fixtures.fakeNino
-    lazy val personDetailsResponse: PersonDetailsResponse = PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
+    lazy val personDetailsResponse: PersonDetailsResponse =
+      PersonDetailsSuccessResponse(Fixtures.buildPersonDetails)
     lazy val withPaye: Boolean = true
     lazy val year = current.currentYear
-    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse = IdentityVerificationSuccessResponse("Success")
+    lazy val getIVJourneyStatusResponse: IdentityVerificationResponse =
+      IdentityVerificationSuccessResponse("Success")
     lazy val getCitizenDetailsResponse = true
-    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(
-      SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-    )
+    lazy val getSelfAssessmentServiceResponse: SelfAssessmentUserType =
+      ActivatedOnlineFilerSelfAssessmentUser(
+        SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+      )
 
     def controller: ApplicationController =
       new ApplicationController(
@@ -100,11 +107,15 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[TechnicalIssuesView]
       )(config, templateRenderer, ec)
 
-    when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
+    when(
+      mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())
+    ) thenReturn {
       Future.successful(getIVJourneyStatusResponse)
     }
 
-    def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]): Option[Future[Result]] = {
+    def routeWrapper[T](
+      req: FakeRequest[AnyContentAsEmpty.type]
+    ): Option[Future[Result]] = {
       controller //Call to inject mocks
       route(app, req)
     }
@@ -114,18 +125,27 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return BAD_REQUEST status when completionURL is empty" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
+                request = request
+              )
             )
-          )
-      })
+        })
 
       val result =
-        routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=")).get
+        routeWrapper(
+          buildFakeRequestWithAuth(
+            "GET",
+            "/personal-account/do-uplift?redirectUrl="
+          )
+        ).get
 
       status(result) mustBe BAD_REQUEST
       redirectLocation(result) mustBe None
@@ -134,18 +154,27 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return BAD_REQUEST status when completionURL is not relative" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              request = request
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                saUser = NonFilerSelfAssessmentUser,
+                request = request
+              )
             )
-          )
-      })
+        })
 
       val result =
-        routeWrapper(buildFakeRequestWithAuth("GET", "/personal-account/do-uplift?redirectUrl=http://example.com")).get
+        routeWrapper(
+          buildFakeRequestWithAuth(
+            "GET",
+            "/personal-account/do-uplift?redirectUrl=http://example.com"
+          )
+        ).get
 
       status(result) mustBe BAD_REQUEST
       redirectLocation(result) mustBe None
@@ -157,16 +186,23 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return 200 when IV journey outcome was Success" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
+      override lazy val getIVJourneyStatusResponse =
+        IdentityVerificationSuccessResponse("Success")
 
-      val result = controller.showUpliftJourneyOutcome(Some(SafeRedirectUrl("/relative/url")))(
+      val result = controller.showUpliftJourneyOutcome(
+        Some(SafeRedirectUrl("/relative/url"))
+      )(
         buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
       )
       status(result) mustBe OK
@@ -175,94 +211,134 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return 401 when IV journey outcome was LockedOut" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("LockedOut")
+      override lazy val getIVJourneyStatusResponse =
+        IdentityVerificationSuccessResponse("LockedOut")
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result = controller.showUpliftJourneyOutcome(None)(
+        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
+      )
       status(result) mustBe UNAUTHORIZED
 
     }
 
     "redirect to the IV exempt landing page when IV journey outcome was InsufficientEvidence" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("InsufficientEvidence")
+      override lazy val getIVJourneyStatusResponse =
+        IdentityVerificationSuccessResponse("InsufficientEvidence")
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result = controller.showUpliftJourneyOutcome(None)(
+        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
+      )
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/sa-continue")
     }
 
     "return 401 when IV journey outcome was UserAborted" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("UserAborted")
+      override lazy val getIVJourneyStatusResponse =
+        IdentityVerificationSuccessResponse("UserAborted")
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result = controller.showUpliftJourneyOutcome(None)(
+        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
+      )
       status(result) mustBe UNAUTHORIZED
 
     }
 
     "return 500 when IV journey outcome was TechnicalIssues" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("TechnicalIssues")
+      override lazy val getIVJourneyStatusResponse =
+        IdentityVerificationSuccessResponse("TechnicalIssues")
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result = controller.showUpliftJourneyOutcome(None)(
+        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
+      )
       status(result) mustBe INTERNAL_SERVER_ERROR
 
     }
 
     "return 500 when IV journey outcome was Timeout" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Timeout")
+      override lazy val getIVJourneyStatusResponse =
+        IdentityVerificationSuccessResponse("Timeout")
 
-      val result = controller.showUpliftJourneyOutcome(None)(buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX"))
+      val result = controller.showUpliftJourneyOutcome(None)(
+        buildFakeRequestWithAuth("GET", "/?journeyId=XXXXX")
+      )
       status(result) mustBe INTERNAL_SERVER_ERROR
 
     }
 
     "return bad request when continueUrl is not relative" in new LocalSetup {
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.authWithPersonalDetails)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val getIVJourneyStatusResponse = IdentityVerificationSuccessResponse("Success")
+      override lazy val getIVJourneyStatusResponse =
+        IdentityVerificationSuccessResponse("Success")
 
       val result = routeWrapper(
         buildFakeRequestWithAuth(
@@ -281,14 +357,19 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with a continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.minimumAuthWithSelfAssessment)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
+      val result = controller
+        .signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=/personal-account"
@@ -296,18 +377,23 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
     }
     "redirect to verify sign-out link with correct continue url when signed in with verify, a continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
+      when(mockAuthJourney.minimumAuthWithSelfAssessment)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              )
             )
-          )
-      })
+        })
 
-      val result = controller.signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
+      val result = controller
+        .signout(Some(RedirectUrl("/personal-account")), None)(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("http://localhost:9949/ida/signout")
       session(result).get("postLogoutPage") mustBe Some("/personal-account")
@@ -315,14 +401,19 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "redirect to government gateway sign-out link with correct continue url when signed in with government gateway with no continue URL but an origin" in new LocalSetup {
 
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.minimumAuthWithSelfAssessment)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      val result = controller.signout(None, Some(Origin("TESTORIGIN")))(FakeRequest())
+      val result =
+        controller.signout(None, Some(Origin("TESTORIGIN")))(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(
         "http://localhost:9553/bas-gateway/sign-out-without-state?continue=http://localhost:9514/feedback/TESTORIGIN"
@@ -331,14 +422,19 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return BAD_REQUEST when signed in with government gateway with no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+      when(mockAuthJourney.minimumAuthWithSelfAssessment)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(request = request)
+            )
+        })
 
-      override lazy val authProviderType: String = UserDetails.GovernmentGatewayAuthProvider
+      override lazy val authProviderType: String =
+        UserDetails.GovernmentGatewayAuthProvider
 
       val result = controller.signout(None, None)(FakeRequest())
       status(result) mustBe BAD_REQUEST
@@ -347,35 +443,46 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "redirect to verify sign-out link with correct continue url when signed in with verify, with no continue URL and but an origin" in new LocalSetup {
 
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
+      when(mockAuthJourney.minimumAuthWithSelfAssessment)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              )
             )
-          )
-      })
+        })
 
-      val result = controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
+      val result =
+        controller.signout(None, Some(Origin("PERTAX")))(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("http://localhost:9949/ida/signout")
-      session(result).get("postLogoutPage") mustBe Some("http://localhost:9514/feedback/PERTAX")
+      session(result).get("postLogoutPage") mustBe Some(
+        "http://localhost:9514/feedback/PERTAX"
+      )
     }
 
     "return 'Bad Request' when signed in with verify and supplied no continue URL and no origin" in new LocalSetup {
 
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
+      when(mockAuthJourney.minimumAuthWithSelfAssessment)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              )
             )
-          )
-      })
+        })
 
       val result = controller.signout(None, None)(FakeRequest())
       status(result) mustBe BAD_REQUEST
@@ -384,22 +491,31 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return see other when supplied with an absolute url" in new LocalSetup {
 
-      when(mockAuthJourney.minimumAuthWithSelfAssessment).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(
-              credentials = Credentials("", "Verify"),
-              confidenceLevel = ConfidenceLevel.L500,
-              request = request
+      when(mockAuthJourney.minimumAuthWithSelfAssessment)
+        .thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](
+            request: Request[A],
+            block: UserRequest[A] => Future[Result]
+          ): Future[Result] =
+            block(
+              buildUserRequest(
+                credentials = Credentials("", "Verify"),
+                confidenceLevel = ConfidenceLevel.L500,
+                request = request
+              )
             )
-          )
-      })
+        })
 
-      val result = controller.signout(Some(RedirectUrl("http://example.com&origin=PERTAX")), None)(FakeRequest())
+      val result = controller.signout(
+        Some(RedirectUrl("http://example.com&origin=PERTAX")),
+        None
+      )(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(config.citizenAuthFrontendSignOut)
-      session(result).get("postLogoutPage") mustBe Some("http://localhost:9514/feedback/PERTAX")
+      session(result).get("postLogoutPage") mustBe Some(
+        "http://localhost:9514/feedback/PERTAX"
+      )
     }
   }
 

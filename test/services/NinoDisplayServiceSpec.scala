@@ -37,7 +37,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class NinoDisplayServiceSpec
-    extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
+    extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures
+    with GuiceOneAppPerSuite {
 
   val citizenDetailsService = mock[CitizenDetailsService]
   val aDifferentNinoToAuth = Nino(new Generator(new Random()).nextNino.nino)
@@ -59,9 +60,11 @@ class NinoDisplayServiceSpec
     None
   )
 
-  implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
+  implicit val request: UserRequest[_] =
+    buildUserRequest(request = FakeRequest())
   implicit lazy val hc: HeaderCarrier = HeaderCarrier()
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  implicit lazy val ec: ExecutionContext =
+    app.injector.instanceOf[ExecutionContext]
 
   "getNino" - {
     "the feature toggle getNinoFromCID is false" - {
@@ -69,9 +72,11 @@ class NinoDisplayServiceSpec
       when(configDecorator.getNinoFromCID).thenReturn(false)
 
       "return the NINO from the request (auth)" in {
-        val service = new NinoDisplayService(configDecorator, citizenDetailsService)
+        val service =
+          new NinoDisplayService(configDecorator, citizenDetailsService)
 
-        implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
+        implicit val request: UserRequest[_] =
+          buildUserRequest(request = FakeRequest())
 
         val result = service.getNino
         val authNino = request.nino
@@ -85,9 +90,12 @@ class NinoDisplayServiceSpec
 
       "return the NINO from citizen details" in {
         when(citizenDetailsService.personDetails(meq(authNino))(any()))
-          .thenReturn(Future.successful(PersonDetailsSuccessResponse(personDetails)))
+          .thenReturn(
+            Future.successful(PersonDetailsSuccessResponse(personDetails))
+          )
 
-        val service = new NinoDisplayService(configDecorator, citizenDetailsService)
+        val service =
+          new NinoDisplayService(configDecorator, citizenDetailsService)
 
         val result = service.getNino
         result.futureValue mustBe Some(aDifferentNinoToAuth)
@@ -95,11 +103,15 @@ class NinoDisplayServiceSpec
 
       "return NONE if there is no auth NINO" in {
         when(citizenDetailsService.personDetails(meq(authNino))(any()))
-          .thenReturn(Future.successful(PersonDetailsSuccessResponse(personDetails)))
+          .thenReturn(
+            Future.successful(PersonDetailsSuccessResponse(personDetails))
+          )
 
-        implicit val request: UserRequest[_] = buildUserRequest(nino = None, request = FakeRequest())
+        implicit val request: UserRequest[_] =
+          buildUserRequest(nino = None, request = FakeRequest())
 
-        val service = new NinoDisplayService(configDecorator, citizenDetailsService)
+        val service =
+          new NinoDisplayService(configDecorator, citizenDetailsService)
 
         val result = service.getNino
         result.futureValue mustBe None
@@ -115,9 +127,11 @@ class NinoDisplayServiceSpec
           when(citizenDetailsService.personDetails(meq(authNino))(any()))
             .thenReturn(Future.successful(response))
 
-          val service = new NinoDisplayService(configDecorator, citizenDetailsService)
+          val service =
+            new NinoDisplayService(configDecorator, citizenDetailsService)
 
-          implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
+          implicit val request: UserRequest[_] =
+            buildUserRequest(request = FakeRequest())
 
           val result = service.getNino
           result.futureValue mustBe None

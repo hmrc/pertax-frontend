@@ -31,7 +31,9 @@ import scala.concurrent.ExecutionContext
 class SaWrongCredentialsControllerSpec extends BaseSpec {
 
   val fakeAuthJourney = new FakeAuthJourney(
-    WrongCredentialsSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr))
+    WrongCredentialsSelfAssessmentUser(
+      SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+    )
   )
 
   def controller =
@@ -48,20 +50,28 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
 
   "processDoYouKnowOtherCredentials" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody(
+        "wrongCredentialsFormChoice" -> "true"
+      )
 
       val result = controller.processDoYouKnowOtherCredentials(request)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.signInAgain().url)
+      redirectLocation(result) mustBe Some(
+        routes.SaWrongCredentialsController.signInAgain().url
+      )
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody(
+        "wrongCredentialsFormChoice" -> "false"
+      )
 
       val result = controller.processDoYouKnowOtherCredentials(request)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.doYouKnowUserId().url)
+      redirectLocation(result) mustBe Some(
+        routes.SaWrongCredentialsController.doYouKnowUserId().url
+      )
     }
 
     "return a bad request when supplied no value" in {
@@ -74,19 +84,27 @@ class SaWrongCredentialsControllerSpec extends BaseSpec {
 
   "processDoYouKnowUserId" must {
     "redirect to 'Sign in using Government Gateway' page when supplied with value Yes" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "true")
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody(
+        "wrongCredentialsFormChoice" -> "true"
+      )
 
       val result = controller.processDoYouKnowUserId(request)
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.needToResetPassword().url)
+      redirectLocation(result) mustBe Some(
+        routes.SaWrongCredentialsController.needToResetPassword().url
+      )
     }
 
     "redirect to 'You need to use the creds you've created' page when supplied with value No (false)" in {
-      val request = FakeRequest("POST", "").withFormUrlEncodedBody("wrongCredentialsFormChoice" -> "false")
+      val request = FakeRequest("POST", "").withFormUrlEncodedBody(
+        "wrongCredentialsFormChoice" -> "false"
+      )
       val result = controller.processDoYouKnowUserId(request)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.SaWrongCredentialsController.findYourUserId().url)
+      redirectLocation(result) mustBe Some(
+        routes.SaWrongCredentialsController.findYourUserId().url
+      )
     }
 
     "return a bad request when supplied no value" in {

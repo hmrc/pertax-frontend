@@ -38,7 +38,8 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 
-class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+class PreferencesFrontendServiceSpec
+    extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]
@@ -198,7 +199,9 @@ class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with I
 
       val result = service.getPaperlessPreference().futureValue
 
-      result mustBe ActivatePaperlessRequiresUserActionResponse("http://www.testurl.com")
+      result mustBe ActivatePaperlessRequiresUserActionResponse(
+        "http://www.testurl.com"
+      )
     }
 
     "return ActivatePaperlessNotAllowedResponse when called and service is down" in {

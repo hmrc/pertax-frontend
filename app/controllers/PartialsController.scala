@@ -43,21 +43,23 @@ class PartialsController @Inject() (
     langReturnUrl: Option[String],
     lang: Option[String],
     showLastItem: Boolean
-  ): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful {
+  ): Action[AnyContent] =
+    Action.async { implicit request =>
+      Future.successful {
 
-      val breadcrumb: Breadcrumb = (itemText zip itemUrl).dropRight(if (showLastItem) 0 else 1)
+        val breadcrumb: Breadcrumb =
+          (itemText zip itemUrl).dropRight(if (showLastItem) 0 else 1)
 
-      Ok(
-        mainContentHeaderView(
-          name,
-          lastLogin.map(new DateTime(_)),
-          breadcrumb,
-          showBetaBanner.getOrElse(false),
-          deskProToken,
-          langReturnUrl.filter(x => configDecorator.welshLangEnabled)
+        Ok(
+          mainContentHeaderView(
+            name,
+            lastLogin.map(new DateTime(_)),
+            breadcrumb,
+            showBetaBanner.getOrElse(false),
+            deskProToken,
+            langReturnUrl.filter(x => configDecorator.welshLangEnabled)
+          )
         )
-      )
+      }
     }
-  }
 }

@@ -54,7 +54,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           "id",
           Map(
             "addressLookupServiceDown" -> Json.toJson(Some(false)),
-            "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+            "soleSelectedRecordSet" -> Json.toJson(
+              oneAndTwoOtherPlacePafRecordSet
+            )
           )
         )
       )
@@ -83,12 +85,15 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
             .asInstanceOf[Request[A]]
 
-        override def sessionCacheResponse: Some[CacheMap] = Some(CacheMap("id", Map.empty))
+        override def sessionCacheResponse: Some[CacheMap] =
+          Some(CacheMap("id", Map.empty))
 
         val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(address.routes.PostcodeLookupController.onPageLoad(SoleAddrType).url)
+        redirectLocation(result) mustBe Some(
+          address.routes.PostcodeLookupController.onPageLoad(SoleAddrType).url
+        )
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
     }
@@ -109,7 +114,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
               "id",
               Map(
                 "addressLookupServiceDown" -> Json.toJson(Some(false)),
-                "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+                "postalSelectedRecordSet" -> Json.toJson(
+                  oneAndTwoOtherPlacePafRecordSet
+                )
               )
             )
           )
@@ -133,7 +140,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
               "id",
               Map(
                 "addressLookupServiceDown" -> Json.toJson(Some(false)),
-                "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+                "postalSelectedRecordSet" -> Json.toJson(
+                  oneAndTwoOtherPlacePafRecordSet
+                )
               )
             )
           )
@@ -150,7 +159,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("addressId" -> "GB990091234514", "postcode" -> "AA1 1AA")
+          .withFormUrlEncodedBody(
+            "addressId" -> "GB990091234514",
+            "postcode"  -> "AA1 1AA"
+          )
           .asInstanceOf[Request[A]]
 
       override def sessionCacheResponse: Option[CacheMap] =
@@ -159,7 +171,9 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressLookupServiceDown" -> Json.toJson(Some(false)),
-              "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+              "postalSelectedRecordSet" -> Json.toJson(
+                oneAndTwoOtherPlacePafRecordSet
+              )
             )
           )
         )
@@ -167,9 +181,14 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/postal/edit-address"
+      )
       verify(mockLocalSessionCache, times(1))
-        .cache(meq("postalSelectedAddressRecord"), meq(oneOtherPlacePafAddressRecord))(any(), any(), any())
+        .cache(
+          meq("postalSelectedAddressRecord"),
+          meq(oneOtherPlacePafAddressRecord)
+        )(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -177,13 +196,17 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("addressId" -> "GB000000000000", "postcode" -> "AA1 1AA")
+          .withFormUrlEncodedBody(
+            "addressId" -> "GB000000000000",
+            "postcode"  -> "AA1 1AA"
+          )
           .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
+      verify(mockLocalSessionCache, times(0))
+        .cache(any(), any())(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -194,20 +217,27 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressLookupServiceDown" -> Json.toJson(Some(false)),
-              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+              "soleSelectedRecordSet" -> Json.toJson(
+                oneAndTwoOtherPlacePafRecordSet
+              )
             )
           )
         )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 2AA")
+          .withFormUrlEncodedBody(
+            "addressId" -> "GB990091234515",
+            "postcode"  -> "AA1 2AA"
+          )
           .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/enter-start-date")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/sole/enter-start-date"
+      )
     }
 
     "redirect to check and submit page if postcode is not different to currently held postcode" in new LocalSetup {
@@ -218,22 +248,33 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressLookupServiceDown" -> Json.toJson(Some(false)),
-              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+              "soleSelectedRecordSet" -> Json.toJson(
+                oneAndTwoOtherPlacePafRecordSet
+              )
             )
           )
         )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 1AA")
+          .withFormUrlEncodedBody(
+            "addressId" -> "GB990091234515",
+            "postcode"  -> "AA1 1AA"
+          )
           .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
+      redirectLocation(result) mustBe Some(
+        "/personal-account/your-address/sole/changes"
+      )
       verify(mockLocalSessionCache, times(1))
-        .cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
+        .cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(
+          any(),
+          any(),
+          any()
+        )
     }
   }
 }

@@ -47,16 +47,22 @@ class PreferencesFrontendService @Inject() (
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
-  def getPaperlessPreference()(implicit request: UserRequest[_]): Future[ActivatePaperlessResponse] = {
+  def getPaperlessPreference()(implicit
+    request: UserRequest[_]
+  ): Future[ActivatePaperlessResponse] = {
 
     def absoluteUrl = configDecorator.pertaxFrontendHost + request.uri
 
     def activatePaperless: Future[ActivatePaperlessResponse] =
       withMetricsTimer("get-activate-paperless") { timer =>
         val url =
-          s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools.encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
+          s"$preferencesFrontendUrl/paperless/activate?returnUrl=${tools
+            .encryptAndEncode(absoluteUrl)}&returnLinkText=${tools
             .encryptAndEncode(Messages("label.continue"))}" //TODO remove ref to Messages
-        simpleHttp.PUT[JsObject, ActivatePaperlessResponse](url, Json.obj("active" -> true)) map {
+        simpleHttp.PUT[JsObject, ActivatePaperlessResponse](
+          url,
+          Json.obj("active" -> true)
+        ) map {
 
           case ActivatePaperlessActivatedResponse =>
             timer.completeTimerAndIncrementSuccessCounter()
@@ -69,18 +75,21 @@ class PreferencesFrontendService @Inject() (
           case ActivatePaperlessNotAllowedResponse =>
             timer.completeTimerAndIncrementFailedCounter()
             ActivatePaperlessNotAllowedResponse
-        } recover { case e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting paperless preference record from preferences-frontend-service", e)
-          ActivatePaperlessNotAllowedResponse
+        } recover {
+          case e =>
+            timer.completeTimerAndIncrementFailedCounter()
+            logger.warn(
+              "Error getting paperless preference record from preferences-frontend-service",
+              e
+            )
+            ActivatePaperlessNotAllowedResponse
         }
       }
 
-    if (request.isGovernmentGateway) {
+    if (request.isGovernmentGateway)
       activatePaperless
-    } else {
+    else
       Future.successful(ActivatePaperlessNotAllowedResponse)
-    }
   }
 
 }

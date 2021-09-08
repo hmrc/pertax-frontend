@@ -27,20 +27,29 @@ object ResidencyChoiceDto {
 
   implicit val formats = {
     implicit val addrTypeReads: Reads[AddrType] = new Reads[AddrType] {
-      override def reads(json: JsValue): JsResult[AddrType] = json match {
-        case JsString("sole")    => JsSuccess(SoleAddrType)
-        case JsString("primary") => JsSuccess(PrimaryAddrType)
-        case JsString("postal")  => JsSuccess(PostalAddrType)
-        case _                   => JsError(Seq(JsPath() -> Seq(JsonValidationError("error.expected.jsString(addrType)"))))
-      }
+      override def reads(json: JsValue): JsResult[AddrType] =
+        json match {
+          case JsString("sole")    => JsSuccess(SoleAddrType)
+          case JsString("primary") => JsSuccess(PrimaryAddrType)
+          case JsString("postal")  => JsSuccess(PostalAddrType)
+          case _ =>
+            JsError(
+              Seq(
+                JsPath() -> Seq(
+                  JsonValidationError("error.expected.jsString(addrType)")
+                )
+              )
+            )
+        }
     }
 
     implicit val addrTypeWrites: Writes[AddrType] = new Writes[AddrType] {
-      override def writes(o: AddrType): JsValue = o match {
-        case SoleAddrType    => JsString("sole")
-        case PrimaryAddrType => JsString("primary")
-        case PostalAddrType  => JsString("postal")
-      }
+      override def writes(o: AddrType): JsValue =
+        o match {
+          case SoleAddrType    => JsString("sole")
+          case PrimaryAddrType => JsString("primary")
+          case PostalAddrType  => JsString("postal")
+        }
     }
     Json.format[ResidencyChoiceDto]
   }
@@ -48,7 +57,10 @@ object ResidencyChoiceDto {
   val form = Form(
     mapping(
       "residencyChoice" -> optional(text)
-        .verifying("error.you_must_select_an_answer", e => e.flatMap(a => AddrType(a)).isDefined)
+        .verifying(
+          "error.you_must_select_an_answer",
+          e => e.flatMap(a => AddrType(a)).isDefined
+        )
         .transform[AddrType](
           x => AddrType(x.fold("")(_.toString)).getOrElse(SoleAddrType),
           ad => Some(ad.toString)

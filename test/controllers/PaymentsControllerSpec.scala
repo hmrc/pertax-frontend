@@ -62,20 +62,25 @@ class PaymentsControllerSpec extends BaseSpec with CurrentTaxYear {
       injected[ErrorRenderer]
     )(config, templateRenderer, ec)
 
-  when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-      block(
-        buildUserRequest(
-          request = request
+  when(mockAuthJourney.authWithPersonalDetails)
+    .thenReturn(new ActionBuilderFixture {
+      override def invokeBlock[A](
+        request: Request[A],
+        block: UserRequest[A] => Future[Result]
+      ): Future[Result] =
+        block(
+          buildUserRequest(
+            request = request
+          )
         )
-      )
-  })
+    })
 
   "makePayment" must {
     "redirect to the response's nextUrl" in {
 
       val expectedNextUrl = "someNextUrl"
-      val createPaymentResponse = CreatePayment("someJourneyId", expectedNextUrl)
+      val createPaymentResponse =
+        CreatePayment("someJourneyId", expectedNextUrl)
 
       when(mockPayConnector.createPayment(any())(any(), any()))
         .thenReturn(Future.successful(Some(createPaymentResponse)))

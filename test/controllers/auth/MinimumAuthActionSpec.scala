@@ -47,15 +47,18 @@ class MinimumAuthActionSpec extends BaseSpec {
 
   val mockAuthConnector = mock[AuthConnector]
   val controllerComponents = app.injector.instanceOf[ControllerComponents]
-  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
+  val sessionAuditor = new SessionAuditorFake(
+    app.injector.instanceOf[AuditConnector]
+  )
 
   class Harness(authAction: MinimumAuthAction) extends Controller {
-    def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
-      Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
-          s"trustedHelper: ${request.trustedHelper}"
-      )
-    }
+    def onPageLoad(): Action[AnyContent] =
+      authAction { request: AuthenticatedRequest[AnyContent] =>
+        Ok(
+          s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
+            s"trustedHelper: ${request.trustedHelper}"
+        )
+      }
   }
 
   "A user with no active session must" must {
@@ -63,7 +66,13 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -76,7 +85,13 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -87,14 +102,17 @@ class MinimumAuthActionSpec extends BaseSpec {
   }
 
   type AuthRetrievals =
-    Option[String] ~ Enrolments ~ Option[Credentials] ~ ConfidenceLevel ~ Option[UserName] ~ Option[
+    Option[String] ~ Enrolments ~ Option[
+      Credentials
+    ] ~ ConfidenceLevel ~ Option[UserName] ~ Option[
       TrustedHelper
     ] ~ Option[String]
 
   val fakeCredentials = Credentials("foo", "bar")
   val fakeConfidenceLevel = ConfidenceLevel.L200
 
-  def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
+  def fakeSaEnrolments(utr: String) =
+    Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
   "A user with nino and no SA enrolment must" must {
     "create an authenticated request" in {
@@ -102,7 +120,9 @@ class MinimumAuthActionSpec extends BaseSpec {
       val nino = Fixtures.fakeNino.nino
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          Some(nino) ~ Enrolments(Set.empty) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
+          Some(nino) ~ Enrolments(Set.empty) ~ Some(
+            fakeCredentials
+          ) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
 
       when(
@@ -111,7 +131,13 @@ class MinimumAuthActionSpec extends BaseSpec {
       ).thenReturn(retrievalResult)
 
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -127,7 +153,9 @@ class MinimumAuthActionSpec extends BaseSpec {
 
       val retrievalResult: Future[AuthRetrievals] =
         Future.successful(
-          None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(fakeCredentials) ~ fakeConfidenceLevel ~ None ~ None ~ None
+          None ~ Enrolments(fakeSaEnrolments(utr)) ~ Some(
+            fakeCredentials
+          ) ~ fakeConfidenceLevel ~ None ~ None ~ None
         )
 
       when(
@@ -136,7 +164,13 @@ class MinimumAuthActionSpec extends BaseSpec {
       ).thenReturn(retrievalResult)
 
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -164,7 +198,13 @@ class MinimumAuthActionSpec extends BaseSpec {
       ).thenReturn(retrievalResult)
 
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents
+        )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -183,7 +223,12 @@ class MinimumAuthActionSpec extends BaseSpec {
           Some(Fixtures.fakeNino.toString()) ~ Enrolments(Set.empty) ~ Some(
             fakeCredentials
           ) ~ fakeConfidenceLevel ~ None ~ Some(
-            TrustedHelper("principalName", "attorneyName", "returnUrl", fakePrincipalNino)
+            TrustedHelper(
+              "principalName",
+              "attorneyName",
+              "returnUrl",
+              fakePrincipalNino
+            )
           ) ~ None
         )
 
