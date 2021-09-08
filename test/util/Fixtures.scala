@@ -258,8 +258,7 @@ trait CitizenDetailsFixtures {
       ("postcode", "aa1 1aa")
     )
 
-  def fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode
-    : List[(String, String)] =
+  def fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode: List[(String, String)] =
     List(
       ("line1", "1 Fake Street"),
       ("line2", "Fake Town"),
@@ -300,9 +299,7 @@ trait CitizenDetailsFixtures {
     )
 }
 
-object Fixtures
-    extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
-    with TaxCalculationFixtures {
+object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures with TaxCalculationFixtures {
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
 
@@ -355,9 +352,8 @@ object Fixtures
 }
 
 trait BaseSpec
-    extends AnyWordSpec with GuiceOneAppPerSuite with Matchers
-    with PatienceConfiguration with BeforeAndAfterEach with MockitoSugar
-    with ScalaFutures {
+    extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with PatienceConfiguration with BeforeAndAfterEach
+    with MockitoSugar with ScalaFutures {
   this: Suite =>
 
   implicit val hc = HeaderCarrier()

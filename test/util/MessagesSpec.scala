@@ -103,8 +103,7 @@ class MessagesSpec extends BaseSpec {
         case (key, value) if countArgs(value) > 0 => (key, listArgs(value))
       }
       val mismatchedArgSequences = englishWithArgsMsgKeysAndArgList collect {
-        case (key, engArgSeq)
-            if engArgSeq != welshWithArgsMsgKeysAndArgList(key) =>
+        case (key, engArgSeq) if engArgSeq != welshWithArgsMsgKeysAndArgList(key) =>
           (key, engArgSeq, welshWithArgsMsgKeysAndArgList(key))
       }
       mismatchedArgSequences foreach {

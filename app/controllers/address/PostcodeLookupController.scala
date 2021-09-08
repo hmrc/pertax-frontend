@@ -121,10 +121,9 @@ class PostcodeLookupController @Inject() (
             for {
               _ <- cachingHelper
                      .addToCache(AddressFinderDtoId(typ), addressFinderDto)
-              lookupDown <-
-                cachingHelper.gettingCachedAddressLookupServiceDown { lookup =>
-                  lookup
-                }
+              lookupDown <- cachingHelper.gettingCachedAddressLookupServiceDown { lookup =>
+                              lookup
+                            }
               result <- lookingUpAddress(
                           typ,
                           addressFinderDto.postcode,
@@ -218,12 +217,12 @@ class PostcodeLookupController @Inject() (
                               Redirect(
                                 routes.AddressSelectorController.onPageLoad(typ)
                               ).addingToSession(
-                                  (postcode, addressFinderDto.postcode),
-                                  (
-                                    filter,
-                                    addressFinderDto.filter.getOrElse("")
-                                  )
+                                (postcode, addressFinderDto.postcode),
+                                (
+                                  filter,
+                                  addressFinderDto.filter.getOrElse("")
                                 )
+                              )
                             }
                         }
             } yield result
@@ -246,8 +245,7 @@ class PostcodeLookupController @Inject() (
         Redirect(routes.UpdateAddressController.onPageLoad(typ))
       )
     else {
-      val handleError
-        : PartialFunction[AddressLookupResponse, Future[Result]] = {
+      val handleError: PartialFunction[AddressLookupResponse, Future[Result]] = {
         case AddressLookupErrorResponse(_) | AddressLookupUnexpectedResponse(
               _
             ) =>

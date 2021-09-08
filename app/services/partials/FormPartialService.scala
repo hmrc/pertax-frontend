@@ -34,8 +34,7 @@ class FormPartialService @Inject() (
   val configDecorator: ConfigDecorator,
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter)
-    with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
 
   def getNationalInsurancePartial(implicit
     request: RequestHeader

@@ -28,8 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class SessionAuditorFake @Inject() (auditConnector: AuditConnector)(implicit
   ec: ExecutionContext
 ) extends SessionAuditor(auditConnector) {
-  override def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(
-    implicit hc: HeaderCarrier
+  override def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit
+    hc: HeaderCarrier
   ): Future[Result] =
     Future.successful(result.addingToSession(sessionKey -> "true")(request))
 }

@@ -130,9 +130,7 @@ class ConfigDecorator @Inject() (
     s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
   def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) =
-    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (
-                                                                                  lang.code equals "en"
-                                                                                ) "eng"
+    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (lang.code equals "en") "eng"
                                                                                 else
                                                                                   "cym")
   lazy val ssoToActivateSaEnrolmentPinUrl =

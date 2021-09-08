@@ -84,12 +84,8 @@ object SelfAssessmentUserType {
   }
 }
 
-case class ActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr)
-    extends SelfAssessmentUser
-case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr)
-    extends SelfAssessmentUser
-case class WrongCredentialsSelfAssessmentUser(saUtr: SaUtr)
-    extends SelfAssessmentUser
-case class NotEnrolledSelfAssessmentUser(saUtr: SaUtr)
-    extends SelfAssessmentUser
+case class ActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
+case class NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
+case class WrongCredentialsSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
+case class NotEnrolledSelfAssessmentUser(saUtr: SaUtr) extends SelfAssessmentUser
 case object NonFilerSelfAssessmentUser extends SelfAssessmentUserType

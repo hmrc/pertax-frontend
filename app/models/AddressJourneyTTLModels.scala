@@ -33,8 +33,7 @@ case class EditSoleAddress(expireAt: BSONDateTime) extends EditedAddress {
 case class EditPrimaryAddress(expireAt: BSONDateTime) extends EditedAddress {
   override def addressType: String = EditedAddress.editPrimaryAddress
 }
-case class EditCorrespondenceAddress(expireAt: BSONDateTime)
-    extends EditedAddress {
+case class EditCorrespondenceAddress(expireAt: BSONDateTime) extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
 }
 

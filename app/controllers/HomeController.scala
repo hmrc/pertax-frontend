@@ -49,8 +49,7 @@ class HomeController @Inject() (
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext
-) extends PertaxBaseController(cc) with PaperlessInterruptHelper
-    with CurrentTaxYear {
+) extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 

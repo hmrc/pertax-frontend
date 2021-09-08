@@ -40,8 +40,7 @@ import views.html.print._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class NiLetterControllerSpec
-    extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
+class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
 
   val mockPdfGeneratorConnector = mock[PdfGeneratorConnector]
   val mockAuthJourney = mock[AuthJourney]

@@ -42,16 +42,15 @@ class PayApiConnector @Inject() (
     val postUrl = configDecorator.makeAPaymentUrl
 
     withMetricsTimer("create-payment") { timer =>
-      http.POST[PaymentRequest, HttpResponse](postUrl, request) flatMap {
-        response =>
-          response.status match {
-            case CREATED =>
-              timer.completeTimerAndIncrementSuccessCounter()
-              Future.successful(Some(response.json.as[CreatePayment]))
-            case _ =>
-              timer.completeTimerAndIncrementFailedCounter()
-              Future.successful(None)
-          }
+      http.POST[PaymentRequest, HttpResponse](postUrl, request) flatMap { response =>
+        response.status match {
+          case CREATED =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            Future.successful(Some(response.json.as[CreatePayment]))
+          case _ =>
+            timer.completeTimerAndIncrementFailedCounter()
+            Future.successful(None)
+        }
       }
     }
   }

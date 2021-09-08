@@ -46,8 +46,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
     buildUserRequest(
       request = FakeRequest(),
       saUser = NotEnrolledSelfAssessmentUser(utr),
-      credentials =
-        Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
+      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
     )
 
   "SelfAssessmentService" when {

@@ -30,13 +30,10 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 sealed trait TaxComponentsResponse
-case class TaxComponentsSuccessResponse(taxComponents: TaxComponents)
-    extends TaxComponentsResponse
+case class TaxComponentsSuccessResponse(taxComponents: TaxComponents) extends TaxComponentsResponse
 case object TaxComponentsUnavailableResponse extends TaxComponentsResponse
-case class TaxComponentsUnexpectedResponse(r: HttpResponse)
-    extends TaxComponentsResponse
-case class TaxComponentsErrorResponse(cause: Exception)
-    extends TaxComponentsResponse
+case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponentsResponse
+case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 @Singleton
 class TaiService @Inject() (
   val simpleHttp: SimpleHttp,

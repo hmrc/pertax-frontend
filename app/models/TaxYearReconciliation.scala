@@ -90,8 +90,7 @@ object Underpaid {
   implicit val reads: Reads[Underpaid] = Json.reads[Underpaid]
 }
 
-case class Overpaid(amount: Option[Double], status: OverpaidStatus)
-    extends Reconciliation
+case class Overpaid(amount: Option[Double], status: OverpaidStatus) extends Reconciliation
 
 object Overpaid {
 

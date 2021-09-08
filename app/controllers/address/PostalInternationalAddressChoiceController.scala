@@ -51,19 +51,18 @@ class PostalInternationalAddressChoiceController @Inject() (
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto {
-          addressPageVisitedDto =>
-            cachingHelper.enforceDisplayAddressPageVisited(
-              addressPageVisitedDto
-            ) {
-              Future.successful(
-                Ok(
-                  postalInternationalAddressChoiceView(
-                    InternationalAddressChoiceDto.form
-                  )
+        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+          cachingHelper.enforceDisplayAddressPageVisited(
+            addressPageVisitedDto
+          ) {
+            Future.successful(
+              Ok(
+                postalInternationalAddressChoiceView(
+                  InternationalAddressChoiceDto.form
                 )
               )
-            }
+            )
+          }
         }
       }
     }

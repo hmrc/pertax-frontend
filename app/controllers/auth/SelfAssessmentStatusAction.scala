@@ -32,8 +32,7 @@ class SelfAssessmentStatusAction @Inject() (
   enrolmentsCachingService: EnrolmentStoreCachingService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
-    extends ActionRefiner[AuthenticatedRequest, UserRequest]
-    with ActionFunction[AuthenticatedRequest, UserRequest] {
+    extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(
     nino: Nino

@@ -96,17 +96,13 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
           "submittedCountry"  -> None,
           "addressType"       -> addressType,
           "submittedUPRN"     -> uprn,
-          "originalLine1" -> Some("1 Fake Street").filter(x =>
-            includeOriginals
-          ),
-          "originalLine2"    -> Some("Fake Town").filter(x => includeOriginals),
-          "originalLine3"    -> Some("Fake City").filter(x => includeOriginals),
-          "originalLine4"    -> Some("Fake Region").filter(x => includeOriginals),
-          "originalPostcode" -> Some("AA1 1AA").filter(x => includeOriginals),
-          "originalCountry" -> Some("Country(UK,United Kingdom)").filter(x =>
-            includeOriginals
-          ),
-          "originalUPRN" -> uprn.filter(x => includeOriginals)
+          "originalLine1"     -> Some("1 Fake Street").filter(x => includeOriginals),
+          "originalLine2"     -> Some("Fake Town").filter(x => includeOriginals),
+          "originalLine3"     -> Some("Fake City").filter(x => includeOriginals),
+          "originalLine4"     -> Some("Fake Region").filter(x => includeOriginals),
+          "originalPostcode"  -> Some("AA1 1AA").filter(x => includeOriginals),
+          "originalCountry"   -> Some("Country(UK,United Kingdom)").filter(x => includeOriginals),
+          "originalUPRN"      -> uprn.filter(x => includeOriginals)
         ).map(t => t._2.map((t._1, _))).flatten.toMap,
         dataEvent.generatedAt
       )

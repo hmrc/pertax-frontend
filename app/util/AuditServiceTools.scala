@@ -66,8 +66,7 @@ object AuditServiceTools {
     )
   }
 
-  def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(
-    implicit
+  def buildPersonDetailsEvent(auditType: String, personDetails: PersonDetails)(implicit
     hc: HeaderCarrier,
     request: UserRequest[_]
   ): DataEvent =

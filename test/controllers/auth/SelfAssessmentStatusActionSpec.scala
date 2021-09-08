@@ -40,8 +40,7 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import scala.concurrent.Future
 
 class SelfAssessmentStatusActionSpec
-    extends AnyFreeSpec with Matchers with MockitoSugar with BeforeAndAfterEach
-    with GuiceOneAppPerSuite {
+    extends AnyFreeSpec with Matchers with MockitoSugar with BeforeAndAfterEach with GuiceOneAppPerSuite {
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 

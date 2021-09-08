@@ -247,8 +247,7 @@ object TaxCalculationViewModel {
       )
   }
 
-  private val overpaidViewModel
-    : PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
+  private val overpaidViewModel: PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
     case (Overpaid(Some(amount), Refund), taxYears) =>
       overpaid(
@@ -298,8 +297,7 @@ object TaxCalculationViewModel {
         )
     )
 
-  private val otherViewModels
-    : PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
+  private val otherViewModels: PartialFunction[(Reconciliation, TaxYears), TaxCalculationViewModel] = {
 
     case (
           Balanced | OverpaidTolerance | UnderpaidTolerance,

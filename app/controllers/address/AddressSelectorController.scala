@@ -116,9 +116,8 @@ class AddressSelectorController @Inject() (
                   val addressDto = AddressDto.fromAddressRecord(addressRecord)
 
                   for {
-                    _ <-
-                      cachingHelper
-                        .addToCache(SelectedAddressRecordId(typ), addressRecord)
+                    _ <- cachingHelper
+                           .addToCache(SelectedAddressRecordId(typ), addressRecord)
                     _ <- cachingHelper
                            .addToCache(SubmittedAddressDtoId(typ), addressDto)
                   } yield {

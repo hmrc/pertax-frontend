@@ -161,8 +161,7 @@ class ClosePostalAddressController @Inject() (
           action <- response match {
                       case UpdateAddressBadRequestResponse =>
                         errorRenderer.futureError(BAD_REQUEST)
-                      case UpdateAddressUnexpectedResponse(_) |
-                          UpdateAddressErrorResponse(_) =>
+                      case UpdateAddressUnexpectedResponse(_) | UpdateAddressErrorResponse(_) =>
                         errorRenderer.futureError(INTERNAL_SERVER_ERROR)
                       case UpdateAddressSuccessResponse =>
                         for {
@@ -177,12 +176,10 @@ class ClosePostalAddressController @Inject() (
                                    )
                                  )
                                )
-                          _ <-
-                            cachingHelper
-                              .clearCache() //This clears ENTIRE session cache, no way to target individual keys
-                          inserted <-
-                            editAddressLockRepository
-                              .insert(nino.withoutSuffix, PostalAddrType)
+                          _ <- cachingHelper
+                                 .clearCache() //This clears ENTIRE session cache, no way to target individual keys
+                          inserted <- editAddressLockRepository
+                                        .insert(nino.withoutSuffix, PostalAddrType)
                           _ <- addressMovedService
                                  .moved(
                                    address.postcode.getOrElse(""),

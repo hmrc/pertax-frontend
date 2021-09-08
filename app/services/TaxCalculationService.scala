@@ -31,13 +31,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 sealed trait TaxCalculationResponse
-case class TaxCalculationSuccessResponse(taxCalculation: TaxCalculation)
-    extends TaxCalculationResponse
+case class TaxCalculationSuccessResponse(taxCalculation: TaxCalculation) extends TaxCalculationResponse
 case object TaxCalculationNotFoundResponse extends TaxCalculationResponse
-case class TaxCalculationUnexpectedResponse(r: HttpResponse)
-    extends TaxCalculationResponse
-case class TaxCalculationErrorResponse(cause: Exception)
-    extends TaxCalculationResponse
+case class TaxCalculationUnexpectedResponse(r: HttpResponse) extends TaxCalculationResponse
+case class TaxCalculationErrorResponse(cause: Exception) extends TaxCalculationResponse
 @Singleton
 class TaxCalculationService @Inject() (
   val simpleHttp: SimpleHttp,

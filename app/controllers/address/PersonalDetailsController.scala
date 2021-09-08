@@ -72,9 +72,8 @@ class PersonalDetailsController @Inject() (
                             Future.successful(List[AddressJourneyTTLModel]())
                           )
         ninoToDisplay <- ninoDisplayService.getNino
-        personalDetailsCards: Seq[Html] =
-          personalDetailsCardGenerator
-            .getPersonalDetailsCards(addressModel, ninoToDisplay)
+        personalDetailsCards: Seq[Html] = personalDetailsCardGenerator
+                                            .getPersonalDetailsCards(addressModel, ninoToDisplay)
         personDetails: Option[PersonDetails] = request.personDetails
 
         _ <- personDetails

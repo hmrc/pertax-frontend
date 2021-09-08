@@ -97,41 +97,40 @@ class StartDateController @Inject() (
                 BadRequest(enterStartDateView(formWithErrors, typ))
               ),
             dateDto =>
-              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map {
-                _ =>
-                  val proposedStartDate = dateDto.startDate
+              cachingHelper.addToCache(SubmittedStartDateId(typ), dateDto) map { _ =>
+                val proposedStartDate = dateDto.startDate
 
-                  personDetails.address match {
-                    case Some(
-                          Address(
-                            _,
-                            _,
-                            _,
-                            _,
-                            _,
-                            _,
-                            _,
-                            Some(currentStartDate),
-                            _,
-                            _
-                          )
-                        ) =>
-                      if (!currentStartDate.isBefore(proposedStartDate))
-                        BadRequest(
-                          cannotUpdateAddressView(
-                            typ,
-                            languageUtils.Dates.formatDate(proposedStartDate)
-                          )
+                personDetails.address match {
+                  case Some(
+                        Address(
+                          _,
+                          _,
+                          _,
+                          _,
+                          _,
+                          _,
+                          _,
+                          Some(currentStartDate),
+                          _,
+                          _
                         )
-                      else
-                        Redirect(
-                          routes.AddressSubmissionController.onPageLoad(typ)
+                      ) =>
+                    if (!currentStartDate.isBefore(proposedStartDate))
+                      BadRequest(
+                        cannotUpdateAddressView(
+                          typ,
+                          languageUtils.Dates.formatDate(proposedStartDate)
                         )
-                    case _ =>
+                      )
+                    else
                       Redirect(
                         routes.AddressSubmissionController.onPageLoad(typ)
                       )
-                  }
+                  case _ =>
+                    Redirect(
+                      routes.AddressSubmissionController.onPageLoad(typ)
+                    )
+                }
               }
           )
         }

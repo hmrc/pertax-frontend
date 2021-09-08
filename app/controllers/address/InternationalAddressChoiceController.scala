@@ -51,20 +51,19 @@ class InternationalAddressChoiceController @Inject() (
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto {
-          addressPageVisitedDto =>
-            cachingHelper.enforceDisplayAddressPageVisited(
-              addressPageVisitedDto
-            ) {
-              Future.successful(
-                Ok(
-                  internationalAddressChoiceView(
-                    InternationalAddressChoiceDto.form,
-                    typ
-                  )
+        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+          cachingHelper.enforceDisplayAddressPageVisited(
+            addressPageVisitedDto
+          ) {
+            Future.successful(
+              Ok(
+                internationalAddressChoiceView(
+                  InternationalAddressChoiceDto.form,
+                  typ
                 )
               )
-            }
+            )
+          }
         }
       }
     }

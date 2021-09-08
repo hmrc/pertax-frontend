@@ -47,8 +47,7 @@ class AuthActionImpl @Inject() (
   def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
       url <- profileUrl
-      res <-
-        Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
+      res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
     } yield res
       .replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink)
       .toString()
@@ -89,8 +88,7 @@ class AuthActionImpl @Inject() (
           Retrievals.profile
       ) {
 
-        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) |
-            None) ~ _ ~ _ ~ _ ~ _ =>
+        case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ _ ~ LT200(_) ~ _ ~ _ ~ _ =>
@@ -137,17 +135,13 @@ class AuthActionImpl @Inject() (
               }
 
           val authenticatedRequest = AuthenticatedRequest[A](
-            trustedHelper.fold(nino.map(domain.Nino))(helper =>
-              Some(domain.Nino(helper.principalNino))
-            ),
+            trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
             saEnrolment,
             credentials,
             confidenceLevel,
             Some(
               UserName(
-                trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
-                  Name(Some(helper.principalName), None)
-                )
+                trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
               )
             ),
             trustedHelper,
@@ -157,9 +151,8 @@ class AuthActionImpl @Inject() (
           )
 
           for {
-            result <- block(authenticatedRequest)
-            updatedResult <-
-              sessionAuditor.auditOnce(authenticatedRequest, result)
+            result        <- block(authenticatedRequest)
+            updatedResult <- sessionAuditor.auditOnce(authenticatedRequest, result)
           } yield updatedResult
 
         case _ => throw new RuntimeException("Can't find credentials for user")
@@ -244,5 +237,4 @@ class AuthActionImpl @Inject() (
 
 @ImplementedBy(classOf[AuthActionImpl])
 trait AuthAction
-    extends ActionBuilder[AuthenticatedRequest, AnyContent]
-    with ActionFunction[Request, AuthenticatedRequest]
+    extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]

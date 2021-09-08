@@ -81,8 +81,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val uKNewYear = getNextMidnight(testOffsetDateTime)
 
-            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0,
-              0, 0)
+            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0)
             uKNewYear.getOffset mustBe offset
           }
           "the time is exactly midnight" in {
@@ -94,8 +93,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val uKNewYear = getNextMidnight(testOffsetDateTime)
 
-            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0,
-              0, 0)
+            uKNewYear.toLocalDateTime mustBe LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0)
             uKNewYear.getOffset mustBe offset
           }
         }
@@ -112,8 +110,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
           val anHourBeforeBst = getNextMidnight(testOffsetDateTime)
 
-          anHourBeforeBst.toLocalDateTime mustBe LocalDateTime.of(2019, 3, 31,
-            0, 0, 0, 0)
+          anHourBeforeBst.toLocalDateTime mustBe LocalDateTime.of(2019, 3, 31, 0, 0, 0, 0)
           anHourBeforeBst.getOffset mustBe offset
         }
       }
@@ -129,8 +126,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0,
-              0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0, 0)
             result.getOffset mustBe offset
           }
           "the time is exactly 2 am and daylight saving (BST) ends at 2 am the next day" in {
@@ -151,8 +147,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val twoHoursBeforeBstEnds = getNextMidnight(testOffsetDateTime)
 
-            twoHoursBeforeBstEnds.toLocalDateTime mustBe LocalDateTime.of(2018,
-              10, 28, 1, 0, 0, 0)
+            twoHoursBeforeBstEnds.toLocalDateTime mustBe LocalDateTime.of(2018, 10, 28, 1, 0, 0, 0)
             twoHoursBeforeBstEnds.getOffset mustBe offset
           }
         }
@@ -169,8 +164,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0,
-              0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 2, 1, 0, 0, 0)
             result.getOffset mustBe offset
           }
         }
@@ -184,8 +178,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0,
-              0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0, 0)
             result.getOffset mustBe offset
           }
         }
@@ -200,8 +193,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0,
-              0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 0, 0, 0, 0)
             result.getOffset mustBe offset
           }
         }
@@ -215,8 +207,7 @@ class EditAddressLockRepositorySpec extends BaseSpec {
 
             val result = getNextMidnight(testOffsetDateTime)
 
-            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 1, 0, 0,
-              0)
+            result.toLocalDateTime mustBe LocalDateTime.of(2019, 4, 3, 1, 0, 0, 0)
             result.getOffset mustBe offset
           }
         }

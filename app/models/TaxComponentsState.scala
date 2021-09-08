@@ -26,5 +26,4 @@ sealed trait TaxComponentsState {
 case object TaxComponentsDisabledState extends TaxComponentsState
 case object TaxComponentsUnreachableState extends TaxComponentsState
 case object TaxComponentsNotAvailableState extends TaxComponentsState
-case class TaxComponentsAvailableState(taxComponents: TaxComponents)
-    extends TaxComponentsState
+case class TaxComponentsAvailableState(taxComponents: TaxComponents) extends TaxComponentsState

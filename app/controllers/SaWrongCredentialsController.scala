@@ -102,8 +102,7 @@ class SaWrongCredentialsController @Inject() (
   def processDoYouKnowOtherCredentials: Action[AnyContent] =
     authenticate { implicit request =>
       SAWrongCredentialsDto.form.bindFromRequest.fold(
-        formWithErrors =>
-          BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
+        formWithErrors => BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
         wrongCredentialsDto =>
           if (wrongCredentialsDto.value)
             Redirect(routes.SaWrongCredentialsController.signInAgain())

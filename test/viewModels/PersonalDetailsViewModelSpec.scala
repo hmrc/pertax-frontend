@@ -235,9 +235,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "name is empty" in {
         val request = userRequest.copy(personDetails =
           Some(
-            exampleDetails.copy(person =
-              examplePerson.copy(firstName = None, lastName = None)
-            )
+            exampleDetails.copy(person = examplePerson.copy(firstName = None, lastName = None))
           )
         )
         val actual =

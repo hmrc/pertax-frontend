@@ -34,8 +34,7 @@ case class TaxCalculationOverpaidRefundState(
   startOfTaxYear: Int,
   endOfTaxYear: Int
 ) extends TaxCalculationOverpaidState
-case class TaxCalculationOverpaidPaymentProcessingState(amount: BigDecimal)
-    extends TaxCalculationOverpaidState
+case class TaxCalculationOverpaidPaymentProcessingState(amount: BigDecimal) extends TaxCalculationOverpaidState
 case class TaxCalculationOverpaidPaymentPaidState(
   amount: BigDecimal,
   datePaid: Option[LocalDate]

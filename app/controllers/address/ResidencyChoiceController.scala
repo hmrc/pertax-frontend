@@ -66,8 +66,7 @@ class ResidencyChoiceController @Inject() (
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         ResidencyChoiceDto.form.bindFromRequest.fold(
-          formWithErrors =>
-            Future.successful(BadRequest(residencyChoiceView(formWithErrors))),
+          formWithErrors => Future.successful(BadRequest(residencyChoiceView(formWithErrors))),
           residencyChoiceDto =>
             cachingHelper
               .addToCache(

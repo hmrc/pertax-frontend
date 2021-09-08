@@ -145,10 +145,9 @@ class EditAddressLockRepository @Inject() (
 
   private[repositories] def setIndex(): Future[Boolean] =
     for {
-      _         <- removeIndex()
-      ttlResult <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
-      editResult <-
-        collection.flatMap(_.indexesManager.ensure(editAddressIndex))
+      _          <- removeIndex()
+      ttlResult  <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
+      editResult <- collection.flatMap(_.indexesManager.ensure(editAddressIndex))
     } yield ttlResult && editResult
 
   private[repositories] def isTtlSet: Future[Boolean] =

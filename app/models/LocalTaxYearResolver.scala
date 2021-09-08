@@ -20,8 +20,7 @@ import config.ConfigDecorator
 import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.time.CurrentTaxYear
 @Singleton
-class LocalTaxYearResolver @Inject() (val configDecorator: ConfigDecorator)
-    extends CurrentTaxYear {
+class LocalTaxYearResolver @Inject() (val configDecorator: ConfigDecorator) extends CurrentTaxYear {
 
   override lazy val now = () => {
     configDecorator.currentLocalDate.toDateTimeAtStartOfDay

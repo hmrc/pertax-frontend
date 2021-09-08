@@ -37,8 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class NinoDisplayServiceSpec
-    extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures
-    with GuiceOneAppPerSuite {
+    extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
   val citizenDetailsService = mock[CitizenDetailsService]
   val aDifferentNinoToAuth = Nino(new Generator(new Random()).nextNino.nino)

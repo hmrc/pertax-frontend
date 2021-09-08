@@ -45,8 +45,7 @@ class IdentityVerificationFrontendServiceSpec extends BaseSpec {
 
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
       val timer = mock[Timer.Context]
-      val identityVerificationFrontendService
-        : IdentityVerificationFrontendService =
+      val identityVerificationFrontendService: IdentityVerificationFrontendService =
         new IdentityVerificationFrontendService(
           fakeSimpleHttp,
           mock[Metrics],

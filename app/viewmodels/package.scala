@@ -26,8 +26,7 @@ case class TaxYears(previousTaxYear: Int, currentTaxYear: Int)
 
 sealed trait Message
 case class Text(key: String, args: List[Message]) extends Message
-case class Date(date: Option[LocalDate], default: String = "dd MMMM yyyy")
-    extends Message
+case class Date(date: Option[LocalDate], default: String = "dd MMMM yyyy") extends Message
 case class Literal(value: String) extends Message
 
 object Message {

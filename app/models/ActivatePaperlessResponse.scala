@@ -22,10 +22,8 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 sealed trait ActivatePaperlessResponse
 case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
-case object ActivatePaperlessNotAllowedResponse
-    extends ActivatePaperlessResponse
-case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String)
-    extends ActivatePaperlessResponse
+case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
+case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse
 
 object ActivatePaperlessResponse {
 

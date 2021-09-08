@@ -24,41 +24,32 @@ trait CacheIdentifier[A] {
   val id: String
 }
 
-case object AddressPageVisitedDtoId
-    extends CacheIdentifier[AddressPageVisitedDto] {
+case object AddressPageVisitedDtoId extends CacheIdentifier[AddressPageVisitedDto] {
   override val id: String = "addressPageVisitedDto"
 }
 
-case object SubmittedTaxCreditsChoiceId
-    extends CacheIdentifier[TaxCreditsChoiceDto] {
+case object SubmittedTaxCreditsChoiceId extends CacheIdentifier[TaxCreditsChoiceDto] {
   override val id: String = "taxCreditsChoiceDto"
 }
 
-case object SubmittedInternationalAddressChoiceId
-    extends CacheIdentifier[InternationalAddressChoiceDto] {
+case object SubmittedInternationalAddressChoiceId extends CacheIdentifier[InternationalAddressChoiceDto] {
   override val id: String = "internationalAddressChoiceDto"
 }
 
-abstract class AddressIdentifier[A](partialId: String)
-    extends CacheIdentifier[A] {
+abstract class AddressIdentifier[A](partialId: String) extends CacheIdentifier[A] {
   val typ: AddrType
   val id: String = s"$typ$partialId"
 }
 
-case class AddressFinderDtoId(typ: AddrType)
-    extends AddressIdentifier[AddressFinderDto]("AddressFinderDto")
+case class AddressFinderDtoId(typ: AddrType) extends AddressIdentifier[AddressFinderDto]("AddressFinderDto")
 
-case class SelectedAddressRecordId(typ: AddrType)
-    extends AddressIdentifier[AddressRecord]("SelectedAddressRecord")
+case class SelectedAddressRecordId(typ: AddrType) extends AddressIdentifier[AddressRecord]("SelectedAddressRecord")
 
-case class SelectedRecordSetId(typ: AddrType)
-    extends AddressIdentifier[RecordSet]("SelectedRecordSet")
+case class SelectedRecordSetId(typ: AddrType) extends AddressIdentifier[RecordSet]("SelectedRecordSet")
 
-case class SubmittedAddressDtoId(typ: AddrType)
-    extends AddressIdentifier[AddressDto]("SubmittedAddressDto")
+case class SubmittedAddressDtoId(typ: AddrType) extends AddressIdentifier[AddressDto]("SubmittedAddressDto")
 
-case class SubmittedStartDateId(typ: AddrType)
-    extends AddressIdentifier[DateDto]("SubmittedStartDateDto")
+case class SubmittedStartDateId(typ: AddrType) extends AddressIdentifier[DateDto]("SubmittedStartDateDto")
 
 case class SubmittedResidencyChoiceDtoId(typ: AddrType)
     extends AddressIdentifier[ResidencyChoiceDto]("ResidencyChoiceDto")

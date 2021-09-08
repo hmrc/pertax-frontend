@@ -124,24 +124,23 @@ class UpdateInternationalAddressController @Inject() (
               ),
             addressDto =>
               cachingHelper
-                .addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap {
-                _ =>
-                  typ match {
-                    case PostalAddrType =>
-                      cachingHelper.addToCache(
-                        SubmittedStartDateId(typ),
-                        DateDto(LocalDate.now())
+                .addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
+                typ match {
+                  case PostalAddrType =>
+                    cachingHelper.addToCache(
+                      SubmittedStartDateId(typ),
+                      DateDto(LocalDate.now())
+                    )
+                    Future.successful(
+                      Redirect(
+                        routes.AddressSubmissionController.onPageLoad(typ)
                       )
-                      Future.successful(
-                        Redirect(
-                          routes.AddressSubmissionController.onPageLoad(typ)
-                        )
-                      )
-                    case _ =>
-                      Future.successful(
-                        Redirect(routes.StartDateController.onPageLoad(typ))
-                      )
-                  }
+                    )
+                  case _ =>
+                    Future.successful(
+                      Redirect(routes.StartDateController.onPageLoad(typ))
+                    )
+                }
               }
           )
         }

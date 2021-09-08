@@ -29,9 +29,7 @@ import util.{BaseSpec, WireMockHelper}
 import java.util.concurrent.LinkedBlockingQueue
 import scala.concurrent.{ExecutionContext, Future}
 
-class SimpleHttpSpec
-    extends BaseSpec with WireMockHelper with Injecting
-    with IntegrationPatience {
+class SimpleHttpSpec extends BaseSpec with WireMockHelper with Injecting with IntegrationPatience {
 
   lazy val simpleHttp = inject[SimpleHttp]
   lazy val url = s"http://localhost:${server.port}"

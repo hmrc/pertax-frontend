@@ -74,9 +74,7 @@ class AddressSubmissionController @Inject() (
           val isUkAddress: Boolean =
             journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
           val doYouLiveInTheUK: String =
-            if (
-              journeyData.submittedInternationalAddressChoiceDto.forall(_.value)
-            )
+            if (journeyData.submittedInternationalAddressChoiceDto.forall(_.value))
               "label.yes"
             else
               "label.no"
@@ -228,9 +226,7 @@ class AddressSubmissionController @Inject() (
   )(
     block: => Future[Result]
   ): Future[Result] =
-    if (
-      journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType)
-    )
+    if (journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType))
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
     else
       block
@@ -255,9 +251,7 @@ class AddressSubmissionController @Inject() (
           ).filter(!_._1.startsWith("originalLine")) - "originalPostcode"
         )
       )
-    else if (
-      addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto)
-    )
+    else if (addressWasHeavilyModifiedOrManualEntry(originalAddressDto, addressDto))
       auditConnector.sendEvent(
         buildEvent(
           "manualAddressSubmitted",

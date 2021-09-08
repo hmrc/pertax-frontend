@@ -33,8 +33,8 @@ import util.AuditServiceTools
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(
-  implicit ec: ExecutionContext
+private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(implicit
+  ec: ExecutionContext
 ) extends AuditTags {
 
   private val logger = Logger(this.getClass)

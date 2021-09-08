@@ -42,8 +42,7 @@ class GetPersonDetailsAction @Inject() (
   configDecorator: ConfigDecorator,
   ec: ExecutionContext,
   templateRenderer: TemplateRenderer
-) extends ActionRefiner[UserRequest, UserRequest]
-    with ActionFunction[UserRequest, UserRequest] with I18nSupport {
+) extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
   override protected def refine[A](
     request: UserRequest[A]

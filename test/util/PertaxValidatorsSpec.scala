@@ -46,8 +46,7 @@ class PertaxValidatorsSpec extends BaseSpec {
       f.copy(errors = f.errors.distinct)
         .fold(
           formWithErrors => fail("Form should give an error"),
-          success =>
-            success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
+          success => success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
         )
     }
 

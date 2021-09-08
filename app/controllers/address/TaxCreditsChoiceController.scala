@@ -50,20 +50,19 @@ class TaxCreditsChoiceController @Inject() (
   def onPageLoad: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        cachingHelper.gettingCachedAddressPageVisitedDto {
-          addressPageVisitedDto =>
-            cachingHelper.enforceDisplayAddressPageVisited(
-              addressPageVisitedDto
-            ) {
-              Future.successful(
-                Ok(
-                  taxCreditsChoiceView(
-                    TaxCreditsChoiceDto.form,
-                    configDecorator.tcsChangeAddressUrl
-                  )
+        cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
+          cachingHelper.enforceDisplayAddressPageVisited(
+            addressPageVisitedDto
+          ) {
+            Future.successful(
+              Ok(
+                taxCreditsChoiceView(
+                  TaxCreditsChoiceDto.form,
+                  configDecorator.tcsChangeAddressUrl
                 )
               )
-            }
+            )
+          }
         }
       }
     }

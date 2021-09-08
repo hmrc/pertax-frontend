@@ -31,23 +31,17 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 sealed trait PersonDetailsResponse
-case class PersonDetailsSuccessResponse(personDetails: PersonDetails)
-    extends PersonDetailsResponse
+case class PersonDetailsSuccessResponse(personDetails: PersonDetails) extends PersonDetailsResponse
 case object PersonDetailsNotFoundResponse extends PersonDetailsResponse
 case object PersonDetailsHiddenResponse extends PersonDetailsResponse
-case class PersonDetailsUnexpectedResponse(r: HttpResponse)
-    extends PersonDetailsResponse
-case class PersonDetailsErrorResponse(cause: Exception)
-    extends PersonDetailsResponse
+case class PersonDetailsUnexpectedResponse(r: HttpResponse) extends PersonDetailsResponse
+case class PersonDetailsErrorResponse(cause: Exception) extends PersonDetailsResponse
 
 sealed trait MatchingDetailsResponse
-case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails)
-    extends MatchingDetailsResponse
+case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse
 case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
-case class MatchingDetailsUnexpectedResponse(r: HttpResponse)
-    extends MatchingDetailsResponse
-case class MatchingDetailsErrorResponse(cause: Exception)
-    extends MatchingDetailsResponse
+case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
+case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
 
 @Singleton
 class CitizenDetailsService @Inject() (

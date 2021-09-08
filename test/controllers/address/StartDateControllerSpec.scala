@@ -422,9 +422,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
                   PersonDetails(
                     emptyPerson,
                     Some(
-                      addressFixture(startDate =
-                        Some(new LocalDate(2016, 11, 22))
-                      )
+                      addressFixture(startDate = Some(new LocalDate(2016, 11, 22)))
                     ),
                     None
                   )

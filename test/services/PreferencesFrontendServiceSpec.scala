@@ -38,8 +38,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 
-class PreferencesFrontendServiceSpec
-    extends BaseSpec with WireMockHelper with IntegrationPatience {
+class PreferencesFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   val mockMetrics = mock[Metrics]
   val mockMetricRegistry = mock[MetricRegistry]

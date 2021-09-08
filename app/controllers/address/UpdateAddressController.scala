@@ -77,22 +77,21 @@ class UpdateAddressController @Inject() (
                 )
               }
             case _ =>
-              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) {
-                journeyData =>
-                  val addressForm = journeyData.getAddressToDisplay.fold(
-                    AddressDto.ukForm
-                  )(AddressDto.ukForm.fill)
-                  Future.successful(
-                    Ok(
-                      updateAddressView(
-                        addressForm.discardingErrors,
-                        typ,
-                        journeyData.addressFinderDto,
-                        journeyData.addressLookupServiceDown,
-                        showEnterAddressHeader
-                      )
+              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
+                val addressForm = journeyData.getAddressToDisplay.fold(
+                  AddressDto.ukForm
+                )(AddressDto.ukForm.fill)
+                Future.successful(
+                  Ok(
+                    updateAddressView(
+                      addressForm.discardingErrors,
+                      typ,
+                      journeyData.addressFinderDto,
+                      journeyData.addressLookupServiceDown,
+                      showEnterAddressHeader
                     )
                   )
+                )
               }
           }
         }
@@ -120,37 +119,36 @@ class UpdateAddressController @Inject() (
               ),
             addressDto =>
               cachingHelper
-                .addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap {
-                _ =>
-                  val postCodeHasChanged = !addressDto.postcode
-                    .getOrElse("")
-                    .replace(" ", "")
-                    .equalsIgnoreCase(
-                      personDetails.address
-                        .flatMap(_.postcode)
-                        .getOrElse("")
-                        .replace(" ", "")
+                .addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
+                val postCodeHasChanged = !addressDto.postcode
+                  .getOrElse("")
+                  .replace(" ", "")
+                  .equalsIgnoreCase(
+                    personDetails.address
+                      .flatMap(_.postcode)
+                      .getOrElse("")
+                      .replace(" ", "")
+                  )
+                (typ, postCodeHasChanged) match {
+                  case (PostalAddrType, _) =>
+                    cacheStartDate(
+                      typ,
+                      Redirect(
+                        routes.AddressSubmissionController.onPageLoad(typ)
+                      )
                     )
-                  (typ, postCodeHasChanged) match {
-                    case (PostalAddrType, _) =>
-                      cacheStartDate(
-                        typ,
-                        Redirect(
-                          routes.AddressSubmissionController.onPageLoad(typ)
-                        )
+                  case (_, false) =>
+                    cacheStartDate(
+                      typ,
+                      Redirect(
+                        routes.AddressSubmissionController.onPageLoad(typ)
                       )
-                    case (_, false) =>
-                      cacheStartDate(
-                        typ,
-                        Redirect(
-                          routes.AddressSubmissionController.onPageLoad(typ)
-                        )
-                      )
-                    case (_, true) =>
-                      Future.successful(
-                        Redirect(routes.StartDateController.onPageLoad(typ))
-                      )
-                  }
+                    )
+                  case (_, true) =>
+                    Future.successful(
+                      Redirect(routes.StartDateController.onPageLoad(typ))
+                    )
+                }
               }
           )
         }
@@ -161,7 +159,5 @@ class UpdateAddressController @Inject() (
     hc: HeaderCarrier
   ): Future[Result] =
     cachingHelper
-      .addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now())) map (_ =>
-      redirect
-    )
+      .addToCache(SubmittedStartDateId(typ), DateDto(LocalDate.now())) map (_ => redirect)
 }

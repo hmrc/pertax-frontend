@@ -36,8 +36,7 @@ class MessageFrontendService @Inject() (
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   servicesConfig: ServicesConfig
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter)
-    with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
 
   lazy val messageFrontendUrl: String =
     servicesConfig.baseUrl("message-frontend")

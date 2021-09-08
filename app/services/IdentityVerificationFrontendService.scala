@@ -28,14 +28,10 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import scala.concurrent.Future
 
 trait IdentityVerificationResponse
-case class IdentityVerificationSuccessResponse(result: String)
-    extends IdentityVerificationResponse
-case object IdentityVerificationNotFoundResponse
-    extends IdentityVerificationResponse
-case class IdentityVerificationUnexpectedResponse(r: HttpResponse)
-    extends IdentityVerificationResponse
-case class IdentityVerificationErrorResponse(cause: Exception)
-    extends IdentityVerificationResponse
+case class IdentityVerificationSuccessResponse(result: String) extends IdentityVerificationResponse
+case object IdentityVerificationNotFoundResponse extends IdentityVerificationResponse
+case class IdentityVerificationUnexpectedResponse(r: HttpResponse) extends IdentityVerificationResponse
+case class IdentityVerificationErrorResponse(cause: Exception) extends IdentityVerificationResponse
 
 object IdentityVerificationSuccessResponse {
   val Success = "Success"
