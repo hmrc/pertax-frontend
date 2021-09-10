@@ -33,7 +33,7 @@ import views.html.personaldetails.PersonalDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PersonalDetailsController @Inject()(
+class PersonalDetailsController @Inject() (
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val editAddressLockRepository: EditAddressLockRepository,
   ninoDisplayService: NinoDisplayService,
@@ -52,20 +52,20 @@ class PersonalDetailsController @Inject()(
 
     for {
       addressModel <- request.nino
-                       .map { nino =>
-                         editAddressLockRepository.get(nino.withoutSuffix)
-                       }
-                       .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
+                        .map { nino =>
+                          editAddressLockRepository.get(nino.withoutSuffix)
+                        }
+                        .getOrElse(Future.successful(List[AddressJourneyTTLModel]()))
       ninoToDisplay <- ninoDisplayService.getNino
       personalDetailsCards: Seq[Html] = personalDetailsCardGenerator
-        .getPersonalDetailsCards(addressModel, ninoToDisplay)
+                                          .getPersonalDetailsCards(addressModel, ninoToDisplay)
       personDetails: Option[PersonDetails] = request.personDetails
 
       _ <- personDetails
-            .map { details =>
-              auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
-            }
-            .getOrElse(Future.successful(Unit))
+             .map { details =>
+               auditConnector.sendEvent(buildPersonDetailsEvent("personalDetailsPageLinkClicked", details))
+             }
+             .getOrElse(Future.successful(Unit))
       _ <- cachingHelper.addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
     } yield Ok(personalDetailsView(personalDetailsCards))

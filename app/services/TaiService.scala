@@ -35,15 +35,14 @@ case object TaxComponentsUnavailableResponse extends TaxComponentsResponse
 case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponentsResponse
 case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 @Singleton
-class TaiService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
+class TaiService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
     extends HasMetrics {
 
   private val logger = Logger(this.getClass)
 
   lazy val taiUrl = servicesConfig.baseUrl("tai")
 
-  /**
-    * Gets a list of tax components
+  /** Gets a list of tax components
     */
   def taxComponents(nino: Nino, year: Int)(implicit hc: HeaderCarrier): Future[TaxComponentsResponse] =
     withMetricsTimer("get-tax-components") { t =>
@@ -63,11 +62,10 @@ class TaiService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, ser
             logger.warn(s"Unexpected ${r.status} response getting tax components from the tai-service")
             TaxComponentsUnexpectedResponse(r)
         },
-        onError = {
-          case e =>
-            t.completeTimerAndIncrementFailedCounter()
-            logger.error("Error getting tax components from the tai-service")
-            TaxComponentsErrorResponse(e)
+        onError = { case e =>
+          t.completeTimerAndIncrementFailedCounter()
+          logger.error("Error getting tax components from the tai-service")
+          TaxComponentsErrorResponse(e)
         }
       )
     }

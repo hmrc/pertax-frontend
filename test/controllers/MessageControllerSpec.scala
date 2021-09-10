@@ -71,7 +71,8 @@ class MessageControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               request = request
-            ))
+            )
+          )
       })
 
       when(mockMessageFrontendService.getMessageListPartial(any())) thenReturn {
@@ -95,7 +96,8 @@ class MessageControllerSpec extends BaseSpec {
           block(
             buildUserRequest(
               request = request
-            ))
+            )
+          )
       })
 
       when(mockMessageFrontendService.getMessageDetailPartial(any())(any())) thenReturn {
@@ -147,7 +149,8 @@ class MessageControllerSpec extends BaseSpec {
       val doc = Jsoup.parse(body)
 
       Option(doc.getElementsByTag("article").text()).get must include(
-        "Sorry, there has been a technical problem retrieving your message")
+        "Sorry, there has been a technical problem retrieving your message"
+      )
 
       status(r) mustBe OK
       verify(mockMessageFrontendService, times(1)).getMessageDetailPartial(any())(any())

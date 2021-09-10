@@ -72,7 +72,8 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       uprn: Option[String],
       includeOriginals: Boolean,
       submittedLine1: Option[String] = Some("1 Fake Street"),
-      addressType: Option[String] = Some("Residential")) = DataEvent(
+      addressType: Option[String] = Some("Residential")
+    ) = DataEvent(
       "pertax-frontend",
       auditType,
       dataEvent.eventId,

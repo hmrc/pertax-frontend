@@ -14,39 +14,29 @@
   }
 }
 
+/**
+ * These selectors were nested very deeply for no real reason.
+ * TODO: Do they really need to be so specific?
+ **/
 
 @include media(mobile) {
-  .find-address-form {
-    label {
-      &.postcode-label {
-        span {
-          display: inline-block;
-          width: 100%;
-        }
-      }
-    }
+  .find-address-form label.postcode-label span {
+    display: inline-block;
+    width: 100%;
   }
 }
 
 @include media(desktop) {
-  .find-address-form {
-    label {
-      span {
-        display: block;
-      }
-    }
+  .find-address-form label span {
+    display: block;
   }
 
-  label {
-    .form-control {
-      &#postcode {
-        width: 25%;
-      }
-    }
+  label .form-control#postcode {
+    width: 25%;
   }
 }
 
-input[type='radio']:checked {
+input[type="radio"]:checked {
   background-color: transparent;
 }
 
@@ -66,21 +56,24 @@ input {
     font-size: 30px;
   }
 
-  #select-address-form {
-    fieldset {
-      display: block;
-      margin-bottom: 30px;
+}
 
-      .block-label {
-        box-sizing: border-box;
-        width: 100%;
-      }
-    }
+/* Not sure why we’re using IDs to style things,
+   but surely this ID did not require nesting in the first place? */
+#select-address-form {
+  fieldset {
+    display: block;
+    margin-bottom: 30px;
 
-    a {
-      display: inline-block;
-      margin-bottom: 15px;
+    .block-label {
+      box-sizing: border-box;
+      width: 100%;
     }
+  }
+
+  a {
+    display: inline-block;
+    margin-bottom: 15px;
   }
 }
 

@@ -36,14 +36,13 @@ class TaxYearReconciliationSpec extends BaseSpec {
       ("missing", Missing)
     )
 
-    testList.foreach {
-      case (name, recType) =>
-        s"deserialise a $name type" in {
+    testList.foreach { case (name, recType) =>
+      s"deserialise a $name type" in {
 
-          val rec = Json.parse(s"""{"_type": "$name"}""")
+        val rec = Json.parse(s"""{"_type": "$name"}""")
 
-          rec.as[Reconciliation] mustBe recType
-        }
+        rec.as[Reconciliation] mustBe recType
+      }
     }
 
     "deserialise an overpaid type" in {
@@ -78,14 +77,13 @@ class TaxYearReconciliationSpec extends BaseSpec {
       ("unknown", OverpaidUnknown)
     )
 
-    overpaidList.foreach {
-      case (name, overpaidType) =>
-        s"deserialise an Overpaid $name type" in {
+    overpaidList.foreach { case (name, overpaidType) =>
+      s"deserialise an Overpaid $name type" in {
 
-          val rec = JsString(name)
+        val rec = JsString(name)
 
-          rec.as[OverpaidStatus] mustBe overpaidType
-        }
+        rec.as[OverpaidStatus] mustBe overpaidType
+      }
     }
 
     "fail to deserialise another Overpaid value" in {
@@ -103,14 +101,13 @@ class TaxYearReconciliationSpec extends BaseSpec {
       ("unknown", UnderpaidUnknown)
     )
 
-    underpaidList.foreach {
-      case (name, underpaidType) =>
-        s"deserialise an Underpaid $name type" in {
+    underpaidList.foreach { case (name, underpaidType) =>
+      s"deserialise an Underpaid $name type" in {
 
-          val rec = JsString(name)
+        val rec = JsString(name)
 
-          rec.as[UnderpaidStatus] mustBe underpaidType
-        }
+        rec.as[UnderpaidStatus] mustBe underpaidType
+      }
     }
 
     "fail to deserialise another Underpaid value" in {

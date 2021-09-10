@@ -32,16 +32,14 @@ import views.html.personaldetails.UpdateAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UpdateAddressController @Inject()(
+class UpdateAddressController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   updateAddressView: UpdateAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
@@ -60,7 +58,10 @@ class UpdateAddressController @Inject()(
                       typ,
                       journeyData.addressFinderDto,
                       journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader)))
+                      showEnterAddressHeader
+                    )
+                  )
+                )
               }
             case _ =>
               cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
@@ -87,46 +88,41 @@ class UpdateAddressController @Inject()(
       cachingHelper.gettingCachedJourneyData[Result](typ) { journeyData =>
         val showEnterAddressHeader = journeyData.addressLookupServiceDown || journeyData.selectedAddressRecord.isEmpty
         addressJourneyEnforcer { _ => personDetails =>
-          {
-            AddressDto.ukForm.bindFromRequest.fold(
-              formWithErrors => {
-                Future.successful(
-                  BadRequest(
-                    updateAddressView(
-                      formWithErrors,
-                      typ,
-                      journeyData.addressFinderDto,
-                      journeyData.addressLookupServiceDown,
-                      showEnterAddressHeader
-                    )
+          AddressDto.ukForm.bindFromRequest.fold(
+            formWithErrors =>
+              Future.successful(
+                BadRequest(
+                  updateAddressView(
+                    formWithErrors,
+                    typ,
+                    journeyData.addressFinderDto,
+                    journeyData.addressLookupServiceDown,
+                    showEnterAddressHeader
                   )
                 )
-              },
-              addressDto => {
-                cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap {
-                  _ =>
-                    val postCodeHasChanged = !addressDto.postcode
-                      .getOrElse("")
-                      .replace(" ", "")
-                      .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
-                    (typ, postCodeHasChanged) match {
-                      case (PostalAddrType, _) =>
-                        cacheStartDate(
-                          typ,
-                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                        )
-                      case (_, false) =>
-                        cacheStartDate(
-                          typ,
-                          Redirect(routes.AddressSubmissionController.onPageLoad(typ))
-                        )
-                      case (_, true) =>
-                        Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
-                    }
+              ),
+            addressDto =>
+              cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
+                val postCodeHasChanged = !addressDto.postcode
+                  .getOrElse("")
+                  .replace(" ", "")
+                  .equalsIgnoreCase(personDetails.address.flatMap(_.postcode).getOrElse("").replace(" ", ""))
+                (typ, postCodeHasChanged) match {
+                  case (PostalAddrType, _) =>
+                    cacheStartDate(
+                      typ,
+                      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                    )
+                  case (_, false) =>
+                    cacheStartDate(
+                      typ,
+                      Redirect(routes.AddressSubmissionController.onPageLoad(typ))
+                    )
+                  case (_, true) =>
+                    Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
                 }
               }
-            )
-          }
+          )
         }
       }
     }

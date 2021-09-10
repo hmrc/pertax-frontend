@@ -36,17 +36,15 @@ import views.html.personaldetails.AddressSelectorView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressSelectorController @Inject()(
+class AddressSelectorController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   private val logger = Logger(this.getClass)
@@ -77,8 +75,7 @@ class AddressSelectorController @Inject()(
       addressJourneyEnforcer { _ => personDetails =>
         cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
           AddressSelectorDto.form.bindFromRequest.fold(
-            formWithErrors => {
-
+            formWithErrors =>
               journeyData.recordSet match {
                 case Some(set) =>
                   Future.successful(
@@ -90,13 +87,13 @@ class AddressSelectorController @Inject()(
                         postcodeFromRequest,
                         filterFromRequest
                       )
-                    ))
+                    )
+                  )
                 case _ =>
                   logger.warn("Failed to retrieve Address Record Set from cache")
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-              }
-            },
-            addressSelectorDto => {
+              },
+            addressSelectorDto =>
               journeyData.recordSet
                 .flatMap(_.addresses.find(_.id == addressSelectorDto.addressId.getOrElse(""))) match {
                 case Some(addressRecord) =>
@@ -122,7 +119,6 @@ class AddressSelectorController @Inject()(
                   logger.warn("Address selector was unable to find address using the id returned by a previous request")
                   errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               }
-            }
           )
         }
       }

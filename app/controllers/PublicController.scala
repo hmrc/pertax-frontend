@@ -25,11 +25,11 @@ import views.html.public.SessionTimeoutView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PublicController @Inject()(cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(
-  implicit configDecorator: ConfigDecorator,
+class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeoutView: SessionTimeoutView)(implicit
+  configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
-    extends PertaxBaseController(cc) {
+  ec: ExecutionContext
+) extends PertaxBaseController(cc) {
 
   def verifyEntryPoint: Action[AnyContent] = Action.async { implicit request =>
     Future.successful {

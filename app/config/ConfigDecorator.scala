@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import java.net.{URL, URLEncoder}
 
 @Singleton
-class ConfigDecorator @Inject()(
+class ConfigDecorator @Inject() (
   runModeConfiguration: Configuration,
   langs: Langs,
   servicesConfig: ServicesConfig
@@ -101,7 +101,7 @@ class ConfigDecorator @Inject()(
     s"/self-assessment-file/$taxYear/ind/$saUtr/return/viewYourCalculation/reviewYourFullCalculation"
 
   def completeYourTaxReturnUrl(saUtr: String, taxYear: String, lang: Lang) =
-    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (lang.code equals ("en")) "eng"
+    s"$saFrontendHost/self-assessment-file/$taxYear/ind/$saUtr/return?lang=" + (if (lang.code equals "en") "eng"
                                                                                 else "cym")
   lazy val ssoToActivateSaEnrolmentPinUrl =
     s"$enrolmentManagementFrontendHost/enrolment-management-frontend/IR-SA/get-access-tax-scheme?continue=/personal-account"
@@ -127,8 +127,7 @@ class ConfigDecorator @Inject()(
   lazy private val accessibilityRedirectUrl =
     servicesConfig.getString("accessibility-statement.redirectUrl")
   def accessibilityStatementUrl(referrer: String) =
-    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(
-      accessibilityBaseUrl + referrer).encodedUrl}"
+    s"$accessibilityBaseUrl/accessibility-statement$accessibilityRedirectUrl?referrerUrl=${SafeRedirectUrl(accessibilityBaseUrl + referrer).encodedUrl}"
 
   lazy val formTrackingServiceUrl = s"$formTrackingHost/track"
 

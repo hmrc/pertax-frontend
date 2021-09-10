@@ -25,7 +25,8 @@ case class Country(
   // and https://en.wikipedia.org/wiki/ISO_3166-2:GB
   code: String,
   // The printable name for the country, e.g. "United Kingdom"
-  name: String) {}
+  name: String
+) {}
 
 object Country {
   implicit val formats = Json.format[Country]

@@ -32,7 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 @Singleton
-class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)(implicit ec: ExecutionContext)
+class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache)(implicit ec: ExecutionContext)
     extends Results {
 
   val addressLookupServiceDownKey = "addressLookupServiceDown"
@@ -46,8 +46,9 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
   def clearCache()(implicit hc: HeaderCarrier): Future[HttpResponse] =
     sessionCache.remove()
 
-  def gettingCachedAddressPageVisitedDto[T](block: Option[AddressPageVisitedDto] => Future[T])(
-    implicit hc: HeaderCarrier): Future[T] =
+  def gettingCachedAddressPageVisitedDto[T](
+    block: Option[AddressPageVisitedDto] => Future[T]
+  )(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() flatMap {
       case Some(cacheMap) =>
         block(cacheMap.getEntry[AddressPageVisitedDto](AddressPageVisitedDtoId.id))
@@ -62,9 +63,7 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
 
   def gettingCachedAddressLookupServiceDown[T](block: Option[Boolean] => T)(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
-      {
-        block(cacheMap.flatMap(_.getEntry[Boolean](addressLookupServiceDownKey)))
-      }
+      block(cacheMap.flatMap(_.getEntry[Boolean](addressLookupServiceDownKey)))
     } recover {
       case e: KeyStoreEntryValidationException =>
         Logger.error(s"Failed to read cached address lookup service down")
@@ -72,12 +71,11 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case NonFatal(e) => throw e
     }
 
-  def gettingCachedTaxCreditsChoiceDto[T](block: Option[TaxCreditsChoiceDto] => T)(
-    implicit hc: HeaderCarrier): Future[T] =
+  def gettingCachedTaxCreditsChoiceDto[T](
+    block: Option[TaxCreditsChoiceDto] => T
+  )(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() map { cacheMap =>
-      {
-        block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](SubmittedTaxCreditsChoiceId.id)))
-      }
+      block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](SubmittedTaxCreditsChoiceId.id)))
     } recover {
       case e: KeyStoreEntryValidationException =>
         Logger.error(s"Failed to read cached tax credits choice")
@@ -85,8 +83,9 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case NonFatal(e) => throw e
     }
 
-  def gettingCachedJourneyData[T](typ: AddrType)(block: AddressJourneyData => Future[T])(
-    implicit hc: HeaderCarrier): Future[T] =
+  def gettingCachedJourneyData[T](
+    typ: AddrType
+  )(block: AddressJourneyData => Future[T])(implicit hc: HeaderCarrier): Future[T] =
     sessionCache.fetch() flatMap {
       case Some(cacheMap) =>
         block(
@@ -111,8 +110,9 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
       case NonFatal(e) => throw e
     }
 
-  def enforceDisplayAddressPageVisited(addressPageVisitedDto: Option[AddressPageVisitedDto])(block: => Future[Result])(
-    implicit hc: HeaderCarrier): Future[Result] =
+  def enforceDisplayAddressPageVisited(
+    addressPageVisitedDto: Option[AddressPageVisitedDto]
+  )(block: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
     addressPageVisitedDto match {
       case Some(_) =>
         block
@@ -120,8 +120,9 @@ class AddressJourneyCachingHelper @Inject()(val sessionCache: LocalSessionCache)
         Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
     }
 
-  def enforceResidencyChoiceSubmitted(journeyData: AddressJourneyData)(
-    block: AddressJourneyData => Future[Result]): Future[Result] =
+  def enforceResidencyChoiceSubmitted(
+    journeyData: AddressJourneyData
+  )(block: AddressJourneyData => Future[Result]): Future[Result] =
     journeyData match {
       case AddressJourneyData(_, Some(_), _, _, _, _, _, _, _) =>
         block(journeyData)

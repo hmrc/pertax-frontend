@@ -42,15 +42,18 @@ class TaxCalculationViewSpec extends ViewSpec {
 
     val doc =
       asDocument(
-        taxCalculation(TaxCalculationViewModel(
-          TaxYears(previousTaxYear, previousTaxYear + 1),
-          Heading(
-            text("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, previousTaxYear + 1 toString),
-            UnderpaidUrl(previousTaxYear)
-          ),
-          List(text("label.you_have_no_payments_to_make_to_hmrc")),
-          Nil
-        )).toString)
+        taxCalculation(
+          TaxCalculationViewModel(
+            TaxYears(previousTaxYear, previousTaxYear + 1),
+            Heading(
+              text("label.you_do_not_owe_any_more_tax", previousTaxYear.toString, previousTaxYear + 1 toString),
+              UnderpaidUrl(previousTaxYear)
+            ),
+            List(text("label.you_have_no_payments_to_make_to_hmrc")),
+            Nil
+          )
+        ).toString
+      )
 
     "render the given heading correctly" in {
 

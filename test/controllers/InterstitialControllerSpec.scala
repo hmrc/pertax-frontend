@@ -104,7 +104,9 @@ class InterstitialControllerSpec extends BaseSpec {
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               credentials = Credentials("", "Verify"),
-              request = request))
+              request = request
+            )
+          )
       })
 
       lazy val simulateFormPartialServiceFailure = false
@@ -137,7 +139,9 @@ class InterstitialControllerSpec extends BaseSpec {
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               credentials = Credentials("", "Verify"),
-              request = request))
+              request = request
+            )
+          )
       })
 
       val result = controller.displayChildBenefits(fakeRequestWithPath)
@@ -183,7 +187,8 @@ class InterstitialControllerSpec extends BaseSpec {
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
               request = request
-            ))
+            )
+          )
       })
 
       val testController = controller
@@ -205,7 +210,9 @@ class InterstitialControllerSpec extends BaseSpec {
               saUser = NonFilerSelfAssessmentUser,
               credentials = Credentials("", "Verify"),
               confidenceLevel = ConfidenceLevel.L500,
-              request = request))
+              request = request
+            )
+          )
       })
 
       val testController = controller
@@ -256,7 +263,8 @@ class InterstitialControllerSpec extends BaseSpec {
               buildUserRequest(
                 saUser = NonFilerSelfAssessmentUser,
                 request = request
-              ))
+              )
+            )
         })
 
         val testController = controller

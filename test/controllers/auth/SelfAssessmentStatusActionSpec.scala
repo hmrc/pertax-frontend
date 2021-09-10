@@ -61,7 +61,8 @@ class SelfAssessmentStatusActionSpec
     lazy val actionProvider = app.injector.instanceOf[SelfAssessmentStatusAction]
 
     actionProvider.invokeBlock(
-      request, { userRequest: UserRequest[_] =>
+      request,
+      { userRequest: UserRequest[_] =>
         Future.successful(
           Ok(s"Nino: ${userRequest.nino.getOrElse("fail").toString}, SaUtr: ${userRequest.saUserType.toString}")
         )
@@ -72,7 +73,8 @@ class SelfAssessmentStatusActionSpec
 
   def createAuthenticatedRequest(
     saEnrolment: Option[SelfAssessmentEnrolment],
-    nino: Option[Nino] = Some(Nino("AB123456C"))): AuthenticatedRequest[AnyContent] =
+    nino: Option[Nino] = Some(Nino("AB123456C"))
+  ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       nino,
       saEnrolment,
@@ -120,19 +122,18 @@ class SelfAssessmentStatusActionSpec
 
       implicit val request = createAuthenticatedRequest(None)
 
-      userTypeList.foreach {
-        case (userType, key) =>
-          s"return $key when the enrolments caching service returns ${userType.toString}" in {
+      userTypeList.foreach { case (userType, key) =>
+        s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
-            when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
-              .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
+          when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+            .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
 
-            when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
-              .thenReturn(Future.successful(userType))
+          when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
+            .thenReturn(Future.successful(userType))
 
-            val result = harness()(request)
-            contentAsString(result) must include(s"${userType.toString}")
-          }
+          val result = harness()(request)
+          contentAsString(result) must include(s"${userType.toString}")
+        }
       }
     }
   }

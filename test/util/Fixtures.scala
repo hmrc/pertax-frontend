@@ -60,8 +60,10 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       subDivision,
-      exampleCountryUK),
-    "en")
+      exampleCountryUK
+    ),
+    "en"
+  )
 
   val oneOtherPlacePafAddress =
     PafAddress(List("2 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", subDivision, exampleCountryUK)
@@ -72,7 +74,8 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       Some(Country("GB-SCT", "Scotland")),
-      exampleCountryUK)
+      exampleCountryUK
+    )
   val otherPlacePafDifferentPostcodeAddress =
     PafAddress(List("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", subDivision, exampleCountryUK)
 
@@ -85,12 +88,14 @@ trait PafFixtures {
     List(
       oneOtherPlacePafAddressRecord,
       twoOtherPlacePafAddressRecord
-    ))
+    )
+  )
 
   val newPostcodePlacePafRecordSet = RecordSet(
     List(
       otherPlacePafDifferentPostcodeAddressRecord
-    ))
+    )
+  )
 
   val twoOtherPlaceRecordSet = RecordSet(
     List(twoOtherPlacePafAddressRecord)
@@ -262,20 +267,24 @@ object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures
 
   def buildFakeRequestWithAuth(
     method: String,
-    uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
+    uri: String = "/personal-account"
+  ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString)
+      SessionKeys.lastRequestTimestamp -> now.getMillis.toString
+    )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
   }
 
   def buildFakeRequestWithVerify(
     method: String,
-    uri: String = "/personal-account"): FakeRequest[AnyContentAsEmpty.type] = {
+    uri: String = "/personal-account"
+  ): FakeRequest[AnyContentAsEmpty.type] = {
     val session = Map(
       SessionKeys.sessionId            -> s"session-${UUID.randomUUID()}",
-      SessionKeys.lastRequestTimestamp -> now.getMillis.toString)
+      SessionKeys.lastRequestTimestamp -> now.getMillis.toString
+    )
 
     FakeRequest(method, uri).withSession(session.toList: _*)
   }

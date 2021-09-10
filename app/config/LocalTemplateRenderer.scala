@@ -26,8 +26,11 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 
-class LocalTemplateRenderer @Inject()(configuration: Configuration, wsHttp: HttpClient, servicesConfig: ServicesConfig)(
-  implicit executionContext: ExecutionContext)
+class LocalTemplateRenderer @Inject() (
+  configuration: Configuration,
+  wsHttp: HttpClient,
+  servicesConfig: ServicesConfig
+)(implicit executionContext: ExecutionContext)
     extends TemplateRenderer {
 
   val runModeConfiguration: Configuration = configuration

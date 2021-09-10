@@ -54,7 +54,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           "id",
           Map(
             "addressLookupServiceDown" -> Json.toJson(Some(false)),
-            "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+            "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+          )
+        )
+      )
   }
 
   "onPageLoad" should {
@@ -106,7 +109,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
               "id",
               Map(
                 "addressLookupServiceDown" -> Json.toJson(Some(false)),
-                "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+                "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+              )
+            )
+          )
 
         val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
@@ -127,7 +133,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
               "id",
               Map(
                 "addressLookupServiceDown" -> Json.toJson(Some(false)),
-                "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+                "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+              )
+            )
+          )
 
         val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
@@ -150,7 +159,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressLookupServiceDown" -> Json.toJson(Some(false)),
-              "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+              "postalSelectedRecordSet"  -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+            )
+          )
+        )
 
       val result = controller.onSubmit(PostalAddrType)(FakeRequest())
 
@@ -182,7 +194,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressLookupServiceDown" -> Json.toJson(Some(false)),
-              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+            )
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
@@ -203,7 +218,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "addressLookupServiceDown" -> Json.toJson(Some(false)),
-              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet))))
+              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+            )
+          )
+        )
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")

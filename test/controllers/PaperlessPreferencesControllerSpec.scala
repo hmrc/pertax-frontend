@@ -79,7 +79,8 @@ class PaperlessPreferencesControllerSpec extends BaseSpec with MockitoSugar {
               credentials = Credentials("", "Verify"),
               confidenceLevel = ConfidenceLevel.L500,
               request = request
-            ))
+            )
+          )
       })
 
       val r = controller.managePreferences(FakeRequest())

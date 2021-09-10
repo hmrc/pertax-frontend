@@ -24,10 +24,11 @@ import play.api.mvc.Result
 import uk.gov.hmrc.http.HttpResponse
 
 sealed trait UpdateAddressResponse {
-  def response(genericErrors: GenericErrors, successResponseBlock: () => Result)(
-    implicit request: UserRequest[_],
+  def response(genericErrors: GenericErrors, successResponseBlock: () => Result)(implicit
+    request: UserRequest[_],
     configDecorator: ConfigDecorator,
-    messages: Messages): Result =
+    messages: Messages
+  ): Result =
     this match {
       case UpdateAddressBadRequestResponse => genericErrors.badRequest
       case UpdateAddressSuccessResponse    => successResponseBlock()

@@ -26,21 +26,21 @@ trait AuthJourney {
   val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent]
 }
 
-class AuthJourneyImpl @Inject()(
+class AuthJourneyImpl @Inject() (
   authAction: AuthAction,
   minimumAuthAction: MinimumAuthAction,
   selfAssessmentStatusAction: SelfAssessmentStatusAction,
   getPersonDetailsAction: GetPersonDetailsAction,
-  cc: ControllerComponents)
-    extends AuthJourney {
+  cc: ControllerComponents
+) extends AuthJourney {
 
-  override val authWithPersonalDetails
-    : ActionBuilder[UserRequest, AnyContent] = authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
+  override val authWithPersonalDetails: ActionBuilder[UserRequest, AnyContent] =
+    authAction andThen selfAssessmentStatusAction andThen getPersonDetailsAction
 
-  override val authWithSelfAssessment
-    : ActionBuilder[UserRequest, AnyContent] = authAction andThen selfAssessmentStatusAction
+  override val authWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
+    authAction andThen selfAssessmentStatusAction
 
-  override val minimumAuthWithSelfAssessment
-    : ActionBuilder[UserRequest, AnyContent] = minimumAuthAction andThen selfAssessmentStatusAction
+  override val minimumAuthWithSelfAssessment: ActionBuilder[UserRequest, AnyContent] =
+    minimumAuthAction andThen selfAssessmentStatusAction
 
 }

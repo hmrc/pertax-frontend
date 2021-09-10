@@ -58,7 +58,8 @@ object AddressJourneyAuditingHelper {
     etag: String,
     addressType: String,
     originalAddressDto: Option[AddressDto],
-    propertyRefNo: Option[String]): Map[String, Option[String]] =
+    propertyRefNo: Option[String]
+  ): Map[String, Option[String]] =
     originalAddressDto.fold(Map[String, Option[String]]())(original => addressDtoToAuditData(original, "original")) ++
       addressDtoToAuditData(addressDto, "submitted") ++
       Map(

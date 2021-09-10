@@ -26,13 +26,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(
-  implicit ec: ExecutionContext)
-    extends HasMetrics {
+class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(
+  implicit ec: ExecutionContext
+) extends HasMetrics {
 
-  def enrolForSelfAssessment(saEnrolmentRequest: SaEnrolmentRequest)(
-    implicit request: UserRequest[_],
-    hc: HeaderCarrier): Future[Option[SaEnrolmentResponse]] = {
+  def enrolForSelfAssessment(
+    saEnrolmentRequest: SaEnrolmentRequest
+  )(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Option[SaEnrolmentResponse]] = {
     val url = s"${configDecorator.addTaxesFrontendUrl}/internal/self-assessment/enrol-for-sa"
     withMetricsTimer("enrol-for-self-assessment") { timer =>
       http.POST[SaEnrolmentRequest, Option[SaEnrolmentResponse]](url, saEnrolmentRequest) map {
@@ -42,10 +42,9 @@ class SelfAssessmentConnector @Inject()(http: HttpClient, configDecorator: Confi
         case res =>
           timer.completeTimerAndIncrementFailedCounter()
           res
-      } recover {
-        case _: Exception =>
-          timer.completeTimerAndIncrementFailedCounter()
-          None
+      } recover { case _: Exception =>
+        timer.completeTimerAndIncrementFailedCounter()
+        None
       }
     }
   }

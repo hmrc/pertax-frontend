@@ -44,7 +44,7 @@ case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDe
 case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
 
 @Singleton
-class CitizenDetailsService @Inject()(val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
+class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
     extends HasMetrics {
 
   private val logger = Logger(this.getClass)
@@ -82,13 +82,15 @@ class CitizenDetailsService @Inject()(val simpleHttp: SimpleHttp, val metrics: M
       )
     }
 
-  def updateAddress(nino: Nino, etag: String, address: Address)(
-    implicit headerCarrier: HeaderCarrier): Future[UpdateAddressResponse] = {
+  def updateAddress(nino: Nino, etag: String, address: Address)(implicit
+    headerCarrier: HeaderCarrier
+  ): Future[UpdateAddressResponse] = {
     val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
     withMetricsTimer("update-address") { timer =>
       simpleHttp.post[JsObject, UpdateAddressResponse](
         s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
-        body)(
+        body
+      )(
         onComplete = {
           case response if response.status >= 200 && response.status < 300 =>
             timer.completeTimerAndIncrementSuccessCounter()
@@ -97,13 +99,15 @@ class CitizenDetailsService @Inject()(val simpleHttp: SimpleHttp, val metrics: M
           case response if response.status == BAD_REQUEST =>
             timer.completeTimerAndIncrementFailedCounter()
             logger.warn(
-              s"Bad Request ${response.status}-${response.body} response updating address record in citizen-details")
+              s"Bad Request ${response.status}-${response.body} response updating address record in citizen-details"
+            )
             UpdateAddressBadRequestResponse
 
           case response =>
             timer.completeTimerAndIncrementFailedCounter()
             logger.warn(
-              s"Unexpected ${response.status}-${response.body} response updating address record in citizen-details")
+              s"Unexpected ${response.status}-${response.body} response updating address record in citizen-details"
+            )
             UpdateAddressUnexpectedResponse(response)
         },
         onError = { e =>

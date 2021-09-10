@@ -33,7 +33,7 @@ import views.html.personaldetails.UpdateInternationalAddressView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UpdateInternationalAddressController @Inject()(
+class UpdateInternationalAddressController @Inject() (
   countryHelper: CountryHelper,
   cachingHelper: AddressJourneyCachingHelper,
   auditConnector: AuditConnector,
@@ -41,10 +41,8 @@ class UpdateInternationalAddressController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   updateInternationalAddressView: UpdateInternationalAddressView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
@@ -54,13 +52,15 @@ class UpdateInternationalAddressController @Inject()(
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(
-                buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = true))
+                buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = true)
+              )
               cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(
                   Ok(
                     updateInternationalAddressView(
                       journeyData.submittedAddressDto.fold(AddressDto.internationalForm)(
-                        AddressDto.internationalForm.fill),
+                        AddressDto.internationalForm.fill
+                      ),
                       typ,
                       countryHelper.countries
                     )
@@ -70,7 +70,8 @@ class UpdateInternationalAddressController @Inject()(
 
             case _ =>
               auditConnector.sendEvent(
-                buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true))
+                buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true)
+              )
               cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { _ =>
                 Future.successful(
                   Ok(
@@ -88,11 +89,11 @@ class UpdateInternationalAddressController @Inject()(
       cachingHelper.gettingCachedJourneyData[Result](typ) { _ =>
         addressJourneyEnforcer { _ => _ =>
           AddressDto.internationalForm.bindFromRequest.fold(
-            formWithErrors => {
+            formWithErrors =>
               Future.successful(
-                BadRequest(updateInternationalAddressView(formWithErrors, typ, countryHelper.countries)))
-            },
-            addressDto => {
+                BadRequest(updateInternationalAddressView(formWithErrors, typ, countryHelper.countries))
+              ),
+            addressDto =>
               cachingHelper.addToCache(SubmittedAddressDtoId(typ), addressDto) flatMap { _ =>
                 typ match {
                   case PostalAddrType =>
@@ -102,7 +103,6 @@ class UpdateInternationalAddressController @Inject()(
                     Future.successful(Redirect(routes.StartDateController.onPageLoad(typ)))
                 }
               }
-            }
           )
         }
       }

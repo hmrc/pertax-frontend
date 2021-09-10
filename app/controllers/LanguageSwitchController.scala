@@ -22,11 +22,11 @@ import play.api.i18n.Lang
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
-class LanguageSwitchController @Inject()(
+class LanguageSwitchController @Inject() (
   configDecorator: ConfigDecorator,
   languageUtils: LanguageUtils,
-  cc: ControllerComponents)
-    extends LanguageController(languageUtils, cc) {
+  cc: ControllerComponents
+) extends LanguageController(languageUtils, cc) {
 
   def enGb(): Action[AnyContent] = switchToLanguage(language = "english")
   def cyGb(): Action[AnyContent] = switchToLanguage(language = "cymraeg")

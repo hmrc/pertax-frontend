@@ -23,7 +23,7 @@ import com.google.inject.Inject
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class WithBreadcrumbAction @Inject()(implicit ec: ExecutionContext) {
+class WithBreadcrumbAction @Inject() (implicit ec: ExecutionContext) {
 
   def addBreadcrumb(breadcrumb: Breadcrumb): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {

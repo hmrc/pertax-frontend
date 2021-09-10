@@ -27,11 +27,12 @@ import uk.gov.hmrc.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PayApiConnector @Inject()(http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
+class PayApiConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)
     extends HasMetrics {
 
   def createPayment(
-    request: PaymentRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CreatePayment]] = {
+    request: PaymentRequest
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CreatePayment]] = {
     val postUrl = configDecorator.makeAPaymentUrl
 
     withMetricsTimer("create-payment") { timer =>

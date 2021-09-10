@@ -49,7 +49,8 @@ class AddressJourneyDataSpec extends BaseSpec {
         Some(AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)),
         None,
         None,
-        false)
+        false
+      )
       val result = journeyData.getAddressToDisplay
       val submittedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result mustBe Some(submittedAddress)
@@ -66,7 +67,8 @@ class AddressJourneyDataSpec extends BaseSpec {
         Some(AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)),
         None,
         None,
-        false)
+        false
+      )
       val result = journeyData.getAddressToDisplay
       val submittedAddress = AddressDto.fromAddressRecord(fakeStreetPafAddressRecord)
       result mustBe Some(submittedAddress)

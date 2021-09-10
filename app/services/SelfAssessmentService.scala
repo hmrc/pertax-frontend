@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentService @Inject()(
+class SelfAssessmentService @Inject() (
   selfAssessmentConnector: SelfAssessmentConnector,
   configDecorator: ConfigDecorator
 )(implicit ec: ExecutionContext) {

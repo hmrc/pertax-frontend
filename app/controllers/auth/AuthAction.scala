@@ -36,20 +36,19 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthActionImpl @Inject()(
+class AuthActionImpl @Inject() (
   val authConnector: AuthConnector,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents)(implicit ec: ExecutionContext)
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
   def addRedirect(profileUrl: Option[String]): Option[String] =
     for {
       url <- profileUrl
       res <- Url.parseOption(url).filter(parsed => parsed.schemeOption.isDefined)
-    } yield {
-      res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
-    }
+    } yield res.replaceParams("redirect_uri", configDecorator.pertaxFrontendBackLink).toString()
 
   object LT200 {
     def unapply(confLevel: ConfidenceLevel): Option[ConfidenceLevel] =
@@ -79,7 +78,8 @@ class AuthActionImpl @Inject()(
           Retrievals.confidenceLevel and
           Retrievals.name and
           Retrievals.trustedHelper and
-          Retrievals.profile) {
+          Retrievals.profile
+      ) {
 
         case _ ~ Some(Individual) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
@@ -94,12 +94,13 @@ class AuthActionImpl @Inject()(
           upliftCredentialStrength
 
         case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GTOE200(
-              confidenceLevel) ~ name ~ trustedHelper ~ profile =>
+              confidenceLevel
+            ) ~ name ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
             .map {
               case AnyContentAsFormUrlEncoded(data) =>
-                AnyContentAsFormUrlEncoded(data.map {
-                  case (key, vals) => (key, vals.map(_.trim))
+                AnyContentAsFormUrlEncoded(data.map { case (key, vals) =>
+                  (key, vals.map(_.trim))
                 })
               case b => b
             }
@@ -112,7 +113,8 @@ class AuthActionImpl @Inject()(
                 enrolment.identifiers
                   .find(id => id.key == "UTR")
                   .map(key =>
-                    SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state)))
+                    SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state))
+                  )
               }
 
           val authenticatedRequest = AuthenticatedRequest[A](
@@ -120,8 +122,11 @@ class AuthActionImpl @Inject()(
             saEnrolment,
             credentials,
             confidenceLevel,
-            Some(UserName(trustedHelper.fold(name.getOrElse(Name(None, None)))(helper =>
-              Name(Some(helper.principalName), None)))),
+            Some(
+              UserName(
+                trustedHelper.fold(name.getOrElse(Name(None, None)))(helper => Name(Some(helper.principalName), None))
+              )
+            ),
             trustedHelper,
             addRedirect(profile),
             enrolments,
@@ -143,14 +148,13 @@ class AuthActionImpl @Inject()(
           .url
 
       request.session.get(configDecorator.authProviderKey) match {
-        case Some(configDecorator.authProviderVerify) => {
+        case Some(configDecorator.authProviderVerify) =>
           lazy val idaSignIn = s"${configDecorator.citizenAuthHost}/ida/login"
           Redirect(idaSignIn).withSession(
             "loginOrigin"    -> configDecorator.defaultOrigin.origin,
             "login_redirect" -> postSignInRedirectUrl(request)
           )
-        }
-        case Some(configDecorator.authProviderGG) => {
+        case Some(configDecorator.authProviderGG) =>
           lazy val ggSignIn = s"${configDecorator.basGatewayFrontendHost}/bas-gateway/sign-in"
           Redirect(
             ggSignIn,
@@ -160,7 +164,6 @@ class AuthActionImpl @Inject()(
               "origin"       -> Seq(configDecorator.defaultOrigin.origin)
             )
           )
-        }
         case _ => Redirect(configDecorator.authProviderChoice)
       }
 
@@ -177,7 +180,8 @@ class AuthActionImpl @Inject()(
           "origin"      -> Seq(configDecorator.origin),
           "continueUrl" -> Seq(configDecorator.pertaxFrontendForAuthHost + configDecorator.personalAccount)
         )
-      ))
+      )
+    )
 
   private def upliftConfidenceLevel(request: Request[_]): Future[Result] =
     Future.successful(
@@ -186,12 +190,17 @@ class AuthActionImpl @Inject()(
         Map(
           "origin"          -> Seq(configDecorator.origin),
           "confidenceLevel" -> Seq(ConfidenceLevel.L200.toString),
-          "completionURL" -> Seq(configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
-            .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))),
-          "failureURL" -> Seq(configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
-            .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri))))
+          "completionURL" -> Seq(
+            configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
+              .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))
+          ),
+          "failureURL" -> Seq(
+            configDecorator.pertaxFrontendForAuthHost + routes.ApplicationController
+              .showUpliftJourneyOutcome(Some(SafeRedirectUrl(request.uri)))
+          )
         )
-      ))
+      )
+    )
 
   override def parser: BodyParser[AnyContent] = cc.parsers.defaultBodyParser
 

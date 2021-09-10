@@ -44,7 +44,7 @@ class SelfAssessmentServiceSpec extends BaseSpec {
     buildUserRequest(
       request = FakeRequest(),
       saUser = NotEnrolledSelfAssessmentUser(utr),
-      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider),
+      credentials = Credentials(providerId, UserDetails.GovernmentGatewayAuthProvider)
     )
 
   "SelfAssessmentService" when {
@@ -58,7 +58,8 @@ class SelfAssessmentServiceSpec extends BaseSpec {
           val redirectUrl = "/foo"
 
           when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
-            Some(SaEnrolmentResponse(redirectUrl)))
+            Some(SaEnrolmentResponse(redirectUrl))
+          )
 
           sut.getSaEnrolmentUrl.futureValue mustBe Some(redirectUrl)
         }
@@ -69,7 +70,8 @@ class SelfAssessmentServiceSpec extends BaseSpec {
         "the connector returns a failure response" in {
 
           when(mockSelfAssessmentConnector.enrolForSelfAssessment(any())(any(), any())) thenReturn Future.successful(
-            None)
+            None
+          )
 
           sut.getSaEnrolmentUrl.futureValue mustBe None
         }
