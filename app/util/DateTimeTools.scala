@@ -42,7 +42,7 @@ object DateTimeTools extends CurrentTaxYear {
   def previousAndCurrentTaxYearFromGivenYear(year: Int) = {
     def y = year
 
-    (y - 1).toString.takeRight(2) + (y).toString.takeRight(2)
+    (y - 1).toString.takeRight(2) + y.toString.takeRight(2)
   }
 
   private def formatter(pattern: String): DateTimeFormatter = DateTimeFormat.forPattern(pattern).withZone(defaultTZ)
@@ -52,10 +52,9 @@ object DateTimeTools extends CurrentTaxYear {
   def asHumanDateFromUnixDate(unixDate: String): String =
     Try(DateTimeFormat.forPattern(humanDateFormat).print(DateTime.parse(unixDate))) match {
       case Success(v) => v
-      case Failure(e) => {
+      case Failure(e) =>
         logger.warn("Invalid date parse in DateTimeTools.asHumanDateFromUnixDate: " + e)
         unixDate
-      }
     }
 
   def toPaymentDate(dateTime: JavaLDT): LocalDate =
@@ -65,7 +64,7 @@ object DateTimeTools extends CurrentTaxYear {
 }
 
 @Singleton
-class DateTimeTools @Inject()() {
+class DateTimeTools @Inject() () {
 
   def showSendTaxReturnByPost = {
 

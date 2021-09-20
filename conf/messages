@@ -167,8 +167,6 @@ label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=to update you
 label.you_cannot_use_this_service_to_update_your_address=You cannot use this service to update your address
 label.your_address_cannot_be_updated=Your address cannot be updated
 
-label.welsh_content_warning=This service has not been fully translated into Welsh
-
 label.webchat_service=Webchat service
 label.chat_online_with_one_of_our_advisers=Chat online with one of our advisers
 label.name=Name
@@ -482,6 +480,7 @@ label.view_your_state_pension_forecast=View your State Pension forecast
 label.your_account=Your account
 label.messages=Messages
 label.message=Message
+label.your_profile=Your profile
 label.personal_details=Personal details
 label.update_your_address=Update your address
 label.manage_your_paperless_settings=Manage your paperless settings

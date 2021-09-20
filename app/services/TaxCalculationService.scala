@@ -36,29 +36,30 @@ case object TaxCalculationNotFoundResponse extends TaxCalculationResponse
 case class TaxCalculationUnexpectedResponse(r: HttpResponse) extends TaxCalculationResponse
 case class TaxCalculationErrorResponse(cause: Exception) extends TaxCalculationResponse
 @Singleton
-class TaxCalculationService @Inject()(
+class TaxCalculationService @Inject() (
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   val http: HttpClient,
-  servicesConfig: ServicesConfig)(implicit ec: ExecutionContext)
+  servicesConfig: ServicesConfig
+)(implicit ec: ExecutionContext)
     extends HasMetrics {
 
   private val logger = Logger(this.getClass)
 
   lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
 
-  def getTaxYearReconciliations(nino: Nino)(
-    implicit headerCarrier: HeaderCarrier): Future[List[TaxYearReconciliation]] =
+  def getTaxYearReconciliations(
+    nino: Nino
+  )(implicit headerCarrier: HeaderCarrier): Future[List[TaxYearReconciliation]] =
     withMetricsTimer("get-tax-year-reconciliations") { t =>
       http
         .GET[List[TaxYearReconciliation]](s"$taxCalcUrl/taxcalc/$nino/reconciliations") map { result =>
         t.completeTimerAndIncrementSuccessCounter()
         result
-      } recover {
-        case NonFatal(e) =>
-          t.completeTimerAndIncrementFailedCounter()
-          logger.error(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
-          Nil
+      } recover { case NonFatal(e) =>
+        t.completeTimerAndIncrementFailedCounter()
+        logger.error(s"An exception was thrown by taxcalc reconciliations: ${e.getMessage}")
+        Nil
       }
     }
 }

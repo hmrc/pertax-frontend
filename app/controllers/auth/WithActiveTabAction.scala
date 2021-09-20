@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class WithActiveTabAction @Inject()(implicit ec: ExecutionContext) {
+class WithActiveTabAction @Inject() (implicit ec: ExecutionContext) {
 
   def addActiveTab(currentActiveTab: ActiveTab): ActionRefiner[UserRequest, UserRequest] =
     new ActionRefiner[UserRequest, UserRequest] {

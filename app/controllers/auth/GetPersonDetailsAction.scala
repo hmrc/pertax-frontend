@@ -32,15 +32,13 @@ import views.html.ManualCorrespondenceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class GetPersonDetailsAction @Inject()(
+class GetPersonDetailsAction @Inject() (
   citizenDetailsService: CitizenDetailsService,
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView)(
-  implicit configDecorator: ConfigDecorator,
-  ec: ExecutionContext,
-  templateRenderer: TemplateRenderer)
+  manualCorrespondenceView: ManualCorrespondenceView
+)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, templateRenderer: TemplateRenderer)
     extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
@@ -65,7 +63,7 @@ class GetPersonDetailsAction @Inject()(
                   request.breadcrumb,
                   request.request
                 )
-            )
+              )
           )
         }
       } else {

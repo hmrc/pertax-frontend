@@ -37,7 +37,7 @@ import reactivemongo.play.json.collection.JSONCollection
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EditAddressLockRepository @Inject()(
+class EditAddressLockRepository @Inject() (
   configDecorator: ConfigDecorator
 )(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
 
@@ -55,12 +55,10 @@ class EditAddressLockRepository @Inject()(
     val record: EditedAddress =
       AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
 
-    insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover {
-      case e: DatabaseException => {
-        val errorCode = e.code.getOrElse("unknown code")
-        logger.error(s"Edit address lock failure with error $errorCode")
-        false
-      }
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover { case e: DatabaseException =>
+      val errorCode = e.code.getOrElse("unknown code")
+      logger.error(s"Edit address lock failure with error $errorCode")
+      false
     }
   }
 
@@ -84,10 +82,9 @@ class EditAddressLockRepository @Inject()(
             Cursor.FailOnError[List[AddressJourneyTTLModel]]()
           )
       }
-      .recover {
-        case e: Exception =>
-          logger.error(s"Unable to find document: ${e.getMessage}")
-          List[AddressJourneyTTLModel]()
+      .recover { case e: Exception =>
+        logger.error(s"Unable to find document: ${e.getMessage}")
+        List[AddressJourneyTTLModel]()
       }
 
   private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] =
@@ -118,11 +115,11 @@ class EditAddressLockRepository @Inject()(
     for {
       list <- collection.flatMap(_.indexesManager.list())
       count <- ttlIndex.name match {
-                case Some(name) if list.exists(_.name contains name) =>
-                  collection.flatMap(_.indexesManager.drop(name))
-                case _ =>
-                  Future.successful(0)
-              }
+                 case Some(name) if list.exists(_.name contains name) =>
+                   collection.flatMap(_.indexesManager.drop(name))
+                 case _ =>
+                   Future.successful(0)
+               }
     } yield count
 
   private[repositories] def setIndex(): Future[Boolean] =

@@ -40,7 +40,8 @@ class PostalAddressViewSpec extends ViewSpec {
     assertContainsLink(
       result,
       messages("label.change_your_postal_address"),
-      routes.PostalInternationalAddressChoiceController.onPageLoad().url)
+      routes.PostalInternationalAddressChoiceController.onPageLoad().url
+    )
   }
 
 }

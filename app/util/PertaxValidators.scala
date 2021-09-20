@@ -25,7 +25,8 @@ object PertaxValidators {
   type FormDataValidator = (String, Map[String, String]) => Seq[FormError]
 
   def fieldsArePresentIfCurrentFieldIsMissingFormDataValidator(
-    fieldsToCheck: String*)(key: String, formData: Map[String, String]): Seq[FormError] =
+    fieldsToCheck: String*
+  )(key: String, formData: Map[String, String]): Seq[FormError] =
     formData.getOrElse(key, "") match {
       case "" =>
         val anyCheckedFieldContainsData =

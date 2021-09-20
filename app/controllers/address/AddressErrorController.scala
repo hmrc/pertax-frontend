@@ -28,17 +28,15 @@ import views.html.personaldetails.{AddressAlreadyUpdatedView, CannotUseServiceVi
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddressErrorController @Inject()(
+class AddressErrorController @Inject() (
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   cannotUseServiceView: CannotUseServiceView,
-  addressAlreadyUpdatedView: AddressAlreadyUpdatedView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  addressAlreadyUpdatedView: AddressAlreadyUpdatedView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def cannotUseThisService(typ: AddrType): Action[AnyContent] =

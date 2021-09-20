@@ -45,12 +45,8 @@ class PertaxValidatorsSpec extends BaseSpec {
       val f = simpleAddressForm.bind(formData)
       f.copy(errors = f.errors.distinct)
         .fold(
-          formWithErrors => {
-            fail("Form should give an error")
-          },
-          success => {
-            success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
-          }
+          formWithErrors => fail("Form should give an error"),
+          success => success mustBe SimpleAddress(Some("Line 1"), Some("Line 2"))
         )
     }
 
@@ -78,9 +74,7 @@ class PertaxValidatorsSpec extends BaseSpec {
             formWithErrors.errors(0).key mustBe "line1"
             formWithErrors.errors(0).message mustBe "error.line1_required"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
 
@@ -112,9 +106,7 @@ class PertaxValidatorsSpec extends BaseSpec {
             formWithErrors.errors(1).key mustBe "line2"
             formWithErrors.errors(1).message mustBe "error.line2_required"
           },
-          success => {
-            fail("Form should give an error")
-          }
+          success => fail("Form should give an error")
         )
     }
   }
@@ -122,9 +114,8 @@ class PertaxValidatorsSpec extends BaseSpec {
   "validateAddressLineCharacters" must {
 
     "return false when an illegal character is used" in {
-      for (char <- """£!#$%*+:;<=>?@[\]^_"{|}~""") {
+      for (char <- """£!#$%*+:;<=>?@[\]^_"{|}~""")
         validateAddressLineCharacters(Some(char.toString)) mustBe false
-      }
     }
 
     "return false when illegal characters are used" in {

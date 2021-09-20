@@ -27,7 +27,7 @@ import views.html.{ErrorView, NotFoundView, UnauthenticatedErrorView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ErrorRenderer @Inject()(
+class ErrorRenderer @Inject() (
   notFoundView: NotFoundView,
   errorView: ErrorView,
   unauthenticatedErrorTemplate: UnauthenticatedErrorView
@@ -48,7 +48,9 @@ class ErrorRenderer @Inject()(
       errorView(
         s"global.error.$errorKey.title",
         Some(s"global.error.$errorKey.heading"),
-        List(s"global.error.$errorKey.message")))
+        List(s"global.error.$errorKey.message")
+      )
+    )
   }
 
   def unauthenticatedFutureError(statusCode: Int)(implicit request: Request[_], messages: Messages): Future[Result] =
@@ -66,7 +68,9 @@ class ErrorRenderer @Inject()(
       unauthenticatedErrorTemplate(
         s"global.error.$errorKey.title",
         s"global.error.$errorKey.heading",
-        s"global.error.$errorKey.message"))
+        s"global.error.$errorKey.message"
+      )
+    )
 
   }
 

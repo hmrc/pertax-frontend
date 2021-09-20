@@ -50,7 +50,8 @@ class EnrolmentStoreCachingServiceSpec extends BaseSpec {
       ) thenReturn Future.successful(fetchResult)
 
       when(mockEnrolmentsConnector.getUserIdsWithEnrolments(any())(any(), any())) thenReturn Future.successful(
-        connectorResult)
+        connectorResult
+      )
 
       c
     }

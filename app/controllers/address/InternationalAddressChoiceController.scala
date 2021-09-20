@@ -30,16 +30,14 @@ import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class InternationalAddressChoiceController @Inject()(
+class InternationalAddressChoiceController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   internationalAddressChoiceView: InternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
@@ -58,27 +56,21 @@ class InternationalAddressChoiceController @Inject()(
   def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        InternationalAddressChoiceDto
-          .form()
-          .bindFromRequest
-          .fold(
-            formWithErrors => {
-              Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, typ)))
-            },
-            internationalAddressChoiceDto => {
-              cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
-                if (internationalAddressChoiceDto.value) {
-                  Redirect(routes.PostcodeLookupController.onPageLoad(typ))
+        InternationalAddressChoiceDto.form().bindFromRequest.fold(
+          formWithErrors => Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, typ))),
+          internationalAddressChoiceDto =>
+            cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
+              if (internationalAddressChoiceDto.value) {
+                Redirect(routes.PostcodeLookupController.onPageLoad(typ))
+              } else {
+                if (configDecorator.updateInternationalAddressInPta) {
+                  Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
                 } else {
-                  if (configDecorator.updateInternationalAddressInPta) {
-                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
-                  } else {
-                    Redirect(routes.AddressErrorController.cannotUseThisService(typ))
-                  }
+                  Redirect(routes.AddressErrorController.cannotUseThisService(typ))
                 }
               }
             }
-          )
+        )
 
       }
     }

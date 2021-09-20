@@ -33,7 +33,7 @@ import util.AuditServiceTools
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext)
+private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(implicit ec: ExecutionContext)
     extends AuditTags {
 
   private val logger = Logger(this.getClass)
@@ -51,12 +51,12 @@ private[auth] class SessionAuditor @Inject()(auditConnector: AuditConnector)(imp
               auditSource = AuditServiceTools.auditSource,
               auditType = auditType,
               detail = Json.toJson(eventDetail),
-              tags = buildTags(request))
+              tags = buildTags(request)
+            )
           )
-          .recover {
-            case e: Exception =>
-              logger.warn(s"Unable to audit: ${e.getMessage}")
-              Failure("UserSessionAuditor.auditOncePerSession exception occurred whilst auditing", Some(e))
+          .recover { case e: Exception =>
+            logger.warn(s"Unable to audit: ${e.getMessage}")
+            Failure("UserSessionAuditor.auditOncePerSession exception occurred whilst auditing", Some(e))
           }
 
         sendAuditEvent.map {
@@ -79,7 +79,8 @@ object SessionAuditor {
     confidenceLevel: ConfidenceLevel,
     name: Option[String],
     saUtr: Option[SaUtr],
-    allEnrolments: Set[Enrolment])
+    allEnrolments: Set[Enrolment]
+  )
 
   object UserSessionAuditEvent {
 

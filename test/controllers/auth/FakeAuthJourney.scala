@@ -31,7 +31,8 @@ class FakeAuthJourney(saUser: SelfAssessmentUserType) extends AuthJourney {
         buildUserRequest(
           saUser = saUser,
           request = request
-        ))
+        )
+      )
   }
 
   override val authWithPersonalDetails: ActionBuilderFixture = actionBuilderFixture

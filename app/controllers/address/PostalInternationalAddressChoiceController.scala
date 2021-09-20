@@ -30,16 +30,14 @@ import views.html.personaldetails.{PostalInternationalAddressChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PostalInternationalAddressChoiceController @Inject()(
+class PostalInternationalAddressChoiceController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   postalInternationalAddressChoiceView: PostalInternationalAddressChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad: Action[AnyContent] =

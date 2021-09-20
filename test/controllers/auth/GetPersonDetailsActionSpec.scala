@@ -67,7 +67,8 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     )
 
   val personDetailsSuccessResponse = PersonDetailsSuccessResponse(
-    PersonDetails(Person(Some("TestFirstName"), None, None, None, None, None, None, None, None), None, None))
+    PersonDetails(Person(Some("TestFirstName"), None, None, None, None, None, None, None, None), None, None)
+  )
 
   val personDetailsBlock: UserRequest[_] => Future[Result] = userRequest => {
     val person = userRequest.personDetails match {

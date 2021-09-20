@@ -38,7 +38,7 @@ import views.html.personaldetails.PostcodeLookupView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PostcodeLookupController @Inject()(
+class PostcodeLookupController @Inject() (
   val addressLookupService: AddressLookupService,
   cachingHelper: AddressJourneyCachingHelper,
   auditConnector: AuditConnector,
@@ -46,10 +46,8 @@ class PostcodeLookupController @Inject()(
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   postcodeLookupView: PostcodeLookupView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   private val logger = Logger(this.getClass)
@@ -62,16 +60,15 @@ class PostcodeLookupController @Inject()(
           typ match {
             case PostalAddrType =>
               auditConnector.sendEvent(
-                buildAddressChangeEvent(
-                  "postalAddressChangeLinkClicked",
-                  personDetails,
-                  isInternationalAddress = false))
+                buildAddressChangeEvent("postalAddressChangeLinkClicked", personDetails, isInternationalAddress = false)
+              )
               cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
               }
             case _ =>
               auditConnector.sendEvent(
-                buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false))
+                buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false)
+              )
               cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { _ =>
                 Future.successful(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
               }
@@ -84,9 +81,7 @@ class PostcodeLookupController @Inject()(
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         AddressFinderDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(postcodeLookupView(formWithErrors, typ)))
-          },
+          formWithErrors => Future.successful(BadRequest(postcodeLookupView(formWithErrors, typ))),
           addressFinderDto => {
 
             if (addressFinderDto.postcode.isEmpty)
@@ -95,56 +90,74 @@ class PostcodeLookupController @Inject()(
             for {
               _ <- cachingHelper.addToCache(AddressFinderDtoId(typ), addressFinderDto)
               lookupDown <- cachingHelper.gettingCachedAddressLookupServiceDown { lookup =>
-                             lookup
-                           }
+                              lookup
+                            }
               result <- lookingUpAddress(
-                         typ,
-                         addressFinderDto.postcode,
-                         lookupDown.getOrElse(false),
-                         addressFinderDto.filter,
-                         forceLookup = true) {
-                         case AddressLookupSuccessResponse(RecordSet(Seq())) => //No records returned by postcode lookup
-                           auditConnector.sendEvent(
-                             buildEvent(
-                               "addressLookupNotFound",
-                               "find_address",
-                               Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)))
-                           Future.successful(
-                             NotFound(postcodeLookupView(
-                               AddressFinderDto.form
-                                 .fill(AddressFinderDto(addressFinderDto.postcode, addressFinderDto.filter))
-                                 .withError(FormError(postcode, "error.address_doesnt_exist_try_to_enter_manually")),
-                               typ
-                             )))
-                         case AddressLookupSuccessResponse(RecordSet(Seq(addressRecord))) => //One record returned by postcode lookup
-                           if (back.getOrElse(false)) {
-                             Future.successful(Redirect(routes.PostcodeLookupController.onPageLoad(typ)))
-                           } else {
-                             auditConnector.sendEvent(
-                               buildEvent(
-                                 "addressLookupResults",
-                                 "find_address",
-                                 Map(
-                                   postcode -> Some(addressRecord.address.postcode),
-                                   filter   -> addressFinderDto.filter)))
-                             cachingHelper.addToCache(SelectedAddressRecordId(typ), addressRecord) map { _ =>
-                               Redirect(routes.UpdateAddressController.onPageLoad(typ))
-                             }
-                           }
-                         case AddressLookupSuccessResponse(recordSet) => //More than one record returned by postcode lookup
-                           auditConnector.sendEvent(
-                             buildEvent(
-                               "addressLookupResults",
-                               "find_address",
-                               Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)))
+                          typ,
+                          addressFinderDto.postcode,
+                          lookupDown.getOrElse(false),
+                          addressFinderDto.filter,
+                          forceLookup = true
+                        ) {
+                          case AddressLookupSuccessResponse(
+                                RecordSet(Seq())
+                              ) => //No records returned by postcode lookup
+                            auditConnector.sendEvent(
+                              buildEvent(
+                                "addressLookupNotFound",
+                                "find_address",
+                                Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)
+                              )
+                            )
+                            Future.successful(
+                              NotFound(
+                                postcodeLookupView(
+                                  AddressFinderDto.form
+                                    .fill(AddressFinderDto(addressFinderDto.postcode, addressFinderDto.filter))
+                                    .withError(FormError(postcode, "error.address_doesnt_exist_try_to_enter_manually")),
+                                  typ
+                                )
+                              )
+                            )
+                          case AddressLookupSuccessResponse(
+                                RecordSet(Seq(addressRecord))
+                              ) => //One record returned by postcode lookup
+                            if (back.getOrElse(false)) {
+                              Future.successful(Redirect(routes.PostcodeLookupController.onPageLoad(typ)))
+                            } else {
+                              auditConnector.sendEvent(
+                                buildEvent(
+                                  "addressLookupResults",
+                                  "find_address",
+                                  Map(
+                                    postcode -> Some(addressRecord.address.postcode),
+                                    filter   -> addressFinderDto.filter
+                                  )
+                                )
+                              )
+                              cachingHelper.addToCache(SelectedAddressRecordId(typ), addressRecord) map { _ =>
+                                Redirect(routes.UpdateAddressController.onPageLoad(typ))
+                              }
+                            }
+                          case AddressLookupSuccessResponse(
+                                recordSet
+                              ) => //More than one record returned by postcode lookup
+                            auditConnector.sendEvent(
+                              buildEvent(
+                                "addressLookupResults",
+                                "find_address",
+                                Map(postcode -> Some(addressFinderDto.postcode), filter -> addressFinderDto.filter)
+                              )
+                            )
 
-                           cachingHelper.addToCache(SelectedRecordSetId(typ), recordSet) map { _ =>
-                             Redirect(routes.AddressSelectorController.onPageLoad(typ))
-                               .addingToSession(
-                                 (postcode, addressFinderDto.postcode),
-                                 (filter, addressFinderDto.filter.getOrElse("")))
-                           }
-                       }
+                            cachingHelper.addToCache(SelectedRecordSetId(typ), recordSet) map { _ =>
+                              Redirect(routes.AddressSelectorController.onPageLoad(typ))
+                                .addingToSession(
+                                  (postcode, addressFinderDto.postcode),
+                                  (filter, addressFinderDto.filter.getOrElse(""))
+                                )
+                            }
+                        }
             } yield result
           }
         )
@@ -156,8 +169,8 @@ class PostcodeLookupController @Inject()(
     postcode: String,
     lookupServiceDown: Boolean,
     filter: Option[String] = None,
-    forceLookup: Boolean = false)(f: PartialFunction[AddressLookupResponse, Future[Result]])(
-    implicit request: UserRequest[_]): Future[Result] =
+    forceLookup: Boolean = false
+  )(f: PartialFunction[AddressLookupResponse, Future[Result]])(implicit request: UserRequest[_]): Future[Result] =
     if (!forceLookup && lookupServiceDown) {
       Future.successful(Redirect(routes.UpdateAddressController.onPageLoad(typ)))
     } else {

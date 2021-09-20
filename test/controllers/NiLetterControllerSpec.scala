@@ -100,7 +100,8 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
               credentials = Credentials("", "Verify"),
               confidenceLevel = ConfidenceLevel.L500,
               request = request
-            ))
+            )
+          )
       })
 
       lazy val r = controller.printNationalInsuranceNumber()(FakeRequest())
@@ -112,9 +113,11 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
         .getElementById("keep-ni-number-safe")
         .text() mustBe "Keep this number in a safe place. Do not destroy this letter."
       doc.getElementById("available-information-text-relay").text() must include(
-        "Information is available in large print, audio tape and Braille formats.")
+        "Information is available in large print, audio tape and Braille formats."
+      )
       doc.getElementById("available-information-text-relay").text() must include(
-        "Text Relay service prefix number - 18001")
+        "Text Relay service prefix number - 18001"
+      )
       doc
         .getElementById("your-ni-number-unique")
         .text() mustBe "Your National Insurance number is unique to you and will never change. To prevent identity fraud, do not share it with anyone who does not need it."

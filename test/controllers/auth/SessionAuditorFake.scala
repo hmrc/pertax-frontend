@@ -25,9 +25,10 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionAuditorFake @Inject()(auditConnector: AuditConnector)(implicit ec: ExecutionContext)
+class SessionAuditorFake @Inject() (auditConnector: AuditConnector)(implicit ec: ExecutionContext)
     extends SessionAuditor(auditConnector) {
-  override def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(
-    implicit hc: HeaderCarrier): Future[Result] =
+  override def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit
+    hc: HeaderCarrier
+  ): Future[Result] =
     Future.successful(result.addingToSession(sessionKey -> "true")(request))
 }

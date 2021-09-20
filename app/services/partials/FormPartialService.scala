@@ -28,7 +28,7 @@ import util.EnhancedPartialRetriever
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class FormPartialService @Inject()(
+class FormPartialService @Inject() (
   override val http: HttpClient,
   val metrics: Metrics,
   val configDecorator: ConfigDecorator,

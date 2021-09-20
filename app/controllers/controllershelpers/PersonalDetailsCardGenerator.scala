@@ -25,7 +25,7 @@ import uk.gov.hmrc.domain.Nino
 import views.html.cards.personaldetails._
 
 @Singleton
-class PersonalDetailsCardGenerator @Inject()(
+class PersonalDetailsCardGenerator @Inject() (
   val configDecorator: ConfigDecorator,
   val countryHelper: CountryHelper,
   mainAddress: MainAddressView,
@@ -34,10 +34,10 @@ class PersonalDetailsCardGenerator @Inject()(
   changeName: ChangeNameView
 ) {
 
-  def getPersonalDetailsCards(changedAddressIndicator: List[AddressJourneyTTLModel], ninoToDisplay: Option[Nino])(
-    implicit request: UserRequest[_],
-    configDecorator: ConfigDecorator,
-    messages: play.api.i18n.Messages): Seq[Html] = {
+  def getPersonalDetailsCards(
+    changedAddressIndicator: List[AddressJourneyTTLModel],
+    ninoToDisplay: Option[Nino]
+  )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, messages: play.api.i18n.Messages): Seq[Html] = {
 
     val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
 
@@ -62,9 +62,9 @@ class PersonalDetailsCardGenerator @Inject()(
     cAdd.isDefined
   }
 
-  def getMainAddressCard(isLocked: Boolean)(
-    implicit request: UserRequest[_],
-    messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+  def getMainAddressCard(
+    isLocked: Boolean
+  )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
         Some(
@@ -74,13 +74,14 @@ class PersonalDetailsCardGenerator @Inject()(
             hasCorrespondenceAddress = hasCorrespondenceAddress,
             isLocked = isLocked,
             countryHelper.excludedCountries
-          ))
+          )
+        )
       case _ => None
     }
 
-  def getPostalAddressCard(isLocked: Boolean)(
-    implicit request: UserRequest[_],
-    messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+  def getPostalAddressCard(
+    isLocked: Boolean
+  )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     getPersonDetails match {
       case Some(personDetails) =>
         hasCorrespondenceAddress match {
@@ -90,20 +91,23 @@ class PersonalDetailsCardGenerator @Inject()(
                 personDetails = personDetails,
                 isLocked = isLocked,
                 countryHelper.excludedCountries,
-                configDecorator.closePostalAddressEnabled))
+                configDecorator.closePostalAddressEnabled
+              )
+            )
           case _ => None
         }
       case _ => None
     }
 
-  def getNationalInsuranceCard(ninoToDisplay: Option[Nino])(
-    implicit request: UserRequest[_],
-    messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+  def getNationalInsuranceCard(
+    ninoToDisplay: Option[Nino]
+  )(implicit request: UserRequest[_], messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
     ninoToDisplay.map(n => nationalInsurance(n))
 
-  def getChangeNameCard()(
-    implicit request: UserRequest[_],
+  def getChangeNameCard()(implicit
+    request: UserRequest[_],
     configDecorator: ConfigDecorator,
-    messages: play.api.i18n.Messages): Option[HtmlFormat.Appendable] =
+    messages: play.api.i18n.Messages
+  ): Option[HtmlFormat.Appendable] =
     request.name.map(_ => changeName())
 }

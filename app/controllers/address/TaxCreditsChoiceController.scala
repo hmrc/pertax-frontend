@@ -29,16 +29,14 @@ import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxCreditsChoiceController @Inject()(
+class TaxCreditsChoiceController @Inject() (
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
   taxCreditsChoiceView: TaxCreditsChoiceView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView)(
-  implicit configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  displayAddressInterstitialView: DisplayAddressInterstitialView
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
@@ -57,10 +55,9 @@ class TaxCreditsChoiceController @Inject()(
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         TaxCreditsChoiceDto.form.bindFromRequest.fold(
-          formWithErrors => {
-            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl)))
-          },
-          taxCreditsChoiceDto => {
+          formWithErrors =>
+            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
+          taxCreditsChoiceDto =>
             cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
               if (taxCreditsChoiceDto.value) {
                 Redirect(configDecorator.tcsChangeAddressUrl)
@@ -68,7 +65,6 @@ class TaxCreditsChoiceController @Inject()(
                 Redirect(routes.ResidencyChoiceController.onPageLoad())
               }
             }
-          }
         )
       }
     }

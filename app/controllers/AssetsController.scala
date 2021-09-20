@@ -19,7 +19,7 @@ package controllers
 import error.LocalErrorHandler
 import com.google.inject.Inject
 
-class AssetsController @Inject()(
+class AssetsController @Inject() (
   localErrorHandler: LocalErrorHandler,
   assetsMetaData: AssetsMetadata
 ) extends AssetsBuilder(localErrorHandler, assetsMetaData)

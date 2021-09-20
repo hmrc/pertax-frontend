@@ -36,8 +36,8 @@ final case class UserRequest[+A](
   unreadMessageCount: Option[Int] = None,
   activeTab: Option[ActiveTab] = None,
   breadcrumb: Option[Breadcrumb] = None,
-  request: Request[A])
-    extends WrappedRequest[A](request) {
+  request: Request[A]
+) extends WrappedRequest[A](request) {
 
   def name: Option[String] = personDetails match {
     case Some(personDetails) => personDetails.person.shortName

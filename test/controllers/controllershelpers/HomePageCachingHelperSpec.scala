@@ -94,7 +94,7 @@ class HomePageCachingHelperSpec extends BaseSpec {
         val c = injected[HomePageCachingHelper]
 
         when(injected[LocalSessionCache].cache(any(), any())(any(), any(), any())) thenReturn {
-          Future.successful(CacheMap(("id"), Map.empty))
+          Future.successful(CacheMap("id", Map.empty))
         }
         c
       }

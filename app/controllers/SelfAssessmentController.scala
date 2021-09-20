@@ -37,7 +37,7 @@ import views.html.selfassessment.RequestAccessToSelfAssessmentView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SelfAssessmentController @Inject()(
+class SelfAssessmentController @Inject() (
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   auditConnector: AuditConnector,
@@ -46,10 +46,8 @@ class SelfAssessmentController @Inject()(
   errorRenderer: ErrorRenderer,
   failedIvContinueToActivateSaView: FailedIvContinueToActivateSaView,
   cannotConfirmIdentityView: CannotConfirmIdentityView,
-  requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView)(
-  implicit configDecorator: ConfigDecorator,
-  val templateRenderer: TemplateRenderer,
-  ec: ExecutionContext)
+  requestAccessToSelfAssessmentView: RequestAccessToSelfAssessmentView
+)(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
@@ -102,12 +100,15 @@ class SelfAssessmentController @Inject()(
   }
 
   private def handleIvExemptAuditing(
-    saUserType: String)(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =
+    saUserType: String
+  )(implicit hc: HeaderCarrier, request: UserRequest[_]): Future[AuditResult] =
     auditConnector.sendEvent(
       buildEvent(
         "saIdentityVerificationBypass",
         "sa17_exceptions_or_insufficient_evidence",
-        Map("saUserType" -> Some(saUserType))))
+        Map("saUserType" -> Some(saUserType))
+      )
+    )
 
   def requestAccess: Action[AnyContent] =
     authJourney.minimumAuthWithSelfAssessment { implicit request =>
