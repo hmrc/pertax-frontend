@@ -55,7 +55,7 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertNotContainLink(
         result(PostalAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType).url
+        routes.InternationalAddressChoiceController.onPageLoad.url
       )
     }
 
@@ -71,7 +71,7 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertContainsLink(
         result(SoleAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(SoleAddrType).url
+        routes.InternationalAddressChoiceController.onPageLoad.url
       )
 
       assertNotContainLink(
@@ -93,7 +93,7 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertContainsLink(
         result(PrimaryAddrType),
         messages("label.change"),
-        routes.InternationalAddressChoiceController.onPageLoad(PrimaryAddrType).url
+        routes.InternationalAddressChoiceController.onPageLoad.url
       )
 
       assertNotContainLink(

@@ -63,15 +63,15 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
-    "fetch the selected address and a sole residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
+    "fetch the selected address and page visited true has been selected from the session cache and return 200" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "selectedAddressRecord"  -> Json.toJson(fakeStreetPafAddressRecord),
-              "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType))
+              "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
+              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
             )
           )
         )
@@ -82,10 +82,10 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
-    "find no selected address with sole address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
+    "find no selected address with sole address type but addressPageVisitedDTO in the session cache and still return 200" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -165,7 +165,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
             Map(
               "soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
               "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "soleResidencyChoiceDto"    -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
+              "addressPageVisitedDto"     -> Json.toJson(AddressPageVisitedDto(true))
             )
           )
         )
@@ -184,7 +184,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
             "id",
             Map(
               "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "soleResidencyChoiceDto"  -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
+              "addressPageVisitedDto"   -> Json.toJson(AddressPageVisitedDto(true))
             )
           )
         )
@@ -211,7 +211,7 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -249,8 +249,8 @@ class UpdateAddressControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "soleResidencyChoiceDto"    -> Json.toJson(ResidencyChoiceDto(SoleAddrType)),
-              "soleSelectedAddressRecord" -> Json.toJson(Fixtures.fakeStreetPafAddressRecord)
+              "soleSelectedAddressRecord" -> Json.toJson(Fixtures.fakeStreetPafAddressRecord),
+              "addressPageVisitedDto"     -> Json.toJson(AddressPageVisitedDto(true))
             )
           )
         )

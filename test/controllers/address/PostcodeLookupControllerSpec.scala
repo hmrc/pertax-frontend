@@ -71,7 +71,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
 
     "return 200 if the user has entered a residency choice on the previous page" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
@@ -116,8 +116,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "addressPageVisitedDto"  -> Json.toJson(AddressPageVisitedDto(true)),
-              "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
+              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
             )
           )
         )
