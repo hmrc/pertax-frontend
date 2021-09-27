@@ -84,7 +84,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
     }
 
-    "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
+    "redirect to InternationalAddressChoice page when supplied with value = No (false)" in new LocalSetup {
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
@@ -94,7 +94,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residency-choice")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {

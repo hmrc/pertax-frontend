@@ -19,6 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.SoleAddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedTaxCreditsChoiceId
 import models.dto.TaxCreditsChoiceDto
@@ -62,7 +63,7 @@ class TaxCreditsChoiceController @Inject() (
               if (taxCreditsChoiceDto.value) {
                 Redirect(configDecorator.tcsChangeAddressUrl)
               } else {
-                Redirect(routes.ResidencyChoiceController.onPageLoad())
+                Redirect(routes.InternationalAddressChoiceController.onPageLoad(SoleAddrType))
               }
             }
         )
