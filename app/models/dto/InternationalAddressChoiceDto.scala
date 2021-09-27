@@ -26,10 +26,10 @@ object InternationalAddressChoiceDto {
 
   implicit val formats = Json.format[InternationalAddressChoiceDto]
 
-  val form = Form(
+  def form(errorMessageKey: Option[String] = None) = Form(
     mapping(
       "internationalAddressChoice" -> optional(boolean)
-        .verifying("error.you_must_select_an_answer", _.isDefined)
+        .verifying(errorMessageKey.getOrElse("error.international_address_select.required"), _.isDefined)
         .transform[Boolean](_.getOrElse(false), Some(_))
     )(InternationalAddressChoiceDto.apply)(InternationalAddressChoiceDto.unapply)
   )
