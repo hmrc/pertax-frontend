@@ -46,7 +46,7 @@ class InternationalAddressChoiceController @Inject() (
         cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(
-              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form, SoleAddrType))
+              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), SoleAddrType))
             )
           }
         }
@@ -56,7 +56,7 @@ class InternationalAddressChoiceController @Inject() (
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
-        InternationalAddressChoiceDto.form.bindFromRequest.fold(
+        InternationalAddressChoiceDto.form().bindFromRequest.fold(
           formWithErrors => Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, SoleAddrType))),
           internationalAddressChoiceDto =>
             cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
