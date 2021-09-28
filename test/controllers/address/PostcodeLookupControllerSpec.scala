@@ -79,6 +79,16 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
+    "return 303 if the user has entered a residency choice on the previous page" in new LocalSetup {
+      override def sessionCacheResponse: Option[CacheMap] =
+        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(false)))))
+
+      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+
+      status(result) mustBe OK
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+    }
+
     "return 200 if the user is on correspondence address journey and has postal address type" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
