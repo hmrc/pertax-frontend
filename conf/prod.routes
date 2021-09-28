@@ -4,7 +4,7 @@ GET         /personal-account/start-government-gateway                          
 GET         /personal-account/signin                                                   controllers.PublicController.sessionTimeout
 GET         /personal-account/signed-out                                               controllers.PublicController.redirectToExitSurvey(origin: Origin)
 GET         /personal-account/tax-credits-summary                                      controllers.PublicController.redirectToTaxCreditsService()
-GET         /personal-account/your-address                                             controllers.PublicController.redirectToPersonalDetails
+GET         /personal-account/your-address                                             controllers.PublicController.redirectToYourProfile
 
 GET         /personal-account/do-uplift                                                controllers.ApplicationController.uplift(redirectUrl: Option[SafeRedirectUrl])
 GET         /personal-account                                                          controllers.HomeController.index
@@ -35,8 +35,8 @@ GET         /personal-account/self-assessment/find-your-user-id                 
 GET         /personal-account/lang/enGb                                                controllers.LanguageSwitchController.enGb()
 GET         /personal-account/lang/cyGb                                                controllers.LanguageSwitchController.cyGb()
 
-GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.onPageLoad
-GET         /personal-account/your-profile                                             controllers.address.PersonalDetailsController.onPageLoadv2
+GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.redirectToYourProfile
+GET         /personal-account/your-profile                                             controllers.address.PersonalDetailsController.onPageLoad
 GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
 POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
 GET         /personal-account/your-address/residency-choice                            controllers.address.ResidencyChoiceController.onPageLoad

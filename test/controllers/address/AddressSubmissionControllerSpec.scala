@@ -16,7 +16,6 @@
 
 package controllers.address
 
-import config.ConfigDecorator
 import controllers.auth.WithActiveTabAction
 import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -35,7 +34,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.Fixtures
 import util.Fixtures._
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -118,7 +116,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -133,7 +131,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -298,7 +296,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -324,7 +322,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -372,7 +370,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
