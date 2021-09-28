@@ -16,7 +16,7 @@
 
 package controllers.address
 
-import controllers.bindable.{PostalAddrType, SoleAddrType}
+import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.dto._
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -49,7 +49,7 @@ class AddressErrorControllerSpec extends AddressBaseSpec {
   "cannotUseThisService" must {
 
     "display the cannot use this service page" in new LocalSetup {
-      val result = controller.cannotUseThisService(SoleAddrType)(currentRequest)
+      val result = controller.cannotUseThisService(ResidentialAddrType)(currentRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("You cannot use this service to update your address")

@@ -62,7 +62,7 @@ class TaxCreditsChoiceController @Inject() (
               if (taxCreditsChoiceDto.value) {
                 Redirect(configDecorator.tcsChangeAddressUrl)
               } else {
-                Redirect(routes.InternationalAddressChoiceController.onPageLoad)
+                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
               }
             }
         )

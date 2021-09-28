@@ -43,22 +43,19 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDeco
              @messages("label.is_your_postal_address_in_the_uk")
           </dt>
             <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-              <dd class="cya-change"><a href="@controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url">@messages("label.change") <span class="visuallyhidden">@messages("label.is_your_postal_address_in_the_uk")</span></a></dd>
+              <dd class="cya-change"><a href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="visuallyhidden">@messages("label.is_your_postal_address_in_the_uk")</span></a></dd>
             }else{
             <dt class="cya-question">
                 @messages("label.do_you_live_in_the_uk")
             </dt>
           <dd class="cya-answer">@messages(doYouLiveInTheUK)</dd>
-              <dd class="cya-change"><a href="@controllers.address.routes.InternationalAddressChoiceController.onPageLoad.url">@messages("label.change") <span class="visuallyhidden"> @messages("label.do_you_live_in_the_uk.change")</span></a></dd>
+              <dd class="cya-change"><a href="@controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url">@messages("label.change") <span class="visuallyhidden"> @messages("label.do_you_live_in_the_uk.change")</span></a></dd>
             }
         </div>
         <div>
           <dt class="cya-question">
             @typ.ifIs(
-              primary = {
-                {messages("label.your_main_home")}
-              },
-              sole = {
+              residential = {
               if(displayDateAddressChanged) {
                 {messages("label.your_new_address")}
               } else {
@@ -87,7 +84,7 @@ displayDateAddressChanged: Boolean)(implicit request: UserRequest[_], configDeco
             <div>
               @startDateDto.map { startDateDto =>
                 <dt class="cya-question">
-                  @typ.ifIs(primary = messages("label.when_this_became_your_main_home"), sole = messages("label.when_you_started_living_here"), postal = "")
+                  @typ.ifIs(residential = messages("label.when_you_started_living_here"), postal = "")
                 </dt>
                 <dd class="cya-answer">@languageUtils.Dates.formatDate(startDateDto.startDate)</dd>
                 <dd class="cya-change"><a href="@controllers.address.routes.StartDateController.onPageLoad(typ)">@messages("label.change") <span class="visuallyhidden">@messages("label.when_you_started_living_here.change")</span></a></dd>

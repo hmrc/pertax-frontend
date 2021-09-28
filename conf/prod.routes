@@ -38,10 +38,10 @@ GET         /personal-account/lang/cyGb                                         
 GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.onPageLoad
 GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
 POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
-GET         /personal-account/your-address/sole/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onPageLoad
-POST        /personal-account/your-address/sole/do-you-live-in-the-uk                  controllers.address.InternationalAddressChoiceController.onSubmit
-GET         /personal-account/your-address/postal/is-your-postal-address-in-the-uk       controllers.address.PostalInternationalAddressChoiceController.onPageLoad
-POST        /personal-account/your-address/postal/is-your-postal-address-in-the-uk       controllers.address.PostalInternationalAddressChoiceController.onSubmit
+GET         /personal-account/your-address/residential/do-you-live-in-the-uk                  controllers.address.DoYouLiveInTheUKController.onPageLoad
+POST        /personal-account/your-address/residential/do-you-live-in-the-uk                  controllers.address.DoYouLiveInTheUKController.onSubmit
+GET         /personal-account/your-address/postal/is-your-postal-address-in-the-uk       controllers.address.PostalDoYouLiveInTheUKController.onPageLoad
+POST        /personal-account/your-address/postal/is-your-postal-address-in-the-uk       controllers.address.PostalDoYouLiveInTheUKController.onSubmit
 
 GET         /personal-account/your-address/:typ/cannot-use-the-service                 controllers.address.AddressErrorController.cannotUseThisService(typ: AddrType)
 GET         /personal-account/your-address/:typ/find-address                           controllers.address.PostcodeLookupController.onPageLoad(typ: AddrType)

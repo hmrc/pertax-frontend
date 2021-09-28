@@ -94,7 +94,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/do-you-live-in-the-uk")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {

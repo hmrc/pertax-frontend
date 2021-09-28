@@ -70,7 +70,6 @@ class PostcodeLookupController @Inject() (
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false)
               )
               cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
-                println(typ)
                 Future.successful(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
               }
           }

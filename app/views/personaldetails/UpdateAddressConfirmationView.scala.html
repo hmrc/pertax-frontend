@@ -70,8 +70,7 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
                     </div>
 
                     @typ.ifIs(
-                        primary = { content },
-                        sole = { content },
+                        residential = { content },
                         postal = Html(""))
 
                     <p><a href="@routes.HomeController.index" class="button" role="button">@messages("label.return_to_your_account_home")</a></p>

@@ -29,8 +29,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
 
 @mainView(
   title = typ.ifIs(
-    primary = messages("label.select_your_address"),
-    sole = messages("label.select_your_address"),
+    residential = messages("label.select_your_address"),
     postal = messages("label.select_an_address")
   ),
   pageName = Some(messages("label.your_personal_tax_account"))
@@ -47,7 +46,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
 
           <div class="form-group@if(addressSelectorForm.errors){ form-group-error}">
               <fieldset id="addressId" @if(addressSelectorForm.errors) { aria-describedby="addressId-error-message"}>
-                  <legend><h1 class="heading-xlarge">@typ.ifIs(primary = messages("label.select_your_address"), sole = messages("label.select_your_address"), postal = messages("label.select_an_address"))</h1></legend>
+                  <legend><h1 class="heading-xlarge">@typ.ifIs( residential = messages("label.select_your_address"), postal = messages("label.select_an_address"))</h1></legend>
                   @addressSelectorForm.errors.map { error => <span class="error-message" id="addressId-error-message"><span class="visually-hidden">@messages("error.message.error")</span> @messages(error.message)</span>}
                 @for((ad,index) <- recordSet.addresses.zipWithIndex){
                   <div class="multiple-choice">
