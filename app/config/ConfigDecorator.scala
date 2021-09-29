@@ -109,8 +109,9 @@ class ConfigDecorator @Inject() (
   lazy val ssoToRegistration = transformUrlForSso(toPortalUrl("/registration"))
   def ssoToSaAccountSummaryUrl(saUtr: String, taxYear: String) =
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
-  def viewSaPaymentsUrl(saUtr: String): String =
-    transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/account/payments"))
+  def viewSaPaymentsUrl(saUtr: String, lang: Lang): String =
+    s"/self-assessment/ind/$saUtr/account/payments?lang=" + (if (lang.code equals "en") "eng"
+                                                                   else "cym")
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
