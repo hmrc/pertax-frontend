@@ -239,7 +239,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           formattedNino(testNino),
           "label.view_national_insurance_letter",
           "",
-          Some(controllers.routes.InterstitialController.displayNationalInsurance.url)
+          Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
         )
         actual.contains(expected) mustBe true
       }

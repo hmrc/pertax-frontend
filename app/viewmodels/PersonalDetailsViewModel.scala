@@ -61,7 +61,7 @@ class PersonalDetailsViewModel @Inject() (
         formattedNino(n),
         "label.view_national_insurance_letter",
         "",
-        Some(controllers.routes.InterstitialController.displayNationalInsurance.url)
+        Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
       )
     )
 
