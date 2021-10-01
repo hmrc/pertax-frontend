@@ -16,13 +16,14 @@
 
 @import config.ConfigDecorator
 @import controllers.controllershelpers.WelshWarningHelper
-@import uk.gov.hmrc.play.views.html.layouts
+@import uk.gov.hmrc.play.views.html.layouts._
 @import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
 @import uk.gov.hmrc.renderer._
 
 @import scala.concurrent.ExecutionContext
 
-@this(getHelpFormView: GetHelpFormView)
+@this(getHelpFormView: GetHelpFormView,
+article: Article)
 
 @(title: String,
         pageName: Option[String] = None,
@@ -121,7 +122,7 @@
 
         templateRenderer.renderDefaultTemplate(
             configDecorator.frontendTemplatePath,
-            layouts.article(mainContent, includeGridWrapper, articleClasses),
+            article(mainContent, includeGridWrapper, articleClasses),
             arguments
         )
     }

@@ -23,7 +23,6 @@ import util.BaseSpec
 class SelfAssessmentUserTypeSpec extends BaseSpec {
 
   "SelfAssessmentUserType" must {
-
     val utr = new SaUtrGenerator().nextSaUtr.utr
 
     val testList: List[(String, SelfAssessmentUser)] = List(
