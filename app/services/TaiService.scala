@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
@@ -36,9 +36,7 @@ case class TaxComponentsUnexpectedResponse(r: HttpResponse) extends TaxComponent
 case class TaxComponentsErrorResponse(cause: Exception) extends TaxComponentsResponse
 @Singleton
 class TaiService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
-    extends HasMetrics {
-
-  private val logger = Logger(this.getClass)
+    extends HasMetrics with Logging {
 
   lazy val taiUrl = servicesConfig.baseUrl("tai")
 

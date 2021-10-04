@@ -24,7 +24,7 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
 import models.{AddressJourneyTTLModel, EditedAddress}
-import play.api.Logger
+import play.api.Logging
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.Cursor
 import reactivemongo.api.commands.WriteResult
@@ -39,14 +39,13 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class EditAddressLockRepository @Inject() (
   configDecorator: ConfigDecorator
-)(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext) {
+)(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext)
+    extends Logging {
 
   private val collectionName: String = "EditAddressLock"
   private val duplicateKeyErrorCode = "E11000"
   private def collection: Future[JSONCollection] =
     mongo.database.map(_.collection[JSONCollection](collectionName))
-
-  private val logger = Logger(this.getClass)
 
   import EditAddressLockRepository._
 

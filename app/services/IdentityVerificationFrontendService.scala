@@ -19,7 +19,7 @@ package services
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import services.http.SimpleHttp
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -49,9 +49,7 @@ class IdentityVerificationFrontendService @Inject() (
   val simpleHttp: SimpleHttp,
   val metrics: Metrics,
   servicesConfig: ServicesConfig
-) extends HasMetrics {
-
-  private val logger = Logger(this.getClass)
+) extends HasMetrics with Logging {
 
   lazy val identityVerificationFrontendUrl: String = servicesConfig.baseUrl("identity-verification-frontend")
 
