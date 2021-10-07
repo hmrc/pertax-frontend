@@ -16,7 +16,20 @@
 
 package viewmodels
 
+import config.ConfigDecorator
+
 case class AddressRowModel(
   mainAddress: Option[PersonalDetailsTableRowModel],
   postalAddress: Option[PersonalDetailsTableRowModel]
 )
+
+object AddressRowModel {
+  def changeMainAddressUrl(configDecorator: ConfigDecorator): String =
+    if (configDecorator.taxCreditsEnabled) {
+      controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
+    } else {
+      controllers.address.routes.ResidencyChoiceController.onPageLoad.url
+    }
+
+  val changePostalAddressUrl = controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url
+}
