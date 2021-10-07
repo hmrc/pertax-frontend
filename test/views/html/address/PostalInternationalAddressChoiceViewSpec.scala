@@ -25,22 +25,15 @@ import views.html.personaldetails.PostalInternationalAddressChoiceView
 
 class PostalInternationalAddressChoiceViewSpec extends ViewSpec {
 
-  override implicit lazy val app = localGuiceApplicationBuilder().build()
-
   lazy val view = injected[PostalInternationalAddressChoiceView]
 
   implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
 
   "rendering PostalInternationalAddressChoiceView" must {
-    "must render the correct h1 appropriate to postal address" in {
-      val result = asDocument(view(InternationalAddressChoiceDto.form).toString)
+    "must render the correct h1 appropriate to postal address when form has the default error message" in {
+      val result = asDocument(view(InternationalAddressChoiceDto.form()).toString)
       assertContainsText(result, messages("label.is_your_postal_address_in_the_uk"))
-    }
-
-    "must not render the h1 appropriate to residential addresses" in {
-      val result = asDocument(view(InternationalAddressChoiceDto.form).toString)
-      assertNotContainText(result, messages("label.do_you_live_in_the_uk"))
     }
   }
 }

@@ -127,7 +127,6 @@ label.if_you_entered_the_correct_date_contact_HMRC_link_text=cysylltwch â CThEM
 label.if_you_entered_the_correct_date_contact_HMRC_text_after_link=i ddiweddaru’ch cyfeiriad
 label.you_cannot_use_this_service_to_update_your_address=Ni allwch ddefnyddio’r gwasanaeth hwn i ddiweddaru’ch cyfeiriad
 label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
-label.welsh_content_warning=Nid yw rhai o’r tudalennau hyn wedi’u cyfieithu i’r Gymraeg eto.
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.name=Enw
 label.change_your_name=Newid eich enw
@@ -325,8 +324,8 @@ error.line2_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rh
 error.line3_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line4_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
 error.line5_invalid_characters=Gall eich cyfeiriad gynnwys llythrennau a i z, rhifau, bylchau, cysylltnodau (-), collnodau (’), comas (,), blaenslaesys (/), atalnodau llawn (.), ampersandau (&) a chromfachau crwn.
-head.error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
-error.enter_a_valid_uk_postcode=Nodwch god post dilys yn y DU
+head.error.enter_a_valid_uk_postcode=Nodwch god post
+error.enter_a_valid_uk_postcode=Nodwch god post
 error.enter_valid_characters=Nodwch gymeriadau dilys
 error.enter_valid_date=Nodwch ddyddiad dilys
 error.address_doesnt_exist_try_to_enter_manually=Ni ellir canfod eich cyfeiriad. Gallwch roi cynnig arall arni neu nodi’r cyfeiriad eich hun.
@@ -339,11 +338,11 @@ error.range.day=Mae’r diwrnod y tu allan i’r ystod
 error.range.month=Mae’r mis y tu allan i’r ystod
 error.range.year=Mae’r flwyddyn y tu allan i’r ystod
 error.date.invalid=Dyddiad annilys wedi’i nodi
-error.invalid.date.format=odwch ddyddiad dilys
-error.enter_a_date=Mae angen i chi nodi dyddiad
-head.error.enter_a_date=Mae angen i chi nodi dyddiad
+error.invalid.date.format=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma fod yn ddyddiad go iawn
+error.enter_a_date=Nodwch y dyddiad y gwnaethoch ddechrau byw yma
+head.error.enter_a_date=Nodwch y dyddiad y gwnaethoch ddechrau byw yma
 head.error.enter_valid_date=Gwirio’r dyddiad a nodwyd gennych
-head.error.invalid.date.format=Gwirio’r dyddiad a nodwyd gennych
+head.error.invalid.date.format=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma fod yn ddyddiad go iawn
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
 error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
 head.error.country_required=Nodwch wlad
@@ -416,7 +415,7 @@ label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 label.self_assessment=Hunanasesiad
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
-label.view_your_payments=View your payments
+label.view_your_payments=Bwrw golwg dros eich taliadau
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
@@ -548,6 +547,31 @@ label.next_page_forgotten_password=Ar y dudalen nesaf, ewch i ‘Problemau wrth 
 label.next_page_forgotten_userid=Ar y dudalen nesaf, ewch i ‘Problemau wrth fewngofnodi’, ac, ar waelod y dudalen, dewiswch ‘Rwyf wedi anghofio’m Dynodydd Defnyddiwr (ID) Porth y Llywodraeth’.
 
 label.home_page.utr=Eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Hunanasesiad yw
+
+#*************************************************************
+# Form error messages radio
+#*************************************************************
+
+error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
+head.error.tax_credits_select = Dewiswch ‘Iawn’ os ydych yn cael credydau treth
+error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
+head.error.multiple_address_select = Dewiswch ‘Iawn’ os ydych yn byw mewn mwy nag un lle
+error.international_address_select.required = Dewiswch ‘Iawn’ os ydych yn byw yn y DU
+head.error.international_address_select.required = Dewiswch ‘Iawn’ os ydych yn byw yn y DU
+error.address_select = Dewiswch gyfeiriad
+head.error.address_select = Dewiswch gyfeiriad
+error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
+head.error.postal_address_uk_select = Dewiswch ‘Iawn’ os yw’ch cyfeiriad post yn y DU
+
+#*************************************************************
+# Form error date validation
+#*************************************************************
+error.date.required.day = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys diwrnod
+head.error.date.required.day = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys diwrnod
+error.date.required.month = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys mis
+head.error.date.required.month = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys mis
+error.date.required.year = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys blwyddyn
+head.error.date.required.year = Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma gynnwys blwyddyn
 
 #*************************************************************
 # Service unavailable
