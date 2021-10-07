@@ -112,7 +112,7 @@ class ConfigDecorator @Inject() (
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
   def viewSaPaymentsUrl(saUtr: String, lang: Lang): String =
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (if (lang.code equals "en") "eng"
-                                                                   else "cym")
+                                                             else "cym")
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
