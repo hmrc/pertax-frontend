@@ -19,11 +19,50 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import scala.concurrent.ExecutionContext
 @import viewmodels.{PersonalDetailsTableRowModel, PersonalDetailsViewModel}
+@import viewmodels.AddressRowModel
 
 @this(mainView: MainView)
-@(personalDetails: Seq[PersonalDetailsTableRowModel], trustedHelpers: Option[PersonalDetailsTableRowModel], paperlessHelpers: Option[PersonalDetailsTableRowModel], signinDetailsHelpers: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(personalDetails: Seq[PersonalDetailsTableRowModel],
+        addressDetails: AddressRowModel,
+        trustedHelpers: Option[PersonalDetailsTableRowModel],
+        paperlessHelpers: Option[PersonalDetailsTableRowModel],
+        signinDetailsHelpers: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
+@rowsPresenter(row: PersonalDetailsTableRowModel) = {
+    <div class="govuk-summary-list__row" id="@row.id">
+        <dt class="govuk-summary-list__key">
+        @messages(row.titleMessage)
+        </dt>
+        <dd class="govuk-summary-list__value">
+        @row.content
+        </dd>
+        <dd class="govuk-summary-list__actions">
+        @row.linkUrl.map { url =>
+        <a class="govuk-link" href="@url">
 
+            @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
+            <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+        }
+        </a>
+        }.getOrElse(
+            Html(s"<p>${messages(row.linkTextMessage)}</p>")
+        )
+        </dd>
+    </div>
+}
+
+@addressRowsPresenter(addressRow: Option[PersonalDetailsTableRowModel]) = {
+    @{
+        addressRow match {
+            case Some(row) => rowsPresenter(row)
+            case _ => emptyAddressRow()
+        }
+    }
+}
+
+@emptyAddressRow() = {
+    <p>Mo there's no address here mate</p>
+}
 
 @mainView(messages("label.your_personal_details"),Some(messages("label.your_personal_tax_account"))) {
 
@@ -40,96 +79,14 @@
       <div class="pertax-personal-details">
         <h2>@messages("label.personal_details")</h2>
           <dl class="govuk-summary-list">
-              @personalDetails.map { row =>
-                  <div class="govuk-summary-list__row" id="@row.id">
-                      <dt class="govuk-summary-list__key">
-                          @messages(row.titleMessage)
-                      </dt>
-                      <dd class="govuk-summary-list__value">
-                          @row.content
-                      </dd>
-                      <dd class="govuk-summary-list__actions">
-                          @row.linkUrl.map { url=>
-                            <a class="govuk-link" href="@url">
+              @personalDetails.map(row => rowsPresenter(row))
 
-                                @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {<span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>}
-                            </a>
-                          }.getOrElse(
-                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
-                          )
-                      </dd>
-                  </div>
-              }
+              @addressRowsPresenter(addressDetails.mainAddress)
+              @addressRowsPresenter(addressDetails.postalAddress)
 
-
-              @trustedHelpers.map { row =>
-                  <div class="govuk-summary-list__row" id="@row.id">
-                      <dt class="govuk-summary-list__key">
-                          @messages(row.titleMessage)
-                      </dt>
-                      <dd class="govuk-summary-list__value">
-                          @row.content
-                      </dd>
-                      <dd class="govuk-summary-list__actions">
-                          @row.linkUrl.map { url=>
-                          <a class="govuk-link" href=@url>
-
-                              @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-                          </a>
-                          }.getOrElse(
-                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
-
-                          )
-
-                      </dd>
-                  </div>
-              }
-
-              @paperlessHelpers.map { row =>
-                  <div class="govuk-summary-list__row" id="@row.id">
-                      <dt class="govuk-summary-list__key">
-                          @messages(row.titleMessage)
-                      </dt>
-                      <dd class="govuk-summary-list__value">
-                          @row.content
-                      </dd>
-                      <dd class="govuk-summary-list__actions">
-                          @row.linkUrl.map { url=>
-                          <a class="govuk-link" href=@url>
-
-                              @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-                          </a>
-                          }.getOrElse(
-                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
-
-                          )
-
-                      </dd>
-                  </div>
-              }
-
-              @signinDetailsHelpers.map { row =>
-                  <div class="govuk-summary-list__row" id="@row.id">
-                      <dt class="govuk-summary-list__key">
-                          @messages(row.titleMessage)
-                      </dt>
-                      <dd class="govuk-summary-list__value">
-                          @row.content
-                      </dd>
-                      <dd class="govuk-summary-list__actions">
-                          @row.linkUrl.map { url=>
-                          <a class="govuk-link" href=@url>
-
-                              @messages(row.linkTextMessage) <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-                          </a>
-                          }.getOrElse(
-                          Html(s"<p>${messages(row.linkTextMessage)}</p>")
-
-                          )
-
-                      </dd>
-                  </div>
-              }
+              @trustedHelpers.map(rowsPresenter)
+              @paperlessHelpers.map(rowsPresenter)
+              @signinDetailsHelpers.map(rowsPresenter)
           </dl>
       </div>
     </div>

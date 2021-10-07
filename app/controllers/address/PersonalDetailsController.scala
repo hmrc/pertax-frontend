@@ -81,13 +81,15 @@ class PersonalDetailsController @Inject() (
 
       } yield {
         val personalDetails = personalDetailsViewModel
-          .getPersonDetailsTable(addressModel, ninoToDisplay)
+          .getPersonDetailsTable(ninoToDisplay)
+        val addressDetails = personalDetailsViewModel.getAddressRow(addressModel)
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
         Ok(
           personalDetailsView(
             personalDetails,
+            addressDetails,
             trustedHelpers,
             paperlessHelpers,
             signinDetailsHelpers

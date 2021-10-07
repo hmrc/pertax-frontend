@@ -25,6 +25,7 @@ import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAdd
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import util.TemplateFunctions
+import util.RichOption.CondOpt
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
@@ -112,8 +113,8 @@ class PersonalDetailsViewModel @Inject() (
 
     postalAddress match {
       case Some(address) => Some(address)
-      case _ if personDetails.address.isDefined =>
-        Some(
+      case _ =>
+        personDetails.address.map { _ =>
           PersonalDetailsTableRowModel(
             "postal_address",
             "label.postal_address",
@@ -122,8 +123,7 @@ class PersonalDetailsViewModel @Inject() (
             "label.your.postal_address",
             Some(changePostalAddressUrl)
           )
-        )
-      case _ => None
+        }
     }
   }
 
@@ -152,26 +152,31 @@ class PersonalDetailsViewModel @Inject() (
         createRow("label.change", Some(changePostalAddressUrl))
     }
 
-  def getPersonDetailsTable(
-    changedAddressIndicator: List[AddressJourneyTTLModel],
-    ninoToDisplay: Option[Nino]
-  )(implicit
+  def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
-  ): Seq[PersonalDetailsTableRowModel] = {
-    val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
-    val nameRow: Option[PersonalDetailsTableRowModel] = getName
-    val ninoRow: Option[PersonalDetailsTableRowModel] = getNationalInsurance(ninoToDisplay)
+  ): AddressRowModel = {
+    val optionalEditAddress = addressModel.map(y => y.editedAddress)
     val mainAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
       .flatMap(getMainAddress(_, optionalEditAddress))
     val postalAddressRow: Option[PersonalDetailsTableRowModel] = request.personDetails
       .flatMap(getPostalAddress(_, optionalEditAddress))
 
-    Seq(
-      nameRow,
-      ninoRow,
+    AddressRowModel(
       mainAddressRow,
       postalAddressRow
+    )
+  }
+
+  def getPersonDetailsTable(
+    ninoToDisplay: Option[Nino]
+  )(implicit request: UserRequest[_]): Seq[PersonalDetailsTableRowModel] = {
+    val nameRow: Option[PersonalDetailsTableRowModel] = getName
+    val ninoRow: Option[PersonalDetailsTableRowModel] = getNationalInsurance(ninoToDisplay)
+
+    Seq(
+      nameRow,
+      ninoRow
     ).flatten[PersonalDetailsTableRowModel]
   }
 
@@ -179,50 +184,40 @@ class PersonalDetailsViewModel @Inject() (
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
-    if (request.isVerify)
-      Some(
-        PersonalDetailsTableRowModel(
-          "trusted_helpers",
-          "label.trusted_helpers",
-          HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-          "label.change",
-          "label.your_trusted_helpers",
-          Some(configDecorator.manageTrustedHelpersUrl)
-        )
-      )
-    else None
+    PersonalDetailsTableRowModel(
+      "trusted_helpers",
+      "label.trusted_helpers",
+      HtmlFormat.raw(messages("label.manage_trusted_helpers")),
+      "label.change",
+      "label.your_trusted_helpers",
+      Some(configDecorator.manageTrustedHelpersUrl)
+    ) onlyIf request.isVerify
 
   def getPaperlessSettingsRow(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
-    if (request.isGovernmentGateway)
-      Some(
-        PersonalDetailsTableRowModel(
-          "paperless",
-          "label.go_paperless",
-          HtmlFormat.raw(messages("label.go_paperless_content")),
-          "label.change",
-          "label.your_paperless_settings",
-          Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
-        )
-      )
-    else None
+    PersonalDetailsTableRowModel(
+      "paperless",
+      "label.go_paperless",
+      HtmlFormat.raw(messages("label.go_paperless_content")),
+      "label.change",
+      "label.your_paperless_settings",
+      Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
+    ) onlyIf request.isGovernmentGateway
 
   def getSignInDetailsRow(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
-    if (request.isGovernmentGateway)
-      request.profile.map(profileUrl =>
-        PersonalDetailsTableRowModel(
-          "sign_in_details",
-          "label.sign_in_details",
-          HtmlFormat.raw(messages("label.sign_in_details_content")),
-          "label.change",
-          "label.your_gg_details",
-          Some(profileUrl)
-        )
-      )
-    else None
+    request.profile.flatMap { profileUrl =>
+      PersonalDetailsTableRowModel(
+        "sign_in_details",
+        "label.sign_in_details",
+        HtmlFormat.raw(messages("label.sign_in_details_content")),
+        "label.change",
+        "label.your_gg_details",
+        Some(profileUrl)
+      ) onlyIf request.isGovernmentGateway
+    }
 }
