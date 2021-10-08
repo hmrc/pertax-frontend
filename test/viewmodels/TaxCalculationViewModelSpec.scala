@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package viewModels
+package viewmodels
 
 import models.OverpaidStatus.{Unknown => OverpaidUnknown, _}
 import models.UnderpaidStatus.{Unknown => UnderpaidUnknown, _}

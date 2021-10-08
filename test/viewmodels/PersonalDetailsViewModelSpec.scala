@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package viewModels
-
-import java.time.OffsetDateTime
+package viewmodels
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
@@ -29,12 +27,11 @@ import reactivemongo.bson.BSONDateTime
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import util.BaseSpec
-import viewmodels.{PersonalDetailsTableRowModel, PersonalDetailsViewModel}
 import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
+import java.time.OffsetDateTime
 import scala.util.Random
 
 class PersonalDetailsViewModelSpec extends ViewSpec {
@@ -42,14 +39,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   private val generator = new Generator(new Random())
 
   private val testNino: Nino = generator.nextNino
-  val utr = new SaUtrGenerator().nextSaUtr.utr
-  val configDecorator = injected[ConfigDecorator]
-  val viewModel = injected[PersonalDetailsViewModel]
-  val addressView = injected[AddressView]
-  val correspondenceAddressView = injected[CorrespondenceAddressView]
-  val countryHelper = injected[CountryHelper]
-  lazy val fakeRequest = FakeRequest("", "")
-  lazy val userRequest = UserRequest(
+  lazy val configDecorator = injected[ConfigDecorator]
+  lazy val personalDetailsViewModel = injected[PersonalDetailsViewModel]
+  lazy val addressView = injected[AddressView]
+  lazy val correspondenceAddressView = injected[CorrespondenceAddressView]
+  lazy val countryHelper = injected[CountryHelper]
+
+  val fakeRequest = FakeRequest("", "")
+  val userRequest = UserRequest(
     None,
     None,
     ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
@@ -104,18 +101,18 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return None" when {
       "user is not GG and profile URL is defined" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"), profile = Some("example.com"))
-        val actual = viewModel.getSignInDetailsRow(request, messages)
+        val actual = personalDetailsViewModel.getSignInDetailsRow(request, messages)
         actual mustBe None
       }
 
       "user is GG and profile URL is not defined" in {
-        val actual = viewModel.getSignInDetailsRow(userRequest, messages)
+        val actual = personalDetailsViewModel.getSignInDetailsRow(userRequest, messages)
         actual mustBe None
       }
 
       "user is not GG and profile URL is not defined" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = viewModel.getSignInDetailsRow(request, messages)
+        val actual = personalDetailsViewModel.getSignInDetailsRow(request, messages)
         actual mustBe None
       }
 
@@ -133,7 +130,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(profileUrl)
         )
         val request = userRequest.copy(profile = Some(profileUrl))
-        val actual = viewModel.getSignInDetailsRow(request, messages)
+        val actual = personalDetailsViewModel.getSignInDetailsRow(request, messages)
         actual mustBe Some(expected)
 
       }
@@ -145,7 +142,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return None" when {
       "user is not gg" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = viewModel.getPaperlessSettingsRow(request, messages)
+        val actual = personalDetailsViewModel.getPaperlessSettingsRow(request, messages)
         actual mustBe None
       }
     }
@@ -162,7 +159,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
           )
         )
-        val actual = viewModel.getPaperlessSettingsRow(userRequest, messages)
+        val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages)
         actual mustBe expected
       }
     }
@@ -171,7 +168,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
   "getTrustedHelpersRow" must {
     "return None" when {
       "user is not verify" in {
-        val actual = viewModel.getTrustedHelpersRow(userRequest, messages)
+        val actual = personalDetailsViewModel.getTrustedHelpersRow(userRequest, messages)
         actual mustBe None
       }
     }
@@ -179,7 +176,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return PersonalDetailsTableRowModel" when {
       "user is verify" in {
         val request = userRequest.copy(credentials = Credentials("", "Verify"))
-        val actual = viewModel.getTrustedHelpersRow(request, messages)
+        val actual = personalDetailsViewModel.getTrustedHelpersRow(request, messages)
         val expected = Some(
           PersonalDetailsTableRowModel(
             "trusted_helpers",
@@ -208,16 +205,16 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             "label.your_name",
             Some(configDecorator.changeNameLinkUrl)
           )
-        val actual = viewModel.getPersonDetailsTable(None)(request)
+        val actual = personalDetailsViewModel.getPersonDetailsTable(None)(request)
 
-        actual mustBe expected
+        actual mustBe List(expected)
       }
     }
 
     "not contain name row" when {
       "personal details is not defined" in {
         val request = userRequest.copy(personDetails = None)
-        val actual = viewModel.getPersonDetailsTable(None)(request)
+        val actual = personalDetailsViewModel.getPersonDetailsTable(None)(request)
         actual.isEmpty mustBe true
       }
 
@@ -225,14 +222,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val request = userRequest.copy(personDetails =
           Some(exampleDetails.copy(person = examplePerson.copy(firstName = None, lastName = None)))
         )
-        val actual = viewModel.getPersonDetailsTable(None)(request)
+        val actual = personalDetailsViewModel.getPersonDetailsTable(None)(request)
         actual.isEmpty mustBe true
       }
     }
 
     "contain nino row" when {
       "nino is defined" in {
-        val actual = viewModel.getPersonDetailsTable(Some(testNino))(userRequest)
+        val actual = personalDetailsViewModel.getPersonDetailsTable(Some(testNino))(userRequest)
         val expected = PersonalDetailsTableRowModel(
           "national_insurance",
           "label.national_insurance",
@@ -241,14 +238,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           "",
           Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
         )
-        actual mustBe expected
+        actual mustBe List(expected)
       }
     }
 
     "not contain nino row" when {
       "nino is not defined" in {
         val request = userRequest.copy(personDetails = None)
-        val actual = viewModel.getPersonDetailsTable(None)(request)
+        val actual = personalDetailsViewModel.getPersonDetailsTable(None)(request)
         actual.isEmpty mustBe true
       }
     }
@@ -260,7 +257,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val details = exampleDetails.copy(address = Some(testAddress))
         val request = userRequest.copy(personDetails = Some(details))
 
-        val actual = viewModel.getAddressRow(List.empty)(request, messages)
+        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
@@ -270,14 +267,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url)
         )
 
-        actual mustBe expected
+        actual.mainAddress mustBe Some(expected)
       }
 
       "main address is defined and it has been changed" in {
         val details = exampleDetails.copy(address = Some(testAddress))
         val request = userRequest.copy(personDetails = Some(details))
 
-        val actual = viewModel.getAddressRow(
+        val actual = personalDetailsViewModel.getAddressRow(
           List(AddressJourneyTTLModel(testNino.nino, editedAddress(OffsetDateTime.now())))
         )(request, messages)
         val expected = PersonalDetailsTableRowModel(
@@ -289,14 +286,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           None
         )
 
-        actual mustBe expected
+        actual.mainAddress mustBe Some(expected)
       }
     }
 
     "not contain main address row" when {
       "person details is not defined" in {
         val request = userRequest.copy(personDetails = None)
-        val actual = viewModel.getAddressRow(List.empty)(request, messages)
+        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
         actual.mainAddress.isEmpty mustBe true
       }
 
@@ -304,7 +301,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val details =
           exampleDetails.copy(address = None, person = examplePerson.copy(firstName = None, lastName = None))
         val request = userRequest.copy(personDetails = Some(details))
-        val actual = viewModel.getAddressRow(List.empty)(request, messages)
+        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
         actual.mainAddress.isEmpty mustBe true
       }
     }
@@ -314,7 +311,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val details = exampleDetails.copy(correspondenceAddress = Some(testAddress))
         val request = userRequest.copy(personDetails = Some(details))
 
-        val actual = viewModel.getAddressRow(List.empty)(request, messages)
+        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
@@ -324,14 +321,14 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
         )
 
-        actual mustBe expected
+        actual.postalAddress mustBe Some(expected)
       }
 
       "postal address is defined and it has been changed" in {
         val details = exampleDetails.copy(correspondenceAddress = Some(testAddress))
         val request = userRequest.copy(personDetails = Some(details))
 
-        val actual = viewModel.getAddressRow(
+        val actual = personalDetailsViewModel.getAddressRow(
           List(AddressJourneyTTLModel(testNino.nino, editedOtherAddress(OffsetDateTime.now())))
         )(request, messages)
         val expected = PersonalDetailsTableRowModel(
@@ -343,15 +340,15 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           None
         )
 
-        actual mustBe expected
+        actual.postalAddress mustBe Some(expected)
       }
 
       "postal address is not defined and main address is defined" in {
         val details = exampleDetails.copy(correspondenceAddress = None, address = Some(testAddress))
         val request = userRequest.copy(personDetails = Some(details))
 
-        val actual = viewModel.getAddressRow(List.empty)(request, messages)
-        val expected = PersonalDetailsTableRowModel(
+        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
+        val expectedPostalAddress = PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
           correspondenceAddressView(None, countryHelper.excludedCountries),
@@ -360,7 +357,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
         )
 
-        actual mustBe expected
+        actual.postalAddress mustBe Some(expectedPostalAddress)
       }
     }
 
@@ -368,7 +365,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
       "personal details are not defined" in {
         val request = userRequest.copy(personDetails = None)
 
-        val actual = viewModel.getAddressRow(List.empty)(request, messages)
+        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
 
         actual.postalAddress.isEmpty mustBe true
       }

@@ -31,40 +31,11 @@ import views.html.tags.formattedNino
 
 @Singleton
 class PersonalDetailsViewModel @Inject() (
-  val configDecorator: ConfigDecorator,
-  val countryHelper: CountryHelper,
+  configDecorator: ConfigDecorator,
+  countryHelper: CountryHelper,
   addressView: AddressView,
   correspondenceAddressView: CorrespondenceAddressView
 ) {
-
-  private val changePostalAddressUrl =
-    controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url
-
-  private def getName(implicit request: UserRequest[_]) =
-    request.name.map(name =>
-      PersonalDetailsTableRowModel(
-        "name",
-        "label.name",
-        HtmlFormat.raw(TemplateFunctions.upperCaseToTitleCase(name)),
-        "label.change",
-        "label.your_name",
-        Some(configDecorator.changeNameLinkUrl)
-      )
-    )
-
-  private def getNationalInsurance(
-    ninoToDisplay: Option[Nino]
-  )(implicit request: UserRequest[_]) =
-    ninoToDisplay.map(n =>
-      PersonalDetailsTableRowModel(
-        "national_insurance",
-        "label.national_insurance",
-        formattedNino(n),
-        "label.view_national_insurance_letter",
-        "",
-        Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
-      )
-    )
 
   private def getMainAddress(
     personDetails: PersonDetails,
@@ -90,12 +61,7 @@ class PersonalDetailsViewModel @Inject() (
       if (isMainAddressChangeLocked)
         createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
       else {
-        val changeMainAddressUrl =
-          if (configDecorator.taxCreditsEnabled)
-            controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
-          else controllers.address.routes.ResidencyChoiceController.onPageLoad.url
-
-        createAddressRow("label.change", Some(changeMainAddressUrl))
+        createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
       }
     }
   }
@@ -121,7 +87,7 @@ class PersonalDetailsViewModel @Inject() (
             correspondenceAddressView(None, countryHelper.excludedCountries),
             "label.change",
             "label.your.postal_address",
-            Some(changePostalAddressUrl)
+            Some(AddressRowModel.changePostalAddressUrl)
           )
         }
     }
@@ -149,7 +115,7 @@ class PersonalDetailsViewModel @Inject() (
       if (isCorrespondenceChangeLocked)
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
       else
-        createRow("label.change", Some(changePostalAddressUrl))
+        createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
     }
 
   def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
@@ -171,8 +137,29 @@ class PersonalDetailsViewModel @Inject() (
   def getPersonDetailsTable(
     ninoToDisplay: Option[Nino]
   )(implicit request: UserRequest[_]): Seq[PersonalDetailsTableRowModel] = {
-    val nameRow: Option[PersonalDetailsTableRowModel] = getName
-    val ninoRow: Option[PersonalDetailsTableRowModel] = getNationalInsurance(ninoToDisplay)
+    val nameRow: Option[PersonalDetailsTableRowModel] =
+      request.name.map(name =>
+        PersonalDetailsTableRowModel(
+          "name",
+          "label.name",
+          HtmlFormat.raw(TemplateFunctions.upperCaseToTitleCase(name)),
+          "label.change",
+          "label.your_name",
+          Some(configDecorator.changeNameLinkUrl)
+        )
+      )
+
+    val ninoRow: Option[PersonalDetailsTableRowModel] =
+      ninoToDisplay.map(n =>
+        PersonalDetailsTableRowModel(
+          "national_insurance",
+          "label.national_insurance",
+          formattedNino(n),
+          "label.view_national_insurance_letter",
+          "",
+          Some(controllers.routes.NiLetterController.printNationalInsuranceNumber.url)
+        )
+      )
 
     Seq(
       nameRow,
