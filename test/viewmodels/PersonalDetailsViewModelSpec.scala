@@ -159,6 +159,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
             Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)
           )
         )
+
         val actual = personalDetailsViewModel.getPaperlessSettingsRow(userRequest, messages)
         actual mustBe expected
       }

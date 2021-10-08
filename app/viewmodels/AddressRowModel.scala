@@ -17,11 +17,19 @@
 package viewmodels
 
 import config.ConfigDecorator
+import viewmodels.AddressRowModel.closePostalAddressUrl
 
-case class AddressRowModel(
+final case class ExtraLinks(linkTextMessage: String, linkUrl: String)
+
+final case class AddressRowModel(
   mainAddress: Option[PersonalDetailsTableRowModel],
   postalAddress: Option[PersonalDetailsTableRowModel]
-)
+) {
+  def extraPostalAddressLink(): Option[ExtraLinks] =
+    mainAddress.map { _ =>
+      ExtraLinks("Mo you need to close the address", closePostalAddressUrl)
+    }
+}
 
 object AddressRowModel {
   def changeMainAddressUrl(configDecorator: ConfigDecorator): String =
@@ -31,5 +39,6 @@ object AddressRowModel {
       controllers.address.routes.ResidencyChoiceController.onPageLoad.url
     }
 
+  val closePostalAddressUrl = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
   val changePostalAddressUrl = controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url
 }
