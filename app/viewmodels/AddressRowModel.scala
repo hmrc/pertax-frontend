@@ -27,7 +27,7 @@ final case class AddressRowModel(
 ) {
   def extraPostalAddressLink(): Option[ExtraLinks] =
     mainAddress.map { _ =>
-      ExtraLinks("Mo you need to close the address", closePostalAddressUrl)
+      ExtraLinks("label.remove", closePostalAddressUrl)
     }
 }
 
