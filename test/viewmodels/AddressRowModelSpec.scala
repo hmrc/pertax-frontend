@@ -40,7 +40,7 @@ class AddressRowModelSpec extends AnyFreeSpec with Matchers {
       val addressRowModel = AddressRowModel(Some(address), Some(address))
       addressRowModel.extraPostalAddressLink() mustBe Some(
         ExtraLinks(
-          "Mo you need to close the address",
+          "label.remove",
           AddressRowModel.closePostalAddressUrl
         )
       )

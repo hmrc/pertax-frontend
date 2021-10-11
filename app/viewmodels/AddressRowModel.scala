@@ -17,6 +17,7 @@
 package viewmodels
 
 import config.ConfigDecorator
+import play.api.i18n.Messages
 import viewmodels.AddressRowModel.closePostalAddressUrl
 
 final case class ExtraLinks(linkTextMessage: String, linkUrl: String)
@@ -25,10 +26,18 @@ final case class AddressRowModel(
   mainAddress: Option[PersonalDetailsTableRowModel],
   postalAddress: Option[PersonalDetailsTableRowModel]
 ) {
-  def extraPostalAddressLink(): Option[ExtraLinks] =
-    mainAddress.map { _ =>
-      ExtraLinks("label.remove", closePostalAddressUrl)
+  def extraPostalAddressLink()(implicit messages: Messages): Option[ExtraLinks] = {
+    val isSameAsMainAddress = postalAddress
+      .exists(_.content.toString().contains(messages("label.same_as_main_address")))
+
+    if (isSameAsMainAddress) {
+      None
+    } else {
+      mainAddress.map { _ =>
+        ExtraLinks("label.remove", closePostalAddressUrl)
+      }
     }
+  }
 }
 
 object AddressRowModel {
