@@ -26,18 +26,13 @@ final case class AddressRowModel(
   mainAddress: Option[PersonalDetailsTableRowModel],
   postalAddress: Option[PersonalDetailsTableRowModel]
 ) {
-  def extraPostalAddressLink()(implicit messages: Messages): Option[ExtraLinks] = {
-    val isSameAsMainAddress = postalAddress
-      .exists(_.content.toString().contains(messages("label.same_as_main_address")))
-
-    if (isSameAsMainAddress) {
-      None
-    } else {
-      mainAddress.map { _ =>
-        ExtraLinks("label.remove", closePostalAddressUrl)
-      }
-    }
-  }
+  def extraPostalAddressLink()(implicit messages: Messages): Option[ExtraLinks] =
+    postalAddress
+      .filter(!_.content.toString().contains(messages("label.same_as_main_address")))
+      .flatMap(_ =>
+        mainAddress
+          .map(_ => ExtraLinks("label.remove", closePostalAddressUrl))
+      )
 }
 
 object AddressRowModel {

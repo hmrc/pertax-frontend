@@ -16,11 +16,11 @@
 
 package viewmodels
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
 import play.twirl.api.HtmlFormat
+import views.html.ViewSpec
 
-class AddressRowModelSpec extends AnyFreeSpec with Matchers {
+class AddressRowModelSpec extends ViewSpec {
+
   val address = PersonalDetailsTableRowModel(
     "postal_address",
     "label.postal_address",
@@ -30,9 +30,23 @@ class AddressRowModelSpec extends AnyFreeSpec with Matchers {
     None
   )
 
-  "extraPostalAddressLink" - {
+  "extraPostalAddressLink" must {
     "does not contain extra links when there is no main address" in {
       val addressRowModel = AddressRowModel(None, Some(address))
+      addressRowModel.extraPostalAddressLink() mustBe None
+    }
+
+    "does not contain extra links when the postal address is the same as the main address" in {
+      val sameAddress = PersonalDetailsTableRowModel(
+        "postal_address",
+        "label.postal_address",
+        HtmlFormat.raw(messages("label.same_as_main_address")),
+        "label.change",
+        "label.your.postal_address",
+        None
+      )
+
+      val addressRowModel = AddressRowModel(Some(address), Some(sameAddress))
       addressRowModel.extraPostalAddressLink() mustBe None
     }
 
