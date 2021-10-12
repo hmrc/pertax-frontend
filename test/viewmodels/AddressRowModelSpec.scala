@@ -27,7 +27,7 @@ class AddressRowModelSpec extends ViewSpec {
     HtmlFormat.empty,
     "label.change",
     "label.your.postal_address",
-    None
+    Some("link")
   )
 
   "extraPostalAddressLink" must {
@@ -41,6 +41,20 @@ class AddressRowModelSpec extends ViewSpec {
         "postal_address",
         "label.postal_address",
         HtmlFormat.raw(messages("label.same_as_main_address")),
+        "label.change",
+        "label.your.postal_address",
+        None
+      )
+
+      val addressRowModel = AddressRowModel(Some(address), Some(sameAddress))
+      addressRowModel.extraPostalAddressLink() mustBe None
+    }
+
+    "does not contain extra links when the postal address has been removed" in {
+      val sameAddress = PersonalDetailsTableRowModel(
+        "postal_address",
+        "label.postal_address",
+        HtmlFormat.empty,
         "label.change",
         "label.your.postal_address",
         None
