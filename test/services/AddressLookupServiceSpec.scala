@@ -40,8 +40,6 @@ class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with Integra
 
   def addressLookupService: AddressLookupService = injected[AddressLookupService]
 
-  val urlGet = "/v2/uk/addresses?postcode=ZZ11ZZ&filter=2"
-
   val urlPost = "/lookup"
 
   val requestBody: JsObject = Json.obj(
