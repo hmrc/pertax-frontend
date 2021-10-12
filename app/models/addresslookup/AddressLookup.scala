@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-package models.dto
+package models.addresslookup
 
-import play.api.data.Form
-import play.api.data.Forms._
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Writes}
 
-case class TaxCreditsChoiceDto(value: Boolean)
+case class AddressLookup(postcode: String, filter: Option[String])
 
-object TaxCreditsChoiceDto {
-
-  implicit val formats = Json.format[TaxCreditsChoiceDto]
-
-  val form = Form(
-    mapping(
-      "taxCreditsChoice" -> optional(boolean)
-        .verifying("error.tax_credits_select", _.isDefined)
-        .transform[Boolean](
-          _.getOrElse(false),
-          Some(_)
-        ) //getOrElse here will never fall back to default because of isDefined above
-    )(TaxCreditsChoiceDto.apply)(TaxCreditsChoiceDto.unapply)
-  )
+object AddressLookup {
+  implicit val writes: Writes[AddressLookup] = Json.writes[AddressLookup]
 }

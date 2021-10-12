@@ -42,82 +42,78 @@ trait DateTuple {
       month -> optional(text),
       day   -> optional(text)
     ).verifying(
-        "error.date.required.year",
-        data =>
-          (data._1, data._2, data._3) match {
-            case (None, None, None) => true
-            case (None, _, _)       => false
-            case (_, _, _)          => true
-        })
-      .verifying(
-        "error.date.required.month",
-        data =>
-          (data._1, data._2, data._3) match {
-            case (None, None, None) => true
-            case (_, None, _)       => false
-            case (_, _, _)          => true
-        })
-      .verifying(
-        "error.date.required.day",
-        data =>
-          (data._1, data._2, data._3) match {
-            case (None, None, None) => true
-            case (_, _, None)       => false
-            case (_, _, _)          => true
-        })
-      .verifying(
-        "error.invalid.date.format",
-        data => {
-
-          (data._1, data._2, data._3) match {
-            case (None, None, None) => true
-            case (None, _, _)       => true
-            case (_, None, _)       => true
-            case (_, _, None)       => true
-            case (yearOption, monthOption, dayOption) =>
-              try {
-                val y = yearOption.getOrElse(throw new Exception("Year missing")).trim
-                if (y.length != 4) {
-                  throw new Exception("Year must be 4 digits")
-                }
-                new LocalDate(
-                  y.toInt,
-                  monthOption.getOrElse(throw new Exception("Month missing")).trim.toInt,
-                  dayOption.getOrElse(throw new Exception("Day missing")).trim.toInt)
-                true
-              } catch {
-                case _: Throwable =>
-                  if (validate) {
-                    false
-                  } else {
-                    true
-                  }
-              }
-          }
-
+      "error.date.required.year",
+      data =>
+        (data._1, data._2, data._3) match {
+          case (None, None, None) => true
+          case (None, _, _)       => false
+          case (_, _, _)          => true
         }
-      )
-      .transform(
-        {
-          case (Some(y), Some(m), Some(d)) =>
+    ).verifying(
+      "error.date.required.month",
+      data =>
+        (data._1, data._2, data._3) match {
+          case (None, None, None) => true
+          case (_, None, _)       => false
+          case (_, _, _)          => true
+        }
+    ).verifying(
+      "error.date.required.day",
+      data =>
+        (data._1, data._2, data._3) match {
+          case (None, None, None) => true
+          case (_, _, None)       => false
+          case (_, _, _)          => true
+        }
+    ).verifying(
+      "error.invalid.date.format",
+      data =>
+        (data._1, data._2, data._3) match {
+          case (None, None, None) => true
+          case (None, _, _)       => true
+          case (_, None, _)       => true
+          case (_, _, None)       => true
+          case (yearOption, monthOption, dayOption) =>
             try {
-              Some(new LocalDate(y.trim.toInt, m.trim.toInt, d.trim.toInt))
+              val y = yearOption.getOrElse(throw new Exception("Year missing")).trim
+              if (y.length != 4) {
+                throw new Exception("Year must be 4 digits")
+              }
+              new LocalDate(
+                y.toInt,
+                monthOption.getOrElse(throw new Exception("Month missing")).trim.toInt,
+                dayOption.getOrElse(throw new Exception("Day missing")).trim.toInt
+              )
+              true
             } catch {
-              case e: Exception =>
+              case _: Throwable =>
                 if (validate) {
-                  throw e
+                  false
                 } else {
-                  None
+                  true
                 }
             }
-          case (a, b, c) => None
-        },
-        (date: Option[LocalDate]) =>
-          date match {
-            case Some(d) => (Some(d.getYear.toString), Some(d.getMonthOfYear.toString), Some(d.getDayOfMonth.toString))
-            case _       => (None, None, None)
         }
-      )
+    ).transform(
+      {
+        case (Some(y), Some(m), Some(d)) =>
+          try Some(new LocalDate(y.trim.toInt, m.trim.toInt, d.trim.toInt))
+          catch {
+            case e: Exception =>
+              if (validate) {
+                throw e
+              } else {
+                None
+              }
+          }
+        case (a, b, c) => None
+      },
+      (date: Option[LocalDate]) =>
+        date match {
+          case Some(d) => (Some(d.getYear.toString), Some(d.getMonthOfYear.toString), Some(d.getDayOfMonth.toString))
+          case _       => (None, None, None)
+        }
+    )
 }
 
 object DateFields {
