@@ -26,13 +26,21 @@ final case class AddressRowModel(
   mainAddress: Option[PersonalDetailsTableRowModel],
   postalAddress: Option[PersonalDetailsTableRowModel]
 ) {
-  def extraPostalAddressLink()(implicit messages: Messages): Option[ExtraLinks] =
+  def extraPostalAddressLink()(implicit messages: Messages): Option[ExtraLinks] = {
+    def showRemoveLink(address: PersonalDetailsTableRowModel) = {
+      val hasSameAddress = address.content.toString().contains(messages("label.same_as_main_address"))
+      val canRemoveAddress = address.linkUrl.isDefined
+
+      !hasSameAddress && canRemoveAddress
+    }
+
     postalAddress
-      .filter(!_.content.toString().contains(messages("label.same_as_main_address")))
+      .filter(showRemoveLink)
       .flatMap(_ =>
         mainAddress
           .map(_ => ExtraLinks("label.remove", closePostalAddressUrl))
       )
+  }
 }
 
 object AddressRowModel {
