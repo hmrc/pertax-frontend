@@ -49,7 +49,7 @@
         )
 
         @extraLinks.map { url =>
-            <a class="govuk-link" href="@url.linkUrl">
+            <a class="govuk-link yourProfileExtraLink" href="@url.linkUrl">
 
                 @messages(url.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
                 <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>

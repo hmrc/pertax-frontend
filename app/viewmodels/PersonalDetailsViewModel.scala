@@ -186,8 +186,8 @@ class PersonalDetailsViewModel @Inject() (
   ): Option[PersonalDetailsTableRowModel] =
     PersonalDetailsTableRowModel(
       "paperless",
-      "label.go_paperless",
-      HtmlFormat.raw(messages("label.go_paperless_content")),
+      "label.paperless_settings",
+      HtmlFormat.raw(""),
       "label.change",
       "label.your_paperless_settings",
       Some(controllers.routes.PaperlessPreferencesController.managePreferences.url)

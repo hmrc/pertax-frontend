@@ -465,6 +465,7 @@ label.messages=Negeseuon
 label.message=Neges
 
 label.your_paperless_settings=eich gosodiadau di-bapur
+label.paperless_settings=Gosodiadau di-bapur
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
 
 #
