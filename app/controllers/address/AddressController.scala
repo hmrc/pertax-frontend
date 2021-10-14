@@ -24,7 +24,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import models.PersonDetails
 import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.renderer.{ActiveTabYourAccount, TemplateRenderer}
+import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,7 +39,7 @@ abstract class AddressController @Inject() (
 
   def authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabYourAccount)
+      .addActiveTab(ActiveTabYourProfile)
 
   def addressJourneyEnforcer(
     block: Nino => PersonDetails => Future[Result]

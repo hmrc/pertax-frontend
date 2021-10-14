@@ -75,6 +75,7 @@ class ConfigDecorator @Inject() (
   lazy val nispFrontendHost = getExternalUrl(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
   lazy val dfsFrontendHost = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
+  lazy val fandfFrontendHost = getExternalUrl(s"fandf-frontend.host").getOrElse("")
 
   lazy val saFrontendHost = getExternalUrl(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost =
@@ -264,6 +265,8 @@ class ConfigDecorator @Inject() (
       .getOptional[String]("feature.national-insurance-tile.enabled")
       .getOrElse("false")
       .toBoolean
+
+  lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
 }
 
 trait TaxcalcUrls {
