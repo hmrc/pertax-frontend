@@ -47,7 +47,6 @@ class ConfigDecorator @Inject() (
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = servicesConfig.baseUrl("business-tax-account")
-  lazy val fandfFrontendService = servicesConfig.baseUrl("fandf-frontend")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
@@ -76,6 +75,7 @@ class ConfigDecorator @Inject() (
   lazy val nispFrontendHost = getExternalUrl(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
   lazy val dfsFrontendHost = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
+  lazy val fandfFrontendHost = getExternalUrl(s"fandf-frontend.host").getOrElse("")
 
   lazy val saFrontendHost = getExternalUrl(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost =
@@ -266,7 +266,7 @@ class ConfigDecorator @Inject() (
       .getOrElse("false")
       .toBoolean
 
-  lazy val manageTrustedHelpersUrl = s"$fandfFrontendService/trusted-helpers/select-a-service"
+  lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
 }
 
 trait TaxcalcUrls {
