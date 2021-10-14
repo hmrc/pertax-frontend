@@ -47,6 +47,7 @@ class ConfigDecorator @Inject() (
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = servicesConfig.baseUrl("business-tax-account")
+  lazy val fandfFrontendService = servicesConfig.baseUrl("fandf-frontend")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
@@ -111,7 +112,7 @@ class ConfigDecorator @Inject() (
     transformUrlForSso(toPortalUrl(s"/self-assessment/ind/$saUtr/taxreturn/$taxYear/options"))
   def viewSaPaymentsUrl(saUtr: String, lang: Lang): String =
     s"/self-assessment/ind/$saUtr/account/payments?lang=" + (if (lang.code equals "en") "eng"
-                                                                   else "cym")
+                                                             else "cym")
 
   def betaFeedbackUnauthenticatedUrl(aDeskproToken: String) =
     s"$contactHost/contact/beta-feedback-unauthenticated?service=$aDeskproToken"
@@ -264,6 +265,8 @@ class ConfigDecorator @Inject() (
       .getOptional[String]("feature.national-insurance-tile.enabled")
       .getOrElse("false")
       .toBoolean
+
+  lazy val manageTrustedHelpersUrl = s"$fandfFrontendService/trusted-helpers/select-a-service"
 }
 
 trait TaxcalcUrls {

@@ -77,8 +77,7 @@ object Address {
 
   private def limit(str: String, max: Int): String = {
     var s = str
-    while (s.length > max && s.indexOf(", ") > 0)
-      s = s.replaceFirst(", ", ",")
+    while (s.length > max && s.indexOf(", ") > 0) s = s.replaceFirst(", ", ",")
     if (s.length > max) {
       s = s.substring(0, max).trim
       if (Address.danglingLetter.matcher(s).matches()) {

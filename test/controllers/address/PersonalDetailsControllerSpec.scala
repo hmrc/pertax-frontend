@@ -18,18 +18,17 @@ package controllers.address
 
 import controllers.controllershelpers.PersonalDetailsCardGenerator
 import models.dto.AddressPageVisitedDto
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify, when}
-import play.api.http.Status.OK
+import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import services.NinoDisplayService
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.model.DataEvent
 import util.Fixtures
+import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
 
 import scala.concurrent.Future
@@ -49,6 +48,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     def controller =
       new PersonalDetailsController(
         injected[PersonalDetailsCardGenerator],
+        injected[PersonalDetailsViewModel],
         mockEditAddressLockRepository,
         ninoDisplayService,
         mockAuthJourney,
@@ -58,32 +58,42 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         cc,
         displayAddressInterstitialView,
         injected[PersonalDetailsView]
-      ) {}
+      )
+  }
 
-    "Calling AddressController.onPageLoad" must {
+  "Calling AddressController.redirectToYourProfile" must {
+    "redirect to the your-profile page" in new LocalSetup {
+      override def sessionCacheResponse: Option[CacheMap] = None
 
-      "call citizenDetailsService.fakePersonDetails and return 200" in new LocalSetup {
-        override def sessionCacheResponse: Option[CacheMap] =
-          Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      val result = controller.redirectToYourProfile()(FakeRequest())
 
-        val result = controller.onPageLoad()(FakeRequest())
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+    }
+  }
 
-        status(result) mustBe OK
-        verify(mockLocalSessionCache, times(1))
-          .cache(meq("addressPageVisitedDto"), meq(AddressPageVisitedDto(true)))(any(), any(), any())
-        verify(mockEditAddressLockRepository, times(1)).get(any())
-      }
+  "Calling AddressController.onPageLoad" must {
+    "call citizenDetailsService.fakePersonDetails and return 200" in new LocalSetup {
+      override def sessionCacheResponse: Option[CacheMap] =
+        Some(
+          CacheMap(
+            "id",
+            Map(
+              "addressPageVisitedDto" -> Json
+                .toJson(AddressPageVisitedDto(true))
+            )
+          )
+        )
 
-      "send an audit event when user arrives on personal details page" in new LocalSetup {
-        override def sessionCacheResponse: Option[CacheMap] =
-          Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+      val result = controller.onPageLoad()(FakeRequest())
 
-        val result = controller.onPageLoad()(FakeRequest())
-        val eventCaptor = ArgumentCaptor.forClass(classOf[DataEvent])
-
-        status(result) mustBe OK
-        verify(mockAuditConnector, times(1)).sendEvent(eventCaptor.capture())(any(), any())
-      }
+      status(result) mustBe OK
+      verify(mockLocalSessionCache, times(1))
+        .cache(
+          meq("addressPageVisitedDto"),
+          meq(AddressPageVisitedDto(true))
+        )(any(), any(), any())
+      verify(mockEditAddressLockRepository, times(1)).get(any())
     }
   }
 }
