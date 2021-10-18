@@ -17,23 +17,22 @@
 package models
 
 import play.api.libs.json._
-import reactivemongo.bson.BSONDateTime
-import reactivemongo.play.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress)
 
 sealed trait EditedAddress {
-  val expireAt: BSONDateTime
+  val expireAt: MongoJavatimeFormats
   def addressType: String
 }
 
-case class EditSoleAddress(expireAt: BSONDateTime) extends EditedAddress {
+case class EditSoleAddress(expireAt: MongoJavatimeFormats) extends EditedAddress {
   override def addressType: String = EditedAddress.editSoleAddress
 }
-case class EditPrimaryAddress(expireAt: BSONDateTime) extends EditedAddress {
+case class EditPrimaryAddress(expireAt: MongoJavatimeFormats) extends EditedAddress {
   override def addressType: String = EditedAddress.editPrimaryAddress
 }
-case class EditCorrespondenceAddress(expireAt: BSONDateTime) extends EditedAddress {
+case class EditCorrespondenceAddress(expireAt: MongoJavatimeFormats) extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
 }
 

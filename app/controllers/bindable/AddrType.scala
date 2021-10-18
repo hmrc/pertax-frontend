@@ -17,7 +17,8 @@
 package controllers.bindable
 
 import models.{EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, EditedAddress}
-import reactivemongo.bson.BSONDateTime
+
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 object AddrType {
   def apply(value: String): Option[AddrType] = value match {
@@ -27,7 +28,7 @@ object AddrType {
     case _         => None
   }
 
-  def toEditedAddress(addrType: AddrType, date: BSONDateTime): EditedAddress = addrType match {
+  def toEditedAddress(addrType: AddrType, date: MongoJavatimeFormats): EditedAddress = addrType match {
     case PostalAddrType  => EditCorrespondenceAddress(date)
     case SoleAddrType    => EditSoleAddress(date)
     case PrimaryAddrType => EditPrimaryAddress(date)
