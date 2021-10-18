@@ -19,14 +19,14 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
-import controllers.auth.{AuthJourney, WithBreadcrumbAction}
+import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.NinoDisplayService
 import uk.gov.hmrc.http.BadRequestException
-import uk.gov.hmrc.renderer.TemplateRenderer
+import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import views.html.print._
 
 import scala.concurrent.ExecutionContext
@@ -41,12 +41,14 @@ class NiLetterController @Inject() (
   errorRenderer: ErrorRenderer,
   printNiNumberView: PrintNationalInsuranceNumberView,
   pdfWrapperView: NiLetterPDfWrapperView,
-  niLetterView: NiLetterView
+  niLetterView: NiLetterView,
+  withActiveTabAction: WithActiveTabAction
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) {
 
   def printNationalInsuranceNumber: Action[AnyContent] =
-    (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
+    (authJourney.authWithPersonalDetails andThen withActiveTabAction
+      .addActiveTab(ActiveTabYourProfile) andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {
       implicit request =>
         if (request.personDetails.isDefined) {
           for {

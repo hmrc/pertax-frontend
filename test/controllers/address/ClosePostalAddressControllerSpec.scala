@@ -151,7 +151,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {

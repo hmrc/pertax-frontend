@@ -64,8 +64,7 @@
   "main": "index.js",
   "name": "pertax-frontend",
   "pre-commit": [
-    "precommit-msg",
-    "lint"
+    "precommit-msg"
   ],
   "repository": {
     "type": "git",

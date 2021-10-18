@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package viewModels
+package viewmodels
 
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
