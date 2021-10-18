@@ -17,6 +17,8 @@
 package models
 
 import play.api.libs.json._
+import reactivemongo.bson.BSONDateTime
+import reactivemongo.play.json._
 
 case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress)
 
