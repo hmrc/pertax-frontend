@@ -28,8 +28,8 @@
 configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @getYourAddressLabels = {
-@typ.ifIs(primary = messages("label.enter_your_address"),
-sole = messages("label.enter_your_address"),
+@typ.ifIs(
+residential = messages("label.enter_your_address"),
 postal = messages("label.enter_the_address"))
 }
 

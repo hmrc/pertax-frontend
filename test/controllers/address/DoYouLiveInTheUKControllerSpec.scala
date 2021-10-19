@@ -17,7 +17,7 @@
 package controllers.address
 
 import config.ConfigDecorator
-import controllers.bindable.SoleAddrType
+import controllers.bindable.ResidentialAddrType
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -28,12 +28,12 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.personaldetails.InternationalAddressChoiceView
 
-class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
+class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    def controller: InternationalAddressChoiceController =
-      new InternationalAddressChoiceController(
+    def controller: DoYouLiveInTheUKController =
+      new DoYouLiveInTheUKController(
         addressJourneyCachingHelper,
         mockAuthJourney,
         withActiveTabAction,
@@ -52,7 +52,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
-      val result = controller.onPageLoad(SoleAddrType)(currentRequest)
+      val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -61,7 +61,7 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = None
 
-      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
+      val result = controller.onPageLoad(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
@@ -78,10 +78,10 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(SoleAddrType)(FakeRequest())
+      val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/find-address")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/find-address")
     }
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
@@ -90,8 +90,8 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
 
-      override def controller: InternationalAddressChoiceController =
-        new InternationalAddressChoiceController(
+      override def controller: DoYouLiveInTheUKController =
+        new DoYouLiveInTheUKController(
           addressJourneyCachingHelper,
           mockAuthJourney,
           withActiveTabAction,
@@ -105,17 +105,17 @@ class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(SoleAddrType)(FakeRequest())
+      val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/cannot-use-the-service")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/cannot-use-the-service")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(SoleAddrType)(currentRequest)
+      val result = controller.onSubmit(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }

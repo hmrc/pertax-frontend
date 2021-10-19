@@ -27,12 +27,12 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.personaldetails.PostalInternationalAddressChoiceView
 
-class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
+class PostalDoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    def controller: PostalInternationalAddressChoiceController =
-      new PostalInternationalAddressChoiceController(
+    def controller: PostalDoYouLiveInTheUKController =
+      new PostalDoYouLiveInTheUKController(
         addressJourneyCachingHelper,
         mockAuthJourney,
         withActiveTabAction,
@@ -102,8 +102,8 @@ class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
 
-      override def controller: PostalInternationalAddressChoiceController =
-        new PostalInternationalAddressChoiceController(
+      override def controller: PostalDoYouLiveInTheUKController =
+        new PostalDoYouLiveInTheUKController(
           addressJourneyCachingHelper,
           mockAuthJourney,
           withActiveTabAction,
