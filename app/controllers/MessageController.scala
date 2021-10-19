@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
-import models.Breadcrumb
+import models.{ActivatedOnlineFilerSelfAssessmentUser, Breadcrumb, NonFilerSelfAssessmentUser}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
@@ -51,13 +51,20 @@ class MessageController @Inject() (
     ) andThen withBreadcrumbAction
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageListPartial map { p =>
+        val displayMessageBanner = request.saUserType match {
+          case ActivatedOnlineFilerSelfAssessmentUser(value) => false
+          case NonFilerSelfAssessmentUser                    => false
+          case _                                             => true
+        }
         Ok(
           messageInboxView(
             messageListPartial = p successfulContentOrElse Html(
               Messages("label.sorry_theres_been_a_technical_problem_retrieving_your_messages")
-            )
+            ),
+            displayMessageBanner
           )
         )
+
       }
     }
 
