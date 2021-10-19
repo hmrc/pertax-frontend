@@ -185,6 +185,12 @@ label.change_your_name=Change your name
 label.your_name=your name
 label.back=Back
 
+label.registered_for_self_assessment=Are you registered for Self Assessment
+label.may_not_see_message=You may not see any Self Assessment messages on this page because
+label.wrong_account=you are signed in to the wrong account
+label.not_yet_enrolled=have not yet enrolled for Self Assessment on this account
+label.check_sa_status_link=Check your Self Assessment status
+
 label.if_you_send_your_tax_return_online=If you send your tax return online
 label.if_you_send_your_tax_return_by_post=If you send your tax return by post
 label.you_cannot_access_your_self_assessment_=You cannot access your Self Assessment information from this account

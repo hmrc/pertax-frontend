@@ -149,6 +149,12 @@ label.you_cannot_view_your_self_assessment_information_here_=Ni allwch fwrw golw
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=cyflwyno’ch Ffurflen Dreth ar-lein
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth papur yw canol nos ar 31 Hydref.
 
+label.registered_for_self_assessment=???
+label.may_not_see_message=???
+label.wrong_account=???
+label.not_yet_enrolled=???
+label.check_sa_status_link=???
+
 label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol
 label.view_your_national_insurance_record=Bwrw golwg ar eich cofnod Yswiriant Gwladol
