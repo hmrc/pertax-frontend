@@ -213,39 +213,8 @@ class MainViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite {
         assertContainsLink(doc, "Check progress", "/track")
       }
 
-      "render the Your account dropdown link" in new LocalSetup {
-        assertContainsLink(doc, "Your account", "#subnav-your-account")
-      }
-
-      "render the Security settings subnav link if user is verify" in new LocalSetup {
-        override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(
-            credentials = Credentials("", UserDetails.VerifyAuthProvider)
-          )
-
-        assertContainsLink(doc, "Manage your trusted helpers", "/trusted-helpers/select-a-service")
-      }
-
-      "render the Paperless settings subnav link if user is GG" in new LocalSetup {
-        assertContainsLink(doc, "Manage your paperless settings", "/personal-account/preferences")
-      }
-
-      "render the Personal details subnav link if user is GG" in new LocalSetup {
-
-        assertContainsLink(doc, "Manage your personal details", "/personal-account/personal-details")
-      }
-
-      "render the Sign-in details subnav link" when {
-        "user is GG and SCP link is present" in new LocalSetup {
-          val profileUrl = "/profile"
-          override implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-            buildUserRequest(
-              request = FakeRequest(),
-              profile = Some(profileUrl)
-            )
-
-          assertContainsLink(doc, "Manage your Government Gateway details", profileUrl)
-        }
+      "render the Your Profile link" in new LocalSetup {
+        assertContainsLink(doc, "Your profile", "/personal-account/your-profile")
       }
 
       "render the BTA link" when {

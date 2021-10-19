@@ -97,6 +97,16 @@ label.find_your_postal_address=What is your postal address?
 label.change_your_main_address=Change your main address
 label.change_your_postal_address=Change your postal address
 label.postal_address=Postal address
+label.your.postal_address=your postal address
+label.trusted_helpers=Trusted Helpers
+label.your_trusted_helpers=your Trusted helpers
+label.manage_trusted_helpers=Manage your Trusted helpers
+label.go_paperless=Go paperless
+label.go_paperless_content=Replace the letters you get about taxes with emails
+label.sign_in_details=Sign-in details
+label.your_sign_in_details=Your sign-in details
+label.sign_in_details_content=Government Gateway user ID and password you use to sign-in
+label.your_gg_details=your Government Gateway details
 label.do_you_live_in_the_uk=Do you live in the UK?
 label.do_you_live_in_the_uk.change=do you live in the UK?
 label.is_your_postal_address_in_the_uk = Is your postal address in the UK?
@@ -107,6 +117,7 @@ label.if_you_do_live_in_the_uk_link_text=change your address
 label.if_you_do_not_live_in_the_uk_text_before_link=If you do not live in the UK,
 label.if_you_do_not_live_in_the_uk_link_text=fill in the ‘Notification of a change in personal details’ form to update your address
 label.all_your_letters_will_be_sent_to_this_address=All your letters will be sent to this address.
+label.same_as_main_address=Same as main address
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=You can only change this address once a day. Please try again tomorrow.
 label.select_your_address=Select your address
 label.your_address_has_already_been_updated=Your address has already been updated
@@ -171,6 +182,7 @@ label.webchat_service=Webchat service
 label.chat_online_with_one_of_our_advisers=Chat online with one of our advisers
 label.name=Name
 label.change_your_name=Change your name
+label.your_name=your name
 label.back=Back
 
 label.if_you_send_your_tax_return_online=If you send your tax return online
@@ -306,6 +318,7 @@ label.no_thanks=No thanks
 label.moved_from_scotland=You have moved from Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
 label.moved_to_scotland=You have moved to Scotland. We will tell you if your tax code changes by sending a PAYE Coding Notice by post.
 label.this.section.is=This section is
+label.remove=Remove
 
 #
 # Error messages
@@ -439,6 +452,7 @@ label.national_insurance=National Insurance
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.
 label.your_national_insurance_number_is_your_unique_identifier=Your National Insurance number is your unique identifier.
 label.view_your_national_insurance_letter=View your National Insurance letter
+label.view_national_insurance_letter=View National Insurance letter
 label.view_gaps_in_your_record=View gaps in your record
 label.check_your_state_pension=Check your State Pension
 label.your_tax_has_not_been_calculated=Your tax has not been calculated yet
@@ -483,6 +497,8 @@ label.message=Message
 label.your_profile=Your profile
 label.personal_details=Personal details
 label.update_your_address=Update your address
+label.your_paperless_settings=your paperless settings
+label.paperless_settings=Paperless settings
 label.manage_your_paperless_settings=Manage your paperless settings
 
 #

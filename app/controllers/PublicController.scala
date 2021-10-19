@@ -53,19 +53,19 @@ class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeo
     }
   }
 
-  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = Action.async { implicit request =>
+  def redirectToExitSurvey(origin: Origin): Action[AnyContent] = Action.async { _ =>
     Future.successful {
       Redirect(configDecorator.getFeedbackSurveyUrl(origin))
     }
   }
 
-  def redirectToTaxCreditsService(): Action[AnyContent] = Action.async { implicit request =>
+  def redirectToTaxCreditsService(): Action[AnyContent] = Action.async { _ =>
     Future.successful {
       Redirect(configDecorator.tcsServiceRouterUrl, MOVED_PERMANENTLY)
     }
   }
 
-  def redirectToPersonalDetails(): Action[AnyContent] = Action.async { implicit request =>
+  def redirectToYourProfile(): Action[AnyContent] = Action.async { _ =>
     Future.successful {
       Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad())
     }

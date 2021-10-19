@@ -38,11 +38,8 @@ class SaWrongCredentialsController @Inject() (
   doYouKnowUserIdView: DoYouKnowUserIdView,
   needToResetPasswordView: NeedToResetPasswordView,
   findYourUserIdView: FindYourUserIdView
-)(implicit
-  configDecorator: ConfigDecorator,
-  templateRenderer: TemplateRenderer,
-  ec: ExecutionContext
-) extends PertaxBaseController(cc) {
+)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
+    extends PertaxBaseController(cc) {
   private val authenticate: ActionBuilder[UserRequest, AnyContent] = authJourney.authWithSelfAssessment
 
   def ggSignInUrl: String = {

@@ -95,9 +95,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016")
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016")
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -112,9 +113,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016")
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016")
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -129,9 +131,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -160,9 +163,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
@@ -174,9 +178,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "32", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "32", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -189,9 +194,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "0", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "0", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
@@ -203,9 +209,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "13", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "13", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
@@ -217,9 +224,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "3", "startDate.month" -> "2", "startDate.year" -> "2016")
+          .asInstanceOf[Request[A]]
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -229,8 +237,7 @@ class StartDateControllerSpec extends AddressBaseSpec {
               personDetails = Some(
                 PersonDetails(emptyPerson, Some(addressFixture(startDate = Some(new LocalDate(2016, 11, 22)))), None)
               )
-            )
-              .asInstanceOf[UserRequest[A]]
+            ).asInstanceOf[UserRequest[A]]
           )
       })
 
@@ -244,9 +251,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -258,9 +266,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -272,9 +281,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -286,9 +296,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -300,9 +311,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -315,9 +327,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -330,9 +343,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 
@@ -345,9 +359,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
 
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "")
-        .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
-        .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
+          .asInstanceOf[Request[A]]
 
       val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
 

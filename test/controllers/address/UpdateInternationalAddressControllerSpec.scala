@@ -63,7 +63,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
@@ -105,7 +105,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
     }
 
     "redirect user to beginning of journey and return 303 for postal addressType and no pagevisitedDto in cache" in new LocalSetup {
@@ -116,7 +116,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
     }
 
     "display edit address page and return 200 for postal addressType with pagevisitedDto and addressRecord in cache" in new LocalSetup {
@@ -156,7 +156,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.onPageLoad(PostalAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/personal-details")
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 

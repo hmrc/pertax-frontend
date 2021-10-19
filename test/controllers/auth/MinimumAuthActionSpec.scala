@@ -108,8 +108,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(
         mockAuthConnector
           .authorise[AuthRetrievals](any(), any())(any(), any())
-      )
-        .thenReturn(retrievalResult)
+      ).thenReturn(retrievalResult)
 
       val authAction =
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
@@ -134,8 +133,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(
         mockAuthConnector
           .authorise[AuthRetrievals](any(), any())(any(), any())
-      )
-        .thenReturn(retrievalResult)
+      ).thenReturn(retrievalResult)
 
       val authAction =
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
@@ -163,8 +161,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(
         mockAuthConnector
           .authorise[AuthRetrievals](any(), any())(any(), any())
-      )
-        .thenReturn(retrievalResult)
+      ).thenReturn(retrievalResult)
 
       val authAction =
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
@@ -193,8 +190,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(
         mockAuthConnector
           .authorise[AuthRetrievals](any(), any())(any(), any())
-      )
-        .thenReturn(retrievalResult)
+      ).thenReturn(retrievalResult)
 
       val authAction = new MinimumAuthAction(
         mockAuthConnector,

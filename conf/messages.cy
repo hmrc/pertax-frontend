@@ -57,6 +57,16 @@ label.update_your_address=Diweddaru’ch cyfeiriad
 label.change_your_main_address=Newid eich prif gyfeiriad
 label.change_your_postal_address=Newid eich cyfeiriad post
 label.postal_address=Cyfeiriad post
+label.your.postal_address=eich cyfeiriad post
+label.trusted_helpers=Cynorthwywyr y Gellir Ymddiried Ynddynt
+label.your_trusted_helpers=eich cynorthwywyr y gellir ymddiried ynddynt
+label.manage_trusted_helpers=Rheoli’ch Cynorthwywyr y Gellir Ymddiried Ynddynt
+label.go_paperless=Ewch yn ddi-bapur
+label.go_paperless_content=Cael e-byst ynghylch trethi, yn lle llythyrau
+label.sign_in_details=Manylion mewngofnodi
+label.your_sign_in_details=Eich manylion mewngofnodi
+label.sign_in_details_content=Y Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer Porth y Llywodraeth rydych yn eu defnyddio i fewngofnodi
+label.your_gg_details=eich manylion Porth y Llywodraeth
 label.do_you_live_in_the_uk=A ydych yn byw yn y DU?
 label.do_you_live_in_the_uk.change=a ydych yn byw yn y DU?
 label.is_your_postal_address_in_the_uk = A yw’ch cyfeiriad post yn y DU?
@@ -67,6 +77,7 @@ label.if_you_do_live_in_the_uk_link_text=newid eich cyfeiriad
 label.if_you_do_not_live_in_the_uk_text_before_link=Os nad ydych y byw yn y DU,
 label.if_you_do_not_live_in_the_uk_link_text=llenwch y ffurflen ‘Notification of a change in personal details’ i ddiweddaru’ch cyfeiriad
 label.all_your_letters_will_be_sent_to_this_address=Bydd eich llythyrau’n cael eu hanfon i’r cyfeiriad hwn.
+label.same_as_main_address=Yr un peth â’r prif gyfeiriad
 label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow=Dim ond unwaith y diwrnod y gallwch newid y cyfeiriad hwn. Rhowch gynnig arall arni yfory.
 label.select_your_address=Dewis eich cyfeiriad
 label.your_address_has_already_been_updated=Mae’ch cyfeiriad wedi’i ddiweddaru eisoes
@@ -119,6 +130,7 @@ label.your_address_cannot_be_updated=Ni ellir diweddaru’ch cyfeiriad
 label.www_gov_uk_hmrc=www.gov.uk/cymraeg
 label.name=Enw
 label.change_your_name=Newid eich enw
+label.your_name=eich enw
 label.back=Yn ôl
 label.if_you_send_your_tax_return_online=Os ydych yn cyflwyno’ch Ffurflen Dreth ar-lein
 label.if_you_send_your_tax_return_by_post=Os ydych yn cyflwyno’ch Ffurflen Dreth drwy’r post
@@ -272,6 +284,7 @@ label.hide_message=Cuddio’r neges
 label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.this.section.is=Dyma’r adran ynghylch
+label.remove=Dileu
 
 #
 # Error messages
@@ -403,7 +416,7 @@ label.tax_year_heading=6 Ebrill {0} i 5 Ebrill {1}
 label.self_assessment=Hunanasesiad
 label.complete_your_tax_return=Llenwi’ch Ffurflen Dreth
 label.make_a_payment=Gwneud taliad
-label.view_your_payments=View your payments
+label.view_your_payments=Bwrw golwg dros eich taliadau
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
 label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
@@ -414,6 +427,7 @@ label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_
 label.your_national_insurance_number_is_your_unique_identifier=Eich rhif Yswiriant Gwladol yw’ch dynodydd unigryw.
 
 label.view_your_national_insurance_letter=Bwrw golwg ar eich llythyr Yswiriant Gwladol
+label.view_national_insurance_letter=Bwrw golwg dros y llythyr Yswiriant Gwladol
 label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
@@ -450,6 +464,8 @@ label.your_account=Eich Cyfrif
 label.messages=Negeseuon
 label.message=Neges
 
+label.your_paperless_settings=eich gosodiadau di-bapur
+label.paperless_settings=Gosodiadau di-bapur
 label.manage_your_paperless_settings=Rheoli’ch gosodiadau di-bapur
 
 #
