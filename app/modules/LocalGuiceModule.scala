@@ -19,20 +19,12 @@ package modules
 import com.google.inject.AbstractModule
 import config.LocalTemplateRenderer
 import services.LocalSessionCache
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.audit.DefaultAuditConnector
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.http.{DefaultHttpClient, HttpClient}
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 class LocalGuiceModule extends AbstractModule {
   override def configure() = {
     bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
-    bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
-    bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])
-    bind(classOf[AuditConnector]).to(classOf[DefaultAuditConnector])
     bind(classOf[SessionCache]).to(classOf[LocalSessionCache])
   }
 }

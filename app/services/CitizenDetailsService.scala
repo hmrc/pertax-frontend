@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
 import services.http.SimpleHttp
@@ -45,9 +45,7 @@ case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetail
 
 @Singleton
 class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
-    extends HasMetrics {
-
-  private val logger = Logger(this.getClass)
+    extends HasMetrics with Logging {
 
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 

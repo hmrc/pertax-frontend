@@ -19,7 +19,7 @@ package services
 import com.google.inject.Inject
 import connectors.EnrolmentsConnector
 import models.{NonFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SelfAssessmentUserType, WrongCredentialsSelfAssessmentUser}
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -28,9 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EnrolmentStoreCachingService @Inject() (
   val sessionCache: LocalSessionCache,
   enrolmentsConnector: EnrolmentsConnector
-) {
-
-  private val logger = Logger(this.getClass)
+) extends Logging {
 
   private def addSaUserTypeToCache(
     user: SelfAssessmentUserType

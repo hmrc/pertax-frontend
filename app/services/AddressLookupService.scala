@@ -21,7 +21,7 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics._
 import models.addresslookup.{AddressLookup, RecordSet}
-import play.api.Logger
+import play.api.Logging
 import services.http.SimpleHttp
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -42,9 +42,7 @@ class AddressLookupService @Inject() (
   val metrics: Metrics,
   val tools: Tools,
   servicesConfig: ServicesConfig
-) extends HasMetrics {
-
-  private val logger = Logger(this.getClass)
+) extends HasMetrics with Logging {
 
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
