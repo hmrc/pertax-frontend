@@ -52,9 +52,9 @@ class MessageController @Inject() (
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageListPartial map { p =>
         val displayMessageBanner = request.saUserType match {
-          case ActivatedOnlineFilerSelfAssessmentUser(value) => false
-          case NonFilerSelfAssessmentUser                    => false
-          case _                                             => true
+          case ActivatedOnlineFilerSelfAssessmentUser(_) => false
+          case NonFilerSelfAssessmentUser                => false
+          case _                                         => true
         }
         Ok(
           messageInboxView(

@@ -16,9 +16,9 @@
 
 package controllers
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
+import models._
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -28,8 +28,8 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.CitizenDetailsService
 import services.partials.MessageFrontendService
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.message.{MessageDetailView, MessageInboxView}
@@ -63,6 +63,8 @@ class MessageControllerSpec extends BaseSpec {
       }
     }
 
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+
   "Calling MessageController.messageList" must {
     "call messages and return 200 when called by a high GG user" in {
 
@@ -85,6 +87,65 @@ class MessageControllerSpec extends BaseSpec {
       status(r) mustBe OK
       verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
       body must include("Message List")
+    }
+
+    List(
+      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
+      WrongCredentialsSelfAssessmentUser(saUtr),
+      NotEnrolledSelfAssessmentUser(saUtr)
+    ).foreach { saUserType =>
+      s"display SA message banner when called by $saUserType SA user" in {
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = request,
+                saUser = saUserType
+              )
+            )
+        })
+
+        when(mockMessageFrontendService.getMessageListPartial(any())) thenReturn {
+          Future(HtmlPartial.Success(Some("Success"), Html("<title>Message List</title>")))
+        }
+
+        val r = controller.messageList(FakeRequest())
+        val body = contentAsString(r)
+
+        status(r) mustBe OK
+        verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
+        body must include("Are you registered for Self Assessment")
+      }
+    }
+
+    List(
+      ActivatedOnlineFilerSelfAssessmentUser(saUtr),
+      NonFilerSelfAssessmentUser
+    ).foreach { saUserType =>
+      s"not display SA message banner when called by $saUserType SA user" in {
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(
+                request = request,
+                saUser = saUserType
+              )
+            )
+        })
+
+        when(mockMessageFrontendService.getMessageListPartial(any())) thenReturn {
+          Future(HtmlPartial.Success(Some("Success"), Html("<title>Message List</title>")))
+        }
+
+        val r = controller.messageList(FakeRequest())
+        val body = contentAsString(r)
+
+        status(r) mustBe OK
+        verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
+        body mustNot include("Are you registered for Self Assessment")
+      }
     }
   }
 
