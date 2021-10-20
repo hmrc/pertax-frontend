@@ -27,7 +27,7 @@ import error.{ErrorRenderer, GenericErrors}
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
 import org.joda.time.LocalDate
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services.{AddressMovedService, CitizenDetailsService}
@@ -55,9 +55,7 @@ class AddressSubmissionController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   genericErrors: GenericErrors
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
-
-  private val logger = Logger(this.getClass)
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>

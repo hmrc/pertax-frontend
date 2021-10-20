@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.play.views.html.helpers._
 @import controllers.auth.requests.UserRequest
 
+@this(form: FormWithCSRF)
 @(call: Call, title: String, SAForm: Form[dto.SAWrongCredentialsDto])(implicit request: UserRequest[_], messages: play.api.i18n.Messages)
 
 <div class="grid-row">

@@ -23,7 +23,7 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import controllers.controllershelpers.PaperlessInterruptHelper
 import error.ErrorRenderer
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
@@ -51,13 +51,11 @@ class InterstitialController @Inject() (
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper {
+    extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
   val saBreadcrumb: Breadcrumb =
     "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::
       baseBreadcrumb
-
-  private val logger = Logger(this.getClass)
 
   private def currentUrl(implicit request: Request[AnyContent]) =
     configDecorator.pertaxFrontendHost + request.path

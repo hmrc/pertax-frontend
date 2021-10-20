@@ -22,7 +22,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import metrics.HasMetrics
 import models.{ActivatePaperlessActivatedResponse, ActivatePaperlessNotAllowedResponse, ActivatePaperlessRequiresUserActionResponse, ActivatePaperlessResponse}
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -41,9 +41,7 @@ class PreferencesFrontendService @Inject() (
   val tools: Tools,
   servicesConfig: ServicesConfig
 )(implicit ec: ExecutionContext)
-    extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport {
-
-  private val logger = Logger(this.getClass)
+    extends HeaderCarrierForPartialsConverter with HasMetrics with I18nSupport with Logging {
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 

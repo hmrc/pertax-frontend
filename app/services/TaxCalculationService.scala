@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics._
 import models.{TaxCalculation, TaxYearReconciliation}
-import play.api.Logger
+import play.api.Logging
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -42,9 +42,7 @@ class TaxCalculationService @Inject() (
   val http: HttpClient,
   servicesConfig: ServicesConfig
 )(implicit ec: ExecutionContext)
-    extends HasMetrics {
-
-  private val logger = Logger(this.getClass)
+    extends HasMetrics with Logging {
 
   lazy val taxCalcUrl = servicesConfig.baseUrl("taxcalc")
 

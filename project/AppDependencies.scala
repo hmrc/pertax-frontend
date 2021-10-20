@@ -4,19 +4,21 @@ import sbt._
 
 object AppDependencies {
 
+  private val playVersion = "play-28"
+
   val compile = Seq(
     ws,
-    "uk.gov.hmrc"         %% "bootstrap-frontend-play-27"        % "5.1.0",
-    "uk.gov.hmrc"         %% "play-partials"            % "8.1.0-play-27",
-    "uk.gov.hmrc"         %% "url-builder"              % "3.5.0-play-27",
-    "uk.gov.hmrc"         %% "http-caching-client"      % "9.4.0-play-27",
-    "uk.gov.hmrc"         %% "play-language"            % "4.13.0-play-27",
-    "uk.gov.hmrc"         %% "local-template-renderer"  % "2.16.0-play-27",
-    "uk.gov.hmrc"         %% "play-ui"                  % "9.0.0-play-27",
+    "uk.gov.hmrc"         %% s"bootstrap-frontend-$playVersion"        % "5.16.0",
+    "uk.gov.hmrc"         %% "play-partials"            % s"8.1.0-$playVersion",
+    "uk.gov.hmrc"         %% "url-builder"              % s"3.5.0-$playVersion",
+    "uk.gov.hmrc"         %% "http-caching-client"      % s"9.5.0-$playVersion",
+    "uk.gov.hmrc"         %% "play-language"            % s"4.13.0-$playVersion",
+    "uk.gov.hmrc"         %% "local-template-renderer"  % s"2.16.0-$playVersion",
+    "uk.gov.hmrc"         %% "play-ui"                  % s"9.7.0-$playVersion",
     "uk.gov.hmrc"         %% "tax-year"                 % "1.1.0",
     "uk.gov.hmrc"         %% "time"                     % "3.19.0",
-    "uk.gov.hmrc"         %% "domain"                   % "5.11.0-play-27",
-    "org.reactivemongo"   %% "play2-reactivemongo"      % "0.18.6-play27",
+    "uk.gov.hmrc"         %% "domain"                   % s"6.1.0-$playVersion",
+    "org.reactivemongo"   %% "play2-reactivemongo"      % "0.19.4-play28",
     "io.lemonlabs"        %% "scala-uri"                % "2.2.3",
     "com.typesafe.play"   %% "play-json-joda"           % "2.6.10"
   )
