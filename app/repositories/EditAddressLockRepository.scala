@@ -23,6 +23,7 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
 import models.{AddressJourneyTTLModel, EditedAddress}
+import org.bson.BsonValue
 import org.mongodb.scala.{DuplicateKeyException, MongoException}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
@@ -30,7 +31,8 @@ import org.mongodb.scala.result.InsertOneResult
 import play.api.Logger
 import uk.gov.hmrc.mongo.MongoComponent
 import repositories.EditAddressLockRepository.EXPIRE_AT
-import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
@@ -75,7 +77,7 @@ class EditAddressLockRepository @Inject() (
     }
   }
 
-  private def get(nino: String): Future[Option[AddressJourneyTTLModel]] = {
+  def get(nino: String): Future[Option[AddressJourneyTTLModel]] = {
     val addressJourneyTTLModelMap = collection
       .find(getCore(nino))
       .headOption
@@ -92,7 +94,7 @@ class EditAddressLockRepository @Inject() (
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
     for {
-      result <- this.collection.drop() flatMap (_.drop(failIfNotFound = false))
+      result <- collection.drop().toFuture()
       _      <- setIndex()
     } yield result
 
@@ -105,9 +107,9 @@ class EditAddressLockRepository @Inject() (
     for {
       list <- collection.listIndexes()
       count <- IndexOptions()
-        .name("ttlIndex") match {
+                 .name("ttlIndex") match {
                  case Some(name) if list.exists(_.name contains name) =>
-                   collection.drop(name))
+                   collection.drop()
                  case _ =>
                    Future.successful(0)
                }
@@ -140,11 +142,6 @@ class EditAddressLockRepository @Inject() (
 //      .toFuture
 //      .map(_ => true)
 
-
-
-
-
-
 //  private[repositories] def isTtlSet: Future[Boolean] =
 //    for {
 //      list <- this.collection.flatMap(_.indexesManager.list())
@@ -161,8 +158,11 @@ object EditAddressLockRepository {
   val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
   val BST_OFFSET: ZoneOffset = ZoneOffset.ofHours(1)
 
-  def toBSONDateTime(dateTime: OffsetDateTime): BSONDateTime =
-    BSONDateTime(dateTime.toInstant.toEpochMilli)
+  def toBSONDateTime(dateTime: OffsetDateTime): BsonValue =
+    Codecs.toBson(dateTime.toInstant.toEpochMilli)
+
+  // Be especially careful with preserving the date format, since if the json format for mongo is not in scope,
+  // it will silently use the date formats as provided by play-json, breaking existing data.
 
   private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
