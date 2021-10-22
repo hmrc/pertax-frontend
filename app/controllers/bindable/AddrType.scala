@@ -18,7 +18,7 @@ package controllers.bindable
 
 import models.{EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, EditedAddress}
 
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+import java.time.Instant
 
 object AddrType {
   def apply(value: String): Option[AddrType] = value match {
@@ -28,7 +28,7 @@ object AddrType {
     case _         => None
   }
 
-  def toEditedAddress(addrType: AddrType, date: MongoJavatimeFormats): EditedAddress = addrType match {
+  def toEditedAddress(addrType: AddrType, date: Instant): EditedAddress = addrType match {
     case PostalAddrType  => EditCorrespondenceAddress(date)
     case SoleAddrType    => EditSoleAddress(date)
     case PrimaryAddrType => EditPrimaryAddress(date)

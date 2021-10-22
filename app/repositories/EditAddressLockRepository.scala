@@ -17,7 +17,7 @@
 package repositories
 
 import java.time.zone.ZoneRules
-import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
+import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
@@ -41,7 +41,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EditAddressLockRepository @Inject() (
   configDecorator: ConfigDecorator,
   mongoComponent: MongoComponent
-)(implicit val ec: ExecutionContext)
+)(implicit ec: ExecutionContext)
     extends PlayMongoRepository[AddressJourneyTTLModel](
       collectionName = "EditAddressLock",
       mongoComponent = mongoComponent,
@@ -62,8 +62,10 @@ class EditAddressLockRepository @Inject() (
 
   def insert(nino: String, addressType: AddrType): Future[Boolean] = {
 
+    val nextMidnight = getNextMidnight(Instant.now().atOffset(ZoneOffset.UTC)).toInstant
+
     val record: EditedAddress =
-      AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
+      AddrType.toEditedAddress(addressType, nextMidnight)
 
     insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()) recover {
       case e: MongoException =>
@@ -77,14 +79,11 @@ class EditAddressLockRepository @Inject() (
     }
   }
 
-  def get(nino: String): Future[Option[AddressJourneyTTLModel]] = {
-    val addressJourneyTTLModelMap = collection
+  def get(nino: String): Future[List[AddressJourneyTTLModel]] =
+    collection
       .find(getCore(nino))
-      .headOption
-    for {
-      x <- addressJourneyTTLModelMap
-    } yield x.map(y => AddressJourneyTTLModel(nino, y.editedAddress))
-  }
+      .toFuture()
+      .map(_.toList)
 
   private def getCore(nino: String): Bson =
     Filters.equal("nino", nino)
@@ -92,62 +91,8 @@ class EditAddressLockRepository @Inject() (
   private def insertCore(record: AddressJourneyTTLModel): Future[InsertOneResult] =
     collection.insertOne(record).toFuture()
 
-  private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
-    for {
-      result <- collection.drop().toFuture()
-      _      <- setIndex()
-    } yield result
-
-  private val ttl = configDecorator.editAddressTtl
-
-  private[repositories] lazy val editAddressIndex =
-    Index(Seq(("nino", IndexType.Ascending), ("editedAddress.addressType", IndexType.Ascending)), unique = true)
-
-  private[repositories] def removeIndex(): Future[Int] =
-    for {
-      list <- collection.listIndexes()
-      count <- IndexOptions()
-                 .name("ttlIndex") match {
-                 case Some(name) if list.exists(_.name contains name) =>
-                   collection.drop()
-                 case _ =>
-                   Future.successful(0)
-               }
-    } yield count
-
-//  def set(cm: CacheMap): Future[Boolean] =
-//    collection
-//      .replaceOne(
-//        filter = byId(cm.id),
-//        replacement = DatedCacheMap(cm.id, cm.data, Instant.now(clock)),
-//        options = ReplaceOptions().upsert(true)
-//      )
-//      .toFuture
-//      .map(result => result.wasAcknowledged())
-
-  private[repositories] def setIndex(): Future[Boolean] =
-    for {
-      _          <- removeIndex()
-      ttlResult  <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
-      editResult <- collection.flatMap(_.indexesManager.ensure(editAddressIndex))
-    } yield ttlResult && editResult
-
-//  def set(cm: CacheMap): Future[Boolean] =
-//    collection
-//      .replaceOne(
-//        filter = byId(cm.id),
-//        replacement = DatedCacheMap(cm),
-//        options = ReplaceOptions().upsert(true)
-//      )
-//      .toFuture
-//      .map(_ => true)
-
-//  private[repositories] def isTtlSet: Future[Boolean] =
-//    for {
-//      list <- this.collection.flatMap(_.indexesManager.list())
-//    } yield list.exists(_.name == ttlIndex.name)
-
-  val started: Future[Unit] = setIndex().map(_ => ())
+  private[repositories] def drop(implicit ec: ExecutionContext): Future[Unit] =
+    collection.drop().toFuture().map(_ => ())
 
 }
 

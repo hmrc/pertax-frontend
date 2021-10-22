@@ -71,16 +71,6 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
   "editAddressLockRepository" when {
 
-    "setIndex is called" should {
-      "ensure the index is set" in {
-        await(mongo.removeIndex())
-        await(mongo.isTtlSet) shouldBe false
-
-        await(mongo.setIndex())
-        await(mongo.isTtlSet) shouldBe true
-      }
-    }
-
     "get is called" should {
       "return an empty list" when {
         "there isn't an existing record" in {
