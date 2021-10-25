@@ -17,8 +17,6 @@
 package models
 
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats.Implicits._
-
 import java.time.Instant
 
 case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress)

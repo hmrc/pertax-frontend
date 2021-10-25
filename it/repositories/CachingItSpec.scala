@@ -28,10 +28,10 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
-import reactivemongo.bson.{BSONDateTime, BSONDocument}
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.mongo.play.json.Codecs
 
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -142,7 +142,8 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
         "there isn't an existing record" in {
           import EditAddressLockRepository._
           val offsetTime = getNextMidnight(OffsetDateTime.now())
-          val midnight = toBSONDateTime(offsetTime)
+
+          val midnight = Codecs.toBson(offsetTime.toInstant.toEpochMilli)
 
           val nino = testNino.withoutSuffix
 
