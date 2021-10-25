@@ -17,7 +17,6 @@
 package models
 
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats.Implicits._
 
 import java.time.Instant
@@ -57,7 +56,6 @@ object EditedAddress {
 
   implicit val reads = new Reads[EditedAddress] {
     override def reads(json: JsValue): JsResult[EditedAddress] =
-//      implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
       for {
         addressType <- (json \ addressType).validate[String]
         expireAt    <- (json \ expireAt).validate[Instant]
