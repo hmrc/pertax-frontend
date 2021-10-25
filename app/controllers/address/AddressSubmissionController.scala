@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
+import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.{ErrorRenderer, GenericErrors}
@@ -186,7 +186,7 @@ class AddressSubmissionController @Inject() (
   private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
     block: => Future[Result]
   ): Future[Result] =
-    if (journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType)) {
+    if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType) {
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
     } else {
       block

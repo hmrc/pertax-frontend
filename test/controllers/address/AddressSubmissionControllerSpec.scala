@@ -17,7 +17,7 @@
 package controllers.address
 
 import controllers.auth.WithActiveTabAction
-import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
+import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.GenericErrors
 import models.ETag
@@ -67,24 +67,6 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
   "onPageLoad" must {
 
-    "return 200 if both SubmittedAddressDto and SubmittedStartDateDto are present in keystore for non-postal" in new LocalSetup {
-      override def sessionCacheResponse =
-        Some(
-          CacheMap(
-            "id",
-            Map(
-              "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-            )
-          )
-        )
-
-      val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
-
-      status(result) mustBe OK
-      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-    }
-
     "return 200 if only SubmittedAddressDto is present in keystore for postal" in new LocalSetup {
       override def sessionCacheResponse =
         Some(
@@ -108,12 +90,12 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+              "residentialSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
             )
           )
         )
 
-      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
+      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
@@ -134,110 +116,39 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
-
-    "display no message relating to the date the address started when the primary address has not changed" in new LocalSetup {
+    "display the appropriate label for address when the residential address has changed" in new LocalSetup {
       override def sessionCacheResponse =
         Some(
           CacheMap(
             "id",
             Map(
-              "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-            )
-          )
-        )
-
-      val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
-
-      contentAsString(result) mustNot include(controller.messagesApi("label.when_this_became_your_main_home"))
-    }
-
-    "display no message relating to the date the address started when the primary address has not changed when the postcode is in lower case" in new LocalSetup {
-      override def sessionCacheResponse =
-        Some(
-          CacheMap(
-            "id",
-            Map(
-              "primarySubmittedAddressDto" -> Json.toJson(
-                asAddressDto(fakeStreetTupleListAddressForUnmodifiedLowerCase)
+              "residentialSubmittedAddressDto" -> Json.toJson(
+                asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)
               ),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
           )
         )
 
-      val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
-
-      contentAsString(result) mustNot include(Messages("label.when_this_became_your_main_home"))
-    }
-
-    "display no message relating to the date the address started when the primary address has not changed when the postcode entered has no space" in new LocalSetup {
-      override def sessionCacheResponse =
-        Some(
-          CacheMap(
-            "id",
-            Map(
-              "primarySubmittedAddressDto" -> Json.toJson(
-                asAddressDto(fakeStreetTupleListAddressForUnmodifiedNoSpaceInPostcode)
-              ),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-            )
-          )
-        )
-
-      val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
-
-      contentAsString(result) mustNot include(Messages("label.when_this_became_your_main_home"))
-    }
-
-    "display a message relating to the date the address started when the primary address has changed" in new LocalSetup {
-      override def sessionCacheResponse =
-        Some(
-          CacheMap(
-            "id",
-            Map(
-              "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-            )
-          )
-        )
-
-      val result = controller.onPageLoad(PrimaryAddrType)(FakeRequest())
-
-      contentAsString(result) must include(Messages("label.when_this_became_your_main_home"))
-    }
-
-    "display the appropriate label for address when the sole address has changed" in new LocalSetup {
-      override def sessionCacheResponse =
-        Some(
-          CacheMap(
-            "id",
-            Map(
-              "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModifiedPostcode)),
-              "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
-            )
-          )
-        )
-
-      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
+      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       contentAsString(result) must include(Messages("label.your_new_address"))
       contentAsString(result) must include(Messages("label.when_you_started_living_here"))
     }
 
-    "display the appropriate label for address when the sole address has not changed" in new LocalSetup {
+    "display the appropriate label for address when the residential address has not changed" in new LocalSetup {
       override def sessionCacheResponse =
         Some(
           CacheMap(
             "id",
             Map(
-              "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "soleSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+              "residentialSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
           )
         )
 
-      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
+      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
 
       contentAsString(result) must include(Messages("label.your_address"))
       contentAsString(result) mustNot include(Messages("label.when_you_started_living_here"))
@@ -280,37 +191,37 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       dataEvent.generatedAt
     )
 
-    "redirect to start of journey if primarySubmittedStartDateDto is missing from the cache, and the journey type is PrimaryAddrType" in new LocalSetup {
+    "redirect to start of journey if ResidentialSubmittedStartDateDto is missing from the cache, and the journey type is ResidentialAddrType" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+              "residentialSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
             )
           )
         )
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
+      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(SoleAddrType))
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(ResidentialAddrType))
 
     }
 
-    "redirect to start of journey if soleSubmittedStartDateDto is missing from the cache, and the journey type is SoleAddrType" in new LocalSetup {
+    "redirect to start of journey if residentialSubmittedStartDateDto is missing from the cache, and the journey type is residentialAddrType" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
+              "residentialSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified))
             )
           )
         )
@@ -319,7 +230,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(SoleAddrType)(FakeRequest())
+      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
@@ -352,13 +263,13 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), meq(fakeAddress))(any())
     }
 
-    "redirect to start of journey if primarySubmittedAddressDto is missing from the cache" in new LocalSetup {
+    "redirect to start of journey if residentialSubmittedAddressDto is missing from the cache" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
           )
         )
@@ -367,7 +278,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
+      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
@@ -382,16 +293,16 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "primarySelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-              "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+              "residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
+              "residentialSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
           )
         )
 
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
+      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -444,8 +355,10 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForManualyEntered)),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+              "residentialSubmittedAddressDto" -> Json.toJson(
+                asAddressDto(fakeStreetTupleListAddressForManualyEntered)
+              ),
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
           )
         )
@@ -454,7 +367,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
+      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])
@@ -472,9 +385,9 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "primarySelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-              "primarySubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
-              "primarySubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
+              "residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
+              "residentialSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForModified)),
+              "residentialSubmittedStartDateDto" -> Json.toJson(DateDto.build(15, 3, 2015))
             )
           )
         )
@@ -483,7 +396,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "/test")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(PrimaryAddrType)(FakeRequest())
+      val result = controller.onSubmit(ResidentialAddrType)(FakeRequest())
 
       status(result) mustBe OK
       val arg = ArgumentCaptor.forClass(classOf[DataEvent])

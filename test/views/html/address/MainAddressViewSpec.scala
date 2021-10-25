@@ -41,7 +41,7 @@ class MainAddressViewSpec extends ViewSpec {
     assertContainsLink(
       result,
       messages("label.change_where_we_send_your_letters"),
-      routes.PostalInternationalAddressChoiceController.onPageLoad().url
+      routes.PostalDoYouLiveInTheUKController.onPageLoad().url
     )
   }
 
