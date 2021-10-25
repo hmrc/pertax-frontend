@@ -26,7 +26,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import reactivemongo.bson.BSONDateTime
 import services._
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -35,6 +34,8 @@ import util.Fixtures
 import util.Fixtures.{buildFakeAddress, buildPersonDetailsCorrespondenceAddress}
 import util.UserRequestFixture.buildUserRequest
 import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, ConfirmCloseCorrespondenceAddressView, UpdateAddressConfirmationView}
+
+import java.time.Instant
 
 class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
@@ -232,7 +233,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
 
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
-        List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(BSONDateTime(0))))
+        List(AddressJourneyTTLModel("SomeNino", EditCorrespondenceAddress(Instant.now())))
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
@@ -246,7 +247,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the primary address" in new LocalSetup {
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
-        List(AddressJourneyTTLModel("SomeNino", EditPrimaryAddress(BSONDateTime(0))))
+        List(AddressJourneyTTLModel("SomeNino", EditPrimaryAddress(Instant.now())))
 
       val result = controller.confirmSubmit(FakeRequest())
 
@@ -266,7 +267,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the sole address" in new LocalSetup {
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
-        List(AddressJourneyTTLModel("SomeNino", EditSoleAddress(BSONDateTime(0))))
+        List(AddressJourneyTTLModel("SomeNino", EditSoleAddress(Instant.now())))
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe OK

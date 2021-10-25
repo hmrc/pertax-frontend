@@ -32,7 +32,6 @@ import play.api.Logger
 import uk.gov.hmrc.mongo.MongoComponent
 import repositories.EditAddressLockRepository.EXPIRE_AT
 import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
