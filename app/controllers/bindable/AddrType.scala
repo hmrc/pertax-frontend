@@ -22,35 +22,28 @@ import java.time.Instant
 
 object AddrType {
   def apply(value: String): Option[AddrType] = value match {
-    case "sole"    => Some(SoleAddrType)
-    case "primary" => Some(PrimaryAddrType)
-    case "postal"  => Some(PostalAddrType)
-    case _         => None
+    case "residential" => Some(ResidentialAddrType)
+    case "postal"      => Some(PostalAddrType)
+    case _             => None
   }
 
   def toEditedAddress(addrType: AddrType, date: Instant): EditedAddress = addrType match {
-    case PostalAddrType  => EditCorrespondenceAddress(date)
-    case SoleAddrType    => EditSoleAddress(date)
-    case PrimaryAddrType => EditPrimaryAddress(date)
+    case PostalAddrType      => EditCorrespondenceAddress(date)
+    case ResidentialAddrType => EditSoleAddress(date)
   }
 }
 sealed trait AddrType {
-  override def toString = ifIs("primary", "sole", "postal")
+  override def toString = ifIs("residential", "postal")
 
-  def ifIsPrimary[T](value: T): Option[T] = ifIs(Some(value), None, None)
+  def ifIsSole[T](value: T): Option[T] = ifIs(Some(value), None)
 
-  def ifIsSole[T](value: T): Option[T] = ifIs(None, Some(value), None)
+  def ifIsPostal[T](value: T): Option[T] = ifIs(None, Some(value))
 
-  def ifIsPostal[T](value: T): Option[T] = ifIs(None, None, Some(value))
-
-  def ifIs[T](primary: => T, sole: => T, postal: => T): T = this match {
-    case PrimaryAddrType => primary
-    case SoleAddrType    => sole
-    case PostalAddrType  => postal
+  def ifIs[T](residential: => T, postal: => T): T = this match {
+    case ResidentialAddrType => residential
+    case PostalAddrType      => postal
   }
 
 }
 case object PostalAddrType extends AddrType
-sealed trait ResidentialAddrType extends AddrType
-case object SoleAddrType extends ResidentialAddrType
-case object PrimaryAddrType extends ResidentialAddrType
+case object ResidentialAddrType extends AddrType

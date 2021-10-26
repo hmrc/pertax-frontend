@@ -72,7 +72,7 @@ class UpdateInternationalAddressController @Inject() (
               auditConnector.sendEvent(
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = true)
               )
-              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { _ =>
+              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(
                   Ok(
                     updateInternationalAddressView(AddressDto.internationalForm, typ, countryHelper.countries)

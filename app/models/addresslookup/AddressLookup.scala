@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package modules
+package models.addresslookup
 
-import com.google.inject.AbstractModule
-import config.LocalTemplateRenderer
-import services.LocalSessionCache
-import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.renderer.TemplateRenderer
+import play.api.libs.json.{Json, Writes}
 
-class LocalGuiceModule extends AbstractModule {
-  override def configure() = {
-    bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
-    bind(classOf[SessionCache]).to(classOf[LocalSessionCache])
-  }
+case class AddressLookup(postcode: String, filter: Option[String])
+
+object AddressLookup {
+  implicit val writes: Writes[AddressLookup] = Json.writes[AddressLookup]
 }

@@ -23,7 +23,7 @@ import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.{NonFilerSelfAssessmentUser, PaymentRequest, SelfAssessmentUser}
 import org.joda.time.DateTime
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -37,11 +37,9 @@ class PaymentsController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with CurrentTaxYear {
+    extends PertaxBaseController(cc) with CurrentTaxYear with Logging {
 
   override def now: () => DateTime = () => DateTime.now()
-
-  private val logger = Logger(this.getClass)
 
   def makePayment: Action[AnyContent] =
     (authJourney.authWithPersonalDetails andThen withBreadcrumbAction.addBreadcrumb(baseBreadcrumb)).async {

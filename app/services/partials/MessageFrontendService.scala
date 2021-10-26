@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import metrics.HasMetrics
 import models.MessageCount
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpClient
@@ -36,11 +36,9 @@ class MessageFrontendService @Inject() (
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
   servicesConfig: ServicesConfig
 )(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics with Logging {
 
   lazy val messageFrontendUrl: String = servicesConfig.baseUrl("message-frontend")
-
-  private val logger = Logger(this.getClass)
 
   def getMessageListPartial(implicit request: RequestHeader): Future[HtmlPartial] =
     loadPartial(messageFrontendUrl + "/messages")

@@ -17,7 +17,7 @@
 package repositories
 
 import connectors.EnrolmentsConnector
-import controllers.bindable.{PostalAddrType, SoleAddrType}
+import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -147,7 +147,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
           val nino = testNino.withoutSuffix
 
-          val result = await(mongo.insert(nino, SoleAddrType))
+          val result = await(mongo.insert(nino, ResidentialAddrType))
           result shouldBe true
 
           val inserted = await(mongo.get(nino))

@@ -316,7 +316,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           correspondenceAddressView(Some(testAddress), countryHelper.excludedCountries),
           "label.change",
           "label.your.postal_address",
-          Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
+          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url)
         )
 
         actual.postalAddress mustBe Some(expected)
@@ -352,7 +352,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
           correspondenceAddressView(None, countryHelper.excludedCountries),
           "label.change",
           "label.your.postal_address",
-          Some(controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url)
+          Some(controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url)
         )
 
         actual.postalAddress mustBe Some(expectedPostalAddress)

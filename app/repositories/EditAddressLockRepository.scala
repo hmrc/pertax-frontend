@@ -27,7 +27,7 @@ import org.mongodb.scala.{DuplicateKeyException, MongoException}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import org.mongodb.scala.result.InsertOneResult
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import repositories.EditAddressLockRepository.EXPIRE_AT
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -52,9 +52,7 @@ class EditAddressLockRepository @Inject() (
             .expireAfter(configDecorator.editAddressTtl, TimeUnit.SECONDS)
         )
       )
-    ) {
-
-  val logger = Logger(getClass)
+    ) with Logging {
 
   import EditAddressLockRepository._
 

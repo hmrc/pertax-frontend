@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
@@ -25,9 +25,7 @@ case object ActivatePaperlessActivatedResponse extends ActivatePaperlessResponse
 case object ActivatePaperlessNotAllowedResponse extends ActivatePaperlessResponse
 case class ActivatePaperlessRequiresUserActionResponse(redirectUrl: String) extends ActivatePaperlessResponse
 
-object ActivatePaperlessResponse {
-
-  private val logger = Logger(this.getClass)
+object ActivatePaperlessResponse extends Logging {
 
   implicit lazy val httpReads: HttpReads[ActivatePaperlessResponse] =
     new HttpReads[ActivatePaperlessResponse] {

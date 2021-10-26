@@ -25,7 +25,7 @@ import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.addresslookup.RecordSet
 import models.dto.{AddressFinderDto, InternationalAddressChoiceDto}
 import models.{AddressFinderDtoId, SelectedAddressRecordId, SelectedRecordSetId, SubmittedInternationalAddressChoiceId}
-import play.api.Logger
+import play.api.Logging
 import play.api.data.FormError
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services._
@@ -48,9 +48,7 @@ class PostcodeLookupController @Inject() (
   postcodeLookupView: PostcodeLookupView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
-
-  private val logger = Logger(this.getClass)
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -69,7 +67,7 @@ class PostcodeLookupController @Inject() (
               auditConnector.sendEvent(
                 buildAddressChangeEvent("mainAddressChangeLinkClicked", personDetails, isInternationalAddress = false)
               )
-              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { _ =>
+              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
                 Future.successful(Ok(postcodeLookupView(AddressFinderDto.form, typ)))
               }
           }

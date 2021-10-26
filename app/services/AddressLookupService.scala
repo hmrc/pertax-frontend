@@ -20,8 +20,8 @@ import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics._
-import models.addresslookup.RecordSet
-import play.api.Logger
+import models.addresslookup.{AddressLookup, RecordSet}
+import play.api.Logging
 import services.http.SimpleHttp
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -42,9 +42,7 @@ class AddressLookupService @Inject() (
   val metrics: Metrics,
   val tools: Tools,
   servicesConfig: ServicesConfig
-) extends HasMetrics {
-
-  private val logger = Logger(this.getClass)
+) extends HasMetrics with Logging {
 
   lazy val addressLookupUrl = servicesConfig.baseUrl("address-lookup")
 
@@ -52,11 +50,12 @@ class AddressLookupService @Inject() (
     hc: HeaderCarrier
   ): Future[AddressLookupResponse] =
     withMetricsTimer("address-lookup") { t =>
-      val hn = tools.urlEncode(filter.getOrElse(""))
       val pc = postcode.replaceAll(" ", "")
       val newHc = hc.withExtraHeaders("X-Hmrc-Origin" -> configDecorator.origin)
 
-      simpleHttp.get[AddressLookupResponse](s"$addressLookupUrl/v2/uk/addresses?postcode=$pc&filter=$hn")(
+      val addressRequestBody = AddressLookup(pc, filter)
+
+      simpleHttp.post[AddressLookup, AddressLookupResponse](s"$addressLookupUrl/lookup", addressRequestBody)(
         onComplete = {
           case r if r.status >= 200 && r.status < 300 =>
             t.completeTimerAndIncrementSuccessCounter()
@@ -72,6 +71,6 @@ class AddressLookupService @Inject() (
           logger.warn("Error getting address record from address lookup service", e)
           AddressLookupErrorResponse(e)
         }
-      )(newHc)
+      )(newHc, implicitly)
     }
 }
