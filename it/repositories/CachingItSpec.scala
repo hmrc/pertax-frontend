@@ -33,7 +33,7 @@ import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongo.play.json.Codecs
 
-import java.time.OffsetDateTime
+import java.time.{Instant, OffsetDateTime}
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -66,8 +66,8 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
     next()
   }
 
-  def editedAddress(dateTime: OffsetDateTime) = EditSoleAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
-  def editedOtherAddress(dateTime: OffsetDateTime) = EditCorrespondenceAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
+  def editedAddress() = EditSoleAddress(Instant.now())
+  def editedOtherAddress() = EditCorrespondenceAddress(Instant.now())
 
   "editAddressLockRepository" when {
 
@@ -82,7 +82,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
         "there isn't an existing record that matches the requested nino" in {
           val timeOffSet = 10L
 
-          await(mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
+          await(mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress())))
 
           val fGet = mongo.get(differentNino.withoutSuffix)
 
@@ -94,7 +94,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now()))))
+          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress())))
 
           val fGet = mongo.get(nino)
 
@@ -102,30 +102,13 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
         }
       }
 
-      "return the record" when {
-        "there is an existing record and it has not yet expired" in {
-          val currentTime = System.currentTimeMillis()
-          val timeOffSet = 10L
-
-          val nino = testNino.withoutSuffix
-
-          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
-
-          val fGet = mongo.get(nino)
-          val inserted = await(mongo.getCore(BSONDocument()))
-          currentTime should be < inserted.head.editedAddress.expireAt.value
-          await(fGet) shouldBe inserted
-        }
-      }
-
       "return multiple records" when {
         "multiple existing records are present" in {
-          val timeOffSet = 10L
 
           val nino = testNino.withoutSuffix
 
-          val address1 = AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))
-          val address2 = AddressJourneyTTLModel(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(200)))
+          val address1 = AddressJourneyTTLModel(nino, editedAddress())
+          val address2 = AddressJourneyTTLModel(nino, editedOtherAddress())
 
           await(mongo.insertCore(address1))
           await(mongo.insertCore(address2))

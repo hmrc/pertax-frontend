@@ -84,7 +84,7 @@ class EditAddressLockRepository @Inject() (
   private def getCore(nino: String): Bson =
     Filters.equal("nino", nino)
 
-  private def insertCore(record: AddressJourneyTTLModel): Future[InsertOneResult] =
+  def insertCore(record: AddressJourneyTTLModel): Future[InsertOneResult] =
     collection.insertOne(record).toFuture()
 
   private[repositories] def drop(implicit ec: ExecutionContext): Future[Unit] =
