@@ -126,7 +126,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
           import EditAddressLockRepository._
           val offsetTime = getNextMidnight(OffsetDateTime.now())
 
-          val midnight = Codecs.toBson(offsetTime.toInstant.toEpochMilli)
+          val midnight = offsetTime.toInstant.toEpochMilli
 
           val nino = testNino.withoutSuffix
 
@@ -136,7 +136,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
           val inserted = await(mongo.get(nino))
 
           inserted.head.nino shouldBe nino
-          inserted.head.editedAddress.expireAt shouldBe midnight
+          inserted.head.editedAddress.expireAt.toEpochMilli shouldBe midnight
         }
       }
 
