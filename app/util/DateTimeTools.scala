@@ -19,22 +19,20 @@ package util
 import com.google.inject.{Inject, Singleton}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, _}
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.time.CurrentTaxYear
 
 import scala.util.{Failure, Success, Try}
 
 import java.time.{LocalDateTime => JavaLDT}
 
-object DateTimeTools extends CurrentTaxYear {
+object DateTimeTools extends CurrentTaxYear with Logging {
 
   //Timezone causing problem on dev server
   val defaultTZ = DateTimeZone.forID("Europe/London")
   val unixDateFormat = "yyyy-MM-dd"
   val unixDateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss"
   val humanDateFormat = "dd MMMMM yyyy"
-
-  private val logger = Logger(this.getClass)
 
   //Returns for example 1516 in March 2016
   def previousAndCurrentTaxYear = previousAndCurrentTaxYearFromGivenYear(current.currentYear)

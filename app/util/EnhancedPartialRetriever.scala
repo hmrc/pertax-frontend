@@ -18,7 +18,7 @@ package util
 
 import com.google.inject.Inject
 import metrics.HasMetrics
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.{HttpException, HttpGet}
 import uk.gov.hmrc.play.partials.HtmlPartial._
@@ -29,9 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 abstract class EnhancedPartialRetriever @Inject() (
   headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
 )(implicit executionContext: ExecutionContext)
-    extends HasMetrics {
-
-  private val logger = Logger(this.getClass)
+    extends HasMetrics with Logging {
 
   def http: HttpGet
 

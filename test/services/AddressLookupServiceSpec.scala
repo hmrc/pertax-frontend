@@ -16,140 +16,137 @@
 
 package services
 
-import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
-import config.ConfigDecorator
+import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.http.Fault
 import models.addresslookup.RecordSet
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify, when}
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
-import services.http.FakeSimpleHttp
-import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.http.HttpResponse
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.Fixtures._
-import util.{BaseSpec, Tools}
+import org.scalatest.concurrent.IntegrationPatience
+import play.api.Application
+import play.api.http.Status.NOT_FOUND
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{JsObject, Json}
+import util.Fixtures.{oneAndTwoOtherPlacePafRecordSet, twoOtherPlaceRecordSet}
+import util.{BaseSpec, WireMockHelper}
 
-import scala.concurrent.Future
 import scala.io.Source
 
-class AddressLookupServiceSpec extends BaseSpec {
+class AddressLookupServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
-  trait SpecSetup {
-    def httpResponse: HttpResponse
-    def simulateAddressLookupServiceIsDown: Boolean
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .configure(
+      "microservice.services.address-lookup.port" -> server.port(),
+      "auditing.enabled"                          -> false
+    )
+    .build()
 
-    val oneAndTwoOtherPlacePafRecordSetJson: String =
-      Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
+  def addressLookupService: AddressLookupService = injected[AddressLookupService]
 
-    val addressesWithMissingLinesRecordSetJson: String =
-      Source
-        .fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSetWithMissingAddressLines.json"))
-        .mkString
+  val urlPost = "/lookup"
 
-    val expectedRecordSet = oneAndTwoOtherPlacePafRecordSet
-    val expectedRecordSetJson = Json.parse(oneAndTwoOtherPlacePafRecordSetJson)
+  val requestBody: JsObject = Json.obj(
+    "postcode" -> "ZZ11ZZ",
+    "filter"   -> "2"
+  )
 
-    val expectedRecordSetMissingLinesJson: JsValue = Json.parse(addressesWithMissingLinesRecordSetJson)
+  val addressRecordSet: String =
+    Source.fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSet.json")).mkString
 
-    val emptyRecordSet = RecordSet(List())
-    val emptyRecordSetJson = Json.parse("[]")
+  val missingAddressLineRecordSet: String =
+    Source
+      .fromInputStream(getClass.getResourceAsStream("/address-lookup/recordSetWithMissingAddressLines.json"))
+      .mkString
 
-    val anException = new RuntimeException("Any")
+  val emptyRecordSet = "[]"
 
-    lazy val (service, met, timer, client) = {
+  "AddressLookupService" when {
+    "lookup is called as post" should {
 
-      val fakeSimpleHttp = {
-        if (simulateAddressLookupServiceIsDown) new FakeSimpleHttp(Right(anException))
-        else new FakeSimpleHttp(Left(httpResponse))
+      "return a List of addresses matching the given postcode, if any matching record exists" in {
+
+        val wholeStreetRequestBody: JsObject = Json.obj(
+          "postcode" -> "ZZ11ZZ"
+        )
+
+        server.stubFor(
+          post(urlEqualTo(urlPost))
+            .withRequestBody(equalToJson(wholeStreetRequestBody.toString))
+            .willReturn(ok(addressRecordSet))
+        )
+
+        addressLookupService.lookup("ZZ11ZZ", None).futureValue mustBe
+          AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
+
+        server.verify(
+          postRequestedFor(urlEqualTo(urlPost))
+            .withHeader("X-Hmrc-Origin", equalTo("PERTAX"))
+        )
       }
 
-      val timer = MockitoSugar.mock[Timer.Context]
+      "return a List of addresses matching the given postcode and house number, if any matching record exists" in {
 
-      val fakeTools = new Tools(injected[ApplicationCrypto])
-      val serviceConfig = app.injector.instanceOf[ServicesConfig]
+        server.stubFor(
+          post(urlEqualTo(urlPost))
+            .withRequestBody(equalToJson(requestBody.toString))
+            .willReturn(ok(addressRecordSet))
+        )
 
-      val addressLookupService: AddressLookupService =
-        new AddressLookupService(injected[ConfigDecorator], fakeSimpleHttp, mock[Metrics], fakeTools, serviceConfig) {
-          override val metricsOperator: MetricsOperator = mock[MetricsOperator]
-          when(metricsOperator.startTimer(any())) thenReturn timer
-        }
+        addressLookupService.lookup("ZZ11ZZ", Some("2")).futureValue mustBe
+          AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
-      (addressLookupService, addressLookupService.metricsOperator, timer, fakeSimpleHttp)
+      }
     }
 
-    def headerCarrier = client.getLastHeaderCarrier
+    "return a List of addresses, filtering out addresses with no lines" in {
 
-  }
+      server.stubFor(
+        post(urlEqualTo(urlPost))
+          .withRequestBody(equalToJson(requestBody.toString))
+          .willReturn(ok(missingAddressLineRecordSet))
+      )
 
-  "Calling AddressLookupService.lookup" must {
-
-    trait LocalSetup extends SpecSetup {
-      val metricId = "address-lookup"
-      lazy val simulateAddressLookupServiceIsDown = false
-      lazy val result = service.lookup("ZZ11ZZ")
-      lazy val httpResponse = HttpResponse(OK, Some(expectedRecordSetJson))
-    }
-
-    "contain valid X-Hmrc-Origin in extra headers when lookup service is called" in new LocalSetup {
-      result.futureValue
-      headerCarrier.extraHeaders.contains(("X-Hmrc-Origin", "PERTAX")) mustBe true
-    }
-
-    "return a List of addresses matching the given postcode, if any matching record exists" in new LocalSetup {
-      result.futureValue mustBe AddressLookupSuccessResponse(expectedRecordSet)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
-    }
-
-    "return a List of addresses matching the given postcode and house name/number, if any matching record exists" in new LocalSetup {
-      override lazy val result = service.lookup("ZZ11ZZ", Some("2"))
-
-      result.futureValue mustBe AddressLookupSuccessResponse(expectedRecordSet)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
-    }
-
-    "return a List of addresses filtering addresse out with no lines" in new LocalSetup {
-      override lazy val result: Future[AddressLookupResponse] = service.lookup("ZZ11ZZ", Some("2"))
-      override lazy val httpResponse = HttpResponse(OK, Some(expectedRecordSetMissingLinesJson))
+      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
 
       result.futureValue mustBe AddressLookupSuccessResponse(twoOtherPlaceRecordSet)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
     }
 
-    "return an empty response for the given house name/number and postcode, if matching record doesn't exist" in new LocalSetup {
-      override lazy val httpResponse = HttpResponse(OK, Some(emptyRecordSetJson))
+    "return an empty response for the given house name/number and postcode, if matching record doesn't exist" in {
 
-      result.futureValue mustBe AddressLookupSuccessResponse(emptyRecordSet)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementSuccessCounter(metricId)
-      verify(timer, times(1)).stop()
+      server.stubFor(
+        post(urlEqualTo(urlPost))
+          .withRequestBody(equalToJson(requestBody.toString))
+          .willReturn(ok(emptyRecordSet))
+      )
+
+      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
+
+      result.futureValue mustBe AddressLookupSuccessResponse(RecordSet(List()))
     }
 
-    "return AddressLookupUnexpectedResponse response, when called and service returns not found" in new LocalSetup {
-      override lazy val httpResponse = HttpResponse(NOT_FOUND)
+    "return AddressLookupUnexpectedResponse response, when called and service returns not found" in {
 
-      result.futureValue mustBe AddressLookupUnexpectedResponse(httpResponse)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      server.stubFor(
+        post(urlEqualTo(urlPost))
+          .withRequestBody(equalToJson(requestBody.toString))
+          .willReturn(aResponse().withStatus(NOT_FOUND))
+      )
+
+      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
+
+      result.futureValue.asInstanceOf[AddressLookupUnexpectedResponse].r.status mustBe NOT_FOUND
     }
 
-    "return AddressLookupErrorResponse when called and service is down" in new LocalSetup {
-      override lazy val simulateAddressLookupServiceIsDown = true
-      override lazy val httpResponse = ???
+    "return AddressLookupErrorResponse when called and service is down" in {
 
-      result.futureValue mustBe AddressLookupErrorResponse(anException)
-      verify(met, times(1)).startTimer(metricId)
-      verify(met, times(1)).incrementFailedCounter(metricId)
-      verify(timer, times(1)).stop()
+      server.stubFor(
+        post(urlEqualTo(urlPost))
+          .withRequestBody(equalToJson(requestBody.toString))
+          .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK))
+      )
+
+      val result = addressLookupService.lookup("ZZ11ZZ", Some("2"))
+
+      result.futureValue mustBe a[AddressLookupErrorResponse]
     }
+
   }
+
 }

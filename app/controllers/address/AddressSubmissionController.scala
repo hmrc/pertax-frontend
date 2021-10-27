@@ -20,14 +20,14 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
+import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyAuditingHelper.{addressWasHeavilyModifiedOrManualEntry, addressWasUnmodified, dataToAudit}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.{ErrorRenderer, GenericErrors}
 import models.dto.AddressDto
 import models.{AddressJourneyData, ETag}
 import org.joda.time.LocalDate
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import services.{AddressMovedService, CitizenDetailsService}
@@ -55,9 +55,7 @@ class AddressSubmissionController @Inject() (
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   genericErrors: GenericErrors
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
-
-  private val logger = Logger(this.getClass)
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
@@ -188,7 +186,7 @@ class AddressSubmissionController @Inject() (
   private def ensuringSubmissionRequirements(typ: AddrType, journeyData: AddressJourneyData)(
     block: => Future[Result]
   ): Future[Result] =
-    if (journeyData.submittedStartDateDto.isEmpty && (typ == PrimaryAddrType | typ == SoleAddrType)) {
+    if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType) {
       Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
     } else {
       block

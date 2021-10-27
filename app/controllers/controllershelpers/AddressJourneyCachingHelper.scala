@@ -21,7 +21,7 @@ import controllers.bindable.AddrType
 import models.addresslookup.{AddressRecord, RecordSet}
 import models.dto._
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.Writes
 import play.api.mvc.{Result, Results}
 import services.LocalSessionCache
@@ -33,7 +33,7 @@ import scala.util.control.NonFatal
 
 @Singleton
 class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache)(implicit ec: ExecutionContext)
-    extends Results {
+    extends Results with Logging {
 
   val addressLookupServiceDownKey = "addressLookupServiceDown"
 
@@ -56,7 +56,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
         block(None)
     } recoverWith {
       case e: KeyStoreEntryValidationException =>
-        Logger.error(s"Failed to read cached address page visited")
+        logger.error(s"Failed to read cached address page visited")
         block(None)
       case NonFatal(e) => throw e
     }
@@ -66,7 +66,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
       block(cacheMap.flatMap(_.getEntry[Boolean](addressLookupServiceDownKey)))
     } recover {
       case e: KeyStoreEntryValidationException =>
-        Logger.error(s"Failed to read cached address lookup service down")
+        logger.error(s"Failed to read cached address lookup service down")
         block(None)
       case NonFatal(e) => throw e
     }
@@ -78,7 +78,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
       block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](SubmittedTaxCreditsChoiceId.id)))
     } recover {
       case e: KeyStoreEntryValidationException =>
-        Logger.error(s"Failed to read cached tax credits choice")
+        logger.error(s"Failed to read cached tax credits choice")
         block(None)
       case NonFatal(e) => throw e
     }
@@ -105,7 +105,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
         block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
     } recoverWith {
       case e: KeyStoreEntryValidationException =>
-        Logger.error(s"Failed to read cached address")
+        logger.error(s"Failed to read cached address")
         block(AddressJourneyData(None, None, None, None, None, None, None, None, addressLookupServiceDown = false))
       case NonFatal(e) => throw e
     }
@@ -117,16 +117,6 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
       case Some(_) =>
         block
       case None =>
-        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
-    }
-
-  def enforceResidencyChoiceSubmitted(
-    journeyData: AddressJourneyData
-  )(block: AddressJourneyData => Future[Result]): Future[Result] =
-    journeyData match {
-      case AddressJourneyData(_, Some(_), _, _, _, _, _, _, _) =>
-        block(journeyData)
-      case AddressJourneyData(_, None, _, _, _, _, _, _, _) =>
         Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
     }
 

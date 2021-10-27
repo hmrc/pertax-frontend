@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.http.Status.SEE_OTHER
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{Action, AnyContent, Controller, ControllerComponents}
+import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
@@ -45,11 +45,12 @@ class MinimumAuthActionSpec extends BaseSpec {
     .configure(Map("metrics.enabled" -> false))
     .build()
 
+  val cc = stubControllerComponents()
   val mockAuthConnector = mock[AuthConnector]
   val controllerComponents = app.injector.instanceOf[ControllerComponents]
   val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
-  class Harness(authAction: MinimumAuthAction) extends Controller {
+  class Harness(authAction: MinimumAuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +

@@ -34,7 +34,7 @@ class MessagesSpec extends BaseSpec {
 
     "have messages for default and cy only" in {
       messagesAPI.messages("en").size mustBe 0
-      val englishMessageCount = messagesAPI.messages("default").size - frameworkProvidedKeys.size
+      val englishMessageCount = messagesAPI.messages("default").size
 
       messagesAPI.messages("cy").size mustBe englishMessageCount
     }
@@ -133,7 +133,7 @@ class MessagesSpec extends BaseSpec {
 
   private lazy val displayLine = "\n" + ("@" * 42) + "\n"
 
-  private lazy val defaultMessages: Map[String, String] = getExpectedMessages("default") -- providedKeys
+  private lazy val defaultMessages: Map[String, String] = getExpectedMessages("default") -- commonProvidedKeys
 
   private lazy val welshMessages: Map[String, String] = getExpectedMessages("cy") -- commonProvidedKeys
 
@@ -154,15 +154,4 @@ class MessagesSpec extends BaseSpec {
   private val commonProvidedKeys = Set(
     "error.address.invalid.character"
   )
-
-  private val frameworkProvidedKeys = Set(
-    "global.error.badRequest400.heading",
-    "global.error.badRequest400.message",
-    "global.error.badRequest400.title",
-    "global.error.pageNotFound404.heading",
-    "global.error.pageNotFound404.message",
-    "global.error.pageNotFound404.title"
-  )
-
-  private val providedKeys = commonProvidedKeys ++ frameworkProvidedKeys
 }
