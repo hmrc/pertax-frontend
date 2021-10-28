@@ -50,6 +50,12 @@ class EditAddressLockRepository @Inject() (
           IndexOptions()
             .name("ttlIndex")
             .expireAfter(configDecorator.editAddressTtl, TimeUnit.SECONDS)
+        ),
+        IndexModel(
+          Indexes.ascending("editedAddress.addressType", "nino"),
+          IndexOptions()
+            .unique(true)
+            .name("ninoAddressIndex")
         )
       )
     ) with Logging {
