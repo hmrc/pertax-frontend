@@ -24,7 +24,6 @@ import org.jsoup.nodes.{Document, Element}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.{Assertion, BeforeAndAfterEach}
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
@@ -35,6 +34,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContentAsEmpty, Request}
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
@@ -50,10 +50,11 @@ import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach with ScalaFutures {
+class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+
 
     override def beforeEach(): Unit = {
       super.beforeEach()
@@ -303,9 +304,9 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
         when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
         ) thenReturn Future.successful(Right(Seq[String]()))
 
-        service.getSaUserTypeFromCache(saUtr)
+        await(service.getSaUserTypeFromCache(saUtr))
 
-        service.getSaUserTypeFromCache(saUtr)
+        await(service.getSaUserTypeFromCache(saUtr))
 
         verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }

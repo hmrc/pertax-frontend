@@ -93,7 +93,7 @@ class EditAddressLockRepository @Inject() (
   def insertCore(record: AddressJourneyTTLModel): Future[InsertOneResult] =
     collection.insertOne(record).toFuture()
 
-  private[repositories] def drop(implicit ec: ExecutionContext): Future[Unit] =
+  def drop(implicit ec: ExecutionContext): Future[Unit] =
     collection.drop().toFuture().map(_ => ())
 
 }

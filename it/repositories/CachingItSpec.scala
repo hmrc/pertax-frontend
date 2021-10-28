@@ -17,44 +17,25 @@
 package repositories
 
 import config.ConfigDecorator
-import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
-import services.{EnrolmentStoreCachingService, LocalSessionCache}
-import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import uk.gov.hmrc.mongo.play.json.Codecs
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
 import java.time.{Instant, OffsetDateTime}
-import java.util.UUID
-import scala.concurrent.Future
-import scala.util.Random
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Random
 
 class CachingItSpec extends AnyWordSpecLike with Matchers
   with DefaultPlayMongoRepositorySupport[AddressJourneyTTLModel]
-  with PatienceConfiguration {
+  with PatienceConfiguration  {
 
-  //implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-
-
- // def mongo: EditAddressLockRepository = app.injector.instanceOf[EditAddressLockRepository]
-
-//  override def beforeEach(): Unit = {
-//    super.beforeEach()
-//    //await(cache.remove())
-//   // await(mongo.drop)
-//  }
 
   lazy val config = mock[ConfigDecorator]
 
@@ -110,7 +91,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           await(repository.insertCore(AddressJourneyTTLModel(nino, editedAddress())))
 
-          Thread.sleep(60000)
+          Thread.sleep(55000)
 
           val fGet = repository.get(nino)
 
