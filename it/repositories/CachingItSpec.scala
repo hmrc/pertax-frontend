@@ -18,7 +18,7 @@ package repositories
 
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
@@ -66,7 +66,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
     next()
   }
 
-  def editedAddress(dateTime: OffsetDateTime) = EditSoleAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
+  def editedAddress(dateTime: OffsetDateTime) = EditResidentialAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
   def editedOtherAddress(dateTime: OffsetDateTime) = EditCorrespondenceAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
 
   "editAddressLockRepository" when {

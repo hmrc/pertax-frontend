@@ -16,7 +16,7 @@
 
 package controllers.bindable
 
-import models.{EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, EditedAddress}
+import models.{EditCorrespondenceAddress, EditResidentialAddress, EditedAddress}
 import reactivemongo.bson.BSONDateTime
 
 object AddrType {
@@ -28,7 +28,7 @@ object AddrType {
 
   def toEditedAddress(addrType: AddrType, date: BSONDateTime): EditedAddress = addrType match {
     case PostalAddrType      => EditCorrespondenceAddress(date)
-    case ResidentialAddrType => EditSoleAddress(date)
+    case ResidentialAddrType => EditResidentialAddress(date)
   }
 }
 sealed trait AddrType {
