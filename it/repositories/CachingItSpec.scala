@@ -16,6 +16,7 @@
 
 package repositories
 
+import config.ConfigDecorator
 import connectors.EnrolmentsConnector
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
@@ -32,26 +33,39 @@ import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.mongo.play.json.Codecs
+import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
 import java.time.{Instant, OffsetDateTime}
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.Random
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite
-  with PatienceConfiguration
-  with BeforeAndAfterEach {
+class CachingItSpec extends AnyWordSpecLike with Matchers
+  with DefaultPlayMongoRepositorySupport[AddressJourneyTTLModel]
+  with PatienceConfiguration {
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+  //implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
-  def mongo: EditAddressLockRepository = app.injector.instanceOf[EditAddressLockRepository]
 
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    await(cache.remove())
-    await(mongo.drop)
-  }
+ // def mongo: EditAddressLockRepository = app.injector.instanceOf[EditAddressLockRepository]
+
+//  override def beforeEach(): Unit = {
+//    super.beforeEach()
+//    //await(cache.remove())
+//   // await(mongo.drop)
+//  }
+
+  lazy val config = mock[ConfigDecorator]
+
+  private lazy val ttl = 10
+
+  when(config.editAddressTtl).thenReturn(ttl)
+
+  override lazy val repository = new EditAddressLockRepository(
+    config,
+    mongoComponent
+  )
 
   private val generator = new Generator(new Random())
 
@@ -66,7 +80,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
     next()
   }
 
-  def editedAddress() = EditSoleAddress(Instant.now())
+  def editedAddress() = EditSoleAddress(Instant.now().minusSeconds(20))
   def editedOtherAddress() = EditCorrespondenceAddress(Instant.now())
 
   "editAddressLockRepository" when {
@@ -74,7 +88,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
     "get is called" should {
       "return an empty list" when {
         "there isn't an existing record" in {
-          val fGet = mongo.get(testNino.withoutSuffix)
+          val fGet = repository.get(testNino.withoutSuffix)
 
           await(fGet) shouldBe List.empty
         }
@@ -82,9 +96,9 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
         "there isn't an existing record that matches the requested nino" in {
           val timeOffSet = 10L
 
-          await(mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress())))
+          await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress())))
 
-          val fGet = mongo.get(differentNino.withoutSuffix)
+          val fGet = repository.get(differentNino.withoutSuffix)
 
           await(fGet) shouldBe List.empty
 
@@ -94,9 +108,11 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress())))
+          await(repository.insertCore(AddressJourneyTTLModel(nino, editedAddress())))
 
-          val fGet = mongo.get(nino)
+          Thread.sleep(60000)
+
+          val fGet = repository.get(nino)
 
           await(fGet) shouldBe List.empty
         }
@@ -110,10 +126,10 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
           val address1 = AddressJourneyTTLModel(nino, editedAddress())
           val address2 = AddressJourneyTTLModel(nino, editedOtherAddress())
 
-          await(mongo.insertCore(address1))
-          await(mongo.insertCore(address2))
+          await(repository.insertCore(address1))
+          await(repository.insertCore(address2))
 
-          val result = await(mongo.get(nino))
+          val result = await(repository.get(nino))
 
           result should contain theSameElementsAs List(address2, address1)
         }
@@ -130,10 +146,10 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
           val nino = testNino.withoutSuffix
 
-          val result = await(mongo.insert(nino, ResidentialAddrType))
+          val result = await(repository.insert(nino, ResidentialAddrType))
           result shouldBe true
 
-          val inserted = await(mongo.get(nino))
+          val inserted = await(repository.get(nino))
 
           inserted.head.nino shouldBe nino
           inserted.head.editedAddress.expireAt.toEpochMilli shouldBe midnight
@@ -145,9 +161,9 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insert(nino, PostalAddrType))
+          await(repository.insert(nino, PostalAddrType))
 
-          val result = await(mongo.insert(nino, PostalAddrType))
+          val result = await(repository.insert(nino, PostalAddrType))
 
           result shouldBe false
         }
@@ -155,28 +171,5 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
     }
   }
 
-  val cache: LocalSessionCache = app.injector.instanceOf[LocalSessionCache]
-  val mockConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
 
-  val service = new EnrolmentStoreCachingService(cache, mockConnector)
-
-  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
-  "EnrolmentStoreCachingService" when {
-
-    "getSaUserTypeFromCache is called" should {
-
-      "only call the connector once" in {
-
-        when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
-        ) thenReturn Future.successful(Right(Seq[String]()))
-
-        await(service.getSaUserTypeFromCache(saUtr))
-
-        await(service.getSaUserTypeFromCache(saUtr))
-
-        verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
-      }
-    }
-  }
 }

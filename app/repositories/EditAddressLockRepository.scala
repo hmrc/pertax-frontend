@@ -52,7 +52,7 @@ class EditAddressLockRepository @Inject() (
             .expireAfter(configDecorator.editAddressTtl, TimeUnit.SECONDS)
         ),
         IndexModel(
-          Indexes.ascending("editedAddress.addressType", "nino"),
+          Indexes.ascending("nino", "editedAddress.addressType"),
           IndexOptions()
             .unique(true)
             .name("ninoAddressIndex")

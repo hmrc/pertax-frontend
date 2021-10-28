@@ -15,14 +15,19 @@
  */
 
 import config.{ConfigDecorator, LocalTemplateRenderer}
+import connectors.EnrolmentsConnector
 import controllers.auth.requests.UserRequest
 import models._
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Document, Element}
-import org.scalatest.Assertion
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.{Assertion, BeforeAndAfterEach}
+import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
@@ -31,18 +36,29 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContentAsEmpty, Request}
 import play.api.test.FakeRequest
 import play.twirl.api.Html
+import services.{EnrolmentStoreCachingService, LocalSessionCache}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.MainView
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
-class MainViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite {
+class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite with PatienceConfiguration with BeforeAndAfterEach with ScalaFutures {
+
+  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
+
+    override def beforeEach(): Unit = {
+      super.beforeEach()
+      cache.remove()
+    }
 
   protected def localGuiceApplicationBuilder(): GuiceApplicationBuilder =
     GuiceApplicationBuilder()
@@ -266,6 +282,32 @@ class MainViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite {
 
       "render given content" in new LocalSetup {
         assertContainsText(doc, content)
+      }
+    }
+  }
+
+
+  val cache: LocalSessionCache = app.injector.instanceOf[LocalSessionCache]
+  val mockConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
+
+  val service = new EnrolmentStoreCachingService(cache, mockConnector)
+
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+
+  "EnrolmentStoreCachingService" when {
+
+    "getSaUserTypeFromCache is called" should {
+
+      "only call the connector once" in {
+
+        when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
+        ) thenReturn Future.successful(Right(Seq[String]()))
+
+        service.getSaUserTypeFromCache(saUtr)
+
+        service.getSaUserTypeFromCache(saUtr)
+
+        verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
       }
     }
   }

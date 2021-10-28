@@ -17,6 +17,8 @@
 package models
 
 import play.api.libs.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+
 import java.time.Instant
 
 case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress)
@@ -36,7 +38,7 @@ case class EditCorrespondenceAddress(expireAt: Instant) extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
 }
 
-object EditedAddress {
+object EditedAddress extends MongoJavatimeFormats.Implicits {
 
   val editSoleAddress: String = "EditSoleAddress"
   val editPrimaryAddress: String = "EditPrimaryAddress"
