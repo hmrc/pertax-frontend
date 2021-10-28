@@ -149,11 +149,11 @@ label.you_cannot_view_your_self_assessment_information_here_=Ni allwch fwrw golw
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_link_text=cyflwyno’ch Ffurflen Dreth ar-lein
 label.you_cannot_view_your_self_assessment_information_here_the_deadline_text_before_link=Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth papur yw canol nos ar 31 Hydref.
 
-label.registered_for_self_assessment=???
-label.may_not_see_message=???
-label.wrong_account=???
-label.not_yet_enrolled=???
-label.check_sa_status_link=???
+label.registered_for_self_assessment=A ydych wedi cofrestru ar gyfer Hunanasesiad?
+label.may_not_see_message=Mae’n bosibl na fyddwch yn gweld unrhyw negeseuon Hunanasesiad ar y dudalen hon oherwydd:
+label.wrong_account=gwnaethoch fewngofnodi i’r cyfrif anghywir
+label.not_yet_enrolled=nad ydych wedi cofrestru ar gyfer Hunanasesiad ar y cyfrif hwn eto
+label.check_sa_status_link=Gwirio’ch statws Hunanasesiad
 
 label.do_you_get_tax_credits=A ydych yn cael credydau treth?
 label.national_insurance=Yswiriant Gwladol
