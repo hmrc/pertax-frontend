@@ -24,6 +24,7 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
+import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
 import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDateId}
 import org.joda.time.LocalDate
@@ -54,7 +55,7 @@ class AddressSelectorController @Inject() (
       cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
         journeyData.recordSet match {
           case Some(set) =>
-            val orderedSet = addressSelectorService.orderSet(set)
+            val orderedSet = RecordSet(addressSelectorService.orderSet(set))
             Future.successful(
               Ok(
                 addressSelectorView(

@@ -16,12 +16,30 @@
 
 package services
 
-import models.addresslookup.RecordSet
+import models.addresslookup.{Address, AddressRecord, RecordSet}
 
 import javax.inject.Inject
+import scala.collection.SeqLike
+import scala.util.Try
 
 class AddressSelectorService @Inject() () {
 
-  def orderSet(unorderedSet: RecordSet): RecordSet =
-    unorderedSet
+  def orderSet(unorderedSet: RecordSet): Seq[AddressRecord] =
+    unorderedSet.addresses.sortWith { (a, b) =>
+      def sort(zipped: Seq[(Option[Int], Option[Int])]): Boolean = zipped match {
+        case (Some(nA), Some(nB)) :: tail =>
+          if (nA == nB) sort(tail) else nA < nB
+        case (Some(_), None) :: _ => true
+        case (None, Some(_)) :: _ => false
+        case _                    => mkString(a.address) < mkString(b.address)
+      }
+
+      sort(numbersIn(a.address).zipAll(numbersIn(b.address), None, None).toList)
+    }
+
+  def mkString(p: Address) = p.lines.mkString(" ").toLowerCase()
+
+  def numbersIn(p: Address): Seq[Option[Int]] =
+    "([0-9]+)".r.findAllIn(mkString(p)).map(n => Try(n.toInt).toOption).toSeq.reverse :+ None
+
 }
