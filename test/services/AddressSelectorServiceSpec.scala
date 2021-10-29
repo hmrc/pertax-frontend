@@ -180,14 +180,14 @@ class AddressSelectorServiceSpec extends BaseSpec {
   "orderSet" must {
     "return a RecordSet" when {
       "a valid RecordSet is passed in" in {
-        service.orderSet(Some(englandRecordSet)) mustBe Some(expecetdRecordSet)
+        service.orderSet(englandRecordSet) mustBe expecetdRecordSet
       }
     }
-    "return None" when {
-      " when given an empty RecordSet" in {
-        service.orderSet(None) mustBe None
-      }
-    }
+//    "return None" when {
+//      " when given an empty RecordSet" in {
+//        service.orderSet() mustBe None
+//      }
+//    }
   }
 
 }

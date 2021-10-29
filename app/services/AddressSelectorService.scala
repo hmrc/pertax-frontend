@@ -22,7 +22,6 @@ import javax.inject.Inject
 
 class AddressSelectorService @Inject() () {
 
-  def orderSet(unorderedSet: Option[RecordSet]): Option[RecordSet] =
-    ???
-
+  def orderSet(unorderedSet: RecordSet): RecordSet =
+    unorderedSet
 }

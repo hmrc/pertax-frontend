@@ -29,6 +29,7 @@ import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDat
 import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.AddressSelectorService
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -43,7 +44,8 @@ class AddressSelectorController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  addressSelectorService: AddressSelectorService
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
@@ -52,11 +54,12 @@ class AddressSelectorController @Inject() (
       cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
         journeyData.recordSet match {
           case Some(set) =>
+            val orderedSet = addressSelectorService.orderSet(set)
             Future.successful(
               Ok(
                 addressSelectorView(
                   AddressSelectorDto.form,
-                  set,
+                  orderedSet,
                   typ,
                   postcodeFromRequest,
                   filterFromRequest
