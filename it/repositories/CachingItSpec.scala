@@ -61,8 +61,8 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
     next()
   }
 
-  def editedAddress() = EditSoleAddress(Instant.now().minusSeconds(20))
-  def editedOtherAddress() = EditCorrespondenceAddress(Instant.now())
+  def editedAddress(): EditSoleAddress = EditSoleAddress(Instant.now())
+  def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
 
   "editAddressLockRepository" when {
 

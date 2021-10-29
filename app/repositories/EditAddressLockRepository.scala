@@ -92,10 +92,6 @@ class EditAddressLockRepository @Inject() (
 
   def insertCore(record: AddressJourneyTTLModel): Future[InsertOneResult] =
     collection.insertOne(record).toFuture()
-
-  def drop(implicit ec: ExecutionContext): Future[Unit] =
-    collection.drop().toFuture().map(_ => ())
-
 }
 
 object EditAddressLockRepository {
@@ -104,9 +100,6 @@ object EditAddressLockRepository {
   val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
   val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
   val BST_OFFSET: ZoneOffset = ZoneOffset.ofHours(1)
-
-  // Be especially careful with preserving the date format, since if the json format for mongo is not in scope,
-  // it will silently use the date formats as provided by play-json, breaking existing data.
 
   private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
