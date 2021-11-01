@@ -19,7 +19,6 @@ package repositories
 import config.ConfigDecorator
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
-import org.mockito.Mockito._
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -39,9 +38,6 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
   lazy val config = mock[ConfigDecorator]
 
-  private lazy val ttl = 10
-
-  when(config.editAddressTtl).thenReturn(ttl)
 
   override lazy val repository = new EditAddressLockRepository(
     config,
@@ -75,7 +71,6 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
         }
 
         "there isn't an existing record that matches the requested nino" in {
-          val timeOffSet = 10L
 
           await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress())))
 
