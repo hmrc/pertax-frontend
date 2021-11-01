@@ -55,7 +55,7 @@ class AddressSelectorController @Inject() (
       cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
         journeyData.recordSet match {
           case Some(set) =>
-            val orderedSet = RecordSet(addressSelectorService.orderSet(set))
+            val orderedSet = RecordSet(addressSelectorService.orderSet(set.addresses))
             Future.successful(
               Ok(
                 addressSelectorView(

@@ -178,9 +178,9 @@ class AddressSelectorServiceSpec extends BaseSpec {
   )
 
   "orderSet" must {
-    "return a RecordSet" when {
-      "a valid RecordSet is passed in" in {
-        service.orderSet(englandRecordSet) mustBe expecetdRecordSet
+    "return a ordered seq of addresses" when {
+      "a valid seq of addresses is passed in" in {
+        service.orderSet(englandRecordSet.addresses) mustBe expecetdRecordSet.addresses
       }
     }
 //    "return None" when {

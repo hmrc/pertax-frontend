@@ -24,8 +24,8 @@ import scala.util.Try
 
 class AddressSelectorService @Inject() () {
 
-  def orderSet(unorderedSet: RecordSet): Seq[AddressRecord] =
-    unorderedSet.addresses.sortWith { (a, b) =>
+  def orderSet(unorderedSeq: Seq[AddressRecord]): Seq[AddressRecord] =
+    unorderedSeq.sortWith { (a, b) =>
       def sort(zipped: Seq[(Option[Int], Option[Int])]): Boolean = zipped match {
         case (Some(nA), Some(nB)) :: tail =>
           if (nA == nB) sort(tail) else nA < nB
