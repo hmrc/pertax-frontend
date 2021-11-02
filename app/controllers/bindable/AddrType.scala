@@ -34,7 +34,7 @@ object AddrType {
 sealed trait AddrType {
   override def toString = ifIs("residential", "postal")
 
-  def ifIsSole[T](value: T): Option[T] = ifIs(Some(value), None)
+  def ifIsResidential[T](value: T): Option[T] = ifIs(Some(value), None)
 
   def ifIsPostal[T](value: T): Option[T] = ifIs(None, Some(value))
 
