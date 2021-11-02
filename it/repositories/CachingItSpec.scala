@@ -58,7 +58,6 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
   }
 
   def editedAddress(): EditSoleAddress = EditSoleAddress(Instant.now())
-  def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
 
   "editAddressLockRepository" when {
 
@@ -84,13 +83,11 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val nino = testNino.withoutSuffix
 
-          await(repository.insertCore(AddressJourneyTTLModel(nino, editedAddress())))
+          await(repository.insertCore(AddressJourneyTTLModel(nino, editedAddress)))
 
-          Thread.sleep(55000)
+          val fGet = repository.get(nino).futureValue
 
-          val fGet = repository.get(nino)
-
-          await(fGet) shouldBe List.empty
+         fGet shouldBe List.empty
         }
       }
 
@@ -99,8 +96,9 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val nino = testNino.withoutSuffix
 
-          val address1 = AddressJourneyTTLModel(nino, editedAddress())
-          val address2 = AddressJourneyTTLModel(nino, editedOtherAddress())
+          val addedSeconds = 546
+          val address1 = AddressJourneyTTLModel(nino, EditSoleAddress(Instant.now().plusSeconds(addedSeconds)))
+          val address2 = AddressJourneyTTLModel(nino, EditCorrespondenceAddress(Instant.now().plusSeconds(addedSeconds)))
 
           await(repository.insertCore(address1))
           await(repository.insertCore(address2))

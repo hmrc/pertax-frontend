@@ -85,7 +85,7 @@ class EditAddressLockRepository @Inject() (
     collection
       .find(getCore(nino))
       .toFuture()
-      .map(_.toList)
+      .map(_.toList.filter(_.editedAddress.expireAt.toEpochMilli > Instant.now().toEpochMilli))
 
   private def getCore(nino: String): Bson =
     Filters.equal("nino", nino)
