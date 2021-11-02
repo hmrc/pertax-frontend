@@ -57,7 +57,8 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
     next()
   }
 
-  def editedAddress(): EditSoleAddress = EditSoleAddress(Instant.now())
+  val addedSeconds = 546
+  def editedAddressAddedSeconds(): EditSoleAddress = EditSoleAddress(Instant.now().plusSeconds(addedSeconds))
 
   "editAddressLockRepository" when {
 
@@ -71,7 +72,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
         "there isn't an existing record that matches the requested nino" in {
 
-          await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress())))
+          await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddressAddedSeconds)))
 
           val fGet = repository.get(differentNino.withoutSuffix)
 
@@ -83,7 +84,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val nino = testNino.withoutSuffix
 
-          await(repository.insertCore(AddressJourneyTTLModel(nino, editedAddress)))
+          await(repository.insertCore(AddressJourneyTTLModel(nino, EditSoleAddress(Instant.now()))))
 
           val fGet = repository.get(nino).futureValue
 
@@ -96,8 +97,8 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val nino = testNino.withoutSuffix
 
-          val addedSeconds = 546
-          val address1 = AddressJourneyTTLModel(nino, EditSoleAddress(Instant.now().plusSeconds(addedSeconds)))
+
+          val address1 = AddressJourneyTTLModel(nino, editedAddressAddedSeconds)
           val address2 = AddressJourneyTTLModel(nino, EditCorrespondenceAddress(Instant.now().plusSeconds(addedSeconds)))
 
           await(repository.insertCore(address1))
