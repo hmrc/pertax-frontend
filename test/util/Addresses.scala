@@ -268,17 +268,82 @@ object Addresses {
           Country("blah", "blah")
         ),
         "en"
+      ),
+      AddressRecord(
+        "some id",
+        Address(
+          List("Flat 1B The Curtains Up Comeragh Road"),
+          Some("Anytown"),
+          None,
+          "FX2 7SS",
+          Some(Country("GB-SCT", "Scotland")),
+          Country("blah", "blah")
+        ),
+        "en"
+      ),
+      AddressRecord(
+        "some id",
+        Address(
+          List("Flat 10 The Curtains Up Comeragh Road"),
+          Some("Anytown"),
+          None,
+          "FX2 7SS",
+          Some(Country("GB-SCT", "Scotland")),
+          Country("blah", "blah")
+        ),
+        "en"
+      ),
+      AddressRecord(
+        "some id",
+        Address(
+          List("72B Comeragh Road"),
+          Some("Anytown"),
+          None,
+          "FX2 7SS",
+          Some(Country("GB-SCT", "Scotland")),
+          Country("blah", "blah")
+        ),
+        "en"
+      ),
+      AddressRecord(
+        "some id",
+        Address(
+          List("Flat 10 74 Comeragh Road"),
+          Some("Anytown"),
+          None,
+          "FX2 7SS",
+          Some(Country("GB-SCT", "Scotland")),
+          Country("blah", "blah")
+        ),
+        "en"
+      ),
+      AddressRecord(
+        "some id",
+        Address(
+          List("10 Comeragh Road"),
+          Some("Anytown"),
+          None,
+          "FX2 7SS",
+          Some(Country("GB-SCT", "Scotland")),
+          Country("blah", "blah")
+        ),
+        "en"
       )
     )
   )
 
   val expectedComplexLines = Seq(
     "Flat 1 The Curtains Up Comeragh Road",
+    "Flat 1B The Curtains Up Comeragh Road",
     "Flat 2 The Curtains Up Comeragh Road",
+    "10 Comeragh Road",
+    "Flat 10 The Curtains Up Comeragh Road",
     "Flat 1 70 Comeragh Road",
     "72a Comeragh Road",
+    "72B Comeragh Road",
     "Flat 1 74 Comeragh Road",
     "Flat 2 74 Comeragh Road",
+    "Flat 10 74 Comeragh Road",
     "Flat B 78 Comeragh Road"
   )
 
