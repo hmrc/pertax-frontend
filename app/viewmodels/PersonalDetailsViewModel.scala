@@ -16,6 +16,7 @@
 
 package viewmodels
 
+import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
@@ -26,8 +27,6 @@ import util.RichOption.CondOpt
 import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
-
-import javax.inject.{Inject, Singleton}
 
 @Singleton
 class PersonalDetailsViewModel @Inject() (
