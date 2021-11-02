@@ -37,9 +37,9 @@ class AddressSelectorService @Inject() () {
       sort(numbersIn(a.address).zipAll(numbersIn(b.address), None, None).toList)
     }
 
-  def mkString(p: Address) = p.lines.mkString(" ").toLowerCase()
+  private def mkString(p: Address) = p.lines.mkString(" ").toLowerCase()
 
-  def numbersIn(p: Address): Seq[Option[Int]] =
+  private def numbersIn(p: Address): Seq[Option[Int]] =
     "([0-9]+)".r.findAllIn(mkString(p)).map(n => Try(n.toInt).toOption).toSeq.reverse :+ None
 
 }
