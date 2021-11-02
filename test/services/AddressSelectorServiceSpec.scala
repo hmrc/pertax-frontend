@@ -17,177 +17,37 @@
 package services
 
 import models.addresslookup.{Address, AddressRecord, Country, RecordSet}
+import util.Addresses._
 import util.BaseSpec
 
 class AddressSelectorServiceSpec extends BaseSpec {
 
   val service = new AddressSelectorService
 
-  val englandRecordSet = RecordSet(
-    Seq(
-      AddressRecord(
-        "some id",
-        Address(
-          List("1 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("10 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("11 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("2 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("20 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("21 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      )
-    )
-  )
-
-  val expecetdRecordSet: RecordSet = RecordSet(
-    Seq(
-      AddressRecord(
-        "some id",
-        Address(
-          List("1 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("2 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("10 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("11 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("20 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      ),
-      AddressRecord(
-        "some id",
-        Address(
-          List("21 Too many addresses crescent"),
-          Some("Anytown"),
-          None,
-          "FX2 7SS",
-          Some(Country("GB-ENG", "England")),
-          Country("eng", "England")
-        ),
-        "en"
-      )
-    )
-  )
-
   "orderSet" must {
     "return a ordered seq of addresses" when {
-      "a valid seq of addresses is passed in" in {
-        service.orderSet(englandRecordSet.addresses) mustBe expecetdRecordSet.addresses
+      "a valid seq of English addresses is passed in" in {
+        service.orderSet(englandRecordSet.addresses).flatMap(x => x.address.lines) mustBe expectedSimpleLines
+      }
+      "a valid seq of Scottish addresses is passed in" in {
+        service.orderSet(scotlandRecordSet.addresses).flatMap(x => x.address.lines) mustBe expectedSimpleLines
+      }
+
+      "a complex unordered sequence of addresses is passed in" in {
+        service.orderSet(complexRecordSet.addresses).flatMap(x => x.address.lines) mustBe expectedComplexLines
       }
     }
-//    "return None" when {
-//      " when given an empty RecordSet" in {
-//        service.orderSet() mustBe None
-//      }
-//    }
-  }
 
+    "return empty list" when {
+      "the record set passed in is empty" in {
+        service.orderSet(Seq.empty) mustBe List()
+      }
+
+      "handle invalid addresses and return them last" when {
+        "the record set has some invalid addresses" in {
+          service.orderSet(badDataRecordSet.addresses).flatMap(x => x.address.lines) mustBe expectedBadDataLines
+        }
+      }
+    }
+  }
 }

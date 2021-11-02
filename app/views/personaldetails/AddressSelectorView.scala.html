@@ -52,7 +52,7 @@ postcode: String, filter: Option[String])(implicit request: UserRequest[_], conf
                   <div class="multiple-choice">
                     <input id="radio-@index" type="radio" name="addressId" value="@ad.id" data-line1="@ad.address.lines(0)" data-line2='@Try(ad.address.lines(1)).getOrElse("")' data-line3="@ad.address.town" data-line4="" data-postcode="@ad.address.postcode" data-type="" data-etag="">
                     <label for="radio-@index">
-                    @ad.address.lines.mkString(","), @ad.address.town, @ad.address.postcode
+                    @ad.address.lines.mkString(", "), @ad.address.town, @ad.address.postcode
                     </label>
                   </div>
                 }
