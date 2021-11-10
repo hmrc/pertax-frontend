@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable.ResidentialAddrType
+import controllers.bindable.AddrType
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
@@ -30,7 +30,7 @@ import views.html.personaldetails.InternationalAddressChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DoYouLiveInTheUKController @Inject() (
+class InternationalAddressChoiceController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
@@ -40,37 +40,36 @@ class DoYouLiveInTheUKController @Inject() (
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
-  def onPageLoad: Action[AnyContent] =
+  def onPageLoad(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
           cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
             Future.successful(
-              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), ResidentialAddrType))
+              Ok(internationalAddressChoiceView(InternationalAddressChoiceDto.form(), typ))
             )
           }
         }
       }
     }
 
-  def onSubmit: Action[AnyContent] =
+  def onSubmit(typ: AddrType): Action[AnyContent] =
     authenticate.async { implicit request =>
       addressJourneyEnforcer { _ => _ =>
         InternationalAddressChoiceDto
           .form()
           .bindFromRequest
           .fold(
-            formWithErrors =>
-              Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, ResidentialAddrType))),
+            formWithErrors => Future.successful(BadRequest(internationalAddressChoiceView(formWithErrors, typ))),
             internationalAddressChoiceDto =>
               cachingHelper.addToCache(SubmittedInternationalAddressChoiceId, internationalAddressChoiceDto) map { _ =>
                 if (internationalAddressChoiceDto.value) {
-                  Redirect(routes.PostcodeLookupController.onPageLoad(ResidentialAddrType))
+                  Redirect(routes.PostcodeLookupController.onPageLoad(typ))
                 } else {
                   if (configDecorator.updateInternationalAddressInPta) {
-                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(ResidentialAddrType))
+                    Redirect(routes.UpdateInternationalAddressController.onPageLoad(typ))
                   } else {
-                    Redirect(routes.AddressErrorController.cannotUseThisService(ResidentialAddrType))
+                    Redirect(routes.AddressErrorController.cannotUseThisService(typ))
                   }
                 }
               }

@@ -16,7 +16,7 @@
 
 package controllers.address
 
-import controllers.bindable.{PostalAddrType, ResidentialAddrType}
+import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.CountryHelper
 import models.dto.{AddressPageVisitedDto, DateDto, ResidencyChoiceDto}
 import org.joda.time.LocalDate
@@ -51,7 +51,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       )
 
     def sessionCacheResponse: Option[CacheMap] =
-      Some(CacheMap("id", Map("residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
+      Some(CacheMap("id", Map("soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord))))
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
   }
@@ -60,38 +60,38 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
     "find only the selected address from the session cache and no residency choice and return 303" in new LocalSetup {
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
-    "fetch the selected address and a residential residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
+    "fetch the selected address and a sole residencyChoice has been selected from the session cache and return 200" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "selectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-              "addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true))
+              "selectedAddressRecord"  -> Json.toJson(fakeStreetPafAddressRecord),
+              "soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(PostalAddrType))
             )
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
-    "find no selected address with residential address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
+    "find no selected address with sole address type but residencyChoice in the session cache and still return 200" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -101,7 +101,7 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
 
       override def sessionCacheResponse: Option[CacheMap] = Some(CacheMap("id", Map.empty))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -160,21 +160,21 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
-    "find residential selected and submitted addresses in the session cache and return 200" in new LocalSetup {
+    "find sole selected and submitted addresses in the session cache and return 200" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
             "id",
             Map(
-              "residentialSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
-              "residentialSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "addressPageVisitedDto"            -> Json.toJson(AddressPageVisitedDto(true))
+              "soleSelectedAddressRecord" -> Json.toJson(fakeStreetPafAddressRecord),
+              "soleSubmittedAddressDto"   -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+              "soleResidencyChoiceDto"    -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
             )
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -187,13 +187,13 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "residentialSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
-              "addressPageVisitedDto"          -> Json.toJson(AddressPageVisitedDto(true))
+              "soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)),
+              "soleResidencyChoiceDto"  -> Json.toJson(ResidencyChoiceDto(SoleAddrType))
             )
           )
         )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -215,9 +215,9 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     "show 'Enter your address' when user amends residential address manually and address has not been selected" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -228,9 +228,9 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
     "verify an audit event has been sent when user chooses to add/amend view address" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
+        Some(CacheMap("id", Map("soleResidencyChoiceDto" -> Json.toJson(ResidencyChoiceDto(SoleAddrType)))))
 
-      val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -299,12 +299,12 @@ class UpdateInternationalAddressControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody(fakeStreetTupleListInternationalAddress: _*)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/enter-start-date")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/enter-start-date")
       verify(mockLocalSessionCache, times(1)).cache(
-        meq("residentialSubmittedAddressDto"),
+        meq("soleSubmittedAddressDto"),
         meq(asInternationalAddressDto(fakeStreetTupleListInternationalAddress))
       )(any(), any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())

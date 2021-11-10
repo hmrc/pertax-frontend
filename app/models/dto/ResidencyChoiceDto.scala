@@ -28,16 +28,18 @@ object ResidencyChoiceDto {
   implicit val formats = {
     implicit val addrTypeReads: Reads[AddrType] = new Reads[AddrType] {
       override def reads(json: JsValue): JsResult[AddrType] = json match {
-        case JsString("residential") => JsSuccess(ResidentialAddrType)
-        case JsString("postal")      => JsSuccess(PostalAddrType)
-        case _                       => JsError(Seq(JsPath() -> Seq(JsonValidationError("error.expected.jsString(addrType)"))))
+        case JsString("sole")    => JsSuccess(SoleAddrType)
+        case JsString("primary") => JsSuccess(PrimaryAddrType)
+        case JsString("postal")  => JsSuccess(PostalAddrType)
+        case _                   => JsError(Seq(JsPath() -> Seq(JsonValidationError("error.expected.jsString(addrType)"))))
       }
     }
 
     implicit val addrTypeWrites: Writes[AddrType] = new Writes[AddrType] {
       override def writes(o: AddrType): JsValue = o match {
-        case ResidentialAddrType => JsString("residential")
-        case PostalAddrType      => JsString("postal")
+        case SoleAddrType    => JsString("sole")
+        case PrimaryAddrType => JsString("primary")
+        case PostalAddrType  => JsString("postal")
       }
     }
     Json.format[ResidencyChoiceDto]
@@ -48,7 +50,7 @@ object ResidencyChoiceDto {
       "residencyChoice" -> optional(text)
         .verifying("error.multiple_address_select", e => e.flatMap(a => AddrType(a)).isDefined)
         .transform[AddrType](
-          x => AddrType(x.fold("")(_.toString)).getOrElse(ResidentialAddrType),
+          x => AddrType(x.fold("")(_.toString)).getOrElse(SoleAddrType),
           ad => Some(ad.toString)
         ) //getOrElse here will never fall back to default because of isDefined above
     )(ResidencyChoiceDto.apply)(ResidencyChoiceDto.unapply)

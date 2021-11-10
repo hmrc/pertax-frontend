@@ -48,9 +48,9 @@ object AddressRowModel {
     if (configDecorator.taxCreditsEnabled) {
       controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
     } else {
-      controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url
+      controllers.address.routes.ResidencyChoiceController.onPageLoad.url
     }
 
   val closePostalAddressUrl = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
-  val changePostalAddressUrl = controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
+  val changePostalAddressUrl = controllers.address.routes.PostalInternationalAddressChoiceController.onPageLoad.url
 }

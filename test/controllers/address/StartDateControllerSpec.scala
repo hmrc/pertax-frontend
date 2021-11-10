@@ -17,7 +17,7 @@
 package controllers.address
 
 import controllers.auth.requests.UserRequest
-import controllers.bindable.{PostalAddrType, ResidentialAddrType}
+import controllers.bindable.{PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.PersonDetails
 import models.dto.{AddressPageVisitedDto, DateDto}
 import org.joda.time.LocalDate
@@ -62,15 +62,29 @@ class StartDateControllerSpec extends AddressBaseSpec {
 
   "onPageLoad" must {
 
-    "return 200 when passed ResidentialAddrType and submittedAddressDto is in keystore" in new LocalSetup {
+    "return 200 when passed PrimaryAddrType and submittedAddressDto is in keystore" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = Some(
         CacheMap(
           "id",
-          Map("residentialSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))
+          Map("primarySubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))
         )
       )
 
-      val result = controller.onPageLoad(ResidentialAddrType)(currentRequest)
+      val result = controller.onPageLoad(PrimaryAddrType)(currentRequest)
+
+      status(result) mustBe OK
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return 200 when passed SoleAddrType and submittedAddressDto is in keystore" in new LocalSetup {
+      override def sessionCacheResponse: Option[CacheMap] = Some(
+        CacheMap(
+          "id",
+          Map("soleSubmittedAddressDto" -> Json.toJson(asAddressDto(fakeStreetTupleListAddressForUnmodified)))
+        )
+      )
+
+      val result = controller.onPageLoad(SoleAddrType)(currentRequest)
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -86,11 +100,21 @@ class StartDateControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some("/personal-account/your-address/postal/edit-address")
       verify(mockLocalSessionCache, times(0)).fetch()(any(), any())
     }
+
+    "redirect back to start of journey if submittedAddressDto is missing from keystore" in new LocalSetup {
+      override def sessionCacheResponse: Option[CacheMap] = Some(CacheMap("id", Map.empty))
+
+      val result = controller.onPageLoad(PrimaryAddrType)(currentRequest)
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-profile")
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+    }
   }
 
   "onSubmit" must {
 
-    "return 303 when passed ResidentialAddrType and a valid form with low numbers" in new LocalSetup {
+    "return 303 when passed PrimaryAddrType and a valid form with low numbers" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -100,15 +124,15 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "1", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
       verify(mockLocalSessionCache, times(1))
-        .cache(meq("residentialSubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
+        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(1, 1, 2016)))(any(), any(), any())
     }
 
-    "return 303 when passed ResidentialAddrType and date is in the today" in new LocalSetup {
+    "return 303 when passed PrimaryAddrType and date is in the today" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -118,15 +142,15 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "2", "startDate.month" -> "2", "startDate.year" -> "2016")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
       verify(mockLocalSessionCache, times(1))
-        .cache(meq("residentialSubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
+        .cache(meq("primarySubmittedStartDateDto"), meq(DateDto.build(2, 2, 2016)))(any(), any(), any())
     }
 
-    "redirect to the changes to residential address page when passed ResidentialAddrType and a valid form with high numbers" in new LocalSetup {
+    "redirect to the changes to sole address page when passed PrimaryAddrType and a valid form with high numbers" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -136,15 +160,15 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "12", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
       verify(mockLocalSessionCache, times(1))
-        .cache(meq("residentialSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2019)))(any(), any(), any())
+        .cache(meq("soleSubmittedStartDateDto"), meq(DateDto.build(31, 12, 2019)))(any(), any(), any())
     }
 
-    "return 400 when passed ResidentialAddrType and missing date fields" in new LocalSetup {
+    "return 400 when passed PrimaryAddrType and missing date fields" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -153,12 +177,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
         FakeRequest("POST", "").withFormUrlEncodedBody().asInstanceOf[Request[A]]
 
       val result =
-        controller.onSubmit(ResidentialAddrType)(currentRequest)
+        controller.onSubmit(PrimaryAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 400 when passed ResidentialAddrType and day out of range - too early" in new LocalSetup {
+    "return 400 when passed PrimaryAddrType and day out of range - too early" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -168,12 +192,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "0", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 400 when passed ResidentialAddrType and day out of range - too late" in new LocalSetup {
+    "return 400 when passed PrimaryAddrType and day out of range - too late" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -183,13 +207,13 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "32", "startDate.month" -> "1", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 400 when passed ResidentialAddrType and month out of range at lower bound" in new LocalSetup {
+    "return 400 when passed PrimaryAddrType and month out of range at lower bound" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -199,12 +223,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "1", "startDate.month" -> "0", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 400 when passed ResidentialAddrType and month out of range at upper bound" in new LocalSetup {
+    "return 400 when passed PrimaryAddrType and month out of range at upper bound" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -214,12 +238,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "31", "startDate.month" -> "13", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(0)).cache(any(), any())(any(), any(), any())
     }
 
-    "return 400 when passed ResidentialAddrType and the updated start date is not after the start date on record" in new LocalSetup {
+    "return 400 when passed PrimaryAddrType and the updated start date is not after the start date on record" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -241,12 +265,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           )
       })
 
-      val result: Future[Result] = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result: Future[Result] = controller.onSubmit(PrimaryAddrType)(currentRequest)
       status(result) mustBe BAD_REQUEST
       verify(mockLocalSessionCache, times(1)).cache(any(), any())(any(), any(), any())
     }
 
-    "return a 400 when startDate is earlier than recorded with residential address type" in new LocalSetup {
+    "return a 400 when startDate is earlier than recorded with sole address type" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -256,12 +280,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
 
-    "return a 400 when startDate is the same as recorded with residential address type" in new LocalSetup {
+    "return a 400 when startDate is the same as recorded with sole address type" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -271,12 +295,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
 
-    "return a 400 when startDate is earlier than recorded with Residential address type" in new LocalSetup {
+    "return a 400 when startDate is earlier than recorded with primary address type" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -286,12 +310,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "14", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
 
-    "return a 400 when startDate is the same as recorded with Residential address type" in new LocalSetup {
+    "return a 400 when startDate is the same as recorded with primary address type" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -301,12 +325,12 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "15", "startDate.month" -> "03", "startDate.year" -> "2015")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }
 
-    "redirect to correct successful url when supplied with startDate after recorded with residential address type" in new LocalSetup {
+    "redirect to correct successful url when supplied with startDate after recorded with sole address type" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -316,13 +340,13 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "16", "startDate.month" -> "03", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
     }
 
-    "redirect to correct successful url when supplied with startDate after startDate on record with Residential address" in new LocalSetup {
+    "redirect to correct successful url when supplied with startDate after startDate on record with primary address" in new LocalSetup {
 
       override def sessionCacheResponse: Option[CacheMap] =
         Some(CacheMap("id", Map("addressPageVisitedDto" -> Json.toJson(AddressPageVisitedDto(true)))))
@@ -332,10 +356,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
     }
 
     "redirect to success page when no startDate is on record" in new LocalSetup {
@@ -348,10 +372,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
     }
 
     "redirect to success page when no address is on record" in new LocalSetup {
@@ -364,10 +388,10 @@ class StartDateControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("startDate.day" -> "20", "startDate.month" -> "06", "startDate.year" -> thisYearStr)
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(PrimaryAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/primary/changes")
     }
   }
 }

@@ -38,7 +38,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
         <div class="grid-row">
             <div class="column-two-thirds">
                 @errors(internationalAddressChoiceForm)
-                @formWithCSRF(action = controllers.address.routes.PostalDoYouLiveInTheUKController.onSubmit) {
+                @formWithCSRF(action = controllers.address.routes.PostalInternationalAddressChoiceController.onSubmit) {
                 <div class="form-group inline">
                     @input_yes_no(
                         internationalAddressChoiceForm("internationalAddressChoice"),

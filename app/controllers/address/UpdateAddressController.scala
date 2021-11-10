@@ -64,7 +64,7 @@ class UpdateAddressController @Inject() (
                 )
               }
             case _ =>
-              cachingHelper.enforceDisplayAddressPageVisited(journeyData.addressPageVisitedDto) {
+              cachingHelper.enforceResidencyChoiceSubmitted(journeyData) { journeyData =>
                 val addressForm = journeyData.getAddressToDisplay.fold(AddressDto.ukForm)(AddressDto.ukForm.fill)
                 Future.successful(
                   Ok(

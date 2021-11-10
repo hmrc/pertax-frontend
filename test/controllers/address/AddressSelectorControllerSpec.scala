@@ -17,7 +17,7 @@
 package controllers.address
 
 import controllers.address
-import controllers.bindable.{PostalAddrType, ResidentialAddrType}
+import controllers.bindable.{PostalAddrType, SoleAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.dto.DateDto
 import org.joda.time.LocalDate
@@ -53,8 +53,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         CacheMap(
           "id",
           Map(
-            "addressLookupServiceDown"     -> Json.toJson(Some(false)),
-            "residentialSelectedRecordSet" -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+            "addressLookupServiceDown" -> Json.toJson(Some(false)),
+            "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
           )
         )
       )
@@ -69,7 +69,7 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
             .withFormUrlEncodedBody("postcode" -> "AA1 1AA")
             .asInstanceOf[Request[A]]
 
-        val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+        val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
         status(result) mustBe OK
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -85,12 +85,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
 
         override def sessionCacheResponse: Some[CacheMap] = Some(CacheMap("id", Map.empty))
 
-        val result = controller.onPageLoad(ResidentialAddrType)(FakeRequest())
+        val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(
-          address.routes.PostcodeLookupController.onPageLoad(ResidentialAddrType).url
-        )
+        redirectLocation(result) mustBe Some(address.routes.PostcodeLookupController.onPageLoad(SoleAddrType).url)
         verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
       }
     }
@@ -195,8 +193,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "addressLookupServiceDown"     -> Json.toJson(Some(false)),
-              "residentialSelectedRecordSet" -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+              "addressLookupServiceDown" -> Json.toJson(Some(false)),
+              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
             )
           )
         )
@@ -206,10 +204,10 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 2AA")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/enter-start-date")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/enter-start-date")
     }
 
     "redirect to check and submit page if postcode is not different to currently held postcode" in new LocalSetup {
@@ -219,8 +217,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           CacheMap(
             "id",
             Map(
-              "addressLookupServiceDown"     -> Json.toJson(Some(false)),
-              "residentialSelectedRecordSet" -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
+              "addressLookupServiceDown" -> Json.toJson(Some(false)),
+              "soleSelectedRecordSet"    -> Json.toJson(oneAndTwoOtherPlacePafRecordSet)
             )
           )
         )
@@ -230,12 +228,12 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
           .withFormUrlEncodedBody("addressId" -> "GB990091234515", "postcode" -> "AA1 1AA")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(ResidentialAddrType)(currentRequest)
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/changes")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/changes")
       verify(mockLocalSessionCache, times(1))
-        .cache(meq("residentialSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
+        .cache(meq("soleSubmittedStartDateDto"), meq(DateDto(LocalDate.now())))(any(), any(), any())
     }
   }
 }

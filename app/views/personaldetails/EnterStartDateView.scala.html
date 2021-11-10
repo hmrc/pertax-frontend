@@ -38,7 +38,8 @@
 
 @mainView(
   title = typ.ifIs(
-    residential = messages("label.when_did_you_start_living_here"),
+    primary = messages("label.when_did_this_become_your_main_home"),
+    sole = messages("label.when_did_you_start_living_here"),
     postal = ""
   ),
   pageName = Some(messages("label.your_personal_tax_account")),
@@ -55,7 +56,7 @@
                     <div class="form-group @if(residenceStartDateForm.hasErrors){form-group-error form-field--error}">
                         <fieldset aria-describedby="date-hint@residenceStartDateForm.errors.map { error => date-error}">
                             <legend>
-                                <h1 class="heading-xlarge">@typ.ifIs(residential = messages("label.when_did_you_start_living_here"), postal = "")</h1>
+                                <h1 class="heading-xlarge">@typ.ifIs(primary = messages("label.when_did_this_become_your_main_home"), sole = messages("label.when_did_you_start_living_here"), postal = "")</h1>
                             </legend>
                             <p>@messages("label.this_helps_us_work_out_your_correct_rate_of_income_tax")</p>
                             <p class="form-hint" id="date-hint">@messages("label.for_example_31_3_2015")</p>

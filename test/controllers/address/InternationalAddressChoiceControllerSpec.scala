@@ -16,28 +16,29 @@
 
 package controllers.address
 
+import config.ConfigDecorator
+import controllers.bindable.SoleAddrType
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify}
-import play.api.http.Status.{BAD_REQUEST, OK, SEE_OTHER}
+import org.mockito.Mockito.{times, verify, when}
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
-import views.html.personaldetails.TaxCreditsChoiceView
+import views.html.personaldetails.InternationalAddressChoiceView
 
-class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
+class InternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    def controller: TaxCreditsChoiceController =
-      new TaxCreditsChoiceController(
+    def controller: InternationalAddressChoiceController =
+      new InternationalAddressChoiceController(
+        addressJourneyCachingHelper,
         mockAuthJourney,
         withActiveTabAction,
         cc,
-        addressJourneyCachingHelper,
-        injected[TaxCreditsChoiceView],
+        injected[InternationalAddressChoiceView],
         displayAddressInterstitialView
       )
 
@@ -51,7 +52,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
     "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
 
-      val result = controller.onPageLoad(currentRequest)
+      val result = controller.onPageLoad(SoleAddrType)(currentRequest)
 
       status(result) mustBe OK
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
@@ -60,7 +61,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
     "redirect back to the start of the journey if there is no entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
       override def sessionCacheResponse: Option[CacheMap] = None
 
-      val result = controller.onPageLoad(currentRequest)
+      val result = controller.onPageLoad(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
@@ -70,40 +71,51 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
   "onSubmit" must {
 
-    "redirect to expected tax credits page when supplied with value = Yes (true)" in new LocalSetup {
+    "redirect to postcode lookup page when supplied with value = Yes (true)" in new LocalSetup {
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("taxCreditsChoice" -> "true")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "true")
           .asInstanceOf[Request[A]]
 
-      val result =
-        controller.onSubmit()(FakeRequest())
+      val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/find-address")
     }
 
-    "redirect to ResidencyChoice page when supplied with value = No (false)" in new LocalSetup {
+    "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
+
+      lazy val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
+
+      when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
+
+      override def controller: InternationalAddressChoiceController =
+        new InternationalAddressChoiceController(
+          addressJourneyCachingHelper,
+          mockAuthJourney,
+          withActiveTabAction,
+          cc,
+          injected[InternationalAddressChoiceView],
+          displayAddressInterstitialView
+        )(mockConfigDecorator, templateRenderer, ec)
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "")
-          .withFormUrlEncodedBody("taxCreditsChoice" -> "false")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
           .asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(FakeRequest())
+      val result = controller.onSubmit(SoleAddrType)(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residency-choice")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/sole/cannot-use-the-service")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {
 
-      override def currentRequest[A]: Request[A] =
-        FakeRequest("POST", "")
-          .asInstanceOf[Request[A]]
+      override def currentRequest[A]: Request[A] = FakeRequest("POST", "").asInstanceOf[Request[A]]
 
-      val result = controller.onSubmit(FakeRequest())
+      val result = controller.onSubmit(SoleAddrType)(currentRequest)
 
       status(result) mustBe BAD_REQUEST
     }

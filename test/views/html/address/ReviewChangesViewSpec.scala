@@ -18,7 +18,7 @@ package views.html.address
 
 import config.ConfigDecorator
 import controllers.address.routes
-import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
+import controllers.bindable.{AddrType, PostalAddrType, PrimaryAddrType, SoleAddrType}
 import models.dto.AddressDto
 import play.api.test.FakeRequest
 import util.UserRequestFixture.buildUserRequest
@@ -44,42 +44,63 @@ class ReviewChangesViewSpec extends ViewSpec {
       assertNotContainText(result(PostalAddrType), messages("label.do_you_live_in_the_uk"))
     }
 
-    "when postal address has been changed display link to PostalDoYouLiveInTheUKController" in {
+    "when postal address has been changed display link to PostalInternationalAddressChoiceController" in {
 
       assertContainsLink(
         result(PostalAddrType),
         messages("label.change"),
-        routes.PostalDoYouLiveInTheUKController.onPageLoad().url
+        routes.PostalInternationalAddressChoiceController.onPageLoad().url
       )
 
       assertNotContainLink(
         result(PostalAddrType),
         messages("label.change"),
-        routes.DoYouLiveInTheUKController.onPageLoad.url
+        routes.InternationalAddressChoiceController.onPageLoad(PostalAddrType).url
       )
     }
 
     "when sole address has been changed display 'do you live in the uk'" in {
 
-      assertContainsText(result(ResidentialAddrType), messages("label.do_you_live_in_the_uk"))
-      assertNotContainText(result(ResidentialAddrType), messages("label.is_your_postal_address_in_the_uk"))
+      assertContainsText(result(SoleAddrType), messages("label.do_you_live_in_the_uk"))
+      assertNotContainText(result(SoleAddrType), messages("label.is_your_postal_address_in_the_uk"))
 
     }
 
     "when sole address has been changed display link to InternationalPostalAddressChoiceController" in {
 
       assertContainsLink(
-        result(ResidentialAddrType),
+        result(SoleAddrType),
         messages("label.change"),
-        routes.DoYouLiveInTheUKController.onPageLoad.url
+        routes.InternationalAddressChoiceController.onPageLoad(SoleAddrType).url
       )
 
       assertNotContainLink(
-        result(ResidentialAddrType),
+        result(SoleAddrType),
         messages("label.change"),
-        routes.PostalDoYouLiveInTheUKController.onPageLoad().url
+        routes.PostalInternationalAddressChoiceController.onPageLoad().url
       )
     }
 
+    "when primary address has been changed display 'is your address in the uk'" in {
+
+      assertContainsText(result(PrimaryAddrType), messages("label.do_you_live_in_the_uk"))
+      assertNotContainText(result(PrimaryAddrType), messages("label.is_your_postal_address_in_the_uk"))
+
+    }
+
+    "when primary address has been changed display link to InternationalPostalAddressChoiceController" in {
+
+      assertContainsLink(
+        result(PrimaryAddrType),
+        messages("label.change"),
+        routes.InternationalAddressChoiceController.onPageLoad(PrimaryAddrType).url
+      )
+
+      assertNotContainLink(
+        result(PrimaryAddrType),
+        messages("label.change"),
+        routes.PostalInternationalAddressChoiceController.onPageLoad().url
+      )
+    }
   }
 }

@@ -27,7 +27,8 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
 
 @mainView(
   title = typ.ifIs(
-    residential = messages("label.find_your_address"),
+    primary = messages("label.tell_us_your_main_home"),
+    sole = messages("label.find_your_address"),
     postal = messages("label.find_your_postal_address")
   ),
   pageName = Some(messages("label.your_personal_tax_account"))
@@ -44,7 +45,7 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
 
         <fieldset @addressFinderForm.errors.map { error => aria-describedby="@error.key-error-message"}>
           <legend><h1 class="heading-xlarge">
-            @typ.ifIs( residential = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
+            @typ.ifIs(primary = messages("label.tell_us_your_main_home"), sole = messages("label.find_your_address"), postal = messages("label.find_your_postal_address"))
           </h1></legend>
           <div class="form-group postcode-container">
             @tags.input(
@@ -75,6 +76,31 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
           </div>
 
         </fieldset>
+        @typ.ifIsPrimary {
+
+
+          <details class="form-group">
+            <summary class="ga-track-accordion-click" data-ga-event-action="Tell us your main home" data-ga-event-label="What's my main home" aria-controls="details-content" aria-expanded="false">
+              <span class="summary">@messages("label.whats_my_main_home")</span>
+            </summary>
+
+            <div class="panel panel-border-narrow" id="details-content" aria-hidden="true">
+              <p>@messages("label.your_main_home_is_usually_where_you_live_")</p>
+
+              <p>@messages("label.your_main_home_may_be_where_")</p>
+
+              <ul class="list-bullet">
+                <li>@messages("label.your_main_home_may_be_where_your_possessions")</li>
+                <li>@messages("label.your_main_home_may_be_where_your_family")</li>
+                <li>@messages("label.your_main_home_may_be_where_your_registerd_bank_address")</li>
+                <li>@messages("label.your_main_home_may_be_where_your_registerd_for_clubs")</li>
+              </ul>
+
+              <p>@messages("label.your_main_home_is_usually_where_you_live_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="link - click" data-ga-event-action="What is my main home?" data-ga-event-label="Check if you will pay the Scottish rate of Income Tax (opens in a new window or tab)" href="@configDecorator.scottishRateIncomeTaxUrl" target="_blank" rel="noopener noreferrer" tabindex="-1">@messages("label.your_main_home_is_usually_where_you_live_link_text") @messages("label.opens_in_a_new_window")</a>.</p>
+            </div>
+          </details>
+
+        }
 
       <button class="button submitAddressFinder" id="submitAddressFinder">@messages("global.label.find_your_address")</button>
       }

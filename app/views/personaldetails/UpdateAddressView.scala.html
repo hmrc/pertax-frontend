@@ -30,12 +30,12 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
 
 @getYourAddressLabels = {
   @if(showEnterAddressHeader) {
-    @typ.ifIs(
-    residential = Messages("label.enter_your_address"),
+    @typ.ifIs(primary = Messages("label.enter_your_address"),
+    sole = Messages("label.enter_your_address"),
     postal = Messages("label.enter_the_address"))
   } else {
-    @typ.ifIs(
-    residential = Messages("label.edit_your_address_optional"),
+    @typ.ifIs(primary = Messages("label.edit_your_address_optional"),
+    sole = Messages("label.edit_your_address_optional"),
     postal = Messages("label.edit_the_address_optional"))
   }
 }

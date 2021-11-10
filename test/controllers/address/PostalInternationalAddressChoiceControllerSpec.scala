@@ -17,7 +17,6 @@
 package controllers.address
 
 import config.ConfigDecorator
-import controllers.bindable.ResidentialAddrType
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -26,19 +25,19 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
-import views.html.personaldetails.InternationalAddressChoiceView
+import views.html.personaldetails.PostalInternationalAddressChoiceView
 
-class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
+class PostalInternationalAddressChoiceControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    def controller: DoYouLiveInTheUKController =
-      new DoYouLiveInTheUKController(
+    def controller: PostalInternationalAddressChoiceController =
+      new PostalInternationalAddressChoiceController(
         addressJourneyCachingHelper,
         mockAuthJourney,
         withActiveTabAction,
         cc,
-        injected[InternationalAddressChoiceView],
+        injected[PostalInternationalAddressChoiceView],
         displayAddressInterstitialView
       )
 
@@ -81,7 +80,20 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/find-address")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/find-address")
+    }
+
+    "redirect to enter international address page when supplied with value = No (false)" in new LocalSetup {
+
+      override def currentRequest[A]: Request[A] =
+        FakeRequest("POST", "")
+          .withFormUrlEncodedBody("internationalAddressChoice" -> "false")
+          .asInstanceOf[Request[A]]
+
+      val result = controller.onSubmit(FakeRequest())
+
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/enter-international-address")
     }
 
     "redirect to 'cannot use this service' when service configured to prevent updating International Addresses" in new LocalSetup {
@@ -90,13 +102,13 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
 
       when(mockConfigDecorator.updateInternationalAddressInPta).thenReturn(false)
 
-      override def controller: DoYouLiveInTheUKController =
-        new DoYouLiveInTheUKController(
+      override def controller: PostalInternationalAddressChoiceController =
+        new PostalInternationalAddressChoiceController(
           addressJourneyCachingHelper,
           mockAuthJourney,
           withActiveTabAction,
           cc,
-          injected[InternationalAddressChoiceView],
+          injected[PostalInternationalAddressChoiceView],
           displayAddressInterstitialView
         )(mockConfigDecorator, templateRenderer, ec)
 
@@ -108,7 +120,7 @@ class DoYouLiveInTheUKControllerSpec extends AddressBaseSpec {
       val result = controller.onSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/cannot-use-the-service")
+      redirectLocation(result) mustBe Some("/personal-account/your-address/postal/cannot-use-the-service")
     }
 
     "return a bad request when supplied no value" in new LocalSetup {

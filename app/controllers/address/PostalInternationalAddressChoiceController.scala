@@ -19,18 +19,18 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable.PostalAddrType
+import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedInternationalAddressChoiceId
 import models.dto.InternationalAddressChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.PostalInternationalAddressChoiceView
+import views.html.personaldetails.{PostalInternationalAddressChoiceView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PostalDoYouLiveInTheUKController @Inject() (
+class PostalInternationalAddressChoiceController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,

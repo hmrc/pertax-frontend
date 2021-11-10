@@ -795,7 +795,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return address with postcode and not country when postcode exists" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
-      val addressTye = "residential"
+      val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
@@ -814,7 +814,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return address with country when postcode does not exist" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, None, Some("UK"), None)
-      val addressTye = "residential"
+      val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
@@ -881,7 +881,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 7 characters" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA9A9AA"), Some("UK"), None)
-      val addressTye = "residential"
+      val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
@@ -900,7 +900,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 6 characters" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A9A9AA"), Some("UK"), None)
-      val addressTye = "residential"
+      val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
@@ -919,7 +919,7 @@ class AddressDtoSpec extends BaseSpec {
 
     "return formatted postcode when it contains 5 characters" in {
       val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("A99AA"), Some("UK"), None)
-      val addressTye = "residential"
+      val addressTye = "sole"
       val startDate = new LocalDate(2019, 1, 1)
 
       addressDto.toAddress(addressTye, startDate) mustBe Address(
