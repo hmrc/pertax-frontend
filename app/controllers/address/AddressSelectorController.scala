@@ -79,12 +79,14 @@ class AddressSelectorController @Inject() (
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors =>
               journeyData.recordSet match {
+
                 case Some(set) =>
+                  val orderedSet = RecordSet(addressSelectorService.orderSet(set.addresses))
                   Future.successful(
                     BadRequest(
                       addressSelectorView(
                         formWithErrors,
-                        set,
+                        orderedSet,
                         typ,
                         postcodeFromRequest,
                         filterFromRequest
