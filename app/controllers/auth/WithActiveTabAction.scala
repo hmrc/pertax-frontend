@@ -19,7 +19,7 @@ package controllers.auth
 import controllers.auth.requests.UserRequest
 import play.api.mvc.{ActionRefiner, MessagesControllerComponents, Result}
 import uk.gov.hmrc.renderer.ActiveTab
-import javax.inject.Inject
+import com.google.inject.Inject
 
 import scala.concurrent.{ExecutionContext, Future}
 

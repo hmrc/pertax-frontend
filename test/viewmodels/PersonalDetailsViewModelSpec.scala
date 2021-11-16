@@ -92,7 +92,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     Some("Residential")
   )
 
-  def editedAddress(dateTime: OffsetDateTime) = EditSoleAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
+  def editedAddress(dateTime: OffsetDateTime) = EditResidentialAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
   def editedOtherAddress(dateTime: OffsetDateTime) = EditCorrespondenceAddress(
     BSONDateTime(dateTime.toInstant.toEpochMilli)
   )

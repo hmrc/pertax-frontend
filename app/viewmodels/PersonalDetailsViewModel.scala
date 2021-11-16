@@ -16,16 +16,15 @@
 
 package viewmodels
 
+import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
-
-import javax.inject.{Inject, Singleton}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, EditedAddress, PersonDetails}
+import models._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
-import util.TemplateFunctions
 import util.RichOption.CondOpt
+import util.TemplateFunctions
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
@@ -44,9 +43,8 @@ class PersonalDetailsViewModel @Inject() (
     messages: play.api.i18n.Messages
   ) = {
     val isMainAddressChangeLocked = optionalEditAddress.exists(
-      _.isInstanceOf[EditSoleAddress]
-    ) || optionalEditAddress
-      .exists(_.isInstanceOf[EditPrimaryAddress])
+      _.isInstanceOf[EditResidentialAddress]
+    )
     personDetails.address.map { address =>
       def createAddressRow(linkTextMessage: String, linkUrl: Option[String]) =
         PersonalDetailsTableRowModel(

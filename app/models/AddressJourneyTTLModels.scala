@@ -27,11 +27,8 @@ sealed trait EditedAddress {
   def addressType: String
 }
 
-case class EditSoleAddress(expireAt: BSONDateTime) extends EditedAddress {
-  override def addressType: String = EditedAddress.editSoleAddress
-}
-case class EditPrimaryAddress(expireAt: BSONDateTime) extends EditedAddress {
-  override def addressType: String = EditedAddress.editPrimaryAddress
+case class EditResidentialAddress(expireAt: BSONDateTime) extends EditedAddress {
+  override def addressType: String = EditedAddress.editResidentialAddress
 }
 case class EditCorrespondenceAddress(expireAt: BSONDateTime) extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
@@ -39,8 +36,7 @@ case class EditCorrespondenceAddress(expireAt: BSONDateTime) extends EditedAddre
 
 object EditedAddress {
 
-  val editSoleAddress: String = "EditSoleAddress"
-  val editPrimaryAddress: String = "EditPrimaryAddress"
+  val editResidentialAddress: String = "EditResidentialAddress"
   val editCorrespondenceAddress: String = "EditCorrespondenceAddress"
 
   val addressType = "addressType"
@@ -59,14 +55,12 @@ object EditedAddress {
         addressType <- (json \ addressType).validate[String]
         expireAt    <- (json \ expireAt).validate[BSONDateTime]
       } yield addressType match {
-        case `editSoleAddress`           => EditSoleAddress(expireAt)
-        case `editPrimaryAddress`        => EditPrimaryAddress(expireAt)
+        case `editResidentialAddress`    => EditResidentialAddress(expireAt)
         case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
       }
   }
 }
 
 object AddressJourneyTTLModel {
-
   implicit val format: OFormat[AddressJourneyTTLModel] = Json.format[AddressJourneyTTLModel]
 }

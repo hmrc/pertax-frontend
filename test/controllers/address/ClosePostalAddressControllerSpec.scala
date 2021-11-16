@@ -243,30 +243,10 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
-    "render the thank you page upon successful submission of closing the correspondence address and only a lock on the primary address" in new LocalSetup {
-      override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
-      override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
-        List(AddressJourneyTTLModel("SomeNino", EditPrimaryAddress(BSONDateTime(0))))
-
-      val result = controller.confirmSubmit(FakeRequest())
-
-      status(result) mustBe OK
-      contentAsString(result) mustBe expectedAddressConfirmationView
-
-      val arg = ArgumentCaptor.forClass(classOf[DataEvent])
-      verify(mockAuditConnector, times(1)).sendEvent(arg.capture())(any(), any())
-      val dataEvent = arg.getValue
-
-      pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
-
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
-    }
-
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the sole address" in new LocalSetup {
       override def currentRequest[A]: Request[A] = FakeRequest("POST", "/test").asInstanceOf[Request[A]]
       override def getEditedAddressIndicators: List[AddressJourneyTTLModel] =
-        List(AddressJourneyTTLModel("SomeNino", EditSoleAddress(BSONDateTime(0))))
+        List(AddressJourneyTTLModel("SomeNino", EditResidentialAddress(BSONDateTime(0))))
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe OK
