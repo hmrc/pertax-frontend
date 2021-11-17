@@ -59,14 +59,14 @@ class ReviewChangesViewSpec extends ViewSpec {
       )
     }
 
-    "when sole address has been changed display 'do you live in the uk'" in {
+    "when residential address has been changed display 'do you live in the uk'" in {
 
       assertContainsText(result(ResidentialAddrType), messages("label.do_you_live_in_the_uk"))
       assertNotContainText(result(ResidentialAddrType), messages("label.is_your_postal_address_in_the_uk"))
 
     }
 
-    "when sole address has been changed display link to InternationalPostalAddressChoiceController" in {
+    "when residential address has been changed display link to InternationalPostalAddressChoiceController" in {
 
       assertContainsLink(
         result(ResidentialAddrType),

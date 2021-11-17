@@ -23,7 +23,7 @@ import metrics.HasMetrics
 import models.{SaEnrolmentRequest, SaEnrolmentResponse}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
-import javax.inject.Inject
+import com.google.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentConnector @Inject() (http: HttpClient, configDecorator: ConfigDecorator, val metrics: Metrics)(

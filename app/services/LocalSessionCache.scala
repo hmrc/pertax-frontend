@@ -16,9 +16,9 @@
 
 package services
 
+import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
-import javax.inject.Named
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig

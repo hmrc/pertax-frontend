@@ -19,7 +19,7 @@ package services
 import config.ConfigDecorator
 import connectors.SelfAssessmentConnector
 import controllers.auth.requests.UserRequest
-import javax.inject.Inject
+import com.google.inject.Inject
 import models.{SaEnrolmentRequest, SelfAssessmentUser}
 import uk.gov.hmrc.http.HeaderCarrier
 

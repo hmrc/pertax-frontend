@@ -28,11 +28,8 @@ sealed trait EditedAddress {
   def addressType: String
 }
 
-case class EditSoleAddress(expireAt: Instant) extends EditedAddress {
-  override def addressType: String = EditedAddress.editSoleAddress
-}
-case class EditPrimaryAddress(expireAt: Instant) extends EditedAddress {
-  override def addressType: String = EditedAddress.editPrimaryAddress
+case class EditResidentialAddress(expireAt: Instant) extends EditedAddress {
+  override def addressType: String = EditedAddress.editResidentialAddress
 }
 case class EditCorrespondenceAddress(expireAt: Instant) extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
@@ -40,8 +37,7 @@ case class EditCorrespondenceAddress(expireAt: Instant) extends EditedAddress {
 
 object EditedAddress extends MongoJavatimeFormats.Implicits {
 
-  val editSoleAddress: String = "EditSoleAddress"
-  val editPrimaryAddress: String = "EditPrimaryAddress"
+  val editResidentialAddress: String = "EditResidentialAddress"
   val editCorrespondenceAddress: String = "EditCorrespondenceAddress"
 
   val addressType = "addressType"
@@ -60,8 +56,7 @@ object EditedAddress extends MongoJavatimeFormats.Implicits {
         addressType <- (json \ addressType).validate[String]
         expireAt    <- (json \ expireAt).validate[Instant]
       } yield addressType match {
-        case `editSoleAddress`           => EditSoleAddress(expireAt)
-        case `editPrimaryAddress`        => EditPrimaryAddress(expireAt)
+        case `editResidentialAddress`    => EditResidentialAddress(expireAt)
         case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
       }
   }

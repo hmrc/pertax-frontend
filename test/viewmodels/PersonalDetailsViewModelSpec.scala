@@ -91,7 +91,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     Some("Residential")
   )
 
-  def editedAddress(): EditSoleAddress = EditSoleAddress(Instant.now())
+  def editedAddress(): EditResidentialAddress = EditResidentialAddress(Instant.now())
   def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
 
   "getSignInDetailsRow" must {

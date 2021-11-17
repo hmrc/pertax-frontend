@@ -21,7 +21,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.play.language.LanguageUtils
 import viewmodels._
 
-import javax.inject.Inject
+import com.google.inject.Inject
 
 class ViewUtils @Inject() (languageUtils: LanguageUtils) {
 

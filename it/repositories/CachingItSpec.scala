@@ -18,7 +18,10 @@ package repositories
 
 import config.ConfigDecorator
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditSoleAddress}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -58,7 +61,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
   }
 
   val addedSeconds = 546
-  def editedAddressAddedSeconds(): EditSoleAddress = EditSoleAddress(Instant.now().plusSeconds(addedSeconds))
+  def editedAddressAddedSeconds(): EditResidentialAddress = EditResidentialAddress(Instant.now().plusSeconds(addedSeconds))
 
   "editAddressLockRepository" when {
 
@@ -84,7 +87,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
 
           val nino = testNino.withoutSuffix
 
-          await(repository.insertCore(AddressJourneyTTLModel(nino, EditSoleAddress(Instant.now()))))
+          await(repository.insertCore(AddressJourneyTTLModel(nino, EditResidentialAddress(Instant.now()))))
 
           val fGet = repository.get(nino).futureValue
 
