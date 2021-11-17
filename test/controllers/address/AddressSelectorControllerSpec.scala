@@ -28,6 +28,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.AddressSelectorService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.Fixtures.{oneAndTwoOtherPlacePafRecordSet, oneOtherPlacePafAddressRecord}
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -45,7 +46,8 @@ class AddressSelectorControllerSpec extends AddressBaseSpec {
         cc,
         errorRenderer,
         injected[AddressSelectorView],
-        injected[DisplayAddressInterstitialView]
+        injected[DisplayAddressInterstitialView],
+        injected[AddressSelectorService]
       )
 
     def sessionCacheResponse: Option[CacheMap] =

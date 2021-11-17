@@ -24,11 +24,13 @@ import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.ErrorRenderer
+import models.addresslookup.RecordSet
 import models.dto.{AddressDto, AddressSelectorDto, DateDto}
 import models.{SelectedAddressRecordId, SubmittedAddressDtoId, SubmittedStartDateId}
 import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.AddressSelectorService
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.PertaxSessionKeys.{filter, postcode}
 import views.html.interstitial.DisplayAddressInterstitialView
@@ -43,7 +45,8 @@ class AddressSelectorController @Inject() (
   cc: MessagesControllerComponents,
   errorRenderer: ErrorRenderer,
   addressSelectorView: AddressSelectorView,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  addressSelectorService: AddressSelectorService
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
@@ -52,11 +55,12 @@ class AddressSelectorController @Inject() (
       cachingHelper.gettingCachedJourneyData(typ) { journeyData =>
         journeyData.recordSet match {
           case Some(set) =>
+            val orderedSet = RecordSet(addressSelectorService.orderSet(set.addresses))
             Future.successful(
               Ok(
                 addressSelectorView(
                   AddressSelectorDto.form,
-                  set,
+                  orderedSet,
                   typ,
                   postcodeFromRequest,
                   filterFromRequest
@@ -75,12 +79,14 @@ class AddressSelectorController @Inject() (
           AddressSelectorDto.form.bindFromRequest.fold(
             formWithErrors =>
               journeyData.recordSet match {
+
                 case Some(set) =>
+                  val orderedSet = RecordSet(addressSelectorService.orderSet(set.addresses))
                   Future.successful(
                     BadRequest(
                       addressSelectorView(
                         formWithErrors,
-                        set,
+                        orderedSet,
                         typ,
                         postcodeFromRequest,
                         filterFromRequest
