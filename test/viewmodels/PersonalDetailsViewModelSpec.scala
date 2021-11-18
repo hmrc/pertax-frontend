@@ -23,7 +23,6 @@ import models._
 import org.joda.time.LocalDate
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-import reactivemongo.bson.BSONDateTime
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
@@ -31,7 +30,7 @@ import views.html.ViewSpec
 import views.html.personaldetails.partials.{AddressView, CorrespondenceAddressView}
 import views.html.tags.formattedNino
 
-import java.time.OffsetDateTime
+import java.time.{Instant, OffsetDateTime}
 import scala.util.Random
 
 class PersonalDetailsViewModelSpec extends ViewSpec {
@@ -92,10 +91,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     Some("Residential")
   )
 
-  def editedAddress(dateTime: OffsetDateTime) = EditResidentialAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
-  def editedOtherAddress(dateTime: OffsetDateTime) = EditCorrespondenceAddress(
-    BSONDateTime(dateTime.toInstant.toEpochMilli)
-  )
+  def editedAddress(): EditResidentialAddress = EditResidentialAddress(Instant.now())
+  def editedOtherAddress(): EditCorrespondenceAddress = EditCorrespondenceAddress(Instant.now())
 
   "getSignInDetailsRow" must {
     "return None" when {
@@ -276,7 +273,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val request = userRequest.copy(personDetails = Some(details))
 
         val actual = personalDetailsViewModel.getAddressRow(
-          List(AddressJourneyTTLModel(testNino.nino, editedAddress(OffsetDateTime.now())))
+          List(AddressJourneyTTLModel(testNino.nino, editedAddress()))
         )(request, messages)
         val expected = PersonalDetailsTableRowModel(
           "main_address",
@@ -330,7 +327,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
         val request = userRequest.copy(personDetails = Some(details))
 
         val actual = personalDetailsViewModel.getAddressRow(
-          List(AddressJourneyTTLModel(testNino.nino, editedOtherAddress(OffsetDateTime.now())))
+          List(AddressJourneyTTLModel(testNino.nino, editedOtherAddress()))
         )(request, messages)
         val expected = PersonalDetailsTableRowModel(
           "postal_address",

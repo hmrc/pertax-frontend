@@ -17,24 +17,25 @@
 package models
 
 import play.api.libs.json._
-import reactivemongo.bson.BSONDateTime
-import reactivemongo.play.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+
+import java.time.Instant
 
 case class AddressJourneyTTLModel(nino: String, editedAddress: EditedAddress)
 
 sealed trait EditedAddress {
-  val expireAt: BSONDateTime
+  val expireAt: Instant
   def addressType: String
 }
 
-case class EditResidentialAddress(expireAt: BSONDateTime) extends EditedAddress {
+case class EditResidentialAddress(expireAt: Instant) extends EditedAddress {
   override def addressType: String = EditedAddress.editResidentialAddress
 }
-case class EditCorrespondenceAddress(expireAt: BSONDateTime) extends EditedAddress {
+case class EditCorrespondenceAddress(expireAt: Instant) extends EditedAddress {
   override def addressType: String = EditedAddress.editCorrespondenceAddress
 }
 
-object EditedAddress {
+object EditedAddress extends MongoJavatimeFormats.Implicits {
 
   val editResidentialAddress: String = "EditResidentialAddress"
   val editCorrespondenceAddress: String = "EditCorrespondenceAddress"
@@ -53,7 +54,7 @@ object EditedAddress {
     override def reads(json: JsValue): JsResult[EditedAddress] =
       for {
         addressType <- (json \ addressType).validate[String]
-        expireAt    <- (json \ expireAt).validate[BSONDateTime]
+        expireAt    <- (json \ expireAt).validate[Instant]
       } yield addressType match {
         case `editResidentialAddress`    => EditResidentialAddress(expireAt)
         case `editCorrespondenceAddress` => EditCorrespondenceAddress(expireAt)
@@ -62,5 +63,6 @@ object EditedAddress {
 }
 
 object AddressJourneyTTLModel {
+
   implicit val format: OFormat[AddressJourneyTTLModel] = Json.format[AddressJourneyTTLModel]
 }

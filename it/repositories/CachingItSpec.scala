@@ -16,7 +16,7 @@
 
 package repositories
 
-import connectors.EnrolmentsConnector
+import config.ConfigDecorator
 import controllers.bindable.{PostalAddrType, ResidentialAddrType}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress}
 import org.mockito.ArgumentMatchers.any
@@ -26,32 +26,26 @@ import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
-import reactivemongo.bson.{BSONDateTime, BSONDocument}
-import services.{EnrolmentStoreCachingService, LocalSessionCache}
-import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.domain.{Generator, Nino}
+import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
-import java.time.OffsetDateTime
-import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import java.time.{Instant, OffsetDateTime}
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
-class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuite
-  with PatienceConfiguration
-  with BeforeAndAfterEach {
+class CachingItSpec extends AnyWordSpecLike with Matchers
+  with DefaultPlayMongoRepositorySupport[AddressJourneyTTLModel]
+  with PatienceConfiguration  {
 
-  implicit lazy val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  implicit val hc = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID()}")))
 
-  def mongo: EditAddressLockRepository = app.injector.instanceOf[EditAddressLockRepository]
+  lazy val config = mock[ConfigDecorator]
 
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    await(cache.remove())
-    await(mongo.drop)
-  }
+
+  override lazy val repository = new EditAddressLockRepository(
+    config,
+    mongoComponent
+  )
 
   private val generator = new Generator(new Random())
 
@@ -66,35 +60,24 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
     next()
   }
 
-  def editedAddress(dateTime: OffsetDateTime) = EditResidentialAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
-  def editedOtherAddress(dateTime: OffsetDateTime) = EditCorrespondenceAddress(BSONDateTime(dateTime.toInstant.toEpochMilli))
+  val addedSeconds = 546
+  def editedAddressAddedSeconds(): EditResidentialAddress = EditResidentialAddress(Instant.now().plusSeconds(addedSeconds))
 
   "editAddressLockRepository" when {
-
-    "setIndex is called" should {
-      "ensure the index is set" in {
-        await(mongo.removeIndex())
-        await(mongo.isTtlSet) shouldBe false
-
-        await(mongo.setIndex())
-        await(mongo.isTtlSet) shouldBe true
-      }
-    }
 
     "get is called" should {
       "return an empty list" when {
         "there isn't an existing record" in {
-          val fGet = mongo.get(testNino.withoutSuffix)
+          val fGet = repository.get(testNino.withoutSuffix)
 
           await(fGet) shouldBe List.empty
         }
 
         "there isn't an existing record that matches the requested nino" in {
-          val timeOffSet = 10L
 
-          await(mongo.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
+          await(repository.insertCore(AddressJourneyTTLModel(testNino.withoutSuffix, editedAddressAddedSeconds)))
 
-          val fGet = mongo.get(differentNino.withoutSuffix)
+          val fGet = repository.get(differentNino.withoutSuffix)
 
           await(fGet) shouldBe List.empty
 
@@ -104,43 +87,27 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now()))))
+          await(repository.insertCore(AddressJourneyTTLModel(nino, EditResidentialAddress(Instant.now()))))
 
-          val fGet = mongo.get(nino)
+          val fGet = repository.get(nino).futureValue
 
-          await(fGet) shouldBe List.empty
-        }
-      }
-
-      "return the record" when {
-        "there is an existing record and it has not yet expired" in {
-          val currentTime = System.currentTimeMillis()
-          val timeOffSet = 10L
-
-          val nino = testNino.withoutSuffix
-
-          await(mongo.insertCore(AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))))
-
-          val fGet = mongo.get(nino)
-          val inserted = await(mongo.getCore(BSONDocument()))
-          currentTime should be < inserted.head.editedAddress.expireAt.value
-          await(fGet) shouldBe inserted
+         fGet shouldBe List.empty
         }
       }
 
       "return multiple records" when {
         "multiple existing records are present" in {
-          val timeOffSet = 10L
 
           val nino = testNino.withoutSuffix
 
-          val address1 = AddressJourneyTTLModel(nino, editedAddress(OffsetDateTime.now().plusSeconds(timeOffSet)))
-          val address2 = AddressJourneyTTLModel(nino, editedOtherAddress(OffsetDateTime.now().plusSeconds(200)))
 
-          await(mongo.insertCore(address1))
-          await(mongo.insertCore(address2))
+          val address1 = AddressJourneyTTLModel(nino, editedAddressAddedSeconds)
+          val address2 = AddressJourneyTTLModel(nino, EditCorrespondenceAddress(Instant.now().plusSeconds(addedSeconds)))
 
-          val result = await(mongo.get(nino))
+          await(repository.insertCore(address1))
+          await(repository.insertCore(address2))
+
+          val result = await(repository.get(nino))
 
           result should contain theSameElementsAs List(address2, address1)
         }
@@ -152,17 +119,18 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
         "there isn't an existing record" in {
           import EditAddressLockRepository._
           val offsetTime = getNextMidnight(OffsetDateTime.now())
-          val midnight = toBSONDateTime(offsetTime)
+
+          val midnight = offsetTime.toInstant.toEpochMilli
 
           val nino = testNino.withoutSuffix
 
-          val result = await(mongo.insert(nino, ResidentialAddrType))
+          val result = await(repository.insert(nino, ResidentialAddrType))
           result shouldBe true
 
-          val inserted = await(mongo.get(nino))
+          val inserted = await(repository.get(nino))
 
           inserted.head.nino shouldBe nino
-          inserted.head.editedAddress.expireAt shouldBe midnight
+          inserted.head.editedAddress.expireAt.toEpochMilli shouldBe midnight
         }
       }
 
@@ -171,9 +139,9 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
 
           val nino = testNino.withoutSuffix
 
-          await(mongo.insert(nino, PostalAddrType))
+          await(repository.insert(nino, PostalAddrType))
 
-          val result = await(mongo.insert(nino, PostalAddrType))
+          val result = await(repository.insert(nino, PostalAddrType))
 
           result shouldBe false
         }
@@ -181,28 +149,5 @@ class CachingItSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSui
     }
   }
 
-  val cache: LocalSessionCache = app.injector.instanceOf[LocalSessionCache]
-  val mockConnector: EnrolmentsConnector = mock[EnrolmentsConnector]
 
-  val service = new EnrolmentStoreCachingService(cache, mockConnector)
-
-  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
-
-  "EnrolmentStoreCachingService" when {
-
-    "getSaUserTypeFromCache is called" should {
-
-      "only call the connector once" in {
-
-        when(mockConnector.getUserIdsWithEnrolments(any())(any(), any())
-        ) thenReturn Future.successful(Right(Seq[String]()))
-
-        await(service.getSaUserTypeFromCache(saUtr))
-
-        await(service.getSaUserTypeFromCache(saUtr))
-
-        verify(mockConnector, times(1)).getUserIdsWithEnrolments(any())(any(), any())
-      }
-    }
-  }
 }

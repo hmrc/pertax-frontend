@@ -17,124 +17,81 @@
 package repositories
 
 import java.time.zone.ZoneRules
-import java.time.{OffsetDateTime, ZoneId, ZoneOffset}
+import java.time.{Instant, OffsetDateTime, ZoneId, ZoneOffset}
 import java.util.TimeZone
-
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
 import models.{AddressJourneyTTLModel, EditedAddress}
+import org.mongodb.scala.{DuplicateKeyException, MongoException}
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model._
+import org.mongodb.scala.result.InsertOneResult
 import play.api.Logging
-import play.modules.reactivemongo.ReactiveMongoApi
-import reactivemongo.api.Cursor
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.{BSONDateTime, BSONDocument}
-import reactivemongo.core.errors.DatabaseException
-import reactivemongo.play.json.BSONDocumentWrites
-import reactivemongo.play.json.collection.JSONCollection
+import uk.gov.hmrc.mongo.MongoComponent
+import repositories.EditAddressLockRepository.EXPIRE_AT
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class EditAddressLockRepository @Inject() (
-  configDecorator: ConfigDecorator
-)(mongo: ReactiveMongoApi, implicit val ec: ExecutionContext)
-    extends Logging {
-
-  private val collectionName: String = "EditAddressLock"
-  private val duplicateKeyErrorCode = "E11000"
-  private def collection: Future[JSONCollection] =
-    mongo.database.map(_.collection[JSONCollection](collectionName))
+  configDecorator: ConfigDecorator,
+  mongoComponent: MongoComponent
+)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[AddressJourneyTTLModel](
+      collectionName = "EditAddressLock",
+      mongoComponent = mongoComponent,
+      domainFormat = AddressJourneyTTLModel.format,
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending(EXPIRE_AT),
+          IndexOptions()
+            .name("ttlIndex")
+            .expireAfter(configDecorator.editAddressTtl, TimeUnit.SECONDS)
+        ),
+        IndexModel(
+          Indexes.ascending("nino", "editedAddress.addressType"),
+          IndexOptions()
+            .unique(true)
+            .name("ninoAddressIndex")
+        )
+      )
+    ) with Logging {
 
   import EditAddressLockRepository._
 
   def insert(nino: String, addressType: AddrType): Future[Boolean] = {
 
-    val record: EditedAddress =
-      AddrType.toEditedAddress(addressType, toBSONDateTime(getNextMidnight(OffsetDateTime.now())))
+    val nextMidnight = getNextMidnight(Instant.now().atOffset(ZoneOffset.UTC)).toInstant
 
-    insertCore(AddressJourneyTTLModel(nino, record)).map(_.ok) recover { case e: DatabaseException =>
-      val errorCode = e.code.getOrElse("unknown code")
-      logger.error(s"Edit address lock failure with error $errorCode")
-      false
+    val record: EditedAddress =
+      AddrType.toEditedAddress(addressType, nextMidnight)
+
+    insertCore(AddressJourneyTTLModel(nino, record)).map(_.wasAcknowledged()) recover {
+      case e: MongoException =>
+        val errorCode = e.getCode
+        logger.error(s"Edit address lock failure with error $errorCode")
+        false
+      case e: DuplicateKeyException =>
+        val errorCode = e.getCode
+        logger.error(s"Edit address lock failure with error $errorCode")
+        false
     }
   }
 
   def get(nino: String): Future[List[AddressJourneyTTLModel]] =
-    getCore(
-      BSONDocument(
-        BSONDocument("nino" -> nino),
-        BSONDocument(
-          BSONDocument(EXPIRE_AT -> BSONDocument("$gt" -> toBSONDateTime(OffsetDateTime.now())))
-        )
-      )
-    )
+    collection
+      .find(getCore(nino))
+      .toFuture()
+      .map(_.toList.filter(_.editedAddress.expireAt.toEpochMilli > Instant.now().toEpochMilli))
 
-  private[repositories] def getCore(selector: BSONDocument): Future[List[AddressJourneyTTLModel]] =
-    this.collection
-      .flatMap {
-        _.find(selector, None)
-          .cursor[AddressJourneyTTLModel]()
-          .collect[List](
-            5,
-            Cursor.FailOnError[List[AddressJourneyTTLModel]]()
-          )
-      }
-      .recover { case e: Exception =>
-        logger.error(s"Unable to find document: ${e.getMessage}")
-        List[AddressJourneyTTLModel]()
-      }
+  private def getCore(nino: String): Bson =
+    Filters.equal("nino", nino)
 
-  private[repositories] def insertCore(record: AddressJourneyTTLModel): Future[WriteResult] =
-    this.collection.flatMap(coll => coll.insert(ordered = false).one(record))
-
-  private[repositories] def drop(implicit ec: ExecutionContext): Future[Boolean] =
-    for {
-      result <- this.collection.flatMap(_.drop(failIfNotFound = false))
-      _      <- setIndex()
-    } yield result
-
-  private val ttl = configDecorator.editAddressTtl
-
-  private[repositories] lazy val ttlIndex = Index(
-    Seq((EXPIRE_AT, IndexType.Ascending)),
-    name = Some("ttlIndex"),
-    unique = false,
-    background = false,
-    dropDups = false,
-    sparse = false,
-    options = BSONDocument("expireAfterSeconds" -> ttl)
-  )
-
-  private[repositories] lazy val editAddressIndex =
-    Index(Seq(("nino", IndexType.Ascending), ("editedAddress.addressType", IndexType.Ascending)), unique = true)
-
-  private[repositories] def removeIndex(): Future[Int] =
-    for {
-      list <- collection.flatMap(_.indexesManager.list())
-      count <- ttlIndex.name match {
-                 case Some(name) if list.exists(_.name contains name) =>
-                   collection.flatMap(_.indexesManager.drop(name))
-                 case _ =>
-                   Future.successful(0)
-               }
-    } yield count
-
-  private[repositories] def setIndex(): Future[Boolean] =
-    for {
-      _          <- removeIndex()
-      ttlResult  <- collection.flatMap(_.indexesManager.ensure(ttlIndex))
-      editResult <- collection.flatMap(_.indexesManager.ensure(editAddressIndex))
-    } yield ttlResult && editResult
-
-  private[repositories] def isTtlSet: Future[Boolean] =
-    for {
-      list <- this.collection.flatMap(_.indexesManager.list())
-    } yield list.exists(_.name == ttlIndex.name)
-
-  val started: Future[Unit] = setIndex().map(_ => ())
-
+  def insertCore(record: AddressJourneyTTLModel): Future[InsertOneResult] =
+    collection.insertOne(record).toFuture()
 }
 
 object EditAddressLockRepository {
@@ -143,9 +100,6 @@ object EditAddressLockRepository {
   val UK_ZONE_Rules: ZoneRules = UK_TIME_ZONE.getRules
   val GMT_OFFSET: ZoneOffset = ZoneOffset.ofHours(0)
   val BST_OFFSET: ZoneOffset = ZoneOffset.ofHours(1)
-
-  def toBSONDateTime(dateTime: OffsetDateTime): BSONDateTime =
-    BSONDateTime(dateTime.toInstant.toEpochMilli)
 
   private def nextUTCMidnightInUKDateTime(offsetDateTime: OffsetDateTime): OffsetDateTime = {
     val utcNextDay = offsetDateTime.withOffsetSameInstant(GMT_OFFSET).plusDays(1)
