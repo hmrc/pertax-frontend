@@ -16,10 +16,10 @@
 
 package controllers.controllershelpers
 
+import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import com.google.inject.{Inject, Singleton}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress}
 import play.twirl.api.{Html, HtmlFormat}
 import uk.gov.hmrc.domain.Nino
 import views.html.cards.personaldetails._
@@ -41,8 +41,7 @@ class PersonalDetailsCardGenerator @Inject() (
 
     val optionalEditAddress = changedAddressIndicator.map(y => y.editedAddress)
 
-    val mainAddressChangeIndicator = optionalEditAddress.exists(_.isInstanceOf[EditSoleAddress]) || optionalEditAddress
-      .exists(_.isInstanceOf[EditPrimaryAddress])
+    val mainAddressChangeIndicator = optionalEditAddress.exists(_.isInstanceOf[EditResidentialAddress])
     val correspondenceAddressChangeIndicator =
       optionalEditAddress.exists(_.isInstanceOf[EditCorrespondenceAddress])
 

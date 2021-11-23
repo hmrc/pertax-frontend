@@ -221,7 +221,7 @@ class PostcodeLookupControllerSpec extends AddressBaseSpec {
       override def addressLookupResponse: AddressLookupResponse =
         AddressLookupSuccessResponse(RecordSet(List(fakeStreetPafAddressRecord)))
       override def sessionCacheResponse: Option[CacheMap] =
-        Some(CacheMap("id", Map("soleAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)))))
+        Some(CacheMap("id", Map("residentialAddressFinderDto" -> Json.toJson(AddressFinderDto("AA1 1AA", None)))))
 
       override def currentRequest[A]: Request[A] =
         FakeRequest("POST", "/test")

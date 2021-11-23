@@ -16,8 +16,8 @@
 
 package controllers.bindable
 
-import models.{EditCorrespondenceAddress, EditPrimaryAddress, EditSoleAddress, EditedAddress}
-import reactivemongo.bson.BSONDateTime
+import models.{EditCorrespondenceAddress, EditResidentialAddress, EditedAddress}
+import java.time.Instant
 
 object AddrType {
   def apply(value: String): Option[AddrType] = value match {
@@ -26,15 +26,15 @@ object AddrType {
     case _             => None
   }
 
-  def toEditedAddress(addrType: AddrType, date: BSONDateTime): EditedAddress = addrType match {
+  def toEditedAddress(addrType: AddrType, date: Instant): EditedAddress = addrType match {
     case PostalAddrType      => EditCorrespondenceAddress(date)
-    case ResidentialAddrType => EditSoleAddress(date)
+    case ResidentialAddrType => EditResidentialAddress(date)
   }
 }
 sealed trait AddrType {
   override def toString = ifIs("residential", "postal")
 
-  def ifIsSole[T](value: T): Option[T] = ifIs(Some(value), None)
+  def ifIsResidential[T](value: T): Option[T] = ifIs(Some(value), None)
 
   def ifIsPostal[T](value: T): Option[T] = ifIs(None, Some(value))
 
