@@ -22,7 +22,7 @@
 @this(mainView: MainView)
 
 @(messageListPartial: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
-@mainView(title = messages("label.your_messages"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(title = messages("label.list_of_messages"), Some(messages("label.your_personal_tax_account"))) {
 
     @back_link()
     @messageListPartial

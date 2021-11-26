@@ -116,7 +116,6 @@ label.yes=Iawn
 label.no=Na
 label.list_of_messages=Rhestr o negeseuon
 label.all_messages=Pob neges
-label.your_messages=Eich Negeseuon
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich negeseuon
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Mae’n ddrwg gennym. Mae problem dechnegol wedi codi wrth gael eich neges
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=Mae’r dyddiad a nodwyd gennych yn gynharach na dyddiad a gadwyd yn flaenorol ar gofnod eich cyfeiriad.
