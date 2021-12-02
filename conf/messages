@@ -166,6 +166,7 @@ label.no=No
 
 label.list_of_messages=List of messages
 label.all_messages=All messages
+label.your_messages=Your Messages
 label.sorry_theres_been_a_technical_problem_retrieving_your_messages=Sorry, there has been a technical problem retrieving your messages
 label.sorry_theres_been_a_techinal_problem_retrieving_your_message=Sorry, there has been a technical problem retrieving your message
 label.the_date_you_entered_is_earlier_than_a_date_previously_held_=The date you entered is earlier than a date previously held on your address record.

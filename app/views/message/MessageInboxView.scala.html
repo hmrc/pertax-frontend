@@ -22,19 +22,20 @@
 @this(mainView: MainView)
 
 @(messageListPartial: Html, displayMessageBanner: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
-@mainView(title = messages("label.list_of_messages"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(title = messages("label.your_messages"), Some(messages("label.your_personal_tax_account"))) {
+
     @back_link()
 
-    @if(displayMessageBanner) {
-        <div class="panel-indent">
-            <h4>@messages("label.registered_for_self_assessment")</h4>
-            <p class="govuk-body">@messages("label.may_not_see_message")</p>
-            <ul class="bullets">
-                <li >@messages("label.wrong_account")</li>
-                <li >@messages("label.not_yet_enrolled")</li>
-            </ul>
-            <a href="@routes.SelfAssessmentController.handleSelfAssessment">@messages("label.check_sa_status_link")</a>
-        </div>
+@if(displayMessageBanner) {
+<div class="panel-indent">
+ <h4>@messages("label.registered_for_self_assessment")</h4>
+ <p class="govuk-body">@messages("label.may_not_see_message")</p>
+ <ul class="bullets">
+  <li >@messages("label.wrong_account")</li>
+  <li >@messages("label.not_yet_enrolled")</li>
+ </ul>
+ <a href="@routes.SelfAssessmentController.handleSelfAssessment">@messages("label.check_sa_status_link")</a>
+</div>
 <br>
 }
 
