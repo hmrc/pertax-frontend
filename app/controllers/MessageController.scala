@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth._
-import models.{ActivatedOnlineFilerSelfAssessmentUser, Breadcrumb, NonFilerSelfAssessmentUser}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, Breadcrumb, NonFilerSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser}
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
@@ -52,9 +52,10 @@ class MessageController @Inject() (
       .addBreadcrumb(baseBreadcrumb)).async { implicit request =>
       messageFrontendService.getMessageListPartial map { p =>
         val displayMessageBanner = request.saUserType match {
-          case ActivatedOnlineFilerSelfAssessmentUser(_) => false
-          case NonFilerSelfAssessmentUser                => false
-          case _                                         => true
+          case ActivatedOnlineFilerSelfAssessmentUser(_)    => false
+          case NonFilerSelfAssessmentUser                   => false
+          case NotYetActivatedOnlineFilerSelfAssessmentUser(_) => false
+          case _                                            => true
         }
         Ok(
           messageInboxView(

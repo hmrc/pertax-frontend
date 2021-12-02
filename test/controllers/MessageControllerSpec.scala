@@ -90,7 +90,6 @@ class MessageControllerSpec extends BaseSpec {
     }
 
     List(
-      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
       WrongCredentialsSelfAssessmentUser(saUtr),
       NotEnrolledSelfAssessmentUser(saUtr)
     ).foreach { saUserType =>
@@ -120,6 +119,7 @@ class MessageControllerSpec extends BaseSpec {
     }
 
     List(
+      NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr),
       ActivatedOnlineFilerSelfAssessmentUser(saUtr),
       NonFilerSelfAssessmentUser
     ).foreach { saUserType =>
