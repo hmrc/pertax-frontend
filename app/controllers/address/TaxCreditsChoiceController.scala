@@ -20,7 +20,6 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
-import models.SubmittedTaxCreditsChoiceId
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView

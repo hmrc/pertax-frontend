@@ -71,18 +71,6 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
       case NonFatal(e) => throw e
     }
 
-  def gettingCachedTaxCreditsChoiceDto[T](
-    block: Option[TaxCreditsChoiceDto] => T
-  )(implicit hc: HeaderCarrier): Future[T] =
-    sessionCache.fetch() map { cacheMap =>
-      block(cacheMap.flatMap(_.getEntry[TaxCreditsChoiceDto](SubmittedTaxCreditsChoiceId.id)))
-    } recover {
-      case e: KeyStoreEntryValidationException =>
-        logger.error(s"Failed to read cached tax credits choice")
-        block(None)
-      case NonFatal(e) => throw e
-    }
-
   def gettingCachedJourneyData[T](
     typ: AddrType
   )(block: AddressJourneyData => Future[T])(implicit hc: HeaderCarrier): Future[T] =
