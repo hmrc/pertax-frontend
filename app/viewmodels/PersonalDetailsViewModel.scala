@@ -123,7 +123,7 @@ class PersonalDetailsViewModel @Inject() (
         createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
     }
 
-  def getAddressRow(addressModel: List[AddressJourneyTTLModel], taxCreditsAvailable: Boolean)(implicit
+  def getAddressRow(addressModel: List[AddressJourneyTTLModel], taxCreditsAvailable: Boolean = false)(implicit
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): AddressRowModel = {

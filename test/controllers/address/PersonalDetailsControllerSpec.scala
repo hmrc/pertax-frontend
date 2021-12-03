@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
-import services.NinoDisplayService
+import services.{NinoDisplayService, TaxCreditsService}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.Fixtures
 import viewmodels.PersonalDetailsViewModel
@@ -51,6 +51,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         injected[PersonalDetailsViewModel],
         mockEditAddressLockRepository,
         ninoDisplayService,
+        injected[TaxCreditsService],
         mockAuthJourney,
         addressJourneyCachingHelper,
         withActiveTabAction,
