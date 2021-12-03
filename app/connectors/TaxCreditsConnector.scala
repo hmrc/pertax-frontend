@@ -32,10 +32,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 class TaxCreditsConnector @Inject() (
-  val simpleHttp: SimpleHttp,
-  val metrics: Metrics,
   val http: HttpClient,
-  configDecorator: ConfigDecorator
+  configDecorator: ConfigDecorator,
+  val metrics: Metrics
 )(implicit ec: ExecutionContext)
     extends HasMetrics with Logging {
 
