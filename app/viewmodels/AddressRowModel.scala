@@ -44,8 +44,8 @@ final case class AddressRowModel(
 }
 
 object AddressRowModel {
-  def changeMainAddressUrl(configDecorator: ConfigDecorator): String =
-    if (configDecorator.taxCreditsEnabled) {
+  def changeMainAddressUrl(configDecorator: ConfigDecorator, taxCreditsAvailable: Boolean): String =
+    if (configDecorator.taxCreditsEnabled && taxCreditsAvailable) {
       controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
     } else {
       controllers.address.routes.DoYouLiveInTheUKController.onPageLoad.url

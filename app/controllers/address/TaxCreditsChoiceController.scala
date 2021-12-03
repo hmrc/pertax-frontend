@@ -44,7 +44,7 @@ class TaxCreditsChoiceController @Inject() (
       cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
           Future.successful(
-            Ok(taxCreditsChoiceView(TaxCreditsChoiceDto.form, configDecorator.tcsChangeAddressUrl))
+            Redirect(configDecorator.tcsChangeAddressUrl)
           )
         }
       }

@@ -72,6 +72,7 @@ class ConfigDecorator @Inject() (
   lazy val pertaxFrontendForAuthHost = getExternalUrl(s"pertax-frontend.auth-host").getOrElse("")
   lazy val feedbackSurveyFrontendHost = getExternalUrl(s"feedback-survey-frontend.host").getOrElse("")
   lazy val tcsFrontendHost = getExternalUrl(s"tcs-frontend.host").getOrElse("")
+  lazy val tcsBrokerHost = getExternalUrl(s"tcs-broker.host").getOrElse("")
   lazy val nispFrontendHost = getExternalUrl(s"nisp-frontend.host").getOrElse("")
   lazy val taxCalcFrontendHost = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
   lazy val dfsFrontendHost = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
