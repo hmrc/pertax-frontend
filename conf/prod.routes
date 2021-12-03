@@ -38,7 +38,6 @@ GET         /personal-account/lang/cyGb                                         
 GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.redirectToYourProfile
 GET         /personal-account/your-profile                                             controllers.address.PersonalDetailsController.onPageLoad
 GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
-POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
 GET         /personal-account/your-address/residential/do-you-live-in-the-uk                  controllers.address.DoYouLiveInTheUKController.onPageLoad
 POST        /personal-account/your-address/residential/do-you-live-in-the-uk                  controllers.address.DoYouLiveInTheUKController.onSubmit
 GET         /personal-account/your-address/postal/is-your-postal-address-in-the-uk       controllers.address.PostalDoYouLiveInTheUKController.onPageLoad

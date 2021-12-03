@@ -21,11 +21,9 @@ import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedTaxCreditsChoiceId
-import models.dto.TaxCreditsChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView
-import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,7 +32,6 @@ class TaxCreditsChoiceController @Inject() (
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
-  taxCreditsChoiceView: TaxCreditsChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
@@ -50,22 +47,4 @@ class TaxCreditsChoiceController @Inject() (
       }
     }
   }
-
-  def onSubmit: Action[AnyContent] =
-    authenticate.async { implicit request =>
-      addressJourneyEnforcer { _ => _ =>
-        TaxCreditsChoiceDto.form.bindFromRequest.fold(
-          formWithErrors =>
-            Future.successful(BadRequest(taxCreditsChoiceView(formWithErrors, configDecorator.tcsChangeAddressUrl))),
-          taxCreditsChoiceDto =>
-            cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
-              if (taxCreditsChoiceDto.value) {
-                Redirect(configDecorator.tcsChangeAddressUrl)
-              } else {
-                Redirect(routes.DoYouLiveInTheUKController.onPageLoad)
-              }
-            }
-        )
-      }
-    }
 }
