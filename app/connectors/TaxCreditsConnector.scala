@@ -43,26 +43,17 @@ class TaxCreditsConnector @Inject() (
   def checkForTaxCredits(
     nino: Nino
   )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-    withMetricsTimer("check-for-tax-credits") { t =>
-      EitherT(
-        http
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/dashboard-data")
-          .map {
-            case response @ Right(_) => response
-            case Left(error)         => Left(UpstreamErrorResponse(error.message, error.statusCode))
-          }
-          .recover { case error: HttpException =>
-            Left(UpstreamErrorResponse(error.message, error.responseCode))
-          }
-      )
-
-//      http
-//        .GET(s"$taxCreditsUrl/tcs/$nino/dashboard-data") map { result =>
-//        result.status
-//      } recover { case NonFatal(e) =>
-//        t.completeTimerAndIncrementFailedCounter()
-//        logger.error(s"An exception was thrown by tax credits dashboard data: ${e.getMessage}")
-//        INTERNAL_SERVER_ERROR
-//      }
-    }
+//    withMetricsTimer("check-for-tax-credits") { t =>
+    EitherT(
+      http
+        .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/dashboard-data")
+        .map {
+          case response @ Right(_) => response
+          case Left(error)         => Left(UpstreamErrorResponse(error.message, error.statusCode))
+        }
+        .recover { case error: HttpException =>
+          Left(UpstreamErrorResponse(error.message, error.responseCode))
+        }
+    )
+//    }
 }
