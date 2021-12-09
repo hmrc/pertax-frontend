@@ -72,7 +72,8 @@ class PersonalDetailsController @Inject() (
                           .getOrElse(
                             Future.successful(List[AddressJourneyTTLModel]())
                           )
-        ninoToDisplay <- ninoDisplayService.getNino
+        ninoToDisplay       <- ninoDisplayService.getNino
+        taxCreditsAvailable <- taxCreditsService.checkForTaxCredits(ninoToDisplay)
 
         _ <- request.personDetails
                .map { details =>
@@ -88,9 +89,6 @@ class PersonalDetailsController @Inject() (
                .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
 
       } yield {
-        val taxCreditsAvailable: Boolean =
-          Await.result(taxCreditsService.checkForTaxCredits(ninoToDisplay), Duration(5, SECONDS))
-
         val personalDetails = personalDetailsViewModel
           .getPersonDetailsTable(ninoToDisplay)
         val addressDetails = personalDetailsViewModel.getAddressRow(addressModel, taxCreditsAvailable)
