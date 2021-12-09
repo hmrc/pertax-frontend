@@ -22,7 +22,7 @@ import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
 import metrics.HasMetrics
 import play.api.Logging
-import play.api.http.Status.INTERNAL_SERVER_ERROR
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
@@ -43,17 +43,31 @@ class TaxCreditsConnector @Inject() (
   def checkForTaxCredits(
     nino: Nino
   )(implicit headerCarrier: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, HttpResponse] =
-//    withMetricsTimer("check-for-tax-credits") { t =>
-    EitherT(
-      http
-        .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/dashboard-data")
-        .map {
-          case response @ Right(_) => response
-          case Left(error)         => Left(UpstreamErrorResponse(error.message, error.statusCode))
-        }
-        .recover { case error: HttpException =>
-          Left(UpstreamErrorResponse(error.message, error.responseCode))
-        }
-    )
-//    }
+    withMetricsTimer("check-for-tax-credits") { timer =>
+      EitherT(
+        http
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$taxCreditsUrl/tcs/$nino/dashboard-data")
+          .map {
+            case response @ Right(_) =>
+              timer.completeTimerAndIncrementSuccessCounter()
+              response
+            case Left(error) if error.statusCode == NOT_FOUND =>
+              timer.completeTimerAndIncrementSuccessCounter()
+              Left(UpstreamErrorResponse(error.message, error.statusCode))
+            case Left(error) if error.statusCode >= INTERNAL_SERVER_ERROR =>
+              timer.completeTimerAndIncrementFailedCounter()
+              logger.error(error.message)
+              Left(UpstreamErrorResponse(error.message, error.statusCode))
+            case Left(error) =>
+              timer.completeTimerAndIncrementFailedCounter()
+              logger.error(error.message, error)
+              Left(UpstreamErrorResponse(error.message, error.statusCode))
+          }
+          .recover { case exception: HttpException =>
+            timer.completeTimerAndIncrementFailedCounter()
+            logger.error(exception.message)
+            Left(UpstreamErrorResponse(exception.message, exception.responseCode))
+          }
+      )
+    }
 }
