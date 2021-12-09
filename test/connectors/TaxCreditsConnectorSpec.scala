@@ -32,7 +32,9 @@ class TaxCreditsConnectorSpec extends BaseSpec with WireMockHelper with Integrat
   val fakeNino = Nino("AA000003A")
 
   lazy val http = app.injector.instanceOf[DefaultHttpClient]
+
   def connector = new TaxCreditsConnector(http, config, new NullMetrics)
+
   lazy val url: String = config.tcsBrokerHost + s"/tcs/$fakeNino/dashboard-data"
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
@@ -55,43 +57,28 @@ class TaxCreditsConnectorSpec extends BaseSpec with WireMockHelper with Integrat
         result.status mustBe OK
       }
 
-      "return an UpstreamErrorException containing NOT_FOUND when BAD_REQUEST is returned from TCS Broker" in {
+      List(
+        BAD_REQUEST,
+        NOT_FOUND,
+        IM_A_TEAPOT,
+        INTERNAL_SERVER_ERROR,
+        SERVICE_UNAVAILABLE
+      ).foreach { status =>
+        s"return an UpstreamErrorException containing INTERNAL_SERVER_ERROR when $status is returned from TCS Broker" in {
 
-        val fakeNino = Nino("AA006435A")
+          val fakeNino = Nino("AA006435A")
 
-        lazy val url: String = config.tcsBrokerHost + s"/tcs/$fakeNino/dashboard-data"
+          lazy val url: String = config.tcsBrokerHost + s"/tcs/$fakeNino/dashboard-data"
 
-        server.stubFor(
-          get(urlEqualTo(url)).willReturn(aResponse().withStatus(BAD_REQUEST))
-        )
+          server.stubFor(
+            get(urlEqualTo(url)).willReturn(aResponse().withStatus(status))
+          )
 
-        val result = connector.checkForTaxCredits(fakeNino).value.futureValue.left.get
+          val result = connector.checkForTaxCredits(fakeNino).value.futureValue.left.get
 
-        result.statusCode mustBe NOT_FOUND
-      }
-    }
-
-    List(
-      NOT_FOUND,
-      IM_A_TEAPOT,
-      INTERNAL_SERVER_ERROR,
-      SERVICE_UNAVAILABLE
-    ).foreach { status =>
-      s"return an UpstreamErrorException containing INTERNAL_SERVER_ERROR when $status is returned from TCS Broker" in {
-
-        val fakeNino = Nino("AA006435A")
-
-        lazy val url: String = config.tcsBrokerHost + s"/tcs/$fakeNino/dashboard-data"
-
-        server.stubFor(
-          get(urlEqualTo(url)).willReturn(aResponse().withStatus(status))
-        )
-
-        val result = connector.checkForTaxCredits(fakeNino).value.futureValue.left.get
-
-        result.statusCode mustBe INTERNAL_SERVER_ERROR
+          result.statusCode mustBe INTERNAL_SERVER_ERROR
+        }
       }
     }
   }
-
 }
