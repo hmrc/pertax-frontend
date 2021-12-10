@@ -18,11 +18,9 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.TaxCreditsConnector
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
-import play.api.http.Status.OK
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import services.{NinoDisplayService, TaxCreditsService}
@@ -33,9 +31,7 @@ import viewmodels.PersonalDetailsViewModel
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.PersonalDetailsView
 
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.{Duration, SECONDS}
-import scala.concurrent.{Await, CanAwait, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalDetailsController @Inject() (
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,

@@ -19,12 +19,10 @@ package connectors
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.http.Status.{BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SERVICE_UNAVAILABLE}
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import util.Fixtures.fakeNino
 import util.{BaseSpec, FileHelper, NullMetrics, WireMockHelper}
 
 class TaxCreditsConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
