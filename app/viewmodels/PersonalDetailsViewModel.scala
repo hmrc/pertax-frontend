@@ -65,7 +65,7 @@ class PersonalDetailsViewModel @Inject() (
       else {
         createAddressRow(
           "label.change",
-          Some(AddressRowModel.changeMainAddressUrl(configDecorator, taxCreditsAvailable))
+          Some(AddressRowModel.changeMainAddressUrl)
         )
       }
     }

@@ -18,17 +18,22 @@ package controllers.address
 
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{times, verify}
+import org.mockito.Mockito.{times, verify, when}
 import play.api.http.Status.SEE_OTHER
 import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.TaxCreditsService
 import uk.gov.hmrc.http.cache.client.CacheMap
+
+import scala.concurrent.Future
 
 class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
+
+    lazy val sut: TaxCreditsService = mock[TaxCreditsService]
 
     def controller: TaxCreditsChoiceController =
       new TaxCreditsChoiceController(
@@ -36,7 +41,8 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         addressJourneyCachingHelper,
-        displayAddressInterstitialView
+        displayAddressInterstitialView,
+        sut
       )
 
     def sessionCacheResponse: Option[CacheMap] =
@@ -47,7 +53,9 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
   "onPageLoad" must {
 
-    "return OK if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {
+    "return SEE_OTHER if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {]
+
+      when(sut.checkForTaxCredits(Some(nino))).thenReturn(Future(true))
 
       val result = controller.onPageLoad(currentRequest)
 

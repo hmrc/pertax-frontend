@@ -38,7 +38,6 @@ class PersonalDetailsController @Inject() (
   val personalDetailsViewModel: PersonalDetailsViewModel,
   val editAddressLockRepository: EditAddressLockRepository,
   ninoDisplayService: NinoDisplayService,
-  taxCreditsService: TaxCreditsService,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
@@ -68,8 +67,7 @@ class PersonalDetailsController @Inject() (
                           .getOrElse(
                             Future.successful(List[AddressJourneyTTLModel]())
                           )
-        ninoToDisplay       <- ninoDisplayService.getNino
-        taxCreditsAvailable <- taxCreditsService.checkForTaxCredits(ninoToDisplay)
+        ninoToDisplay <- ninoDisplayService.getNino
 
         _ <- request.personDetails
                .map { details =>
@@ -87,7 +85,7 @@ class PersonalDetailsController @Inject() (
       } yield {
         val personalDetails = personalDetailsViewModel
           .getPersonDetailsTable(ninoToDisplay)
-        val addressDetails = personalDetailsViewModel.getAddressRow(addressModel, taxCreditsAvailable)
+        val addressDetails = personalDetailsViewModel.getAddressRow(addressModel)
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
@@ -97,8 +95,7 @@ class PersonalDetailsController @Inject() (
             addressDetails,
             trustedHelpers,
             paperlessHelpers,
-            signinDetailsHelpers,
-            taxCreditsAvailable
+            signinDetailsHelpers
           )
         )
       }

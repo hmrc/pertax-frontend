@@ -21,6 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.{NinoDisplayService, TaxCreditsService}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView
 
@@ -31,7 +32,8 @@ class TaxCreditsChoiceController @Inject() (
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
-  displayAddressInterstitialView: DisplayAddressInterstitialView
+  displayAddressInterstitialView: DisplayAddressInterstitialView,
+  taxCreditsService: TaxCreditsService
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
@@ -39,9 +41,11 @@ class TaxCreditsChoiceController @Inject() (
     addressJourneyEnforcer { _ => _ =>
       cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-          Future.successful(
-            Redirect(configDecorator.tcsChangeAddressUrl)
-          )
+
+          taxCreditsService.checkForTaxCredits(request.nino).map {
+            case true  => Redirect(configDecorator.tcsChangeAddressUrl)
+            case false => Redirect(routes.DoYouLiveInTheUKController.onPageLoad())
+          }
         }
       }
     }
