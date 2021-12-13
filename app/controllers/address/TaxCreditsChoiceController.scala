@@ -38,11 +38,10 @@ class TaxCreditsChoiceController @Inject() (
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
-    addressJourneyEnforcer { _ => _ =>
+    addressJourneyEnforcer { nino => _ =>
       cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
-
-          taxCreditsService.checkForTaxCredits(request.nino).map {
+          taxCreditsService.checkForTaxCredits(Some(nino)).map {
             case true  => Redirect(configDecorator.tcsChangeAddressUrl)
             case false => Redirect(routes.DoYouLiveInTheUKController.onPageLoad())
           }

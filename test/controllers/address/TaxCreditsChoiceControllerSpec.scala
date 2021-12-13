@@ -33,7 +33,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
   trait LocalSetup extends AddressControllerSetup {
 
-    lazy val sut: TaxCreditsService = mock[TaxCreditsService]
+    lazy val taxCreditsService: TaxCreditsService = mock[TaxCreditsService]
 
     def controller: TaxCreditsChoiceController =
       new TaxCreditsChoiceController(
@@ -42,7 +42,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         cc,
         addressJourneyCachingHelper,
         displayAddressInterstitialView,
-        sut
+        taxCreditsService
       )
 
     def sessionCacheResponse: Option[CacheMap] =
@@ -53,13 +53,27 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
 
   "onPageLoad" must {
 
-    "return SEE_OTHER if there is an entry in the cache to say the user previously visited the 'personal details' page" in new LocalSetup {]
-
-      when(sut.checkForTaxCredits(Some(nino))).thenReturn(Future(true))
+    "return SEE_OTHER and the correct redirect if the user has tax credits" in new LocalSetup {
+      when(taxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(true))
 
       val result = controller.onPageLoad(currentRequest)
 
       status(result) mustBe SEE_OTHER
+
+      redirectLocation(result) mustBe Some("http://localhost:9362/tax-credits-service/personal/change-address")
+
+      verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
+    }
+
+    "return SEE_OTHER and the correct redirect if the user hasn't got tax credits" in new LocalSetup {
+      when(taxCreditsService.checkForTaxCredits(any())(any())).thenReturn(Future.successful(false))
+
+      val result = controller.onPageLoad(currentRequest)
+
+      status(result) mustBe SEE_OTHER
+
+      redirectLocation(result) mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
+
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
     }
 
