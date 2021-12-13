@@ -251,24 +251,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
 
   "getAddressRow" must {
     "contain main address row" when {
-      "main address is defined and it hasn't been changed for a non-tcs user" in {
-        val details = exampleDetails.copy(address = Some(testAddress))
-        val request = userRequest.copy(personDetails = Some(details))
-
-        val actual = personalDetailsViewModel.getAddressRow(List.empty)(request, messages)
-        val expected = PersonalDetailsTableRowModel(
-          "main_address",
-          "label.main_address",
-          addressView(testAddress, countryHelper.excludedCountries),
-          "label.change",
-          "label.your_main_home",
-          Some(controllers.address.routes.DoYouLiveInTheUKController.onPageLoad().url)
-        )
-
-        actual.mainAddress mustBe Some(expected)
-      }
-
-      "main address is defined and it hasn't been changed for a tcs user, and is redirected to tcs address change" in {
+      "main address is defined and it hasn't been changed" in {
         val details = exampleDetails.copy(address = Some(testAddress))
         val request = userRequest.copy(personDetails = Some(details))
 
