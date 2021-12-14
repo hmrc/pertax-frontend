@@ -18,9 +18,8 @@ package config
 
 import com.google.inject.Inject
 import play.api.Configuration
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.duration._
@@ -38,7 +37,7 @@ class LocalTemplateRenderer @Inject() (
   override lazy val refreshAfter: Duration =
     runModeConfiguration.getOptional[Int]("template.refreshInterval").getOrElse(600) seconds
 
-  private implicit val hc = HeaderCarrier()
+  private implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId-00000-00000-00000")))
 
   override def fetchTemplate(path: String): Future[String] =
     wsHttp.GET(path).map(_.body)
