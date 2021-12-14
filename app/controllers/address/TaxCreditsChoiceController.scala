@@ -20,12 +20,14 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
+import models.TaxCreditsChoiceId
+import models.dto.TaxCreditsChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{NinoDisplayService, TaxCreditsService}
+import services.TaxCreditsService
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class TaxCreditsChoiceController @Inject() (
   authJourney: AuthJourney,
@@ -42,8 +44,12 @@ class TaxCreditsChoiceController @Inject() (
       cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
           taxCreditsService.checkForTaxCredits(Some(nino)).map {
-            case true  => Redirect(configDecorator.tcsChangeAddressUrl)
-            case false => Redirect(routes.DoYouLiveInTheUKController.onPageLoad())
+            case true =>
+              cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
+              Redirect(configDecorator.tcsChangeAddressUrl)
+            case false =>
+              cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
+              Redirect(routes.DoYouLiveInTheUKController.onPageLoad())
           }
         }
       }

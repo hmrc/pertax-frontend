@@ -18,7 +18,7 @@ package models
 
 import controllers.bindable.AddrType
 import models.addresslookup.{AddressRecord, RecordSet}
-import models.dto.{AddressDto, AddressFinderDto, AddressPageVisitedDto, DateDto, InternationalAddressChoiceDto, ResidencyChoiceDto}
+import models.dto.{AddressDto, AddressFinderDto, AddressPageVisitedDto, DateDto, InternationalAddressChoiceDto, ResidencyChoiceDto, TaxCreditsChoiceDto}
 
 trait CacheIdentifier[A] {
   val id: String
@@ -26,6 +26,10 @@ trait CacheIdentifier[A] {
 
 case object AddressPageVisitedDtoId extends CacheIdentifier[AddressPageVisitedDto] {
   override val id: String = "addressPageVisitedDto"
+}
+
+case object TaxCreditsChoiceId extends CacheIdentifier[TaxCreditsChoiceDto] {
+  override val id: String = "taxCreditsChoiceDto"
 }
 
 case object SubmittedInternationalAddressChoiceId extends CacheIdentifier[InternationalAddressChoiceDto] {
