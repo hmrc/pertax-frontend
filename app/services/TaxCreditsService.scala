@@ -33,7 +33,6 @@ class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(imp
     } else {
       taxCreditsConnector.checkForTaxCredits(nino.get) bimap (_ => false,
       result => {
-        print(result)
         if (result.status == OK) true else false
       })
     }.merge
