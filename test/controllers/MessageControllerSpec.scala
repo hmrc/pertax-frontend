@@ -89,11 +89,11 @@ class MessageControllerSpec extends BaseSpec {
       body must include("Message List")
     }
 
-    List(
-      WrongCredentialsSelfAssessmentUser(saUtr),
-      NotEnrolledSelfAssessmentUser(saUtr)
-    ).foreach { saUserType =>
-      s"display SA message banner when called by $saUserType SA user" in {
+    Map[SelfAssessmentUserType, String](
+      WrongCredentialsSelfAssessmentUser(saUtr) -> "/personal-account/self-assessment",
+      NotEnrolledSelfAssessmentUser(saUtr)      -> "/personal-account/sa-enrolment"
+    ).foreach { case (saUserType, url) =>
+      s"display SA message banner when called by $saUserType SA user and contain correct URL" in {
 
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -115,6 +115,7 @@ class MessageControllerSpec extends BaseSpec {
         status(r) mustBe OK
         verify(mockMessageFrontendService, times(1)).getMessageListPartial(any())
         body must include("Are you registered for Self Assessment")
+        body must include(url)
       }
     }
 

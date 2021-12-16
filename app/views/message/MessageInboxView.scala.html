@@ -21,7 +21,7 @@
 
 @this(mainView: MainView)
 
-@(messageListPartial: Html, displayMessageBanner: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(messageListPartial: Html, displayMessageBanner: Option[String])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 @mainView(title = messages("label.your_messages"), Some(messages("label.your_personal_tax_account"))) {
 
     @back_link()
@@ -34,7 +34,7 @@
   <li >@messages("label.wrong_account")</li>
   <li >@messages("label.not_yet_enrolled")</li>
  </ul>
- <a href="@routes.SelfAssessmentController.handleSelfAssessment">@messages("label.check_sa_status_link")</a>
+ <a href="@{displayMessageBanner.get}">@messages("label.check_sa_status_link")</a>
 </div>
 <br>
 }
