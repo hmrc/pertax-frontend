@@ -48,8 +48,6 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
   "/personal-account/your-address/tax-credits-choice" must {
     val url = "/personal-account/your-address/tax-credits-choice"
 
-    val previousPageUrl = "/personal-account/your-profile"
-
     val tcsBrokerUrl = s"/tcs/$generatedNino/dashboard-data"
 
     val citizenDetailsUrl = s"/citizen-details/nino/$generatedNino"
@@ -255,9 +253,9 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
 
         val result = route(app, request)
 
-        result.get.futureValue.header.status mustBe SEE_OTHER
+        result.get.futureValue.header.status mustBe INTERNAL_SERVER_ERROR
 
-        result.get.futureValue.header.headers.get("Location") mustBe Some("/personal-account/your-address/residential/do-you-live-in-the-uk")
+        result.get.futureValue.header.headers.get("Location") mustBe None
       }
     }
   }

@@ -37,7 +37,7 @@ class LocalTemplateRenderer @Inject() (
   override lazy val refreshAfter: Duration =
     runModeConfiguration.getOptional[Int]("template.refreshInterval").getOrElse(600) seconds
 
-  private implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId-00000-00000-00000")))
+  private implicit val hc = HeaderCarrier()
 
   override def fetchTemplate(path: String): Future[String] =
     wsHttp.GET(path).map(_.body)

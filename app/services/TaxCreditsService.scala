@@ -19,7 +19,7 @@ package services
 import cats.implicits.catsStdInstancesForFuture
 import com.google.inject.Inject
 import connectors.TaxCreditsConnector
-import play.api.http.Status.OK
+import play.api.http.Status.{NOT_FOUND, OK}
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -27,13 +27,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TaxCreditsService @Inject() (taxCreditsConnector: TaxCreditsConnector)(implicit ec: ExecutionContext) {
 
-  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Boolean] =
+  def checkForTaxCredits(nino: Option[Nino])(implicit headerCarrier: HeaderCarrier): Future[Option[Boolean]] =
     if (nino.isEmpty) {
-      Future.successful(false)
+      Future.successful(Some(false))
     } else {
-      taxCreditsConnector.checkForTaxCredits(nino.get) bimap (_ => false,
-      result => {
-        if (result.status == OK) true else false
-      })
+      taxCreditsConnector.checkForTaxCredits(nino.get) bimap (
+        error => if (error.statusCode == NOT_FOUND) Some(false) else None,
+        result => {
+          if (result.status == OK) Some(true) else Some(false)
+        }
+      )
     }.merge
 }

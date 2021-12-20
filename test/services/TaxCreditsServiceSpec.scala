@@ -20,7 +20,7 @@ import cats.data.EitherT
 import connectors.TaxCreditsConnector
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import play.api.http.Status.{BAD_REQUEST, IM_A_TEAPOT, INTERNAL_SERVER_ERROR, NOT_FOUND, OK, SERVICE_UNAVAILABLE}
+import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpResponse, UpstreamErrorResponse}
 import util.BaseSpec
 import util.Fixtures.fakeNino
@@ -35,7 +35,7 @@ class TaxCreditsServiceSpec extends BaseSpec {
 
   "TaxCreditsService" when {
     "I call checkForTaxCredits" must {
-      "return true if TCS data is available for a given NINO" in {
+      "return Some(true) if TCS data is available for a given NINO" in {
         when(connector.checkForTaxCredits(any())(any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
@@ -43,9 +43,10 @@ class TaxCreditsServiceSpec extends BaseSpec {
 
         val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
 
-        result mustBe true
+        result mustBe Some(true)
       }
-      "return false if no NINO is provided" in {
+
+      "return Some(false) if no NINO is provided" in {
         when(connector.checkForTaxCredits(any())(any()))
           .thenReturn(
             EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Right(HttpResponse(OK, ""))))
@@ -53,17 +54,27 @@ class TaxCreditsServiceSpec extends BaseSpec {
 
         val result = sut.checkForTaxCredits(None).futureValue
 
-        result mustBe false
+        result mustBe Some(false)
+      }
+
+      "return Some(false) if TCS data is NOT_FOUND for a given NINO" in {
+        when(connector.checkForTaxCredits(any())(any()))
+          .thenReturn(
+            EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", NOT_FOUND))))
+          )
+
+        val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
+
+        result mustBe Some(false)
       }
 
       List(
         BAD_REQUEST,
-        NOT_FOUND,
         IM_A_TEAPOT,
         INTERNAL_SERVER_ERROR,
         SERVICE_UNAVAILABLE
       ).foreach { status =>
-        s"return false if TCS data is $status for a given NINO" in {
+        s"return None if TCS data is $status for a given NINO" in {
           when(connector.checkForTaxCredits(any())(any()))
             .thenReturn(
               EitherT[Future, UpstreamErrorResponse, HttpResponse](Future(Left(UpstreamErrorResponse("", status))))
@@ -71,10 +82,9 @@ class TaxCreditsServiceSpec extends BaseSpec {
 
           val result = sut.checkForTaxCredits(Some(fakeNino)).futureValue
 
-          result mustBe false
+          result mustBe None
         }
       }
     }
   }
-
 }

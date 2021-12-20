@@ -25,6 +25,7 @@ import models.dto.TaxCreditsChoiceDto
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TaxCreditsService
 import uk.gov.hmrc.renderer.TemplateRenderer
+import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 
 import scala.concurrent.ExecutionContext
@@ -35,7 +36,8 @@ class TaxCreditsChoiceController @Inject() (
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
-  taxCreditsService: TaxCreditsService
+  taxCreditsService: TaxCreditsService,
+  internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
@@ -44,12 +46,14 @@ class TaxCreditsChoiceController @Inject() (
       cachingHelper.gettingCachedAddressPageVisitedDto { addressPageVisitedDto =>
         cachingHelper.enforceDisplayAddressPageVisited(addressPageVisitedDto) {
           taxCreditsService.checkForTaxCredits(Some(nino)).map {
-            case true =>
+            case Some(true) =>
               cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(true))
               Redirect(configDecorator.tcsChangeAddressUrl)
-            case false =>
+            case Some(false) =>
               cachingHelper.addToCache(TaxCreditsChoiceId, TaxCreditsChoiceDto(false))
               Redirect(routes.DoYouLiveInTheUKController.onPageLoad())
+            case None =>
+              InternalServerError(internalServerErrorView())
           }
         }
       }
