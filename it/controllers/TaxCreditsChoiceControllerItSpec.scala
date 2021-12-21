@@ -209,7 +209,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       INTERNAL_SERVER_ERROR,
       SERVICE_UNAVAILABLE
     ).foreach { response =>
-      s"return a SEE_OTHER and redirect to PTA Address Change if the call to TCS fails with a $response" in {
+      s"return an INTERNAL_SERVER_ERROR and redirect to PTA Address Change if the call to TCS fails with a $response" in {
 
         server.stubFor(
           get(urlEqualTo(citizenDetailsUrl))
