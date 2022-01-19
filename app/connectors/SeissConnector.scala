@@ -22,6 +22,6 @@ import models.SeissModel
 import scala.concurrent.Future
 
 class SeissConnector @Inject() () {
-  def getClaims(utr: String): Future[List[SeissModel]] =
-    Future.successful(List())
+  def hasClaims(utr: Option[String]): Boolean =
+    true
 }

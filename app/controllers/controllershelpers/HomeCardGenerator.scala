@@ -43,7 +43,7 @@ class HomeCardGenerator @Inject() (
   taxSummariesView: TaxSummariesView,
   seissConnector: SeissConnector,
   seissView: SeissView
-)(implicit configDecorator: ConfigDecorator, ec: ExecutionContext) {
+)(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
     taxComponentsState: TaxComponentsState,

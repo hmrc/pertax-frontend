@@ -17,8 +17,10 @@
 package controllers.controllershelpers
 
 import config.ConfigDecorator
+import connectors.SeissConnector
 import controllers.auth.requests.UserRequest
 import models._
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
@@ -47,6 +49,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val marriageAllowance = injected[MarriageAllowanceView]
   val statePension = injected[StatePensionView]
   val taxSummaries = injected[TaxSummariesView]
+  val seissConnector = mock[SeissConnector]
+  val seissView = injected[SeissView]
 
   val homeCardGenerator =
     new HomeCardGenerator(
@@ -58,7 +62,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       childBenefit,
       marriageAllowance,
       statePension,
-      taxSummaries
+      taxSummaries,
+      seissConnector,
+      seissView
     )
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -246,7 +252,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           childBenefit,
           marriageAllowance,
           statePension,
-          taxSummaries
+          taxSummaries,
+          seissConnector,
+          seissView
         )(stubConfigDecorator)
 
       sut.getNationalInsuranceCard() mustBe None
@@ -398,13 +406,53 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             childBenefit,
             marriageAllowance,
             statePension,
-            taxSummaries
+            taxSummaries,
+            seissConnector,
+            seissView
           )(stubConfigDecorator)
 
         lazy val cardBody = sut.getAnnualTaxSummaryCard
 
         cardBody mustBe None
       }
+    }
+  }
+
+  "calling getSeissCard" must {
+
+    List(
+      ActivatedOnlineFilerSelfAssessmentUser,
+      NotYetActivatedOnlineFilerSelfAssessmentUser,
+      WrongCredentialsSelfAssessmentUser,
+      NotEnrolledSelfAssessmentUser
+    ).foreach { user =>
+      s"return correct markup when called by a $user user  with seiss data" in {
+
+        when(seissConnector.hasClaims(Some(testUtr.toString()))) thenReturn true
+
+        val saUserType = user(testUtr)
+
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(request = FakeRequest())
+
+        lazy val cardBody = homeCardGenerator.getSeissCard(saUserType)
+
+        cardBody mustBe Some(seissView())
+
+      }
+    }
+
+    "return None when called by a NonFilerSelfAssessmentUser" in {
+      when(seissConnector.hasClaims(None)) thenReturn false
+
+      val saUserType = NonFilerSelfAssessmentUser
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      lazy val cardBody = homeCardGenerator.getSeissCard(saUserType)
+
+      cardBody mustBe None
     }
   }
 }
