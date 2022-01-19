@@ -49,6 +49,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockConfigDecorator = mock[ConfigDecorator]
   val mockTaxCalculationService = mock[TaxCalculationService]
   val mockTaiService = mock[TaiService]
+  val mockSeissService = mock[SeissService]
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
@@ -97,7 +98,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         mockAuthJourney,
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
-        injected[HomeView]
+        injected[HomeView],
+        mockSeissService
       )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {

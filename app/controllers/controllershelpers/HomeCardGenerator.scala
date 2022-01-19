@@ -50,6 +50,7 @@ class HomeCardGenerator @Inject() (
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
     saActionNeeded: SelfAssessmentUserType,
+    showSeissCard: Boolean,
     currentTaxYear: Int
   )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
@@ -57,9 +58,9 @@ class HomeCardGenerator @Inject() (
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
+      if (showSeissCard) Some(seissView()) else None,
       getNationalInsuranceCard(),
-      getAnnualTaxSummaryCard,
-      getSeissCard(saActionNeeded)
+      getAnnualTaxSummaryCard
     ).flatten
 
   def getBenefitCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
@@ -143,5 +144,6 @@ class HomeCardGenerator @Inject() (
     Some(statePensionView())
 
   def getSeissCard(saUserType: SelfAssessmentUserType)(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    //make call to the connector which will return a boolean
     Some(seissView())
 }

@@ -17,11 +17,25 @@
 package connectors
 
 import com.google.inject.Inject
-import models.SeissModel
+import config.ConfigDecorator
+import models.{SeissModel, SeissRequest}
+import play.api.i18n.Lang.logger
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
-import scala.concurrent.Future
+import javax.inject.Singleton
+import scala.concurrent.{ExecutionContext, Future}
 
-class SeissConnector @Inject() () {
-  def hasClaims(utr: Option[String]): Boolean =
-    true
+@Singleton
+class SeissConnector @Inject() (http: HttpClient, implicit val ec: ExecutionContext, configDecorator: ConfigDecorator) {
+
+  def getClaims(utr: String)(implicit hc: HeaderCarrier): Future[List[SeissModel]] = {
+    val seissRequest = SeissRequest(utr)
+    http.POST[SeissRequest, List[SeissModel]](
+      s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
+      seissRequest
+    )
+  }.recover { case exception =>
+    logger.warn("[SeissConnector][getClaims] Seiss error", exception)
+    List.empty[SeissModel]
+  }
 }

@@ -36,6 +36,8 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home._
 
+import scala.concurrent.Future
+
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator = config
@@ -428,7 +430,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     ).foreach { user =>
       s"return correct markup when called by a $user user  with seiss data" in {
 
-        when(seissConnector.hasClaims(Some(testUtr.toString()))) thenReturn true
+        when(seissConnector.getClaims(testUtr.toString())) thenReturn Future.successful(
+          List(SeissModel("123"), SeissModel("456"))
+        )
 
         val saUserType = user(testUtr)
 
@@ -440,19 +444,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         cardBody mustBe Some(seissView())
 
       }
-    }
-
-    "return None when called by a NonFilerSelfAssessmentUser" in {
-      when(seissConnector.hasClaims(None)) thenReturn false
-
-      val saUserType = NonFilerSelfAssessmentUser
-
-      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-        buildUserRequest(request = FakeRequest())
-
-      lazy val cardBody = homeCardGenerator.getSeissCard(saUserType)
-
-      cardBody mustBe None
     }
   }
 }

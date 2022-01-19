@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
 import play.api.Application
+import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -56,7 +57,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper {
 
   "SeissConnector" when {
 
-    "hasClaims is called" must {
+    "getClaims is called" must {
 
       "return true" when {
 
@@ -108,7 +109,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper {
           )
 
           sut
-            .hasClaims(Some(utr.toString())) mustBe true
+            .getClaims(utr.toString()) mustBe true
         }
       }
       "return false" when {
@@ -124,9 +125,25 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper {
           )
 
           sut
-            .hasClaims(Some(utr.toString())) mustBe false
+            .getClaims(utr.toString())
+            .futureValue mustBe false
 
         }
+      }
+
+      "return false" when {
+        List(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND).foreach(statusCode =>
+          s"a status $statusCode is returned" in {
+            server.stubFor(
+              post(urlEqualTo(url)).willReturn(aResponse().withStatus(statusCode))
+            )
+
+            sut
+              .getClaims(utr.toString())
+              .futureValue mustBe false
+
+          }
+        )
       }
     }
   }

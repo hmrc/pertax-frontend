@@ -43,6 +43,9 @@ class ConfigDecorator @Inject() (
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
+  def seissUrl = servicesConfig.baseUrl("self-employed-income-support")
+  def seissClaimsUrl: String = servicesConfig.getString(s"self-employed-income-support.url")
+
   private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")

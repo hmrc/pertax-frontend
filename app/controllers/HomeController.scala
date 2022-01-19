@@ -44,7 +44,8 @@ class HomeController @Inject() (
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  homeView: HomeView
+  homeView: HomeView,
+  seissService: SeissService
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
@@ -63,18 +64,21 @@ class HomeController @Inject() (
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)
 
+    val saUserType = request.saUserType
+
     showUserResearchBanner flatMap { showUserResearchBanner =>
       enforcePaperlessPreference {
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
+          showSeissClaims                                                                 <- seissService.hasClaims(saUserType)
         } yield {
-          val saUserType = request.saUserType
 
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
             taxSummaryState,
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
             saUserType,
+            showSeissClaims,
             current.currentYear
           )
 
