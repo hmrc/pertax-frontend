@@ -15,20 +15,17 @@
 *@
 
 @import tags._
-@this()
+@import config.ConfigDecorator
+
+@this(configDecorator: ConfigDecorator)
 @()(implicit messages: play.api.i18n.Messages)
 
 
 @card(
-url = Some("/bbc"),
+url = Some(s"${configDecorator.seissClaimsUrl}"),
 gaAction = Some(""),
 gaLabel = Some(""),
-heading = messages("title.state_pension"),
+heading = messages("title.seiss"),
 headingTag = "h3",
-bodyContent = Some(Html("<p>" + "hellooooooooooooooooooooooooooooooooo" + "</p>"))
-) {
-<ul>
-    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your State Pension forecast">@messages("label.view_your_state_pension_forecast")</a></li>
-    <li><a class="ga-track-anchor-click" href="/check-your-state-pension/account/nirecord/pta" data-ga-event-category="link - click" data-ga-event-action="Pensions" data-ga-event-label="View your National Insurance record">@messages("label.view_your_national_insurance_record")</a></li>
-</ul>
-}
+bodyContent = Some(Html("<p>" + messages("body.seiss") + "</p>"))
+){<p>hello<p>}
