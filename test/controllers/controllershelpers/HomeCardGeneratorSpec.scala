@@ -431,7 +431,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       s"return correct markup when called by a $user user  with seiss data" in {
 
         when(seissConnector.getClaims(testUtr.toString())) thenReturn Future.successful(
-          List(SeissModel("123"), SeissModel("456"))
+          Right(List(SeissModel("123"), SeissModel("456")))
         )
 
         val saUserType = user(testUtr)

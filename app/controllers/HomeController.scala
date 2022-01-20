@@ -26,7 +26,7 @@ import org.joda.time.DateTime
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear

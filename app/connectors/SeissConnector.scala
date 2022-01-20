@@ -17,25 +17,55 @@
 package connectors
 
 import com.google.inject.Inject
+import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
+import metrics.HasMetrics
 import models.{SeissModel, SeissRequest}
 import play.api.i18n.Lang.logger
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException, UpstreamErrorResponse}
 
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 @Singleton
-class SeissConnector @Inject() (http: HttpClient, implicit val ec: ExecutionContext, configDecorator: ConfigDecorator) {
+class SeissConnector @Inject() (
+  http: HttpClient,
+  implicit val ec: ExecutionContext,
+  configDecorator: ConfigDecorator,
+  val metrics: Metrics
+) extends HasMetrics {
 
-  def getClaims(utr: String)(implicit hc: HeaderCarrier): Future[List[SeissModel]] = {
+  def getClaims(utr: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, List[SeissModel]]] = {
     val seissRequest = SeissRequest(utr)
-    http.POST[SeissRequest, List[SeissModel]](
-      s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
-      seissRequest
-    )
-  }.recover { case exception =>
-    logger.warn("[SeissConnector][getClaims] Seiss error", exception)
-    List.empty[SeissModel]
+
+    withMetricsTimer("Get-seiss-claims") { timer =>
+      http
+        .POST[SeissRequest, Either[UpstreamErrorResponse, List[SeissModel]]](
+          s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
+          seissRequest
+        )
+        .map {
+          case Right(response) =>
+            timer.completeTimerAndIncrementSuccessCounter()
+            Right(response)
+          case Left(error) if error.statusCode >= 499 || error.statusCode == 429 =>
+            timer.completeTimerAndIncrementFailedCounter()
+            logger.error(error.message)
+            Left(error)
+          case Left(error) =>
+            timer.completeTimerAndIncrementFailedCounter()
+            logger.error(error.message, error)
+            Left(error)
+        } recover {
+        case exception: HttpException =>
+          timer.completeTimerAndIncrementFailedCounter()
+          logger.error(exception.message)
+          Left(UpstreamErrorResponse(exception.message, 502, 502))
+        case exception =>
+          timer.completeTimerAndIncrementFailedCounter()
+          throw exception
+      }
+    }
   }
 }

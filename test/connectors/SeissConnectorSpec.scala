@@ -27,6 +27,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 
@@ -112,7 +113,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
           sut
             .getClaims(utr.toString())
-            .futureValue mustBe List(SeissModel("1234567890"))
+            .futureValue mustBe Right(List(SeissModel("1234567890")))
         }
       }
       "return empty list" when {
@@ -129,7 +130,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
           sut
             .getClaims(utr.toString())
-            .futureValue mustBe List()
+            .futureValue mustBe Right(List())
 
         }
       }
@@ -143,7 +144,9 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
             sut
               .getClaims(utr.toString())
-              .futureValue mustBe List()
+              .futureValue
+              .left
+              .get mustBe a[UpstreamErrorResponse]
 
           }
         )

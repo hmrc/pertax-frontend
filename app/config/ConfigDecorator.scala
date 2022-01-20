@@ -44,7 +44,6 @@ class ConfigDecorator @Inject() (
   def currentLocalDate: LocalDate = LocalDate.now()
 
   def seissUrl = servicesConfig.baseUrl("self-employed-income-support")
-  def seissClaimsUrl: String = servicesConfig.getString(s"self-employed-income-support.url")
 
   private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
@@ -62,6 +61,7 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String](s"external-url.$key")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
+  lazy val seissFrontendHost = getExternalUrl(s"self-employed-income-support-frontend.host").getOrElse("")
   lazy val preferencesFrontendService = getExternalUrl(s"preferences-frontend").getOrElse("")
   lazy val contactHost = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = getExternalUrl(s"citizen-auth.host").getOrElse("")
