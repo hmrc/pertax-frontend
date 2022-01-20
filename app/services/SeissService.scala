@@ -25,12 +25,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SeissService @Inject() (seissConnector: SeissConnector)(implicit ec: ExecutionContext) {
 
-  def hasClaims(saUserType: SelfAssessmentUserType)(implicit hc: HeaderCarrier): Future[Boolean] =
+  def hasClaims(saUserType: SelfAssessmentUserType)(implicit hc: HeaderCarrier): Future[Boolean] = {
     saUserType match {
       case NonFilerSelfAssessmentUser => Future.successful(false)
       case user: SelfAssessmentUser   => seissConnector.getClaims(user.saUtr.toString()).map(claims => claims.nonEmpty)
       case _                          => Future.successful(false)
 
     }
+  }
 
 }

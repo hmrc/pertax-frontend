@@ -18,7 +18,9 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.Fault
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, UserDetails}
+import config.ConfigDecorator
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, SeissModel, UserDetails}
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -30,17 +32,17 @@ import util.{BaseSpec, WireMockHelper}
 
 import java.util.UUID
 
-class SeissConnectorSpec extends BaseSpec with WireMockHelper {
+class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
-      "microservice.services.add-taxes-frontend.port" -> server.port()
+      "microservice.services.self-employed-income-support.port" -> server.port()
     )
     .build()
 
   def sut: SeissConnector = injected[SeissConnector]
 
-  val url = "/get-claims"
+  val url = "/self-employed-income-support/get-claims"
 
   val utr: SaUtr = new SaUtrGenerator().nextSaUtr
 
@@ -109,10 +111,11 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper {
           )
 
           sut
-            .getClaims(utr.toString()) mustBe true
+            .getClaims(utr.toString())
+            .futureValue mustBe List(SeissModel("1234567890"))
         }
       }
-      "return false" when {
+      "return empty list" when {
         "the user has no seiss data" in {
 
           val response =
@@ -126,7 +129,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper {
 
           sut
             .getClaims(utr.toString())
-            .futureValue mustBe false
+            .futureValue mustBe List()
 
         }
       }
@@ -140,7 +143,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper {
 
             sut
               .getClaims(utr.toString())
-              .futureValue mustBe false
+              .futureValue mustBe List()
 
           }
         )

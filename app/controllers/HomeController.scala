@@ -70,7 +70,7 @@ class HomeController @Inject() (
       enforcePaperlessPreference {
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-          showSeissClaims                                                                 <- seissService.hasClaims(saUserType)
+          showSeissCard                                                                   <- seissService.hasClaims(saUserType)
         } yield {
 
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
@@ -78,7 +78,7 @@ class HomeController @Inject() (
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
             saUserType,
-            showSeissClaims,
+            showSeissCard,
             current.currentYear
           )
 
