@@ -27,7 +27,6 @@ class SeissService @Inject() (seissConnector: SeissConnector)(implicit ec: Execu
 
   def hasClaims(saUserType: SelfAssessmentUserType)(implicit hc: HeaderCarrier): Future[Boolean] =
     saUserType match {
-      case NonFilerSelfAssessmentUser => Future.successful(false)
       case user: SelfAssessmentUser =>
         seissConnector.getClaims(user.saUtr.toString()).map {
           case Right(claims) => claims.nonEmpty

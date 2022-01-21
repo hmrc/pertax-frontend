@@ -17,19 +17,19 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.http.Fault
-import config.ConfigDecorator
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, SaEnrolmentRequest, SaEnrolmentResponse, SeissModel, UserDetails}
+import models.{ActivatedOnlineFilerSelfAssessmentUser, SeissModel, UserDetails}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.http.Status._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
+import play.api.test.Helpers.await
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.http.{JsValidationException, UpstreamErrorResponse}
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
+import play.api.test.Helpers.defaultAwaitTimeout
 
 import java.util.UUID
 
@@ -62,7 +62,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
     "getClaims is called" must {
 
-      "return true" when {
+      "return list of claims" when {
 
         "the user has seiss data" in {
 
@@ -135,7 +135,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
         }
       }
 
-      "return false" when {
+      "return Left(UpstreamErrorResponse)" when {
         List(BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND).foreach(statusCode =>
           s"a status $statusCode is returned" in {
             server.stubFor(
@@ -149,6 +149,32 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
               .get mustBe a[UpstreamErrorResponse]
 
           }
+        )
+      }
+    }
+
+    "return Left(UpstreamErrorResponse)" when {
+      "there is a timeout" in {
+        server.stubFor(
+          post(urlEqualTo(url)).willReturn(ok("{}").withFixedDelay(5000))
+        )
+
+        sut
+          .getClaims(utr.toString())
+          .futureValue
+          .left
+          .get mustBe a[UpstreamErrorResponse]
+      }
+    }
+
+    "return an exception" when {
+      "json is invalid" in {
+        server.stubFor(
+          post(urlEqualTo(url)).willReturn(ok("""{"invalid":"invalid"}"""))
+        )
+
+        a[JsValidationException] mustBe thrownBy(
+          await(sut.getClaims(utr.toString()))
         )
       }
     }
