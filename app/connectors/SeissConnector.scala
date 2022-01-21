@@ -53,6 +53,10 @@ class SeissConnector @Inject() (
             timer.completeTimerAndIncrementFailedCounter()
             logger.error(error.message)
             Left(error)
+          case Left(error) if error.statusCode == 404 =>
+            timer.completeTimerAndIncrementFailedCounter()
+            logger.info(error.message)
+            Left(error)
           case Left(error) =>
             timer.completeTimerAndIncrementFailedCounter()
             logger.error(error.message, error)
