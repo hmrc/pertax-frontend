@@ -419,31 +419,4 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       }
     }
   }
-
-  "calling getSeissCard" must {
-
-    List(
-      ActivatedOnlineFilerSelfAssessmentUser,
-      NotYetActivatedOnlineFilerSelfAssessmentUser,
-      WrongCredentialsSelfAssessmentUser,
-      NotEnrolledSelfAssessmentUser
-    ).foreach { user =>
-      s"return correct markup when called by a $user user  with seiss data" in {
-
-        when(seissConnector.getClaims(testUtr.toString())) thenReturn Future.successful(
-          Right(List(SeissModel("123"), SeissModel("456")))
-        )
-
-        val saUserType = user(testUtr)
-
-        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
-          buildUserRequest(request = FakeRequest())
-
-        lazy val cardBody = homeCardGenerator.getSeissCard(saUserType)
-
-        cardBody mustBe Some(seissView())
-
-      }
-    }
-  }
 }

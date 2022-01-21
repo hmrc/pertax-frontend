@@ -143,7 +143,4 @@ class HomeCardGenerator @Inject() (
   def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(statePensionView())
 
-  def getSeissCard(saUserType: SelfAssessmentUserType)(implicit messages: Messages): Option[HtmlFormat.Appendable] =
-    //make call to the connector which will return a boolean
-    Some(seissView())
 }
