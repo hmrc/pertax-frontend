@@ -91,6 +91,9 @@ class ConfigDecorator @Inject() (
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
+  lazy val isSeissTileEnabled =
+    runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
+
   lazy val portalBaseUrl = runModeConfiguration.get[String]("external-url.sso-portal.host")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)
   lazy val frontendTemplatePath: String =
