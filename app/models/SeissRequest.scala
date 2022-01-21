@@ -18,8 +18,8 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-final case class SeissModel(utr: String)
+final case class SeissRequest(utr: String)
 
-object SeissModel {
-  implicit val format: Format[SeissModel] = Json.format[SeissModel]
+object SeissRequest {
+  implicit val format: Format[SeissRequest] = Json.format[SeissRequest]
 }
