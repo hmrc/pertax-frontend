@@ -19,6 +19,7 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
+import connectors.SeissConnector
 import models._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
@@ -26,6 +27,8 @@ import play.twirl.api.{Html, HtmlFormat}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
+
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HomeCardGenerator @Inject() (
@@ -37,7 +40,9 @@ class HomeCardGenerator @Inject() (
   childBenefitView: ChildBenefitView,
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
-  taxSummariesView: TaxSummariesView
+  taxSummariesView: TaxSummariesView,
+  seissConnector: SeissConnector,
+  seissView: SeissView
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -45,6 +50,7 @@ class HomeCardGenerator @Inject() (
     taxCalculationStateCyMinusOne: Option[TaxYearReconciliation],
     taxCalculationStateCyMinusTwo: Option[TaxYearReconciliation],
     saActionNeeded: SelfAssessmentUserType,
+    showSeissCard: Boolean,
     currentTaxYear: Int
   )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
@@ -52,6 +58,7 @@ class HomeCardGenerator @Inject() (
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
+      if (showSeissCard && configDecorator.isSeissTileEnabled) Some(seissView()) else None,
       getNationalInsuranceCard(),
       getAnnualTaxSummaryCard
     ).flatten
@@ -135,4 +142,5 @@ class HomeCardGenerator @Inject() (
 
   def getStatePensionCard()(implicit messages: Messages): Some[HtmlFormat.Appendable] =
     Some(statePensionView())
+
 }

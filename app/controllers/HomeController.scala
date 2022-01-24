@@ -26,7 +26,7 @@ import org.joda.time.DateTime
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import play.twirl.api.Html
 import services._
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import uk.gov.hmrc.time.CurrentTaxYear
@@ -44,7 +44,8 @@ class HomeController @Inject() (
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
-  homeView: HomeView
+  homeView: HomeView,
+  seissService: SeissService
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
@@ -63,18 +64,21 @@ class HomeController @Inject() (
     val responses: Future[(TaxComponentsState, Option[TaxYearReconciliation], Option[TaxYearReconciliation])] =
       serviceCallResponses(request.nino, current.currentYear)
 
+    val saUserType = request.saUserType
+
     showUserResearchBanner flatMap { showUserResearchBanner =>
       enforcePaperlessPreference {
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
+          showSeissCard                                                                   <- seissService.hasClaims(saUserType)
         } yield {
-          val saUserType = request.saUserType
 
           val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
             taxSummaryState,
             taxCalculationStateCyMinusOne,
             taxCalculationStateCyMinusTwo,
             saUserType,
+            showSeissCard,
             current.currentYear
           )
 
