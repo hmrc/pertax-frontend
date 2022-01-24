@@ -30,7 +30,7 @@ import play.api.inject._
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.NinoDisplayService
+import services.CitizenDetailsService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -46,7 +46,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
   val mockHomeController = mock[HomeController]
-  val ninoDisplayService = mock[NinoDisplayService]
+  val ninoDisplayService = mock[CitizenDetailsService]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(

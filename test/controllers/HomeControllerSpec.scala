@@ -17,6 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
+import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}

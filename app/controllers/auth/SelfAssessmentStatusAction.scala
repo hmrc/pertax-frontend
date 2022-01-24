@@ -17,10 +17,11 @@
 package controllers.auth
 
 import com.google.inject.Inject
+import connectors.{CitizenDetailsConnector, MatchingDetailsSuccessResponse}
 import controllers.auth.requests._
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
-import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDetailsSuccessResponse}
+import services.EnrolmentStoreCachingService
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -28,14 +29,14 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentStatusAction @Inject() (
-  citizenDetailsService: CitizenDetailsService,
+  citizenDetailsConnector: CitizenDetailsConnector,
   enrolmentsCachingService: EnrolmentStoreCachingService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
-    citizenDetailsService.getMatchingDetails(nino) map {
+    citizenDetailsConnector.getMatchingDetails(nino) map {
       case MatchingDetailsSuccessResponse(matchingDetails) => matchingDetails.saUtr
       case _                                               => None
     }

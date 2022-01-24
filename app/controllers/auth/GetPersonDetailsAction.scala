@@ -18,13 +18,13 @@ package controllers.auth
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.{CitizenDetailsConnector, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -33,7 +33,7 @@ import views.html.ManualCorrespondenceView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
-  citizenDetailsService: CitizenDetailsService,
+  citizenDetailsConnector: CitizenDetailsConnector,
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
@@ -99,7 +99,7 @@ class GetPersonDetailsAction @Inject() (
 
     request.nino match {
       case Some(nino) =>
-        citizenDetailsService.personDetails(nino).map {
+        citizenDetailsConnector.personDetails(nino).map {
           case PersonDetailsSuccessResponse(pd) => Right(Some(pd))
           case PersonDetailsHiddenResponse =>
             Left(Locked(manualCorrespondenceView()))

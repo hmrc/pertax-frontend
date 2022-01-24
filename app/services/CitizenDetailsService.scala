@@ -17,156 +17,72 @@
 package services
 
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
-import metrics._
-import models._
-import play.api.Logging
-import play.api.http.Status._
-import play.api.libs.json.{JsObject, Json}
-import services.http.SimpleHttp
+import config.ConfigDecorator
+import connectors.{CitizenDetailsConnector, PersonDetailsErrorResponse, PersonDetailsHiddenResponse, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse, PersonDetailsUnexpectedResponse}
+import controllers.auth.requests.UserRequest
+import models.Address
 import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-sealed trait PersonDetailsResponse
-case class PersonDetailsSuccessResponse(personDetails: PersonDetails) extends PersonDetailsResponse
-case object PersonDetailsNotFoundResponse extends PersonDetailsResponse
-case object PersonDetailsHiddenResponse extends PersonDetailsResponse
-case class PersonDetailsUnexpectedResponse(r: HttpResponse) extends PersonDetailsResponse
-case class PersonDetailsErrorResponse(cause: Exception) extends PersonDetailsResponse
-
-sealed trait MatchingDetailsResponse
-case class MatchingDetailsSuccessResponse(matchingDetails: MatchingDetails) extends MatchingDetailsResponse
-case object MatchingDetailsNotFoundResponse extends MatchingDetailsResponse
-case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDetailsResponse
-case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
+/*
+There is an issue with NINOs obtained from Auth/IV where the suffix is incorrect,
+when we display a NINO to a user we always want to obtain the NINO from CID where it
+matches the NINO ignoring the suffix (and audits the mismatch) and retrieves the
+correct full NINO. We can't use this call downstream as we are not sure how the suffix
+will be treated in the HODs/DES layer.
+ */
 
 @Singleton
-class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
-    extends HasMetrics with Logging {
+class CitizenDetailsService @Inject() (
+  configDecorator: ConfigDecorator,
+  citizenDetailsConnector: CitizenDetailsConnector
+)(implicit
+  ec: ExecutionContext
+) {
 
-  lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
-
-  def personDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[PersonDetailsResponse] =
-    withMetricsTimer("get-person-details") { timer =>
-      simpleHttp.get[PersonDetailsResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details")(
-        onComplete = {
-          case response if response.status >= 200 && response.status < 300 =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            PersonDetailsSuccessResponse(response.json.as[PersonDetails])
-
-          case response if response.status == LOCKED =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Personal details record in citizen-details was hidden")
-            PersonDetailsHiddenResponse
-
-          case response if response.status == NOT_FOUND =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Unable to find personal details record in citizen-details")
-            PersonDetailsNotFoundResponse
-
-          case response =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(s"Unexpected ${response.status} response getting personal details record from citizen-details")
-            PersonDetailsUnexpectedResponse(response)
-        },
-        onError = { e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting personal details record from citizen-details", e)
-          PersonDetailsErrorResponse(e)
-        }
-      )
+  def getNino(implicit request: UserRequest[_], hc: HeaderCarrier): Future[Option[Nino]] =
+    if (configDecorator.getNinoFromCID) {
+      request.nino match {
+        case Some(nino) =>
+          for {
+            result <- citizenDetailsConnector.personDetails(nino)
+          } yield result match {
+            case PersonDetailsSuccessResponse(personDetails) => personDetails.person.nino
+            case _                                           => None
+          }
+        case _ => Future.successful(None)
+      }
+    } else {
+      Future.successful(request.nino)
     }
 
-  def updateAddress(nino: Nino, etag: String, address: Address)(implicit
-    headerCarrier: HeaderCarrier
-  ): Future[UpdateAddressResponse] = {
-    val body = Json.obj("etag" -> etag, "address" -> Json.toJson(address))
-    withMetricsTimer("update-address") { timer =>
-      simpleHttp.post[JsObject, UpdateAddressResponse](
-        s"$citizenDetailsUrl/citizen-details/$nino/designatory-details/address",
-        body
-      )(
-        onComplete = {
-          case response if response.status >= 200 && response.status < 300 =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            UpdateAddressSuccessResponse
-
-          case response if response.status == BAD_REQUEST =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(
-              s"Bad Request ${response.status}-${response.body} response updating address record in citizen-details"
-            )
-            UpdateAddressBadRequestResponse
-
-          case response =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(
-              s"Unexpected ${response.status}-${response.body} response updating address record in citizen-details"
-            )
-            UpdateAddressUnexpectedResponse(response)
-        },
-        onError = { e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error updating address record in citizen-details", e)
-          UpdateAddressErrorResponse(e)
-        }
-      )
-    }
-  }
-
-  def getMatchingDetails(nino: Nino)(implicit hc: HeaderCarrier): Future[MatchingDetailsResponse] =
-    withMetricsTimer("get-matching-details") { timer =>
-      simpleHttp.get[MatchingDetailsResponse](s"$citizenDetailsUrl/citizen-details/nino/$nino")(
-        onComplete = {
-          case response if response.status >= 200 && response.status < 300 =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            MatchingDetailsSuccessResponse(MatchingDetails.fromJsonMatchingDetails(response.json))
-          case response if response.status == NOT_FOUND =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn("Unable to find matching details in citizen-details")
-            MatchingDetailsNotFoundResponse
-          case response =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.warn(s"Unexpected ${response.status} response getting matching details from citizen-details")
-            MatchingDetailsUnexpectedResponse(response)
-        },
-        onError = { e =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.warn("Error getting matching details from citizen-details", e)
-          MatchingDetailsErrorResponse(e)
-        }
-      )
+  def getAddressStatusFromPersonalDetails(implicit
+    request: UserRequest[_],
+    hc: HeaderCarrier
+  ): Future[(Option[Int], Option[Int])] =
+    if (configDecorator.getAddressStatusFromCID) {
+      request.personDetails match {
+        case Some(details) =>
+          val residentialAddressStatus = if (details.address.isDefined) getAddressStatus(details.address.get) else None
+          val correspondanceAddressStatus =
+            if (details.correspondenceAddress.isDefined) getAddressStatus(details.correspondenceAddress.get) else None
+          Future.successful(Tuple2(residentialAddressStatus, correspondanceAddressStatus))
+        case _ => Future.successful(Tuple2(None, None))
+      }
+    } else {
+      Future.successful(Tuple2(Some(1), Some(1)))
     }
 
-  def getEtag(nino: String)(implicit hc: HeaderCarrier): Future[Option[ETag]] =
-    withMetricsTimer("get-etag") { timer =>
-      simpleHttp.get[Option[ETag]](s"$citizenDetailsUrl/citizen-details/$nino/etag")(
-        onComplete = {
-          case response: HttpResponse if response.status == OK =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            response.json.asOpt[ETag]
-          case response =>
-            auditEtagFailure(
-              timer,
-              s"[CitizenDetailsService.getEtag] failed to find etag in citizen-details: ${response.status}"
-            )
-        },
-        onError = { e: Exception =>
-          auditEtagFailure(
-            timer,
-            s"[CitizenDetailsService.getEtag] returned an Exception: ${e.getMessage}"
-          )
-        }
-      )
+  private def getAddressStatus(address: Address): Option[Int] =
+    if (address.status.isDefined) {
+      address.status.get match {
+        case result if result == 0 || result == 1 =>
+          Some(result)
+        case _ => None
+      }
+    } else {
+      None
     }
-
-  private def auditEtagFailure(timer: MetricsTimer, message: String): None.type = {
-    timer.completeTimerAndIncrementFailedCounter()
-    logger.warn(message)
-    None
-  }
-
 }

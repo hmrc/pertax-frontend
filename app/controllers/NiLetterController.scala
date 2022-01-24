@@ -24,7 +24,7 @@ import error.ErrorRenderer
 import org.joda.time.LocalDate
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.NinoDisplayService
+import services.CitizenDetailsService
 import uk.gov.hmrc.http.BadRequestException
 import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import views.html.print._
@@ -34,7 +34,7 @@ import scala.io.Source
 
 class NiLetterController @Inject() (
   val pdfGeneratorConnector: PdfGeneratorConnector,
-  ninoDisplayService: NinoDisplayService,
+  citizenDetailsService: CitizenDetailsService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
@@ -52,7 +52,7 @@ class NiLetterController @Inject() (
       implicit request =>
         if (request.personDetails.isDefined) {
           for {
-            nino <- ninoDisplayService.getNino
+            nino <- citizenDetailsService.getNino
           } yield Ok(
             printNiNumberView(
               request.personDetails.get,
@@ -80,7 +80,7 @@ class NiLetterController @Inject() (
               .mkString
 
             val htmlPayloadF = for {
-              nino <- ninoDisplayService.getNino
+              nino <- citizenDetailsService.getNino
             } yield {
               val niLetter = niLetterView(request.personDetails.get, LocalDate.now.toString("MM/YY"), nino).toString()
 

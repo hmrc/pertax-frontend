@@ -16,6 +16,7 @@
 
 package controllers.auth
 
+import connectors.{CitizenDetailsConnector, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
 import controllers.auth.requests._
 import models._
 import org.mockito.ArgumentMatchers.any
@@ -32,7 +33,7 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
+import services.EnrolmentStoreCachingService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
@@ -44,11 +45,11 @@ class SelfAssessmentStatusActionSpec
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockcitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
+    .overrides(bind[CitizenDetailsConnector].toInstance(mockCitizenDetailsService))
     .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
     .configure(Map("metrics.enabled" -> false))
     .build()

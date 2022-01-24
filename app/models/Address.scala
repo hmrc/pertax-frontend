@@ -32,7 +32,8 @@ case class Address(
   country: Option[String],
   startDate: Option[LocalDate],
   endDate: Option[LocalDate],
-  `type`: Option[String]
+  `type`: Option[String],
+  status: Option[Int]
 ) {
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
   lazy val fullAddress =

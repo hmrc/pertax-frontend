@@ -25,7 +25,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
-import services.NinoDisplayService
+import services.CitizenDetailsService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import util.Fixtures
 import viewmodels.PersonalDetailsViewModel
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
-  val ninoDisplayService = mock[NinoDisplayService]
+  val ninoDisplayService = mock[CitizenDetailsService]
 
   trait LocalSetup extends AddressControllerSetup {
 

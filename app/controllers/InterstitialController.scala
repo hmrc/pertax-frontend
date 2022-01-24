@@ -27,7 +27,7 @@ import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
-import services.{NinoDisplayService, PreferencesFrontendService}
+import services.{CitizenDetailsService, PreferencesFrontendService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
@@ -41,7 +41,7 @@ class InterstitialController @Inject() (
   val formPartialService: FormPartialService,
   val saPartialService: SaPartialService,
   val preferencesFrontendService: PreferencesFrontendService,
-  ninoDisplayService: NinoDisplayService,
+  citizenDetailsService: CitizenDetailsService,
   authJourney: AuthJourney,
   withBreadcrumbAction: WithBreadcrumbAction,
   cc: MessagesControllerComponents,
@@ -69,7 +69,7 @@ class InterstitialController @Inject() (
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
     formPartialService.getNationalInsurancePartial.flatMap { p =>
-      ninoDisplayService.getNino.map { nino =>
+      citizenDetailsService.getNino.map { nino =>
         Ok(
           viewNationalInsuranceInterstitialHomeView(
             formPartial = p successfulContentOrElse Html(""),

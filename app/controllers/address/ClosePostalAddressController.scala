@@ -18,6 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType
@@ -41,7 +42,7 @@ import views.html.personaldetails.{CloseCorrespondenceAddressChoiceView, Confirm
 import scala.concurrent.{ExecutionContext, Future}
 
 class ClosePostalAddressController @Inject() (
-  val citizenDetailsService: CitizenDetailsService,
+  val citizenDetailsConnector: CitizenDetailsConnector,
   val editAddressLockRepository: EditAddressLockRepository,
   val addressMovedService: AddressMovedService,
   cachingHelper: AddressJourneyCachingHelper,
@@ -117,14 +118,14 @@ class ClosePostalAddressController @Inject() (
     val address = getAddress(personDetails.correspondenceAddress)
     val closingAddress = address.copy(endDate = Some(LocalDate.now), startDate = Some(LocalDate.now))
 
-    citizenDetailsService.getEtag(nino.nino) flatMap {
+    citizenDetailsConnector.getEtag(nino.nino) flatMap {
       case None =>
         logger.error("Failed to retrieve Etag from citizen-details")
         errorRenderer.futureError(INTERNAL_SERVER_ERROR)
 
       case Some(version) =>
         for {
-          response <- citizenDetailsService.updateAddress(nino, version.etag, closingAddress)
+          response <- citizenDetailsConnector.updateAddress(nino, version.etag, closingAddress)
           action <- response match {
                       case UpdateAddressBadRequestResponse =>
                         errorRenderer.futureError(BAD_REQUEST)

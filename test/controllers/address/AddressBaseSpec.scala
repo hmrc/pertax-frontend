@@ -17,6 +17,7 @@
 package controllers.address
 
 import config.ConfigDecorator
+import connectors.{CitizenDetailsConnector, PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -47,7 +48,7 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAuthJourney: AuthJourney = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockcitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
   val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]

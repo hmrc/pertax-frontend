@@ -23,7 +23,7 @@ import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDeta
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.NinoDisplayService
+import services.CitizenDetailsService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
@@ -37,7 +37,7 @@ class PersonalDetailsController @Inject() (
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val personalDetailsViewModel: PersonalDetailsViewModel,
   val editAddressLockRepository: EditAddressLockRepository,
-  ninoDisplayService: NinoDisplayService,
+  citizenDetailsService: CitizenDetailsService,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
@@ -64,7 +64,13 @@ class PersonalDetailsController @Inject() (
                           .getOrElse(
                             Future.successful(List[AddressJourneyTTLModel]())
                           )
-        ninoToDisplay <- ninoDisplayService.getNino
+
+        ninoToDisplay <- citizenDetailsService.getNino
+
+        residentialAddressStatus <- citizenDetailsService.getAddressStatusFromPersonalDetails.map(details => details._1)
+
+        correspondenceAddressStatus <-
+          citizenDetailsService.getAddressStatusFromPersonalDetails.map(details => details._2)
 
         _ <- request.personDetails
                .map { details =>
@@ -86,13 +92,16 @@ class PersonalDetailsController @Inject() (
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
+
         Ok(
           personalDetailsView(
             personalDetails,
             addressDetails,
             trustedHelpers,
             paperlessHelpers,
-            signinDetailsHelpers
+            signinDetailsHelpers,
+            residentialAddressStatus,
+            correspondenceAddressStatus
           )
         )
       }

@@ -18,6 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.CitizenDetailsConnector
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.HomePageCachingHelper
 import error.LocalErrorHandler
@@ -30,7 +31,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import scala.concurrent.ExecutionContext
 
 class UserResearchDismissalController @Inject() (
-  val citizenDetailsService: CitizenDetailsService,
+  val citizenDetailsConnector: CitizenDetailsConnector,
   val messageFrontendService: MessageFrontendService,
   val localErrorHandler: LocalErrorHandler,
   val homePageCachingHelper: HomePageCachingHelper,

@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services.partials.{FormPartialService, SaPartialService}
-import services.{NinoDisplayService, _}
+import services.{CitizenDetailsService, _}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
@@ -55,7 +55,7 @@ class InterstitialControllerSpec extends BaseSpec {
     lazy val fakeRequest = FakeRequest("", "")
 
     val mockAuthJourney = mock[AuthJourney]
-    val ninoDisplayService = mock[NinoDisplayService]
+    val ninoDisplayService = mock[CitizenDetailsService]
 
     def controller: InterstitialController =
       new InterstitialController(
