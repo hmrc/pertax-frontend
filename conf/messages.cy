@@ -435,7 +435,7 @@ label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn dreth {0} i {1}
 
 title.seiss=Cynllun Cymhorthdal Incwm Hunangyflogaeth (SEISS)
-body.seiss=Bwrw golwg dros eich hawliadau SEISS (yn agor tab newydd).
+body.seiss=Bwrw golwg dros eich hawliadau SEISS.
 
 #
 # Benefits
