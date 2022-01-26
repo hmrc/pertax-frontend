@@ -60,13 +60,22 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       subDivision,
-      exampleCountryUK
+      exampleCountryUK,
+      0
     ),
     "en"
   )
 
   val oneOtherPlacePafAddress =
-    PafAddress(List("2 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", subDivision, exampleCountryUK)
+    PafAddress(
+      List("2 Other Place", "Some District"),
+      Some("Anytown"),
+      None,
+      "AA1 1AA",
+      subDivision,
+      exampleCountryUK,
+      0
+    )
   val twoOtherPlacePafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
@@ -74,10 +83,19 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       Some(Country("GB-SCT", "Scotland")),
-      exampleCountryUK
+      exampleCountryUK,
+      0
     )
   val otherPlacePafDifferentPostcodeAddress =
-    PafAddress(List("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", subDivision, exampleCountryUK)
+    PafAddress(
+      List("3 Other Place", "Some District"),
+      Some("Anytown"),
+      None,
+      "AA1 2AA",
+      subDivision,
+      exampleCountryUK,
+      0
+    )
 
   val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
   val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
@@ -159,7 +177,8 @@ trait CitizenDetailsFixtures {
     None,
     Some(new LocalDate(2015, 3, 15)),
     None,
-    Some("Residential")
+    Some("Residential"),
+    Some(0)
   )
 
   def buildFakeCorrespondenceAddress = Address(
@@ -172,7 +191,8 @@ trait CitizenDetailsFixtures {
     None,
     Some(new LocalDate(2015, 3, 15)),
     None,
-    Some("Correspondence")
+    Some("Correspondence"),
+    Some(0)
   )
 
   def buildFakeAddressWithEndDate = Address(
@@ -185,7 +205,8 @@ trait CitizenDetailsFixtures {
     None,
     Some(new LocalDate(now)),
     Some(new LocalDate(now)),
-    Some("Correspondence")
+    Some("Correspondence"),
+    Some(0)
   )
 
   def buildFakeJsonAddress = Json.toJson(buildFakeAddress)

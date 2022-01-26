@@ -50,7 +50,8 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
       Some("AA1 1AA"),
       Some(new LocalDate(2015, 3, 15)),
       None,
-      Some("Residential")
+      Some("Residential"),
+      Some(0)
     )
 
     val correspondenceAddress = Address(
@@ -63,7 +64,8 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
       Some("AA1 2AA"),
       Some(new LocalDate(2015, 3, 15)),
       Some(LocalDate.now),
-      Some("Correspondence")
+      Some("Correspondence"),
+      Some(0)
     )
 
     val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
@@ -86,7 +88,7 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
           when(metricsOperator.startTimer(any())) thenReturn timer
         }
 
-      (citizenDetailsService, citizenDetailsService.metricsOperator, timer)
+      (citizenDetailsConnector, citizenDetailsConnector.metricsOperator, timer)
     }
   }
 

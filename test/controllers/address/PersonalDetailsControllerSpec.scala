@@ -35,12 +35,16 @@ import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
-  val ninoDisplayService = mock[CitizenDetailsService]
+  val citizenDetailsService = mock[CitizenDetailsService]
 
   trait LocalSetup extends AddressControllerSetup {
 
-    when(ninoDisplayService.getNino(any(), any())).thenReturn {
+    when(citizenDetailsService.getNino(any(), any())).thenReturn {
       Future.successful(Some(Fixtures.fakeNino))
+    }
+
+    when(citizenDetailsService.getAddressStatusFromPersonalDetails(any(), any())).thenReturn {
+      Future.successful(Some(0), Some(0))
     }
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]
@@ -50,7 +54,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         injected[PersonalDetailsCardGenerator],
         injected[PersonalDetailsViewModel],
         mockEditAddressLockRepository,
-        ninoDisplayService,
+        citizenDetailsService,
         mockAuthJourney,
         addressJourneyCachingHelper,
         withActiveTabAction,

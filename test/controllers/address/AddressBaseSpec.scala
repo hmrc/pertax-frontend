@@ -48,7 +48,7 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAuthJourney: AuthJourney = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-  val mockcitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
+  val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
   val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
@@ -72,7 +72,7 @@ trait AddressBaseSpec extends BaseSpec {
       mockAuthJourney,
       mockLocalSessionCache,
       mockAddressLookupService,
-      mockCitizenDetailsService,
+      mockCitizenDetailsConnector,
       mockAddressMovedService,
       mockEditAddressLockRepository,
       mockAuditConnector
@@ -131,13 +131,13 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)
     }
-    when(mockCitizenDetailsService.personDetails(any())(any())) thenReturn {
+    when(mockCitizenDetailsConnector.personDetails(any())(any())) thenReturn {
       Future.successful(personDetailsResponse)
     }
-    when(mockCitizenDetailsService.getEtag(any())(any())) thenReturn {
+    when(mockCitizenDetailsConnector.getEtag(any())(any())) thenReturn {
       Future.successful(eTagResponse)
     }
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any())) thenReturn {
+    when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any())) thenReturn {
       Future.successful(updateAddressResponse)
     }
     when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {

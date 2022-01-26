@@ -89,7 +89,8 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
                   |    "line4" : "Fake Region",
                   |    "postcode" : "AA1 1AA",
                   |    "startDate" : "2015-03-15",
-                  |    "type" : "Residential"
+                  |    "type" : "Residential",
+                  |    "status" : 0
                   |  }
                   |}
                   |
@@ -125,7 +126,9 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
                                 |    "line4" : "Fake Region",
                                 |    "postcode" : "AA1 1AA",
                                 |    "startDate" : "2015-03-15",
-                                |    "type" : "Residential"
+                                |    "type" : "Residential",
+                                |    "status" : 0
+                                |
                                 |  }
                                 |}
                                 |
@@ -136,13 +139,13 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
   "Calling Address.isWelshLanguageUnit" must {
     "return false when the address doesn't match a Welsh Language Unit" in {
 
-      val address = Address(None, None, None, None, None, postcode = Some("AA1 1AA"), None, None, None, None)
+      val address = Address(None, None, None, None, None, postcode = Some("AA1 1AA"), None, None, None, None, Some(0))
 
       address.isWelshLanguageUnit mustBe false
     }
     "return true when the address does match a Welsh Language Unit" in {
 
-      val address = Address(None, None, None, None, None, postcode = Some("CF145Sh"), None, None, None, None)
+      val address = Address(None, None, None, None, None, postcode = Some("CF145Sh"), None, None, None, None, Some(0))
 
       address.isWelshLanguageUnit mustBe true
     }

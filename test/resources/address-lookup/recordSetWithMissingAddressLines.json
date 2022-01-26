@@ -13,7 +13,8 @@
       "subdivision":  {
         "code": "GB-ENG",
         "name": "England"
-      }
+      },
+      "status": 0
     },
     "language": "en"
   },
@@ -33,7 +34,8 @@
       "subdivision":{
         "code": "GB-SCT",
         "name": "Scotland"
-      }
+      },
+      "status": 0
     },
     "language": "en"
   }

@@ -88,7 +88,8 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     None,
     Some(new LocalDate(2015, 3, 15)),
     None,
-    Some("Residential")
+    Some("Residential"),
+    Some(0)
   )
 
   def editedAddress(): EditResidentialAddress = EditResidentialAddress(Instant.now())

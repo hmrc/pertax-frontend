@@ -24,12 +24,20 @@ class classAddressModelSpec extends BaseSpec {
   "calling hasAddressLines" must {
     "return true where the address has at least one line" in {
       val addressLines = List("some line")
-      Address(addressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom")).isValid mustBe true
+      Address(addressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom"), 0).isValid mustBe true
     }
 
     "return false where the address has no lines" in {
       val noAddressLines = List()
-      Address(noAddressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom")).isValid mustBe false
+      Address(
+        noAddressLines,
+        None,
+        None,
+        "Some Postcode",
+        None,
+        Country("UK", "United Kingdom"),
+        0
+      ).isValid mustBe false
     }
   }
 }
