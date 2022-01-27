@@ -167,7 +167,17 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     "return None" when {
       "user is not verify" in {
         val actual = personalDetailsViewModel.getTrustedHelpersRow(userRequest, messages)
-        actual mustBe None
+        val expected = Some(
+          PersonalDetailsTableRowModel(
+            "trusted_helpers",
+            "label.trusted_helpers",
+            HtmlFormat.raw(messages("label.manage_trusted_helpers")),
+            "label.change",
+            "label.your_trusted_helpers",
+            Some(configDecorator.manageTrustedHelpersUrl)
+          )
+        )
+        actual mustBe expected
       }
     }
 
