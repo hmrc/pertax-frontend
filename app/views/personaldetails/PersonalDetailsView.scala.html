@@ -26,9 +26,7 @@
         addressDetails: AddressRowModel,
         trustedHelpers: Option[PersonalDetailsTableRowModel],
         paperlessHelpers: Option[PersonalDetailsTableRowModel],
-        signinDetailsHelpers: Option[PersonalDetailsTableRowModel],
-        residentialAddressStatus: Option[Int],
-        correspondenceAddressStatus: Option[Int])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+        signinDetailsHelpers: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
     <div class="govuk-summary-list__row" id="@row.id">

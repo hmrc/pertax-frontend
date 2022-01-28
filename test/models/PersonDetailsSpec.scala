@@ -89,8 +89,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
                   |    "line4" : "Fake Region",
                   |    "postcode" : "AA1 1AA",
                   |    "startDate" : "2015-03-15",
-                  |    "type" : "Residential",
-                  |    "status" : 0
+                  |    "type" : "Residential"
                   |  }
                   |}
                   |
@@ -126,9 +125,7 @@ class PersonDetailsSpec extends BaseSpec with CitizenDetailsFixtures {
                                 |    "line4" : "Fake Region",
                                 |    "postcode" : "AA1 1AA",
                                 |    "startDate" : "2015-03-15",
-                                |    "type" : "Residential",
-                                |    "status" : 0
-                                |
+                                |    "type" : "Residential"
                                 |  }
                                 |}
                                 |

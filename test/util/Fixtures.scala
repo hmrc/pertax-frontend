@@ -178,7 +178,7 @@ trait CitizenDetailsFixtures {
     Some(new LocalDate(2015, 3, 15)),
     None,
     Some("Residential"),
-    Some(0)
+    None
   )
 
   def buildFakeCorrespondenceAddress = Address(

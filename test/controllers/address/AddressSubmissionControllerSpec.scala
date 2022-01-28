@@ -163,8 +163,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
       uprn: Option[String],
       includeOriginals: Boolean,
       submittedLine1: Option[String] = Some("1 Fake Street"),
-      addressType: Option[String] = Some("Residential"),
-      status: Option[String] = Some("0")
+      addressType: Option[String] = Some("Residential")
     ) = DataEvent(
       "pertax-frontend",
       auditType,
@@ -180,7 +179,6 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
         "submittedPostcode" -> Some("AA1 1AA"),
         "submittedCountry"  -> None,
         "addressType"       -> addressType,
-        "status"            -> status,
         "submittedUPRN"     -> uprn,
         "originalLine1"     -> Some("1 Fake Street").filter(x => includeOriginals),
         "originalLine2"     -> Some("Fake Town").filter(x => includeOriginals),
@@ -381,7 +379,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in new LocalSetup {
-      override lazy val fakeAddress = buildFakeAddress.copy(line1 = Some("11 Fake Street"), status = Some(0))
+      override lazy val fakeAddress = buildFakeAddress.copy(line1 = Some("11 Fake Street"), status = None)
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(
