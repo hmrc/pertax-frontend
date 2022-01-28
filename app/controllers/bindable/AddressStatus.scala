@@ -1,0 +1,8 @@
+package controllers.bindable
+
+sealed trait AddressStatus
+case object ValidAddressesNoInterrupt extends AddressStatus
+case object ValidAddressesBothInterrupt extends AddressStatus
+case object ValidAddressesResidentialInterrupt extends AddressStatus
+case object ValidAddressesCorrespondanceInterrupt extends AddressStatus
+case object InvalidAddress extends AddressStatus

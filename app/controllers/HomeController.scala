@@ -46,7 +46,7 @@ class HomeController @Inject() (
   cc: MessagesControllerComponents,
   homeView: HomeView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
+    extends PertaxBaseController(cc) with PaperlessInterruptHelper with RlsInterruptHelper with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -64,7 +64,7 @@ class HomeController @Inject() (
       serviceCallResponses(request.nino, current.currentYear)
 
     showUserResearchBanner flatMap { showUserResearchBanner =>
-      enforcePaperlessPreference {
+      enforcePaperlessPreference andThen enforceByRlsStatus {
         for {
           (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
         } yield {

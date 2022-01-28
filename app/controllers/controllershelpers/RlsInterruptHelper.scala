@@ -18,10 +18,10 @@ package controllers.controllershelpers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.ActivatePaperlessRequiresUserActionResponse
+import controllers.bindable.{InvalidAddress, ValidAddressesBothInterrupt, ValidAddressesCorrespondanceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
-import services.{CitizenDetailsService, PreferencesFrontendService}
+import services.CitizenDetailsService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,22 +40,13 @@ trait RlsInterruptHelper {
   ): Future[Result] =
     if (configDecorator.getAddressStatusFromCID) {
       citizenDetailsService.getAddressStatusFromPersonalDetails.flatMap {
-        case (Some(0), Some(0)) => Future.successful(Redirect("successUrl"))
-        case (Some(1), Some(1)) => Future.successful(Redirect("redirectUrl"))
-        case (Some(1), Some(0)) => Future.successful(Redirect("redirectUrl"))
-        case (Some(0), Some(1)) => Future.successful(Redirect("redirectUrl"))
-        case (Some(statusOne), Some(statusTwo)) if statusOne > 1 || statusOne < 0 || statusTwo > 1 || statusTwo < 0 =>
-          Future.failed(new Exception)
-        case _ => block
+        case ValidAddressesNoInterrupt => block
+        case ValidAddressesBothInterrupt => Future.successful(Redirect("redirectUrl"))
+        case ValidAddressesResidentialInterrupt => Future.successful(Redirect("redirectUrl"))
+        case ValidAddressesCorrespondanceInterrupt => Future.successful(Redirect("redirectUrl"))
+        case InvalidAddress => Future.failed(new Exception)
       }
     } else {
       block
     }
-
-//  private def statusValidate(statusOne: Int, statusTwo: Int): Boolean =
-//    if (statusOne > 1 || statusOne < 0 || statusTwo > 1 || statusTwo < 0) {
-//      true
-//    } else {
-//      false
-//    }
 }

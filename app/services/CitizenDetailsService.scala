@@ -20,6 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.{CitizenDetailsConnector, PersonDetailsErrorResponse, PersonDetailsHiddenResponse, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse, PersonDetailsUnexpectedResponse}
 import controllers.auth.requests.UserRequest
+import controllers.bindable.{AddressStatus, InvalidAddress, ValidAddressesBothInterrupt, ValidAddressesCorrespondanceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
 import models.Address
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -61,18 +62,18 @@ class CitizenDetailsService @Inject() (
   def getAddressStatusFromPersonalDetails(implicit
     request: UserRequest[_],
     hc: HeaderCarrier
-  ): Future[(Option[Int], Option[Int])] =
+  ): Future[AddressStatus] =
     if (configDecorator.getAddressStatusFromCID) {
       request.personDetails match {
         case Some(details) =>
           val residentialAddressStatus = if (details.address.isDefined) getAddressStatus(details.address.get) else None
           val correspondanceAddressStatus =
             if (details.correspondenceAddress.isDefined) getAddressStatus(details.correspondenceAddress.get) else None
-          Future.successful(Tuple2(residentialAddressStatus, correspondanceAddressStatus))
-        case _ => Future.successful(Tuple2(None, None))
+          Future.successful(addressStatusParse(Tuple2(residentialAddressStatus, correspondanceAddressStatus)))
+        case _ => Future.successful(InvalidAddress)
       }
     } else {
-      Future.successful(Tuple2(Some(1), Some(1)))
+      Future.successful(ValidAddressesNoInterrupt)
     }
 
   private def getAddressStatus(address: Address): Option[Int] =
@@ -85,4 +86,14 @@ class CitizenDetailsService @Inject() (
     } else {
       None
     }
+
+  private def addressStatusParse(statuses: Tuple2[Option[Int], Option[Int]]): AddressStatus = {
+    statuses match {
+      case (Some(0), Some(0)) => ValidAddressesNoInterrupt
+      case (Some(1), Some(1)) => ValidAddressesBothInterrupt
+      case (Some(1), Some(0)) => ValidAddressesResidentialInterrupt
+      case (Some(0), Some(1)) => ValidAddressesCorrespondanceInterrupt
+      case _ => InvalidAddress
+    }
+  }
 }
