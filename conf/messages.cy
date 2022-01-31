@@ -67,8 +67,8 @@ label.sign_in_details=Manylion mewngofnodi
 label.your_sign_in_details=Eich manylion mewngofnodi
 label.sign_in_details_content=Y Dynodydd Defnyddiwr (ID) a’r cyfrinair ar gyfer Porth y Llywodraeth rydych yn eu defnyddio i fewngofnodi
 label.your_gg_details=eich manylion Porth y Llywodraeth
-label.do_you_live_in_the_uk=A ydych yn byw yn y DU?
-label.do_you_live_in_the_uk.change=a ydych yn byw yn y DU?
+label.is_your_main_address_in_the_uk=A yw’ch prif gyfeiriad yn y DU?
+label.is_your_main_address_in_the_uk.change=a yw’ch prif gyfeiriad yn y DU?
 label.is_your_postal_address_in_the_uk = A yw’ch cyfeiriad post yn y DU?
 label.the_uk_is_england_=Y DU yw Cymru, Lloegr, Yr Alban a Gogledd Iwerddon.
 label.this_is_because_you_do_not_live_in_the_uk=Mae hyn am nad ydych yn byw yn y DU.
@@ -433,6 +433,9 @@ label.view_gaps_in_your_record=Bwrw golwg ar fylchau yn eich cofnodion
 label.check_your_state_pension=Gwirio’ch Pensiwn y Wladwriaeth
 
 label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn dreth {0} i {1}
+
+title.seiss=Cynllun Cymhorthdal Incwm Hunangyflogaeth (SEISS)
+body.seiss=Bwrw golwg dros eich hawliadau SEISS.
 
 #
 # Benefits

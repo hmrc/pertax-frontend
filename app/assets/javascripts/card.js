@@ -26,7 +26,7 @@ var card = (function () {
         var paddingBottom = $cardBody.css('padding-bottom').replace('px', '');
         var totalHeight = maxHeight - paddingTop - paddingBottom;
         $cardBody.css('border-bottom', '0');
-        setMaxheight($cardBody, totalHeight);
+        setMaxheight($cardBody, totalHeight + 15);
       });
     }
   };

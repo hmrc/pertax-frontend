@@ -17,8 +17,10 @@
 package controllers.controllershelpers
 
 import config.ConfigDecorator
+import connectors.SeissConnector
 import controllers.auth.requests.UserRequest
 import models._
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
@@ -34,6 +36,8 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home._
 
+import scala.concurrent.Future
+
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator = config
@@ -47,6 +51,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val marriageAllowance = injected[MarriageAllowanceView]
   val statePension = injected[StatePensionView]
   val taxSummaries = injected[TaxSummariesView]
+  val seissConnector = mock[SeissConnector]
+  val seissView = injected[SeissView]
 
   val homeCardGenerator =
     new HomeCardGenerator(
@@ -58,7 +64,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       childBenefit,
       marriageAllowance,
       statePension,
-      taxSummaries
+      taxSummaries,
+      seissConnector,
+      seissView
     )
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -246,7 +254,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           childBenefit,
           marriageAllowance,
           statePension,
-          taxSummaries
+          taxSummaries,
+          seissConnector,
+          seissView
         )(stubConfigDecorator)
 
       sut.getNationalInsuranceCard() mustBe None
@@ -398,7 +408,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             childBenefit,
             marriageAllowance,
             statePension,
-            taxSummaries
+            taxSummaries,
+            seissConnector,
+            seissView
           )(stubConfigDecorator)
 
         lazy val cardBody = sut.getAnnualTaxSummaryCard
