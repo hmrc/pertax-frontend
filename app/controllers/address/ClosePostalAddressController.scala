@@ -18,7 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.CitizenDetailsConnector
+import connectors.{CitizenDetailsConnector, UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.PostalAddrType

@@ -19,6 +19,7 @@ package services
 import config.ConfigDecorator
 import connectors.{CitizenDetailsConnector, PersonDetailsErrorResponse, PersonDetailsHiddenResponse, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse, PersonDetailsUnexpectedResponse}
 import controllers.auth.requests.UserRequest
+import controllers.bindable.ValidAddressesNoInterrupt
 import models.{Person, PersonDetails}
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
@@ -40,7 +41,7 @@ import scala.util.Random
 class CitizenDetailsServiceSpec
     extends AnyFreeSpec with Matchers with MockitoSugar with ScalaFutures with GuiceOneAppPerSuite {
 
-  val citizenDetailsService = mock[CitizenDetailsConnector]
+  val citizenDetailsConnector = mock[CitizenDetailsConnector]
   val aDifferentNinoToAuth = Nino(new Generator(new Random()).nextNino.nino)
   val authNino = Fixtures.fakeNino
 
@@ -70,7 +71,7 @@ class CitizenDetailsServiceSpec
       when(configDecorator.getNinoFromCID).thenReturn(false)
 
       "return the NINO from the request (auth)" in {
-        val service = new CitizenDetailsService(configDecorator, citizenDetailsService)
+        val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
 
         implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
 
@@ -85,22 +86,22 @@ class CitizenDetailsServiceSpec
       when(configDecorator.getNinoFromCID).thenReturn(true)
 
       "return the NINO from citizen details" in {
-        when(citizenDetailsService.personDetails(meq(authNino))(any()))
+        when(citizenDetailsConnector.personDetails(meq(authNino))(any()))
           .thenReturn(Future.successful(PersonDetailsSuccessResponse(personDetails)))
 
-        val service = new CitizenDetailsService(configDecorator, citizenDetailsService)
+        val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
 
         val result = service.getNino
         result.futureValue mustBe Some(aDifferentNinoToAuth)
       }
 
       "return NONE if there is no auth NINO" in {
-        when(citizenDetailsService.personDetails(meq(authNino))(any()))
+        when(citizenDetailsConnector.personDetails(meq(authNino))(any()))
           .thenReturn(Future.successful(PersonDetailsSuccessResponse(personDetails)))
 
         implicit val request: UserRequest[_] = buildUserRequest(nino = None, request = FakeRequest())
 
-        val service = new CitizenDetailsService(configDecorator, citizenDetailsService)
+        val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
 
         val result = service.getNino
         result.futureValue mustBe None
@@ -113,16 +114,41 @@ class CitizenDetailsServiceSpec
         PersonDetailsErrorResponse(new RuntimeException("Any"))
       ) map { response =>
         s"return NONE when citizen details responds with $response" in {
-          when(citizenDetailsService.personDetails(meq(authNino))(any()))
+          when(citizenDetailsConnector.personDetails(meq(authNino))(any()))
             .thenReturn(Future.successful(response))
 
-          val service = new CitizenDetailsService(configDecorator, citizenDetailsService)
+          val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
 
           implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
 
           val result = service.getNino
           result.futureValue mustBe None
         }
+      }
+    }
+  }
+
+  //  sealed trait AddressStatus
+  //  case object ValidAddressesNoInterrupt extends AddressStatus
+  //  case object ValidAddressesBothInterrupt extends AddressStatus
+  //  case object ValidAddressesResidentialInterrupt extends AddressStatus
+  //  case object ValidAddressesCorrespondanceInterrupt extends AddressStatus
+  //  case object InvalidAddress extends AddressStatus
+
+  "getAddressStatusFromPersonalDetails" - {
+    "the feature toggle getAddressStatusFromCID is true" - {
+      val configDecorator = mock[ConfigDecorator]
+      when(configDecorator.getAddressStatusFromCID).thenReturn(true)
+
+      "return ValidAddressesNoInterrupt" in {
+
+        val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
+
+        implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
+
+        val result = service.getAddressStatusFromPersonalDetails
+        result.futureValue mustBe ValidAddressesNoInterrupt
+
       }
     }
   }

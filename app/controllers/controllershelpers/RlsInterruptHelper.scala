@@ -40,10 +40,11 @@ trait RlsInterruptHelper {
   ): Future[Result] =
     if (configDecorator.getAddressStatusFromCID) {
       citizenDetailsService.getAddressStatusFromPersonalDetails.flatMap {
-        case ValidAddressesNoInterrupt => block
-        case ValidAddressesBothInterrupt => Future.successful(Redirect("redirectUrl"))
-        case ValidAddressesResidentialInterrupt => Future.successful(Redirect("redirectUrl"))
-        case ValidAddressesCorrespondanceInterrupt => Future.successful(Redirect("redirectUrl"))
+        case ValidAddressesNoInterrupt          => block
+        case ValidAddressesBothInterrupt        => Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
+        case ValidAddressesResidentialInterrupt => Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
+        case ValidAddressesCorrespondanceInterrupt =>
+          Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
         case InvalidAddress => Future.failed(new Exception)
       }
     } else {

@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import controllers.bindable.ValidAddressesNoInterrupt
 import controllers.controllershelpers.PersonalDetailsCardGenerator
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -44,7 +45,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
     }
 
     when(citizenDetailsService.getAddressStatusFromPersonalDetails(any(), any())).thenReturn {
-      Future.successful(Some(0), Some(0))
+      Future.successful(ValidAddressesNoInterrupt)
     }
 
     def currentRequest[A]: Request[A] = FakeRequest().asInstanceOf[Request[A]]

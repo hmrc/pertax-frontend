@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
-import connectors.{CitizenDetailsConnector, MatchingDetailsErrorResponse, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse, MatchingDetailsUnexpectedResponse, PersonDetailsErrorResponse, PersonDetailsHiddenResponse, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse, PersonDetailsUnexpectedResponse}
 import models._
 import org.joda.time.LocalDate
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.{any, eq => meq, _}
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import services.http.FakeSimpleHttp

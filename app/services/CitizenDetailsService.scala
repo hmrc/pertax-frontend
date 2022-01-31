@@ -87,13 +87,12 @@ class CitizenDetailsService @Inject() (
       None
     }
 
-  private def addressStatusParse(statuses: Tuple2[Option[Int], Option[Int]]): AddressStatus = {
+  private def addressStatusParse(statuses: Tuple2[Option[Int], Option[Int]]): AddressStatus =
     statuses match {
       case (Some(0), Some(0)) => ValidAddressesNoInterrupt
       case (Some(1), Some(1)) => ValidAddressesBothInterrupt
       case (Some(1), Some(0)) => ValidAddressesResidentialInterrupt
       case (Some(0), Some(1)) => ValidAddressesCorrespondanceInterrupt
-      case _ => InvalidAddress
+      case _                  => InvalidAddress
     }
-  }
 }

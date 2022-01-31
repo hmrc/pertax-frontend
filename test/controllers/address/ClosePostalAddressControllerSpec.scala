@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import connectors.{UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressResponse, UpdateAddressUnexpectedResponse}
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor

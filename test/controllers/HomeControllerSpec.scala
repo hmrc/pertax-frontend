@@ -52,6 +52,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockTaiService = mock[TaiService]
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
+  val mockCitizenDetails = mock[CitizenDetailsService]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
@@ -91,6 +92,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     def controller =
       new HomeController(
         mockPreferencesFrontendService,
+        mockCitizenDetails,
         mockTaiService,
         mockTaxCalculationService,
         injected[HomeCardGenerator],

@@ -37,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   val preferencesFrontendService: PreferencesFrontendService,
+  val citizenDetailsService: CitizenDetailsService,
   val taiService: TaiService,
   val taxCalculationService: TaxCalculationService,
   val homeCardGenerator: HomeCardGenerator,
@@ -64,25 +65,27 @@ class HomeController @Inject() (
       serviceCallResponses(request.nino, current.currentYear)
 
     showUserResearchBanner flatMap { showUserResearchBanner =>
-      enforcePaperlessPreference andThen enforceByRlsStatus {
-        for {
-          (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-        } yield {
-          val saUserType = request.saUserType
+      enforcePaperlessPreference {
+        enforceByRlsStatus {
+          for {
+            (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
+          } yield {
+            val saUserType = request.saUserType
 
-          val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-            taxSummaryState,
-            taxCalculationStateCyMinusOne,
-            taxCalculationStateCyMinusTwo,
-            saUserType,
-            current.currentYear
-          )
+            val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
+              taxSummaryState,
+              taxCalculationStateCyMinusOne,
+              taxCalculationStateCyMinusTwo,
+              saUserType,
+              current.currentYear
+            )
 
-          val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
+            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
-          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
+            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-          Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
+            Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
+          }
         }
       }
     }

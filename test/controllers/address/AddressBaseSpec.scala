@@ -17,7 +17,7 @@
 package controllers.address
 
 import config.ConfigDecorator
-import connectors.{CitizenDetailsConnector, PersonDetailsResponse, PersonDetailsSuccessResponse}
+import connectors.{CitizenDetailsConnector, PersonDetailsResponse, PersonDetailsSuccessResponse, UpdateAddressResponse, UpdateAddressSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
