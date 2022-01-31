@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import connectors.{CitizenDetailsConnector, PersonDetailsErrorResponse, PersonDetailsHiddenResponse, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse, PersonDetailsUnexpectedResponse}
 import controllers.auth.requests.UserRequest
-import controllers.bindable.{AddressStatus, InvalidAddress, ValidAddressesBothInterrupt, ValidAddressesCorrespondanceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
+import controllers.bindable.{AddressStatus, InvalidAddresses, ValidAddressesBothInterrupt, ValidAddressesCorrespondenceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
 import models.Address
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -70,7 +70,7 @@ class CitizenDetailsService @Inject() (
           val correspondanceAddressStatus =
             if (details.correspondenceAddress.isDefined) getAddressStatus(details.correspondenceAddress.get) else None
           Future.successful(addressStatusParse(Tuple2(residentialAddressStatus, correspondanceAddressStatus)))
-        case _ => Future.successful(InvalidAddress)
+        case _ => Future.successful(InvalidAddresses)
       }
     } else {
       Future.successful(ValidAddressesNoInterrupt)
@@ -87,12 +87,14 @@ class CitizenDetailsService @Inject() (
       None
     }
 
-  private def addressStatusParse(statuses: Tuple2[Option[Int], Option[Int]]): AddressStatus =
+  private def addressStatusParse(statuses: (Option[Int], Option[Int])): AddressStatus =
     statuses match {
       case (Some(0), Some(0)) => ValidAddressesNoInterrupt
+      case (Some(0), None)    => ValidAddressesNoInterrupt
+      case (None, Some(0))    => ValidAddressesNoInterrupt
       case (Some(1), Some(1)) => ValidAddressesBothInterrupt
-      case (Some(1), Some(0)) => ValidAddressesResidentialInterrupt
-      case (Some(0), Some(1)) => ValidAddressesCorrespondanceInterrupt
-      case _                  => InvalidAddress
+      case (Some(1), _)       => ValidAddressesResidentialInterrupt
+      case (_, Some(1))       => ValidAddressesCorrespondenceInterrupt
+      case _                  => InvalidAddresses
     }
 }

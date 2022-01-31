@@ -18,7 +18,7 @@ package controllers.controllershelpers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.bindable.{InvalidAddress, ValidAddressesBothInterrupt, ValidAddressesCorrespondanceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
+import controllers.bindable.{InvalidAddresses, ValidAddressesBothInterrupt, ValidAddressesCorrespondenceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import services.CitizenDetailsService
@@ -43,9 +43,9 @@ trait RlsInterruptHelper {
         case ValidAddressesNoInterrupt          => block
         case ValidAddressesBothInterrupt        => Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
         case ValidAddressesResidentialInterrupt => Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
-        case ValidAddressesCorrespondanceInterrupt =>
+        case ValidAddressesCorrespondenceInterrupt =>
           Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
-        case InvalidAddress => Future.failed(new Exception)
+        case InvalidAddresses => Future.failed(new Exception)
       }
     } else {
       block
