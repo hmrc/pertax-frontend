@@ -66,25 +66,14 @@ class CitizenDetailsService @Inject() (
     if (configDecorator.getAddressStatusFromCID) {
       request.personDetails match {
         case Some(details) =>
-          val residentialAddressStatus = if (details.address.isDefined) getAddressStatus(details.address.get) else None
+          val residentialAddressStatus = if (details.address.isDefined) details.address.get.status else None
           val correspondanceAddressStatus =
-            if (details.correspondenceAddress.isDefined) getAddressStatus(details.correspondenceAddress.get) else None
+            if (details.correspondenceAddress.isDefined) details.correspondenceAddress.get.status else None
           Future.successful(addressStatusParse(Tuple2(residentialAddressStatus, correspondanceAddressStatus)))
         case _ => Future.successful(InvalidAddresses)
       }
     } else {
       Future.successful(ValidAddressesNoInterrupt)
-    }
-
-  private def getAddressStatus(address: Address): Option[Int] =
-    if (address.status.isDefined) {
-      address.status.get match {
-        case result if result == 0 || result == 1 =>
-          Some(result)
-        case _ => None
-      }
-    } else {
-      None
     }
 
   private def addressStatusParse(statuses: (Option[Int], Option[Int])): AddressStatus =
@@ -93,6 +82,7 @@ class CitizenDetailsService @Inject() (
       case (Some(0), None)    => ValidAddressesNoInterrupt
       case (None, Some(0))    => ValidAddressesNoInterrupt
       case (Some(1), Some(1)) => ValidAddressesBothInterrupt
+      case (None, None)       => ValidAddressesBothInterrupt
       case (Some(1), _)       => ValidAddressesResidentialInterrupt
       case (_, Some(1))       => ValidAddressesCorrespondenceInterrupt
       case _                  => InvalidAddresses

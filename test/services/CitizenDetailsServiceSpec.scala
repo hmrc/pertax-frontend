@@ -141,7 +141,7 @@ class CitizenDetailsServiceSpec
       val configDecorator = mock[ConfigDecorator]
       when(configDecorator.getAddressStatusFromCID).thenReturn(true)
 
-      val statusZeroResidentialAddress = Address(
+      def addressBuildFromTypeAndStatus(addrType: String, status: Int) = Address(
         Some("testLine1"),
         Some("testLine1"),
         None,
@@ -151,98 +151,17 @@ class CitizenDetailsServiceSpec
         Some("testCountry"),
         Some(new LocalDate(2015, 3, 15)),
         None,
-        Some("Residential"),
-        Some(0)
+        Some(addrType),
+        Some(status)
       )
 
-      val statusOneResidentialAddress = Address(
-        Some("testLine1"),
-        Some("testLine1"),
-        None,
-        None,
-        None,
-        Some("testPostcode"),
-        Some("testCountry"),
-        Some(new LocalDate(2015, 3, 15)),
-        None,
-        Some("Residential"),
-        Some(1)
-      )
-
-      val statusTwoResidentialAddress = Address(
-        Some("testLine1"),
-        Some("testLine1"),
-        None,
-        None,
-        None,
-        Some("testPostcode"),
-        Some("testCountry"),
-        Some(new LocalDate(2015, 3, 15)),
-        None,
-        Some("Residential"),
-        Some(2)
-      )
-
-      val statusZeroCorrespondenceAddress = Address(
-        Some("testLine1"),
-        Some("testLine1"),
-        None,
-        None,
-        None,
-        Some("testPostcode"),
-        Some("testCountry"),
-        Some(new LocalDate(2015, 3, 15)),
-        None,
-        Some("Correspondence"),
-        Some(0)
-      )
-
-      val statusOneCorrespondenceAddress = Address(
-        Some("testLine1"),
-        Some("testLine1"),
-        None,
-        None,
-        None,
-        Some("testPostcode"),
-        Some("testCountry"),
-        Some(new LocalDate(2015, 3, 15)),
-        None,
-        Some("Correspondence"),
-        Some(1)
-      )
-
-      val statusTwoCorrespondenceAddress = Address(
-        Some("testLine1"),
-        Some("testLine1"),
-        None,
-        None,
-        None,
-        Some("testPostcode"),
-        Some("testCountry"),
-        Some(new LocalDate(2015, 3, 15)),
-        None,
-        Some("Correspondence"),
-        Some(2)
-      )
-
-      // TODO - Check with Pascal
-//      "return ValidAddressesNoInterrupt if no status for either address type is retrieved" in {
-//
-//        val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
-//
-//        implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
-//
-//        val result = service.getAddressStatusFromPersonalDetails
-//        result.futureValue mustBe ValidAddressesNoInterrupt
-//
-//      }
       "return ValidAddressesNoInterrupt when only residential status exists and it's a 0" in {
 
         val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
 
         implicit val request: UserRequest[_] = buildUserRequest(
           request = FakeRequest(),
-          personDetails = Some(personDetails.copy(address = Some(statusZeroResidentialAddress)))
+          personDetails = Some(personDetails.copy(address = Some(addressBuildFromTypeAndStatus("Residential", 0))))
         )
 
         val result = service.getAddressStatusFromPersonalDetails
@@ -254,7 +173,8 @@ class CitizenDetailsServiceSpec
 
         implicit val request: UserRequest[_] = buildUserRequest(
           request = FakeRequest(),
-          personDetails = Some(personDetails.copy(correspondenceAddress = Some(statusZeroCorrespondenceAddress)))
+          personDetails =
+            Some(personDetails.copy(correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 0))))
         )
 
         val result = service.getAddressStatusFromPersonalDetails
@@ -268,8 +188,8 @@ class CitizenDetailsServiceSpec
           request = FakeRequest(),
           personDetails = Some(
             personDetails.copy(
-              address = Some(statusZeroResidentialAddress),
-              correspondenceAddress = Some(statusZeroCorrespondenceAddress)
+              address = Some(addressBuildFromTypeAndStatus("Residential", 0)),
+              correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 0))
             )
           )
         )
@@ -283,7 +203,7 @@ class CitizenDetailsServiceSpec
 
         implicit val request: UserRequest[_] = buildUserRequest(
           request = FakeRequest(),
-          personDetails = Some(personDetails.copy(address = Some(statusOneResidentialAddress)))
+          personDetails = Some(personDetails.copy(address = Some(addressBuildFromTypeAndStatus("Residential", 1))))
         )
 
         val result = service.getAddressStatusFromPersonalDetails
@@ -297,8 +217,8 @@ class CitizenDetailsServiceSpec
           request = FakeRequest(),
           personDetails = Some(
             personDetails.copy(
-              address = Some(statusOneResidentialAddress),
-              correspondenceAddress = Some(statusZeroCorrespondenceAddress)
+              address = Some(addressBuildFromTypeAndStatus("Residential", 1)),
+              correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 0))
             )
           )
         )
@@ -312,13 +232,14 @@ class CitizenDetailsServiceSpec
 
         implicit val request: UserRequest[_] = buildUserRequest(
           request = FakeRequest(),
-          personDetails = Some(personDetails.copy(correspondenceAddress = Some(statusOneCorrespondenceAddress)))
+          personDetails =
+            Some(personDetails.copy(correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 1))))
         )
 
         val result = service.getAddressStatusFromPersonalDetails
         result.futureValue mustBe ValidAddressesCorrespondenceInterrupt
       }
-      "return ValidAddressesCorrespondenceInterrupt when residential address status is 1 and correspondence address status is 0" in {
+      "return ValidAddressesCorrespondenceInterrupt when residential address status is 0 and correspondence address status is 1" in {
 
         val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
 
@@ -326,8 +247,8 @@ class CitizenDetailsServiceSpec
           request = FakeRequest(),
           personDetails = Some(
             personDetails.copy(
-              address = Some(statusZeroResidentialAddress),
-              correspondenceAddress = Some(statusOneCorrespondenceAddress)
+              address = Some(addressBuildFromTypeAndStatus("Residential", 0)),
+              correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 1))
             )
           )
         )
@@ -335,6 +256,17 @@ class CitizenDetailsServiceSpec
         val result = service.getAddressStatusFromPersonalDetails
         result.futureValue mustBe ValidAddressesCorrespondenceInterrupt
       }
+
+      "return ValidAddressesBothInterrupt if no addresses exists" in {
+
+        val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
+
+        implicit val request: UserRequest[_] = buildUserRequest(request = FakeRequest())
+
+        val result = service.getAddressStatusFromPersonalDetails
+        result.futureValue mustBe ValidAddressesBothInterrupt
+      }
+
       "return ValidAddressesBothInterrupt when residential address status is 1 and correspondence address status is 1" in {
 
         val service = new CitizenDetailsService(configDecorator, citizenDetailsConnector)
@@ -343,8 +275,8 @@ class CitizenDetailsServiceSpec
           request = FakeRequest(),
           personDetails = Some(
             personDetails.copy(
-              address = Some(statusOneResidentialAddress),
-              correspondenceAddress = Some(statusOneCorrespondenceAddress)
+              address = Some(addressBuildFromTypeAndStatus("Residential", 1)),
+              correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 1))
             )
           )
         )
@@ -359,7 +291,7 @@ class CitizenDetailsServiceSpec
         implicit val request: UserRequest[_] = buildUserRequest(
           request = FakeRequest(),
           personDetails = Some(
-            personDetails.copy(address = Some(statusTwoResidentialAddress))
+            personDetails.copy(address = Some(addressBuildFromTypeAndStatus("Residential", 2)))
           )
         )
 
@@ -373,7 +305,8 @@ class CitizenDetailsServiceSpec
         implicit val request: UserRequest[_] = buildUserRequest(
           request = FakeRequest(),
           personDetails = Some(
-            personDetails.copy(correspondenceAddress = Some(statusTwoCorrespondenceAddress))
+            personDetails
+              .copy(address = None, correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 2)))
           )
         )
 
@@ -388,8 +321,8 @@ class CitizenDetailsServiceSpec
           request = FakeRequest(),
           personDetails = Some(
             personDetails.copy(
-              address = Some(statusTwoResidentialAddress),
-              correspondenceAddress = Some(statusTwoCorrespondenceAddress)
+              address = Some(addressBuildFromTypeAndStatus("Residential", 2)),
+              correspondenceAddress = Some(addressBuildFromTypeAndStatus("Correspondence", 2))
             )
           )
         )
