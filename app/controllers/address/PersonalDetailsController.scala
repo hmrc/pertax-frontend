@@ -67,12 +67,6 @@ class PersonalDetailsController @Inject() (
 
         ninoToDisplay <- citizenDetailsService.getNino
 
-        //TODO - Remove this comment once the logic has been moved over to HomeController alongside Paperless
-//        residentialAddressStatus <- citizenDetailsService.getAddressStatusFromPersonalDetails.map(details => details._1)
-//
-//        correspondenceAddressStatus <-
-//          citizenDetailsService.getAddressStatusFromPersonalDetails.map(details => details._2)
-
         _ <- request.personDetails
                .map { details =>
                  auditConnector.sendEvent(

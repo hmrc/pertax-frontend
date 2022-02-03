@@ -80,7 +80,7 @@ class CitizenDetailsService @Inject() (
     statuses match {
       case (Some(0), Some(0)) => ValidAddressesNoInterrupt
       case (Some(0), None)    => ValidAddressesNoInterrupt
-      case (None, Some(0))    => ValidAddressesNoInterrupt
+      case (None, Some(0))    => ValidAddressesNoInterrupt // Is no residential but a correspondence allowed
       case (Some(1), Some(1)) => ValidAddressesBothInterrupt
       case (None, None)       => ValidAddressesBothInterrupt
       case (Some(1), _)       => ValidAddressesResidentialInterrupt

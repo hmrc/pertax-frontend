@@ -45,7 +45,7 @@ trait RlsInterruptHelper {
         case ValidAddressesResidentialInterrupt => Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
         case ValidAddressesCorrespondenceInterrupt =>
           Future.successful(Redirect("redirectUrl")) /// /confirm-your-address
-        case InvalidAddresses => Future.failed(new Exception)
+        case InvalidAddresses => Future.failed(new Exception) // Seems inappropriate for PTA, not sure what would be best here
       }
     } else {
       block
