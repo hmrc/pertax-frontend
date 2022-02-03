@@ -26,6 +26,7 @@ import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
@@ -107,7 +108,7 @@ class CachingItSpec extends AnyWordSpecLike with Matchers
           await(repository.insertCore(address1))
           await(repository.insertCore(address2))
 
-          val result = await(repository.get(nino))
+          val result: List[AddressJourneyTTLModel] = await(repository.get(nino))
 
           result should contain theSameElementsAs List(address2, address1)
         }
