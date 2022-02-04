@@ -23,7 +23,6 @@ import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDeta
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.CitizenDetailsService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
@@ -37,7 +36,6 @@ class PersonalDetailsController @Inject() (
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val personalDetailsViewModel: PersonalDetailsViewModel,
   val editAddressLockRepository: EditAddressLockRepository,
-  citizenDetailsService: CitizenDetailsService,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
@@ -65,8 +63,6 @@ class PersonalDetailsController @Inject() (
                             Future.successful(List[AddressJourneyTTLModel]())
                           )
 
-        ninoToDisplay <- citizenDetailsService.getNino
-
         _ <- request.personDetails
                .map { details =>
                  auditConnector.sendEvent(
@@ -82,7 +78,7 @@ class PersonalDetailsController @Inject() (
 
       } yield {
         val personalDetails = personalDetailsViewModel
-          .getPersonDetailsTable(ninoToDisplay)
+          .getPersonDetailsTable(request.nino)
         val addressDetails = personalDetailsViewModel.getAddressRow(addressModel)
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow

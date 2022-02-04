@@ -247,8 +247,8 @@ class ConfigDecorator @Inject() (
   lazy val getNinoFromCID =
     runModeConfiguration.getOptional[Boolean]("feature.get-nino-from-cid.enabled").getOrElse(false)
 
-  lazy val getAddressStatusFromCID =
-    runModeConfiguration.getOptional[Boolean]("feature.get-address-status-from-cid.enabled").getOrElse(false)
+  lazy val rlsInterruptToggle =
+    runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 

@@ -22,7 +22,7 @@ import connectors.{CitizenDetailsConnector, PersonDetailsHiddenResponse, PersonD
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.Locked
+import play.api.mvc.Results.{Locked, Redirect}
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -44,27 +44,29 @@ class GetPersonDetailsAction @Inject() (
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       if (!request.uri.contains("/signout")) {
-        getPersonDetails()(request).map { a =>
-          a.fold(
-            Left(_),
-            pd =>
-              Right(
-                UserRequest(
-                  request.nino,
-                  request.retrievedName,
-                  request.saUserType,
-                  request.credentials,
-                  request.confidenceLevel,
-                  pd,
-                  request.trustedHelper,
-                  request.profile,
-                  messageCount,
-                  request.activeTab,
-                  request.breadcrumb,
-                  request.request
-                )
+        getPersonDetails()(request).map {
+          case Right(Some(personalDetails)) if personalDetails.hasRls && configDecorator.rlsInterruptToggle =>
+            Left(Redirect("redirectUrl"))
+
+          case Left(error) => Left(error)
+
+          case Right(pd) =>
+            Right(
+              UserRequest(
+                request.nino,
+                request.retrievedName,
+                request.saUserType,
+                request.credentials,
+                request.confidenceLevel,
+                pd,
+                request.trustedHelper,
+                request.profile,
+                messageCount,
+                request.activeTab,
+                request.breadcrumb,
+                request.request
               )
-          )
+            )
         }
       } else {
         Future.successful(

@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper, RlsInterruptHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, PaperlessInterruptHelper}
 import com.google.inject.Inject
 import models._
 import org.joda.time.DateTime
@@ -37,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HomeController @Inject() (
   val preferencesFrontendService: PreferencesFrontendService,
-  val citizenDetailsService: CitizenDetailsService,
   val taiService: TaiService,
   val taxCalculationService: TaxCalculationService,
   val homeCardGenerator: HomeCardGenerator,
@@ -48,7 +47,7 @@ class HomeController @Inject() (
   homeView: HomeView,
   seissService: SeissService
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends PertaxBaseController(cc) with PaperlessInterruptHelper with RlsInterruptHelper with CurrentTaxYear {
+    extends PertaxBaseController(cc) with PaperlessInterruptHelper with CurrentTaxYear {
 
   override def now: () => DateTime = () => DateTime.now()
 
@@ -69,27 +68,25 @@ class HomeController @Inject() (
 
     showUserResearchBanner flatMap { showUserResearchBanner =>
       enforcePaperlessPreference {
-        enforceByRlsStatus {
-          for {
-            (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
-            showSeissCard                                                                   <- seissService.hasClaims(saUserType)
-          } yield {
+        for {
+          (taxSummaryState, taxCalculationStateCyMinusOne, taxCalculationStateCyMinusTwo) <- responses
+          showSeissCard                                                                   <- seissService.hasClaims(saUserType)
+        } yield {
 
-            val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
-              taxSummaryState,
-              taxCalculationStateCyMinusOne,
-              taxCalculationStateCyMinusTwo,
-              saUserType,
-              showSeissCard,
-              current.currentYear
-            )
+          val incomeCards: Seq[Html] = homeCardGenerator.getIncomeCards(
+            taxSummaryState,
+            taxCalculationStateCyMinusOne,
+            taxCalculationStateCyMinusTwo,
+            saUserType,
+            showSeissCard,
+            current.currentYear
+          )
 
-            val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
+          val benefitCards: Seq[Html] = homeCardGenerator.getBenefitCards(taxSummaryState.getTaxComponents)
 
-            val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
+          val pensionCards: Seq[Html] = homeCardGenerator.getPensionCards
 
-            Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
-          }
+          Ok(homeView(HomeViewModel(incomeCards, benefitCards, pensionCards, showUserResearchBanner, saUserType)))
         }
       }
     }

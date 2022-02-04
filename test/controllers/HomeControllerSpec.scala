@@ -20,7 +20,6 @@ import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.bindable.{InvalidAddresses, ValidAddressesBothInterrupt, ValidAddressesCorrespondenceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
 import models.{SelfAssessmentUser, _}
 import org.joda.time.DateTime
@@ -54,7 +53,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockSeissService = mock[SeissService]
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
-  val mockCitizenDetails = mock[CitizenDetailsService]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
@@ -94,7 +92,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     def controller =
       new HomeController(
         mockPreferencesFrontendService,
-        mockCitizenDetails,
         mockTaiService,
         mockTaxCalculationService,
         injected[HomeCardGenerator],
@@ -126,9 +123,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     when(mockPreferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
       Future.successful(getPaperlessPreferenceResponse)
     }
-    when(mockCitizenDetails.getAddressStatusFromPersonalDetails(any(), any())) thenReturn {
-      Future.successful(ValidAddressesNoInterrupt)
-    }
     when(mockIdentityVerificationFrontendService.getIVJourneyStatus(any())(any())) thenReturn {
       Future.successful(getIVJourneyStatusResponse)
     }
@@ -141,7 +135,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     when(mockConfigDecorator.enforcePaperlessPreferenceEnabled) thenReturn true
-    when(mockConfigDecorator.getAddressStatusFromCID) thenReturn true
     when(mockConfigDecorator.taxComponentsEnabled) thenReturn true
     when(mockConfigDecorator.taxcalcEnabled) thenReturn true
     when(mockConfigDecorator.ltaEnabled) thenReturn true
@@ -245,78 +238,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe SEE_OTHER
       redirectLocation(r) mustBe Some("http://www.example.com")
-    }
-
-    "redirect when CitizenDetailsService getAddressStatusFromPersonalDetails returns ValidAddressesResidentialInterrupt" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
-
-      when(mockCitizenDetails.getAddressStatusFromPersonalDetails(any(), any())) thenReturn {
-        Future.successful(ValidAddressesResidentialInterrupt)
-      }
-
-      val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("redirectUrl")
-    }
-
-    "redirect when CitizenDetailsService getAddressStatusFromPersonalDetails returns ValidAddressesCorrespondenceInterrupt" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
-
-      when(mockCitizenDetails.getAddressStatusFromPersonalDetails(any(), any())) thenReturn {
-        Future.successful(ValidAddressesCorrespondenceInterrupt)
-      }
-
-      val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("redirectUrl")
-    }
-
-    "redirect when CitizenDetailsService getAddressStatusFromPersonalDetails returns ValidAddressesBothInterrupt" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
-
-      when(mockCitizenDetails.getAddressStatusFromPersonalDetails(any(), any())) thenReturn {
-        Future.successful(ValidAddressesBothInterrupt)
-      }
-
-      val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("redirectUrl")
-    }
-
-    "redirect when CitizenDetailsService getAddressStatusFromPersonalDetails returns InvalidAddresses" in new LocalSetup {
-
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
-
-      when(mockCitizenDetails.getAddressStatusFromPersonalDetails(any(), any())) thenReturn {
-        Future.successful(InvalidAddresses)
-      }
-
-      val r: Future[Result] = controller.index()(FakeRequest())
-      status(r) mustBe SEE_OTHER
-      redirectLocation(r) mustBe Some("redirectUrl")
     }
 
     "return 200 when TaxCalculationService returns TaxCalculationNotFoundResponse" in new LocalSetup {

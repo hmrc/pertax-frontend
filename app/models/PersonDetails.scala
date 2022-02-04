@@ -22,7 +22,12 @@ case class PersonDetails(
   person: Person,
   address: Option[Address],
   correspondenceAddress: Option[Address]
-)
+) {
+  def hasRls: Boolean =
+    address.flatMap(_.status.map(_ == 1)).getOrElse(false) || correspondenceAddress
+      .flatMap(_.status.map(_ == 1))
+      .getOrElse(false)
+}
 
 object PersonDetails {
   implicit val formats = Json.format[PersonDetails]
