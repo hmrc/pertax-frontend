@@ -17,22 +17,27 @@
 package services
 
 import com.google.inject.Inject
+import config.ConfigDecorator
 import connectors.SeissConnector
 import models.{NonFilerSelfAssessmentUser, SelfAssessmentUser, SelfAssessmentUserType}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SeissService @Inject() (seissConnector: SeissConnector)(implicit ec: ExecutionContext) {
+class SeissService @Inject()(seissConnector: SeissConnector, appConfig: ConfigDecorator)(implicit ec: ExecutionContext) {
 
-  def hasClaims(saUserType: SelfAssessmentUserType)(implicit hc: HeaderCarrier): Future[Boolean] =
-    saUserType match {
-      case user: SelfAssessmentUser =>
-        seissConnector.getClaims(user.saUtr.utr).map {
-          case Right(claims) => claims.nonEmpty
-          case Left(_)       => false
-        }
-      case _ => Future.successful(false)
+  def hasClaims(saUserType: SelfAssessmentUserType)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    if (appConfig.isSeissTileEnabled) {
+      saUserType match {
+        case user: SelfAssessmentUser =>
+          seissConnector.getClaims(user.saUtr.utr).map {
+            case Right(claims) => claims.nonEmpty
+            case Left(_) => false
+          }
+        case _ => Future.successful(false)
+      }
+    } else {
+      Future.successful(false)
     }
-
+  }
 }
