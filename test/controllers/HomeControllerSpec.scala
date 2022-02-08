@@ -26,12 +26,14 @@ import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.libs.json.JsBoolean
+import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -53,7 +55,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockSeissService = mock[SeissService]
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
-//  val mockRlsInterruptHelper = mock[RlsInterruptHelper]
+  val mockRlsInterruptHelper = mock[RlsInterruptHelper]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
@@ -102,7 +104,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[MessagesControllerComponents],
         injected[HomeView],
         mockSeissService,
-        injected[RlsInterruptHelper]
+        mockRlsInterruptHelper
       )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
@@ -275,6 +277,26 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 303 status when the user's residential address status isn't 0" in new LocalSetup {
 
+      implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+        Some(Fixtures.fakeNino),
+        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+        NonFilerSelfAssessmentUser,
+        Credentials("", "GovernmentGateway"),
+        ConfidenceLevel.L200,
+        Some(
+          buildFakePersonDetails.copy(
+            address = Some(buildFakeAddress.copy(status = Some(1))),
+            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(status = Some(1)))
+          )
+        ),
+        None,
+        None,
+        None,
+        None,
+        None,
+        FakeRequest()
+      )
+
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
@@ -290,6 +312,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
             )
           )
       })
+
+      when(mockRlsInterruptHelper.enforceByRlsStatus(any())(any(), any(), any(), any()))
+        .thenReturn(Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad())))
 
       val r: Future[Result] = controller.index()(FakeRequest())
       println("-" * 100)
