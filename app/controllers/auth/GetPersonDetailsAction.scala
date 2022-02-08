@@ -22,13 +22,14 @@ import connectors.{CitizenDetailsConnector, PersonDetailsHiddenResponse, PersonD
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.{Locked, Redirect}
+import play.api.mvc.Results.{Locked, SeeOther}
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.ManualCorrespondenceView
+import views.html.personaldetails.CheckYourAddressInterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,7 +38,8 @@ class GetPersonDetailsAction @Inject() (
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView
+  manualCorrespondenceView: ManualCorrespondenceView,
+  checkYourAddressInterruptView: CheckYourAddressInterruptView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, templateRenderer: TemplateRenderer)
     extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
@@ -46,10 +48,8 @@ class GetPersonDetailsAction @Inject() (
       if (!request.uri.contains("/signout")) {
         getPersonDetails()(request).map {
           case Right(Some(personalDetails)) if personalDetails.hasRls && configDecorator.rlsInterruptToggle =>
-            Left(Redirect("redirectUrl"))
-
+            Left(rlsInterrupt()(request))
           case Left(error) => Left(error)
-
           case Right(pd) =>
             Right(
               UserRequest(
@@ -93,6 +93,9 @@ class GetPersonDetailsAction @Inject() (
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
     if (configDecorator.personDetailsMessageCountEnabled) messageFrontendService.getUnreadMessageCount
     else Future.successful(None)
+
+  def rlsInterrupt()(implicit request: UserRequest[_]): Result =
+    Locked(checkYourAddressInterruptView())
 
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
