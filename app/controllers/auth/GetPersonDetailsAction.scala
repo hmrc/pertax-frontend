@@ -47,8 +47,6 @@ class GetPersonDetailsAction @Inject() (
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       if (!request.uri.contains("/signout")) {
         getPersonDetails()(request).map {
-          case Right(Some(personalDetails)) if personalDetails.hasRls && configDecorator.rlsInterruptToggle =>
-            Left(rlsInterrupt()(request))
           case Left(error) => Left(error)
           case Right(pd) =>
             Right(

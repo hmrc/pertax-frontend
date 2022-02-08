@@ -64,6 +64,8 @@ GET         /personal-account/your-address/close-correspondence-address-confirm 
 POST        /personal-account/your-address/thanks                                      controllers.address.ClosePostalAddressController.confirmSubmit
 GET         /personal-account/your-address/thanks                                      controllers.address.PersonalDetailsController.onPageLoad
 
+GET         /personal-account/check-your-address                                       controllers.RlsController.rlsInterruptOnPageLoad
+
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)
 
