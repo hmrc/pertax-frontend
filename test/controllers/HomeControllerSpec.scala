@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
 import models.{SelfAssessmentUser, _}
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
@@ -53,6 +53,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockSeissService = mock[SeissService]
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
+//  val mockRlsInterruptHelper = mock[RlsInterruptHelper]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
@@ -100,7 +101,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[HomeView],
-        mockSeissService
+        mockSeissService,
+        injected[RlsInterruptHelper]
       )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
@@ -268,6 +270,36 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe OK
+
+    }
+
+    "return a 303 status when the user's residential address status isn't 0" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(status = Some(0))),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(status = Some(1))),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+      println("-" * 100)
+      println(r.futureValue.header)
+      println("-" * 100)
+      println(r.futureValue.body)
+      println("-" * 100)
+
+      status(r) mustBe OK
+      contentAsString(r)
 
     }
 

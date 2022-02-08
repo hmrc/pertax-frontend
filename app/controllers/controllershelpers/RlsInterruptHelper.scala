@@ -20,12 +20,9 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
-import controllers.bindable.{InvalidAddresses, ValidAddressesBothInterrupt, ValidAddressesCorrespondenceInterrupt, ValidAddressesNoInterrupt, ValidAddressesResidentialInterrupt}
 import play.api.mvc.{MessagesControllerComponents, Result}
-import play.api.mvc.Results.{Locked, Redirect}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.TemplateRenderer
-import views.html.personaldetails.CheckYourAddressInterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 

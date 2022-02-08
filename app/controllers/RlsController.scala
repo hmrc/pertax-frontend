@@ -18,12 +18,11 @@ package controllers
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.auth.requests.UserRequest
-import play.api.mvc.{ActionBuilder, AnyContent, MessagesControllerComponents}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
 import views.html.personaldetails.CheckYourAddressInterruptView
-import views.html.public.SessionTimeoutView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +41,7 @@ class RlsController @Inject() (
     authJourney.authWithPersonalDetails andThen withActiveTabAction
       .addActiveTab(ActiveTabHome)
 
-  def rlsInterruptOnPageLoad() = authenticate.async { implicit request =>
+  def rlsInterruptOnPageLoad(): Action[AnyContent] = authenticate.async { implicit request =>
     Future.successful(Ok(checkYourAddressInterruptView()))
   }
 }
