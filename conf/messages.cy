@@ -586,3 +586,10 @@ global.error.InternalServerError500.pta.title = Mae’n ddrwg gennym – nid yw�
 global.error.InternalServerError500.pta.message.you.can = Gallwch ddefnyddio’r gwasanaeth hwn yn nes ymlaen, neu gallwch
 global.error.InternalServerError500.pta.message.contact.hmrc = gysylltu â CThEM
 global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y ffôn neu drwy’r post.
+
+#*************************************************************
+# RLS Interrupt Journey
+#*************************************************************
+title.check_your_address=Check your address
+label.check_your_address_reason=We tried to send a letter by post which did not reach you.
+label.check_your_address_action=to make sure you get essential tax letters.

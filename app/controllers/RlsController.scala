@@ -28,7 +28,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class RlsController @Inject() (
   authJourney: AuthJourney,
-  withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   checkYourAddressInterruptView: CheckYourAddressInterruptView
 )(implicit
@@ -38,9 +37,7 @@ class RlsController @Inject() (
 ) extends PertaxBaseController(cc) {
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
-    authJourney.authWithPersonalDetails andThen withActiveTabAction
-      .addActiveTab(ActiveTabHome)
-
+    authJourney.authWithPersonalDetails
   def rlsInterruptOnPageLoad(): Action[AnyContent] = authenticate.async { implicit request =>
     Future.successful(Ok(checkYourAddressInterruptView()))
   }

@@ -41,7 +41,6 @@ class RlsControllerSpec extends BaseSpec {
   def controller: RlsController =
     new RlsController(
       mockAuthJourney,
-      injected[WithActiveTabAction],
       injected[MessagesControllerComponents],
       injected[CheckYourAddressInterruptView]
     )(injected[ConfigDecorator], injected[TemplateRenderer], ec)
