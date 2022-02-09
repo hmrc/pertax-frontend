@@ -26,7 +26,7 @@ import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.libs.json.JsBoolean
-import play.api.mvc.Results.Redirect
+import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -55,7 +55,6 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockSeissService = mock[SeissService]
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
-  val mockRlsInterruptHelper = mock[RlsInterruptHelper]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
   val mockLocalSessionCache = mock[LocalSessionCache]
   val mockAuthJourney = mock[AuthJourney]
@@ -104,7 +103,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[MessagesControllerComponents],
         injected[HomeView],
         mockSeissService,
-        mockRlsInterruptHelper
+        injected[RlsInterruptHelper]
       )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
@@ -160,6 +159,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerLinkUrl) thenReturn None
+    when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
       controller
@@ -272,30 +272,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe OK
-
     }
 
     "return a 303 status when the user's residential address status isn't 0" in new LocalSetup {
-
-      implicit val userRequest: UserRequest[AnyContent] = UserRequest(
-        Some(Fixtures.fakeNino),
-        Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-        NonFilerSelfAssessmentUser,
-        Credentials("", "GovernmentGateway"),
-        ConfidenceLevel.L200,
-        Some(
-          buildFakePersonDetails.copy(
-            address = Some(buildFakeAddress.copy(status = Some(1))),
-            correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(status = Some(1)))
-          )
-        ),
-        None,
-        None,
-        None,
-        None,
-        None,
-        FakeRequest()
-      )
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -304,7 +283,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
               request = request,
               personDetails = Some(
                 PersonDetails(
-                  address = Some(buildFakeAddress.copy(status = Some(0))),
+                  address = Some(buildFakeAddress.copy(status = Some(1))),
                   correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(status = Some(1))),
                   person = buildFakePerson
                 )
@@ -313,19 +292,9 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
           )
       })
 
-      when(mockRlsInterruptHelper.enforceByRlsStatus(any())(any(), any(), any(), any()))
-        .thenReturn(Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad())))
-
       val r: Future[Result] = controller.index()(FakeRequest())
-      println("-" * 100)
-      println(r.futureValue.header)
-      println("-" * 100)
-      println(r.futureValue.body)
-      println("-" * 100)
 
-      status(r) mustBe OK
-      contentAsString(r)
-
+      status(r) mustBe SEE_OTHER
     }
 
   }
