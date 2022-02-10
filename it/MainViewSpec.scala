@@ -102,7 +102,7 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       Some(new LocalDate(2015, 3, 15)),
       None,
       Some("Residential"),
-      Some(0)
+      false
     )),
     None
   )

@@ -73,7 +73,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           NonFilerSelfAssessmentUser,
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
-          Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(status = Some(1))))),
+          Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(isRls = true)))),
           None,
           None,
           None,
@@ -95,9 +95,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
           Credentials("", "GovernmentGateway"),
           ConfidenceLevel.L200,
           Some(
-            buildFakePersonDetails.copy(correspondenceAddress =
-              Some(buildFakeCorrespondenceAddress.copy(status = Some(1)))
-            )
+            buildFakePersonDetails.copy(correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
           ),
           None,
           None,
@@ -121,8 +119,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
           ConfidenceLevel.L200,
           Some(
             buildFakePersonDetails.copy(
-              address = Some(buildFakeAddress.copy(status = Some(1))),
-              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(status = Some(1)))
+              address = Some(buildFakeAddress.copy(isRls = true)),
+              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
             )
           ),
           None,

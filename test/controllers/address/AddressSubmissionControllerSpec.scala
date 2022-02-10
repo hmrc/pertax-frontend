@@ -379,7 +379,7 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
     }
 
     "render the thank you page and log a postcodeAddressModifiedSubmitted audit event upon successful of a modified address" in new LocalSetup {
-      override lazy val fakeAddress = buildFakeAddress.copy(line1 = Some("11 Fake Street"), status = None)
+      override lazy val fakeAddress = buildFakeAddress.copy(line1 = Some("11 Fake Street"), isRls = false)
       override def sessionCacheResponse: Option[CacheMap] =
         Some(
           CacheMap(

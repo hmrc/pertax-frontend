@@ -178,7 +178,7 @@ trait CitizenDetailsFixtures {
     Some(new LocalDate(2015, 3, 15)),
     None,
     Some("Residential"),
-    None
+    false
   )
 
   def buildFakeCorrespondenceAddress = Address(
@@ -192,7 +192,7 @@ trait CitizenDetailsFixtures {
     Some(new LocalDate(2015, 3, 15)),
     None,
     Some("Correspondence"),
-    Some(0)
+    false
   )
 
   def buildFakeAddressWithEndDate = Address(
@@ -206,7 +206,7 @@ trait CitizenDetailsFixtures {
     Some(new LocalDate(now)),
     Some(new LocalDate(now)),
     Some("Correspondence"),
-    Some(0)
+    false
   )
 
   def buildFakeJsonAddress = Json.toJson(buildFakeAddress)

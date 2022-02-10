@@ -24,9 +24,7 @@ case class PersonDetails(
   correspondenceAddress: Option[Address]
 ) {
   def hasRls: Boolean =
-    address.flatMap(_.status.map(_ == 1)).getOrElse(false) || correspondenceAddress
-      .flatMap(_.status.map(_ == 1))
-      .getOrElse(false)
+    address.exists(_.isRls) || correspondenceAddress.exists(_.isRls)
 }
 
 object PersonDetails {

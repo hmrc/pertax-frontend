@@ -283,8 +283,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
               request = request,
               personDetails = Some(
                 PersonDetails(
-                  address = Some(buildFakeAddress.copy(status = Some(1))),
-                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(status = Some(1))),
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
                   person = buildFakePerson
                 )
               )

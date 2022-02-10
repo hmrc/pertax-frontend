@@ -50,7 +50,7 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
       Some(new LocalDate(2015, 3, 15)),
       None,
       Some("Residential"),
-      Some(0)
+      false
     )
 
     val correspondenceAddress = Address(
@@ -64,7 +64,7 @@ class CitizenDetailsConnectorSpec extends BaseSpec {
       Some(new LocalDate(2015, 3, 15)),
       Some(LocalDate.now),
       Some("Correspondence"),
-      Some(0)
+      false
     )
 
     val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
