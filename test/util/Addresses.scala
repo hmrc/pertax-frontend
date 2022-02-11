@@ -30,8 +30,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-ENG", "England")),
-          Country("eng", "England"),
-          0
+          Country("eng", "England")
         ),
         "en"
       ),
@@ -43,8 +42,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-ENG", "England")),
-          Country("eng", "England"),
-          0
+          Country("eng", "England")
         ),
         "en"
       ),
@@ -56,8 +54,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-ENG", "England")),
-          Country("eng", "England"),
-          0
+          Country("eng", "England")
         ),
         "en"
       ),
@@ -69,8 +66,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-ENG", "England")),
-          Country("eng", "England"),
-          0
+          Country("eng", "England")
         ),
         "en"
       ),
@@ -82,8 +78,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-ENG", "England")),
-          Country("eng", "England"),
-          0
+          Country("eng", "England")
         ),
         "en"
       ),
@@ -95,8 +90,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-ENG", "England")),
-          Country("eng", "England"),
-          0
+          Country("eng", "England")
         ),
         "en"
       )
@@ -113,8 +107,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -126,8 +119,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -139,8 +131,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -152,8 +143,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -165,8 +155,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -178,8 +167,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       )
@@ -205,8 +193,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -218,8 +205,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -231,8 +217,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -244,8 +229,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -257,8 +241,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -270,8 +253,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -283,8 +265,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -296,8 +277,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -309,8 +289,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -322,8 +301,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -335,8 +313,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -348,8 +325,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       )
@@ -381,8 +357,7 @@ object Addresses {
           None,
           "",
           Some(Country("GB-SCT", "Scotland")),
-          Country("", ""),
-          0
+          Country("", "")
         ),
         "en"
       ),
@@ -394,8 +369,7 @@ object Addresses {
           None,
           "",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       ),
@@ -407,8 +381,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("", ""),
-          0
+          Country("", "")
         ),
         "en"
       ),
@@ -420,8 +393,7 @@ object Addresses {
           None,
           "FX2 7SS",
           Some(Country("GB-SCT", "Scotland")),
-          Country("blah", "blah"),
-          0
+          Country("blah", "blah")
         ),
         "en"
       )

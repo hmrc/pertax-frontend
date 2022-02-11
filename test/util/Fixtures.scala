@@ -60,8 +60,7 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       subDivision,
-      exampleCountryUK,
-      0
+      exampleCountryUK
     ),
     "en"
   )
@@ -73,8 +72,7 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       subDivision,
-      exampleCountryUK,
-      0
+      exampleCountryUK
     )
   val twoOtherPlacePafAddress =
     PafAddress(
@@ -83,8 +81,7 @@ trait PafFixtures {
       None,
       "AA1 1AA",
       Some(Country("GB-SCT", "Scotland")),
-      exampleCountryUK,
-      0
+      exampleCountryUK
     )
   val otherPlacePafDifferentPostcodeAddress =
     PafAddress(
@@ -93,8 +90,7 @@ trait PafFixtures {
       None,
       "AA1 2AA",
       subDivision,
-      exampleCountryUK,
-      0
+      exampleCountryUK
     )
 
   val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")

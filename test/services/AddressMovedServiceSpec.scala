@@ -37,7 +37,7 @@ class AddressMovedServiceSpec extends BaseSpec {
     Seq(
       AddressRecord(
         "some id",
-        Address(List.empty, None, None, fromPostcode, Some(Country("GB-ENG", "England")), Country("eng", "England"), 0),
+        Address(List.empty, None, None, fromPostcode, Some(Country("GB-ENG", "England")), Country("eng", "England")),
         "en"
       )
     )
@@ -46,7 +46,7 @@ class AddressMovedServiceSpec extends BaseSpec {
     Seq(
       AddressRecord(
         "some id",
-        Address(List.empty, None, None, fromPostcode, Some(Country("GB-SCT", "Scotland")), Country("blah", "blah"), 0),
+        Address(List.empty, None, None, fromPostcode, Some(Country("GB-SCT", "Scotland")), Country("blah", "blah")),
         "en"
       )
     )
