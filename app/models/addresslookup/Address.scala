@@ -31,8 +31,7 @@ case class Address(
   county: Option[String],
   postcode: String,
   subdivision: Option[Country],
-  country: Country,
-  status: Int
+  country: Country
 ) {
 
   import Address._
@@ -66,8 +65,7 @@ case class Address(
       county.map(limit(_, maxLen)),
       postcode,
       subdivision,
-      country,
-      status
+      country
     )
 
 }
