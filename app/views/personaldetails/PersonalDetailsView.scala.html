@@ -70,6 +70,39 @@
     }
 }
 
+@addressRowsRlsPresenter(isMainAddress: Boolean, extraLinks: List[ExtraLinks] = Nil) = {
+
+    @rlsAddressRow(isMainAddress)
+
+}
+
+@rlsAddressRow(isMainAddress: Boolean) = {
+    @if(isMainAddress) {
+        <div class="govuk-summary-list__row" id="main_address">
+            <dt class="govuk-summary-list__key">
+            @messages("label.main_address")
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @messages("label.confirm_address") <a href="">@messages("confirm your address")</a>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+            </dd>
+        </div>
+    } else {
+        <div class="govuk-summary-list__row" id="postal_address">
+            <dt class="govuk-summary-list__key">
+            @messages("label.postal_address")
+            </dt>
+            <dd class="govuk-summary-list__value">
+                @messages("label.confirm_address") <a href="">@messages("confirm your address")</a>
+                <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+            </dd>
+            <dd class="govuk-summary-list__actions">
+            </dd>
+        </div>
+    }
+}
+
 @emptyAddressRow(isMainAddress: Boolean) = {
     @if(isMainAddress) {
         <div class="govuk-summary-list__row" id="main_address">
@@ -118,8 +151,17 @@
           <dl class="govuk-summary-list">
               @personalDetails.map(row => rowsPresenter(row))
 
-              @addressRowsPresenter(addressDetails.mainAddress, true)
-              @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
+              @if(1 == 1) {
+                  @addressRowsRlsPresenter(true)
+              } else {
+                  @addressRowsPresenter(addressDetails.mainAddress, true)
+              }
+
+              @if(1 == 1) {
+                  @addressRowsRlsPresenter(false)
+              } else {
+                  @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
+              }
 
               @trustedHelpers.map(rowsPresenter(_))
               @paperlessHelpers.map(rowsPresenter(_))
