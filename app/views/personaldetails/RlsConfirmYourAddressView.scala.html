@@ -1,0 +1,70 @@
+@import viewmodels.AddressRowModel
+@import controllers.auth.requests.UserRequest
+@import config.ConfigDecorator
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import viewmodels.PersonalDetailsTableRowModel
+@import viewmodels.ExtraLinks
+@import scala.concurrent.ExecutionContext
+
+@this(mainView: MainView)
+
+@(personalDetails: Seq[PersonalDetailsTableRowModel], addressDetails: AddressRowModel, isResidential: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+
+@rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
+    <div class="govuk-summary-list__row" id="@row.id">
+        <dt class="govuk-summary-list__key">
+        @messages(row.titleMessage)
+        </dt>
+        <dd class="govuk-summary-list__value">
+        @row.content
+        </dd>
+        <dd class="govuk-summary-list__actions">
+            @row.linkUrl.map { url =>
+            <a class="govuk-link" href="@url">
+
+                @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
+                <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+            }
+            </a>
+            }.getOrElse(
+                Html(s"<p>${messages(row.linkTextMessage)}</p>")
+            )
+
+            @extraLinks.map { url =>
+                <a class="govuk-link yourProfileExtraLink" href="@url.linkUrl">
+
+                    @messages(url.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
+                    <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
+                }
+                </a>
+            }
+        </dd>
+    </div>
+}
+
+
+@mainView(messages("title.check_your_details"), Some(messages("title.check_your_details")), backlinkUrl = Some(controllers.address.routes.PersonalDetailsController.onPageLoad().url)) {
+
+    <div class="grid-row">
+        <div class="column-two-thirds">
+
+            <header class="page-heading">
+                <h1 class="heading-xlarge">
+                    @messages("title.check_your_details")
+                </h1>
+            </header>
+
+            <div class="pertax-personal-details">
+                <dl class="govuk-summary-list">
+
+                    rowsPresenter(row, extraLinks)
+
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-container grid-row pertax-personal-details">
+
+    </div>
+}

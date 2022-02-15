@@ -71,9 +71,7 @@
 }
 
 @addressRowsRlsPresenter(isMainAddress: Boolean, extraLinks: List[ExtraLinks] = Nil) = {
-
     @rlsAddressRow(isMainAddress)
-
 }
 
 @rlsAddressRow(isMainAddress: Boolean) = {
@@ -83,7 +81,7 @@
             @messages("label.main_address")
             </dt>
             <dd class="govuk-summary-list__value">
-                @messages("label.confirm_address") <a href="">@messages("confirm your address")</a>
+                @messages("label.confirm_address") <a href="@controllers.address.routes.RlsConfirmAddressController.onPageLoad(true)">@messages("confirm your address")</a>
             </dd>
             <dd class="govuk-summary-list__actions">
             </dd>
@@ -94,7 +92,7 @@
             @messages("label.postal_address")
             </dt>
             <dd class="govuk-summary-list__value">
-                @messages("label.confirm_address") <a href="">@messages("confirm your address")</a>
+                @messages("label.confirm_address") <a href="@controllers.address.routes.RlsConfirmAddressController.onPageLoad(false)">@messages("confirm your address")</a>
                 <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
             </dd>
             <dd class="govuk-summary-list__actions">
@@ -151,12 +149,14 @@
           <dl class="govuk-summary-list">
               @personalDetails.map(row => rowsPresenter(row))
 
+              // CHANGE TO STATUS IN REQUEST ONCE RLS INTERRUPT TICKET IS MERGED
               @if(1 == 1) {
                   @addressRowsRlsPresenter(true)
               } else {
                   @addressRowsPresenter(addressDetails.mainAddress, true)
               }
 
+              // CHANGE TO STATUS IN REQUEST ONCE RLS INTERRUPT TICKET IS MERGED
               @if(1 == 1) {
                   @addressRowsRlsPresenter(false)
               } else {
