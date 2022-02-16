@@ -55,7 +55,7 @@ class EditAddressLockRepository @Inject() (
           Indexes.ascending("nino", "editedAddress.addressType"),
           IndexOptions()
             .unique(true)
-            .name("ninoAddressIndex")
+            .name("nino_1_editedAddress.addressType_1")
         )
       )
     ) with Logging {
