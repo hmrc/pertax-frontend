@@ -57,7 +57,8 @@ class EditAddressLockRepository @Inject() (
             .unique(true)
             .name("nino_1_editedAddress.addressType_1")
         )
-      )
+      ),
+      replaceIndexes = true
     ) with Logging {
 
   import EditAddressLockRepository._
