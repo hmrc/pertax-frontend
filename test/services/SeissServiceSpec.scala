@@ -16,6 +16,7 @@
 
 package services
 
+import config.ConfigDecorator
 import connectors.SeissConnector
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, SeissModel}
 import org.mockito.ArgumentMatchers.any
@@ -28,8 +29,12 @@ import scala.concurrent.Future
 
 class SeissServiceSpec extends BaseSpec {
 
+  val mockConfig = mock[ConfigDecorator]
+
   val mockSeissConnector: SeissConnector = mock[SeissConnector]
-  val sut = new SeissService(mockSeissConnector)
+  val sut = new SeissService(mockSeissConnector, mockConfig)
+
+  when(mockConfig.isSeissTileEnabled).thenReturn(true)
 
   "Calling hasClaims" must {
     "return true" when {
@@ -65,6 +70,13 @@ class SeissServiceSpec extends BaseSpec {
           .thenReturn(Future.successful(Right(List.empty)))
 
         val result = sut.hasClaims(NonFilerSelfAssessmentUser).futureValue
+
+        result mustBe false
+      }
+      "isSeissTileEnabled is false" in {
+        when(mockConfig.isSeissTileEnabled).thenReturn(false)
+
+        val result = sut.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("utr"))).futureValue
 
         result mustBe false
       }
