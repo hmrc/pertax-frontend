@@ -36,7 +36,7 @@ class PersonalDetailsViewModel @Inject() (
   correspondenceAddressView: CorrespondenceAddressView
 ) {
 
-  private def getMainAddress(
+  def getMainAddress(
     personDetails: PersonDetails,
     optionalEditAddress: List[EditedAddress]
   )(implicit
@@ -64,7 +64,7 @@ class PersonalDetailsViewModel @Inject() (
     }
   }
 
-  private def getPostalAddress(
+  def getPostalAddress(
     personDetails: PersonDetails,
     optionalEditAddress: List[EditedAddress]
   )(implicit

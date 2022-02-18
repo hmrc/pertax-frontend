@@ -5,37 +5,29 @@
 @import viewmodels.PersonalDetailsTableRowModel
 @import viewmodels.ExtraLinks
 @import scala.concurrent.ExecutionContext
+@import views.html.helper.form
+@import views.html.helper.CSRF
 
 @this(mainView: MainView)
 
-@(personalDetails: Seq[PersonalDetailsTableRowModel], addressDetails: AddressRowModel, isResidential: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(row: Option[PersonalDetailsTableRowModel], addressDetails: AddressRowModel, isMainAddress: Boolean, rlsAddressConfirmDto: Form[dto.RlsAddressConfirmDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
-    <div class="govuk-summary-list__row" id="@row.id">
+@rowsPresenter(extraLinks: List[ExtraLinks] = Nil) = {
+    <div class="govuk-summary-list__row" id="@row.get.id">
         <dt class="govuk-summary-list__key">
-        @messages(row.titleMessage)
+        @messages(row.get.titleMessage)
         </dt>
         <dd class="govuk-summary-list__value">
-        @row.content
+        @row.get.content
         </dd>
         <dd class="govuk-summary-list__actions">
-            @row.linkUrl.map { url =>
-            <a class="govuk-link" href="@url">
-
-                @messages(row.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
-                <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-            }
-            </a>
-            }.getOrElse(
-                Html(s"<p>${messages(row.linkTextMessage)}</p>")
-            )
-
-            @extraLinks.map { url =>
-                <a class="govuk-link yourProfileExtraLink" href="@url.linkUrl">
-
-                    @messages(url.linkTextMessage) @if(row.visuallyhiddenText.nonEmpty) {
-                    <span class="visuallyhidden">@messages(row.visuallyhiddenText)</span>
-                }
+            @if(isMainAddress) {
+                <a class="govuk-link" href=@AddressRowModel.changeMainAddressUrl(configDecorator)>
+                    @messages("label.change") <span class="visuallyhidden">@messages("label.your_main_home")</span>
+                </a>
+            } else {
+                <a class="govuk-link" href=@AddressRowModel.changePostalAddressUrl>
+                    @messages("label.change") <span class="visuallyhidden">@messages("label.your_main_home")</span>
                 </a>
             }
         </dd>
@@ -57,14 +49,20 @@
             <div class="pertax-personal-details">
                 <dl class="govuk-summary-list">
 
-                    rowsPresenter(row, extraLinks)
+                    @rowsPresenter()
 
                 </dl>
             </div>
         </div>
     </div>
 
-    <div class="flex-container grid-row pertax-personal-details">
-
-    </div>
+    @form(action = controllers.address.routes.RlsConfirmAddressController.onSubmit()) {
+        <div>
+            @CSRF.formField
+            <input name="isMainAddress" id="@rlsAddressConfirmDto("isMainAddress")" value="@isMainAddress" hidden="hidden" />
+            <div class="flex-container grid-row pertax-personal-details">
+                <button class="button" data-ga-event-action="Confirm address" data-radio-button-name="confirmAddressSubmit">@messages("label.confirm_address")</button>
+            </div>
+        </div>
+    }
 }

@@ -19,14 +19,22 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
-import controllers.auth.AuthJourney
 import controllers.auth.requests.UserRequest
-import models.AddressJourneyTTLModel
-import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
+import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.controllershelpers.AddressJourneyCachingHelper
+import error.{ErrorRenderer, GenericErrors}
+import models.dto.RlsAddressConfirmDto
+import models.{AddressJourneyTTLModel, PersonDetails}
+import org.joda.time.LocalDate
+import play.api.Logging
+import play.api.mvc._
 import repositories.EditAddressLockRepository
-import uk.gov.hmrc.renderer.TemplateRenderer
+import services.CitizenDetailsService
+import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import viewmodels.PersonalDetailsViewModel
-import views.html.personaldetails.RlsConfirmYourAddressView
+import views.html.InternalServerErrorView
+import views.html.personaldetails.{RlsAddressSubmittedView, RlsConfirmYourAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,17 +42,23 @@ class RlsConfirmAddressController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
   val editAddressLockRepository: EditAddressLockRepository,
+  withActiveTabAction: WithActiveTabAction,
   personalDetailsViewModel: PersonalDetailsViewModel,
-  checkYourAddressInterruptView: RlsConfirmYourAddressView
-)(implicit
-  configDecorator: ConfigDecorator,
+  citizenDetailsService: CitizenDetailsService,
+  errorRenderer: ErrorRenderer,
+  genericErrors: GenericErrors,
+  rlsConfirmYourAddressView: RlsConfirmYourAddressView,
+  rlsAddressSubmittedView: RlsAddressSubmittedView)(
+  implicit configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext
-) extends PertaxBaseController(cc) {
+) extends PertaxBaseController(cc) with Logging {
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
-    authJourney.authWithPersonalDetails
-  def onPageLoad(isResidential: Boolean): Action[AnyContent] = authenticate.async { implicit request =>
+    authJourney.authWithPersonalDetails andThen withActiveTabAction
+      .addActiveTab(ActiveTabYourProfile)
+
+  def onPageLoad(isMainAddress: Boolean): Action[AnyContent] = authenticate.async { implicit request =>
     for {
       addressModel <- request.nino
                         .map { nino =>
@@ -54,10 +68,70 @@ class RlsConfirmAddressController @Inject() (
                           Future.successful(List[AddressJourneyTTLModel]())
                         )
     } yield {
-      val personalDetails = personalDetailsViewModel
-        .getPersonDetailsTable(request.nino)
+      val row =
+        if (isMainAddress) {
+          request.personDetails
+            .flatMap(personalDetailsViewModel.getMainAddress(_, addressModel.map(y => y.editedAddress)))
+        } else {
+          request.personDetails
+            .flatMap(personalDetailsViewModel.getPostalAddress(_, addressModel.map(y => y.editedAddress)))
+        }
+
       val addressDetails = personalDetailsViewModel.getAddressRow(addressModel)
-      Ok(checkYourAddressInterruptView(personalDetails, addressDetails, isResidential))
+
+      Ok(rlsConfirmYourAddressView(row, addressDetails, isMainAddress, RlsAddressConfirmDto.form))
     }
   }
+
+  def onSubmit: Action[AnyContent] =
+    authenticate.async { implicit request =>
+      RlsAddressConfirmDto.form.bindFromRequest.value
+        .map {
+          case isMainAddress =>
+            addressJourneyEnforcer { nino => personDetails =>
+              citizenDetailsService.getEtag(nino.nino) flatMap {
+                case None =>
+                  logger.error("Failed to retrieve Etag from citizen-details")
+                  errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+                case Some(version) =>
+                  def successResponseBlock(): Result =
+                    Ok(rlsAddressSubmittedView())
+
+                  val addressToConfirm =
+                    if (isMainAddress.isMainAddress) {
+                      personDetails.address
+                    } else {
+                      personDetails.correspondenceAddress
+                    }
+
+                  addressToConfirm.fold(
+                    Future.successful(genericErrors.badRequest)
+                  )(address =>
+                    for {
+                      result <- citizenDetailsService
+                                  .updateAddress(nino, version.etag, address.copy(startDate = Some(LocalDate.now())))
+                    } yield result.response(genericErrors, successResponseBlock)
+                  )
+              }
+            }
+          case _ => Future.successful(genericErrors.internalServerError)
+        }
+        .getOrElse(Future.successful(genericErrors.internalServerError))
+    }
+
+  private def addressJourneyEnforcer(
+    block: Nino => PersonDetails => Future[Result]
+  )(implicit request: UserRequest[_]): Future[Result] =
+    (for {
+      payeAccount   <- request.nino
+      personDetails <- request.personDetails
+    } yield {
+      println("8" * 100)
+      block(payeAccount)(personDetails)
+    }).getOrElse {
+      println("7" * 100)
+      Future.successful {
+        genericErrors.internalServerError
+      }
+    }
 }

@@ -1,0 +1,30 @@
+@import controllers.auth.requests.UserRequest
+@import config.ConfigDecorator
+@import uk.gov.hmrc.renderer.TemplateRenderer
+@import scala.concurrent.ExecutionContext
+
+@this(mainView: MainView)
+
+@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+
+@mainView(messages("title.check_your_details"), Some(messages("title.check_your_details")), backlinkUrl = Some(controllers.address.routes.PersonalDetailsController.onPageLoad().url)) {
+
+    <div class="grid-row">
+        <div class="column-two-thirds">
+
+            <header class="page-heading">
+                <h1 class="heading-xlarge">
+                @messages("title.check_your_details")
+                </h1>
+            </header>
+
+            <div class="pertax-personal-details">
+                <dl class="govuk-summary-list">
+
+
+
+                </dl>
+            </div>
+        </div>
+    </div>
+}
