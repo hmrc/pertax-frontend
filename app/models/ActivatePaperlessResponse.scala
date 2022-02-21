@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ object ActivatePaperlessResponse extends Logging {
 
           case PRECONDITION_FAILED =>
             val redirectUrl = response.json \ "redirectUserTo"
-            logger.warn(
+            logger.info(
               "Precondition failed when getting paperless preference record from preferences-frontend-service"
             )
             ActivatePaperlessRequiresUserActionResponse(redirectUrl.as[String])

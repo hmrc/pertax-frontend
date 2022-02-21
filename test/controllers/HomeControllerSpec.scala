@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
-import models._
+import models.{SelfAssessmentUser, _}
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
@@ -49,6 +49,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockConfigDecorator = mock[ConfigDecorator]
   val mockTaxCalculationService = mock[TaxCalculationService]
   val mockTaiService = mock[TaiService]
+  val mockSeissService = mock[SeissService]
   val mockMessageFrontendService = mock[MessageFrontendService]
   val mockPreferencesFrontendService = mock[PreferencesFrontendService]
   val mockIdentityVerificationFrontendService = mock[IdentityVerificationFrontendService]
@@ -97,12 +98,24 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         mockAuthJourney,
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
-        injected[HomeView]
+        injected[HomeView],
+        mockSeissService
       )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
       Future.successful(TaxComponentsSuccessResponse(buildTaxComponents))
     }
+    when(mockSeissService.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(any()))(any())) thenReturn Future.successful(
+      true
+    )
+    when(mockSeissService.hasClaims(NotYetActivatedOnlineFilerSelfAssessmentUser(any()))(any())) thenReturn Future
+      .successful(true)
+    when(mockSeissService.hasClaims(WrongCredentialsSelfAssessmentUser(any()))(any())) thenReturn Future.successful(
+      true
+    )
+    when(mockSeissService.hasClaims(NotEnrolledSelfAssessmentUser(any()))(any())) thenReturn Future.successful(true)
+    when(mockSeissService.hasClaims(NonFilerSelfAssessmentUser)) thenReturn Future.successful(false)
+
     when(mockTaxCalculationService.getTaxYearReconciliations(any[Nino])(any[HeaderCarrier])) thenReturn {
       Future.successful(buildTaxYearReconciliations)
     }

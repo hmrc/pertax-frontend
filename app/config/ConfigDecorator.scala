@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ class ConfigDecorator @Inject() (
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
+  def seissUrl = servicesConfig.baseUrl("self-employed-income-support")
+
   private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
@@ -60,6 +62,7 @@ class ConfigDecorator @Inject() (
     runModeConfiguration.getOptional[String](s"external-url.$key")
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
+  lazy val seissFrontendHost = getExternalUrl(s"self-employed-income-support-frontend.host").getOrElse("")
   lazy val preferencesFrontendService = getExternalUrl(s"preferences-frontend").getOrElse("")
   lazy val contactHost = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = getExternalUrl(s"citizen-auth.host").getOrElse("")
@@ -88,6 +91,9 @@ class ConfigDecorator @Inject() (
   lazy val isAtsTileEnabled = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
+
+  lazy val isSeissTileEnabled =
+    runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
   lazy val portalBaseUrl = runModeConfiguration.get[String]("external-url.sso-portal.host")
   def toPortalUrl(path: String) = new URL(portalBaseUrl + path)

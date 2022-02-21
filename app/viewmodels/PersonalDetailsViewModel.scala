@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,14 +176,16 @@ class PersonalDetailsViewModel @Inject() (
     request: UserRequest[_],
     messages: play.api.i18n.Messages
   ): Option[PersonalDetailsTableRowModel] =
-    PersonalDetailsTableRowModel(
-      "trusted_helpers",
-      "label.trusted_helpers",
-      HtmlFormat.raw(messages("label.manage_trusted_helpers")),
-      "label.change",
-      "label.your_trusted_helpers",
-      Some(configDecorator.manageTrustedHelpersUrl)
-    ) onlyIf request.isVerify
+    Some(
+      PersonalDetailsTableRowModel(
+        "trusted_helpers",
+        "label.trusted_helpers",
+        HtmlFormat.raw(messages("label.manage_trusted_helpers")),
+        "label.change",
+        "label.your_trusted_helpers",
+        Some(configDecorator.manageTrustedHelpersUrl)
+      )
+    )
 
   def getPaperlessSettingsRow(implicit
     request: UserRequest[_],
