@@ -16,8 +16,8 @@
 
 package controllers
 
-import config.ConfigDecorator
 import connectors.PdfGeneratorConnector
+import controllers.address.RlsConfirmAddressController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import error.ErrorRenderer
@@ -26,14 +26,13 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import play.api.inject._
+import play.api.inject.{bind, _}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.NinoDisplayService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures, Fixtures}
 import views.html.print._
@@ -47,13 +46,15 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   val mockInterstitialController = mock[InterstitialController]
   val mockHomeController = mock[HomeController]
   val ninoDisplayService = mock[NinoDisplayService]
+  val mockRlsConfirmAddressController = mock[RlsConfirmAddressController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
       bind[AuthJourney].toInstance(mockAuthJourney),
-      bind[HomeController].toInstance(mockHomeController)
+      bind[HomeController].toInstance(mockHomeController),
+      bind[RlsConfirmAddressController].toInstance(mockRlsConfirmAddressController)
     )
     .configure(configValues)
     .build()

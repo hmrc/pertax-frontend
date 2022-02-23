@@ -48,8 +48,9 @@ class RlsConfirmAddressController @Inject() (
   errorRenderer: ErrorRenderer,
   genericErrors: GenericErrors,
   rlsConfirmYourAddressView: RlsConfirmYourAddressView,
-  rlsAddressSubmittedView: RlsAddressSubmittedView)(
-  implicit configDecorator: ConfigDecorator,
+  rlsAddressSubmittedView: RlsAddressSubmittedView
+)(implicit
+  configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) extends PertaxBaseController(cc) with Logging {

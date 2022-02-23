@@ -17,6 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
+import controllers.address.RlsConfirmAddressController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
@@ -54,6 +55,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
   val mockHomeController = mock[HomeController]
+  val mockRlsConfirmAddressController = mock[RlsConfirmAddressController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -62,7 +64,8 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       bind[SelfAssessmentStatusAction].toInstance(mockSelfAssessmentStatusAction),
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[InterstitialController].toInstance(mockInterstitialController),
-      bind[HomeController].toInstance(mockHomeController)
+      bind[HomeController].toInstance(mockHomeController),
+      bind[RlsConfirmAddressController].toInstance(mockRlsConfirmAddressController)
     )
     .build()
 
