@@ -1,0 +1,35 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import uk.gov.hmrc.renderer.TemplateRenderer
+
+@import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+@import views.html.interstitial.InterstitialWrapperView
+@import scala.concurrent.ExecutionContext
+
+@this(interstitialWrapperView: InterstitialWrapperView)
+
+@(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+
+@interstitialWrapperView(messages("label.news_and_updates"), messages("label.news_and_updates")) {
+    <div class="column-two-thirds">
+        <h2 class="heading-medium">@messages("label.stop_using_Verify")</h2>
+        <p>@messages("label.verify_stop_from_1_April_2022")</p>
+            <li><a class="trackLink" href="@configDecorator.createGGSigningIn" target="_blank">@messages("label.create_government_gateway_sign_in")</a></li>
+    </div>
+}
