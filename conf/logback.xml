@@ -55,7 +55,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="services.CitizenDetailsService" level="INFO"/>
+    <logger name="connectors.CitizenDetailsConnector" level="INFO"/>
     <logger name="repositories.EditAddressLockRepository" level="WARN"/>
 
     <logger name="reactivemongo.api.Driver" level="WARN"/>

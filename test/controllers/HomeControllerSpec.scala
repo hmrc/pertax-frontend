@@ -17,20 +17,23 @@
 package controllers
 
 import config.ConfigDecorator
+import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
 import models.{SelfAssessmentUser, _}
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.libs.json.JsBoolean
+import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -99,7 +102,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[HomeView],
-        mockSeissService
+        mockSeissService,
+        injected[RlsInterruptHelper]
       )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
@@ -155,6 +159,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerLinkUrl) thenReturn None
+    when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
       controller
@@ -267,7 +272,29 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe OK
+    }
 
+    "return a 303 status when the user's residential address status isn't 0" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe SEE_OTHER
     }
 
   }

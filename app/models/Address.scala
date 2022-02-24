@@ -16,11 +16,10 @@
 
 package models
 
-import org.joda.time.{DateTime, Instant, LocalDate}
+import org.joda.time.LocalDate
 import play.api.libs.json._
-import _root_.util.DateTimeTools
-import play.api.libs.json.JodaWrites._
-import play.api.libs.json.JodaReads._
+import play.api.Logging
+import play.api.libs.functional.syntax._
 
 case class Address(
   line1: Option[String],
@@ -32,7 +31,8 @@ case class Address(
   country: Option[String],
   startDate: Option[LocalDate],
   endDate: Option[LocalDate],
-  `type`: Option[String]
+  `type`: Option[String],
+  isRls: Boolean
 ) {
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
   lazy val fullAddress =
@@ -58,10 +58,66 @@ case class Address(
   }
 }
 
-object Address {
+object Address extends Logging {
   implicit val localdateFormatDefault = new Format[LocalDate] {
     override def reads(json: JsValue): JsResult[LocalDate] = JodaReads.DefaultJodaLocalDateReads.reads(json)
     override def writes(o: LocalDate): JsValue = JodaWrites.DefaultJodaLocalDateWrites.writes(o)
   }
-  implicit val formats = Json.format[Address]
+
+  implicit val writes: Writes[Address] = new Writes[Address] {
+    override def writes(o: Address): JsValue =
+      removeNulls(
+        Json.obj(
+          "line1"     -> o.line1,
+          "line2"     -> o.line2,
+          "line3"     -> o.line3,
+          "line4"     -> o.line4,
+          "line5"     -> o.line5,
+          "postcode"  -> o.postcode,
+          "country"   -> o.country,
+          "startDate" -> o.startDate,
+          "endDate"   -> o.endDate,
+          "type"      -> o.`type`
+        )
+      )
+  }
+
+  implicit val reads: Reads[Address] = (
+    (JsPath \ "line1").readNullable[String] and
+      (JsPath \ "line2").readNullable[String] and
+      (JsPath \ "line3").readNullable[String] and
+      (JsPath \ "line4").readNullable[String] and
+      (JsPath \ "line5").readNullable[String] and
+      (JsPath \ "postcode").readNullable[String] and
+      (JsPath \ "country").readNullable[String] and
+      (JsPath \ "startDate").readNullable[LocalDate](localdateFormatDefault) and
+      (JsPath \ "endDate").readNullable[LocalDate](localdateFormatDefault) and
+      (JsPath \ "type").readNullable[String] and
+      (JsPath \ "status").readNullable[Int].map(isRls)
+  )(Address.apply _)
+
+  private def removeNulls(jsObject: JsObject): JsValue =
+    JsObject(jsObject.fields.collect {
+      case (s, j: JsObject) =>
+        (s, removeNulls(j))
+      case other if other._2 != JsNull =>
+        other
+    })
+
+  private def isRls(status: Option[Int]): Boolean =
+    status match {
+      case None =>
+        logger.error("RLS indicator is absent from designatory details")
+        false
+
+      case Some(status) =>
+        status match {
+          case 0 => false
+          case 1 => true
+          case invalid =>
+            val ex = new IllegalArgumentException(s"Status $invalid is not a valid value for the RLS indicator")
+            logger.error(ex.getMessage, ex)
+            false
+        }
+    }
 }

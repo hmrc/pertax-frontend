@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
 import com.codahale.metrics.Timer
 import com.kenshoo.play.metrics.Metrics
 import models._
 import org.joda.time.LocalDate
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.{any, eq => meq, _}
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, JsObject, JsString, Json}
 import services.http.FakeSimpleHttp
@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{BaseSpec, Fixtures}
 
-class CitizenDetailsServiceSpec extends BaseSpec {
+class CitizenDetailsConnectorSpec extends BaseSpec {
 
   trait SpecSetup {
 
@@ -49,7 +49,8 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       Some("AA1 1AA"),
       Some(new LocalDate(2015, 3, 15)),
       None,
-      Some("Residential")
+      Some("Residential"),
+      false
     )
 
     val correspondenceAddress = Address(
@@ -62,7 +63,8 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       Some("AA1 2AA"),
       Some(new LocalDate(2015, 3, 15)),
       Some(LocalDate.now),
-      Some("Correspondence")
+      Some("Correspondence"),
+      false
     )
 
     val jsonAddress = Json.obj("etag" -> "115", "address" -> Json.toJson(address))
@@ -79,13 +81,13 @@ class CitizenDetailsServiceSpec extends BaseSpec {
       val serviceConfig = app.injector.instanceOf[ServicesConfig]
 
       val timer = mock[Timer.Context]
-      val citizenDetailsService: CitizenDetailsService =
-        new CitizenDetailsService(fakeSimpleHttp, mock[Metrics], serviceConfig) {
+      val citizenDetailsConnector: CitizenDetailsConnector =
+        new CitizenDetailsConnector(fakeSimpleHttp, mock[Metrics], serviceConfig) {
           override val metricsOperator: MetricsOperator = mock[MetricsOperator]
           when(metricsOperator.startTimer(any())) thenReturn timer
         }
 
-      (citizenDetailsService, citizenDetailsService.metricsOperator, timer)
+      (citizenDetailsConnector, citizenDetailsConnector.metricsOperator, timer)
     }
   }
 

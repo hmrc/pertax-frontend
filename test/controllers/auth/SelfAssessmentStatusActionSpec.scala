@@ -16,6 +16,7 @@
 
 package controllers.auth
 
+import connectors.{CitizenDetailsConnector, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
 import controllers.auth.requests._
 import models._
 import org.mockito.ArgumentMatchers.any
@@ -32,7 +33,7 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDetailsNotFoundResponse, MatchingDetailsSuccessResponse}
+import services.EnrolmentStoreCachingService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
@@ -44,17 +45,17 @@ class SelfAssessmentStatusActionSpec
 
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val enrolmentsCachingService = mock[EnrolmentStoreCachingService]
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
-    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
+    .overrides(bind[CitizenDetailsConnector].toInstance(mockCitizenDetailsConnector))
     .overrides(bind[EnrolmentStoreCachingService].toInstance(enrolmentsCachingService))
     .configure(Map("metrics.enabled" -> false))
     .build()
 
   override def beforeEach: Unit =
-    reset(mockCitizenDetailsService)
+    reset(mockCitizenDetailsConnector)
 
   def harness[A]()(implicit request: AuthenticatedRequest[A]): Future[Result] = {
 
@@ -94,7 +95,7 @@ class SelfAssessmentStatusActionSpec
 
       val result = harness()(request)
       contentAsString(result) must include(s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsConnector, times(0)).getMatchingDetails(any())(any())
     }
   }
 
@@ -105,7 +106,7 @@ class SelfAssessmentStatusActionSpec
 
       val result = harness()(request)
       contentAsString(result) must include(s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsConnector, times(0)).getMatchingDetails(any())(any())
     }
   }
 
@@ -125,7 +126,7 @@ class SelfAssessmentStatusActionSpec
       userTypeList.foreach { case (userType, key) =>
         s"return $key when the enrolments caching service returns ${userType.toString}" in {
 
-          when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+          when(mockCitizenDetailsConnector.getMatchingDetails(any())(any()))
             .thenReturn(Future.successful(MatchingDetailsSuccessResponse(MatchingDetails(Some(saUtr)))))
 
           when(enrolmentsCachingService.getSaUserTypeFromCache(any())(any(), any()))
@@ -142,11 +143,11 @@ class SelfAssessmentStatusActionSpec
     "return NonFilerSelfAssessmentUser" in {
       implicit val request = createAuthenticatedRequest(None)
 
-      when(mockCitizenDetailsService.getMatchingDetails(any())(any()))
+      when(mockCitizenDetailsConnector.getMatchingDetails(any())(any()))
         .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsService, times(1)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsConnector, times(1)).getMatchingDetails(any())(any())
     }
   }
 
@@ -156,7 +157,7 @@ class SelfAssessmentStatusActionSpec
 
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")
-      verify(mockCitizenDetailsService, times(0)).getMatchingDetails(any())(any())
+      verify(mockCitizenDetailsConnector, times(0)).getMatchingDetails(any())(any())
     }
   }
 }
