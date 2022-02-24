@@ -34,6 +34,8 @@ case class Address(
   endDate: Option[LocalDate],
   `type`: Option[String]
 ) {
+  val isRls: Boolean = true //todo: to be deleted once DDCNL-7278 is merged (conflict)
+
   lazy val lines = List(line1, line2, line3, line4, line5).flatten
   lazy val fullAddress =
     List(line1, line2, line3, line4, line5, postcode.map(_.toUpperCase), internationalAddressCountry(country)).flatten
