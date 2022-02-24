@@ -86,7 +86,6 @@ class RlsConfirmAddressController @Inject() (
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
-      println("PPPP!!: " + RlsAddressConfirmDto.form.bindFromRequest.errors.toString)
       RlsAddressConfirmDto.form.bindFromRequest.value
         .map { isMainAddress =>
           addressJourneyEnforcer { nino => personDetails =>
@@ -128,10 +127,8 @@ class RlsConfirmAddressController @Inject() (
       payeAccount   <- request.nino
       personDetails <- request.personDetails
     } yield {
-      println("8" * 100)
       block(payeAccount)(personDetails)
     }).getOrElse {
-      println("7" * 100)
       Future.successful {
         genericErrors.internalServerError
       }
