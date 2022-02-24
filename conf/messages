@@ -596,3 +596,6 @@ label.button_confirm_address=Confirm address
 title.check_your_address=Check your address
 label.check_your_address_reason=We tried to send a letter by post which did not reach you.
 label.check_your_address_action=to make sure you get essential tax letters.
+
+label.address_confirmed = Address confirmed
+label.Return_to_your_profile_page = Return to your profile page

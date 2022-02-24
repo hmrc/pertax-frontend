@@ -18,7 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
-import connectors.CitizenDetailsConnector
+import connectors.{CitizenDetailsConnector, UpdateAddressSuccessResponse}
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
@@ -32,6 +32,7 @@ import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import viewmodels.PersonalDetailsViewModel
+import views.html.InternalServerErrorView
 import views.html.personaldetails.{RlsAddressSubmittedView, RlsConfirmYourAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,6 +45,7 @@ class RlsConfirmAddressController @Inject() (
   personalDetailsViewModel: PersonalDetailsViewModel,
   citizenDetailsConnector: CitizenDetailsConnector,
   errorRenderer: ErrorRenderer,
+  internalServerErrorView: InternalServerErrorView,
   genericErrors: GenericErrors,
   rlsConfirmYourAddressView: RlsConfirmYourAddressView,
   rlsAddressSubmittedView: RlsAddressSubmittedView
@@ -84,6 +86,7 @@ class RlsConfirmAddressController @Inject() (
 
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
+      println("PPPP!!: " + RlsAddressConfirmDto.form.bindFromRequest.errors.toString)
       RlsAddressConfirmDto.form.bindFromRequest.value
         .map { isMainAddress =>
           addressJourneyEnforcer { nino => personDetails =>
@@ -92,23 +95,25 @@ class RlsConfirmAddressController @Inject() (
                 logger.error("Failed to retrieve Etag from citizen-details")
                 errorRenderer.futureError(INTERNAL_SERVER_ERROR)
               case Some(version) =>
-                def successResponseBlock(): Result =
-                  Ok(rlsAddressSubmittedView())
-
                 val addressToConfirm =
-                  if (isMainAddress.isMainAddress) {
+                  if (isMainAddress.isMainAddress)
                     personDetails.address
-                  } else {
+                  else
                     personDetails.correspondenceAddress
-                  }
 
                 addressToConfirm.fold(
                   Future.successful(genericErrors.badRequest)
                 )(address =>
-                  for {
-                    result <- citizenDetailsConnector
-                                .updateAddress(nino, version.etag, address.copy(startDate = Some(LocalDate.now())))
-                  } yield result.response(genericErrors, successResponseBlock)
+                  citizenDetailsConnector
+                    .updateAddress(
+                      nino,
+                      version.etag,
+                      address.copy(startDate = Some(LocalDate.now()), endDate = None)
+                    )
+                    .map {
+                      case UpdateAddressSuccessResponse => Ok(rlsAddressSubmittedView())
+                      case _                            => InternalServerError(internalServerErrorView())
+                    }
                 )
             }
           }
