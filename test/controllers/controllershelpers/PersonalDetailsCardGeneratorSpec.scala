@@ -255,7 +255,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       None,
       if (isLocked) Some(LocalDate.now()) else Some(LocalDate.now().minusDays(1)),
       None,
-      Some("Residential")
+      Some("Residential"),
+      false
     )
 
     def buildFakeWLUAddress = Address(
@@ -268,7 +269,8 @@ class PersonalDetailsCardGeneratorSpec extends BaseSpec with I18nSupport {
       None,
       if (isLocked) Some(LocalDate.now()) else Some(LocalDate.now().minusDays(1)),
       None,
-      Some("Residential")
+      Some("Residential"),
+      false
     )
 
     def cardBody = controller.getPostalAddressCard(isLocked)

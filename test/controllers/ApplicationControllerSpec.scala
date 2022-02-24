@@ -17,6 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
+import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.address.RlsConfirmAddressController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}

@@ -18,10 +18,10 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.CitizenDetailsConnector
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.AddressJourneyCachingHelper
 import error.{ErrorRenderer, GenericErrors}
 import models.dto.RlsAddressConfirmDto
 import models.{AddressJourneyTTLModel, PersonDetails}
@@ -29,11 +29,9 @@ import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc._
 import repositories.EditAddressLockRepository
-import services.CitizenDetailsService
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
 import viewmodels.PersonalDetailsViewModel
-import views.html.InternalServerErrorView
 import views.html.personaldetails.{RlsAddressSubmittedView, RlsConfirmYourAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,7 +42,7 @@ class RlsConfirmAddressController @Inject() (
   val editAddressLockRepository: EditAddressLockRepository,
   withActiveTabAction: WithActiveTabAction,
   personalDetailsViewModel: PersonalDetailsViewModel,
-  citizenDetailsService: CitizenDetailsService,
+  citizenDetailsConnector: CitizenDetailsConnector,
   errorRenderer: ErrorRenderer,
   genericErrors: GenericErrors,
   rlsConfirmYourAddressView: RlsConfirmYourAddressView,
@@ -87,35 +85,33 @@ class RlsConfirmAddressController @Inject() (
   def onSubmit: Action[AnyContent] =
     authenticate.async { implicit request =>
       RlsAddressConfirmDto.form.bindFromRequest.value
-        .map {
-          case isMainAddress =>
-            addressJourneyEnforcer { nino => personDetails =>
-              citizenDetailsService.getEtag(nino.nino) flatMap {
-                case None =>
-                  logger.error("Failed to retrieve Etag from citizen-details")
-                  errorRenderer.futureError(INTERNAL_SERVER_ERROR)
-                case Some(version) =>
-                  def successResponseBlock(): Result =
-                    Ok(rlsAddressSubmittedView())
+        .map { isMainAddress =>
+          addressJourneyEnforcer { nino => personDetails =>
+            citizenDetailsConnector.getEtag(nino.nino) flatMap {
+              case None =>
+                logger.error("Failed to retrieve Etag from citizen-details")
+                errorRenderer.futureError(INTERNAL_SERVER_ERROR)
+              case Some(version) =>
+                def successResponseBlock(): Result =
+                  Ok(rlsAddressSubmittedView())
 
-                  val addressToConfirm =
-                    if (isMainAddress.isMainAddress) {
-                      personDetails.address
-                    } else {
-                      personDetails.correspondenceAddress
-                    }
+                val addressToConfirm =
+                  if (isMainAddress.isMainAddress) {
+                    personDetails.address
+                  } else {
+                    personDetails.correspondenceAddress
+                  }
 
-                  addressToConfirm.fold(
-                    Future.successful(genericErrors.badRequest)
-                  )(address =>
-                    for {
-                      result <- citizenDetailsService
-                                  .updateAddress(nino, version.etag, address.copy(startDate = Some(LocalDate.now())))
-                    } yield result.response(genericErrors, successResponseBlock)
-                  )
-              }
+                addressToConfirm.fold(
+                  Future.successful(genericErrors.badRequest)
+                )(address =>
+                  for {
+                    result <- citizenDetailsConnector
+                                .updateAddress(nino, version.etag, address.copy(startDate = Some(LocalDate.now())))
+                  } yield result.response(genericErrors, successResponseBlock)
+                )
             }
-          case _ => Future.successful(genericErrors.internalServerError)
+          }
         }
         .getOrElse(Future.successful(genericErrors.internalServerError))
     }

@@ -22,7 +22,6 @@ import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import error.ErrorRenderer
 import org.jsoup.Jsoup
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
@@ -30,14 +29,13 @@ import play.api.inject.{bind, _}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.NinoDisplayService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures, Fixtures}
+import util.{ActionBuilderFixture, BaseSpec, CitizenDetailsFixtures}
 import views.html.print._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDetailsFixtures {
 
@@ -45,7 +43,6 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
   val mockHomeController = mock[HomeController]
-  val ninoDisplayService = mock[NinoDisplayService]
   val mockRlsConfirmAddressController = mock[RlsConfirmAddressController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
@@ -62,7 +59,6 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   def controller: NiLetterController =
     new NiLetterController(
       mockPdfGeneratorConnector,
-      ninoDisplayService,
       mockAuthJourney,
       injected[WithBreadcrumbAction],
       injected[MessagesControllerComponents],
@@ -75,9 +71,7 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
       config,
       templateRenderer,
       ec
-    ) {
-      when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
-    }
+    )
 
   "Calling NiLetterController.printNationalInsuranceNumber" must {
 

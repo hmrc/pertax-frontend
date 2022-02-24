@@ -66,7 +66,14 @@ trait PafFixtures {
   )
 
   val oneOtherPlacePafAddress =
-    PafAddress(List("2 Other Place", "Some District"), Some("Anytown"), None, "AA1 1AA", subDivision, exampleCountryUK)
+    PafAddress(
+      List("2 Other Place", "Some District"),
+      Some("Anytown"),
+      None,
+      "AA1 1AA",
+      subDivision,
+      exampleCountryUK
+    )
   val twoOtherPlacePafAddress =
     PafAddress(
       List("3 Other Place", "Some District"),
@@ -77,7 +84,14 @@ trait PafFixtures {
       exampleCountryUK
     )
   val otherPlacePafDifferentPostcodeAddress =
-    PafAddress(List("3 Other Place", "Some District"), Some("Anytown"), None, "AA1 2AA", subDivision, exampleCountryUK)
+    PafAddress(
+      List("3 Other Place", "Some District"),
+      Some("Anytown"),
+      None,
+      "AA1 2AA",
+      subDivision,
+      exampleCountryUK
+    )
 
   val oneOtherPlacePafAddressRecord = AddressRecord("GB990091234514", oneOtherPlacePafAddress, "en")
   val twoOtherPlacePafAddressRecord = AddressRecord("GB990091234515", twoOtherPlacePafAddress, "en")
@@ -159,7 +173,8 @@ trait CitizenDetailsFixtures {
     None,
     Some(new LocalDate(2015, 3, 15)),
     None,
-    Some("Residential")
+    Some("Residential"),
+    false
   )
 
   def buildFakeCorrespondenceAddress = Address(
@@ -172,7 +187,8 @@ trait CitizenDetailsFixtures {
     None,
     Some(new LocalDate(2015, 3, 15)),
     None,
-    Some("Correspondence")
+    Some("Correspondence"),
+    false
   )
 
   def buildFakeAddressWithEndDate = Address(
@@ -185,7 +201,8 @@ trait CitizenDetailsFixtures {
     None,
     Some(new LocalDate(now)),
     Some(new LocalDate(now)),
-    Some("Correspondence")
+    Some("Correspondence"),
+    false
   )
 
   def buildFakeJsonAddress = Json.toJson(buildFakeAddress)

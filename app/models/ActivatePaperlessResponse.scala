@@ -46,5 +46,4 @@ object ActivatePaperlessResponse extends Logging {
             ActivatePaperlessNotAllowedResponse
         }
     }
-
 }

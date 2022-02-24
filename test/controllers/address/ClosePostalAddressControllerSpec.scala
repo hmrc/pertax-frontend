@@ -16,6 +16,7 @@
 
 package controllers.address
 
+import connectors.{UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressResponse, UpdateAddressUnexpectedResponse}
 import controllers.bindable.PostalAddrType
 import models._
 import org.mockito.ArgumentCaptor
@@ -52,7 +53,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
     def controller: ClosePostalAddressController =
       new ClosePostalAddressController(
-        mockCitizenDetailsService,
+        mockCitizenDetailsConnector,
         mockEditAddressLockRepository,
         mockAddressMovedService,
         addressJourneyCachingHelper,
@@ -226,7 +227,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
@@ -240,7 +241,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad().url)
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
-      verify(mockCitizenDetailsService, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsConnector, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
@@ -260,7 +261,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
@@ -270,7 +271,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe BAD_REQUEST
-      verify(mockCitizenDetailsService, times(1))
+      verify(mockCitizenDetailsConnector, times(1))
         .updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
@@ -281,7 +282,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockCitizenDetailsService, times(1))
+      verify(mockCitizenDetailsConnector, times(1))
         .updateAddress(meq(Fixtures.fakeNino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
@@ -294,7 +295,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit()(FakeRequest())
 
       status(result) mustBe INTERNAL_SERVER_ERROR
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
@@ -312,7 +313,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val dataEvent = arg.getValue
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
-      verify(mockCitizenDetailsService, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
+      verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
       verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 

@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
@@ -27,20 +26,19 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import services._
 import services.partials.{FormPartialService, SaPartialService}
-import services.{NinoDisplayService, _}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec {
 
@@ -55,14 +53,12 @@ class InterstitialControllerSpec extends BaseSpec {
     lazy val fakeRequest = FakeRequest("", "")
 
     val mockAuthJourney = mock[AuthJourney]
-    val ninoDisplayService = mock[NinoDisplayService]
 
     def controller: InterstitialController =
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
         mock[PreferencesFrontendService],
-        ninoDisplayService,
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
@@ -89,8 +85,6 @@ class InterstitialControllerSpec extends BaseSpec {
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(paperlessResponse)
         }
-
-        when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
       }
   }
 

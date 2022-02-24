@@ -17,6 +17,7 @@
 package controllers
 
 import config.ConfigDecorator
+import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction, WithBreadcrumbAction}
 import org.jsoup.Jsoup
@@ -26,7 +27,6 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import services.CitizenDetailsService
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -39,7 +39,7 @@ import scala.concurrent.Future
 class MessageControllerSpec extends BaseSpec {
 
   override def beforeEach: Unit =
-    reset(mockMessageFrontendService, mock[CitizenDetailsService])
+    reset(mockMessageFrontendService, mock[CitizenDetailsConnector])
 
   val mockAuthJourney = mock[AuthJourney]
   val mockMessageFrontendService = mock[MessageFrontendService]
