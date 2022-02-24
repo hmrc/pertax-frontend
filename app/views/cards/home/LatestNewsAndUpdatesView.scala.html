@@ -18,12 +18,11 @@
 @this()
 @()(implicit messages: play.api.i18n.Messages)
 
-@card(
+@cardNew(
 url = Some(routes.InterstitialController.displayNewsAndUpdates().url),
 gaAction = Some("Income"),
 gaLabel = Some("Latest news and updates"),
 heading = messages("label.latest_news_and_updates"),
-headingTag = "h3",
-bodyContent = Some(Html("<p>" + messages("label.stop_using_Verify") + "</p>"))
+headingTag = "h3"
 ){
 }
