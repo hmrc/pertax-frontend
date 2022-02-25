@@ -15,7 +15,6 @@
 *@
 
 @(id: Option[String] = None,
-url: Option[String] = None,
 gaAction: Option[String] = None,
 gaLabel: Option[String] = None,
 heading: String,
@@ -25,10 +24,10 @@ bodyContent: Option[Html] = None
 
 <div class="card" @id.map { i => id="@i" }>
 
-    <div class="card-body @if(url) {active}">
+    <div class="card-body @if(true) {inactive}">
 
         <@headingTag class="heading-small card-heading">
-        <a class="card-link">
+       <a class="card-link">
             @heading
         </a>
 
@@ -36,6 +35,7 @@ bodyContent: Option[Html] = None
 
     <ul>
         <li><a class="ga-track-anchor-click" href="@controllers.routes.InterstitialController.displayNewsAndUpdates()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="HMRC Personal Tax Account to stop using GOV.UK Verify">@messages("label.stop_using_Verify")</a></li>
+        <li><a class="ga-track-anchor-click" href="/digital-forms/form/Child-Benefit-Claimant-Change-of-Circumstances/draft/guide" data-ga-event-category="link - click" data-ga-event-action="Benefits" data-ga-event-label="Tell us if your circumstances change">@messages("label.tell_us_if_your_circumstances_change")</a></li>
     </ul>
 </div>
 </div>
