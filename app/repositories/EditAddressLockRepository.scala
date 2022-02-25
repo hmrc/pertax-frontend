@@ -64,8 +64,7 @@ class EditAddressLockRepository @Inject() (
 
   def insert(
     nino: String,
-    addressType: AddrType,
-    ttl: Instant = getNextMidnight(Instant.now().atOffset(ZoneOffset.UTC)).toInstant
+    addressType: AddrType
   ): Future[Boolean] = {
 
     val nextMidnight = getNextMidnight(Instant.now().atOffset(ZoneOffset.UTC)).toInstant

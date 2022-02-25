@@ -110,8 +110,8 @@ class GetPersonDetailsAction @Inject() (
                 editAddressLockRepository.exists(_.editedAddress.addressType == "EditCorrespondenceAddress")
               Right(
                 pd.copy(
-                  address = pd.address.map(_.copy(isRls = !residentialLock)),
-                  correspondenceAddress = pd.correspondenceAddress.map(_.copy(isRls = !correspondenceLock))
+                  address = pd.address.map(address => address.copy(isRls = address.isRls && !residentialLock)),
+                  correspondenceAddress = pd.correspondenceAddress.map(address => address.copy(isRls = address.isRls && !correspondenceLock))
                 )
               )
             }
