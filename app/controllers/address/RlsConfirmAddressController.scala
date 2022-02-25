@@ -22,6 +22,7 @@ import connectors.{CitizenDetailsConnector, UpdateAddressSuccessResponse}
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.{AddrType, ResidentialAddrType}
 import error.{ErrorRenderer, GenericErrors}
 import models.dto.RlsAddressConfirmDto
 import models.{AddressJourneyTTLModel, PersonDetails}
@@ -31,7 +32,7 @@ import play.api.mvc._
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.renderer.{ActiveTabYourProfile, TemplateRenderer}
-import viewmodels.PersonalDetailsViewModel
+import viewmodels.{AddressRowModel, PersonalDetailsViewModel}
 import views.html.InternalServerErrorView
 import views.html.personaldetails.{RlsAddressSubmittedView, RlsConfirmYourAddressView}
 
@@ -59,29 +60,16 @@ class RlsConfirmAddressController @Inject() (
     authJourney.authWithPersonalDetails andThen withActiveTabAction
       .addActiveTab(ActiveTabYourProfile)
 
-  def onPageLoad(isMainAddress: Boolean): Action[AnyContent] = authenticate.async { implicit request =>
-    for {
-      addressModel <- request.nino
-                        .map { nino =>
-                          editAddressLockRepository.get(nino.withoutSuffix)
-                        }
-                        .getOrElse(
-                          Future.successful(List[AddressJourneyTTLModel]())
-                        )
-    } yield {
-      val row =
-        if (isMainAddress) {
-          request.personDetails
-            .flatMap(personalDetailsViewModel.getMainAddress(_, addressModel.map(y => y.editedAddress)))
-        } else {
-          request.personDetails
-            .flatMap(personalDetailsViewModel.getPostalAddress(_, addressModel.map(y => y.editedAddress)))
-        }
-
-      val addressDetails = personalDetailsViewModel.getAddressRow(addressModel)
-
-      Ok(rlsConfirmYourAddressView(row, addressDetails, isMainAddress, RlsAddressConfirmDto.form))
-    }
+  def onPageLoad(isMainAddress: Boolean): Action[AnyContent] = authenticate { implicit request =>
+    val row =
+      if (isMainAddress) {
+        request.personDetails
+          .flatMap(personalDetailsViewModel.getMainAddress(_, List.empty))
+      } else {
+        request.personDetails
+          .flatMap(personalDetailsViewModel.getPostalAddress(_, List.empty))
+      }
+    Ok(rlsConfirmYourAddressView(row, isMainAddress, RlsAddressConfirmDto.form))
   }
 
   def onSubmit: Action[AnyContent] =
@@ -103,16 +91,20 @@ class RlsConfirmAddressController @Inject() (
                 addressToConfirm.fold(
                   Future.successful(genericErrors.badRequest)
                 )(address =>
-                  citizenDetailsConnector
-                    .updateAddress(
-                      nino,
-                      version.etag,
-                      address.copy(startDate = Some(LocalDate.now()), endDate = None)
-                    )
-                    .map {
-                      case UpdateAddressSuccessResponse => Ok(rlsAddressSubmittedView())
-                      case _                            => InternalServerError(internalServerErrorView())
-                    }
+                  for {
+                    _ <- editAddressLockRepository.insert(
+                           nino.withoutSuffix,
+                           AddrType.apply(address.`type`.getOrElse("residential")).getOrElse(ResidentialAddrType)
+                         )
+                    updatedAddress <- citizenDetailsConnector.updateAddress(
+                                        nino,
+                                        version.etag,
+                                        address.copy(startDate = Some(LocalDate.now()), endDate = None)
+                                      )
+                  } yield updatedAddress match {
+                    case UpdateAddressSuccessResponse => Ok(rlsAddressSubmittedView())
+                    case _                            => InternalServerError(internalServerErrorView())
+                  }
                 )
             }
           }
@@ -126,9 +118,7 @@ class RlsConfirmAddressController @Inject() (
     (for {
       payeAccount   <- request.nino
       personDetails <- request.personDetails
-    } yield {
-      block(payeAccount)(personDetails)
-    }).getOrElse {
+    } yield block(payeAccount)(personDetails)).getOrElse {
       Future.successful {
         genericErrors.internalServerError
       }

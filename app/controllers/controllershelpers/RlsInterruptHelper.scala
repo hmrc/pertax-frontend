@@ -16,18 +16,23 @@
 
 package controllers.controllershelpers
 
+import cats.data.OptionT
+import cats.instances.future._
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
 import play.api.mvc.{MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class RlsInterruptHelper @Inject() (
-  cc: MessagesControllerComponents
+  cc: MessagesControllerComponents,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit ec: ExecutionContext, templateRenderer: TemplateRenderer)
     extends PertaxBaseController(cc) {
 
@@ -40,15 +45,21 @@ class RlsInterruptHelper @Inject() (
     configDecorator: ConfigDecorator
   ): Future[Result] =
     if (configDecorator.rlsInterruptToggle) {
-      request.personDetails
-        .map { details =>
-          if (details.hasRls) {
-            Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
-          } else {
-            block
-          }
-        }
-        .getOrElse(block)
+      (for {
+        personDetails <- OptionT.fromOption(request.personDetails)
+        nino          <- OptionT.fromOption(request.nino)
+        editAddressLockRepository <- OptionT.liftF(editAddressLockRepository.get(nino.withoutSuffix))
+      } yield {
+        val residentialLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Residential")
+        val correspondenceLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Correspondence")
+
+        if (personDetails.address.exists(_.isRls) && !residentialLock)
+          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
+        else if (personDetails.correspondenceAddress.exists(_.isRls) && !correspondenceLock)
+          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
+        else
+          block
+      }).getOrElse(block).flatten
     } else {
       block
     }

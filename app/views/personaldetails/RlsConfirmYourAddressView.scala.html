@@ -10,7 +10,7 @@
 
 @this(mainView: MainView)
 
-@(row: Option[PersonalDetailsTableRowModel], addressDetails: AddressRowModel, isMainAddress: Boolean, rlsAddressConfirmDto: Form[dto.RlsAddressConfirmDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(row: Option[PersonalDetailsTableRowModel], isMainAddress: Boolean, rlsAddressConfirmDto: Form[dto.RlsAddressConfirmDto])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @rowsPresenter(extraLinks: List[ExtraLinks] = Nil) = {
     <div class="govuk-summary-list__row" id="@row.get.id">
