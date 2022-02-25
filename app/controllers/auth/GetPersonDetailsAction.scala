@@ -109,13 +109,15 @@ class GetPersonDetailsAction @Inject() (
               val correspondenceLock =
                 editAddressLockRepository.exists(_.editedAddress.addressType == "EditCorrespondenceAddress")
               Right(
-                pd.copy(
-                  address = pd.address.map(address => address.copy(isRls = address.isRls && !residentialLock)),
-                  correspondenceAddress = pd.correspondenceAddress.map(address => address.copy(isRls = address.isRls && !correspondenceLock))
+                Some(
+                  pd.copy(
+                    address = pd.address.map(address => address.copy(isRls = address.isRls && !residentialLock)),
+                    correspondenceAddress = pd.correspondenceAddress
+                      .map(address => address.copy(isRls = address.isRls && !correspondenceLock))
+                  )
                 )
               )
             }
-            Future.successful(Right(Some(pd)))
           case PersonDetailsHiddenResponse =>
             Future.successful(Left(Locked(manualCorrespondenceView())))
           case _ => Future.successful(Right(None))
