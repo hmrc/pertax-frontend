@@ -22,19 +22,19 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
+import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 class RlsInterruptHelper @Inject() (
   cc: MessagesControllerComponents,
   editAddressLockRepository: EditAddressLockRepository
 )(implicit ec: ExecutionContext, templateRenderer: TemplateRenderer)
-    extends PertaxBaseController(cc) {
+    extends PertaxBaseController(cc) with Logging {
 
   def enforceByRlsStatus(
     block: => Future[Result]
@@ -52,6 +52,10 @@ class RlsInterruptHelper @Inject() (
       } yield {
         val residentialLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Residential")
         val correspondenceLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Correspondence")
+        logger.info("Residential lock: " + residentialLock.toString)
+        logger.info("Correspondence lock: " + correspondenceLock.toString)
+        logger.info("Residential address rls: " + personDetails.address.exists(_.isRls))
+        logger.info("Correspondence address rls: " + personDetails.correspondenceAddress.exists(_.isRls))
 
         if (personDetails.address.exists(_.isRls) && !residentialLock)
           Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
