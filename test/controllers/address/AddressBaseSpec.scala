@@ -140,7 +140,7 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any())) thenReturn {
       Future.successful(updateAddressResponse)
     }
-    when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
+    when(mockEditAddressLockRepository.insert(any(), any(), any())) thenReturn {
       Future.successful(isInsertCorrespondenceAddressLockSuccessful)
     }
     when(mockEditAddressLockRepository.get(any())) thenReturn {
