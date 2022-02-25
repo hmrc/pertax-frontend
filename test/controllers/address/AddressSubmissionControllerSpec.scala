@@ -211,7 +211,8 @@ class AddressSubmissionControllerSpec extends AddressBaseSpec {
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockLocalSessionCache, times(1)).fetch()(any(), any())
-      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(ResidentialAddrType))
+      verify(controller.editAddressLockRepository, times(0))
+        .insert(meq(nino.withoutSuffix), meq(ResidentialAddrType), any())
 
     }
 
