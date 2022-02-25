@@ -92,9 +92,6 @@ class GetPersonDetailsAction @Inject() (
     if (configDecorator.personDetailsMessageCountEnabled) messageFrontendService.getUnreadMessageCount
     else Future.successful(None)
 
-  def rlsInterrupt()(implicit request: UserRequest[_]): Result =
-    Locked(checkYourAddressInterruptView())
-
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
     implicit val hc: HeaderCarrier =

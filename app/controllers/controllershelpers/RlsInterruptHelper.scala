@@ -22,6 +22,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
+import models.AddressJourneyTTLModel
 import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
@@ -47,12 +48,14 @@ class RlsInterruptHelper @Inject() (
     if (configDecorator.rlsInterruptToggle) {
       logger.info("Check for RLS interrupt")
       (for {
-        personDetails             <- OptionT.fromOption(request.personDetails)
-        nino                      <- OptionT.fromOption(request.nino)
-        editAddressLockRepository <- OptionT.liftF(editAddressLockRepository.get(nino.withoutSuffix))
+        personDetails <- OptionT.fromOption(request.personDetails)
+        nino          <- OptionT.fromOption(request.nino)
+        editAddressLockRepository: List[AddressJourneyTTLModel] <-
+          OptionT.liftF(editAddressLockRepository.get(nino.withoutSuffix))
       } yield {
-        val residentialLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Residential")
-        val correspondenceLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Correspondence")
+        val residentialLock = editAddressLockRepository.exists(_.editedAddress.addressType == "EditResidentialAddress")
+        val correspondenceLock =
+          editAddressLockRepository.exists(_.editedAddress.addressType == "EditCorrespondenceAddress")
         logger.warn("Residential lock: " + residentialLock.toString)
         logger.warn("Correspondence lock: " + correspondenceLock.toString)
         logger.warn("Residential address rls: " + personDetails.address.exists(_.isRls))
