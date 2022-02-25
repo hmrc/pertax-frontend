@@ -587,3 +587,5 @@ global.error.InternalServerError500.pta.message.by.phone.post = online, by phone
 title.check_your_address=Check your address
 label.check_your_address_reason=We tried to send a letter by post which did not reach you.
 label.check_your_address_action=to make sure you get essential tax letters.
+
+label.child_benefit_survey_text = Help make the Child Benefit service better by taking part in a survey (opens in a new tab). It should take around 5 minutes, and you could win a £25 voucher . We’re giving away 2 vouchers every month while the survey is running.

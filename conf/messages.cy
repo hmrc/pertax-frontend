@@ -593,3 +593,6 @@ global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y 
 title.check_your_address=Gwirio’ch cyfeiriad
 label.check_your_address_reason=Gwnaethon drio anfon llythyr atoch drwy’r post ond nid oedd wedi’ch cyrraedd.
 label.check_your_address_action=i wneud yn siŵr eich bod yn cael llythyrau treth hollbwysig.
+
+
+label.child_benefit_survey_text = Helpwch i wella’r gwasanaeth Budd-dal Plant drwy gymryd rhan mewn arolwg (yn agor tab newydd). Dylai gymryd tua 5 munud, a gallech ennill taleb werth £25. Rydym yn cynnig 2 daleb bob mis yn ystod cyfnod yr arolwg.
