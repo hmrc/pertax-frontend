@@ -19,25 +19,31 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.{AddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.SubmittedTaxCreditsChoiceId
 import models.dto.TaxCreditsChoiceDto
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.interstitial.DisplayAddressInterstitialView
 import views.html.personaldetails.TaxCreditsChoiceView
 
 import scala.concurrent.{ExecutionContext, Future}
+import java.time.Instant
+import java.time.LocalDate
 
 class TaxCreditsChoiceController @Inject() (
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
+  editAddressLockRepository: EditAddressLockRepository,
   taxCreditsChoiceView: TaxCreditsChoiceView,
   displayAddressInterstitialView: DisplayAddressInterstitialView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { _ => _ =>
@@ -60,6 +66,15 @@ class TaxCreditsChoiceController @Inject() (
           taxCreditsChoiceDto =>
             cachingHelper.addToCache(SubmittedTaxCreditsChoiceId, taxCreditsChoiceDto) map { _ =>
               if (taxCreditsChoiceDto.value) {
+                editAddressLockRepository
+                  .insert(
+                    request.nino.get.withoutSuffix,
+                    AddrType.apply("residential").get,
+                    Instant.now().plusSeconds(15 * 24 * 3600)
+                  )
+                  .map { _ =>
+                    logger.warn("Address locked for tcs users")
+                  }
                 Redirect(configDecorator.tcsChangeAddressUrl)
               } else {
                 Redirect(routes.DoYouLiveInTheUKController.onPageLoad)

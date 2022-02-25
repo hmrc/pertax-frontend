@@ -45,6 +45,7 @@ class RlsInterruptHelper @Inject() (
     configDecorator: ConfigDecorator
   ): Future[Result] =
     if (configDecorator.rlsInterruptToggle) {
+      logger.info("Check for RLS interrupt")
       (for {
         personDetails             <- OptionT.fromOption(request.personDetails)
         nino                      <- OptionT.fromOption(request.nino)
@@ -52,10 +53,10 @@ class RlsInterruptHelper @Inject() (
       } yield {
         val residentialLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Residential")
         val correspondenceLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Correspondence")
-        logger.info("Residential lock: " + residentialLock.toString)
-        logger.info("Correspondence lock: " + correspondenceLock.toString)
-        logger.info("Residential address rls: " + personDetails.address.exists(_.isRls))
-        logger.info("Correspondence address rls: " + personDetails.correspondenceAddress.exists(_.isRls))
+        logger.warn("Residential lock: " + residentialLock.toString)
+        logger.warn("Correspondence lock: " + correspondenceLock.toString)
+        logger.warn("Residential address rls: " + personDetails.address.exists(_.isRls))
+        logger.warn("Correspondence address rls: " + personDetails.correspondenceAddress.exists(_.isRls))
 
         if (personDetails.address.exists(_.isRls) && !residentialLock)
           Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
