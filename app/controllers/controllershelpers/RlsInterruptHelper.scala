@@ -46,8 +46,8 @@ class RlsInterruptHelper @Inject() (
   ): Future[Result] =
     if (configDecorator.rlsInterruptToggle) {
       (for {
-        personDetails <- OptionT.fromOption(request.personDetails)
-        nino          <- OptionT.fromOption(request.nino)
+        personDetails             <- OptionT.fromOption(request.personDetails)
+        nino                      <- OptionT.fromOption(request.nino)
         editAddressLockRepository <- OptionT.liftF(editAddressLockRepository.get(nino.withoutSuffix))
       } yield {
         val residentialLock = editAddressLockRepository.exists(_.editedAddress.addressType == "Residential")

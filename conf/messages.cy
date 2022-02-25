@@ -593,3 +593,15 @@ global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y 
 title.check_your_address=Gwirio’ch cyfeiriad
 label.check_your_address_reason=Gwnaethon drio anfon llythyr atoch drwy’r post ond nid oedd wedi’ch cyrraedd.
 label.check_your_address_action=i wneud yn siŵr eich bod yn cael llythyrau treth hollbwysig.
+
+title.check_your_address_interrupt=Check your address
+label.check_your_address_interrupt_reason=We tried to send a letter by post which did not reach you.
+label.check_your_address_interrupt_action=to make sure you get essential tax letters.
+label.confirm_address=You need to
+label.confirm_address_link=confirm your address
+
+title.check_your_details=Check your details
+label.button_confirm_address=Confirm address
+
+label.address_confirmed = Address confirmed
+label.Return_to_your_profile_page = Return to your profile page
