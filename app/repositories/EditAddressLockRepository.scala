@@ -68,8 +68,10 @@ class EditAddressLockRepository @Inject() (
     ttl: Instant = getNextMidnight(Instant.now().atOffset(ZoneOffset.UTC)).toInstant
   ): Future[Boolean] = {
 
+    val nextMidnight = getNextMidnight(Instant.now().atOffset(ZoneOffset.UTC)).toInstant
+
     val record: EditedAddress =
-      AddrType.toEditedAddress(addressType, ttl)
+      AddrType.toEditedAddress(addressType, nextMidnight)
 
     logger.info("Inserting address lock: " + AddressJourneyTTLModel(nino, record).toString)
 

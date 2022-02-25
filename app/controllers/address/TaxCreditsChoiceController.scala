@@ -69,8 +69,7 @@ class TaxCreditsChoiceController @Inject() (
                 editAddressLockRepository
                   .insert(
                     request.nino.get.withoutSuffix,
-                    AddrType.apply("residential").get,
-                    Instant.now().plusSeconds(15 * 24 * 3600)
+                    AddrType.apply("residential").get
                   )
                   .map { _ =>
                     logger.warn("Address locked for tcs users")

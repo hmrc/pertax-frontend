@@ -228,7 +228,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
       verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType), any())
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "redirect to personal details if there is a lock on the correspondence address for the user" in new LocalSetup {
@@ -242,7 +242,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsConnector, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType), any())
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "render the thank you page upon successful submission of closing the correspondence address and only a lock on the residential address" in new LocalSetup {
@@ -262,7 +262,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
 
       verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType), any())
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 400 if UpdateAddressBadRequestResponse is received from citizen-details" in new LocalSetup {
@@ -273,7 +273,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe BAD_REQUEST
       verify(mockCitizenDetailsConnector, times(1))
         .updateAddress(meq(nino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType), any())
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 500 if an UpdateAddressUnexpectedResponse is received from citizen-details" in new LocalSetup {
@@ -284,7 +284,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsConnector, times(1))
         .updateAddress(meq(Fixtures.fakeNino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType), any())
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 500 if an UpdateAddressErrorResponse is received from citizen-details" in new LocalSetup {
@@ -296,7 +296,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType), any())
+      verify(controller.editAddressLockRepository, times(0)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 500 if insert address lock fails" in new LocalSetup {
@@ -314,7 +314,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
 
       pruneDataEvent(dataEvent) mustBe submitComparatorDataEvent(dataEvent, "closedAddressSubmitted", Some("GB101"))
       verify(mockCitizenDetailsConnector, times(1)).updateAddress(meq(nino), meq("115"), any())(any())
-      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType), any())
+      verify(controller.editAddressLockRepository, times(1)).insert(meq(nino.withoutSuffix), meq(PostalAddrType))
     }
 
     "return 500 if fetching etag from citizen details fails" in new LocalSetup {

@@ -24,6 +24,7 @@ import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.{Locked, SeeOther}
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -36,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class GetPersonDetailsAction @Inject() (
   citizenDetailsConnector: CitizenDetailsConnector,
   messageFrontendService: MessageFrontendService,
+  editAddressLockRepository: EditAddressLockRepository,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
   manualCorrespondenceView: ManualCorrespondenceView,
@@ -99,11 +101,24 @@ class GetPersonDetailsAction @Inject() (
 
     request.nino match {
       case Some(nino) =>
-        citizenDetailsConnector.personDetails(nino).map {
-          case PersonDetailsSuccessResponse(pd) => Right(Some(pd))
+        citizenDetailsConnector.personDetails(nino).flatMap {
+          case PersonDetailsSuccessResponse(pd) =>
+            editAddressLockRepository.get(nino.withoutSuffix).map { editAddressLockRepository =>
+              val residentialLock =
+                editAddressLockRepository.exists(_.editedAddress.addressType == "EditResidentialAddress")
+              val correspondenceLock =
+                editAddressLockRepository.exists(_.editedAddress.addressType == "EditCorrespondenceAddress")
+              Right(
+                pd.copy(
+                  address = pd.address.map(_.copy(isRls = !residentialLock)),
+                  correspondenceAddress = pd.correspondenceAddress.map(_.copy(isRls = !correspondenceLock))
+                )
+              )
+            }
+            Future.successful(Right(Some(pd)))
           case PersonDetailsHiddenResponse =>
-            Left(Locked(manualCorrespondenceView()))
-          case _ => Right(None)
+            Future.successful(Left(Locked(manualCorrespondenceView())))
+          case _ => Future.successful(Right(None))
         }
       case _ => Future.successful(Right(None))
     }
