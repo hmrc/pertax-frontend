@@ -44,19 +44,23 @@ class RlsController @Inject() (
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
   def rlsInterruptOnPageLoad(): Action[AnyContent] = authenticate.async { implicit request =>
-    request.personDetails
-      .map { personDetails =>
-        val mainAddress = personDetails.address.flatMap(address => if (address.isRls) Some(address) else None)
-        val postalAddress =
-          personDetails.correspondenceAddress.flatMap(address => if (address.isRls) Some(address) else None)
-        if (mainAddress.isDefined || postalAddress.isDefined) {
-          Future.successful(
-            Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
-          )
-        } else {
-          Future.successful(Redirect(routes.HomeController.index()))
+    if (configDecorator.rlsInterruptToggle) {
+      request.personDetails
+        .map { personDetails =>
+          val mainAddress = personDetails.address.flatMap(address => if (address.isRls) Some(address) else None)
+          val postalAddress =
+            personDetails.correspondenceAddress.flatMap(address => if (address.isRls) Some(address) else None)
+          if (mainAddress.isDefined || postalAddress.isDefined) {
+            Future.successful(
+              Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
+            )
+          } else {
+            Future.successful(Redirect(routes.HomeController.index()))
+          }
         }
-      }
-      .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
+        .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
+    } else {
+      Future.successful(Redirect(routes.HomeController.index()))
+    }
   }
 }
