@@ -28,8 +28,6 @@ import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
 
-import scala.concurrent.{ExecutionContext, Future}
-
 @Singleton
 class HomeCardGenerator @Inject() (
   payAsYouEarnView: PayAsYouEarnView,
@@ -55,7 +53,7 @@ class HomeCardGenerator @Inject() (
     currentTaxYear: Int
   )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
-      getLatestNewsAndUpdatesCard,
+      getLatestNewsAndUpdatesCard(),
       getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
@@ -124,10 +122,7 @@ class HomeCardGenerator @Inject() (
       None
     }
 
-  def getLatestNewsAndUpdatesCard(implicit
-    request: UserRequest[AnyContent],
-    messages: Messages
-  ): Option[HtmlFormat.Appendable] =
+  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNewsAndUpdatesTileEnabled) {
       Some(latestNewsAndUpdatesView())
     } else {

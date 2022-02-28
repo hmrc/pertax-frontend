@@ -1,7 +1,7 @@
 /* global $ */
 var card = (function () {
   // Capture when a user clicks
-  $('.card-body').on('click', function () {
+  $('.card-body' && '.active').on('click', function () {
     var url = $(this).find('a').attr('href');
     if (url !== undefined) {
       window.location.href = url;

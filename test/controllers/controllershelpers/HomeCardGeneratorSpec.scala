@@ -53,6 +53,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val taxSummaries = injected[TaxSummariesView]
   val seissConnector = mock[SeissConnector]
   val seissView = injected[SeissView]
+  val latestNewsAndUpdatesView = injected[LatestNewsAndUpdatesView]
 
   val homeCardGenerator =
     new HomeCardGenerator(
@@ -66,7 +67,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       statePension,
       taxSummaries,
       seissConnector,
-      seissView
+      seissView,
+      latestNewsAndUpdatesView
     )
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -256,7 +258,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           statePension,
           taxSummaries,
           seissConnector,
-          seissView
+          seissView,
+          latestNewsAndUpdatesView
         )(stubConfigDecorator)
 
       sut.getNationalInsuranceCard() mustBe None
@@ -410,13 +413,51 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissConnector,
-            seissView
+            seissView,
+            latestNewsAndUpdatesView
           )(stubConfigDecorator)
 
         lazy val cardBody = sut.getAnnualTaxSummaryCard
 
         cardBody mustBe None
       }
+    }
+  }
+
+  "Calling getLatestNewsAndUpdatesCard" must {
+    "return News and Updates Card when toggled on" in {
+
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
+
+      cardBody mustBe Some(latestNewsAndUpdatesView())
+    }
+
+    "return nothing when toggled off" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
+      }
+
+      def sut: HomeCardGenerator =
+        new HomeCardGenerator(
+          payAsYouEarn,
+          taxCalculation,
+          selfAssessment,
+          nationalInsurance,
+          taxCredits,
+          childBenefit,
+          marriageAllowance,
+          statePension,
+          taxSummaries,
+          seissConnector,
+          seissView,
+          latestNewsAndUpdatesView
+        )(stubConfigDecorator)
+
+      sut.getLatestNewsAndUpdatesCard mustBe None
     }
   }
 }
