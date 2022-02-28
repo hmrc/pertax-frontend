@@ -20,8 +20,10 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import models.Address
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
+import views.html.InternalServerErrorView
 import views.html.personaldetails.CheckYourAddressInterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,7 +31,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class RlsController @Inject() (
   authJourney: AuthJourney,
   cc: MessagesControllerComponents,
-  checkYourAddressInterruptView: CheckYourAddressInterruptView
+  checkYourAddressInterruptView: CheckYourAddressInterruptView,
+  internalServerErrorView: InternalServerErrorView
 )(implicit
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
@@ -38,7 +41,14 @@ class RlsController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
-  def rlsInterruptOnPageLoad(isMainAddress: Boolean): Action[AnyContent] = authenticate.async { implicit request =>
-    Future.successful(Ok(checkYourAddressInterruptView(isMainAddress)))
+  def rlsInterruptOnPageLoad(): Action[AnyContent] = authenticate.async { implicit request =>
+    request.personDetails
+      .map { personDetails =>
+        val mainAddress = personDetails.address.flatMap(address => if (address.isRls) Some(address) else None)
+        val correspondenceAddress =
+          personDetails.correspondenceAddress.flatMap(address => if (address.isRls) Some(address) else None)
+        Future.successful(Ok(checkYourAddressInterruptView(mainAddress, correspondenceAddress)))
+      }
+      .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
   }
 }

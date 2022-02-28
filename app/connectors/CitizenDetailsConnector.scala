@@ -58,6 +58,7 @@ class CitizenDetailsConnector @Inject() (
       simpleHttp.get[PersonDetailsResponse](s"$citizenDetailsUrl/citizen-details/$nino/designatory-details")(
         onComplete = {
           case response if response.status >= 200 && response.status < 300 =>
+            println("PPPP23: " + response.toString)
             timer.completeTimerAndIncrementSuccessCounter()
             PersonDetailsSuccessResponse(response.json.as[PersonDetails])
 

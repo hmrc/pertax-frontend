@@ -47,6 +47,7 @@ class RlsInterruptHelper @Inject() (
   ): Future[Result] =
     if (configDecorator.rlsInterruptToggle) {
       logger.info("Check for RLS interrupt")
+      println("PPPP45: " + request.personDetails.toString + " / " + request.nino.toString)
       (for {
         personDetails <- OptionT.fromOption(request.personDetails)
         nino          <- OptionT.fromOption(request.nino)

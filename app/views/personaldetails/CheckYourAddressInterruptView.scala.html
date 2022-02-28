@@ -21,8 +21,8 @@
 
 @import scala.concurrent.ExecutionContext
 
-@this(mainView: MainView)
-@(isMainAddress: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(mainView: MainView, addressView: AddressView)
+@(mainAddressOption: Option[Address], correspondenceAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("title.check_your_address"), Some(messages("label.your_personal_tax_account"))) {
 
@@ -30,7 +30,25 @@
         <div class="column-two-thirds">
             <h1 class="heading-48">@messages("title.check_your_address")</h1>
             <p class="panel-indent">@messages("label.check_your_address_reason")</p>
-            @if(isMainAddress) {
+
+            @mainAddressOption.map { mainAddress =>
+                <div class="govuk-summary-list__row" id="main_address">
+                    <dt class="govuk-summary-list__key">
+                        Main address
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @addressView(mainAddress)
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="/personal-account/your-address/tax-credits-choice">
+                            Change
+                            <span class="visuallyhidden">Your main address</span>
+                        </a>
+                    </dd>
+                </div>
+            }
+
+            @if(true) {
             <p><a href="@controllers.address.routes.TaxCreditsChoiceController.onPageLoad()">@messages("label.update_your_address")</a> @messages("label.check_your_address_action")</p>
             } else {
             <p>Close or <a href="/personal-account/your-address/postal/is-your-postal-address-in-the-uk">@messages("label.update_your_address")</a> @messages("label.check_your_address_action")</p>
