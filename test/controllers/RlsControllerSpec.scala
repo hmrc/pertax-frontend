@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
+import controllers.controllershelpers.{CountryHelper, HomeCardGenerator, HomePageCachingHelper}
 import models.NonFilerSelfAssessmentUser
 import org.mockito.Mockito.when
 import play.api.http.Status.OK
@@ -29,7 +29,7 @@ import play.api.test.Helpers.{defaultAwaitTimeout, status}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec}
-import views.html.HomeView
+import views.html.{HomeView, InternalServerErrorView}
 import views.html.personaldetails.CheckYourAddressInterruptView
 
 import scala.concurrent.Future
@@ -42,8 +42,9 @@ class RlsControllerSpec extends BaseSpec {
     new RlsController(
       mockAuthJourney,
       injected[MessagesControllerComponents],
-      injected[CheckYourAddressInterruptView]
-    )(injected[ConfigDecorator], injected[TemplateRenderer], ec)
+      injected[CheckYourAddressInterruptView],
+      injected[InternalServerErrorView]
+    )(injected[ConfigDecorator], injected[TemplateRenderer], injected[CountryHelper], ec)
 
   "rlsInterruptOnPageLoad" must {
     "return okay and CheckYourAddressInterruptView when called" in {

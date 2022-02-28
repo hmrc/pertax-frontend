@@ -16,9 +16,7 @@
 
 package controllers
 
-import config.ConfigDecorator
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
-import controllers.address.RlsConfirmAddressController
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthAction, AuthJourney, SelfAssessmentStatusAction}
 import models._
@@ -37,7 +35,6 @@ import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import uk.gov.hmrc.play.bootstrap.binders.{RedirectUrl, SafeRedirectUrl}
-import uk.gov.hmrc.renderer.TemplateRenderer
 import uk.gov.hmrc.time.CurrentTaxYear
 import util.Fixtures._
 import util.UserRequestFixture.buildUserRequest
@@ -45,7 +42,7 @@ import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 import views.html.iv.failure._
 import views.html.iv.success.SuccessView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
 
@@ -56,7 +53,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
   val mockHomeController = mock[HomeController]
-  val mockRlsConfirmAddressController = mock[RlsConfirmAddressController]
+  val mockRlsConfirmAddressController = mock[RlsController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
@@ -66,7 +63,7 @@ class ApplicationControllerSpec extends BaseSpec with CurrentTaxYear {
       bind[AuthJourney].toInstance(mockAuthJourney),
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[HomeController].toInstance(mockHomeController),
-      bind[RlsConfirmAddressController].toInstance(mockRlsConfirmAddressController)
+      bind[RlsController].toInstance(mockRlsConfirmAddressController)
     )
     .build()
 

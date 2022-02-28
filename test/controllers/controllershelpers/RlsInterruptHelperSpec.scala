@@ -34,7 +34,7 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
   val okBlock: Result = Ok("Block")
 
-  val interrupt: Result = SeeOther("/personal-account/check-your-address")
+  val interrupt: Result = SeeOther("/personal-account/update-your-address")
 
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
