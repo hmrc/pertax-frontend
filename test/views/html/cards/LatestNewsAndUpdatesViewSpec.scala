@@ -17,20 +17,11 @@
 package views.html.cards
 
 import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import models._
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
-import play.api.mvc.AnyContent
-import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import util.UserRequestFixture.buildUserRequest
-import viewmodels.Message.text
-import viewmodels.{Heading, TaxCalculationViewModel, TaxYears, UnderpaidUrl}
 import views.html.ViewSpec
-import views.html.cards.home.{LatestNewsAndUpdatesView, SelfAssessmentView}
-
-import java.net.URLDecoder
+import views.html.cards.home.LatestNewsAndUpdatesView
 
 class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
@@ -41,8 +32,6 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
   "TaxCalculation card" must {
-
-    val previousTaxYear = 2017
 
     val doc =
       asDocument(
