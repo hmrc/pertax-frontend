@@ -38,7 +38,7 @@ class RlsController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
-  def rlsInterruptOnPageLoad(): Action[AnyContent] = authenticate.async { implicit request =>
-    Future.successful(Ok(checkYourAddressInterruptView()))
+  def rlsInterruptOnPageLoad(isMainAddress: Boolean): Action[AnyContent] = authenticate.async { implicit request =>
+    Future.successful(Ok(checkYourAddressInterruptView(isMainAddress)))
   }
 }

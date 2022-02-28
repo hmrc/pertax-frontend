@@ -37,8 +37,12 @@ GET         /personal-account/lang/cyGb                                         
 
 GET         /personal-account/personal-details                                         controllers.address.PersonalDetailsController.redirectToYourProfile
 GET         /personal-account/your-profile                                             controllers.address.PersonalDetailsController.onPageLoad
+
 GET         /personal-account/confirm-your-address                                     controllers.address.RlsConfirmAddressController.onPageLoad(isMainAddress: Boolean)
 POST        /personal-account/confirm-your-address                                     controllers.address.RlsConfirmAddressController.onSubmit
+GET         /personal-account/check-your-address                                       controllers.RlsController.rlsInterruptOnPageLoad(isMainAddress: Boolean)
+
+
 GET         /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onPageLoad
 POST        /personal-account/your-address/tax-credits-choice                          controllers.address.TaxCreditsChoiceController.onSubmit
 GET         /personal-account/your-address/residential/do-you-live-in-the-uk           controllers.address.DoYouLiveInTheUKController.onPageLoad
@@ -65,8 +69,6 @@ POST        /personal-account/your-address/close-correspondence-address         
 GET         /personal-account/your-address/close-correspondence-address-confirm        controllers.address.ClosePostalAddressController.confirmPageLoad
 POST        /personal-account/your-address/thanks                                      controllers.address.ClosePostalAddressController.confirmSubmit
 GET         /personal-account/your-address/thanks                                      controllers.address.PersonalDetailsController.onPageLoad
-
-GET         /personal-account/check-your-address                                       controllers.RlsController.rlsInterruptOnPageLoad
 
 GET         /personal-account/self-assessment-summary                                  controllers.InterstitialController.displaySelfAssessment
 GET         /personal-account/self-assessment/sa302/:year                              controllers.InterstitialController.displaySa302Interrupt(year: Int)
