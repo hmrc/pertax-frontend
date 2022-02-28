@@ -42,15 +42,13 @@ html[data-useragent*="MSIE 10.0"] .flex-container {
   border: 1px solid $panel-colour;
   font-size: 16px;
 
+  &.inactive {
+    color: $secondary-text-colour;
+  }
 
   .card-heading {
     margin-top: 0;
   }
-
- &.inactive {
-        background-color: $grey-4;
-        transition: 0.1s ease-in-out;
-    }
 
   .card-body {
     border-bottom: 1px solid $panel-colour;
