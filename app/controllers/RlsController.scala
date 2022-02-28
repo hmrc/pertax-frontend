@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.controllershelpers.CountryHelper
 import models.Address
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
@@ -36,6 +37,7 @@ class RlsController @Inject() (
 )(implicit
   configDecorator: ConfigDecorator,
   templateRenderer: TemplateRenderer,
+  countryHelper: CountryHelper,
   ec: ExecutionContext
 ) extends PertaxBaseController(cc) {
 
@@ -45,9 +47,15 @@ class RlsController @Inject() (
     request.personDetails
       .map { personDetails =>
         val mainAddress = personDetails.address.flatMap(address => if (address.isRls) Some(address) else None)
-        val correspondenceAddress =
+        val postalAddress =
           personDetails.correspondenceAddress.flatMap(address => if (address.isRls) Some(address) else None)
-        Future.successful(Ok(checkYourAddressInterruptView(mainAddress, correspondenceAddress)))
+        if (mainAddress.isDefined || postalAddress.isDefined) {
+          Future.successful(
+            Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
+          )
+        } else {
+          Future.successful(Redirect(routes.HomeController.index()))
+        }
       }
       .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
   }

@@ -18,18 +18,18 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
+@import views.html.personaldetails.partials.AddressView
 
 @import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView, addressView: AddressView)
-@(mainAddressOption: Option[Address], correspondenceAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(mainAddressOption: Option[Address], postalAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.check_your_address"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(messages("title.update_your_address"), Some(messages("label.your_personal_tax_account"))) {
 
     <div class="grid-row pertax-error">
         <div class="column-two-thirds">
-            <h1 class="heading-48">@messages("title.check_your_address")</h1>
-            <p class="panel-indent">@messages("label.check_your_address_reason")</p>
+            <h1 class="heading-48">@messages("title.update_your_address")</h1>
 
             @mainAddressOption.map { mainAddress =>
                 <div class="govuk-summary-list__row" id="main_address">
@@ -37,21 +37,35 @@
                         Main address
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        @addressView(mainAddress)
+                        @messages("label.check_your_address_interrupt_reason")
                     </dd>
                     <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="/personal-account/your-address/tax-credits-choice">
-                            Change
+                        <a class="govuk-link" href="@controllers.address.routes.TaxCreditsChoiceController.onPageLoad()">
+                            Update
                             <span class="visuallyhidden">Your main address</span>
                         </a>
                     </dd>
                 </div>
             }
-
-            @if(true) {
-            <p><a href="@controllers.address.routes.TaxCreditsChoiceController.onPageLoad()">@messages("label.update_your_address")</a> @messages("label.check_your_address_action")</p>
-            } else {
-            <p>Close or <a href="/personal-account/your-address/postal/is-your-postal-address-in-the-uk">@messages("label.update_your_address")</a> @messages("label.check_your_address_action")</p>
+            @postalAddressOption.map { postalAddress =>
+            <div class="govuk-summary-list__row" id="postal_address">
+                <dt class="govuk-summary-list__key">
+                    Correspondence address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("label.check_your_address_interrupt_reason")
+                </dd>
+                <dd class="govuk-summary-list__actions">
+                    <a class="govuk-link" href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad()">
+                        Update
+                        <span class="visuallyhidden">Your postal address</span>
+                    </a>
+                    <a class="govuk-link yourProfileExtraLink" href="@controllers.address.routes.ClosePostalAddressController.onPageLoad()">
+                        Remove
+                        <span class="visuallyhidden">your postal address</span>
+                    </a>
+                </dd>
+            </div>
             }
         </div>
     </div>
