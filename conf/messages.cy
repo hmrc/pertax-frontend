@@ -595,4 +595,4 @@ label.check_your_address_reason=Gwnaethon drio anfon llythyr atoch drwy’r post
 label.check_your_address_action=i wneud yn siŵr eich bod yn cael llythyrau treth hollbwysig.
 
 
-label.child_benefit_survey_text = Cofrestrwch i gymryd rhan mewn ymchwil defnyddwyr (yn agor tab newydd)
+label.child_benefit_survey_text = Helpwch i wella’r gwasanaeth Budd-dal Plant drwy gymryd rhan mewn arolwg (yn agor tab newydd). Dylai gymryd tua 5 munud, a gallech ennill taleb werth £25. Rydym yn cynnig 2 daleb bob mis yn ystod cyfnod yr arolwg.
