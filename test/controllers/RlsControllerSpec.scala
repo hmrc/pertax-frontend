@@ -18,36 +18,40 @@ package controllers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{CountryHelper, HomeCardGenerator, HomePageCachingHelper}
-import models.{Address, NonFilerSelfAssessmentUser, Person, PersonDetails}
+import controllers.auth.AuthJourney
+import controllers.controllershelpers.CountryHelper
+import models.{NonFilerSelfAssessmentUser, PersonDetails}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
-import uk.gov.hmrc.auth.core.ConfidenceLevel.L200
-import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.domain.{Generator, Nino}
+import repositories.EditAddressLockRepository
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
-import views.html.{HomeView, InternalServerErrorView}
+import views.html.InternalServerErrorView
 import views.html.personaldetails.CheckYourAddressInterruptView
+import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 
 import scala.concurrent.Future
-import scala.util.Random
 
 class RlsControllerSpec extends BaseSpec {
 
-  private val generator = new Generator(new Random())
-  private val testNino: Nino = generator.nextNino
-
   val mockAuthJourney = mock[AuthJourney]
+  val mockAuditConnector = mock[AuditConnector]
+  val mockEditAddressLockRepository = mock[EditAddressLockRepository]
+
+  when(mockAuditConnector.sendEvent(any())(any(), any())).thenReturn(Future.successful(Success))
+  when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
 
   def controller: RlsController =
     new RlsController(
       mockAuthJourney,
+      mockAuditConnector,
+      mockEditAddressLockRepository,
       injected[MessagesControllerComponents],
       injected[CheckYourAddressInterruptView],
       injected[InternalServerErrorView]

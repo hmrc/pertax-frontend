@@ -19,11 +19,15 @@ package controllers
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.auth.AuthJourney
 import controllers.controllershelpers.CountryHelper
 import models.Address
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.renderer.{ActiveTabHome, TemplateRenderer}
+import repositories.EditAddressLockRepository
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.renderer.TemplateRenderer
+import util.AuditServiceTools.buildEvent
 import views.html.InternalServerErrorView
 import views.html.personaldetails.CheckYourAddressInterruptView
 
@@ -31,6 +35,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class RlsController @Inject() (
   authJourney: AuthJourney,
+  auditConnector: AuditConnector,
+  editAddressLockRepository: EditAddressLockRepository,
   cc: MessagesControllerComponents,
   checkYourAddressInterruptView: CheckYourAddressInterruptView,
   internalServerErrorView: InternalServerErrorView
@@ -43,6 +49,35 @@ class RlsController @Inject() (
 
   private val authenticate: ActionBuilder[UserRequest, AnyContent] =
     authJourney.authWithPersonalDetails
+
+  private def auditRls(mainAddress: Option[Address], postalAddress: Option[Address])(implicit
+    request: UserRequest[_],
+    hc: HeaderCarrier = HeaderCarrier(),
+    ec: ExecutionContext
+  ) =
+    editAddressLockRepository.get(request.nino.map(_.withoutSuffix).getOrElse("NoNino")).flatMap {
+      editAddressLockRepository =>
+        val residentialLock =
+          editAddressLockRepository.exists(_.editedAddress.addressType == "EditResidentialAddress")
+        val postalLock =
+          editAddressLockRepository.exists(_.editedAddress.addressType == "EditCorrespondenceAddress")
+
+        val residentialDetail =
+          if (residentialLock) "residenti al address has been updated" -> Some("true")
+          else "Is residential address rls"                            -> Some(mainAddress.isDefined.toString)
+        val postalDetail =
+          if (postalLock) "postal address has been updated" -> Some("true")
+          else "Is postal address rls"                      -> Some(postalAddress.isDefined.toString)
+
+        auditConnector.sendEvent(
+          buildEvent(
+            "RLSInterrupt",
+            "user_shown_rls_interrupt_page",
+            Map("nino" -> Some(request.nino.getOrElse("NoNino").toString), residentialDetail, postalDetail)
+          )
+        )
+    }
+
   def rlsInterruptOnPageLoad(): Action[AnyContent] = authenticate.async { implicit request =>
     if (configDecorator.rlsInterruptToggle) {
       request.personDetails
@@ -51,6 +86,7 @@ class RlsController @Inject() (
           val postalAddress =
             personDetails.correspondenceAddress.flatMap(address => if (address.isRls) Some(address) else None)
           if (mainAddress.isDefined || postalAddress.isDefined) {
+            auditRls(mainAddress, postalAddress)
             Future.successful(
               Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
             )
