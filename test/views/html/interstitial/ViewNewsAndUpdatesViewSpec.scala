@@ -31,9 +31,11 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
 
   "Rendering ViewNewsAndUpdatesView.scala.html" must {
 
+    implicit val userRequest = buildUserRequest(request = FakeRequest())
+
     val doc =
       asDocument(
-        viewNewsAndUpdatesView().toString
+        viewNewsAndUpdatesView(s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news").toString
       )
     "show content" in {
 

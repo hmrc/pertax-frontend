@@ -47,7 +47,11 @@ class LatestNewsAndUpdatesViewSpec extends ViewSpec {
 
     "render the given url correctly" in {
 
-      hasLink(doc, Messages("label.stop_using_Verify"), s"configDecorator.pertaxFrontendHomeUrl/personal-account/news")
+      hasLink(
+        doc,
+        Messages("label.stop_using_Verify"),
+        s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/news"
+      )
 
     }
 
