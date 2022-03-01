@@ -25,7 +25,7 @@
 @this(mainView: MainView, addressView: AddressView)
 @(mainAddressOption: Option[Address], postalAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.update_your_address"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(messages("title.update_your_address"), Some(messages("label.your_personal_tax_account")), hideAccountMenu = true) {
 
     <div class="grid-row pertax-error">
         <div class="column-two-thirds">
