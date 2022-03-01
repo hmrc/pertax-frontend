@@ -125,7 +125,7 @@ class RlsControllerSpec extends BaseSpec {
         contentAsString(r) must include("""id="postal_address"""")
       }
 
-      "postal and residantial address is rls" in {
+      "postal and residential address is rls" in {
         val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
         val person = Fixtures.buildPersonDetails.person
         val personDetails = PersonDetails(person, address, address)
@@ -145,13 +145,17 @@ class RlsControllerSpec extends BaseSpec {
       }
     }
 
-    "return a 200 status when accessing index page with good nino and a non sa User" ignore {
+    "return a 200 status when accessing index page with good nino and a non sa User" in {
+      val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
+      val person = Fixtures.buildPersonDetails.person
+      val personDetails = PersonDetails(person, address, address)
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
               saUser = NonFilerSelfAssessmentUser,
+              personDetails = Some(personDetails),
               request = request
             )
           )
@@ -160,18 +164,5 @@ class RlsControllerSpec extends BaseSpec {
       val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
       status(r) mustBe OK
     }
-  }
-
-  "return a 200 status when accessing index page with a nino that does not map to any personal details in citizen-details" ignore {
-
-    when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-      override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-        block(
-          buildUserRequest(request = request)
-        )
-    })
-
-    val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
-    status(r) mustBe OK
   }
 }
