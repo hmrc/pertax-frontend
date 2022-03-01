@@ -20,21 +20,28 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{CountryHelper, HomeCardGenerator, HomePageCachingHelper}
-import models.NonFilerSelfAssessmentUser
+import models.{Address, NonFilerSelfAssessmentUser, Person, PersonDetails}
 import org.mockito.Mockito.when
-import play.api.http.Status.OK
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, redirectLocation, status}
+import uk.gov.hmrc.auth.core.ConfidenceLevel.L200
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
-import util.{ActionBuilderFixture, BaseSpec}
+import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 import views.html.{HomeView, InternalServerErrorView}
 import views.html.personaldetails.CheckYourAddressInterruptView
 
 import scala.concurrent.Future
+import scala.util.Random
 
 class RlsControllerSpec extends BaseSpec {
+
+  private val generator = new Generator(new Random())
+  private val testNino: Nino = generator.nextNino
 
   val mockAuthJourney = mock[AuthJourney]
 
@@ -47,18 +54,95 @@ class RlsControllerSpec extends BaseSpec {
     )(injected[ConfigDecorator], injected[TemplateRenderer], injected[CountryHelper], ec)
 
   "rlsInterruptOnPageLoad" must {
-    "return okay and CheckYourAddressInterruptView when called" ignore {
+    "return internal server error" when {
+      "There is no personal details" in {
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = None, request = request)
+            )
+        })
 
-      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-          block(
-            buildUserRequest(request = request)
-          )
-      })
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
 
-      val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
-      status(r) mustBe OK
+        status(r) mustBe INTERNAL_SERVER_ERROR
+      }
+    }
 
+    "redirect to home page" when {
+      "there is no residential and postal address" in {
+        val person = Fixtures.buildPersonDetails.person
+        val personDetails = PersonDetails(person, None, None)
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = Some(personDetails), request = request)
+            )
+        })
+
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+
+        status(r) mustBe SEE_OTHER
+        redirectLocation(r) mustBe Some("/personal-account")
+      }
+    }
+
+    "return ok" when {
+      "residential address is rls" in {
+        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetails.person
+        val personDetails = PersonDetails(person, address, None)
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = Some(personDetails), request = request)
+            )
+        })
+
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+
+        status(r) mustBe OK
+        contentAsString(r) must include("""id="main_address"""")
+      }
+
+      "postal address is rls" in {
+        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetails.person
+        val personDetails = PersonDetails(person, None, address)
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = Some(personDetails), request = request)
+            )
+        })
+
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+
+        status(r) mustBe OK
+        contentAsString(r) must include("""id="postal_address"""")
+      }
+
+      "postal and residantial address is rls" in {
+        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetails.person
+        val personDetails = PersonDetails(person, address, address)
+
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = Some(personDetails), request = request)
+            )
+        })
+
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+
+        status(r) mustBe OK
+        contentAsString(r) must include("""id="main_address"""")
+        contentAsString(r) must include("""id="postal_address"""")
+      }
     }
 
     "return a 200 status when accessing index page with good nino and a non sa User" ignore {
