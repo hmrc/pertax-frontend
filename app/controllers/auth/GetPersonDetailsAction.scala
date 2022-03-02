@@ -22,26 +22,22 @@ import connectors.{CitizenDetailsConnector, PersonDetailsHiddenResponse, PersonD
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.{Locked, SeeOther}
+import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
-import repositories.EditAddressLockRepository
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.ManualCorrespondenceView
-import views.html.personaldetails.CheckYourAddressInterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
   citizenDetailsConnector: CitizenDetailsConnector,
   messageFrontendService: MessageFrontendService,
-  editAddressLockRepository: EditAddressLockRepository,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView,
-  checkYourAddressInterruptView: CheckYourAddressInterruptView
+  manualCorrespondenceView: ManualCorrespondenceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, templateRenderer: TemplateRenderer)
     extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
@@ -91,8 +87,10 @@ class GetPersonDetailsAction @Inject() (
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    if (configDecorator.personDetailsMessageCountEnabled) messageFrontendService.getUnreadMessageCount
-    else Future.successful(None)
+    if (configDecorator.personDetailsMessageCountEnabled)
+      messageFrontendService.getUnreadMessageCount
+    else
+      Future.successful(None)
 
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
@@ -101,26 +99,12 @@ class GetPersonDetailsAction @Inject() (
 
     request.nino match {
       case Some(nino) =>
-        citizenDetailsConnector.personDetails(nino).flatMap {
+        citizenDetailsConnector.personDetails(nino).map {
           case PersonDetailsSuccessResponse(pd) =>
-            editAddressLockRepository.get(nino.withoutSuffix).map { editAddressLockRepository =>
-              val residentialLock =
-                editAddressLockRepository.exists(_.editedAddress.addressType == "EditResidentialAddress")
-              val correspondenceLock =
-                editAddressLockRepository.exists(_.editedAddress.addressType == "EditCorrespondenceAddress")
-              Right(
-                Some(
-                  pd.copy(
-                    address = pd.address.map(address => address.copy(isRls = address.isRls && !residentialLock)),
-                    correspondenceAddress = pd.correspondenceAddress
-                      .map(address => address.copy(isRls = address.isRls && !correspondenceLock))
-                  )
-                )
-              )
-            }
+            Right(Some(pd))
           case PersonDetailsHiddenResponse =>
-            Future.successful(Left(Locked(manualCorrespondenceView())))
-          case _ => Future.successful(Right(None))
+            Left(Locked(manualCorrespondenceView()))
+          case _ => Right(None)
         }
       case _ => Future.successful(Right(None))
     }

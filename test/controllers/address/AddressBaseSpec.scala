@@ -50,7 +50,6 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)

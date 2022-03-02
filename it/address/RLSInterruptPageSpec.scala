@@ -1,7 +1,8 @@
 package address
 
 import com.github.tomakehurst.wiremock.client.WireMock.{status => _}
-import com.github.tomakehurst.wiremock.client.WireMock.{ok, post, get, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo}
+import org.scalatest.concurrent.PatienceConfiguration
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route}
 import play.api.test.Helpers.{status => getStatus, _}
@@ -186,6 +187,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
            |     "country" : "GREAT BRITAIN",
            |     "type" : "Correspondence",
            |     "status": 0
+           |  }
            |}
            |""".stripMargin
 
@@ -201,5 +203,4 @@ class RLSInterruptPageSpec extends IntegrationSpec {
     }
 
   }
-
 }
