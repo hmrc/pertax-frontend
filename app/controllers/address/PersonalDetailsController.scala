@@ -20,10 +20,8 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
-import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId, EditCorrespondenceAddress, EditResidentialAddress}
-import play.api.i18n.Messages
+import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import play.twirl.api.Html
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -86,30 +84,13 @@ class PersonalDetailsController @Inject() (
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
 
-        val mainRls = request.personDetails.flatMap(_.address.map(_.isRls)).getOrElse(false)
-        val postalRls = request.personDetails.flatMap(_.correspondenceAddress.map(_.isRls)).getOrElse(false)
-
-        val isCorrespondenceChangeLocked =
-          addressModel.map(y => y.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])
-        val isResidentialChangeLocked =
-          addressModel.map(y => y.editedAddress).exists(_.isInstanceOf[EditResidentialAddress])
-
-        val importantMessage =
-          (mainRls && !isResidentialChangeLocked, postalRls && !isCorrespondenceChangeLocked) match {
-            case (true, true)  => Some(Html(Messages("profile.message.bothAddressRls")))
-            case (true, false) => Some(Html(Messages("profile.message.mainAddressRls")))
-            case (false, true) => Some(Html(Messages("profile.message.postalAddressRls")))
-            case _             => None
-          }
-
         Ok(
           personalDetailsView(
             personalDetails,
             addressDetails,
             trustedHelpers,
             paperlessHelpers,
-            signinDetailsHelpers,
-            importantMessage
+            signinDetailsHelpers
           )
         )
       }
