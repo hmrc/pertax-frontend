@@ -25,50 +25,65 @@
 @this(mainView: MainView, addressView: AddressView)
 @(mainAddressOption: Option[Address], postalAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.update_your_address"), Some(messages("label.your_personal_tax_account")), hideAccountMenu = true) {
+@mainView(messages("rls.title.update_your_address"), Some(messages("label.your_personal_tax_account")), hideAccountMenu = true) {
+<div class="grid-row">
+    <div class="column-two-thirds">
 
-    <div class="grid-row pertax-error">
-        <div class="column-two-thirds">
-            <h1 class="heading-48">@messages("title.update_your_address")</h1>
+        <a href="javascript:history.go(-1)" class="link-back js-enabled">@messages("label.back")</a>
 
+        <div class="form-group">
+            <h1 class="heading-xlarge">
+                @messages("rls.title.update_your_address")
+            </h1>
+        </div>
+
+        <div class="form-group">
+        <div class="panel panel-border-wide">
+            <p>@messages("rls.inset")</p>
+        </div>
+        </div>
+
+        <dl class="govuk-summary-list govuk-!-margin-bottom-9">
             @mainAddressOption.map { mainAddress =>
                 <div class="govuk-summary-list__row" id="main_address">
-                    <dt class="govuk-summary-list__key">
-                        Main address
+                    <dt class="govuk-summary-list__key govuk-!-width-one-quarter">
+                        @messages("rls.main_address")
                     </dt>
-                    <dd class="govuk-summary-list__value">
-                        @messages("label.check_your_address_interrupt_reason")
+                    <dd class="govuk-summary-list__value govuk-!-width-one-half">
+                        <p>@messages("rls.update_main_address")</p>
                     </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="@controllers.address.routes.TaxCreditsChoiceController.onPageLoad()">
-                            Update
-                            <span class="visuallyhidden">Your main address</span>
-                        </a>
+                    <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
+                        <p><a class="govuk-link govuk-link--no-visited-state" href="@controllers.address.routes.TaxCreditsChoiceController.onPageLoad()">
+                            @messages("rls.update")
+                            <span class="visuallyhidden">@messages("rls.your_main_address")</span>
+                        </a></p>
                     </dd>
                 </div>
             }
             @postalAddressOption.map { postalAddress =>
-            <div class="govuk-summary-list__row" id="postal_address">
-                <dt class="govuk-summary-list__key">
-                    Correspondence address
-                </dt>
-                <dd class="govuk-summary-list__value">
-                    @messages("label.check_your_address_interrupt_reason")
-                </dd>
-                <dd class="govuk-summary-list__actions">
-                    <a class="govuk-link" href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad()">
-                        Update
-                        <span class="visuallyhidden">Your postal address</span>
-                    </a>
-                    <a class="govuk-link yourProfileExtraLink" href="@controllers.address.routes.ClosePostalAddressController.onPageLoad()">
-                        Remove
-                        <span class="visuallyhidden">your postal address</span>
-                    </a>
-                </dd>
-            </div>
+                <div class="govuk-summary-list__row" id="postal_address">
+                    <dt class="govuk-summary-list__key govuk-!-width-one-quarter">
+                        @messages("rls.postal_address")
+                    </dt>
+                    <dd class="govuk-summary-list__value govuk-!-width-one-half">
+                        <p>@messages("rls.update_postal_address")</p>
+                        <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+                    </dd>
+                    <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
+                        <a class="govuk-link" href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad()">
+                            @messages("rls.update")
+                            <span class="visuallyhidden">@messages("rls.your_postal_address")</span>
+                        </a>
+                        <a class="govuk-link yourProfileExtraLink" href="@controllers.address.routes.ClosePostalAddressController.onPageLoad()">
+                            @messages("rls.remove")
+                            <span class="visuallyhidden">@messages("rls.your_postal_address")</span>
+                        </a>
+                    </dd>
+                </div>
             }
-        </div>
+        </dl>
     </div>
+</div>
 
 }
 

@@ -26,7 +26,9 @@
         addressDetails: AddressRowModel,
         trustedHelpers: Option[PersonalDetailsTableRowModel],
         paperlessHelpers: Option[PersonalDetailsTableRowModel],
-        signinDetailsHelpers: Option[PersonalDetailsTableRowModel])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+        signinDetailsHelpers: Option[PersonalDetailsTableRowModel],
+        importantMessage: Option[Html]
+)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @rowsPresenter(row: PersonalDetailsTableRowModel, extraLinks: List[ExtraLinks] = Nil) = {
     <div class="govuk-summary-list__row" id="@row.id">
@@ -67,37 +69,6 @@
             case Some(row) => rowsPresenter(row, extraLinks)
             case _ => emptyAddressRow(isMainAddress)
         }
-    }
-}
-
-@addressRowsRlsPresenter(isMainAddress: Boolean, extraLinks: List[ExtraLinks] = Nil) = {
-    @rlsAddressRow(isMainAddress)
-}
-
-@rlsAddressRow(isMainAddress: Boolean) = {
-    @if(isMainAddress) {
-        <div class="govuk-summary-list__row" id="main_address">
-            <dt class="govuk-summary-list__key">
-            @messages("label.main_address")
-            </dt>
-            <dd class="govuk-summary-list__value">
-                @messages("label.confirm_address") <a href="@controllers.routes.RlsController.rlsInterruptOnPageLoad">@messages("label.check_your_address")</a>
-            </dd>
-            <dd class="govuk-summary-list__actions">
-            </dd>
-        </div>
-    } else {
-        <div class="govuk-summary-list__row" id="postal_address">
-            <dt class="govuk-summary-list__key">
-            @messages("label.postal_address")
-            </dt>
-            <dd class="govuk-summary-list__value">
-                <p>@messages("label.confirm_address") <a href="@controllers.routes.RlsController.rlsInterruptOnPageLoad">@messages("label.check_your_address")</a></p>
-                <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
-            </dd>
-            <dd class="govuk-summary-list__actions">
-            </dd>
-        </div>
     }
 }
 
@@ -145,22 +116,23 @@
       </header>
 
       <div class="pertax-personal-details">
+
+          @importantMessage.map { message =>
+              <div class="notice">
+                  <i class="icon icon-important">
+                      <span class="visually-hidden">@messages("label.important")</span>
+                  </i>
+                  <strong class="bold-small">
+                      @importantMessage
+                  </strong>
+              </div>           
+          }
+
         <h2>@messages("label.personal_details")</h2>
           <dl class="govuk-summary-list">
               @personalDetails.map(row => rowsPresenter(row))
-
-              @if(request.personDetails.map(_.address.map(_.isRls).getOrElse(false)).getOrElse(false)) {
-                  @addressRowsRlsPresenter(true)
-              } else {
-                  @addressRowsPresenter(addressDetails.mainAddress, true)
-              }
-
-              @if(request.personDetails.map(_.correspondenceAddress.map(_.isRls).getOrElse(false)).getOrElse(false)) {
-                  @addressRowsRlsPresenter(false)
-              } else {
-                  @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
-              }
-
+              @addressRowsPresenter(addressDetails.mainAddress, true)
+              @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
               @trustedHelpers.map(rowsPresenter(_))
               @paperlessHelpers.map(rowsPresenter(_))
               @signinDetailsHelpers.map(rowsPresenter(_))

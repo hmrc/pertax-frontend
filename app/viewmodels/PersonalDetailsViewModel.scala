@@ -21,7 +21,8 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import play.twirl.api.HtmlFormat
+import play.twirl.api.{Html, HtmlFormat}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.domain.Nino
 import util.RichOption.CondOpt
 import util.TemplateFunctions
@@ -50,7 +51,8 @@ class PersonalDetailsViewModel @Inject() (
         PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
-          addressView(address, countryHelper.excludedCountries),
+          if (address.isRls) Html(messages("rls.update_main_address"))
+          else addressView(address, countryHelper.excludedCountries),
           linkTextMessage,
           "label.your_main_home",
           linkUrl
@@ -59,7 +61,10 @@ class PersonalDetailsViewModel @Inject() (
       if (isMainAddressChangeLocked)
         createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
       else {
-        createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
+        if (address.isRls)
+          createAddressRow("rls.update", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
+        else
+          createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
       }
     }
   }
@@ -102,18 +107,25 @@ class PersonalDetailsViewModel @Inject() (
         PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
-          correspondenceAddressView(
-            Some(correspondenceAddress),
-            countryHelper.excludedCountries
-          ),
+          if (correspondenceAddress.isRls)
+            Html(messages("rls.update_postal_address"))
+          else
+            correspondenceAddressView(
+              Some(correspondenceAddress),
+              countryHelper.excludedCountries
+            ),
           linkTextMessage,
           "label.your.postal_address",
           linkUrl
         )
       if (isCorrespondenceChangeLocked)
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
-      else
-        createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
+      else {
+        if (correspondenceAddress.isRls)
+          createRow("rls.update", Some(AddressRowModel.changePostalAddressUrl))
+        else
+          createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
+      }
     }
 
   def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit
