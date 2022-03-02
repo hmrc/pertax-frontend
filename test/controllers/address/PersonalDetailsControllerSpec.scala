@@ -16,10 +16,11 @@
 
 package controllers.address
 
-import controllers.controllershelpers.PersonalDetailsCardGenerator
+import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
+import controllers.controllershelpers.{PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{times, verify}
+import org.mockito.Mockito.{reset, times, verify, when}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Request
@@ -28,6 +29,8 @@ import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
+
+import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
@@ -43,6 +46,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
         addressJourneyCachingHelper,
         withActiveTabAction,
         mockAuditConnector,
+        injected[RlsInterruptHelper],
         cc,
         displayAddressInterstitialView,
         injected[PersonalDetailsView]
@@ -57,6 +61,33 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some("/personal-account/your-profile")
+    }
+  }
+
+  "Calling AddressController.onPageLoad" must {
+    "redirect to the rls interrupt page" when {
+      "any address has an rls status with true" ignore new LocalSetup {
+        override def sessionCacheResponse: Option[CacheMap] = None
+        override def personDetailsResponse: PersonDetailsResponse = {
+          val address = fakeAddress.copy(isRls = true)
+          PersonDetailsSuccessResponse(fakePersonDetails.copy(address = Some(address)))
+        }
+
+        val result = controller.onPageLoad()(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some("/personal-account/update-your-address")
+      }
+    }
+
+    "show the your profile page" when {
+      "no address has an rls status with true" in new LocalSetup {
+        override def sessionCacheResponse: Option[CacheMap] = None
+
+        val result = controller.onPageLoad()(FakeRequest())
+
+        status(result) mustBe OK
+      }
     }
   }
 
@@ -81,7 +112,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           meq("addressPageVisitedDto"),
           meq(AddressPageVisitedDto(true))
         )(any(), any(), any())
-      verify(mockEditAddressLockRepository, times(1)).get(any())
+      verify(mockEditAddressLockRepository, times(2)).get(any())
     }
   }
 }

@@ -73,8 +73,8 @@ class RlsController @Inject() (
   ) =
     getAddressesLock.flatMap { case addressesLocks(residentialLock, postalLock) =>
       val residentialDetail =
-        if (residentialLock) "residenti al address has been updated" -> Some("true")
-        else "Is residential address rls"                            -> Some(mainAddress.isDefined.toString)
+        if (residentialLock) "residential address has been updated" -> Some("true")
+        else "Is residential address rls"                           -> Some(mainAddress.isDefined.toString)
       val postalDetail =
         if (postalLock) "postal address has been updated" -> Some("true")
         else "Is postal address rls"                      -> Some(postalAddress.isDefined.toString)
@@ -83,7 +83,13 @@ class RlsController @Inject() (
         buildEvent(
           "RLSInterrupt",
           "user_shown_rls_interrupt_page",
-          Map("nino" -> Some(request.nino.getOrElse("NoNino").toString), residentialDetail, postalDetail)
+          Map(
+            "nino" -> Some(request.nino.getOrElse("NoNino").toString),
+            residentialDetail,
+            "Residential address" -> mainAddress.map(_.fullAddress.mkString(";")),
+            "Postal address"      -> postalAddress.map(_.fullAddress.mkString(";")),
+            postalDetail
+          ).filter(_._2.isDefined)
         )
       )
     }
