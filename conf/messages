@@ -594,6 +594,6 @@ rls.postal_address = Postal address
 rls.update_postal_address = Update your postal address
 
 label.important = Important
-profile.message.bothAddressRls = We tried to send a letter by post which did not reach you. You need to update your main and postal addresses.
-profile.message.mainAddressRls = We tried to send a letter by post which did not reach you. You need to update your main address.
-profile.message.postalAddressRls = We tried to send a letter by post which did not reach you. You need to update your postal address.
+profile.message.bothAddressRls = You need to update your main and postal addresses to receive post from HMRC.
+profile.message.mainAddressRls = You need to update your main address to receive post from HMRC.
+profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.

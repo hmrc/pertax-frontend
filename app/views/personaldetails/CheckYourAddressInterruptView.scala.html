@@ -29,8 +29,6 @@
 <div class="grid-row">
     <div class="column-two-thirds">
 
-        <a href="javascript:history.go(-1)" class="link-back js-enabled">@messages("label.back")</a>
-
         <div class="form-group">
             <h1 class="heading-xlarge">
                 @messages("rls.title.update_your_address")
@@ -39,7 +37,13 @@
 
         <div class="form-group">
         <div class="panel panel-border-wide">
-            <p>@messages("rls.inset")</p>
+            @if(mainAddressOption.isDefined && postalAddressOption.isDefined) {
+                <p>@messages("profile.message.bothAddressRls")</p>
+            } else if(mainAddressOption.isDefined) {
+                <p>@messages("profile.message.mainAddressRls")</p>
+            } else {
+                <p>@messages("profile.message.postalAddressRls")</p>
+            }
         </div>
         </div>
 
