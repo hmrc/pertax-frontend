@@ -301,7 +301,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
 
-      contentAsString(result) must include("News and updates")
+      contentAsString(result) must include("News and Updates")
     }
 
     "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in new LocalSetup {
@@ -323,7 +323,7 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe OK
 
-      contentAsString(result) must include("News and updates")
+      contentAsString(result) must include("News and Updates")
     }
   }
 }
