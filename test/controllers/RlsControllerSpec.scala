@@ -19,7 +19,7 @@ package controllers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
-import controllers.controllershelpers.CountryHelper
+import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper}
 import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress, NonFilerSelfAssessmentUser, PersonDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -50,6 +50,7 @@ class RlsControllerSpec extends BaseSpec {
     new RlsController(
       mockAuthJourney,
       mockAuditConnector,
+      injected[AddressJourneyCachingHelper],
       mockEditAddressLockRepository,
       injected[MessagesControllerComponents],
       injected[CheckYourAddressInterruptView],
