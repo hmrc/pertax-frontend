@@ -585,7 +585,6 @@ global.error.InternalServerError500.pta.message.by.phone.post = online, by phone
 # RLS Interrupt Journey
 #*************************************************************
 rls.title.update_your_address = Update your address
-rls.inset = You need to update your addresses. We tried to send a letter by post which did not reach you.
 rls.main_address = Main address
 rls.update_main_address = Update your main address
 rls.update = Update
@@ -593,7 +592,6 @@ rls.remove = Remove
 rls.postal_address = Postal address
 rls.update_postal_address = Update your postal address
 
-label.important = Important
 profile.message.bothAddressRls = You need to update your main and postal addresses to receive post from HMRC.
 profile.message.mainAddressRls = You need to update your main address to receive post from HMRC.
 profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.
