@@ -57,7 +57,7 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
 
                     <p>@Html(addr.map(x => x.mkString(", <br>")).getOrElse(""))</p>
 
-                    <p><a href="@controllers.address.routes.PersonalDetailsController.onPageLoad" class="button" role="button">@messages("label.Return_to_your_profile_page")</a></p>
+                    <p><a href="@controllers.address.routes.PersonalDetailsController.onPageLoad" class="button" role="button">@messages("label.return_to_your_profile_page")</a></p>
                 </div>
             </div>
 
@@ -73,7 +73,7 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
                         residential = { content },
                         postal = Html(""))
 
-                    <p><a href="@controllers.address.routes.PersonalDetailsController.onPageLoad" class="button" role="button">@messages("label.Return_to_your_profile_page")</a></p>
+                    <p><a href="@controllers.address.routes.PersonalDetailsController.onPageLoad" class="button" role="button">@messages("label.return_to_your_profile_page")</a></p>
                 </div>
             </div>
 

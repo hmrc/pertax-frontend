@@ -20,8 +20,9 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
-import controllers.controllershelpers.CountryHelper
-import models.Address
+import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper}
+import models.dto.AddressPageVisitedDto
+import models.{Address, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -36,6 +37,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class RlsController @Inject() (
   authJourney: AuthJourney,
   auditConnector: AuditConnector,
+  cachingHelper: AddressJourneyCachingHelper,
   editAddressLockRepository: EditAddressLockRepository,
   cc: MessagesControllerComponents,
   checkYourAddressInterruptView: CheckYourAddressInterruptView,
@@ -104,6 +106,8 @@ class RlsController @Inject() (
               personDetails.correspondenceAddress.flatMap(address => if (address.isRls) Some(address) else None)
             if (mainAddress.isDefined && !residentialLock || postalAddress.isDefined && !postalLock) {
               auditRls(mainAddress, postalAddress)
+              cachingHelper
+                .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
               Future.successful(
                 Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
               )

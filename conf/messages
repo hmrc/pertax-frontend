@@ -597,3 +597,5 @@ label.important = Important
 profile.message.bothAddressRls = You need to update your main and postal addresses to receive post from HMRC.
 profile.message.mainAddressRls = You need to update your main address to receive post from HMRC.
 profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.
+
+label.return_to_your_profile_page=Return to your profile
