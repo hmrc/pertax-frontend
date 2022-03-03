@@ -286,11 +286,11 @@ label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os by
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.this.section.is=Dyma’r adran ynghylch
 label.remove=Dileu
-label.latest_news_and_updates=Newyddion diweddaraf a diweddariadau
-label.stop_using_Verify=Cyfrif Treth Personol CThEM i roi’r gorau i ddefnyddio GOV.UK Verify
-label.news_and_updates=Newyddion a diweddariadau
-label.verify_stop_from_1_April_2022=O 1 Ebrill 2022 ni fyddwch yn gallu defnyddio GOV.UK Verify i fewngofnodi i’ch Cyfrif Treth Personol a Hunanasesiad CThEM. Bydd angen i chi ddefnyddio Porth y Llywodraeth i fewngofnodi.
-label.create_government_gateway_sign_in=Creu manylion mewngofnodi Porth y Llywodraeth trwy ddewis ‘Mewngofnodi’ (yn agor mewn tab newydd)
+label.latest_news_and_updates=Newyddion a Diweddariadau mwyaf diweddar
+label.stop_using_Verify=Defnydd Cyfrif Treth Personol CThEM o GOV.UK Verify i ddod i ben
+label.news_and_updates=Newyddion a Diweddariadau
+label.verify_stop_from_1_April_2022=O 1 Ebrill 2022 ymlaen, ni fyddwch yn gallu defnyddio GOV.UK Verify i fewngofnodi i’ch Cyfrif Treth Personol CThEM a Hunanasesiad. Bydd angen i chi ddefnyddio Porth y Llywodraeth i fewngofnodi.
+label.create_government_gateway_sign_in=Crëwch fanylion ar gyfer mewngofnodi i Borth y Llywodraeth drwy ddewis ‘Mewngofnodi’ (yn agor tab newydd)
 
 #
 # Error messages
