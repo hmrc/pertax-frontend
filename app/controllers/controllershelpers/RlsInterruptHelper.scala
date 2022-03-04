@@ -22,7 +22,6 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
-import models.{AddressJourneyTTLModel, AddressesLock}
 import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
@@ -66,6 +65,7 @@ class RlsInterruptHelper @Inject() (
           block
       }).getOrElse(block).flatten
     } else {
+      logger.error("The RLS toggle is turned off")
       block
     }
 }

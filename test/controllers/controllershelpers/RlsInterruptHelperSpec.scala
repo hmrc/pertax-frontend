@@ -305,7 +305,6 @@ class RlsInterruptHelperSpec extends BaseSpec {
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock))
         result.futureValue mustBe okBlock
-        verify(mockEditAddressLockRepository, times(0)).getAddressesLock(any())(any(), any())
       }
     }
   }

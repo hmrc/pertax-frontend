@@ -18,6 +18,7 @@ package controllers.address
 
 import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.controllershelpers.{PersonalDetailsCardGenerator, RlsInterruptHelper}
+import models.PersonDetails
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{times, verify}
@@ -64,11 +65,51 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
   "Calling AddressController.onPageLoad" must {
     "redirect to the rls interrupt page" when {
-      "any address has an rls status with true" ignore new LocalSetup {
+      "main address has an rls status with true" in new LocalSetup {
         override def sessionCacheResponse: Option[CacheMap] = None
         override def personDetailsResponse: PersonDetailsResponse = {
           val address = fakeAddress.copy(isRls = true)
           PersonDetailsSuccessResponse(fakePersonDetails.copy(address = Some(address)))
+        }
+        override def personDetailsForRequest: Option[PersonDetails] = {
+          val address = fakeAddress.copy(isRls = true)
+          Some(fakePersonDetails.copy(address = Some(address)))
+        }
+
+        val result = controller.onPageLoad()(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some("/personal-account/update-your-address")
+      }
+
+      "postal address has an rls status with true" in new LocalSetup {
+        override def sessionCacheResponse: Option[CacheMap] = None
+        override def personDetailsResponse: PersonDetailsResponse = {
+          val address = fakeAddress.copy(isRls = true)
+          PersonDetailsSuccessResponse(fakePersonDetails.copy(correspondenceAddress = Some(address)))
+        }
+        override def personDetailsForRequest: Option[PersonDetails] = {
+          val address = fakeAddress.copy(isRls = true)
+          Some(fakePersonDetails.copy(address = Some(address)))
+        }
+
+        val result = controller.onPageLoad()(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some("/personal-account/update-your-address")
+      }
+
+      "main and postal address has an rls status with true" in new LocalSetup {
+        override def sessionCacheResponse: Option[CacheMap] = None
+        override def personDetailsResponse: PersonDetailsResponse = {
+          val address = fakeAddress.copy(isRls = true)
+          PersonDetailsSuccessResponse(
+            fakePersonDetails.copy(address = Some(address), correspondenceAddress = Some(address))
+          )
+        }
+        override def personDetailsForRequest: Option[PersonDetails] = {
+          val address = fakeAddress.copy(isRls = true)
+          Some(fakePersonDetails.copy(address = Some(address)))
         }
 
         val result = controller.onPageLoad()(FakeRequest())
