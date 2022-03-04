@@ -22,7 +22,7 @@ import java.util.TimeZone
 import com.google.inject.{Inject, Singleton}
 import config.ConfigDecorator
 import controllers.bindable.AddrType
-import models.{AddressJourneyTTLModel, EditedAddress}
+import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress, EditedAddress}
 import org.mongodb.scala.{DuplicateKeyException, MongoException}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
@@ -30,7 +30,9 @@ import org.mongodb.scala.result.InsertOneResult
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import repositories.EditAddressLockRepository.EXPIRE_AT
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import models.AddressesLock
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
@@ -97,6 +99,18 @@ class EditAddressLockRepository @Inject() (
 
   def insertCore(record: AddressJourneyTTLModel): Future[InsertOneResult] =
     collection.insertOne(record).toFuture()
+
+  def getAddressesLock(nino: String)(implicit
+    hc: HeaderCarrier = HeaderCarrier(),
+    ec: ExecutionContext
+  ): Future[AddressesLock] =
+    get(nino).map { editAddressLockRepository =>
+      val residentialLock =
+        editAddressLockRepository.exists(_.editedAddress.isInstanceOf[EditResidentialAddress])
+      val postalLock =
+        editAddressLockRepository.exists(_.editedAddress.isInstanceOf[EditCorrespondenceAddress])
+      AddressesLock(residentialLock, postalLock)
+    }
 }
 
 object EditAddressLockRepository {

@@ -173,7 +173,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
 
-      when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -280,7 +281,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
     "return a 303 status when both the user's residential and postal addresses status are rls" in new LocalSetup {
 
-      when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -305,16 +307,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status when both the user's residential and postal addresses status are rls but both adresseses have been updated" in new LocalSetup {
-
-      when(mockEditAddressLockRepository.get(any()))
-        .thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(Fixtures.fakeNino.withoutSuffix, EditResidentialAddress(Instant.now())),
-              AddressJourneyTTLModel(Fixtures.fakeNino.withoutSuffix, EditCorrespondenceAddress(Instant.now()))
-            )
-          )
-        )
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(true, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -339,8 +333,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's residential address status is rls" in new LocalSetup {
-
-      when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -365,15 +359,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status when the user's residential address status is rls but address has been updated" in new LocalSetup {
-
-      when(mockEditAddressLockRepository.get(any()))
-        .thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(Fixtures.fakeNino.withoutSuffix, EditResidentialAddress(Instant.now()))
-            )
-          )
-        )
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(true, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -398,8 +385,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's postal address status is rls" in new LocalSetup {
-
-      when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -424,15 +411,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 200 status when the user's postal address status is rls but address has been updated" in new LocalSetup {
-
-      when(mockEditAddressLockRepository.get(any()))
-        .thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(Fixtures.fakeNino.withoutSuffix, EditCorrespondenceAddress(Instant.now()))
-            )
-          )
-        )
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -457,15 +437,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's residential and postal address status is rls but residential address has been updated" in new LocalSetup {
-
-      when(mockEditAddressLockRepository.get(any()))
-        .thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(Fixtures.fakeNino.withoutSuffix, EditResidentialAddress(Instant.now()))
-            )
-          )
-        )
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(true, false)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
@@ -490,15 +463,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     }
 
     "return a 303 status when the user's residential and postal address status is rls but postal address has been updated" in new LocalSetup {
-
-      when(mockEditAddressLockRepository.get(any()))
-        .thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(Fixtures.fakeNino.withoutSuffix, EditCorrespondenceAddress(Instant.now()))
-            )
-          )
-        )
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, true)))
       when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {

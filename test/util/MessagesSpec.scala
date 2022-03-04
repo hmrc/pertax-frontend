@@ -32,7 +32,7 @@ class MessagesSpec extends BaseSpec {
       messagesAPI.messages.keys must contain theSameElementsAs Vector("en", "cy", "default", "default.play")
     }
 
-    "have messages for default and cy only" ignore {
+    "have messages for default and cy only" in {
       messagesAPI.messages("en").size mustBe 0
       val englishMessageCount = messagesAPI.messages("default").size
 
@@ -41,7 +41,7 @@ class MessagesSpec extends BaseSpec {
   }
 
   "All message files" must {
-    "have the same set of keys" ignore {
+    "have the same set of keys" in {
       withClue(mismatchingKeys(defaultMessages.keySet, welshMessages.keySet)) {
         assert(welshMessages.keySet equals defaultMessages.keySet)
       }

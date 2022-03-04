@@ -20,7 +20,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.AuthJourney
 import controllers.controllershelpers.{AddressJourneyCachingHelper, CountryHelper}
-import models.{AddressJourneyTTLModel, EditCorrespondenceAddress, EditResidentialAddress, NonFilerSelfAssessmentUser, PersonDetails}
+import models.{AddressesLock, NonFilerSelfAssessmentUser, PersonDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
@@ -34,9 +34,7 @@ import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 import views.html.InternalServerErrorView
 import views.html.personaldetails.CheckYourAddressInterruptView
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
-import util.Fixtures.fakeNino
 
-import java.time.Instant
 import scala.concurrent.Future
 
 class RlsControllerSpec extends BaseSpec {
@@ -60,7 +58,8 @@ class RlsControllerSpec extends BaseSpec {
   "rlsInterruptOnPageLoad" must {
     "return internal server error" when {
       "There is no personal details" in {
-        when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -76,10 +75,11 @@ class RlsControllerSpec extends BaseSpec {
 
     "redirect to home page" when {
       "there is no residential and postal address" in {
-        val person = Fixtures.buildPersonDetails.person
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, None)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -94,17 +94,12 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "residential address is rls and residential address has been updated" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditResidentialAddress(Instant.now()))
-            )
-          )
-        )
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -119,17 +114,12 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal address is rls and postal address has been updated" in {
-        val address = Fixtures.buildPersonDetails.correspondenceAddress.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditCorrespondenceAddress(Instant.now()))
-            )
-          )
-        )
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -144,19 +134,13 @@ class RlsControllerSpec extends BaseSpec {
       }
 
       "postal and main addresses are rls and both addresses have been updated" in {
-        val mainAddress = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val postalAddress = Fixtures.buildPersonDetails.correspondenceAddress.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val mainAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val postalAddress = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, mainAddress, postalAddress)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditCorrespondenceAddress(Instant.now())),
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditResidentialAddress(Instant.now()))
-            )
-          )
-        )
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -169,41 +153,16 @@ class RlsControllerSpec extends BaseSpec {
         status(r) mustBe SEE_OTHER
         redirectLocation(r) mustBe Some("/personal-account")
       }
-
-      "postal address is rls and residential address has been updated" in {
-        val address = Fixtures.buildPersonDetails.correspondenceAddress.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
-        val personDetails = PersonDetails(person, None, address)
-
-        when(mockEditAddressLockRepository.get(any())).thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditResidentialAddress(Instant.now()))
-            )
-          )
-        )
-        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
-          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
-            block(
-              buildUserRequest(personDetails = Some(personDetails), request = request)
-            )
-        })
-
-        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
-
-        status(r) mustBe SEE_OTHER
-        redirectLocation(r) mustBe Some("/personal-account")
-      }
-
     }
 
     "return ok" when {
       "residential address is rls" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -215,14 +174,17 @@ class RlsControllerSpec extends BaseSpec {
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
+        contentAsString(r) mustNot include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your main address to receive post from HMRC.")
       }
 
       "postal address is rls" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, None, address)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -234,14 +196,17 @@ class RlsControllerSpec extends BaseSpec {
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="postal_address"""")
+        contentAsString(r) mustNot include("""id="main_address"""")
+        contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
       }
 
-      "postal and residential address is rls" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+      "postal and residential address are rls" in {
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -254,20 +219,16 @@ class RlsControllerSpec extends BaseSpec {
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
         contentAsString(r) must include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your main and postal addresses to receive post from HMRC.")
       }
 
       "residential address is rls and postal address has been updated" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, None)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditCorrespondenceAddress(Instant.now()))
-            )
-          )
-        )
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -279,20 +240,17 @@ class RlsControllerSpec extends BaseSpec {
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
+        contentAsString(r) mustNot include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your main address to receive post from HMRC.")
       }
 
       "postal and residential address is rls and residential address has been updated" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditResidentialAddress(Instant.now()))
-            )
-          )
-        )
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -303,22 +261,18 @@ class RlsControllerSpec extends BaseSpec {
         val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
 
         status(r) mustBe OK
-        contentAsString(r) must include("""id="main_address"""")
+        contentAsString(r) mustNot include("""id="main_address"""")
         contentAsString(r) must include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
       }
 
       "postal and residential address is rls and correspondence address has been updated" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(
-          Future.successful(
-            List(
-              AddressJourneyTTLModel(fakeNino.withoutSuffix, EditCorrespondenceAddress(Instant.now()))
-            )
-          )
-        )
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, true)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(
@@ -330,15 +284,39 @@ class RlsControllerSpec extends BaseSpec {
 
         status(r) mustBe OK
         contentAsString(r) must include("""id="main_address"""")
+        contentAsString(r) mustNot include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your main address to receive post from HMRC.")
+      }
+
+      "postal address is rls and residential address has been updated" in {
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, None, address)
+
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, false)))
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = Some(personDetails), request = request)
+            )
+        })
+
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+
+        status(r) mustBe OK
+        contentAsString(r) mustNot include("""id="main_address"""")
         contentAsString(r) must include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
       }
 
       "return a 200 status when accessing index page with good nino and a non sa User" in {
-        val address = Fixtures.buildPersonDetails.address.map(_.copy(isRls = true))
-        val person = Fixtures.buildPersonDetails.person
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
         val personDetails = PersonDetails(person, address, address)
 
-        when(mockEditAddressLockRepository.get(any())).thenReturn(Future.successful(List.empty))
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
         when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
           override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
             block(

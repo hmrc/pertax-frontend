@@ -20,7 +20,7 @@ import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.controllershelpers.{PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.dto.AddressPageVisitedDto
 import org.mockito.ArgumentMatchers.{any, eq => meq}
-import org.mockito.Mockito.{reset, times, verify, when}
+import org.mockito.Mockito.{times, verify}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.mvc.Request
@@ -29,8 +29,6 @@ import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import viewmodels.PersonalDetailsViewModel
 import views.html.personaldetails.PersonalDetailsView
-
-import scala.concurrent.Future
 
 class PersonalDetailsControllerSpec extends AddressBaseSpec {
 
@@ -112,7 +110,7 @@ class PersonalDetailsControllerSpec extends AddressBaseSpec {
           meq("addressPageVisitedDto"),
           meq(AddressPageVisitedDto(true))
         )(any(), any(), any())
-      verify(mockEditAddressLockRepository, times(2)).get(any())
+      verify(mockEditAddressLockRepository, times(1)).get(any())
     }
   }
 }

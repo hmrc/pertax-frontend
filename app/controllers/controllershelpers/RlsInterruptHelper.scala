@@ -22,7 +22,7 @@ import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
-import models.AddressJourneyTTLModel
+import models.{AddressJourneyTTLModel, AddressesLock}
 import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
@@ -50,20 +50,17 @@ class RlsInterruptHelper @Inject() (
       (for {
         personDetails <- OptionT.fromOption(request.personDetails)
         nino          <- OptionT.fromOption(request.nino)
-        editAddressLockRepository: List[AddressJourneyTTLModel] <-
-          OptionT.liftF(editAddressLockRepository.get(nino.withoutSuffix))
+        addressesLock <-
+          OptionT.liftF(editAddressLockRepository.getAddressesLock(nino.withoutSuffix))
       } yield {
-        val residentialLock = editAddressLockRepository.exists(_.editedAddress.addressType == "EditResidentialAddress")
-        val correspondenceLock =
-          editAddressLockRepository.exists(_.editedAddress.addressType == "EditCorrespondenceAddress")
-        logger.info("Residential mongo lock: " + residentialLock.toString)
-        logger.info("Correspondence mongo lock: " + correspondenceLock.toString)
+        logger.info("Residential mongo lock: " + addressesLock.main.toString)
+        logger.info("Correspondence mongo lock: " + addressesLock.postal.toString)
         logger.info("Residential address rls: " + personDetails.address.exists(_.isRls))
         logger.info("Correspondence address rls: " + personDetails.correspondenceAddress.exists(_.isRls))
 
-        if (personDetails.address.exists(_.isRls) && !residentialLock)
+        if (personDetails.address.exists(_.isRls) && !addressesLock.main)
           Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
-        else if (personDetails.correspondenceAddress.exists(_.isRls) && !correspondenceLock)
+        else if (personDetails.correspondenceAddress.exists(_.isRls) && !addressesLock.postal)
           Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
         else
           block
