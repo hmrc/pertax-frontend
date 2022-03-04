@@ -22,10 +22,7 @@ case class PersonDetails(
   person: Person,
   address: Option[Address],
   correspondenceAddress: Option[Address]
-) {
-  def hasRls: Boolean =
-    address.exists(_.isRls) || correspondenceAddress.exists(_.isRls)
-}
+)
 
 object PersonDetails {
   implicit val formats = Json.format[PersonDetails]

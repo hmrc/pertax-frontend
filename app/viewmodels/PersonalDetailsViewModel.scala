@@ -51,8 +51,7 @@ class PersonalDetailsViewModel @Inject() (
         PersonalDetailsTableRowModel(
           "main_address",
           "label.main_address",
-          if (address.isRls) Html(messages("rls.update_main_address"))
-          else addressView(address, countryHelper.excludedCountries),
+          addressView(address, countryHelper.excludedCountries),
           linkTextMessage,
           "label.your_main_home",
           linkUrl
@@ -61,10 +60,7 @@ class PersonalDetailsViewModel @Inject() (
       if (isMainAddressChangeLocked)
         createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
       else {
-        if (address.isRls)
-          createAddressRow("rls.update", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
-        else
-          createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
+        createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
       }
     }
   }
@@ -107,13 +103,10 @@ class PersonalDetailsViewModel @Inject() (
         PersonalDetailsTableRowModel(
           "postal_address",
           "label.postal_address",
-          if (correspondenceAddress.isRls)
-            Html(messages("rls.update_postal_address"))
-          else
-            correspondenceAddressView(
-              Some(correspondenceAddress),
-              countryHelper.excludedCountries
-            ),
+          correspondenceAddressView(
+            Some(correspondenceAddress),
+            countryHelper.excludedCountries
+          ),
           linkTextMessage,
           "label.your.postal_address",
           linkUrl
@@ -121,10 +114,7 @@ class PersonalDetailsViewModel @Inject() (
       if (isCorrespondenceChangeLocked)
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
       else {
-        if (correspondenceAddress.isRls)
-          createRow("rls.update", Some(AddressRowModel.changePostalAddressUrl))
-        else
-          createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
+        createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
       }
     }
 
