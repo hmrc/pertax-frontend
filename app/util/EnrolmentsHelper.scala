@@ -41,13 +41,16 @@ class EnrolmentsHelper {
   def selfAssessmentStatus(
     enrolments: Set[Enrolment],
     trustedHelper: Option[TrustedHelper]
-  ): Option[SelfAssessmentEnrolment] =
-    enrolments
+  ): Option[SelfAssessmentEnrolment] = {
+    val ee = enrolments
       .find(_.key == "IR-SA" && trustedHelper.isEmpty)
       .flatMap { enrolment =>
         enrolment.identifiers
           .find(id => id.key == "UTR")
           .map(key => SelfAssessmentEnrolment(SaUtr(key.value), fromString(enrolment.state)))
       }
+    println("PPPP00: " + ee.toString)
+    ee
+  }
 
 }

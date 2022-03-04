@@ -73,7 +73,6 @@ class MinimumAuthAction @Inject() (
           val authenticatedRequest =
             AuthenticatedRequest[A](
               nino.map(domain.Nino),
-              saEnrolment,
               credentials,
               confidenceLevel,
               Some(UserName(name.getOrElse(Name(None, None)))),

@@ -49,12 +49,13 @@ class AuthActionSpec extends BaseSpec {
 
   val mockAuthConnector = mock[AuthConnector]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
+  val sessionAuditor =
+    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
 
   class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
+        s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
       )
     }

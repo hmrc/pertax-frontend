@@ -25,7 +25,6 @@ import uk.gov.hmrc.domain.Nino
 
 case class AuthenticatedRequest[A](
   nino: Option[Nino],
-  saEnrolment: Option[SelfAssessmentEnrolment],
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   name: Option[UserName],
