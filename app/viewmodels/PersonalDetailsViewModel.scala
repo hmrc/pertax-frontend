@@ -21,8 +21,7 @@ import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.controllershelpers.CountryHelper
 import models._
-import play.twirl.api.{Html, HtmlFormat}
-import repositories.EditAddressLockRepository
+import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.domain.Nino
 import util.RichOption.CondOpt
 import util.TemplateFunctions
@@ -37,7 +36,7 @@ class PersonalDetailsViewModel @Inject() (
   correspondenceAddressView: CorrespondenceAddressView
 ) {
 
-  def getMainAddress(
+  private def getMainAddress(
     personDetails: PersonDetails,
     optionalEditAddress: List[EditedAddress]
   )(implicit
@@ -59,13 +58,12 @@ class PersonalDetailsViewModel @Inject() (
 
       if (isMainAddressChangeLocked)
         createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
-      else {
+      else
         createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
-      }
     }
   }
 
-  def getPostalAddress(
+  private def getPostalAddress(
     personDetails: PersonDetails,
     optionalEditAddress: List[EditedAddress]
   )(implicit

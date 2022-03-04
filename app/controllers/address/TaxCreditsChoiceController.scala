@@ -71,8 +71,9 @@ class TaxCreditsChoiceController @Inject() (
                     request.nino.get.withoutSuffix,
                     AddrType.apply("residential").get
                   )
-                  .map { _ =>
-                    logger.warn("Address locked for tcs users")
+                  .map {
+                    case true => logger.warn("Address locked for tcs users")
+                    case _    => logger.error(s"Could not insert address lock for user $request.nino.get.withoutSuffix")
                   }
                 Redirect(configDecorator.tcsChangeAddressUrl)
               } else {
