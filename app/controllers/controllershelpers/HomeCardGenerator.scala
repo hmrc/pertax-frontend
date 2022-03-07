@@ -68,6 +68,14 @@ class HomeCardGenerator @Inject() (
       getMarriageAllowanceCard(taxComponents)
     ).flatten
 
+
+  def getItsaCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
+    List(
+      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
+      getChildBenefitCard(),
+      getMarriageAllowanceCard(taxComponents)
+    ).flatten
+
   def getPensionCards()(implicit messages: Messages): Seq[Html] =
     List(
       getStatePensionCard()
