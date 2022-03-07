@@ -88,11 +88,21 @@ class RlsController @Inject() (
           request.personDetails
             .map { personDetails =>
               val mainAddress =
-                personDetails.address.flatMap(address => if (address.isRls && !residentialLock) Some(address) else None)
+                personDetails.address.map { address =>
+                  if (address.isRls && !residentialLock)
+                    address
+                  else
+                    address.copy(isRls = false)
+                }
               val postalAddress =
                 personDetails.correspondenceAddress
-                  .flatMap(address => if (address.isRls && !postalLock) Some(address) else None)
-              if (mainAddress.isDefined || postalAddress.isDefined) {
+                  .map { address =>
+                    if (address.isRls && !postalLock)
+                      address
+                    else
+                      address.copy(isRls = false)
+                  }
+              if (mainAddress.exists(_.isRls) || postalAddress.exists(_.isRls)) {
                 auditRls(mainAddress, postalAddress)
                 cachingHelper
                   .addToCache(AddressPageVisitedDtoId, AddressPageVisitedDto(true))
