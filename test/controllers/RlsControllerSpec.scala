@@ -332,5 +332,56 @@ class RlsControllerSpec extends BaseSpec {
         status(r) mustBe OK
       }
     }
+
+    "show the remove postal address" when {
+      "a residential address exists" in {
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, Fixtures.buildPersonDetailsCorrespondenceAddress.address, address)
+
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = Some(personDetails), request = request)
+            )
+        })
+
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+
+        status(r) mustBe OK
+        contentAsString(r) mustNot include("""id="main_address"""")
+        contentAsString(r) must include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
+        contentAsString(r) must include(controllers.address.routes.ClosePostalAddressController.onPageLoad().url)
+      }
+    }
+
+    "hide the remove postal address" when {
+      "a residential address does not exist" in {
+        val address = Fixtures.buildPersonDetailsCorrespondenceAddress.address.map(_.copy(isRls = true))
+        val person = Fixtures.buildPersonDetailsCorrespondenceAddress.person
+        val personDetails = PersonDetails(person, None, address)
+
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
+        when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+          override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+            block(
+              buildUserRequest(personDetails = Some(personDetails), request = request)
+            )
+        })
+
+        val r: Future[Result] = controller.rlsInterruptOnPageLoad()(FakeRequest())
+
+        status(r) mustBe OK
+        contentAsString(r) mustNot include("""id="main_address"""")
+        contentAsString(r) must include("""id="postal_address"""")
+        contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
+        contentAsString(r) mustNot include(controllers.address.routes.ClosePostalAddressController.onPageLoad().url)
+
+      }
+    }
   }
 }
