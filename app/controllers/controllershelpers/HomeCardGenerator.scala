@@ -58,7 +58,7 @@ class HomeCardGenerator @Inject() (
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
-      if (showSeissCard && configDecorator.isSeissTileEnabled) Some(seissView()) else None,
+      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.newSaItsaTileEnabled) Some(seissView()) else None,
       getNationalInsuranceCard(),
       getAnnualTaxSummaryCard
     ).flatten
