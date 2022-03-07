@@ -17,11 +17,10 @@
 package controllers.controllershelpers
 
 import config.ConfigDecorator
-import connectors.SeissConnector
 import controllers.auth.requests.UserRequest
 import models._
-import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
@@ -36,8 +35,6 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home._
 
-import scala.concurrent.Future
-
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator = config
@@ -51,8 +48,15 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val marriageAllowance = injected[MarriageAllowanceView]
   val statePension = injected[StatePensionView]
   val taxSummaries = injected[TaxSummariesView]
-  val seissConnector = mock[SeissConnector]
   val seissView = injected[SeissView]
+
+  val stubConfigDecorator = new ConfigDecorator(
+    injected[Configuration],
+    injected[Langs],
+    injected[ServicesConfig]
+  ) {
+    override lazy val newSaItsaTileEnabled: Boolean = false
+  }
 
   val homeCardGenerator =
     new HomeCardGenerator(
@@ -65,9 +69,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       marriageAllowance,
       statePension,
       taxSummaries,
-      seissConnector,
       seissView
-    )
+    )(stubConfigDecorator)
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   "Calling getPayAsYouEarnCard" must {
@@ -147,6 +150,39 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getSelfAssessmentCard" must {
     val taxYear = previousAndCurrentTaxYear
     val nextDeadlineTaxYear = 2019
+
+    "return None if newSaItsaTileEnabled is true" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val newSaItsaTileEnabled: Boolean = true
+      }
+
+      def sut: HomeCardGenerator =
+        new HomeCardGenerator(
+          payAsYouEarn,
+          taxCalculation,
+          selfAssessment,
+          nationalInsurance,
+          taxCredits,
+          childBenefit,
+          marriageAllowance,
+          statePension,
+          taxSummaries,
+          seissView
+        )(stubConfigDecorator)
+
+      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      lazy val cardBody = sut.getSelfAssessmentCard(saUserType, 2019)
+
+      cardBody mustBe None
+    }
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
@@ -242,6 +278,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         injected[ServicesConfig]
       ) {
         override lazy val isNationalInsuranceCardEnabled: Boolean = false
+        override lazy val newSaItsaTileEnabled: Boolean = false
       }
 
       def sut: HomeCardGenerator =
@@ -255,7 +292,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           marriageAllowance,
           statePension,
           taxSummaries,
-          seissConnector,
           seissView
         )(stubConfigDecorator)
 
@@ -396,6 +432,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           injected[ServicesConfig]
         ) {
           override lazy val isAtsTileEnabled = false
+          override lazy val newSaItsaTileEnabled: Boolean = false
         }
 
         def sut: HomeCardGenerator =
@@ -409,7 +446,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             marriageAllowance,
             statePension,
             taxSummaries,
-            seissConnector,
             seissView
           )(stubConfigDecorator)
 

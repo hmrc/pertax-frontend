@@ -19,7 +19,6 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
-import connectors.SeissConnector
 import models._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
@@ -27,8 +26,6 @@ import play.twirl.api.{Html, HtmlFormat}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HomeCardGenerator @Inject() (
@@ -41,7 +38,6 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissConnector: SeissConnector,
   seissView: SeissView
 )(implicit configDecorator: ConfigDecorator) {
 
@@ -58,7 +54,9 @@ class HomeCardGenerator @Inject() (
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
-      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.newSaItsaTileEnabled) Some(seissView()) else None,
+      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.newSaItsaTileEnabled)
+        Some(seissView())
+      else None,
       getNationalInsuranceCard(),
       getAnnualTaxSummaryCard
     ).flatten
