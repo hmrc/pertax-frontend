@@ -38,7 +38,8 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissView: SeissView
+  seissView: SeissView,
+  itsaView: ItsaView
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -53,6 +54,7 @@ class HomeCardGenerator @Inject() (
       getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
+      getItsaCard(saActionNeeded, currentTaxYear + 1),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
       if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.newSaItsaTileEnabled)
         Some(seissView())
@@ -62,14 +64,6 @@ class HomeCardGenerator @Inject() (
     ).flatten
 
   def getBenefitCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
-    List(
-      getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
-      getChildBenefitCard(),
-      getMarriageAllowanceCard(taxComponents)
-    ).flatten
-
-
-  def getItsaCards(taxComponents: Option[TaxComponents])(implicit messages: Messages): Seq[Html] =
     List(
       getTaxCreditsCard(configDecorator.taxCreditsPaymentLinkEnabled),
       getChildBenefitCard(),
@@ -131,6 +125,19 @@ class HomeCardGenerator @Inject() (
   def getNationalInsuranceCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
     if (configDecorator.isNationalInsuranceCardEnabled) {
       Some(nationalInsuranceView())
+    } else {
+      None
+    }
+
+  def getItsaCard(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: Int)(implicit
+    messages: Messages
+  ): Option[HtmlFormat.Appendable] =
+    if (configDecorator.newSaItsaTileEnabled) {
+      saActionNeeded match {
+        case NonFilerSelfAssessmentUser => None
+        case saWithActionNeeded =>
+          Some(itsaView(saWithActionNeeded, nextDeadlineTaxYear.toString))
+      }
     } else {
       None
     }

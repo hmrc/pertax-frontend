@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewItsaInterstitialHomeView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,7 +48,8 @@ class InterstitialController @Inject() (
   viewNationalInsuranceInterstitialHomeView: ViewNationalInsuranceInterstitialHomeView,
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
-  sa302InterruptView: Sa302InterruptView
+  sa302InterruptView: Sa302InterruptView,
+  viewItsaInterstitialHomeView: ViewItsaInterstitialHomeView
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
@@ -85,6 +86,14 @@ class InterstitialController @Inject() (
       viewChildBenefitsSummaryInterstitialView(
         redirectUrl = currentUrl,
         taxCreditsEnabled = configDecorator.taxCreditsEnabled
+      )
+    )
+  }
+
+  def displayItsa: Action[AnyContent] = authenticate { implicit request =>
+    Ok(
+      viewItsaInterstitialHomeView(
+        redirectUrl = currentUrl
       )
     )
   }
