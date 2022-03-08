@@ -28,7 +28,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
-import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
@@ -50,7 +49,6 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
   val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
@@ -110,6 +108,8 @@ trait AddressBaseSpec extends BaseSpec {
 
     def updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
 
+    def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)
+
     def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
     def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
@@ -145,6 +145,9 @@ trait AddressBaseSpec extends BaseSpec {
     }
     when(mockEditAddressLockRepository.get(any())) thenReturn {
       Future.successful(getEditedAddressIndicators)
+    }
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any())) thenReturn {
+      Future.successful(getAddressesLockResponse)
     }
     when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
       Future.successful(MovedToScotland)
