@@ -279,6 +279,7 @@ class ConfigDecorator @Inject() (
       .toBoolean
 
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
+  lazy val seissClaimsUrl = s"$seissFrontendHost/self-employment-support/claim/your-claims"
 }
 
 trait TaxcalcUrls {

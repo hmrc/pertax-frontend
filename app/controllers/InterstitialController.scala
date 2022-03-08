@@ -30,7 +30,7 @@ import services.PreferencesFrontendService
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
+import util.DateTimeTools._
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewItsaInterstitialHomeView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
@@ -93,7 +93,10 @@ class InterstitialController @Inject() (
   def displayItsa: Action[AnyContent] = authenticate { implicit request =>
     Ok(
       viewItsaInterstitialHomeView(
-        redirectUrl = currentUrl
+        redirectUrl = currentUrl,
+        currentTaxYear = current.currentYear.toString,
+        currentTaxYearMinusOne = current.previous.currentYear.toString,
+        currentTaxYearMinusTwo = current.previous.previous.currentYear.toString
       )
     )
   }

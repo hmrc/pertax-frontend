@@ -438,6 +438,15 @@ title.seiss=Cynllun Cymhorthdal Incwm Hunangyflogaeth (SEISS)
 body.seiss=Bwrw golwg dros eich hawliadau SEISS.
 
 #
+# ITSA
+#
+label.your_self_assessment=Eich Hunanasesiad
+label.current_tax_year_range={0} i {1} blwyddyn dreth
+label.previous_tax_year_range={0} i {1} flwyddyn dreth ac yn gynharach
+label.making_tax_digital=Troi Treth yn Ddigidol (MTD) yw eich dull newydd o Hunanasesiad Treth Incwm (ITSA)
+label.view_and_manage_your_mtd_for_itsa=Gweld a rheoli eich MTD ar gyfer ITSA
+
+#
 # Benefits
 #
 title.benefits=Budd-daliadau
