@@ -445,6 +445,7 @@ label.current_tax_year_range={0} i {1} blwyddyn dreth
 label.previous_tax_year_range={0} i {1} flwyddyn dreth ac yn gynharach
 label.making_tax_digital=Troi Treth yn Ddigidol (MTD) yw eich dull newydd o Hunanasesiad Treth Incwm (ITSA)
 label.view_and_manage_your_mtd_for_itsa=Gweld a rheoli eich MTD ar gyfer ITSA
+label.view_and_manage_your_earlier_self_assessment_years=Gweld a rheoli eich blynyddoedd Hunanasesiad cynharach
 
 #
 # Benefits
