@@ -18,21 +18,82 @@
 @import controllers.auth.requests.UserRequest
 @import uk.gov.hmrc.renderer.TemplateRenderer
 @import viewmodels.{AddressRowModel, ExtraLinks, PersonalDetailsTableRowModel}
+@import views.html.personaldetails.partials.AddressView
 
 @import scala.concurrent.ExecutionContext
 
-@this(mainView: MainView)
-@()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@this(mainView: MainView, addressView: AddressView)
+@(mainAddressOption: Option[Address], postalAddressOption: Option[Address])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.check_your_address"), Some(messages("label.your_personal_tax_account"))) {
+@mainView(messages("rls.title.update_your_address"), Some(messages("label.your_personal_tax_account")), hideAccountMenu = true) {
+<div class="grid-row">
+    <div class="column-two-thirds">
 
-    <div class="grid-row pertax-error">
-        <div class="column-two-thirds">
-            <h1 class="heading-48">@messages("title.check_your_address")</h1>
-            <p class="panel-indent">@messages("label.check_your_address_reason")</p>
-            <p><a href="@controllers.address.routes.PersonalDetailsController.redirectToYourProfile()">@messages("title.check_your_address")</a> @messages("label.check_your_address_action")</p>
+        <div class="form-group">
+            <h1 class="heading-xlarge">
+                @messages("rls.title.update_your_address")
+            </h1>
         </div>
+
+        <div class="form-group">
+            <div class="panel panel-border-wide">
+                @if(mainAddressOption.exists(_.isRls) && postalAddressOption.exists(_.isRls)) {
+                    <p>@messages("profile.message.bothAddressRls")</p>
+                } else if(mainAddressOption.exists(_.isRls)) {
+                    <p>@messages("profile.message.mainAddressRls")</p>
+                } else {
+                    <p>@messages("profile.message.postalAddressRls")</p>
+                }
+            </div>
+        </div>
+
+        <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+            @mainAddressOption.map { mainAddress =>
+                @if(mainAddress.isRls) {
+                    <div class="govuk-summary-list__row" id="main_address">
+                        <dt class="govuk-summary-list__key govuk-!-width-one-quarter">
+                            @messages("rls.main_address")
+                        </dt>
+                        <dd class="govuk-summary-list__value govuk-!-width-one-half">
+                            <p>@messages("rls.update_main_address")</p>
+                        </dd>
+                        <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
+                            <p><a class="govuk-link govuk-link--no-visited-state" href="@controllers.address.routes.TaxCreditsChoiceController.onPageLoad">
+                                @messages("rls.update")
+                                <span class="visuallyhidden">@messages("rls.your_main_address")</span>
+                            </a></p>
+                        </dd>
+                    </div>
+                }
+            }
+            @postalAddressOption.map { postalAddress =>
+                @if(postalAddress.isRls) {
+                    <div class="govuk-summary-list__row" id="postal_address">
+                        <dt class="govuk-summary-list__key govuk-!-width-one-quarter">
+                            @messages("rls.postal_address")
+                        </dt>
+                        <dd class="govuk-summary-list__value govuk-!-width-one-half">
+                            <p>@messages("rls.update_postal_address")</p>
+                            <p>@messages("label.all_your_letters_will_be_sent_to_this_address")</p>
+                        </dd>
+                        <dd class="govuk-summary-list__actions govuk-!-width-one-quarter">
+                            <a class="govuk-link" href="@controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad">
+                                @messages("rls.update")
+                                <span class="visuallyhidden">@messages("rls.your_postal_address")</span>
+                            </a>
+                            @mainAddressOption.map { mainAddress =>
+                                <a class="govuk-link yourProfileExtraLink" href="@controllers.address.routes.ClosePostalAddressController.onPageLoad">
+                                    @messages("rls.remove")
+                                    <span class="visuallyhidden">@messages("rls.your_postal_address")</span>
+                                </a>
+                            }
+                        </dd>
+                    </div>
+                }
+            }
+        </dl>
     </div>
+</div>
 
 }
 
