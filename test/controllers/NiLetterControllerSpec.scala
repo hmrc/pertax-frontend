@@ -24,7 +24,7 @@ import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
-import play.api.inject._
+import play.api.inject.bind
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -42,13 +42,15 @@ class NiLetterControllerSpec extends BaseSpec with MockitoSugar with CitizenDeta
   val mockAuthJourney = mock[AuthJourney]
   val mockInterstitialController = mock[InterstitialController]
   val mockHomeController = mock[HomeController]
+  val mockRlsConfirmAddressController = mock[RlsController]
 
   override implicit lazy val app: Application = localGuiceApplicationBuilder()
     .overrides(
       bind[InterstitialController].toInstance(mockInterstitialController),
       bind[PdfGeneratorConnector].toInstance(mockPdfGeneratorConnector),
       bind[AuthJourney].toInstance(mockAuthJourney),
-      bind[HomeController].toInstance(mockHomeController)
+      bind[HomeController].toInstance(mockHomeController),
+      bind[RlsController].toInstance(mockRlsConfirmAddressController)
     )
     .configure(configValues)
     .build()

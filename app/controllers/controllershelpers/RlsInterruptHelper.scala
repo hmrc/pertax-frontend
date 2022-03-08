@@ -16,20 +16,25 @@
 
 package controllers.controllershelpers
 
+import cats.data.OptionT
+import cats.instances.future._
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.PertaxBaseController
 import controllers.auth.requests.UserRequest
+import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
+import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class RlsInterruptHelper @Inject() (
-  cc: MessagesControllerComponents
+  cc: MessagesControllerComponents,
+  editAddressLockRepository: EditAddressLockRepository
 )(implicit ec: ExecutionContext, templateRenderer: TemplateRenderer)
-    extends PertaxBaseController(cc) {
+    extends PertaxBaseController(cc) with Logging {
 
   def enforceByRlsStatus(
     block: => Future[Result]
@@ -40,16 +45,27 @@ class RlsInterruptHelper @Inject() (
     configDecorator: ConfigDecorator
   ): Future[Result] =
     if (configDecorator.rlsInterruptToggle) {
-      request.personDetails
-        .map { details =>
-          if (details.hasRls) {
-            Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
-          } else {
-            block
-          }
-        }
-        .getOrElse(block)
+      logger.debug("Check for RLS interrupt")
+      (for {
+        personDetails <- OptionT.fromOption(request.personDetails)
+        nino          <- OptionT.fromOption(request.nino)
+        addressesLock <-
+          OptionT.liftF(editAddressLockRepository.getAddressesLock(nino.withoutSuffix))
+      } yield {
+        logger.info("Residential mongo lock: " + addressesLock.main.toString)
+        logger.info("Correspondence mongo lock: " + addressesLock.postal.toString)
+        logger.info("Residential address rls: " + personDetails.address.exists(_.isRls))
+        logger.info("Correspondence address rls: " + personDetails.correspondenceAddress.exists(_.isRls))
+
+        if (personDetails.address.exists(_.isRls) && !addressesLock.main)
+          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
+        else if (personDetails.correspondenceAddress.exists(_.isRls) && !addressesLock.postal)
+          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
+        else
+          block
+      }).getOrElse(block).flatten
     } else {
+      logger.error("The RLS toggle is turned off")
       block
     }
 }

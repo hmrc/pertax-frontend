@@ -600,6 +600,16 @@ global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y 
 #*************************************************************
 # RLS Interrupt Journey
 #*************************************************************
-title.check_your_address=Gwirio’ch cyfeiriad
-label.check_your_address_reason=Gwnaethon drio anfon llythyr atoch drwy’r post ond nid oedd wedi’ch cyrraedd.
-label.check_your_address_action=i wneud yn siŵr eich bod yn cael llythyrau treth hollbwysig.
+rls.title.update_your_address = Update your address
+rls.main_address = Main address
+rls.update_main_address = Update your main address
+rls.update = Update
+rls.remove = Remove
+rls.postal_address = Postal address
+rls.update_postal_address = Update your postal address
+
+profile.message.bothAddressRls = You need to update your main and postal addresses to receive post from HMRC.
+profile.message.mainAddressRls = You need to update your main address to receive post from HMRC.
+profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.
+
+label.return_to_your_profile_page=Return to your profile

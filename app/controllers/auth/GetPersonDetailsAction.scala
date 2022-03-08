@@ -22,14 +22,13 @@ import connectors.{CitizenDetailsConnector, PersonDetailsHiddenResponse, PersonD
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.{Locked, SeeOther}
+import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.ManualCorrespondenceView
-import views.html.personaldetails.CheckYourAddressInterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -38,8 +37,7 @@ class GetPersonDetailsAction @Inject() (
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
-  manualCorrespondenceView: ManualCorrespondenceView,
-  checkYourAddressInterruptView: CheckYourAddressInterruptView
+  manualCorrespondenceView: ManualCorrespondenceView
 )(implicit configDecorator: ConfigDecorator, ec: ExecutionContext, templateRenderer: TemplateRenderer)
     extends ActionRefiner[UserRequest, UserRequest] with ActionFunction[UserRequest, UserRequest] with I18nSupport {
 
@@ -89,11 +87,10 @@ class GetPersonDetailsAction @Inject() (
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    if (configDecorator.personDetailsMessageCountEnabled) messageFrontendService.getUnreadMessageCount
-    else Future.successful(None)
-
-  def rlsInterrupt()(implicit request: UserRequest[_]): Result =
-    Locked(checkYourAddressInterruptView())
+    if (configDecorator.personDetailsMessageCountEnabled)
+      messageFrontendService.getUnreadMessageCount
+    else
+      Future.successful(None)
 
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
@@ -103,7 +100,8 @@ class GetPersonDetailsAction @Inject() (
     request.nino match {
       case Some(nino) =>
         citizenDetailsConnector.personDetails(nino).map {
-          case PersonDetailsSuccessResponse(pd) => Right(Some(pd))
+          case PersonDetailsSuccessResponse(pd) =>
+            Right(Some(pd))
           case PersonDetailsHiddenResponse =>
             Left(Locked(manualCorrespondenceView()))
           case _ => Right(None)
