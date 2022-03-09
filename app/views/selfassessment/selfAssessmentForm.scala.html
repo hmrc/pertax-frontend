@@ -35,9 +35,7 @@
                     <p class="heading-secondary"><span class="visuallyhidden">@messages("label.this.section.is") </span>@messages("label.access_your_self_assessment")</p>
                 </div>
                 <fieldset class="inline" id="wrongCredentialsFormChoice" @if(SAForm.hasErrors){aria-describedby="error-message-wrongCredentialsFormChoice-input"}>
-                    <legend class="visuallyhidden">
-                        <h1>@messages(title)</h1>
-                    </legend>
+                    <legend class="visuallyhidden">@messages(title)</legend>
 
                     @if(SAForm.hasErrors) { <span class="error-message" id="error-message-wrongCredentialsFormChoice-input"><span class="visually-hidden">@messages("error.message.error") </span>@messages("label.select_an_answer")</span>}
 
