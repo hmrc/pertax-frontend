@@ -58,9 +58,8 @@ class PersonalDetailsViewModel @Inject() (
 
       if (isMainAddressChangeLocked)
         createAddressRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
-      else {
+      else
         createAddressRow("label.change", Some(AddressRowModel.changeMainAddressUrl(configDecorator)))
-      }
     }
   }
 
@@ -112,8 +111,9 @@ class PersonalDetailsViewModel @Inject() (
         )
       if (isCorrespondenceChangeLocked)
         createRow("label.you_can_only_change_this_address_once_a_day_please_try_again_tomorrow", None)
-      else
+      else {
         createRow("label.change", Some(AddressRowModel.changePostalAddressUrl))
+      }
     }
 
   def getAddressRow(addressModel: List[AddressJourneyTTLModel])(implicit

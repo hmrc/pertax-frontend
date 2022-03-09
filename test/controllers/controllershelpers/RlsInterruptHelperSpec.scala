@@ -18,23 +18,25 @@ package controllers.controllershelpers
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{NonFilerSelfAssessmentUser, UserName}
+import models.{AddressJourneyTTLModel, AddressesLock, EditCorrespondenceAddress, EditResidentialAddress, NonFilerSelfAssessmentUser, UserName}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.mvc.Results._
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import util.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress, buildFakePersonDetails}
+import util.Fixtures.{buildFakeAddress, buildFakeCorrespondenceAddress, buildFakePersonDetails, fakeNino}
 import util.{BaseSpec, Fixtures}
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class RlsInterruptHelperSpec extends BaseSpec {
 
   val okBlock: Result = Ok("Block")
 
-  val interrupt: Result = SeeOther("/personal-account/check-your-address")
+  val interrupt: Result = SeeOther("/personal-account/update-your-address")
 
   implicit val mockConfigDecorator: ConfigDecorator = mock[ConfigDecorator]
 
@@ -66,6 +68,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
       }
 
       "redirect to /personal-account/check-your-address when residential address status is 1" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Some(Fixtures.fakeNino),
@@ -87,6 +91,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
       }
 
       "redirect to /personal-account/check-your-address when correspondence address status is 1" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Some(Fixtures.fakeNino),
@@ -110,6 +116,8 @@ class RlsInterruptHelperSpec extends BaseSpec {
       }
 
       "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
 
         implicit val userRequest: UserRequest[AnyContent] = UserRequest(
           Some(Fixtures.fakeNino),
@@ -134,11 +142,166 @@ class RlsInterruptHelperSpec extends BaseSpec {
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
         result mustBe interrupt
       }
+
+      "return the result as s block when residential address status is 1 and residential address has been updated" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, false)))
+
+        implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Some(Fixtures.fakeNino),
+          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+          NonFilerSelfAssessmentUser,
+          Credentials("", "GovernmentGateway"),
+          ConfidenceLevel.L200,
+          Some(buildFakePersonDetails.copy(address = Some(buildFakeAddress.copy(isRls = true)))),
+          None,
+          None,
+          None,
+          None,
+          None,
+          FakeRequest()
+        )
+
+        val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
+        result mustBe okBlock
+      }
+
+      "return the result as a block when postal address status is 1 and postal address has been updated" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, true)))
+
+        implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Some(Fixtures.fakeNino),
+          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+          NonFilerSelfAssessmentUser,
+          Credentials("", "GovernmentGateway"),
+          ConfidenceLevel.L200,
+          Some(
+            buildFakePersonDetails.copy(correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)))
+          ),
+          None,
+          None,
+          None,
+          None,
+          None,
+          FakeRequest()
+        )
+
+        val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
+        result mustBe okBlock
+      }
+
+      "return result as a block when both residential and correspondence address status is 1 and both addresses have been updated" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, true)))
+
+        implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Some(Fixtures.fakeNino),
+          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+          NonFilerSelfAssessmentUser,
+          Credentials("", "GovernmentGateway"),
+          ConfidenceLevel.L200,
+          Some(
+            buildFakePersonDetails.copy(
+              address = Some(buildFakeAddress.copy(isRls = true)),
+              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
+            )
+          ),
+          None,
+          None,
+          None,
+          None,
+          None,
+          FakeRequest()
+        )
+
+        val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
+        result mustBe okBlock
+      }
+
+      "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1 and residential address has been updated" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(true, false)))
+
+        implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Some(Fixtures.fakeNino),
+          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+          NonFilerSelfAssessmentUser,
+          Credentials("", "GovernmentGateway"),
+          ConfidenceLevel.L200,
+          Some(
+            buildFakePersonDetails.copy(
+              address = Some(buildFakeAddress.copy(isRls = true)),
+              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
+            )
+          ),
+          None,
+          None,
+          None,
+          None,
+          None,
+          FakeRequest()
+        )
+
+        val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
+        result mustBe interrupt
+      }
+
+      "redirect to /personal-account/check-your-address when both residential and correspondence address status is 1 and correspondence address has been updated" in {
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, true)))
+
+        implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Some(Fixtures.fakeNino),
+          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+          NonFilerSelfAssessmentUser,
+          Credentials("", "GovernmentGateway"),
+          ConfidenceLevel.L200,
+          Some(
+            buildFakePersonDetails.copy(
+              address = Some(buildFakeAddress.copy(isRls = true)),
+              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
+            )
+          ),
+          None,
+          None,
+          None,
+          None,
+          None,
+          FakeRequest()
+        )
+
+        val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock)).futureValue
+        result mustBe interrupt
+      }
+
     }
 
     "the enforce rlsInterruptToggle toggle is set to false" must {
       "return the result of a passed in block" in {
         when(mockConfigDecorator.rlsInterruptToggle).thenReturn(false)
+        when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+          .thenReturn(Future.successful(AddressesLock(false, false)))
+
+        implicit val userRequest: UserRequest[AnyContent] = UserRequest(
+          Some(Fixtures.fakeNino),
+          Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
+          NonFilerSelfAssessmentUser,
+          Credentials("", "GovernmentGateway"),
+          ConfidenceLevel.L200,
+          Some(
+            buildFakePersonDetails.copy(
+              address = Some(buildFakeAddress.copy(isRls = true)),
+              correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true))
+            )
+          ),
+          None,
+          None,
+          None,
+          None,
+          None,
+          FakeRequest()
+        )
 
         val result = rlsInterruptHelper.enforceByRlsStatus(Future(okBlock))
         result.futureValue mustBe okBlock
