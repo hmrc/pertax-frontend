@@ -24,7 +24,7 @@
 
 @this(mainView: MainView)
 
-@(redirectUrl: String, currentTaxYear: String, currentTaxYearMinusOne: String, currentTaxYearMinusTwo: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String, currentTaxYear: String, currentTaxYearMinusOne: String, currentTaxYearMinusTwo: String, isItsa: Boolean, isSa: Boolean, isSeiss: Boolean)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
 @mainView(messages("label.your_self_assessment"), Some(messages("label.your_personal_tax_account"))) {
 
@@ -34,17 +34,22 @@
 
             <h1 class="heading-xlarge no-margin-bottom">@messages("label.your_self_assessment")</h1>
 
-
+        @if(isItsa) {
             <h2 class="heading-medium">@messages("label.current_tax_year_range", currentTaxYearMinusOne, currentTaxYear)</h2>
             <p>@messages("label.making_tax_digital")</p>
             <p><a class="trackLink" href="">@messages("label.view_and_manage_your_mtd_for_itsa")</a></p>
+        }
+
+        @if(isSa) {
             <h2 class="heading-medium">@messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)</h2>
             <p><a class="trackLink" href="@routes.InterstitialController.displaySelfAssessment()">@messages("label.view_and_manage_your_earlier_self_assessment_years")</a></p>
+        }
 
-
+        @if(isSeiss) {
             <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
             <h2 class="heading-medium">@messages("title.seiss")</h2>
             <p><a class="trackLink" href="@configDecorator.seissClaimsUrl">@messages("body.seiss")</a></p>
+        }
 
     </div>
 </div>

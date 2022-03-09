@@ -26,11 +26,12 @@ import models._
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
-import services.PreferencesFrontendService
+import services.{PreferencesFrontendService, SeissService}
 import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
+import util.EnrolmentsHelper
 import views.html.SelfAssessmentSummaryView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewItsaInterstitialHomeView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
@@ -49,7 +50,9 @@ class InterstitialController @Inject() (
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
-  viewItsaInterstitialHomeView: ViewItsaInterstitialHomeView
+  viewItsaInterstitialHomeView: ViewItsaInterstitialHomeView,
+  enrolmentsHelper: EnrolmentsHelper,
+  seissService: SeissService
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
@@ -68,14 +71,12 @@ class InterstitialController @Inject() (
       .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.flatMap { p =>
-      Future.successful(
-        Ok(
-          viewNationalInsuranceInterstitialHomeView(
-            formPartial = p successfulContentOrElse Html(""),
-            redirectUrl = currentUrl,
-            request.nino
-          )
+    formPartialService.getNationalInsurancePartial.map { p =>
+      Ok(
+        viewNationalInsuranceInterstitialHomeView(
+          formPartial = p successfulContentOrElse Html(""),
+          redirectUrl = currentUrl,
+          request.nino
         )
       )
     }
@@ -90,13 +91,18 @@ class InterstitialController @Inject() (
     )
   }
 
-  def displayItsa: Action[AnyContent] = authenticate { implicit request =>
-    Ok(
+  def displayItsa: Action[AnyContent] = authenticate.async { implicit request =>
+    for {
+      hasSeissClaims <- seissService.hasClaims(request.saUserType)
+    } yield Ok(
       viewItsaInterstitialHomeView(
-        redirectUrl = currentUrl,
+        redirectUrl = currentUrl(request),
         currentTaxYear = current.currentYear.toString,
         currentTaxYearMinusOne = current.previous.currentYear.toString,
-        currentTaxYearMinusTwo = current.previous.previous.currentYear.toString
+        currentTaxYearMinusTwo = current.previous.previous.currentYear.toString,
+        enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
+        enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
+        hasSeissClaims
       )
     )
   }

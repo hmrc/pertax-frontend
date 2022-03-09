@@ -16,18 +16,10 @@
 
 @import tags._
 @this()
-@(saActionNeeded: SelfAssessmentUserType, nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages)
+@(nextDeadlineTaxYear: String)(implicit messages: play.api.i18n.Messages)
 
 @cardContent = {
-    @saActionNeeded match {
-        case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-            <p>@messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_", nextDeadlineTaxYear)</p>
-        }
-        case NotEnrolledSelfAssessmentUser(saUtr) => {
-            <p>@messages("label.not_enrolled.content")</p>
-        }
-        case _ => {}
-    }
+<p>@messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_", nextDeadlineTaxYear)</p>
 }
 
 @card(
