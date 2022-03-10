@@ -248,3 +248,11 @@ input[type="text"].autocomplete__input {
 .govuk-hint {
     color: #505a5f;
 }
+
+.full-width-banner {
+  display: none;
+}
+
+.full-width-banner.banner-panel--show { 
+  display: block;
+}
