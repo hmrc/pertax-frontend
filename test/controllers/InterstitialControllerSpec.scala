@@ -35,7 +35,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewItsaInterstitialHomeView, ViewNationalInsuranceInterstitialHomeView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future
@@ -66,7 +66,10 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewNationalInsuranceInterstitialHomeView],
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
-        injected[Sa302InterruptView]
+        injected[Sa302InterruptView],
+        injected[ViewItsaInterstitialHomeView],
+        injected[EnrolmentsHelper],
+        injected[SeissService]
       )(config, templateRenderer, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
