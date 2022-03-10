@@ -35,8 +35,6 @@
         supportLinkEnabled: Boolean = true,
         headScripts: Option[Html] = None,
         scriptElement: Option[Html] = None,
-        articleClasses: Option[String] = None,
-        includeGridWrapper: Boolean = false,
         backlinkUrl: Option[String] = None,
         additionalGaCalls: Option[Html] = None,
         printableDocument: Boolean = false,
@@ -123,7 +121,7 @@
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
-            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, includeGridWrapper))),
+            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, false))),
             backlinkUrl.map(BackLinkUrlComponent(_)),
             Some(UserPropertiesComponent(
                 isGovernmentGateway = request.isGovernmentGateway,
@@ -149,7 +147,7 @@
 
         templateRenderer.renderDefaultTemplate(
             configDecorator.frontendTemplatePath,
-            article(mainContent, includeGridWrapper, articleClasses),
+            mainContent,
             extraArguments
         )
 
