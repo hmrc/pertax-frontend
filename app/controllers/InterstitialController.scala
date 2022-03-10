@@ -92,19 +92,23 @@ class InterstitialController @Inject() (
   }
 
   def displayItsa: Action[AnyContent] = authenticate.async { implicit request =>
-    for {
-      hasSeissClaims <- seissService.hasClaims(request.saUserType)
-    } yield Ok(
-      viewItsaInterstitialHomeView(
-        redirectUrl = currentUrl(request),
-        currentTaxYear = current.currentYear.toString,
-        currentTaxYearMinusOne = current.previous.currentYear.toString,
-        currentTaxYearMinusTwo = current.previous.previous.currentYear.toString,
-        enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
-        enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
-        hasSeissClaims
+    if (configDecorator.saItsaTileEnabled) {
+      for {
+        hasSeissClaims <- seissService.hasClaims(request.saUserType)
+      } yield Ok(
+        viewItsaInterstitialHomeView(
+          redirectUrl = currentUrl(request),
+          currentTaxYear = current.currentYear.toString,
+          currentTaxYearMinusOne = current.previous.currentYear.toString,
+          currentTaxYearMinusTwo = current.previous.previous.currentYear.toString,
+          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
+          enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
+          hasSeissClaims
+        )
       )
-    )
+    } else {
+      errorRenderer.futureError(UNAUTHORIZED)
+    }
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>
