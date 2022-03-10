@@ -19,7 +19,7 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
+import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
@@ -40,6 +40,7 @@ class PersonalDetailsController @Inject() (
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
+  rlsInterruptHelper: RlsInterruptHelper,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView
@@ -54,7 +55,7 @@ class PersonalDetailsController @Inject() (
     authenticate.async { implicit request =>
       import models.dto.AddressPageVisitedDto
 
-      for {
+      rlsInterruptHelper.enforceByRlsStatus(for {
         addressModel <- request.nino
                           .map { nino =>
                             editAddressLockRepository.get(nino.withoutSuffix)
@@ -93,6 +94,7 @@ class PersonalDetailsController @Inject() (
             signinDetailsHelpers
           )
         )
-      }
+      })
     }
+
 }

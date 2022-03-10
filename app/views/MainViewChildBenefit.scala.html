@@ -29,7 +29,6 @@
 
 @(title: String,
         pageName: Option[String] = None,
-        showUserResearchBanner: Boolean = false,
         sidebarLinks: Option[Html] = None,
         sidebarClass: Option[String] = None,
         supportLinkEnabled: Boolean = true,
@@ -40,8 +39,7 @@
         backlinkUrl: Option[String] = None,
         additionalGaCalls: Option[Html] = None,
         printableDocument: Boolean = false,
-        displayTimeoutDialog: Boolean = true,
-        hideAccountMenu: Boolean = false
+        displayTimeoutDialog: Boolean = true
 )(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
        templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
@@ -89,13 +87,6 @@
     }
 
     @{
-        val covidBanner = showUserResearchBanner match {
-            case true => Map[String, Any]("covidBannerTitle" -> Messages("label.url_coronavirus"),
-                "covidBannerLink" -> configDecorator.bannerLinkUrl,
-                "covidBannerDismissText" -> Some(Messages("label.hide_message")),
-                "covidBannerGaAction" -> Some("homepage Covid banner"))
-            case false => Map.empty[String, Any]
-        }
 
         val arguments = TemplateArgumentsBuilder(
 
@@ -107,7 +98,7 @@
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,
                 profileUrl = request.profile,
-                hideAccountMenu = hideAccountMenu || request.personDetails.isEmpty
+                hideAccountMenu = request.personDetails.isEmpty
             )),
             Some(CssLinksComponent(
                 CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie.css").url, ieVersionCondition = Some("IE")),
@@ -133,11 +124,18 @@
             Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
             pageName.map(NavTitleComponent),
             Some(BetaBannerComponent(configDecorator.deskproToken)),
-            Some(MessagesMenuItemComponent(request.unreadMessageCount))
+            Some(MessagesMenuItemComponent(request.unreadMessageCount)),
+            Some(FullWidthBannerComponent(
+                Messages("label.help_improve_gov_uk"),
+                Messages("label.child_benefit_survey_text"),
+                configDecorator.childBenefitLinkUrl,
+                Some(Messages("label.no_thanks")),
+                Some("homepage UR banner")
+            )),
         ) ++ Map[String, Any](
             "bodyClass" -> printable,
             "headInlineScript" -> headInlineScript
-        ) ++ covidBanner
+        )
 
         val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
             arguments ++ Map[String,Any](

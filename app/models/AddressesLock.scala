@@ -16,15 +16,4 @@
 
 package models
 
-import play.api.libs.json._
-
-case class PersonDetails(
-  person: Person,
-  address: Option[Address],
-  correspondenceAddress: Option[Address]
-)
-
-object PersonDetails {
-  implicit val formats = Json.format[PersonDetails]
-
-}
+case class AddressesLock(main: Boolean, postal: Boolean)
