@@ -243,3 +243,11 @@ input[type="text"].autocomplete__input {
     display: block;
     margin-top: 1em;
 }
+
+.full-width-banner {
+  display: none;
+}
+
+.full-width-banner.banner-panel--show { 
+  display: block;
+}
