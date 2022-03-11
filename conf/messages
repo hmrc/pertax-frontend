@@ -587,6 +587,12 @@ global.error.InternalServerError500.pta.message.you.can = You can use this servi
 global.error.InternalServerError500.pta.message.contact.hmrc = contact HMRC
 global.error.InternalServerError500.pta.message.by.phone.post = online, by phone or by post.
 
+
+#*************************************************************
+# RLS Interrupt Journey
+#*************************************************************
+label.child_benefit_survey_text = Help make the Child Benefit service better by taking part in a survey (opens in a new tab). It should take around 5 minutes, and you could win a £25 voucher . We’re giving away 2 vouchers every month while the survey is running.
+
 #*************************************************************
 # RLS Interrupt Journey
 #*************************************************************
@@ -603,3 +609,4 @@ profile.message.mainAddressRls = You need to update your main address to receive
 profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.
 
 label.return_to_your_profile_page=Return to your profile
+

@@ -93,6 +93,9 @@ class ConfigDecorator @Inject() (
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
+  lazy val childBenefitLinkUrl = Some(
+    "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
+  )
   lazy val isSeissTileEnabled =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 

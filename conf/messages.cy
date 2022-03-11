@@ -595,6 +595,11 @@ global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y 
 #*************************************************************
 # RLS Interrupt Journey
 #*************************************************************
+label.child_benefit_survey_text = Helpwch i wella’r gwasanaeth Budd-dal Plant drwy gymryd rhan mewn arolwg (yn agor tab newydd). Dylai gymryd tua 5 munud, a gallech ennill taleb werth £25. Rydym yn cynnig 2 daleb bob mis yn ystod cyfnod yr arolwg.
+
+#*************************************************************
+# RLS Interrupt Journey
+#*************************************************************
 rls.title.update_your_address = Update your address
 rls.main_address = Main address
 rls.update_main_address = Update your main address
