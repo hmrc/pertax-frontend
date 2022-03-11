@@ -327,5 +327,53 @@ class InterstitialControllerSpec extends BaseSpec {
 
       status(result) mustBe UNAUTHORIZED
     }
+
+    "saItsaTileEnabled is true return OK" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val saItsaTileEnabled: Boolean = true
+      }
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mock[PreferencesFrontendService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewItsaInterstitialHomeView],
+          injected[EnrolmentsHelper],
+          injected[SeissService]
+        )(stubConfigDecorator, templateRenderer, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displayItsa()(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) must include("Your Self Assessment")
+    }
   }
 }
