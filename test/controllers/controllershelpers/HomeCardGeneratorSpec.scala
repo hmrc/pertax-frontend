@@ -101,7 +101,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     }
 
     "not contain a Seiss card" when {
-      "newSaItsaTileEnabled is true" in {
+      "saItsaTileEnabled is true" in {
         implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
           nino = None,
           saUser = NonFilerSelfAssessmentUser,
@@ -271,7 +271,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
     val taxYear = previousAndCurrentTaxYear
     val nextDeadlineTaxYear = 2019
 
-    "return None if newSaItsaTileEnabled is true" in {
+    "return None if saItsaTileEnabled is true" in {
       val stubConfigDecorator = new ConfigDecorator(
         injected[Configuration],
         injected[Langs],

@@ -16,12 +16,15 @@
 
 package controllers
 
+import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import play.api.Configuration
+import play.api.i18n.Langs
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -31,6 +34,7 @@ import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.UserRequestFixture.buildUserRequest
 import util._
@@ -47,7 +51,9 @@ class InterstitialControllerSpec extends BaseSpec {
   trait LocalSetup {
 
     def simulateFormPartialServiceFailure: Boolean
+
     def simulateSaPartialServiceFailure: Boolean
+
     def paperlessResponse: ActivatePaperlessResponse
 
     lazy val fakeRequest = FakeRequest("", "")
@@ -75,6 +81,7 @@ class InterstitialControllerSpec extends BaseSpec {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
         }
+
         when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
         when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
 
@@ -269,6 +276,56 @@ class InterstitialControllerSpec extends BaseSpec {
 
         status(r) mustBe UNAUTHORIZED
       }
+    }
+  }
+
+  "Calling displayItsa" must {
+
+    "saItsaTileEnabled is false return Unauthorized" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val saItsaTileEnabled: Boolean = false
+      }
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mock[PreferencesFrontendService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewItsaInterstitialHomeView],
+          injected[EnrolmentsHelper],
+          injected[SeissService]
+        )(stubConfigDecorator, templateRenderer, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displayItsa()(fakeRequest)
+
+      status(result) mustBe UNAUTHORIZED
     }
   }
 }
