@@ -17,20 +17,23 @@
 package controllers
 
 import config.ConfigDecorator
+import connectors.{PersonDetailsResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper}
+import controllers.controllershelpers.{HomeCardGenerator, HomePageCachingHelper, RlsInterruptHelper}
 import models.{SelfAssessmentUser, _}
 import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito._
 import play.api.libs.json.JsBoolean
+import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services._
 import services.partials.MessageFrontendService
 import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -42,6 +45,7 @@ import util.UserRequestFixture.buildUserRequest
 import util.{ActionBuilderFixture, BaseSpec, Fixtures}
 import views.html.HomeView
 
+import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
@@ -99,7 +103,8 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
         injected[WithActiveTabAction],
         injected[MessagesControllerComponents],
         injected[HomeView],
-        mockSeissService
+        mockSeissService,
+        injected[RlsInterruptHelper]
       )(mockConfigDecorator, mockTemplateRenderer, ec)
 
     when(mockTaiService.taxComponents(any[Nino](), any[Int]())(any[HeaderCarrier]())) thenReturn {
@@ -155,6 +160,7 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
     ) thenReturn "/bas-gateway/ssoout/non-digital?continue=%2Fservice%2Fself-assessment%3Faction=activate&step=enteractivationpin"
     when(mockConfigDecorator.ssoUrl) thenReturn Some("ssoUrl")
     when(mockConfigDecorator.bannerLinkUrl) thenReturn None
+    when(mockConfigDecorator.rlsInterruptToggle) thenReturn true
 
     def routeWrapper[T](req: FakeRequest[AnyContentAsEmpty.type]) = {
       controller
@@ -166,6 +172,10 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
   "Calling HomeController.index" must {
 
     "return a 200 status when accessing index page with good nino and sa User" in new LocalSetup {
+
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
 
       when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
@@ -267,7 +277,215 @@ class HomeControllerSpec extends BaseSpec with CurrentTaxYear {
 
       val r: Future[Result] = controller.index()(FakeRequest())
       status(r) mustBe OK
+    }
 
+    "return a 303 status when both the user's residential and postal addresses status are rls" in new LocalSetup {
+
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe SEE_OTHER
+    }
+
+    "return a 200 status when both the user's residential and postal addresses status are rls but both adresseses have been updated" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(true, true)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe OK
+    }
+
+    "return a 303 status when the user's residential address status is rls" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = false)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe SEE_OTHER
+    }
+
+    "return a 200 status when the user's residential address status is rls but address has been updated" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(true, false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = false)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe OK
+    }
+
+    "return a 303 status when the user's postal address status is rls" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = false)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe SEE_OTHER
+    }
+
+    "return a 200 status when the user's postal address status is rls but address has been updated" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, true)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = false)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe OK
+    }
+
+    "return a 303 status when the user's residential and postal address status is rls but residential address has been updated" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(true, false)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe SEE_OTHER
+    }
+
+    "return a 303 status when the user's residential and postal address status is rls but postal address has been updated" in new LocalSetup {
+      when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any()))
+        .thenReturn(Future.successful(AddressesLock(false, true)))
+      when(mockEditAddressLockRepository.insert(any(), any())).thenReturn(Future.successful(true))
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              request = request,
+              personDetails = Some(
+                PersonDetails(
+                  address = Some(buildFakeAddress.copy(isRls = true)),
+                  correspondenceAddress = Some(buildFakeCorrespondenceAddress.copy(isRls = true)),
+                  person = buildFakePerson
+                )
+              )
+            )
+          )
+      })
+
+      val r: Future[Result] = controller.index()(FakeRequest())
+
+      status(r) mustBe SEE_OTHER
     }
 
   }

@@ -17,6 +17,7 @@
 package controllers.auth
 
 import config.ConfigDecorator
+import connectors.{CitizenDetailsConnector, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import models.{Person, PersonDetails, WrongCredentialsSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
@@ -29,7 +30,7 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, PersonDetailsNotFoundResponse, PersonDetailsSuccessResponse}
+import connectors.PersonDetailsNotFoundResponse
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
@@ -40,12 +41,12 @@ import scala.concurrent.Future
 class GetPersonDetailsActionSpec extends BaseSpec {
 
   val mockMessageFrontendService = mock[MessageFrontendService]
-  val mockCitizenDetailsService = mock[CitizenDetailsService]
+  val mockCitizenDetailsConnector = mock[CitizenDetailsConnector]
   val configDecorator: ConfigDecorator = mock[ConfigDecorator]
 
   override lazy val app: Application = GuiceApplicationBuilder()
     .overrides(bind[MessageFrontendService].toInstance(mockMessageFrontendService))
-    .overrides(bind[CitizenDetailsService].toInstance(mockCitizenDetailsService))
+    .overrides(bind[CitizenDetailsConnector].toInstance(mockCitizenDetailsConnector))
     .overrides(bind[ConfigDecorator].toInstance(configDecorator))
     .configure(Map("metrics.enabled" -> false))
     .build()
@@ -95,7 +96,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
     "a user has PersonDetails in CitizenDetails" must {
 
       "add the PersonDetails to the request" in {
-        when(mockCitizenDetailsService.personDetails(any())(any()))
+        when(mockCitizenDetailsConnector.personDetails(any())(any()))
           .thenReturn(Future.successful(personDetailsSuccessResponse))
 
         val result = harness(personDetailsBlock)(refinedRequest)
@@ -106,7 +107,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when a user has no PersonDetails in CitizenDetails" must {
       "return the request it was passed" in {
-        when(mockCitizenDetailsService.personDetails(any())(any()))
+        when(mockCitizenDetailsConnector.personDetails(any())(any()))
           .thenReturn(Future.successful(PersonDetailsNotFoundResponse))
 
         val result = harness(personDetailsBlock)(refinedRequest)
@@ -118,7 +119,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when the person details message count toggle is set to true" must {
       "return a request with the unread message count" in {
-        when(mockCitizenDetailsService.personDetails(any())(any()))
+        when(mockCitizenDetailsConnector.personDetails(any())(any()))
           .thenReturn(Future.successful(personDetailsSuccessResponse))
 
         when(configDecorator.personDetailsMessageCountEnabled).thenReturn(true)
@@ -131,7 +132,7 @@ class GetPersonDetailsActionSpec extends BaseSpec {
 
     "when the person details message count toggle is set to false" must {
       "return a request with the unread message count" in {
-        when(mockCitizenDetailsService.personDetails(any())(any()))
+        when(mockCitizenDetailsConnector.personDetails(any())(any()))
           .thenReturn(Future.successful(personDetailsSuccessResponse))
 
         when(configDecorator.personDetailsMessageCountEnabled).thenReturn(false)

@@ -19,11 +19,10 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
-import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator}
+import controllers.controllershelpers.{AddressJourneyCachingHelper, PersonalDetailsCardGenerator, RlsInterruptHelper}
 import models.{AddressJourneyTTLModel, AddressPageVisitedDtoId}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.EditAddressLockRepository
-import services.NinoDisplayService
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.AuditServiceTools.buildPersonDetailsEvent
@@ -37,11 +36,11 @@ class PersonalDetailsController @Inject() (
   val personalDetailsCardGenerator: PersonalDetailsCardGenerator,
   val personalDetailsViewModel: PersonalDetailsViewModel,
   val editAddressLockRepository: EditAddressLockRepository,
-  ninoDisplayService: NinoDisplayService,
   authJourney: AuthJourney,
   cachingHelper: AddressJourneyCachingHelper,
   withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
+  rlsInterruptHelper: RlsInterruptHelper,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView
@@ -56,7 +55,7 @@ class PersonalDetailsController @Inject() (
     authenticate.async { implicit request =>
       import models.dto.AddressPageVisitedDto
 
-      for {
+      rlsInterruptHelper.enforceByRlsStatus(for {
         addressModel <- request.nino
                           .map { nino =>
                             editAddressLockRepository.get(nino.withoutSuffix)
@@ -64,7 +63,6 @@ class PersonalDetailsController @Inject() (
                           .getOrElse(
                             Future.successful(List[AddressJourneyTTLModel]())
                           )
-        ninoToDisplay <- ninoDisplayService.getNino
 
         _ <- request.personDetails
                .map { details =>
@@ -81,11 +79,12 @@ class PersonalDetailsController @Inject() (
 
       } yield {
         val personalDetails = personalDetailsViewModel
-          .getPersonDetailsTable(ninoToDisplay)
+          .getPersonDetailsTable(request.nino)
         val addressDetails = personalDetailsViewModel.getAddressRow(addressModel)
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
+
         Ok(
           personalDetailsView(
             personalDetails,
@@ -95,6 +94,7 @@ class PersonalDetailsController @Inject() (
             signinDetailsHelpers
           )
         )
-      }
+      })
     }
+
 }

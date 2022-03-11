@@ -46,7 +46,8 @@ case class AddressDto(
       country,
       Some(startDate),
       Some(endDate),
-      Some(`type`)
+      Some(`type`),
+      false
     )
   def toAddress(`type`: String, startDate: LocalDate) = postcode match {
     case Some(postcode) =>
@@ -60,10 +61,11 @@ case class AddressDto(
         None,
         Some(startDate),
         None,
-        Some(`type`)
+        Some(`type`),
+        false
       )
     case None =>
-      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`))
+      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`), false)
   }
 
   def toList: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten

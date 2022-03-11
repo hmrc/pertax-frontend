@@ -17,6 +17,7 @@
 package controllers.address
 
 import config.ConfigDecorator
+import connectors.{CitizenDetailsConnector, PersonDetailsResponse, PersonDetailsSuccessResponse, UpdateAddressResponse, UpdateAddressSuccessResponse}
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.controllershelpers.AddressJourneyCachingHelper
@@ -27,7 +28,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, when}
 import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
-import repositories.EditAddressLockRepository
 import services._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HttpResponse
@@ -47,9 +47,8 @@ trait AddressBaseSpec extends BaseSpec {
   val mockAuthJourney: AuthJourney = mock[AuthJourney]
   val mockLocalSessionCache: LocalSessionCache = mock[LocalSessionCache]
   val mockAddressLookupService: AddressLookupService = mock[AddressLookupService]
-  val mockCitizenDetailsService: CitizenDetailsService = mock[CitizenDetailsService]
+  val mockCitizenDetailsConnector: CitizenDetailsConnector = mock[CitizenDetailsConnector]
   val mockAddressMovedService: AddressMovedService = mock[AddressMovedService]
-  val mockEditAddressLockRepository: EditAddressLockRepository = mock[EditAddressLockRepository]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
   lazy val addressJourneyCachingHelper = new AddressJourneyCachingHelper(mockLocalSessionCache)
@@ -71,7 +70,7 @@ trait AddressBaseSpec extends BaseSpec {
       mockAuthJourney,
       mockLocalSessionCache,
       mockAddressLookupService,
-      mockCitizenDetailsService,
+      mockCitizenDetailsConnector,
       mockAddressMovedService,
       mockEditAddressLockRepository,
       mockAuditConnector
@@ -109,6 +108,8 @@ trait AddressBaseSpec extends BaseSpec {
 
     def updateAddressResponse: UpdateAddressResponse = UpdateAddressSuccessResponse
 
+    def getAddressesLockResponse: AddressesLock = AddressesLock(false, false)
+
     def addressLookupResponse: AddressLookupResponse = AddressLookupSuccessResponse(oneAndTwoOtherPlacePafRecordSet)
 
     def isInsertCorrespondenceAddressLockSuccessful: Boolean = true
@@ -130,13 +131,13 @@ trait AddressBaseSpec extends BaseSpec {
     when(mockAuditConnector.sendEvent(any())(any(), any())) thenReturn {
       Future.successful(AuditResult.Success)
     }
-    when(mockCitizenDetailsService.personDetails(any())(any())) thenReturn {
+    when(mockCitizenDetailsConnector.personDetails(any())(any())) thenReturn {
       Future.successful(personDetailsResponse)
     }
-    when(mockCitizenDetailsService.getEtag(any())(any())) thenReturn {
+    when(mockCitizenDetailsConnector.getEtag(any())(any())) thenReturn {
       Future.successful(eTagResponse)
     }
-    when(mockCitizenDetailsService.updateAddress(any(), any(), any())(any())) thenReturn {
+    when(mockCitizenDetailsConnector.updateAddress(any(), any(), any())(any())) thenReturn {
       Future.successful(updateAddressResponse)
     }
     when(mockEditAddressLockRepository.insert(any(), any())) thenReturn {
@@ -144,6 +145,9 @@ trait AddressBaseSpec extends BaseSpec {
     }
     when(mockEditAddressLockRepository.get(any())) thenReturn {
       Future.successful(getEditedAddressIndicators)
+    }
+    when(mockEditAddressLockRepository.getAddressesLock(any())(any(), any())) thenReturn {
+      Future.successful(getAddressesLockResponse)
     }
     when(mockAddressMovedService.moved(any[String](), any[String]())(any(), any())) thenReturn {
       Future.successful(MovedToScotland)

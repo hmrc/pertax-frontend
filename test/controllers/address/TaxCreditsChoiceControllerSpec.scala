@@ -37,6 +37,7 @@ class TaxCreditsChoiceControllerSpec extends AddressBaseSpec {
         withActiveTabAction,
         cc,
         addressJourneyCachingHelper,
+        mockEditAddressLockRepository,
         injected[TaxCreditsChoiceView],
         displayAddressInterstitialView
       )

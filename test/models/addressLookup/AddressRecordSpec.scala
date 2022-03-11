@@ -31,7 +31,8 @@ class AddressRecordSpec extends BaseSpec {
 
     "return false where the address has no lines" in {
       val noAddressLines = List()
-      val invalidAddress = Address(noAddressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom"))
+      val invalidAddress =
+        Address(noAddressLines, None, None, "Some Postcode", None, Country("UK", "United Kingdom"))
       AddressRecord("some id", invalidAddress, "en").isValid mustBe false
     }
   }

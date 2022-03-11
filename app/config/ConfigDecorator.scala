@@ -250,6 +250,9 @@ class ConfigDecorator @Inject() (
   lazy val getNinoFromCID =
     runModeConfiguration.getOptional[Boolean]("feature.get-nino-from-cid.enabled").getOrElse(false)
 
+  lazy val rlsInterruptToggle =
+    runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
+
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
   lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration

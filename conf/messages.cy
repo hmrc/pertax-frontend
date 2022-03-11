@@ -591,3 +591,20 @@ global.error.InternalServerError500.pta.title = Mae’n ddrwg gennym – nid yw�
 global.error.InternalServerError500.pta.message.you.can = Gallwch ddefnyddio’r gwasanaeth hwn yn nes ymlaen, neu gallwch
 global.error.InternalServerError500.pta.message.contact.hmrc = gysylltu â CThEM
 global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y ffôn neu drwy’r post.
+
+#*************************************************************
+# RLS Interrupt Journey
+#*************************************************************
+rls.title.update_your_address = Update your address
+rls.main_address = Main address
+rls.update_main_address = Update your main address
+rls.update = Update
+rls.remove = Remove
+rls.postal_address = Postal address
+rls.update_postal_address = Update your postal address
+
+profile.message.bothAddressRls = You need to update your main and postal addresses to receive post from HMRC.
+profile.message.mainAddressRls = You need to update your main address to receive post from HMRC.
+profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.
+
+label.return_to_your_profile_page=Return to your profile
