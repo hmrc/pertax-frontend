@@ -253,6 +253,19 @@ input[type="text"].autocomplete__input {
   display: block;
 }
 
-.card-body-news a {
-    text-decoration: underline;
+#news-card .card-body-news a {
+    border-bottom: 1px solid #c7dceb;
+    display: inline;
+    &:focus {
+        outline: 3px solid transparent;
+        color: #0b0c0c !important;
+    }
+    &:visited {
+       color: #005ea5;
+    }
+    &:hover {
+        border-bottom: 1px solid #005ea5;
+        color: #2e8aca;
+        text-decoration: none;
+    }
 }
