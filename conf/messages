@@ -474,6 +474,7 @@ label.verify_stop_from_1_April_2022=From 1 April 2022 you will not be able to us
 label.create_government_gateway_sign_in=Create Government Gateway sign in details by selecting ’Sign in’ (opens in new tab)
 createGGSigningIn.link.url = https://www.gov.uk/log-in-register-hmrc-online-services
 
+
 #
 # Benefits
 #

@@ -162,6 +162,7 @@ class ConfigDecorator @Inject() (
       .getOrElse("undefined")
 
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
+  lazy val createGGSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services"
   lazy val generalQueriesUrl = "https://www.gov.uk/contact-hmrc"
 
   lazy val nationalInsuranceFormPartialLinkUrl =
