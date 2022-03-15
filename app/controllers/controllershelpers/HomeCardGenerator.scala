@@ -38,7 +38,6 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissConnector: SeissConnector,
   seissView: SeissView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView
 )(implicit configDecorator: ConfigDecorator) {

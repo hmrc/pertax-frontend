@@ -69,7 +69,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       marriageAllowance,
       statePension,
       taxSummaries,
-      seissConnector,
       seissView,
       latestNewsAndUpdatesView
     )(stubConfigDecorator)
@@ -129,7 +128,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             marriageAllowance,
             statePension,
             taxSummaries,
-            seissView
+            seissView,
+            latestNewsAndUpdatesView
           )(stubConfigDecorator)
 
         lazy val cardBody =
@@ -173,7 +173,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             marriageAllowance,
             statePension,
             taxSummaries,
-            seissView
+            seissView,
+            latestNewsAndUpdatesView
           )(stubConfigDecorator)
 
         lazy val cardBody =
@@ -289,7 +290,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           marriageAllowance,
           statePension,
           taxSummaries,
-          seissView
+          seissView,
+          latestNewsAndUpdatesView
         )(stubConfigDecorator)
 
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
@@ -410,7 +412,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           marriageAllowance,
           statePension,
           taxSummaries,
-          seissConnector,
           seissView,
           latestNewsAndUpdatesView
         )(stubConfigDecorator)
@@ -566,7 +567,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             marriageAllowance,
             statePension,
             taxSummaries,
-            seissConnector,
             seissView,
             latestNewsAndUpdatesView
           )(stubConfigDecorator)
@@ -606,7 +606,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           marriageAllowance,
           statePension,
           taxSummaries,
-          seissConnector,
           seissView,
           latestNewsAndUpdatesView
         )(stubConfigDecorator)
