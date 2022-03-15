@@ -88,6 +88,8 @@ class ConfigDecorator @Inject() (
   lazy val ssoUrl = getExternalUrl("sso-portal.host")
   lazy val annualTaxSummariesUrl = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
   lazy val isAtsTileEnabled = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
+  lazy val isNewsAndUpdatesTileEnabled =
+    runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 

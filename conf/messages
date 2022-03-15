@@ -380,7 +380,7 @@ head.error.enter_a_date=Enter the date you started to live here
 head.error.enter_valid_date=Check the date you entered
 head.error.invalid.date.format=Date you started to live here must be a real date
 head.error.date_in_future=You cannot enter a date in the future
-error.date_in_future=Enter today’s date or a date in the past
+error.date_in_future=The date you started living here must be today or in the past
 head.error.country_required=Enter a country
 error.country_required=Enter a country
 error.message.error = Error:
@@ -466,6 +466,14 @@ label.not_enrolled.link.text=Request access to your Self Assessment
 
 title.seiss=Self-Employment Income Support Scheme (SEISS)
 body.seiss=View your SEISS grants.
+
+label.latest_news_and_updates=Latest News and Updates
+label.stop_using_Verify=HMRC Personal Tax Account to stop using GOV.UK Verify
+label.news_and_updates=News and Updates
+label.verify_stop_from_1_April_2022=From 1 April 2022, you will not be able to use GOV.UK Verify to sign in to your HMRC Personal Tax Account and Self Assessment. You will need to use Government Gateway to sign in.
+label.create_government_gateway_sign_in=Create Government Gateway sign in details by selecting ’Sign in’ (opens in new tab)
+createGGSigningIn.link.url = https://www.gov.uk/log-in-register-hmrc-online-services
+
 
 #
 # Benefits

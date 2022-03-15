@@ -286,6 +286,13 @@ label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os by
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.this.section.is=Dyma’r adran ynghylch
 label.remove=Dileu
+label.latest_news_and_updates=Newyddion a Diweddariadau mwyaf diweddar
+label.stop_using_Verify=Defnydd Cyfrif Treth Personol CThEM o GOV.UK Verify i ddod i ben
+label.news_and_updates=Newyddion a Diweddariadau
+label.verify_stop_from_1_April_2022=O 1 Ebrill 2022 ymlaen, ni fyddwch yn gallu defnyddio GOV.UK Verify i fewngofnodi i’ch Cyfrif Treth Personol CThEM a Hunanasesiad. Bydd angen i chi ddefnyddio Porth y Llywodraeth i fewngofnodi.
+label.create_government_gateway_sign_in=Crëwch fanylion ar gyfer mewngofnodi i Borth y Llywodraeth drwy ddewis ‘Mewngofnodi’ (yn agor tab newydd)
+createGGSigningIn.link.url = https://www.gov.uk/gwasanaethau-cthem-mewngofnodi-neu-gofrestru
+
 
 #
 # Error messages
@@ -346,7 +353,7 @@ head.error.enter_a_date=Nodwch y dyddiad y gwnaethoch ddechrau byw yma
 head.error.enter_valid_date=Gwirio’r dyddiad a nodwyd gennych
 head.error.invalid.date.format=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma fod yn ddyddiad go iawn
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
-error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
+error.date_in_future=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw fan hyn fod heddiw neu yn y gorffennol
 head.error.country_required=Nodwch wlad
 error.country_required=Nodwch wlad
 error.message.error = Gwall:
