@@ -38,7 +38,9 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissView: SeissView
+  seissConnector: SeissConnector,
+  seissView: SeissView,
+  latestNewsAndUpdatesView: LatestNewsAndUpdatesView
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -50,6 +52,7 @@ class HomeCardGenerator @Inject() (
     currentTaxYear: Int
   )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
+      getLatestNewsAndUpdatesCard(),
       getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
@@ -116,6 +119,13 @@ class HomeCardGenerator @Inject() (
       }
 
       Some(taxSummariesView(url))
+    } else {
+      None
+    }
+
+  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    if (configDecorator.isNewsAndUpdatesTileEnabled) {
+      Some(latestNewsAndUpdatesView())
     } else {
       None
     }

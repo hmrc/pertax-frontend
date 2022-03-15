@@ -48,6 +48,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val statePension = injected[StatePensionView]
   val taxSummaries = injected[TaxSummariesView]
   val seissView = injected[SeissView]
+  val latestNewsAndUpdatesView = injected[LatestNewsAndUpdatesView]
 
   val stubConfigDecorator = new ConfigDecorator(
     injected[Configuration],
@@ -68,7 +69,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       marriageAllowance,
       statePension,
       taxSummaries,
-      seissView
+      seissConnector,
+      seissView,
+      latestNewsAndUpdatesView
     )(stubConfigDecorator)
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
@@ -407,7 +410,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           marriageAllowance,
           statePension,
           taxSummaries,
-          seissView
+          seissConnector,
+          seissView,
+          latestNewsAndUpdatesView
         )(stubConfigDecorator)
 
       sut.getNationalInsuranceCard() mustBe None
@@ -561,13 +566,52 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             marriageAllowance,
             statePension,
             taxSummaries,
-            seissView
+            seissConnector,
+            seissView,
+            latestNewsAndUpdatesView
           )(stubConfigDecorator)
 
         lazy val cardBody = sut.getAnnualTaxSummaryCard
 
         cardBody mustBe None
       }
+    }
+  }
+
+  "Calling getLatestNewsAndUpdatesCard" must {
+    "return News and Updates Card when toggled on" in {
+
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
+
+      cardBody mustBe Some(latestNewsAndUpdatesView())
+    }
+
+    "return nothing when toggled off" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
+      }
+
+      def sut: HomeCardGenerator =
+        new HomeCardGenerator(
+          payAsYouEarn,
+          taxCalculation,
+          selfAssessment,
+          nationalInsurance,
+          taxCredits,
+          childBenefit,
+          marriageAllowance,
+          statePension,
+          taxSummaries,
+          seissConnector,
+          seissView,
+          latestNewsAndUpdatesView
+        )(stubConfigDecorator)
+
+      sut.getLatestNewsAndUpdatesCard mustBe None
     }
   }
 }
