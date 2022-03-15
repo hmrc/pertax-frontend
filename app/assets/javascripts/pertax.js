@@ -1,9 +1,9 @@
 /* global $, GOVUK */
-$('.full-width-banner__close, .covid-banner__close').click(function () {
+$('.covid-banner__close').click(function () {
   $.ajax({
     url: '/personal-account/dismiss-ur-banner',
     success: function () {
-      $('.full-width-banner, .covid-banner').fadeOut('slow');
+      $('.covid-banner').fadeOut('slow');
     },
   });
 });
@@ -23,3 +23,19 @@ $('.skiplink').click(function (e) {
 });
 
 GOVUK.shimLinksWithButtonRole.init();
+
+
+$(document).ready(function() {
+  var cookieData=GOVUK.getCookie("mdtpurr");
+  var URbanner = $("#full-width-banner");
+
+  if (cookieData==null) {
+      URbanner.addClass("banner-panel--show");
+  }
+
+  $(".full-width-banner__close").on("click", function(e) {
+      e.preventDefault();
+      GOVUK.setCookie("mdtpurr", "suppress_for_all_services", {days: 30});
+      URbanner.removeClass("banner-panel--show");
+  });
+});

@@ -107,7 +107,6 @@ object Address extends Logging {
   private def isRls(status: Option[Int]): Boolean =
     status match {
       case None =>
-        logger.error("RLS indicator is absent from designatory details")
         false
 
       case Some(status) =>
