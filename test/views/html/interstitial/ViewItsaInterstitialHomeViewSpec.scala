@@ -18,7 +18,7 @@ package views.html.interstitial
 
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
+import models._
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
@@ -60,7 +60,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         false,
         true,
         false,
-        previousAndCurrentTaxYear
+        previousAndCurrentTaxYear,
+        user
       ).toString
     )
   }
@@ -79,18 +80,19 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
             true,
             false,
             false,
-            previousAndCurrentTaxYear
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
           ).toString
         )
 
       doc.text() must include(Messages("label.your_self_assessment"))
       doc.text() must include(Messages("label.current_tax_year_range", currentTaxYearMinusOne, currentTaxYear))
-// TODO
-//      hasLink(
-//        doc,
-//        Messages("label.making_tax_digital"),
-//        ""
-//      )
+      doc.text() must include(Messages("label.making_tax_digital"))
+      hasLink(
+        doc,
+        Messages("label.view_and_manage_your_mtd_for_itsa"),
+        s"${configDecorator.itsaViewUrl}"
+      )
     }
 
     "show content for SA" when {
@@ -107,7 +109,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
               false,
               true,
               false,
-              previousAndCurrentTaxYear
+              previousAndCurrentTaxYear,
+              userRequest.saUserType
             ).toString
           )
 
@@ -164,35 +167,18 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         )
       }
 
-      "the user is not an Activated SA user" in {
+      "the user is not an Activated SA user" in new SelfAssessmentLocalSetup {
 
-        implicit val request: UserRequest[AnyContent] = buildUserRequest(
-          saUser = NotEnrolledSelfAssessmentUser(saUtr),
-          request = userRequest
-        )
+        override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
 
-        val doc =
-          asDocument(
-            viewItsaInterstitialHomeView(
-              s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
-              currentTaxYear,
-              currentTaxYearMinusOne,
-              currentTaxYearMinusTwo,
-              false,
-              true,
-              false,
-              previousAndCurrentTaxYear
-            ).toString
-          )
-
-        doc.text() must include(Messages("label.your_self_assessment"))
-        doc.text() must include(
+        selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
+        selfAssessmentDoc.text() must include(
           Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)
         )
-        doc.text() must include(Messages("label.not_enrolled.content"))
+        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.content"))
 
         hasLink(
-          doc,
+          selfAssessmentDoc,
           messages("label.self_assessment"),
           "/personal-account/sa-enrolment"
         )
@@ -226,7 +212,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
 
-        selfAssessmentDoc.text() must include(Messages("label.view_and_manage_your_earlier_self_assessment_years"))
+        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.content"))
 
         hasLink(
           selfAssessmentDoc,
@@ -248,7 +234,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
             false,
             false,
             true,
-            previousAndCurrentTaxYear
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
           ).toString
         )
 
@@ -274,7 +261,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
             true,
             true,
             true,
-            previousAndCurrentTaxYear
+            previousAndCurrentTaxYear,
+            userRequest.saUserType
           ).toString
         )
 

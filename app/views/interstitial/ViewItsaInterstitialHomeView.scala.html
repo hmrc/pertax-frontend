@@ -21,7 +21,7 @@
 
 @this(mainView: MainView)
 
-@(redirectUrl: String, currentTaxYear: String, currentTaxYearMinusOne: String, currentTaxYearMinusTwo: String, isItsa: Boolean, isSa: Boolean, isSeiss: Boolean, taxYear: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+@(redirectUrl: String, currentTaxYear: String, currentTaxYearMinusOne: String, currentTaxYearMinusTwo: String, isItsa: Boolean, isSa: Boolean, isSeiss: Boolean, taxYear: String, saActionNeeded: SelfAssessmentUserType)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
     @mainView(messages("label.your_self_assessment"), Some(messages("label.your_personal_tax_account"))) {
 
@@ -39,7 +39,7 @@
 
                 @if(isSa) {
                     <h2 class="heading-medium">@messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)</h2>
-                    @request.saUserType match {
+                    @saActionNeeded match {
                         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
                             <p><a class="trackLink" href="@routes.InterstitialController.displaySelfAssessment()">@messages("label.view_and_manage_your_earlier_self_assessment_years")</a></p>
                         }
@@ -51,7 +51,7 @@
                         }
                     }
 
-                    @request.saUserType match {
+                    @saActionNeeded match {
                         case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
                             <li id="complete-tax-return">
                                 <a class="ga-track-anchor-click" href="@configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">@messages("label.complete_your_tax_return")</a>

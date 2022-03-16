@@ -104,7 +104,8 @@ class InterstitialController @Inject() (
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
           hasSeissClaims,
-          taxYear = previousAndCurrentTaxYear
+          taxYear = previousAndCurrentTaxYear,
+          request.saUserType
         )
       )
     } else {
