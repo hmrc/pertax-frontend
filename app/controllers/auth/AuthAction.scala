@@ -62,6 +62,8 @@ class AuthActionImpl @Inject() (
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
 
+    println("PPPP0: " + request.session.toString)
+
     val compositePredicate =
       CredentialStrength(CredentialStrength.weak) or
         CredentialStrength(CredentialStrength.strong)
