@@ -60,11 +60,11 @@ class RlsController @Inject() (
     editAddressLockRepository.getAddressesLock(request.nino.map(_.withoutSuffix).getOrElse("Nino")).flatMap {
       case AddressesLock(residentialLock, postalLock) =>
         val residentialDetail =
-          if (residentialLock) "residential address has been updated" -> Some("true")
-          else "Is residential address rls"                           -> Some(mainAddress.isDefined.toString)
+          if (residentialLock) "residentialAddressUpdated" -> Some("true")
+          else "residentialRLS"                            -> Some(mainAddress.exists(_.isRls).toString)
         val postalDetail =
-          if (postalLock) "postal address has been updated" -> Some("true")
-          else "Is postal address rls"                      -> Some(postalAddress.isDefined.toString)
+          if (postalLock) "postalAddressUpdated" -> Some("true")
+          else "postalRLS"                       -> Some(postalAddress.exists(_.isRls).toString)
 
         auditConnector.sendEvent(
           buildEvent(
@@ -74,8 +74,8 @@ class RlsController @Inject() (
               "nino" -> Some(request.nino.getOrElse("NoNino").toString),
               residentialDetail,
               postalDetail,
-              "Residential address" -> mainAddress.map(_.fullAddress.mkString(";")),
-              "Postal address"      -> postalAddress.map(_.fullAddress.mkString(";"))
+              "residentialAddress" -> mainAddress.map(_.fullAddress.mkString(";")),
+              "postalAddress"      -> postalAddress.map(_.fullAddress.mkString(";"))
             ).filter(_._2.isDefined)
           )
         )
