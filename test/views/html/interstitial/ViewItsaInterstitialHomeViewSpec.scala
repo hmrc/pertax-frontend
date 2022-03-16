@@ -17,11 +17,15 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
+import controllers.auth.requests.UserRequest
+import models.{ActivatedOnlineFilerSelfAssessmentUser, NotEnrolledSelfAssessmentUser, NotYetActivatedOnlineFilerSelfAssessmentUser, SelfAssessmentUser, WrongCredentialsSelfAssessmentUser}
 import org.jsoup.nodes.Document
 import org.scalatest.Assertion
 import play.api.i18n.Messages
+import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
-import util.DateTimeTools.current
+import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import util.DateTimeTools.{current, previousAndCurrentTaxYear}
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
@@ -36,6 +40,30 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
   val currentTaxYear = current.currentYear.toString
   val currentTaxYearMinusOne = current.previous.currentYear.toString
   val currentTaxYearMinusTwo = current.previous.previous.currentYear.toString
+  val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+
+  trait SelfAssessmentLocalSetup {
+
+    val user: SelfAssessmentUser
+
+    implicit val request: UserRequest[AnyContent] = buildUserRequest(
+      saUser = user,
+      request = request
+    )
+
+    def selfAssessmentDoc: Document = asDocument(
+      viewItsaInterstitialHomeView(
+        s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
+        currentTaxYear,
+        currentTaxYearMinusOne,
+        currentTaxYearMinusTwo,
+        false,
+        true,
+        false,
+        previousAndCurrentTaxYear
+      ).toString
+    )
+  }
 
   "Rendering ViewItsaInterstitialHomeView.scala.html" must {
 
@@ -50,7 +78,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
             currentTaxYearMinusTwo,
             true,
             false,
-            false
+            false,
+            previousAndCurrentTaxYear
           ).toString
         )
 
@@ -64,29 +93,147 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 //      )
     }
 
-    "show content for SA" in {
+    "show content for SA" when {
 
-      val doc =
-        asDocument(
-          viewItsaInterstitialHomeView(
-            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
-            currentTaxYear,
-            currentTaxYearMinusOne,
-            currentTaxYearMinusTwo,
-            false,
-            true,
-            false
-          ).toString
+      "basic content for SA user" in {
+
+        val doc =
+          asDocument(
+            viewItsaInterstitialHomeView(
+              s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
+              currentTaxYear,
+              currentTaxYearMinusOne,
+              currentTaxYearMinusTwo,
+              false,
+              true,
+              false,
+              previousAndCurrentTaxYear
+            ).toString
+          )
+
+        doc.text() must include(Messages("label.your_self_assessment"))
+        doc.text() must include(
+          Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)
         )
 
-      doc.text() must include(Messages("label.your_self_assessment"))
-      doc.text() must include(Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne))
+        hasLink(
+          doc,
+          Messages("label.view_and_manage_your_earlier_self_assessment_years"),
+          "/personal-account/self-assessment-summary"
+        )
+      }
 
-      hasLink(
-        doc,
-        Messages("label.view_and_manage_your_earlier_self_assessment_years"),
-        "/personal-account/self-assessment-summary"
-      )
+      "the user is an Activated SA user" in new SelfAssessmentLocalSetup {
+
+        override val user: SelfAssessmentUser = ActivatedOnlineFilerSelfAssessmentUser(saUtr)
+
+        selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
+        selfAssessmentDoc.text() must include(
+          Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)
+        )
+        selfAssessmentDoc.text() must include(Messages("label.view_and_manage_your_earlier_self_assessment_years"))
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.self_assessment"),
+          "/personal-account/self-assessment-summary"
+        )
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.complete_your_tax_return"),
+          s"/self-assessment-file/$previousAndCurrentTaxYear/ind/$saUtr/return?lang=eng"
+        )
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.make_a_payment"),
+          "/personal-account/self-assessment/make-payment"
+        )
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.view_your_payments"),
+          s"/self-assessment/ind/$saUtr/account/payments"
+        )
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.check_if_you_need_to_fill_in_a_tax_return"),
+          "https://www.gov.uk/check-if-you-need-a-tax-return"
+        )
+      }
+
+      "the user is not an Activated SA user" in {
+
+        implicit val request: UserRequest[AnyContent] = buildUserRequest(
+          saUser = NotEnrolledSelfAssessmentUser(saUtr),
+          request = userRequest
+        )
+
+        val doc =
+          asDocument(
+            viewItsaInterstitialHomeView(
+              s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
+              currentTaxYear,
+              currentTaxYearMinusOne,
+              currentTaxYearMinusTwo,
+              false,
+              true,
+              false,
+              previousAndCurrentTaxYear
+            ).toString
+          )
+
+        doc.text() must include(Messages("label.your_self_assessment"))
+        doc.text() must include(
+          Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)
+        )
+        doc.text() must include(Messages("label.not_enrolled.content"))
+
+        hasLink(
+          doc,
+          messages("label.self_assessment"),
+          "/personal-account/sa-enrolment"
+        )
+      }
+
+      "the user is a Not-yet Activated SA user" in new SelfAssessmentLocalSetup {
+
+        override val user: SelfAssessmentUser = NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.activate_your_self_assessment"),
+          "/personal-account/self-assessment"
+        )
+      }
+
+      "the user is a Wrong Credentials SA user" in new SelfAssessmentLocalSetup {
+
+        override val user: SelfAssessmentUser = WrongCredentialsSelfAssessmentUser(saUtr)
+
+        selfAssessmentDoc.text() must include(Messages("label.view_and_manage_your_earlier_self_assessment_years"))
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.find_out_how_to_access_self_assessment"),
+          "/personal-account/self-assessment"
+        )
+      }
+
+      "the user is a Not Enrolled SA user" in new SelfAssessmentLocalSetup {
+
+        override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
+
+        selfAssessmentDoc.text() must include(Messages("label.view_and_manage_your_earlier_self_assessment_years"))
+
+        hasLink(
+          selfAssessmentDoc,
+          messages("label.not_enrolled.link.text"),
+          "/personal-account/sa-enrolment"
+        )
+      }
     }
 
     "show content for Seiss" in {
@@ -100,7 +247,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
             currentTaxYearMinusTwo,
             false,
             false,
-            true
+            true,
+            previousAndCurrentTaxYear
           ).toString
         )
 
@@ -125,7 +273,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
             currentTaxYearMinusTwo,
             true,
             true,
-            true
+            true,
+            previousAndCurrentTaxYear
           ).toString
         )
 

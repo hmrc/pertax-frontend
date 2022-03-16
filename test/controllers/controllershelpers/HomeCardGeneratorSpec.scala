@@ -314,7 +314,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
       lazy val cardBody = homeCardGenerator.getSelfAssessmentCard(saUserType)
 
-      cardBody mustBe Some(selfAssessment(saUserType, taxYear, nextDeadlineTaxYear.toString))
+      cardBody mustBe Some(selfAssessment(saUserType, taxYear, (current.currentYear + 1).toString))
     }
 
     "return correct markup when called with NotYetActivatedOnlineFilerSelfAssessmentUser" in {
