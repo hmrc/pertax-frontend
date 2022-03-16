@@ -26,8 +26,8 @@ import models._
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
-import services.{PreferencesFrontendService, SeissService}
 import services.partials.{FormPartialService, SaPartialService}
+import services.{PreferencesFrontendService, SeissService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
@@ -103,7 +103,8 @@ class InterstitialController @Inject() (
           currentTaxYearMinusTwo = current.previous.previous.currentYear.toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
-          hasSeissClaims
+          hasSeissClaims,
+          taxYear = previousAndCurrentTaxYear
         )
       )
     } else {
