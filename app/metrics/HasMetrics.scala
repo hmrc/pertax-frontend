@@ -17,7 +17,7 @@
 package metrics
 
 import com.codahale.metrics._
-import com.kenshoo.play.metrics.Metrics
+import com.kenshoo.play.metrics.{Metrics => KenshooMetrics}
 
 trait HasMetrics {
 
@@ -25,7 +25,7 @@ trait HasMetrics {
 
   val metricsOperator = new MetricsOperator
 
-  def metrics: Metrics
+  def metrics: KenshooMetrics
 
   lazy val registry = metrics.defaultRegistry
 

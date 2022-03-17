@@ -33,7 +33,7 @@ object Limiters {
 case object RateLimitedException extends RuntimeException
 
 trait Throttle {
-  def throttle[A](tps: Double)(
+  def withThrottle[A](tps: Double)(
     block: => Future[A]
   ): Future[A] = {
     val rateLimiter = Limiters.getInstance(tps)

@@ -33,8 +33,9 @@ import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.Throttle
+import util.{Throttle, Timeout}
 
+import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
@@ -97,7 +98,7 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
   val metrics: Metrics,
   servicesConfig: ServicesConfig,
   httpClientResponse: HttpClientResponse
-) extends AgentClientAuthorisationConnector with Throttle with Logging {
+) extends AgentClientAuthorisationConnector with Throttle with Timeout with Logging {
 
   lazy val agentClientAuthorisationUrl = servicesConfig.baseUrl("agent-client-authorisation")
   lazy val agentClientAuthorisationRateLimit =
@@ -111,13 +112,15 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     val timerContext: Timer.Context =
       metrics.startTimer(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)
 
-    val result = throttle(agentClientAuthorisationRateLimit) {
-      httpClient
-        .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$agentClientAuthorisationUrl/status")
-        .map { response =>
-          timerContext.stop()
-          response
-        }
+    val result = withThrottle(agentClientAuthorisationRateLimit) {
+      withTimeout(5 seconds) {
+        httpClient
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$agentClientAuthorisationUrl/status")
+          .map { response =>
+            timerContext.stop()
+            response
+          }
+      }
     }
     httpClientResponse.read(result, MetricsEnumeration.GET_AGENT_CLIENT_STATUS).map { response =>
       response.json.as[AgentClientStatus]
