@@ -35,8 +35,10 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
   lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
+
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
+
   val currentTaxYear = current.currentYear.toString
   val currentTaxYearMinusOne = current.previous.currentYear.toString
   val currentTaxYearMinusTwo = current.previous.previous.currentYear.toString
