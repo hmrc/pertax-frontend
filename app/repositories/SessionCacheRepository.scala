@@ -24,6 +24,7 @@ import uk.gov.hmrc.mongo.cache.{SessionCacheRepository => CacheRepository}
 import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 
 @Singleton
 class SessionCacheRepository @Inject() (appConfig: ConfigDecorator, mongoComponent: MongoComponent)(implicit
@@ -31,7 +32,7 @@ class SessionCacheRepository @Inject() (appConfig: ConfigDecorator, mongoCompone
 ) extends CacheRepository(
       mongoComponent = mongoComponent,
       collectionName = "sessions",
-      ttl = ???,
+      ttl = appConfig.sessionCacheTtl minutes,
       timestampSupport = new CurrentTimestampSupport(),
       sessionIdKey = SessionKeys.sessionId
     )

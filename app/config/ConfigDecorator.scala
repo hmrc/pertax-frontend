@@ -43,6 +43,8 @@ class ConfigDecorator @Inject() (
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
+  val sessionCacheTtl = runModeConfiguration.getOptional[Int]("feature.session-cache.ttl").getOrElse(15)
+
   def seissUrl = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")

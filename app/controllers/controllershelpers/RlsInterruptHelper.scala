@@ -26,14 +26,13 @@ import play.api.Logging
 import play.api.mvc.{MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.renderer.TemplateRenderer
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class RlsInterruptHelper @Inject() (
   cc: MessagesControllerComponents,
   editAddressLockRepository: EditAddressLockRepository
-)(implicit ec: ExecutionContext, templateRenderer: TemplateRenderer)
+)(implicit ec: ExecutionContext)
     extends PertaxBaseController(cc) with Logging {
 
   def enforceByRlsStatus(

@@ -16,24 +16,24 @@
 
 package connectors
 
-import cats.data.{EitherT, OptionT}
+import cats.data.EitherT
 import cats.implicits._
 import com.codahale.metrics.Timer
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
-import metrics.{HasMetrics, Metrics, MetricsEnumeration}
-import models.{AgentClientStatus, PersonDetails}
+import metrics.{Metrics, MetricsEnumeration}
+import models.AgentClientStatus
 import play.api.Logging
+import play.api.libs.json.Format
 import play.api.libs.json.Format.GenericFormat
-import play.api.libs.json.{Format, Json}
 import play.api.mvc.Request
 import repositories.SessionCacheRepository
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
-import util.{RateLimitedException, Throttle}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import util.Throttle
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -41,20 +41,16 @@ import scala.util.control.NonFatal
 trait AgentClientAuthorisationConnector {
   def getAgentClientStatus(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus]
 }
 
 class CachingAgentClientAuthorisationConnector @Inject() (
   @Named("default") underlying: AgentClientAuthorisationConnector,
-  sessionCacheRepository: SessionCacheRepository,
-  servicesConfig: ServicesConfig
-)(implicit ec: ExecutionContext, request: Request[_])
-    extends AgentClientAuthorisationConnector with Throttle with Logging {
-
-  lazy val agentClientAuthorisationUrl = servicesConfig.baseUrl("agent-client-authorisation")
-  lazy val agentClientAuthorisationRateLimit =
-    servicesConfig.getConfInt("feature.agent-client-authorisation.rateLimit", 10000).toDouble
+  sessionCacheRepository: SessionCacheRepository
+)(implicit ec: ExecutionContext)
+    extends AgentClientAuthorisationConnector {
 
   private def cache[L, A: Format](
     key: String
@@ -74,8 +70,8 @@ class CachingAgentClientAuthorisationConnector @Inject() (
       sessionCacheRepository
         .getFromSession[A](DataKey[A](key))
         .map {
-          case None           => fetchAndCache
-          case Some(value: A) => EitherT.rightT[Future, L](value)
+          case None        => fetchAndCache
+          case Some(value) => EitherT.rightT[Future, L](value)
         }
         .map(_.value)
         .flatten
@@ -86,7 +82,8 @@ class CachingAgentClientAuthorisationConnector @Inject() (
 
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] =
     cache("agentClientStatus") {
       underlying.getAgentClientStatus
@@ -104,11 +101,12 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
 
   lazy val agentClientAuthorisationUrl = servicesConfig.baseUrl("agent-client-authorisation")
   lazy val agentClientAuthorisationRateLimit =
-    servicesConfig.getConfInt("feature.agent-client-authorisation.rateLimit", 10000).toDouble
+    servicesConfig.getConfInt("feature.agent-client-authorisation.rateLimit", Int.MaxValue).toDouble
 
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
-    ec: ExecutionContext
+    ec: ExecutionContext,
+    request: Request[_]
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] = {
     val timerContext: Timer.Context =
       metrics.startTimer(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)
