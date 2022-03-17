@@ -16,49 +16,28 @@
 
 package services
 
-import cats.data.EitherT
 import cats.implicits._
 import com.google.inject.Inject
 import connectors.AgentClientAuthorisationConnector
 import models.AgentClientStatus
 import play.api.mvc.Request
 import repositories.SessionCacheRepository
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.mongo.cache.DataKey
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentClientAuthorisationService @Inject() (
   servicesConfig: ServicesConfig,
-  agentClientAuthorisationConnector: AgentClientAuthorisationConnector,
-  cache: SessionCacheRepository
+  agentClientAuthorisationConnector: AgentClientAuthorisationConnector
 ) {
 
-  private val agentClientStatusDataKey = DataKey[AgentClientStatus]("agentClientStatus")
-  lazy val agentClientAuthorisationCacheEnabled =
-    servicesConfig.getConfBool("feature.agent-client-authorisation.cached", true)
-  lazy val agentClientAuthorisationEnabled =
+  lazy private val agentClientAuthorisationEnabled =
     servicesConfig.getConfBool("feature.agent-client-authorisation.enabled", true)
 
   def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Boolean] =
     if (agentClientAuthorisationEnabled) {
-      (if (agentClientAuthorisationCacheEnabled) {
-         EitherT(
-           cache
-             .getFromSession[AgentClientStatus](agentClientStatusDataKey)
-             .map {
-               case Some(agentClientStatus: AgentClientStatus) =>
-                 EitherT.rightT[Future, UpstreamErrorResponse](agentClientStatus)
-               case _ =>
-                 agentClientAuthorisationConnector.getAgentClientStatus.map(response =>
-                   cache.putSession(agentClientStatusDataKey, response)
-                 )
-             }
-             .map(_.value)
-             .flatten
-         )
-       } else agentClientAuthorisationConnector.getAgentClientStatus)
+      agentClientAuthorisationConnector.getAgentClientStatus
         .bimap(
           _ => false,
           {
@@ -67,5 +46,7 @@ class AgentClientAuthorisationService @Inject() (
           }
         )
         .merge
-    } else Future.successful(false)
+    } else {
+      Future.successful(false)
+    }
 }

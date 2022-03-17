@@ -16,34 +16,97 @@
 
 package connectors
 
-import cats.data.EitherT
+import cats.data.{EitherT, OptionT}
 import cats.implicits._
 import com.codahale.metrics.Timer
+import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import metrics.{HasMetrics, Metrics, MetricsEnumeration}
 import models.{AgentClientStatus, PersonDetails}
 import play.api.Logging
+import play.api.libs.json.Format.GenericFormat
+import play.api.libs.json.{Format, Json}
+import play.api.mvc.Request
+import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
+import uk.gov.hmrc.mongo.cache.DataKey
 import util.{RateLimitedException, Throttle}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
-@Singleton
-class AgentClientAuthorisationConnector @Inject() (
-  val httpClient: HttpClient,
-  val metrics: Metrics,
-  servicesConfig: ServicesConfig,
-  httpClientResponse: HttpClientResponse
-) extends Throttle with Logging {
+trait AgentClientAuthorisationConnector {
+  def getAgentClientStatus(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus]
+}
+
+class CachingAgentClientAuthorisationConnector @Inject() (
+  @Named("default") underlying: AgentClientAuthorisationConnector,
+  sessionCacheRepository: SessionCacheRepository,
+  servicesConfig: ServicesConfig
+)(implicit ec: ExecutionContext, request: Request[_])
+    extends AgentClientAuthorisationConnector with Throttle with Logging {
 
   lazy val agentClientAuthorisationUrl = servicesConfig.baseUrl("agent-client-authorisation")
   lazy val agentClientAuthorisationRateLimit =
     servicesConfig.getConfInt("feature.agent-client-authorisation.rateLimit", 10000).toDouble
 
-  def getAgentClientStatus(implicit
+  private def cache[L, A: Format](
+    key: String
+  )(f: => EitherT[Future, L, A])(implicit request: Request[_]): EitherT[Future, L, A] = {
+
+    def fetchAndCache: EitherT[Future, L, A] =
+      for {
+        result <- f
+        _ <- EitherT[Future, L, (String, String)](
+               sessionCacheRepository
+                 .putSession[A](DataKey[A](key), result)
+                 .map(Right(_))
+             )
+      } yield result
+
+    EitherT(
+      sessionCacheRepository
+        .getFromSession[A](DataKey[A](key))
+        .map {
+          case None           => fetchAndCache
+          case Some(value: A) => EitherT.rightT[Future, L](value)
+        }
+        .map(_.value)
+        .flatten
+    ) recoverWith { case NonFatal(_) =>
+      fetchAndCache
+    }
+  }
+
+  override def getAgentClientStatus(implicit
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] =
+    cache("agentClientStatus") {
+      underlying.getAgentClientStatus
+    }
+
+}
+
+@Singleton
+class DefaultAgentClientAuthorisationConnector @Inject() (
+  val httpClient: HttpClient,
+  val metrics: Metrics,
+  servicesConfig: ServicesConfig,
+  httpClientResponse: HttpClientResponse
+) extends AgentClientAuthorisationConnector with Throttle with Logging {
+
+  lazy val agentClientAuthorisationUrl = servicesConfig.baseUrl("agent-client-authorisation")
+  lazy val agentClientAuthorisationRateLimit =
+    servicesConfig.getConfInt("feature.agent-client-authorisation.rateLimit", 10000).toDouble
+
+  override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext
   ): EitherT[Future, UpstreamErrorResponse, AgentClientStatus] = {
