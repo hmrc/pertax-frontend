@@ -44,7 +44,7 @@
                         @if(isItsa) {
                             <p><a class="trackLink" href="@routes.InterstitialController.displaySelfAssessment()">@messages("label.view_and_manage_your_earlier_self_assessment_years")</a></p>
                         }
-                        else {
+                        @if(!isItsa) {
                             <p><a class="trackLink" href="@routes.InterstitialController.displaySelfAssessment()">@messages("label.view_and_manage_your_earlier_self_assessment_years")</a></p>
                             <li id="complete-tax-return">
                                 <a class="ga-track-anchor-click" href="@configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">@messages("label.complete_your_tax_return")</a>

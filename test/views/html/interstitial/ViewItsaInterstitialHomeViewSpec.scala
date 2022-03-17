@@ -174,10 +174,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
 
         selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
-        selfAssessmentDoc.text() must include(
-          Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)
-        )
-        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.content"))
+        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.link.text"))
 
         hasLink(
           selfAssessmentDoc,
@@ -190,6 +187,9 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         override val user: SelfAssessmentUser = NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)
 
+        selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
+        selfAssessmentDoc.text() must include(Messages("label.activate_your_self_assessment"))
+
         hasLink(
           selfAssessmentDoc,
           messages("label.activate_your_self_assessment"),
@@ -201,7 +201,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         override val user: SelfAssessmentUser = WrongCredentialsSelfAssessmentUser(saUtr)
 
-        selfAssessmentDoc.text() must include(Messages("label.view_and_manage_your_earlier_self_assessment_years"))
+        selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
+        selfAssessmentDoc.text() must include(Messages("label.find_out_how_to_access_self_assessment"))
 
         hasLink(
           selfAssessmentDoc,
@@ -214,7 +215,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
 
-        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.content"))
+        selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
+        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.link.text"))
 
         hasLink(
           selfAssessmentDoc,
