@@ -62,19 +62,19 @@
                         }
 
                         case NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
-                        <li>
-                            <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@messages("label.activate_your_self_assessment")</a>
-                        </li>
+                            <li>
+                                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Activate your Self Assessment">@messages("label.activate_your_self_assessment")</a>
+                            </li>
                         }
                         case WrongCredentialsSelfAssessmentUser(saUtr) => {
-                        <li>
-                            <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
-                        </li>
+                            <li>
+                                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.handleSelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Find out how to access Self Assessment">@messages("label.find_out_how_to_access_self_assessment")</a>
+                            </li>
                         }
                         case NotEnrolledSelfAssessmentUser(saUtr) => {
-                        <li>
-                            <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.redirectToEnrolForSa()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Request access to your Self Assessment">@messages("label.not_enrolled.link.text")</a>
-                        </li>
+                            <li>
+                                <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.redirectToEnrolForSa()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Request access to your Self Assessment">@messages("label.not_enrolled.link.text")</a>
+                            </li>
                         }
                         case _ => {}
                     }
