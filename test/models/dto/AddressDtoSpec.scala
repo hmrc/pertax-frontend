@@ -857,53 +857,6 @@ class AddressDtoSpec extends BaseSpec {
     }
   }
 
-  "Calling AddressDto.toCloseAdress" must {
-
-    "return address with country and an end date" in {
-      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, None, Some("SPAIN"), None)
-      val addressTye = "correspondence"
-      val startDate = new LocalDate(2018, 1, 1)
-      val endDate = new LocalDate(now)
-
-      addressDto.toCloseAddress(addressTye, startDate, endDate) mustBe Address(
-        Some("Line 1"),
-        Some("Line 2"),
-        Some("Line 3"),
-        None,
-        None,
-        None,
-        Some("SPAIN"),
-        Some(startDate),
-        Some(endDate),
-        Some(addressTye),
-        false
-      )
-
-    }
-
-    "return address with postcode and an end date" in {
-      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), None, None)
-      val addressTye = "correspondence"
-      val startDate = new LocalDate(2018, 1, 1)
-      val endDate = new LocalDate(now)
-
-      addressDto.toCloseAddress(addressTye, startDate, endDate) mustBe Address(
-        Some("Line 1"),
-        Some("Line 2"),
-        Some("Line 3"),
-        None,
-        None,
-        Some("AA1 1AA"),
-        None,
-        Some(startDate),
-        Some(endDate),
-        Some(addressTye),
-        false
-      )
-
-    }
-  }
-
   "Calling AddressDto.toAddress" must {
 
     "return formatted postcode when it contains 7 characters" in {

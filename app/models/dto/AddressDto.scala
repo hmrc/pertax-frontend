@@ -35,28 +35,15 @@ case class AddressDto(
   country: Option[String],
   propertyRefNo: Option[String]
 ) {
-  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) =
-    Address(
-      Some(line1),
-      Some(line2),
-      line3,
-      line4,
-      line5,
-      postcode.map(formatMandatoryPostCode),
-      country,
-      Some(startDate),
-      Some(endDate),
-      Some(`type`),
-      false
-    )
   def toAddress(`type`: String, startDate: LocalDate) = postcode match {
     case Some(postcode) =>
+      println("4" * 100)
       Address(
         Some(line1),
         Some(line2),
-        line3,
-        line4,
-        line5,
+        lineOrderCheck(LineThree),
+        lineOrderCheck(LineFour),
+        lineOrderCheck(LineFive),
         Some(formatMandatoryPostCode(postcode)),
         None,
         Some(startDate),
@@ -65,12 +52,47 @@ case class AddressDto(
         false
       )
     case None =>
+      println("5" * 100)
       Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`), false)
   }
 
-  def toList: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
-  def toListWithCountry: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
+  def lineOrderCheck(lineNumber: LineNumberCheck) =
+    lineNumber match {
+      case LineThree =>
+        line3 match {
+          case Some(value)            => Some(value)
+          case None if line4.nonEmpty => line4
+          case None if line5.nonEmpty => line5
+          case _                      => None
+        }
+      case LineFour =>
+        line4 match {
+          case Some(_) if line3.isEmpty && line5.nonEmpty => line5
+          case Some(_) if line3.isEmpty                   => None
+          case None if line3.nonEmpty && line5.nonEmpty   => line5
+          case Some(value)                                => Some(value)
+          case _                                          => None
+        }
+      case LineFive =>
+        println("^" * 100)
+        line5 match {
+          case Some(_) if line3.isEmpty || line4.isEmpty => None
+          case Some(value)                               => Some(value)
+          case _                                         => None
+        }
+    }
+
+  def toList: Seq[String] = {
+    println("6" * 100)
+
+    Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
+  }
+  def toListWithCountry: Seq[String] = {
+    println("7" * 100)
+    Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
+  }
   def formatMandatoryPostCode(postCode: String): String = {
+    println("8" * 100)
     val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
     val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
     postCodeSplit._1 + " " + postCodeSplit._2
@@ -82,14 +104,18 @@ object AddressDto extends CountryHelper {
   implicit val formats = Json.format[AddressDto]
 
   def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
+
+    println("2" * 100)
+
     val address = addressRecord.address
     val List(line1, line2, line3, line4, line5) =
       (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
+
     AddressDto(
       line1.getOrElse(""),
       line2.getOrElse(""),
-      line3,
-      line4,
+      Some(line3.getOrElse(line4.getOrElse(line5.getOrElse("")))),
+      Some(line4.getOrElse(line5.getOrElse(""))),
       line5,
       Some(address.postcode),
       Some(address.country.toString),
