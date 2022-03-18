@@ -37,7 +37,6 @@ case class AddressDto(
 ) {
   def toAddress(`type`: String, startDate: LocalDate) = postcode match {
     case Some(postcode) =>
-      println("4" * 100)
       Address(
         Some(line1),
         Some(line2),
@@ -52,7 +51,6 @@ case class AddressDto(
         false
       )
     case None =>
-      println("5" * 100)
       Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`), false)
   }
 
@@ -74,7 +72,6 @@ case class AddressDto(
           case _                                          => None
         }
       case LineFive =>
-        println("^" * 100)
         line5 match {
           case Some(_) if line3.isEmpty || line4.isEmpty => None
           case Some(value)                               => Some(value)
@@ -82,17 +79,13 @@ case class AddressDto(
         }
     }
 
-  def toList: Seq[String] = {
-    println("6" * 100)
-
+  def toList: Seq[String] =
     Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
-  }
-  def toListWithCountry: Seq[String] = {
-    println("7" * 100)
+
+  def toListWithCountry: Seq[String] =
     Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
-  }
+
   def formatMandatoryPostCode(postCode: String): String = {
-    println("8" * 100)
     val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
     val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
     postCodeSplit._1 + " " + postCodeSplit._2
@@ -104,8 +97,6 @@ object AddressDto extends CountryHelper {
   implicit val formats = Json.format[AddressDto]
 
   def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
-
-    println("2" * 100)
 
     val address = addressRecord.address
     val List(line1, line2, line3, line4, line5) =
@@ -134,13 +125,13 @@ object AddressDto extends CountryHelper {
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
       "line3" -> optional(text)
-        .verifying("error.line3_contains_more_than_35_characters", _.size <= 35)
+        .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
       "line4" -> optional(text)
-        .verifying("error.line4_contains_more_than_35_characters", _.size <= 35)
+        .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
       "line5" -> optional(text)
-        .verifying("error.line5_contains_more_than_35_characters", _.size <= 35)
+        .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
       "postcode" -> optional(text)
         .verifying(

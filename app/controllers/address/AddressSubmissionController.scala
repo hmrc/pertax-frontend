@@ -139,10 +139,6 @@ class AddressSubmissionController @Inject() (
                     addressDto
                       .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
 
-                  println("1" * 100)
-                  println(address)
-                  println("1" * 100)
-
                   val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
                   addressMovedService.moved(originalPostcode, address.postcode.getOrElse("")).flatMap {
