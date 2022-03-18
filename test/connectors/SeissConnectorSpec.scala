@@ -26,10 +26,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.await
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.http.{JsValidationException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.UserRequestFixture.buildUserRequest
 import util.{BaseSpec, WireMockHelper}
 import play.api.test.Helpers.defaultAwaitTimeout
+import play.api.libs.json.JsResultException
 
 import java.util.UUID
 
@@ -113,6 +114,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
           sut
             .getClaims(utr.toString())
+            .value
             .futureValue mustBe Right(List(SeissModel("1234567890")))
         }
       }
@@ -130,6 +132,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
           sut
             .getClaims(utr.toString())
+            .value
             .futureValue mustBe Right(List())
 
         }
@@ -144,6 +147,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
             sut
               .getClaims(utr.toString())
+              .value
               .futureValue
               .left
               .get mustBe a[UpstreamErrorResponse]
@@ -161,6 +165,7 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
 
         sut
           .getClaims(utr.toString())
+          .value
           .futureValue
           .left
           .get mustBe a[UpstreamErrorResponse]
@@ -173,8 +178,8 @@ class SeissConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPa
           post(urlEqualTo(url)).willReturn(ok("""{"invalid":"invalid"}"""))
         )
 
-        a[JsValidationException] mustBe thrownBy(
-          await(sut.getClaims(utr.toString()))
+        a[JsResultException] mustBe thrownBy(
+          await(sut.getClaims(utr.toString()).value)
         )
       }
     }

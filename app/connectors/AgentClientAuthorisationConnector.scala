@@ -100,9 +100,13 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
   httpClientResponse: HttpClientResponse
 ) extends AgentClientAuthorisationConnector with Throttle with Timeout with Logging {
 
-  lazy val agentClientAuthorisationUrl = servicesConfig.baseUrl("agent-client-authorisation")
-  lazy val agentClientAuthorisationRateLimit =
-    servicesConfig.getConfInt("feature.agent-client-authorisation.rateLimit", Int.MaxValue).toDouble
+  lazy val baseUrl = servicesConfig.baseUrl("agent-client-authorisation")
+  lazy val maxTps =
+    servicesConfig.getConfInt("feature.agent-client-authorisation.maxTps", Int.MaxValue).toDouble
+  lazy val waitInSec =
+    servicesConfig.getConfInt("feature.agent-client-authorisation.waitInSec", 20)
+  lazy val timeoutInSec =
+    servicesConfig.getConfInt("feature.agent-client-authorisation.timeoutInSec", 20)
 
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
@@ -112,10 +116,10 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     val timerContext: Timer.Context =
       metrics.startTimer(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)
 
-    val result = withThrottle(agentClientAuthorisationRateLimit) {
-      withTimeout(5 seconds) {
+    val result = withThrottle(maxTps, waitInSec seconds) {
+      withTimeout(timeoutInSec seconds) {
         httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$agentClientAuthorisationUrl/status")
+          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$baseUrl/agent-client-authorisation/status")
           .map { response =>
             timerContext.stop()
             response

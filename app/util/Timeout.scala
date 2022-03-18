@@ -19,16 +19,20 @@ package util
 import scala.concurrent._
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
-import com.google.inject.Inject
+import play.api.Logging
 
-trait Timeout {
+case object FutureEarlyTimeout extends RuntimeException
+
+trait Timeout extends Logging {
   private val system: ActorSystem = ActorSystem()
 
   def withTimeout[A](timeoutDuration: FiniteDuration)(block: => Future[A])(implicit ec: ExecutionContext): Future[A] = {
     val delayedFuture =
-      akka.pattern.after(timeoutDuration, system.scheduler)(
-        Future.failed(new IllegalStateException("response took too long"))
-      )
+      akka.pattern.after(timeoutDuration, system.scheduler) {
+        val exception = new RuntimeException(s"Future took longer than ${timeoutDuration.toSeconds}s")
+        logger.error(exception.getMessage + "\n" + exception.getStackTrace.mkString("\n"))
+        Future.failed(FutureEarlyTimeout)
+      }
 
     Future.firstCompletedOf(Seq(block, delayedFuture))
   }

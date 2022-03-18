@@ -38,17 +38,23 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
 
   val timers = Map(
     MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
-      .timer("get-agent-client-status-timer")
+      .timer("get-agent-client-status-timer"),
+    MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
+      .timer("get-seiss-claims-timer")
   )
 
   val successCounters = Map(
     MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
-      .counter("get-agent-client-status-success-counter")
+      .counter("get-agent-client-status-success-counter"),
+    MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
+      .counter("get-seiss-claims-success-counter")
   )
 
   val failedCounters = Map(
     MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
-      .counter("get-agent-client-status-failed-counter")
+      .counter("get-agent-client-status-failed-counter"),
+    MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
+      .counter("get-seiss-claims-failed-counter")
   )
 
   override def startTimer(api: MetricsEnumeration): Context = timers(api).time()

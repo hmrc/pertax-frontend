@@ -17,8 +17,10 @@
 package util
 
 import com.google.common.util.concurrent.RateLimiter
-
-import scala.concurrent.{Future, duration}
+import play.api.Logging
+import scala.concurrent.duration._
+import scala.compat.java8.DurationConverters._
+import scala.concurrent.Future
 
 object Limiters {
   private var rateLimiter: Option[RateLimiter] = None
@@ -32,14 +34,18 @@ object Limiters {
 
 case object RateLimitedException extends RuntimeException
 
-trait Throttle {
-  def withThrottle[A](tps: Double)(
+trait Throttle extends Logging {
+  def withThrottle[A](tps: Double, wait: FiniteDuration)(
     block: => Future[A]
   ): Future[A] = {
     val rateLimiter = Limiters.getInstance(tps)
-    if (rateLimiter.tryAcquire(5, duration.SECONDS)) {
+    if (rateLimiter.tryAcquire(wait.toJava)) {
       block
     } else {
+      val exception = new RuntimeException(
+        s"Request failed to acquire a permit at a tps of $tps and a waiting time of ${wait.toSeconds}s"
+      )
+      logger.error(exception.getMessage + "\n" + exception.getStackTrace.mkString("\n"))
       Future.failed(RateLimitedException)
     }
   }
