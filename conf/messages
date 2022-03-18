@@ -471,14 +471,10 @@ body.seiss=View your SEISS grants.
 # ITSA
 #
 label.your_self_assessment=Your Self Assessment
-label.current_tax_year_range={0} to {1} tax year
-label.previous_tax_year_range={0} to {1} tax year and earlier
-label.making_tax_digital=Making Tax Digital (MTD) is your new method of Income Tax Self Assessment (ITSA).
 label.view_and_manage_your_mtd_for_itsa=View and manage your MTD for ITSA
 label.view_and_manage_your_earlier_self_assessment_years=View and manage your earlier Self Assessment years
 label.online_returns_deadline= The deadline for online returns is 31 January {0}.
-label.view_manage_mtd_for_sa= View and manage Making Tax Digital for Income Tax Self Assessment
-abel.online_returns_deadline= The deadline for online returns is 31 January {0}.
+label.view_manage_mtd_for_sa=View and manage Making Tax Digital for Income Tax Self Assessment
 label.new_way_using_hmrc_sw=This is the new way, using HMRC recognised software.
 label.view_manage_your_mtd_for_sa=View and manage your Making Tax Digital for Income Tax Self Assessment
 label.itsa_header=Income Tax Self Assessment

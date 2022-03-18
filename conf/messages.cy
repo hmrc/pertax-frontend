@@ -420,7 +420,7 @@ label.make_a_payment=Gwneud taliad
 label.view_your_payments=Bwrw golwg dros eich taliadau
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
-label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad.
 label.not_enrolled.content=Rydych wedi cofrestru ar gyfer Hunanasesiad. I ddefnyddio’ch cyfrif Hunanasesiad ar-lein, mae’n rhaid i chi wneud cais i gael mynediad ato.
 label.not_enrolled.link.text=Gwneud cais i gael mynediad at eich Hunanasesiad
 
@@ -441,11 +441,15 @@ body.seiss=Bwrw golwg dros eich hawliadau SEISS.
 # ITSA
 #
 label.your_self_assessment=Eich Hunanasesiad
-label.current_tax_year_range={0} i {1} blwyddyn dreth
-label.previous_tax_year_range={0} i {1} flwyddyn dreth ac yn gynharach
-label.making_tax_digital=Troi Treth yn Ddigidol (MTD) yw eich dull newydd o Hunanasesiad Treth Incwm (ITSA)
 label.view_and_manage_your_mtd_for_itsa=Gweld a rheoli eich MTD ar gyfer ITSA
 label.view_and_manage_your_earlier_self_assessment_years=Gweld a rheoli eich blynyddoedd Hunanasesiad cynharach
+label.online_returns_deadline= Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.view_manage_mtd_for_sa=Gweld a rheoli Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm
+label.new_way_using_hmrc_sw=Dyma’r ffordd newydd, o ddefnyddio meddalwedd a gydnabyddir gan CThEM.
+label.view_manage_your_mtd_for_sa=Gweld a rheoli eich Hunanasesiad Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.itsa_header=Hunanasesiad Treth Incwm
+label.view_manage_sa_returns=Gweld a rheoli eich Ffurflenni Treth Hunanasesiad
+label.old_way_sa_returns=Dyma’r hen ffordd o gyflwyno’ch Ffurflenni Treth Hunanasesiad.
 
 #
 # Benefits
