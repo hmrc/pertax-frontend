@@ -98,9 +98,7 @@ class InterstitialController @Inject() (
       } yield Ok(
         viewItsaInterstitialHomeView(
           redirectUrl = currentUrl(request),
-          currentTaxYear = current.currentYear.toString,
-          currentTaxYearMinusOne = current.previous.currentYear.toString,
-          currentTaxYearMinusTwo = current.previous.previous.currentYear.toString,
+          nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
           enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
           hasSeissClaims,

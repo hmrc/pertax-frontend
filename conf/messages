@@ -448,7 +448,7 @@ label.make_a_payment=Make a payment
 label.view_your_payments=View your payments
 label.check_if_you_need_to_fill_in_a_tax_return=Check if you need to fill in a tax return
 label.find_out_how_to_access_self_assessment=Find out how to access Self Assessment
-label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return. The deadline for online returns is 31 January {0}.
+label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=View and manage your Self Assessment tax return.
 label.national_insurance=National Insurance
 label.you_have_a_national_insurance_number_to_make_sure_your_national_insurance_=You have a National Insurance number to make sure your National Insurance contributions and tax are recorded against your name only.
 label.your_national_insurance_number_is_your_unique_identifier=Your National Insurance number is your unique identifier.
@@ -476,6 +476,14 @@ label.previous_tax_year_range={0} to {1} tax year and earlier
 label.making_tax_digital=Making Tax Digital (MTD) is your new method of Income Tax Self Assessment (ITSA).
 label.view_and_manage_your_mtd_for_itsa=View and manage your MTD for ITSA
 label.view_and_manage_your_earlier_self_assessment_years=View and manage your earlier Self Assessment years
+label.online_returns_deadline= The deadline for online returns is 31 January {0}.
+label.view_manage_mtd_for_sa= View and manage Making Tax Digital for Income Tax Self Assessment
+abel.online_returns_deadline= The deadline for online returns is 31 January {0}.
+label.new_way_using_hmrc_sw=This is the new way, using HMRC recognised software.
+label.view_manage_your_mtd_for_sa=View and manage your Making Tax Digital for Income Tax Self Assessment
+label.itsa_header=Income Tax Self Assessment
+label.view_manage_sa_returns=View and manage your Self Assessment tax returns
+label.old_way_sa_returns=This is the old way for filing your Self Assessment tax returns.
 
 #
 # Benefits
