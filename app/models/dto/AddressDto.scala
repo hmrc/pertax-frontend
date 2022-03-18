@@ -107,14 +107,14 @@ object AddressDto extends CountryHelper {
         .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
-        .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+      "line3" -> optional(text)
+        .verifying("error.line3_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line4" -> optionalTextIfFieldsHaveContent("line5")
-        .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+      "line4" -> optional(text)
+        .verifying("error.line4_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
       "line5" -> optional(text)
-        .verifying("error.line5_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
+        .verifying("error.line5_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line5_invalid_characters", e => validateAddressLineCharacters(e)),
       "postcode" -> optional(text)
         .verifying(
@@ -140,10 +140,10 @@ object AddressDto extends CountryHelper {
         .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
+      "line3" -> optional(text)
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line4" -> optionalTextIfFieldsHaveContent("line5")
+      "line4" -> optional(text)
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
       "line5" -> optional(text)
