@@ -35,7 +35,7 @@ case class AddressDto(
   country: Option[String],
   propertyRefNo: Option[String]
 ) {
-  def toAddress(`type`: String, startDate: LocalDate) = postcode match {
+  def toAddress(`type`: String, startDate: LocalDate): Address = postcode match {
     case Some(postcode) =>
       Address(
         Some(line1),
@@ -54,7 +54,7 @@ case class AddressDto(
       Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`), false)
   }
 
-  def lineOrderCheck(lineNumber: LineNumberCheck) =
+  def lineOrderCheck(lineNumber: LineNumberCheck): Option[String] =
     lineNumber match {
       case LineThree =>
         line3 match {
