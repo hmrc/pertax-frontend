@@ -39,9 +39,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
   def hasLink(document: Document, content: String, href: String)(implicit messages: Messages): Assertion =
     document.getElementsMatchingText(content).hasAttr("href") mustBe true
 
-  val currentTaxYear = current.currentYear.toString
-  val currentTaxYearMinusOne = current.previous.currentYear.toString
-  val currentTaxYearMinusTwo = current.previous.previous.currentYear.toString
+  val nextDeadlineTaxYear = (current.currentYear + 1).toString
   val saUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
 
   trait SelfAssessmentLocalSetup {
@@ -56,9 +54,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
     def selfAssessmentDoc: Document = asDocument(
       viewItsaInterstitialHomeView(
         s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
-        currentTaxYear,
-        currentTaxYearMinusOne,
-        currentTaxYearMinusTwo,
+        nextDeadlineTaxYear,
         false,
         true,
         false,
@@ -76,9 +72,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         asDocument(
           viewItsaInterstitialHomeView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
-            currentTaxYear,
-            currentTaxYearMinusOne,
-            currentTaxYearMinusTwo,
+            nextDeadlineTaxYear,
             true,
             false,
             false,
@@ -87,12 +81,12 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
           ).toString
         )
 
-      doc.text() must include(Messages("label.your_self_assessment"))
-      doc.text() must include(Messages("label.current_tax_year_range", currentTaxYearMinusOne, currentTaxYear))
-      doc.text() must include(Messages("label.making_tax_digital"))
+      doc.text() must include(Messages("label.itsa_header"))
+      doc.text() must include(Messages("label.view_manage_mtd_for_sa"))
+      doc.text() must include(Messages("label.new_way_using_hmrc_sw"))
       hasLink(
         doc,
-        Messages("label.view_and_manage_your_mtd_for_itsa"),
+        Messages("label.view_manage_your_mtd_for_sa"),
         s"${configDecorator.itsaViewUrl}"
       )
     }
@@ -105,9 +99,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
           asDocument(
             viewItsaInterstitialHomeView(
               s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
-              currentTaxYear,
-              currentTaxYearMinusOne,
-              currentTaxYearMinusTwo,
+              nextDeadlineTaxYear,
               false,
               true,
               false,
@@ -118,7 +110,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         doc.text() must include(Messages("label.your_self_assessment"))
         doc.text() must include(
-          Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)
+          Messages("label.online_returns_deadline", nextDeadlineTaxYear)
         )
 
         hasLink(
@@ -134,13 +126,12 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
         selfAssessmentDoc.text() must include(
-          Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne)
+          Messages("label.online_returns_deadline", nextDeadlineTaxYear)
         )
-        selfAssessmentDoc.text() must include(Messages("label.view_and_manage_your_earlier_self_assessment_years"))
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.self_assessment"),
+          messages("label.view_and_manage_your_earlier_self_assessment_years"),
           "/personal-account/self-assessment-summary"
         )
 
@@ -169,26 +160,11 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         )
       }
 
-      "the user is not an Activated SA user" in new SelfAssessmentLocalSetup {
-
-        override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
-
-        selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
-        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.link.text"))
-
-        hasLink(
-          selfAssessmentDoc,
-          messages("label.self_assessment"),
-          "/personal-account/sa-enrolment"
-        )
-      }
-
       "the user is a Not-yet Activated SA user" in new SelfAssessmentLocalSetup {
 
         override val user: SelfAssessmentUser = NotYetActivatedOnlineFilerSelfAssessmentUser(saUtr)
 
         selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
-        selfAssessmentDoc.text() must include(Messages("label.activate_your_self_assessment"))
 
         hasLink(
           selfAssessmentDoc,
@@ -202,7 +178,6 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         override val user: SelfAssessmentUser = WrongCredentialsSelfAssessmentUser(saUtr)
 
         selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
-        selfAssessmentDoc.text() must include(Messages("label.find_out_how_to_access_self_assessment"))
 
         hasLink(
           selfAssessmentDoc,
@@ -216,7 +191,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         override val user: SelfAssessmentUser = NotEnrolledSelfAssessmentUser(saUtr)
 
         selfAssessmentDoc.text() must include(Messages("label.your_self_assessment"))
-        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.link.text"))
+        selfAssessmentDoc.text() must include(Messages("label.not_enrolled.content"))
 
         hasLink(
           selfAssessmentDoc,
@@ -232,9 +207,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         asDocument(
           viewItsaInterstitialHomeView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
-            currentTaxYear,
-            currentTaxYearMinusOne,
-            currentTaxYearMinusTwo,
+            nextDeadlineTaxYear,
             false,
             false,
             true,
@@ -253,33 +226,82 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
       )
     }
 
-    "show content for Itsa , SA , Seiss when all the conditions are true" in {
+    "show content for Itsa , SA , Seiss when all the conditions are true with SA Enrolled" in {
 
       val doc =
         asDocument(
           viewItsaInterstitialHomeView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
-            currentTaxYear,
-            currentTaxYearMinusOne,
-            currentTaxYearMinusTwo,
+            nextDeadlineTaxYear,
             true,
             true,
             true,
             previousAndCurrentTaxYear,
-            userRequest.saUserType
+            ActivatedOnlineFilerSelfAssessmentUser(saUtr)
           ).toString
         )
 
-      doc.text() must include(Messages("label.your_self_assessment"))
+      doc.text() must include(Messages("label.itsa_header"))
+      doc.text() must include(Messages("label.view_manage_mtd_for_sa"))
+      doc.text() must include(Messages("label.new_way_using_hmrc_sw"))
+      doc.text() must include(Messages("label.view_manage_sa_returns"))
+      doc.text() must include(Messages("label.old_way_sa_returns"))
+
       doc.text() must include(Messages("title.seiss"))
-      doc.text() must include(Messages("label.current_tax_year_range", currentTaxYearMinusOne, currentTaxYear))
-      doc.text() must include(Messages("label.previous_tax_year_range", currentTaxYearMinusTwo, currentTaxYearMinusOne))
 
       hasLink(
         doc,
-        Messages("label.view_and_manage_your_earlier_self_assessment_years"),
+        Messages("label.view_manage_your_mtd_for_sa"),
+        s"${configDecorator.itsaViewUrl}"
+      )
+
+      hasLink(
+        doc,
+        Messages("label.view_manage_sa_returns"),
         "/personal-account/self-assessment-summary"
       )
+
+      hasLink(
+        doc,
+        Messages("body.seiss"),
+        s"${configDecorator.seissClaimsUrl}"
+      )
+    }
+
+    "show content for Itsa , SA , Seiss when all the conditions are true with SA not Enrolled" in {
+
+      val doc =
+        asDocument(
+          viewItsaInterstitialHomeView(
+            s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
+            nextDeadlineTaxYear,
+            true,
+            true,
+            true,
+            previousAndCurrentTaxYear,
+            NotEnrolledSelfAssessmentUser(saUtr)
+          ).toString
+        )
+
+      doc.text() must include(Messages("label.itsa_header"))
+      doc.text() must include(Messages("label.view_manage_mtd_for_sa"))
+      doc.text() must include(Messages("label.new_way_using_hmrc_sw"))
+      doc.text() must include(Messages("label.view_manage_sa_returns"))
+      doc.text() must include(Messages("label.not_enrolled.content"))
+      doc.text() must include(Messages("title.seiss"))
+
+      hasLink(
+        doc,
+        Messages("label.view_manage_your_mtd_for_sa"),
+        s"${configDecorator.itsaViewUrl}"
+      )
+
+      hasLink(
+        doc,
+        messages("label.not_enrolled.link.text"),
+        "/personal-account/sa-enrolment"
+      )
+
       hasLink(
         doc,
         Messages("body.seiss"),

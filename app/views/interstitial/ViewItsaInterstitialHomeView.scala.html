@@ -41,7 +41,6 @@
             @if(isSa) {
                 @if(isItsa) {
                     <h2 class="govuk-heading-m">@messages("label.view_manage_sa_returns")</h2>
-
                 }
                 @saActionNeeded match {
                     case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
@@ -86,7 +85,7 @@
                         </ul>
                     }
                     case NotEnrolledSelfAssessmentUser(saUtr) => {
-                        <p>label.not_enrolled.content</p>
+                        <p>@messages("label.not_enrolled.content")</p>
                         <ul class="govuk-list">
                             <li>
                                 <a class="ga-track-anchor-click" href="@controllers.routes.SelfAssessmentController.redirectToEnrolForSa()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Request access to your Self Assessment">@messages("label.not_enrolled.link.text")</a>
