@@ -35,7 +35,7 @@ case class AddressDto(
   country: Option[String],
   propertyRefNo: Option[String]
 ) {
-  def toAddress(addressDto: AddressDto, `type`: String, startDate: LocalDate): Address =
+  def toAddress(`type`: String, startDate: LocalDate): Address =
     postcode match {
       case Some(postcode) =>
         val address = Address(
@@ -51,16 +51,9 @@ case class AddressDto(
           Some(`type`),
           false
         )
-
         val List(arg1, arg2, arg3, arg4, arg5) =
           address.lines.map(s => Option(s).filter(_.trim.nonEmpty)).padTo(5, None)
-
-        println("1" * 100)
-        println(address.copy(arg1, arg2, arg3, arg4, arg5))
-        println("1" * 100)
-
         address.copy(arg1, arg2, arg3, arg4, arg5)
-
       case None =>
         val address = Address(
           Some(line1),
@@ -75,14 +68,8 @@ case class AddressDto(
           Some(`type`),
           false
         )
-
         val List(arg1, arg2, arg3, arg4, arg5) =
           address.lines.map(s => Option(s).filter(_.trim.nonEmpty)).padTo(5, None)
-
-        println("2" * 100)
-        println(address.copy(arg1, arg2, arg3, arg4, arg5))
-        println("2" * 100)
-
         address.copy(arg1, arg2, arg3, arg4, arg5)
     }
 

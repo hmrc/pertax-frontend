@@ -138,7 +138,6 @@ class AddressSubmissionController @Inject() (
                   val address =
                     addressDto
                       .toAddress(
-                        addressDto,
                         addressType,
                         journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate)
                       )
