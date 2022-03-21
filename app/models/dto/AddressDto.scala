@@ -35,48 +35,55 @@ case class AddressDto(
   country: Option[String],
   propertyRefNo: Option[String]
 ) {
-  def toAddress(`type`: String, startDate: LocalDate): Address = postcode match {
-    case Some(postcode) =>
-      Address(
-        Some(line1),
-        Some(line2),
-        lineOrderCheck(LineThree),
-        lineOrderCheck(LineFour),
-        lineOrderCheck(LineFive),
-        Some(formatMandatoryPostCode(postcode)),
-        None,
-        Some(startDate),
-        None,
-        Some(`type`),
-        false
-      )
-    case None =>
-      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`), false)
-  }
+  def toAddress(addressDto: AddressDto, `type`: String, startDate: LocalDate): Address =
+    postcode match {
+      case Some(postcode) =>
+        val address = Address(
+          Some(line1),
+          Some(line2),
+          line3,
+          line4,
+          line5,
+          Some(formatMandatoryPostCode(postcode)),
+          None,
+          Some(startDate),
+          None,
+          Some(`type`),
+          false
+        )
 
-  def lineOrderCheck(lineNumber: LineNumberCheck): Option[String] =
-    lineNumber match {
-      case LineThree =>
-        line3 match {
-          case Some(value)            => Some(value)
-          case None if line4.nonEmpty => line4
-          case None if line5.nonEmpty => line5
-          case _                      => None
-        }
-      case LineFour =>
-        line4 match {
-          case Some(_) if line3.isEmpty && line5.nonEmpty => line5
-          case Some(_) if line3.isEmpty                   => None
-          case None if line3.nonEmpty && line5.nonEmpty   => line5
-          case Some(value)                                => Some(value)
-          case _                                          => None
-        }
-      case LineFive =>
-        line5 match {
-          case Some(_) if line3.isEmpty || line4.isEmpty => None
-          case Some(value)                               => Some(value)
-          case _                                         => None
-        }
+        val List(arg1, arg2, arg3, arg4, arg5) =
+          address.lines.map(s => Option(s).filter(_.trim.nonEmpty)).padTo(5, None)
+
+        println("1" * 100)
+        println(address.copy(arg1, arg2, arg3, arg4, arg5))
+        println("1" * 100)
+
+        address.copy(arg1, arg2, arg3, arg4, arg5)
+
+      case None =>
+        val address = Address(
+          Some(line1),
+          Some(line2),
+          line3,
+          line4,
+          line5,
+          None,
+          country,
+          Some(startDate),
+          None,
+          Some(`type`),
+          false
+        )
+
+        val List(arg1, arg2, arg3, arg4, arg5) =
+          address.lines.map(s => Option(s).filter(_.trim.nonEmpty)).padTo(5, None)
+
+        println("2" * 100)
+        println(address.copy(arg1, arg2, arg3, arg4, arg5))
+        println("2" * 100)
+
+        address.copy(arg1, arg2, arg3, arg4, arg5)
     }
 
   def toList: Seq[String] =

@@ -137,7 +137,11 @@ class AddressSubmissionController @Inject() (
                 ) { addressDto =>
                   val address =
                     addressDto
-                      .toAddress(addressType, journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate))
+                      .toAddress(
+                        addressDto,
+                        addressType,
+                        journeyData.submittedStartDateDto.fold(LocalDate.now)(_.startDate)
+                      )
 
                   val originalPostcode = personDetails.address.flatMap(_.postcode).getOrElse("")
 
