@@ -19,6 +19,7 @@ package metrics
 import com.codahale.metrics._
 import com.kenshoo.play.metrics.{Metrics => KenshooMetrics}
 
+@deprecated("Use model.Metrics instead")
 trait HasMetrics {
 
   type Metric = String

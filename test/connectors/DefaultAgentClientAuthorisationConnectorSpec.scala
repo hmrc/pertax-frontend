@@ -25,8 +25,9 @@ import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import util.{BaseSpec, WireMockHelper}
 import com.github.tomakehurst.wiremock.client.WireMock._
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
-class AgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+class DefaultAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .configure(
       "microservice.services.agent-client-authorisation.port" -> server.port()
@@ -40,7 +41,7 @@ class AgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper
   implicit val userRequest = FakeRequest()
 
   "Calling DefaultAgentClientAuthorisationConnector.getAgentClientStatus" must {
-    "return an AgentClientStatus object" in {
+    "return a Right AgentClientStatus object" in {
       val expected = AgentClientStatus(true, true, true)
       val response = Json.toJson(expected).toString
 
@@ -51,6 +52,16 @@ class AgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper
       val result = sut.getAgentClientStatus.value.futureValue
 
       result mustBe Right(expected)
+    }
+
+    "return a Left UpstreamErrorResponse object" in {
+      server.stubFor(
+        get(urlEqualTo(url)).willReturn(serverError)
+      )
+
+      val result = sut.getAgentClientStatus.value.futureValue
+
+      result.left.get mustBe a[UpstreamErrorResponse]
     }
   }
 }
