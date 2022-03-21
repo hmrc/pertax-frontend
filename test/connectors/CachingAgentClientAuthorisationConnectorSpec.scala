@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{get, serverError, urlEqu
 import play.api.inject.bind
 import models.AgentClientStatus
 import org.mockito.ArgumentMatchers.{any, eq => eqMockito}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -30,7 +30,8 @@ import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.{BaseSpec, WireMockHelper}
 import cats.implicits._
-import config.ConfigDecorator
+import com.google.inject.name.Names
+import config.{ConfigDecorator, HmrcModule}
 import play.api.libs.json.Reads
 import play.api.mvc.Request
 import uk.gov.hmrc.mongo.MongoComponent
@@ -39,18 +40,24 @@ import uk.gov.hmrc.mongo.cache.DataKey
 import scala.concurrent.Future
 
 class CachingAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
-  val mockAgentClientAuthorisationConnector: AgentClientAuthorisationConnector = mock[AgentClientAuthorisationConnector]
+  val mockAgentClientAuthorisationConnector: AgentClientAuthorisationConnector =
+    mock[AgentClientAuthorisationConnector]
   val mockSessionCacheRepository: SessionCacheRepository = mock[SessionCacheRepository]
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .overrides(
-      bind[AgentClientAuthorisationConnector].toInstance(mockAgentClientAuthorisationConnector),
+      bind(classOf[AgentClientAuthorisationConnector])
+        .qualifiedWith("default")
+        .toInstance(mockAgentClientAuthorisationConnector),
       bind[SessionCacheRepository].toInstance(mockSessionCacheRepository)
     )
     .configure(
       "microservice.services.agent-client-authorisation.port" -> server.port()
     )
     .build()
+
+  override def beforeEach: Unit =
+    reset(mockAgentClientAuthorisationConnector, mockSessionCacheRepository)
 
   def sut: CachingAgentClientAuthorisationConnector = injected[CachingAgentClientAuthorisationConnector]
 
@@ -59,20 +66,60 @@ class CachingAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMoc
   implicit val userRequest = FakeRequest()
 
   "Calling CachingAgentClientAuthorisationConnector.getAgentClientStatus" must {
-    "return a Right AgentClientStatus object" in {
-      val expected = AgentClientStatus(true, true, true)
-      when(mockSessionCacheRepository.getFromSession(any())(any(), any())).thenReturn(
-        Future.successful(None)
-      )
+    "return a Right AgentClientStatus object" when {
+      "no value is cached" in {
+        val expected = AgentClientStatus(true, true, true)
+        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
+          .thenReturn(
+            Future.successful(None)
+          )
+        when(
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+        )
+          .thenReturn(
+            Future.successful(("", ""))
+          )
 
-      when(mockAgentClientAuthorisationConnector.getAgentClientStatus).thenReturn(
-        EitherT.rightT[Future, UpstreamErrorResponse](expected)
-      )
+        when(mockAgentClientAuthorisationConnector.getAgentClientStatus).thenReturn(
+          EitherT.rightT[Future, UpstreamErrorResponse](expected)
+        )
 
-      val result = sut.getAgentClientStatus.value.futureValue
+        val result = sut.getAgentClientStatus.value.futureValue
 
-      result mustBe Right(expected)
-      verify(mockSessionCacheRepository, times(1)).getFromSession(any())(any(), any())
+        result mustBe Right(expected)
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+        verify(mockSessionCacheRepository, times(1))
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+        verify(mockAgentClientAuthorisationConnector, times(1)).getAgentClientStatus
+      }
+
+      "a value is cached" in {
+        val expected = AgentClientStatus(true, true, true)
+        when(mockSessionCacheRepository.getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any()))
+          .thenReturn(
+            Future.successful(Some(expected))
+          )
+
+        when(mockAgentClientAuthorisationConnector.getAgentClientStatus).thenReturn(
+          null
+        )
+        when(
+          mockSessionCacheRepository.putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+        )
+          .thenReturn(
+            null
+          )
+
+        val result = sut.getAgentClientStatus.value.futureValue
+
+        result mustBe Right(expected)
+        verify(mockSessionCacheRepository, times(1))
+          .getFromSession[AgentClientStatus](DataKey(any[String]()))(any(), any())
+        verify(mockSessionCacheRepository, times(0))
+          .putSession[AgentClientStatus](DataKey(any[String]()), any())(any(), any(), any())
+        verify(mockAgentClientAuthorisationConnector, times(0)).getAgentClientStatus
+      }
     }
 
     "return a Left UpstreamErrorResponse object" ignore {
@@ -84,5 +131,6 @@ class CachingAgentClientAuthorisationConnectorSpec extends BaseSpec with WireMoc
 
       result.left.get mustBe a[UpstreamErrorResponse]
     }
+
   }
 }
