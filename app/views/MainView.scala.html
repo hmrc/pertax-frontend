@@ -50,7 +50,7 @@
 
         if(request.personDetails.isDefined) {
             if(request.nino.isDefined) {
-                seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
+                seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad.url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
             }
             seq += Map("url" -> configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
             seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
@@ -101,8 +101,8 @@
 
             Some(AccountMenuStyleComponent(
                 langUrls = Some((
-                        controllers.routes.LanguageSwitchController.enGb().url,
-                        controllers.routes.LanguageSwitchController.cyGb().url
+                        controllers.routes.LanguageSwitchController.enGb.url,
+                        controllers.routes.LanguageSwitchController.cyGb.url
                 )),
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,

@@ -107,14 +107,14 @@ class RlsController @Inject() (
                   Ok(checkYourAddressInterruptView(mainAddress, postalAddress))
                 )
               } else {
-                Future.successful(Redirect(routes.HomeController.index()))
+                Future.successful(Redirect(routes.HomeController.index))
               }
 
             }
             .getOrElse(Future.successful(InternalServerError(internalServerErrorView())))
       }
     } else {
-      Future.successful(Redirect(routes.HomeController.index()))
+      Future.successful(Redirect(routes.HomeController.index))
     }
   }
 }

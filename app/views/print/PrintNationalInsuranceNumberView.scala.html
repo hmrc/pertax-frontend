@@ -28,7 +28,7 @@
 
     <div class="grid-row">
         <div class="column-full">
-            <a class="link-back" href="@controllers.address.routes.PersonalDetailsController.onPageLoad()" data-journey-click="link - click:Your National Insurance letter:Back">@messages("label.back")</a>
+            <a class="link-back" href="@controllers.address.routes.PersonalDetailsController.onPageLoad" data-journey-click="link - click:Your National Insurance letter:Back">@messages("label.back")</a>
 
             <header class="page-heading">
                 <h1 id="page-title" class="heading-xlarge">
@@ -40,7 +40,7 @@
 
             <div class="print-this">
                 <img class="print-this__icon" src="@configDecorator.assetsPrefix/images/icon-print.svg" alt="Print Icon" aria-hidden="true"/>
-                <a class="print-this__link" href="javascript:window.print()" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
+                <a class="print-this__link" href="javascript:window.print" data-journey-click="print - click:Your National Insurance letter:@messages("label.print")">@messages("label.print")</a>
             </div>
             @if(saveNiLetterAsPdfLinkEnabled) {
                 <div class="save-this">

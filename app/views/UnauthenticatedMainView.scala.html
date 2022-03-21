@@ -50,8 +50,8 @@
                 window.GOVUK.timeoutDialog({
                     timeout: @configDecorator.sessionTimeoutInSeconds,
                     countdown: @configDecorator.sessionCountdownInSeconds,
-                    keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive()',
-                    signOutUrl: '@controllers.routes.SessionManagementController.timeOut()',
+                    keepAliveUrl: '@controllers.routes.SessionManagementController.keepAlive',
+                    signOutUrl: '@controllers.routes.SessionManagementController.timeOut',
                 });
         </script>
     }
@@ -79,8 +79,8 @@
 
             Some(AccountMenuStyleComponent(
                 langUrls = Some((
-                        controllers.routes.LanguageSwitchController.enGb().url,
-                        controllers.routes.LanguageSwitchController.cyGb().url
+                        controllers.routes.LanguageSwitchController.enGb.url,
+                        controllers.routes.LanguageSwitchController.cyGb.url
                 )),
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = None,

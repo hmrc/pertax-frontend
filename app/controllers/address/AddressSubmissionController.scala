@@ -78,7 +78,7 @@ class AddressSubmissionController @Inject() (
               !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
             ensuringSubmissionRequirements(typ, journeyData) {
               journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
               ) { addressDto =>
                 Future.successful(
                   Ok(
@@ -97,7 +97,7 @@ class AddressSubmissionController @Inject() (
           } else {
             ensuringSubmissionRequirements(typ, journeyData) {
               journeyData.submittedAddressDto.fold(
-                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
               ) { addressDto =>
                 Future.successful(
                   Ok(
@@ -133,7 +133,7 @@ class AddressSubmissionController @Inject() (
               ensuringSubmissionRequirements(typ, journeyData) {
 
                 journeyData.submittedAddressDto.fold(
-                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+                  Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
                 ) { addressDto =>
                   val address =
                     addressDto
@@ -188,7 +188,7 @@ class AddressSubmissionController @Inject() (
     block: => Future[Result]
   ): Future[Result] =
     if (journeyData.submittedStartDateDto.isEmpty && typ == ResidentialAddrType) {
-      Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+      Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
     } else {
       block
     }

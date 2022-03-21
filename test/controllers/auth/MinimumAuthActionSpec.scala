@@ -51,7 +51,7 @@ class MinimumAuthActionSpec extends BaseSpec {
   val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
 
   class Harness(authAction: MinimumAuthAction) extends AbstractController(cc) {
-    def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
+    def onPageLoad: Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
         s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
           s"trustedHelper: ${request.trustedHelper}"
@@ -66,7 +66,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       val authAction =
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
       redirectLocation(result).get must endWith("/personal-account/signin")
     }
@@ -79,7 +79,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       val authAction =
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
-      val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
+      val result = controller.onPageLoad(FakeRequest("GET", "/foo"))
 
       whenReady(result.failed) { ex =>
         ex mustBe an[InsufficientEnrolments]
@@ -115,7 +115,7 @@ class MinimumAuthActionSpec extends BaseSpec {
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(nino)
     }
@@ -140,7 +140,7 @@ class MinimumAuthActionSpec extends BaseSpec {
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(utr)
     }
@@ -168,7 +168,7 @@ class MinimumAuthActionSpec extends BaseSpec {
         new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
       val controller = new Harness(authAction)
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(nino)
       contentAsString(result) must include(utr)
@@ -202,7 +202,7 @@ class MinimumAuthActionSpec extends BaseSpec {
       )
       val controller = new Harness(authAction)
 
-      val result = controller.onPageLoad()(FakeRequest("", ""))
+      val result = controller.onPageLoad(FakeRequest("", ""))
       status(result) mustBe OK
       contentAsString(result) must include(
         s"Some(TrustedHelper(principalName,attorneyName,returnUrl,$fakePrincipalNino))"

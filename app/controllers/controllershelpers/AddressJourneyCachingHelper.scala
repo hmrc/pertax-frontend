@@ -117,7 +117,7 @@ class AddressJourneyCachingHelper @Inject() (val sessionCache: LocalSessionCache
       case Some(_) =>
         block
       case None =>
-        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
+        Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
     }
 
 }

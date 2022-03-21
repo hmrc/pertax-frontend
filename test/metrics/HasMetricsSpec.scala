@@ -17,7 +17,7 @@
 package metrics
 
 import com.codahale.metrics.Timer
-import com.kenshoo.play.metrics.Metrics
+import com.kenshoo.play.metrics.{Metrics => KenshooMetrics}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{times, when}
@@ -30,7 +30,7 @@ class HasMetricsSpec extends BaseSpec {
       val timer = mock[Timer.Context]
       val metricId = "test"
 
-      override def metrics: Metrics = mock[Metrics]
+      override def metrics: KenshooMetrics = mock[KenshooMetrics]
 
       override val metricsOperator = mock[MetricsOperator]
       when(metricsOperator.startTimer(any())) thenReturn timer

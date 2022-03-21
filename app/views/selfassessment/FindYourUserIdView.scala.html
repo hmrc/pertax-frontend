@@ -25,7 +25,7 @@
 
 @(saUtr: Option[String], ggSignInUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.find_your_user_id.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowUserId().url)) {
+@mainView(messages("title.find_your_user_id.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(controllers.routes.SaWrongCredentialsController.doYouKnowUserId.url)) {
     <div class="grid-row">
         <div class="column-two-thirds">
 

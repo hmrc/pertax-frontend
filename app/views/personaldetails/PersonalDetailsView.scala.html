@@ -119,7 +119,7 @@ case _ => emptyAddressRow(isMainAddress)
                 @personalDetails.map(row => rowsPresenter(row))
 
                 @addressRowsPresenter(addressDetails.mainAddress, true)
-                @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink().toList)
+                @addressRowsPresenter(addressDetails.postalAddress, false, addressDetails.extraPostalAddressLink.toList)
 
                 @trustedHelpers.map(rowsPresenter(_))
                 @paperlessHelpers.map(rowsPresenter(_))

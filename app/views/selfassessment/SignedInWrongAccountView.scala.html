@@ -25,7 +25,7 @@
 
 @()(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@mainView(messages("title.signed_in_wrong_account.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(routes.HomeController.index().url)) {
+@mainView(messages("title.signed_in_wrong_account.h1"), Some(messages("label.your_personal_tax_account")), backlinkUrl = Some(routes.HomeController.index.url)) {
  <div class="grid-row">
    <div class="column-two-thirds">
 

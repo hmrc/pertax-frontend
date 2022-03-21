@@ -25,7 +25,7 @@
 
 @mainView(messages("title.do_you_know_user_id.h1"),
     Some(messages("label.your_personal_tax_account")),
-    backlinkUrl = Some(routes.SaWrongCredentialsController.doYouKnowOtherCredentials().url)) {
+    backlinkUrl = Some(routes.SaWrongCredentialsController.doYouKnowOtherCredentials.url)) {
 
     @saForm(routes.SaWrongCredentialsController.processDoYouKnowUserId, messages("title.do_you_know_user_id.h1"), wrongCredentialsUserForm)
 

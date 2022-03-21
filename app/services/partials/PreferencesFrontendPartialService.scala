@@ -17,8 +17,7 @@
 package services.partials
 
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
-import metrics.HasMetrics
+import metrics.Metrics
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.HttpClient
@@ -29,20 +28,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreferencesFrontendPartialService @Inject() (
-  val http: HttpClient,
-  val metrics: Metrics,
-  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter,
-  val tools: Tools,
-  servicesConfig: ServicesConfig
-)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+  tools: Tools,
+  servicesConfig: ServicesConfig,
+  enhancedPartialRetriever: EnhancedPartialRetriever
+)(implicit executionContext: ExecutionContext) {
 
   val preferencesFrontendUrl = servicesConfig.baseUrl("preferences-frontend")
 
   def getManagePreferencesPartial(returnUrl: String, returnLinkText: String)(implicit
     request: RequestHeader
   ): Future[HtmlPartial] =
-    loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools
+    enhancedPartialRetriever.loadPartial(s"$preferencesFrontendUrl/paperless/manage?returnUrl=${tools
       .encryptAndEncode(returnUrl)}&returnLinkText=${tools.encryptAndEncode(returnLinkText)}")
 
 }

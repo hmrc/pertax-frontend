@@ -38,7 +38,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
         <div class="column-two-thirds">
             @errors(closePostalAddressChoiceForm)
 
-            @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit()) {
+            @form(action = controllers.address.routes.ClosePostalAddressController.onSubmit) {
             <div class="form-group inline">
                 @input_yes_no(
                 closePostalAddressChoiceForm("onPageLoad"),

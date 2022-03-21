@@ -40,21 +40,33 @@ class MetricsImpl @Inject() (metrics: com.kenshoo.play.metrics.Metrics) extends 
     MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
       .timer("get-agent-client-status-timer"),
     MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
-      .timer("get-seiss-claims-timer")
+      .timer("get-seiss-claims-timer"),
+    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
+      .timer("get-unread-message-count-timer"),
+    MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
+      .timer("load-partial-timer")
   )
 
   val successCounters = Map(
     MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
       .counter("get-agent-client-status-success-counter"),
     MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
-      .counter("get-seiss-claims-success-counter")
+      .counter("get-seiss-claims-success-counter"),
+    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
+      .counter("get-unread-message-count-success-counter"),
+    MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
+      .counter("load-partial-success-counter")
   )
 
   val failedCounters = Map(
     MetricsEnumeration.GET_AGENT_CLIENT_STATUS -> metrics.defaultRegistry
       .counter("get-agent-client-status-failed-counter"),
     MetricsEnumeration.GET_SEISS_CLAIMS -> metrics.defaultRegistry
-      .counter("get-seiss-claims-failed-counter")
+      .counter("get-seiss-claims-failed-counter"),
+    MetricsEnumeration.GET_UNREAD_MESSAGE_COUNT -> metrics.defaultRegistry
+      .counter("get-unread-message-count-failed-counter"),
+    MetricsEnumeration.LOAD_PARTIAL -> metrics.defaultRegistry
+      .counter("load-partial-failed-counter")
   )
 
   override def startTimer(api: MetricsEnumeration): Context = timers(api).time()

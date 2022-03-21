@@ -354,7 +354,7 @@ class RlsControllerSpec extends BaseSpec {
         contentAsString(r) mustNot include("""id="main_address"""")
         contentAsString(r) must include("""id="postal_address"""")
         contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
-        contentAsString(r) must include(controllers.address.routes.ClosePostalAddressController.onPageLoad().url)
+        contentAsString(r) must include(controllers.address.routes.ClosePostalAddressController.onPageLoad.url)
       }
     }
 
@@ -379,7 +379,7 @@ class RlsControllerSpec extends BaseSpec {
         contentAsString(r) mustNot include("""id="main_address"""")
         contentAsString(r) must include("""id="postal_address"""")
         contentAsString(r) must include("You need to update your postal address to receive post from HMRC.")
-        contentAsString(r) mustNot include(controllers.address.routes.ClosePostalAddressController.onPageLoad().url)
+        contentAsString(r) mustNot include(controllers.address.routes.ClosePostalAddressController.onPageLoad.url)
 
       }
     }

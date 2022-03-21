@@ -12,9 +12,9 @@ import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 val appName = "pertax-frontend"
 
-scalaVersion := "2.12.11"
+scalaVersion := "2.12.15"
 
-val silencerVersion = "1.7.0"
+val silencerVersion = "1.7.8"
 
 lazy val plugins: Seq[Plugins] =
   Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)

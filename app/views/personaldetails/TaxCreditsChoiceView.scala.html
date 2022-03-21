@@ -36,7 +36,7 @@ configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: 
 
         @errors(taxCreditsChoiceForm)
 
-        @form(action = controllers.address.routes.TaxCreditsChoiceController.onSubmit(), 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
+        @form(action = controllers.address.routes.TaxCreditsChoiceController.onSubmit, 'class -> "send-tcs-ga-event", Symbol{"data-tcs-ga-event-url"} -> tcsChangeAddressUrl) {
           <div class="form-group inline">
             @input_yes_no(
               taxCreditsChoiceForm("taxCreditsChoice"),
