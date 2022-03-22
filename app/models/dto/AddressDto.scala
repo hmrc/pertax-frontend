@@ -99,8 +99,8 @@ object AddressDto extends CountryHelper {
     AddressDto(
       line1.getOrElse(""),
       line2.getOrElse(""),
-      Some(line3.getOrElse(line4.getOrElse(line5.getOrElse("")))),
-      Some(line4.getOrElse(line5.getOrElse(""))),
+      line3,
+      line4,
       line5,
       Some(address.postcode),
       Some(address.country.toString),
