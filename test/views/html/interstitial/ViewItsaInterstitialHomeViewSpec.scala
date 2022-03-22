@@ -115,7 +115,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         hasLink(
           doc,
-          Messages("label.view_and_manage_your_earlier_self_assessment_years"),
+          Messages("label.view_manage_sa_returns"),
           "/personal-account/self-assessment-summary"
         )
       }
@@ -131,7 +131,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.view_and_manage_your_earlier_self_assessment_years"),
+          messages("label.view_manage_sa_returns"),
           "/personal-account/self-assessment-summary"
         )
 
