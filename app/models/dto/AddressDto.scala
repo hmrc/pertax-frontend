@@ -38,7 +38,7 @@ case class AddressDto(
   def toAddress(`type`: String, startDate: LocalDate): Address =
     postcode match {
       case Some(postcode) =>
-        val address = Address(
+        Address(
           Some(line1),
           Some(line2),
           line3,
@@ -51,11 +51,8 @@ case class AddressDto(
           Some(`type`),
           false
         )
-        val List(arg1, arg2, arg3, arg4, arg5) =
-          address.lines.map(s => Option(s).filter(_.trim.nonEmpty)).padTo(5, None)
-        address.copy(arg1, arg2, arg3, arg4, arg5)
       case None =>
-        val address = Address(
+        Address(
           Some(line1),
           Some(line2),
           line3,
@@ -68,9 +65,6 @@ case class AddressDto(
           Some(`type`),
           false
         )
-        val List(arg1, arg2, arg3, arg4, arg5) =
-          address.lines.map(s => Option(s).filter(_.trim.nonEmpty)).padTo(5, None)
-        address.copy(arg1, arg2, arg3, arg4, arg5)
     }
 
   def toList: Seq[String] =
@@ -87,6 +81,22 @@ case class AddressDto(
 }
 
 object AddressDto extends CountryHelper {
+
+  def apply(
+    line1: String,
+    line2: String,
+    line3: Option[String],
+    line4: Option[String],
+    line5: Option[String],
+    postcode: Option[String],
+    country: Option[String],
+    propertyRefNo: Option[String]
+  ): AddressDto = {
+
+    val List(newLine3, newLine4, newLine5) =
+      List(line3, line4, line5).filter(op => op.exists(line => line.nonEmpty)).padTo(3, None)
+    new AddressDto(line1, line2, newLine3, newLine4, newLine5, postcode, country, propertyRefNo)
+  }
 
   implicit val formats = Json.format[AddressDto]
 
