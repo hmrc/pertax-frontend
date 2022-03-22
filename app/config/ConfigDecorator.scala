@@ -262,9 +262,9 @@ class ConfigDecorator @Inject() (
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
 
-  lazy val itsaFrontendHost = getExternalUrl(s"income-tax-subscription-frontend.host").getOrElse("")
+  lazy val incomeTaxViewChangeFrtonendHost = getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
 
-  lazy val itsaViewUrl = s"$itsaFrontendHost/report-quarterly/income-and-expenses/view"
+  lazy val itsaViewUrl = s"$incomeTaxViewChangeFrtonendHost/report-quarterly/income-and-expenses/view"
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)

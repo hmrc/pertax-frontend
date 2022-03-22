@@ -444,12 +444,14 @@ label.your_self_assessment=Eich Hunanasesiad
 label.view_and_manage_your_mtd_for_itsa=Gweld a rheoli eich MTD ar gyfer ITSA
 label.view_and_manage_your_earlier_self_assessment_years=Gweld a rheoli eich blynyddoedd Hunanasesiad cynharach
 label.online_returns_deadline= Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
-label.view_manage_mtd_for_sa=Gweld a rheoli Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm
-label.new_way_using_hmrc_sw=Dyma’r ffordd newydd, o ddefnyddio meddalwedd a gydnabyddir gan CThEM.
+label.mtd_for_sa=Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm
+label.send_updates_hmrc_compatible_software=Anfon Diweddariadau gan ddefnyddio meddalwedd sy'n gydnaws � CThEM.
 label.view_manage_your_mtd_for_sa=Gweld a rheoli eich Hunanasesiad Troi Treth yn Ddigidol ar gyfer Treth Incwm
 label.itsa_header=Hunanasesiad Treth Incwm
 label.view_manage_sa_returns=Gweld a rheoli eich Ffurflenni Treth Hunanasesiad
+label.access_your_sa_returns=Cyrchwch eich Ffurflenni Treth Hunanasesiad
 label.old_way_sa_returns=Dyma’r hen ffordd o gyflwyno’ch Ffurflenni Treth Hunanasesiad.
+label.self_assessment_tax_returns=Ffurflenni treth Hunanasesiad
 
 #
 # Benefits

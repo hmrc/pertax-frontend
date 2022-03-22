@@ -82,8 +82,8 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.view_manage_mtd_for_sa"))
-      doc.text() must include(Messages("label.new_way_using_hmrc_sw"))
+      doc.text() must include(Messages("label.mtd_for_sa"))
+      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
       hasLink(
         doc,
         Messages("label.view_manage_your_mtd_for_sa"),
@@ -242,9 +242,9 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.view_manage_mtd_for_sa"))
-      doc.text() must include(Messages("label.new_way_using_hmrc_sw"))
-      doc.text() must include(Messages("label.view_manage_sa_returns"))
+      doc.text() must include(Messages("label.mtd_for_sa"))
+      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
+      doc.text() must include(Messages("label.self_assessment_tax_returns"))
       doc.text() must include(Messages("label.old_way_sa_returns"))
 
       doc.text() must include(Messages("title.seiss"))
@@ -284,9 +284,9 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
         )
 
       doc.text() must include(Messages("label.itsa_header"))
-      doc.text() must include(Messages("label.view_manage_mtd_for_sa"))
-      doc.text() must include(Messages("label.new_way_using_hmrc_sw"))
-      doc.text() must include(Messages("label.view_manage_sa_returns"))
+      doc.text() must include(Messages("label.mtd_for_sa"))
+      doc.text() must include(Messages("label.send_updates_hmrc_compatible_software"))
+      doc.text() must include(Messages("label.self_assessment_tax_returns"))
       doc.text() must include(Messages("label.not_enrolled.content"))
       doc.text() must include(Messages("title.seiss"))
 

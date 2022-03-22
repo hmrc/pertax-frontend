@@ -31,29 +31,29 @@
 
             @if(isItsa) {
                 <h1 class="govuk-heading-l govuk-!-margin-bottom-8">@messages("label.itsa_header")</h1>
-                <h2 class="govuk-heading-m">@messages("label.view_manage_mtd_for_sa")</h2>
-                <p>@messages("label.new_way_using_hmrc_sw")</p>
-                <p><a class="trackLink" href="@configDecorator.itsaViewUrl">@messages("label.view_manage_your_mtd_for_sa")</a></p>
+                <h2 class="govuk-heading-m">@messages("label.mtd_for_sa")</h2>
+                <p>@messages("label.send_updates_hmrc_compatible_software")</p>
+                <p><a class="ga-track-anchor-click" href="@configDecorator.itsaViewUrl" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View and manage your Making Tax Digital for Income Tax Self Assessment">@messages("label.view_manage_your_mtd_for_sa")</a></p>
             } else {
                 <h1 class="govuk-heading-l govuk-!-margin-bottom-8">@messages("label.your_self_assessment")</h1>
             }
 
             @if(isSa) {
                 @if(isItsa) {
-                    <h2 class="govuk-heading-m">@messages("label.view_manage_sa_returns")</h2>
+                    <h2 class="govuk-heading-m">@messages("label.self_assessment_tax_returns")</h2>
                 }
                 @saActionNeeded match {
                     case ActivatedOnlineFilerSelfAssessmentUser(saUtr) => {
                         @if(isItsa) {
                             <p>@messages("label.old_way_sa_returns")</p>
 
-                            <p><a class="trackLink" href="@routes.InterstitialController.displaySelfAssessment()">@messages("label.view_manage_sa_returns")</a></p>
+                            <p><a class="ga-track-anchor-click" href="@routes.InterstitialController.displaySelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Access your Self Assessment tax returns">@messages("label.access_your_sa_returns")</a></p>
                         } else {
                             <p>@messages("label.online_returns_deadline", nextDeadlineTaxYear)</p>
 
                             <ul class="govuk-list">
                                 <li>
-                                    <a class="trackLink" href="@routes.InterstitialController.displaySelfAssessment()">@messages("label.view_and_manage_your_earlier_self_assessment_years")</a>
+                                    <a class="ga-track-anchor-click" href="@routes.InterstitialController.displaySelfAssessment()" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="View and manage your Self Assessment tax return">@messages("label.view_manage_sa_returns")</a>
                                 </li>
                                 <li>
                                     <a class="ga-track-anchor-click" href="@configDecorator.completeYourTaxReturnUrl(saUtr.toString, taxYear, messages.lang)" data-ga-event-category="link - click" data-ga-event-action="Income" data-ga-event-label="Complete your tax return">@messages("label.complete_your_tax_return")</a>
