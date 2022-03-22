@@ -17,10 +17,8 @@
 package controllers.controllershelpers
 
 import config.ConfigDecorator
-import connectors.SeissConnector
 import controllers.auth.requests.UserRequest
 import models._
-import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
@@ -36,8 +34,6 @@ import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 import views.html.cards.home._
 
-import scala.concurrent.Future
-
 class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
   implicit val configDecorator = config
@@ -51,9 +47,16 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val marriageAllowance = injected[MarriageAllowanceView]
   val statePension = injected[StatePensionView]
   val taxSummaries = injected[TaxSummariesView]
-  val seissConnector = mock[SeissConnector]
   val seissView = injected[SeissView]
   val latestNewsAndUpdatesView = injected[LatestNewsAndUpdatesView]
+
+  val stubConfigDecorator = new ConfigDecorator(
+    injected[Configuration],
+    injected[Langs],
+    injected[ServicesConfig]
+  ) {
+    override lazy val newSaItsaTileEnabled: Boolean = false
+  }
 
   val homeCardGenerator =
     new HomeCardGenerator(
@@ -66,11 +69,128 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       marriageAllowance,
       statePension,
       taxSummaries,
-      seissConnector,
       seissView,
       latestNewsAndUpdatesView
-    )
+    )(stubConfigDecorator)
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
+
+  "Calling getIncomeCards" must {
+    "contains a Seiss card" when {
+      "isSeissTileEnabled is true" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+          nino = None,
+          saUser = NonFilerSelfAssessmentUser,
+          confidenceLevel = ConfidenceLevel.L50,
+          personDetails = None,
+          request = FakeRequest()
+        )
+
+        lazy val cardBody =
+          homeCardGenerator.getIncomeCards(
+            TaxComponentsDisabledState,
+            None,
+            None,
+            NonFilerSelfAssessmentUser,
+            true,
+            2000
+          )
+
+        cardBody.map(_.toString()).mkString("") must include("seiss-card")
+      }
+    }
+
+    "not contain a Seiss card" when {
+      "newSaItsaTileEnabled is true" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+          nino = None,
+          saUser = NonFilerSelfAssessmentUser,
+          confidenceLevel = ConfidenceLevel.L50,
+          personDetails = None,
+          request = FakeRequest()
+        )
+
+        val stubConfigDecorator = new ConfigDecorator(
+          injected[Configuration],
+          injected[Langs],
+          injected[ServicesConfig]
+        ) {
+          override lazy val newSaItsaTileEnabled: Boolean = true
+        }
+
+        def sut: HomeCardGenerator =
+          new HomeCardGenerator(
+            payAsYouEarn,
+            taxCalculation,
+            selfAssessment,
+            nationalInsurance,
+            taxCredits,
+            childBenefit,
+            marriageAllowance,
+            statePension,
+            taxSummaries,
+            seissView,
+            latestNewsAndUpdatesView
+          )(stubConfigDecorator)
+
+        lazy val cardBody =
+          sut.getIncomeCards(
+            TaxComponentsDisabledState,
+            None,
+            None,
+            NonFilerSelfAssessmentUser,
+            true,
+            2000
+          )
+
+        cardBody.map(_.toString()).mkString("") mustNot include("seiss-card")
+      }
+
+      "isSeissTileEnabled is false" in {
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest(
+          nino = None,
+          saUser = NonFilerSelfAssessmentUser,
+          confidenceLevel = ConfidenceLevel.L50,
+          personDetails = None,
+          request = FakeRequest()
+        )
+
+        val stubConfigDecorator = new ConfigDecorator(
+          injected[Configuration],
+          injected[Langs],
+          injected[ServicesConfig]
+        ) {
+          override lazy val isSeissTileEnabled: Boolean = false
+        }
+
+        def sut: HomeCardGenerator =
+          new HomeCardGenerator(
+            payAsYouEarn,
+            taxCalculation,
+            selfAssessment,
+            nationalInsurance,
+            taxCredits,
+            childBenefit,
+            marriageAllowance,
+            statePension,
+            taxSummaries,
+            seissView,
+            latestNewsAndUpdatesView
+          )(stubConfigDecorator)
+
+        lazy val cardBody =
+          sut.getIncomeCards(
+            TaxComponentsDisabledState,
+            None,
+            None,
+            NonFilerSelfAssessmentUser,
+            true,
+            2000
+          )
+
+        cardBody.map(_.toString()).mkString("") mustNot include("seiss-card")
+      }
+    }
+  }
 
   "Calling getPayAsYouEarnCard" must {
     "return nothing when called with no Pertax user" in {
@@ -149,6 +269,40 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   "Calling getSelfAssessmentCard" must {
     val taxYear = previousAndCurrentTaxYear
     val nextDeadlineTaxYear = 2019
+
+    "return None if newSaItsaTileEnabled is true" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val newSaItsaTileEnabled: Boolean = true
+      }
+
+      def sut: HomeCardGenerator =
+        new HomeCardGenerator(
+          payAsYouEarn,
+          taxCalculation,
+          selfAssessment,
+          nationalInsurance,
+          taxCredits,
+          childBenefit,
+          marriageAllowance,
+          statePension,
+          taxSummaries,
+          seissView,
+          latestNewsAndUpdatesView
+        )(stubConfigDecorator)
+
+      val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
+
+      implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+        buildUserRequest(request = FakeRequest())
+
+      lazy val cardBody = sut.getSelfAssessmentCard(saUserType, 2019)
+
+      cardBody mustBe None
+    }
 
     "return correct markup when called with ActivatedOnlineFilerSelfAssessmentUser" in {
       val saUserType = ActivatedOnlineFilerSelfAssessmentUser(testUtr)
@@ -244,6 +398,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         injected[ServicesConfig]
       ) {
         override lazy val isNationalInsuranceCardEnabled: Boolean = false
+        override lazy val newSaItsaTileEnabled: Boolean = false
       }
 
       def sut: HomeCardGenerator =
@@ -257,7 +412,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           marriageAllowance,
           statePension,
           taxSummaries,
-          seissConnector,
           seissView,
           latestNewsAndUpdatesView
         )(stubConfigDecorator)
@@ -399,6 +553,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           injected[ServicesConfig]
         ) {
           override lazy val isAtsTileEnabled = false
+          override lazy val newSaItsaTileEnabled: Boolean = false
         }
 
         def sut: HomeCardGenerator =
@@ -412,7 +567,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             marriageAllowance,
             statePension,
             taxSummaries,
-            seissConnector,
             seissView,
             latestNewsAndUpdatesView
           )(stubConfigDecorator)
@@ -452,7 +606,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           marriageAllowance,
           statePension,
           taxSummaries,
-          seissConnector,
           seissView,
           latestNewsAndUpdatesView
         )(stubConfigDecorator)

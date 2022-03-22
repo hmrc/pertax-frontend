@@ -33,7 +33,7 @@ import uk.gov.hmrc.auth.core.{ConfidenceLevel, _}
 import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import util.RetrievalOps._
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, EnrolmentsHelper, Fixtures}
 
 import scala.concurrent.Future
 import scala.language.postfixOps
@@ -48,12 +48,14 @@ class MinimumAuthActionSpec extends BaseSpec {
   val cc = stubControllerComponents()
   val mockAuthConnector = mock[AuthConnector]
   val controllerComponents = app.injector.instanceOf[ControllerComponents]
-  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
+  val sessionAuditor =
+    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
+  val enrolmentsHelper = injected[EnrolmentsHelper]
 
   class Harness(authAction: MinimumAuthAction) extends AbstractController(cc) {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
+        s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}"
       )
     }
@@ -64,7 +66,14 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents,
+          enrolmentsHelper
+        )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -77,7 +86,14 @@ class MinimumAuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents,
+          enrolmentsHelper
+        )
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 
@@ -112,7 +128,14 @@ class MinimumAuthActionSpec extends BaseSpec {
       ).thenReturn(retrievalResult)
 
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents,
+          enrolmentsHelper
+        )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -137,7 +160,14 @@ class MinimumAuthActionSpec extends BaseSpec {
       ).thenReturn(retrievalResult)
 
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents,
+          enrolmentsHelper
+        )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -165,7 +195,14 @@ class MinimumAuthActionSpec extends BaseSpec {
       ).thenReturn(retrievalResult)
 
       val authAction =
-        new MinimumAuthAction(mockAuthConnector, app.configuration, config, sessionAuditor, controllerComponents)
+        new MinimumAuthAction(
+          mockAuthConnector,
+          app.configuration,
+          config,
+          sessionAuditor,
+          controllerComponents,
+          enrolmentsHelper
+        )
       val controller = new Harness(authAction)
 
       val result = controller.onPageLoad()(FakeRequest("", ""))
@@ -198,7 +235,8 @@ class MinimumAuthActionSpec extends BaseSpec {
         app.configuration,
         config,
         sessionAuditor,
-        controllerComponents
+        controllerComponents,
+        enrolmentsHelper
       )
       val controller = new Harness(authAction)
 
