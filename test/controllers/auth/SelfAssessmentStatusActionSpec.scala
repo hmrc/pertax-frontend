@@ -34,7 +34,7 @@ import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.EnrolmentStoreCachingService
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
 
@@ -73,25 +73,25 @@ class SelfAssessmentStatusActionSpec
   }
 
   def createAuthenticatedRequest(
-    saEnrolment: Option[SelfAssessmentEnrolment],
+    enrolments: Set[Enrolment] = Set.empty,
     nino: Option[Nino] = Some(Nino("AB123456C"))
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       nino,
-      saEnrolment,
       Credentials("", "Verify"),
       ConfidenceLevel.L200,
       None,
       None,
       None,
-      Set.empty,
+      enrolments,
       FakeRequest()
     )
 
   "An SA user with an activated enrolment must" - {
     "return ActivatedOnlineFilerSelfAssessmentUser" in {
-      val saEnrolment = Some(SelfAssessmentEnrolment(saUtr, Activated))
-      implicit val request = createAuthenticatedRequest(saEnrolment)
+      val saEnrolment =
+        Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "Activated")
+      implicit val request = createAuthenticatedRequest(Set(saEnrolment))
 
       val result = harness()(request)
       contentAsString(result) must include(s"ActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
@@ -101,8 +101,9 @@ class SelfAssessmentStatusActionSpec
 
   "An SA user with a not yet activated enrolment must" - {
     "return NotYetActivatedOnlineFilerSelfAssessmentUser" in {
-      val saEnrolment = Some(SelfAssessmentEnrolment(saUtr, NotYetActivated))
-      implicit val request = createAuthenticatedRequest(saEnrolment)
+      val saEnrolment =
+        Enrolment("IR-SA", identifiers = Seq(EnrolmentIdentifier("UTR", saUtr.utr)), state = "NotYetActivated")
+      implicit val request = createAuthenticatedRequest(Set(saEnrolment))
 
       val result = harness()(request)
       contentAsString(result) must include(s"NotYetActivatedOnlineFilerSelfAssessmentUser(${saUtr.utr})")
@@ -121,7 +122,7 @@ class SelfAssessmentStatusActionSpec
         (NonFilerSelfAssessmentUser, "a Non Filer SA user")
       )
 
-      implicit val request = createAuthenticatedRequest(None)
+      implicit val request = createAuthenticatedRequest(Set.empty)
 
       userTypeList.foreach { case (userType, key) =>
         s"return $key when the enrolments caching service returns ${userType.toString}" in {
@@ -141,7 +142,7 @@ class SelfAssessmentStatusActionSpec
 
   "when CitizenDetails has no matching SA account" - {
     "return NonFilerSelfAssessmentUser" in {
-      implicit val request = createAuthenticatedRequest(None)
+      implicit val request = createAuthenticatedRequest()
 
       when(mockCitizenDetailsConnector.getMatchingDetails(any())(any()))
         .thenReturn(Future.successful(MatchingDetailsNotFoundResponse))
@@ -153,7 +154,7 @@ class SelfAssessmentStatusActionSpec
 
   "when user has no Nino" - {
     "return NonFilerSelfAssessmentUser" in {
-      implicit val request = createAuthenticatedRequest(None, None)
+      implicit val request = createAuthenticatedRequest(Set.empty, None)
 
       val result = harness()(request)
       contentAsString(result) must include("NonFilerSelfAssessmentUser")

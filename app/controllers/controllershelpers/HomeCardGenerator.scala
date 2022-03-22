@@ -19,7 +19,6 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
-import connectors.SeissConnector
 import models._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
@@ -39,7 +38,6 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissConnector: SeissConnector,
   seissView: SeissView,
   latestNewsAndUpdatesView: LatestNewsAndUpdatesView
 )(implicit configDecorator: ConfigDecorator) {
@@ -58,7 +56,9 @@ class HomeCardGenerator @Inject() (
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
-      if (showSeissCard && configDecorator.isSeissTileEnabled) Some(seissView()) else None,
+      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.newSaItsaTileEnabled)
+        Some(seissView())
+      else None,
       getNationalInsuranceCard(),
       getAnnualTaxSummaryCard
     ).flatten
@@ -96,7 +96,7 @@ class HomeCardGenerator @Inject() (
     request: UserRequest[AnyContent],
     messages: Messages
   ): Option[HtmlFormat.Appendable] =
-    if (!request.isVerify) {
+    if (!request.isVerify && !configDecorator.newSaItsaTileEnabled) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saWithActionNeeded =>

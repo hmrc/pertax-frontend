@@ -18,7 +18,7 @@ package controllers.auth
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.ConfigDecorator
-import controllers.auth.requests.{AuthenticatedRequest, SelfAssessmentEnrolment, SelfAssessmentStatus}
+import controllers.auth.requests.AuthenticatedRequest
 import controllers.routes
 import io.lemonlabs.uri.Url
 import models.UserName
@@ -29,10 +29,10 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.domain
-import uk.gov.hmrc.domain.SaUtr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import util.EnrolmentsHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,7 +40,8 @@ class AuthActionImpl @Inject() (
   val authConnector: AuthConnector,
   configDecorator: ConfigDecorator,
   sessionAuditor: SessionAuditor,
-  cc: ControllerComponents
+  cc: ControllerComponents,
+  enrolmentsHelper: EnrolmentsHelper
 )(implicit ec: ExecutionContext)
     extends AuthAction with AuthorisedFunctions {
 
@@ -108,20 +109,10 @@ class AuthActionImpl @Inject() (
             }
             .asInstanceOf[Request[A]]
 
-          val saEnrolment =
-            enrolments
-              .find(_.key == "IR-SA" && trustedHelper.isEmpty)
-              .flatMap { enrolment =>
-                enrolment.identifiers
-                  .find(id => id.key == "UTR")
-                  .map(key =>
-                    SelfAssessmentEnrolment(SaUtr(key.value), SelfAssessmentStatus.fromString(enrolment.state))
-                  )
-              }
+          val saEnrolment = enrolmentsHelper.selfAssessmentStatus(enrolments, trustedHelper)
 
           val authenticatedRequest = AuthenticatedRequest[A](
             trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
-            saEnrolment,
             credentials,
             confidenceLevel,
             Some(

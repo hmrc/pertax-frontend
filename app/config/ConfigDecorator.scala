@@ -257,6 +257,9 @@ class ConfigDecorator @Inject() (
   lazy val rlsInterruptToggle =
     runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
 
+  lazy val newSaItsaTileEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.new-sa-itsa-tile.enabled").getOrElse(false)
+
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
   lazy val assetsPrefix = runModeConfiguration.get[String](s"assets.url") + runModeConfiguration
