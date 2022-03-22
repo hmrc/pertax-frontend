@@ -29,9 +29,9 @@ import util.DateTimeTools.{current, previousAndCurrentTaxYear}
 import util.UserRequestFixture.buildUserRequest
 import views.html.ViewSpec
 
-class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
+class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
-  lazy val viewItsaInterstitialHomeView = injected[ViewItsaInterstitialHomeView]
+  lazy val viewSaAndItsaMergePageView = injected[ViewSaAndItsaMergePageView]
 
   lazy implicit val configDecorator: ConfigDecorator = injected[ConfigDecorator]
   implicit val userRequest = buildUserRequest(request = FakeRequest())
@@ -52,7 +52,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
     )
 
     def selfAssessmentDoc: Document = asDocument(
-      viewItsaInterstitialHomeView(
+      viewSaAndItsaMergePageView(
         s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
         nextDeadlineTaxYear,
         false,
@@ -64,13 +64,13 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
     )
   }
 
-  "Rendering ViewItsaInterstitialHomeView.scala.html" must {
+  "Rendering ViewSaAndItsaMergePageView.scala.html" must {
 
     "show content for Itsa" in {
 
       val doc =
         asDocument(
-          viewItsaInterstitialHomeView(
+          viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
             true,
@@ -97,7 +97,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
         val doc =
           asDocument(
-            viewItsaInterstitialHomeView(
+            viewSaAndItsaMergePageView(
               s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
               nextDeadlineTaxYear,
               false,
@@ -205,7 +205,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
       val doc =
         asDocument(
-          viewItsaInterstitialHomeView(
+          viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
             false,
@@ -230,7 +230,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
       val doc =
         asDocument(
-          viewItsaInterstitialHomeView(
+          viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
             true,
@@ -257,7 +257,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
       hasLink(
         doc,
-        Messages("label.view_manage_sa_returns"),
+        Messages("label.access_your_sa_returns"),
         "/personal-account/self-assessment-summary"
       )
 
@@ -272,7 +272,7 @@ class ViewItsaInterstitialHomeViewSpec extends ViewSpec {
 
       val doc =
         asDocument(
-          viewItsaInterstitialHomeView(
+          viewSaAndItsaMergePageView(
             s"${configDecorator.pertaxFrontendHomeUrl}/personal-account/self-assessment-home",
             nextDeadlineTaxYear,
             true,

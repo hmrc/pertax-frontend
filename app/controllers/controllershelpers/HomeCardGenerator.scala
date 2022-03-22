@@ -40,7 +40,7 @@ class HomeCardGenerator @Inject() (
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
   seissView: SeissView,
-  itsaView: ItsaView,
+  saAndItsaMergeView: SaAndItsaMergeView,
   enrolmentsHelper: EnrolmentsHelper
 )(implicit configDecorator: ConfigDecorator) {
 
@@ -55,7 +55,7 @@ class HomeCardGenerator @Inject() (
       getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
-      getItsaCard(),
+      getSaAndItsaMergeCard(),
       getSelfAssessmentCard(saActionNeeded),
       if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.saItsaTileEnabled)
         Some(seissView())
@@ -107,7 +107,7 @@ class HomeCardGenerator @Inject() (
       None
     }
 
-  def getItsaCard()(implicit
+  def getSaAndItsaMergeCard()(implicit
     messages: Messages,
     request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] =
@@ -117,7 +117,12 @@ class HomeCardGenerator @Inject() (
         .selfAssessmentStatus(request.enrolments, request.trustedHelper)
         .isDefined)
     ) {
-      Some(itsaView((current.currentYear + 1).toString))
+      Some(
+        saAndItsaMergeView(
+          (current.currentYear + 1).toString,
+          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined
+        )
+      )
     } else {
       None
     }

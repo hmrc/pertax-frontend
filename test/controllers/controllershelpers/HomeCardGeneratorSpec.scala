@@ -48,7 +48,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val statePension = injected[StatePensionView]
   val taxSummaries = injected[TaxSummariesView]
   val seissView = injected[SeissView]
-  val itsaView = injected[ItsaView]
+  val saAndItsaMergeView = injected[SaAndItsaMergeView]
   val enrolmentsHelper = injected[EnrolmentsHelper]
 
   val stubConfigDecorator = new ConfigDecorator(
@@ -71,7 +71,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       statePension,
       taxSummaries,
       seissView,
-      itsaView,
+      saAndItsaMergeView,
       enrolmentsHelper
     )(stubConfigDecorator)
   val testUtr = SaUtr(new SaUtrGenerator().nextSaUtr.utr)
@@ -130,7 +130,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
-            itsaView,
+            saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
 
@@ -175,7 +175,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
-            itsaView,
+            saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
 
@@ -292,7 +292,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           statePension,
           taxSummaries,
           seissView,
-          itsaView,
+          saAndItsaMergeView,
           enrolmentsHelper
         )(stubConfigDecorator)
 
@@ -415,7 +415,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           statePension,
           taxSummaries,
           seissView,
-          itsaView,
+          saAndItsaMergeView,
           enrolmentsHelper
         )(stubConfigDecorator)
 
@@ -571,7 +571,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
-            itsaView,
+            saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
 
@@ -609,18 +609,18 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
-            itsaView,
+            saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
 
-        lazy val cardBody = sut.getItsaCard()
+        lazy val cardBody = sut.getSaAndItsaMergeCard()
 
-        cardBody mustBe Some(itsaView((current.currentYear + 1).toString))
+        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, true))
       }
 
       "return nothing when toggled off" in {
 
-        homeCardGenerator.getItsaCard() mustBe None
+        homeCardGenerator.getSaAndItsaMergeCard() mustBe None
       }
     }
   }

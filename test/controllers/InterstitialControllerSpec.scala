@@ -39,7 +39,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewItsaInterstitialHomeView, ViewNationalInsuranceInterstitialHomeView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future
@@ -73,7 +73,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
         injected[Sa302InterruptView],
-        injected[ViewItsaInterstitialHomeView],
+        injected[ViewSaAndItsaMergePageView],
         injected[EnrolmentsHelper],
         injected[SeissService]
       )(config, templateRenderer, ec) {
@@ -307,7 +307,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewChildBenefitsSummaryInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
-          injected[ViewItsaInterstitialHomeView],
+          injected[ViewSaAndItsaMergePageView],
           injected[EnrolmentsHelper],
           injected[SeissService]
         )(stubConfigDecorator, templateRenderer, ec)
@@ -323,7 +323,7 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      val result = controller.displayItsa()(fakeRequest)
+      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 
       status(result) mustBe UNAUTHORIZED
     }
@@ -354,7 +354,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewChildBenefitsSummaryInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
-          injected[ViewItsaInterstitialHomeView],
+          injected[ViewSaAndItsaMergePageView],
           injected[EnrolmentsHelper],
           injected[SeissService]
         )(stubConfigDecorator, templateRenderer, ec)
@@ -370,7 +370,7 @@ class InterstitialControllerSpec extends BaseSpec {
           )
       })
 
-      val result = controller.displayItsa()(fakeRequest)
+      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
 
       status(result) mustBe OK
       contentAsString(result) must include("Your Self Assessment")

@@ -33,7 +33,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
 import util.EnrolmentsHelper
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewItsaInterstitialHomeView, ViewNationalInsuranceInterstitialHomeView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,7 +50,7 @@ class InterstitialController @Inject() (
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
-  viewItsaInterstitialHomeView: ViewItsaInterstitialHomeView,
+  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
@@ -91,12 +91,12 @@ class InterstitialController @Inject() (
     )
   }
 
-  def displayItsa: Action[AnyContent] = authenticate.async { implicit request =>
+  def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
     if (configDecorator.saItsaTileEnabled) {
       for {
         hasSeissClaims <- seissService.hasClaims(request.saUserType)
       } yield Ok(
-        viewItsaInterstitialHomeView(
+        viewSaAndItsaMergePageView(
           redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
