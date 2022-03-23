@@ -36,6 +36,9 @@ object UserRequestFixture {
     trustedHelper: Option[TrustedHelper] = None,
     profile: Option[String] = None,
     messageCount: Option[Int] = None,
+    enrolments: Set[Enrolment] = Set(
+      Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")
+    ),
     request: Request[A]
   ): UserRequest[A] =
     UserRequest(
@@ -46,7 +49,7 @@ object UserRequestFixture {
       confidenceLevel,
       personDetails,
       trustedHelper,
-      Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", new SaUtrGenerator().nextSaUtr.utr)), "Activated")),
+      enrolments,
       profile,
       messageCount,
       None,

@@ -24,7 +24,7 @@ import play.api.Configuration
 import play.api.i18n.Langs
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -585,6 +585,8 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+          enrolments =
+            Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
           request = FakeRequest()
         )
       "return Itsa Card when toggled on" in {
