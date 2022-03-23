@@ -23,37 +23,42 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
+import org.joda.time.DateTime
 import org.scalatest.concurrent.IntegrationPatience
 
-class TimeoutSpec extends BaseSpec with Timeout with WireMockHelper with IntegrationPatience {
+class RateLimiterSpec extends BaseSpec with Throttle with WireMockHelper with IntegrationPatience {
 
   private val system: ActorSystem = ActorSystem()
 
-  "Timeout" must {
-    "not time out within timeout window" in {
-      val timeoutInSeconds = 2
+  def workFuture = Future.successful(true)
 
-      val result = withTimeout(timeoutInSeconds.seconds) {
-        akka.pattern.after((timeoutInSeconds - 1).seconds, system.scheduler) {
-          Future.successful(true)
+  "withThrottle" must {
+    "execute future" when {
+      "not rate limited" in {
+        val result = withThrottle(10, 10 seconds) {
+          workFuture
         }
-      }
 
-      result.futureValue mustBe true
+        result.futureValue mustBe true
+      }
     }
 
-    "time out the request after timeout window" in {
+    "fail to execute future" when {
+      "rate limit is reached" in {
+        val result = for {
+          _ <-
+            withThrottle(1, 1 millisecond) {
+              workFuture
+            }
+          result <-
+            withThrottle(1, 1 millisecond) {
+              workFuture
+            }
+        } yield result
 
-      val timeoutInSeconds = 1
-
-      val result = withTimeout(timeoutInSeconds.seconds) {
-        akka.pattern.after((timeoutInSeconds + 1).seconds, system.scheduler) {
-          Future.successful(true)
+        whenReady(result.failed) { e =>
+          e mustBe RateLimitedException
         }
-      }
-
-      whenReady(result.failed) { e =>
-        e mustBe FutureEarlyTimeout
       }
     }
   }

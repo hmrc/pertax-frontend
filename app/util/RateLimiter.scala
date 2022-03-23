@@ -25,7 +25,8 @@ import scala.concurrent.Future
 object Limiters {
   private var rateLimiter: Option[RateLimiter] = None
   def getInstance(tps: Double): RateLimiter = rateLimiter match {
-    case Some(rateLimiter) => rateLimiter
+    case Some(rateLimiter) =>
+      rateLimiter
     case None =>
       rateLimiter = Some(RateLimiter.create(tps))
       rateLimiter.get
