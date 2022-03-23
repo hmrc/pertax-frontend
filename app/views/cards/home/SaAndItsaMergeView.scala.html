@@ -18,7 +18,7 @@
 @(nextDeadlineTaxYear: String, isItsa: Boolean)(implicit messages: play.api.i18n.Messages)
 
     @cardContent = {
-        if(isItsa){
+        @if(isItsa){
         <p>@messages("label.view_manage_your_mtd_itsa")@messages("label.online_deadline_final_declarations", nextDeadlineTaxYear)</p>
         } else {
         <p>@messages("label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_")@messages("label.online_returns_deadline", nextDeadlineTaxYear)</p>
