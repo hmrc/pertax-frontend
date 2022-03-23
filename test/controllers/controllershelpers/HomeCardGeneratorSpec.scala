@@ -585,11 +585,17 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
         buildUserRequest(
           saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-          enrolments =
-            Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
           request = FakeRequest()
         )
-      "return Itsa Card when toggled on" in {
+      "return Itsa Card when toggled on with Itsa enrollments" in {
+
+        implicit val userRequest: UserRequest[AnyContentAsEmpty.type] =
+          buildUserRequest(
+            saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
+            enrolments =
+              Set(Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "XAIT00000888888")), "Activated")),
+            request = FakeRequest()
+          )
 
         val stubConfigDecorator = new ConfigDecorator(
           injected[Configuration],
@@ -618,6 +624,37 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
         lazy val cardBody = sut.getSaAndItsaMergeCard()
 
         cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, true))
+      }
+
+      "return Itsa Card when toggled on without Itsa enrollments" in {
+
+        val stubConfigDecorator = new ConfigDecorator(
+          injected[Configuration],
+          injected[Langs],
+          injected[ServicesConfig]
+        ) {
+          override lazy val saItsaTileEnabled: Boolean = true
+        }
+
+        def sut: HomeCardGenerator =
+          new HomeCardGenerator(
+            payAsYouEarn,
+            taxCalculation,
+            selfAssessment,
+            nationalInsurance,
+            taxCredits,
+            childBenefit,
+            marriageAllowance,
+            statePension,
+            taxSummaries,
+            seissView,
+            saAndItsaMergeView,
+            enrolmentsHelper
+          )(stubConfigDecorator)
+
+        lazy val cardBody = sut.getSaAndItsaMergeCard()
+
+        cardBody mustBe Some(saAndItsaMergeView((current.currentYear + 1).toString, false))
       }
 
       "return nothing when toggled off" in {
