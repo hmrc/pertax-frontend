@@ -16,7 +16,6 @@
 
 package controllers
 
-import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
@@ -27,20 +26,19 @@ import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
+import services._
 import services.partials.{FormPartialService, SaPartialService}
-import services.{NinoDisplayService, _}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.partials.HtmlPartial
-import uk.gov.hmrc.renderer.TemplateRenderer
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView}
 import views.html.selfassessment.Sa302InterruptView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class InterstitialControllerSpec extends BaseSpec {
 
@@ -55,14 +53,12 @@ class InterstitialControllerSpec extends BaseSpec {
     lazy val fakeRequest = FakeRequest("", "")
 
     val mockAuthJourney = mock[AuthJourney]
-    val ninoDisplayService = mock[NinoDisplayService]
 
     def controller: InterstitialController =
       new InterstitialController(
         mock[FormPartialService],
         mock[SaPartialService],
         mock[PreferencesFrontendService],
-        ninoDisplayService,
         mockAuthJourney,
         injected[WithBreadcrumbAction],
         injected[MessagesControllerComponents],
@@ -70,7 +66,8 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewNationalInsuranceInterstitialHomeView],
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
-        injected[Sa302InterruptView]
+        injected[Sa302InterruptView],
+        injected[ViewNewsAndUpdatesView]
       )(config, templateRenderer, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
@@ -89,8 +86,6 @@ class InterstitialControllerSpec extends BaseSpec {
         when(preferencesFrontendService.getPaperlessPreference()(any())) thenReturn {
           Future.successful(paperlessResponse)
         }
-
-        when(ninoDisplayService.getNino(any(), any())).thenReturn(Future.successful(Some(Fixtures.fakeNino)))
       }
   }
 
@@ -272,6 +267,57 @@ class InterstitialControllerSpec extends BaseSpec {
 
         status(r) mustBe UNAUTHORIZED
       }
+    }
+  }
+
+  "Calling displayNewsAndUpdates" must {
+
+    "call displayNewsAndUpdates and return 200 when called by authorised user using verify" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request
+            )
+          )
+      })
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure = false
+      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
+      val testController = controller
+
+      val result = testController.displayNewsAndUpdates(fakeRequest)
+
+      status(result) mustBe OK
+
+      contentAsString(result) must include("News and Updates")
+    }
+
+    "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure = false
+      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
+      val testController = controller
+
+      val result = testController.displayNewsAndUpdates(fakeRequest)
+
+      status(result) mustBe OK
+
+      contentAsString(result) must include("News and Updates")
     }
   }
 }

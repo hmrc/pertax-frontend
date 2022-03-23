@@ -35,12 +35,11 @@
         supportLinkEnabled: Boolean = true,
         headScripts: Option[Html] = None,
         scriptElement: Option[Html] = None,
-        articleClasses: Option[String] = None,
-        includeGridWrapper: Boolean = false,
         backlinkUrl: Option[String] = None,
         additionalGaCalls: Option[Html] = None,
         printableDocument: Boolean = false,
-        displayTimeoutDialog: Boolean = true
+        displayTimeoutDialog: Boolean = true,
+        hideAccountMenu: Boolean = false
 )(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
        templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
@@ -106,7 +105,7 @@
                 signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
                 activeTab = request.activeTab,
                 profileUrl = request.profile,
-                hideAccountMenu = request.personDetails.isEmpty
+                hideAccountMenu = hideAccountMenu || request.personDetails.isEmpty
             )),
             Some(CssLinksComponent(
                 CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie.css").url, ieVersionCondition = Some("IE")),
@@ -122,7 +121,7 @@
             Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
             Some(InlineScriptComponent(inlineScript.toString)),
             configDecorator.ssoUrl.map(SsoUrlComponent),
-            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, includeGridWrapper))),
+            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, false))),
             backlinkUrl.map(BackLinkUrlComponent(_)),
             Some(UserPropertiesComponent(
                 isGovernmentGateway = request.isGovernmentGateway,
@@ -148,7 +147,7 @@
 
         templateRenderer.renderDefaultTemplate(
             configDecorator.frontendTemplatePath,
-            article(mainContent, includeGridWrapper, articleClasses),
+            mainContent,
             extraArguments
         )
 

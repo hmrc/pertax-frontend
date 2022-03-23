@@ -79,7 +79,7 @@ class StartDateController @Inject() (
                 val proposedStartDate = dateDto.startDate
 
                 personDetails.address match {
-                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _)) =>
+                  case Some(Address(_, _, _, _, _, _, _, Some(currentStartDate), _, _, status)) =>
                     if (!currentStartDate.isBefore(proposedStartDate)) {
                       BadRequest(cannotUpdateAddressView(typ, languageUtils.Dates.formatDate(proposedStartDate)))
                     } else {

@@ -1,0 +1,152 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import config.ConfigDecorator
+@import controllers.auth.requests.UserRequest
+@import controllers.controllershelpers.WelshWarningHelper
+@import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
+@import uk.gov.hmrc.play.views.helpers.AttorneyRegime
+@import uk.gov.hmrc.play.views.html.layouts.{Article, AttorneyBanner, TrackingConsentSnippet}
+@import uk.gov.hmrc.renderer.TemplateArgumentsBuilder._
+@import uk.gov.hmrc.renderer._
+
+@import scala.concurrent.ExecutionContext
+
+@this(attorneyBanner: AttorneyBanner, article: Article, trackingConsentSnippet: TrackingConsentSnippet, getHelpFormView: GetHelpFormView)
+
+@(title: String,
+        pageName: Option[String] = None,
+        sidebarLinks: Option[Html] = None,
+        sidebarClass: Option[String] = None,
+        supportLinkEnabled: Boolean = true,
+        headScripts: Option[Html] = None,
+        scriptElement: Option[Html] = None,
+        backlinkUrl: Option[String] = None,
+        additionalGaCalls: Option[Html] = None,
+        printableDocument: Boolean = false,
+        displayTimeoutDialog: Boolean = true
+)(mainContent: Html)(implicit request: UserRequest[_], configDecorator: ConfigDecorator,
+       templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
+
+    @links = @{
+        var seq = new scala.collection.mutable.MutableList[Map[String, Any]]()
+
+        if(request.personDetails.isDefined) {
+            if(request.nino.isDefined) {
+                seq += Map("url" -> controllers.address.routes.PersonalDetailsController.onPageLoad().url, "text" -> Messages("label.update_your_address"), "desktopHidden" -> true)
+            }
+            seq += Map("url" -> configDecorator.formTrackingServiceUrl, "text" -> Messages("label.track_your_forms"), "desktopHidden" -> true)
+            seq += Map("url" -> controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None), "text" -> Messages("global.label.sign_out"))
+        }
+        seq
+    }
+
+    @actingAttorneyBanner = {
+        @{
+            request.trustedHelper.map { (helper: TrustedHelper) =>
+                attorneyBanner(Some(helper.principalName), helper.returnLinkUrl, AttorneyRegime.pertax)
+            }
+        }
+    }
+
+    @headInlineScript = {
+        @trackingConsentSnippet()
+    }
+
+    @inlineScript = {
+        @scriptElement
+
+        @if(displayTimeoutDialog) {
+            @views.html.scripts.timeout_dialog(configDecorator.sessionTimeoutInSeconds, configDecorator.sessionCountdownInSeconds, messages)
+        }
+    }
+
+    @printable = @{
+        if(printableDocument) {
+            "printable"
+        }
+    }
+
+    @accessibilityFooterUrl = {
+        @configDecorator.accessibilityStatementUrl(request.uri)
+    }
+
+    @{
+
+        val arguments = TemplateArgumentsBuilder(
+
+            Some(AccountMenuStyleComponent(
+                langUrls = Some((
+                        controllers.routes.LanguageSwitchController.enGb().url,
+                        controllers.routes.LanguageSwitchController.cyGb().url
+                )),
+                signoutUrl = Some(controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.getFeedbackSurveyUrl(configDecorator.defaultOrigin))), None).url),
+                activeTab = request.activeTab,
+                profileUrl = request.profile,
+                hideAccountMenu = request.personDetails.isEmpty
+            )),
+            Some(CssLinksComponent(
+                CssLinkElement(url = controllers.routes.AssetsController.versioned("css/ie.css").url, ieVersionCondition = Some("IE")),
+                CssLinkElement(controllers.routes.AssetsController.versioned("stylesheets/pertaxMain.css").url)
+            )),
+            Some(ScriptsComponent(
+                controllers.routes.AssetsController.versioned("javascripts/pertax.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/webChat.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/card.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/polyfill.js").url,
+                controllers.routes.AssetsController.versioned("javascripts/pertaxBacklink.js").url
+            )),
+            Some(PageTitleComponent(title + " - " + Messages("label.your_personal_tax_account_gov_uk"))),
+            Some(InlineScriptComponent(inlineScript.toString)),
+            configDecorator.ssoUrl.map(SsoUrlComponent),
+            Some(GetHelpFormComponent(getHelpFormView(supportLinkEnabled, false))),
+            backlinkUrl.map(BackLinkUrlComponent(_)),
+            Some(UserPropertiesComponent(
+                isGovernmentGateway = request.isGovernmentGateway,
+                isVerify = request.isVerify,
+                isSa = request.isSa
+            )),
+            Some(ActingAttorneyBannerComponent(actingAttorneyBanner)),
+            pageName.map(NavTitleComponent),
+            Some(BetaBannerComponent(configDecorator.deskproToken)),
+            Some(MessagesMenuItemComponent(request.unreadMessageCount)),
+            Some(FullWidthBannerComponent(
+                Messages("label.help_improve_gov_uk"),
+                Messages("label.child_benefit_survey_text"),
+                configDecorator.childBenefitLinkUrl,
+                Some(Messages("label.no_thanks")),
+                Some("homepage UR banner")
+            )),
+        ) ++ Map[String, Any](
+            "bodyClass" -> printable,
+            "headInlineScript" -> headInlineScript
+        )
+
+        val extraArguments:Map[String,Any] = if(configDecorator.accessibilityStatementToggle) {
+            arguments ++ Map[String,Any](
+              "accessibilityFooterUrl" -> accessibilityFooterUrl
+            )
+        } else {
+            arguments
+        }
+
+        templateRenderer.renderDefaultTemplate(
+            configDecorator.frontendTemplatePath,
+            mainContent,
+            extraArguments
+        )
+
+    }

@@ -17,6 +17,7 @@
 package services
 
 import config.ConfigDecorator
+import connectors.{UpdateAddressBadRequestResponse, UpdateAddressErrorResponse, UpdateAddressSuccessResponse, UpdateAddressUnexpectedResponse}
 import error.GenericErrors
 import models.NonFilerSelfAssessmentUser
 import play.api.i18n.{I18nSupport, MessagesApi}

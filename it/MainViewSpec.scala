@@ -101,7 +101,8 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
       None,
       Some(new LocalDate(2015, 3, 15)),
       None,
-      Some("Residential")
+      Some("Residential"),
+      false
     )),
     None
   )
@@ -160,8 +161,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
         supportLinkEnabled = true,
         Some(Html("script")),
         Some(Html("ScriptElement")),
-        Some("article-class"),
-        includeGridWrapper = true,
         Some(backLinkUrl),
         Some(Html("AdditionalGaCalls")),
         printableDocument = true

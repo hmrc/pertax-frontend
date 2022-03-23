@@ -19,27 +19,33 @@ package controllers.address
 import com.google.inject.Inject
 import config.ConfigDecorator
 import controllers.auth.{AuthJourney, WithActiveTabAction}
+import controllers.bindable.{AddrType, ResidentialAddrType}
 import controllers.controllershelpers.AddressJourneyCachingHelper
 import models.TaxCreditsChoiceId
 import models.dto.TaxCreditsChoiceDto
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.EditAddressLockRepository
 import services.TaxCreditsService
 import uk.gov.hmrc.renderer.TemplateRenderer
 import views.html.InternalServerErrorView
 import views.html.interstitial.DisplayAddressInterstitialView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+import java.time.Instant
+import java.time.LocalDate
 
 class TaxCreditsChoiceController @Inject() (
   authJourney: AuthJourney,
   withActiveTabAction: WithActiveTabAction,
   cc: MessagesControllerComponents,
   cachingHelper: AddressJourneyCachingHelper,
+  editAddressLockRepository: EditAddressLockRepository,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   taxCreditsService: TaxCreditsService,
   internalServerErrorView: InternalServerErrorView
 )(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) with Logging {
 
   def onPageLoad: Action[AnyContent] = authenticate.async { implicit request =>
     addressJourneyEnforcer { nino => _ =>

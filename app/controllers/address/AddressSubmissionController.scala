@@ -18,6 +18,7 @@ package controllers.address
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.CitizenDetailsConnector
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithActiveTabAction}
 import controllers.bindable.{AddrType, PostalAddrType, ResidentialAddrType}
@@ -30,7 +31,7 @@ import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.EditAddressLockRepository
-import services.{AddressMovedService, CitizenDetailsService}
+import services.AddressMovedService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -41,7 +42,7 @@ import views.html.personaldetails.{ReviewChangesView, UpdateAddressConfirmationV
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressSubmissionController @Inject() (
-  val citizenDetailsService: CitizenDetailsService,
+  val citizenDetailsConnector: CitizenDetailsConnector,
   val addressMovedService: AddressMovedService,
   val editAddressLockRepository: EditAddressLockRepository,
   authJourney: AuthJourney,
@@ -122,7 +123,7 @@ class AddressSubmissionController @Inject() (
       val addressType = mapAddressType(typ)
 
       addressJourneyEnforcer { nino => personDetails =>
-        citizenDetailsService.getEtag(nino.nino) flatMap {
+        citizenDetailsConnector.getEtag(nino.nino) flatMap {
           case None =>
             logger.error("Failed to retrieve Etag from citizen-details")
             errorRenderer.futureError(INTERNAL_SERVER_ERROR)
@@ -168,7 +169,7 @@ class AddressSubmissionController @Inject() (
 
                       for {
                         _      <- editAddressLockRepository.insert(nino.withoutSuffix, typ)
-                        result <- citizenDetailsService.updateAddress(nino, version.etag, address)
+                        result <- citizenDetailsConnector.updateAddress(nino, version.etag, address)
                       } yield result.response(genericErrors, successResponseBlock)
                   }
                 }

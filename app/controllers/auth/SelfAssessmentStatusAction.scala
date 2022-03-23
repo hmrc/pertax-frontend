@@ -17,25 +17,28 @@
 package controllers.auth
 
 import com.google.inject.Inject
+import connectors.{CitizenDetailsConnector, MatchingDetailsSuccessResponse}
 import controllers.auth.requests._
 import models._
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
-import services.{CitizenDetailsService, EnrolmentStoreCachingService, MatchingDetailsSuccessResponse}
+import services.EnrolmentStoreCachingService
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import util.EnrolmentsHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentStatusAction @Inject() (
-  citizenDetailsService: CitizenDetailsService,
+  citizenDetailsConnector: CitizenDetailsConnector,
   enrolmentsCachingService: EnrolmentStoreCachingService,
+  enrolmentsHelper: EnrolmentsHelper,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
 
   private def getSaUtrFromCitizenDetailsService(nino: Nino)(implicit hc: HeaderCarrier): Future[Option[SaUtr]] =
-    citizenDetailsService.getMatchingDetails(nino) map {
+    citizenDetailsConnector.getMatchingDetails(nino) map {
       case MatchingDetailsSuccessResponse(matchingDetails) => matchingDetails.saUtr
       case _                                               => None
     }
@@ -45,7 +48,7 @@ class SelfAssessmentStatusAction @Inject() (
     request: AuthenticatedRequest[A]
   ): Future[SelfAssessmentUserType] =
     request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
-      request.saEnrolment match {
+      enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) match {
         case Some(SelfAssessmentEnrolment(saUtr, Activated)) =>
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>

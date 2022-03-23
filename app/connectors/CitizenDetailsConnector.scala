@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package services
+package connectors
 
 import com.google.inject.{Inject, Singleton}
 import com.kenshoo.play.metrics.Metrics
@@ -23,6 +23,7 @@ import models._
 import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
+import services._
 import services.http.SimpleHttp
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -44,8 +45,11 @@ case class MatchingDetailsUnexpectedResponse(r: HttpResponse) extends MatchingDe
 case class MatchingDetailsErrorResponse(cause: Exception) extends MatchingDetailsResponse
 
 @Singleton
-class CitizenDetailsService @Inject() (val simpleHttp: SimpleHttp, val metrics: Metrics, servicesConfig: ServicesConfig)
-    extends HasMetrics with Logging {
+class CitizenDetailsConnector @Inject() (
+  val simpleHttp: SimpleHttp,
+  val metrics: Metrics,
+  servicesConfig: ServicesConfig
+) extends HasMetrics with Logging {
 
   lazy val citizenDetailsUrl = servicesConfig.baseUrl("citizen-details")
 

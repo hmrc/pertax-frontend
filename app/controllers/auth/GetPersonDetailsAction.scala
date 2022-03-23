@@ -18,13 +18,13 @@ package controllers.auth
 
 import com.google.inject.Inject
 import config.ConfigDecorator
+import connectors.{CitizenDetailsConnector, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import controllers.auth.requests.UserRequest
 import models.PersonDetails
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Locked
 import play.api.mvc.{ActionFunction, ActionRefiner, ControllerComponents, Result}
 import services.partials.MessageFrontendService
-import services.{CitizenDetailsService, PersonDetailsHiddenResponse, PersonDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.renderer.TemplateRenderer
@@ -33,7 +33,7 @@ import views.html.ManualCorrespondenceView
 import scala.concurrent.{ExecutionContext, Future}
 
 class GetPersonDetailsAction @Inject() (
-  citizenDetailsService: CitizenDetailsService,
+  citizenDetailsConnector: CitizenDetailsConnector,
   messageFrontendService: MessageFrontendService,
   cc: ControllerComponents,
   val messagesApi: MessagesApi,
@@ -44,27 +44,25 @@ class GetPersonDetailsAction @Inject() (
   override protected def refine[A](request: UserRequest[A]): Future[Either[Result, UserRequest[A]]] =
     populatingUnreadMessageCount()(request).flatMap { messageCount =>
       if (!request.uri.contains("/signout")) {
-        getPersonDetails()(request).map { a =>
-          a.fold(
-            Left(_),
-            pd =>
-              Right(
-                UserRequest(
-                  request.nino,
-                  request.retrievedName,
-                  request.saUserType,
-                  request.credentials,
-                  request.confidenceLevel,
-                  pd,
-                  request.trustedHelper,
-                  request.profile,
-                  messageCount,
-                  request.activeTab,
-                  request.breadcrumb,
-                  request.request
-                )
+        getPersonDetails()(request).map {
+          case Left(error) => Left(error)
+          case Right(pd) =>
+            Right(
+              UserRequest(
+                request.nino,
+                request.retrievedName,
+                request.saUserType,
+                request.credentials,
+                request.confidenceLevel,
+                pd,
+                request.trustedHelper,
+                request.profile,
+                messageCount,
+                request.activeTab,
+                request.breadcrumb,
+                request.request
               )
-          )
+            )
         }
       } else {
         Future.successful(
@@ -89,8 +87,10 @@ class GetPersonDetailsAction @Inject() (
     }
 
   def populatingUnreadMessageCount()(implicit request: UserRequest[_]): Future[Option[Int]] =
-    if (configDecorator.personDetailsMessageCountEnabled) messageFrontendService.getUnreadMessageCount
-    else Future.successful(None)
+    if (configDecorator.personDetailsMessageCountEnabled)
+      messageFrontendService.getUnreadMessageCount
+    else
+      Future.successful(None)
 
   private def getPersonDetails()(implicit request: UserRequest[_]): Future[Either[Result, Option[PersonDetails]]] = {
 
@@ -99,8 +99,9 @@ class GetPersonDetailsAction @Inject() (
 
     request.nino match {
       case Some(nino) =>
-        citizenDetailsService.personDetails(nino).map {
-          case PersonDetailsSuccessResponse(pd) => Right(Some(pd))
+        citizenDetailsConnector.personDetails(nino).map {
+          case PersonDetailsSuccessResponse(pd) =>
+            Right(Some(pd))
           case PersonDetailsHiddenResponse =>
             Left(Locked(manualCorrespondenceView()))
           case _ => Right(None)

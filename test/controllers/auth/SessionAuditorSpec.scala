@@ -16,7 +16,6 @@
 
 package controllers.auth
 
-import controllers.auth.SessionAuditor.UserSessionAuditEvent
 import controllers.auth.requests.AuthenticatedRequest
 import org.hamcrest.CustomMatcher
 import org.mockito.ArgumentMatchers.any
@@ -31,7 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Failure, Success}
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import util.{AuditServiceTools, BaseSpec, Fixtures}
+import util.{AuditServiceTools, BaseSpec, EnrolmentsHelper, Fixtures}
 
 import scala.concurrent.Future
 
@@ -43,7 +42,8 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
   }
 
   val auditConnector = mock[AuditConnector]
-  val sessionAuditor = new SessionAuditor(auditConnector)
+  val enrolmentsHelper = injected[EnrolmentsHelper]
+  val sessionAuditor = new SessionAuditor(auditConnector, enrolmentsHelper)
 
   def originalResult[A]: Result = Ok
 
@@ -54,7 +54,6 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
 
   def authenticatedRequest[A](request: Request[A]) = AuthenticatedRequest[A](
     Some(Fixtures.fakeNino),
-    None,
     Credentials("foo", "bar"),
     ConfidenceLevel.L200,
     None,
@@ -65,11 +64,11 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
   )
 
   def eqExtendedDataEvent[A](authenticatedRequest: AuthenticatedRequest[A]): ExtendedDataEvent = {
-    val detailsJson = Json.toJson(UserSessionAuditEvent(authenticatedRequest))
+    val detailsJson = Json.toJson(sessionAuditor.userSessionAuditEventFromRequest(authenticatedRequest))
     val tags = buildTags(authenticatedRequest)
     argThat[ExtendedDataEvent](new CustomMatcher[ExtendedDataEvent]("eq expected ExtendedDataEvent") {
       override def matches(o: Any): Boolean = o match {
-        case ExtendedDataEvent(AuditServiceTools.auditSource, SessionAuditor.auditType, _, `tags`, `detailsJson`, _) =>
+        case ExtendedDataEvent(AuditServiceTools.auditSource, sessionAuditor.auditType, _, `tags`, `detailsJson`, _) =>
           true
         case _ => false
       }
@@ -82,7 +81,7 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
         mockSendExtendedEvent(Future.successful(Success))
         val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)
 
-        result.futureValue mustBe Ok.addingToSession(SessionAuditor.sessionKey -> "true")(testRequest)
+        result.futureValue mustBe Ok.addingToSession(sessionAuditor.sessionKey -> "true")(testRequest)
         verify(auditConnector, times(1))
           .sendExtendedEvent(eqExtendedDataEvent(authenticatedRequest(testRequest)))(any(), any())
       }
@@ -111,7 +110,7 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
       }
 
       "the sessionKey has been set" in {
-        val testRequest = FakeRequest().withSession(SessionAuditor.sessionKey -> "true")
+        val testRequest = FakeRequest().withSession(sessionAuditor.sessionKey -> "true")
 
         val result = sessionAuditor.auditOnce(authenticatedRequest(testRequest), originalResult)
 

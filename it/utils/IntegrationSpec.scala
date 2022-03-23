@@ -1,120 +1,83 @@
 package utils
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, urlEqualTo}
-import config.ConfigDecorator
-import controllers.auth.requests.UserRequest
-import models.{ActivatedOnlineFilerSelfAssessmentUser, Address, Person, PersonDetails, SelfAssessmentUserType, UserDetails, UserName}
-import org.joda.time.LocalDate
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl}
-import play.api.mvc.{AnyContentAsEmpty, Request}
-import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name}
-import uk.gov.hmrc.domain.{Generator, Nino, SaUtr, SaUtrGenerator}
-import uk.gov.hmrc.renderer.TemplateRenderer
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesImpl, MessagesProvider}
+import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.domain.Generator
 
-class IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with Matchers with WireMockHelper with ScalaFutures with IntegrationPatience with Injecting with BeforeAndAfterEach {
+trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMockHelper with ScalaFutures with Matchers {
 
+  implicit override val patienceConfig = PatienceConfig(scaled(Span(15, Seconds)), scaled(Span(100, Millis)))
+
+  val configTaxYear = 2021
+  val testTaxYear = configTaxYear - 1
   val generatedNino = new Generator().nextNino
 
-  val generatedSaUtr = new Generator().nextAtedUtr
+  val authResponse =
+    s"""
+       |{
+       |    "confidenceLevel": 200,
+       |    "nino": "$generatedNino",
+       |    "name": {
+       |        "name": "John",
+       |        "lastName": "Smith"
+       |    },
+       |    "loginTimes": {
+       |        "currentLogin": "2021-06-07T10:52:02.594Z",
+       |        "previousLogin": null
+       |    },
+       |    "optionalCredentials": {
+       |        "providerId": "4911434741952698",
+       |        "providerType": "GovernmentGateway"
+       |    },
+       |    "authProviderId": {
+       |        "ggCredId": "xyz"
+       |    },
+       |    "externalId": "testExternalId",
+       |    "allEnrolments": [],
+       |    "affinityGroup": "Individual",
+       |    "credentialStrength": "strong"
+       |}
+       |""".stripMargin
 
-  lazy val messages = inject[Messages]
+  val citizenResponse =
+    s"""|
+       |{
+       |  "name": {
+       |    "current": {
+       |      "firstName": "John",
+       |      "lastName": "Smith"
+       |    },
+       |    "previous": []
+       |  },
+       |  "ids": {
+       |    "nino": "$generatedNino"
+       |  },
+       |  "dateOfBirth": "11121971"
+       |}
+       |""".stripMargin
+
+  override def fakeApplication = GuiceApplicationBuilder()
+    .configure(
+      "microservice.services.citizen-details.port" -> server.port(),
+      "microservice.services.auth.port" -> server.port(),
+      "microservice.services.message-frontend.port" -> server.port()
+    ).build()
+
+  implicit lazy val messageProvider = app.injector.instanceOf[MessagesProvider]
+  lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+
+  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach() = {
-
     super.beforeEach()
-
-    val authResponse =
-      s"""
-         |{
-         |    "confidenceLevel": 200,
-         |    "credentialStrength": "strong",
-         |    "nino": "$generatedNino",
-         |    "saUtr": "$generatedSaUtr",
-         |    "name": {
-         |        "name": "John",
-         |        "lastName": "Smith"
-         |    },
-         |    "loginTimes": {
-         |        "currentLogin": "2021-06-07T10:52:02.594Z",
-         |        "previousLogin": null
-         |    },
-         |    "optionalCredentials": {
-         |        "providerId": "4911434741952698",
-         |        "providerType": "GovernmentGateway"
-         |    },
-         |    "authProviderId": {
-         |        "ggCredId": "xyz"
-         |    },
-         |    "externalId": "testExternalId",
-         |    "allEnrolments": []
-         |}
-         |""".stripMargin
-
-    server.stubFor(post(urlEqualTo("/auth/authorise"))
-      .willReturn(aResponse().withBody(authResponse)))
+    server.stubFor(post(urlEqualTo("/auth/authorise")).willReturn(ok(authResponse)))
+    server.stubFor(get(urlEqualTo(s"/citizen-details/nino/$generatedNino")).willReturn(ok(citizenResponse)))
+    server.stubFor(get(urlMatching("/messages/count.*")).willReturn(ok("{}")))
   }
-
-  val fakePersonDetails: PersonDetails = PersonDetails(
-    Person(
-      Some("John"),
-      None,
-      Some("Doe"),
-      Some("JD"),
-      Some("Mr"),
-      None,
-      Some("M"),
-      Some(LocalDate.parse("1975-12-03")),
-      Some(generatedNino)),
-    Some(Address(
-      Some("1 Fake Street"),
-      Some("Fake Town"),
-      Some("Fake City"),
-      Some("Fake Region"),
-      None,
-      Some("AA1 1AA"),
-      None,
-      Some(new LocalDate(2015, 3, 15)),
-      None,
-      Some("Residential")
-    )),
-    None
-  )
-
-    def buildUserRequest[A](
-                             nino: Option[Nino] = Some(generatedNino),
-                             userName: Option[UserName] = Some(UserName(Name(Some("Firstname"), Some("Lastname")))),
-                             saUser: SelfAssessmentUserType = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
-                             credentials: Credentials = Credentials("", UserDetails.GovernmentGatewayAuthProvider),
-                             confidenceLevel: ConfidenceLevel = ConfidenceLevel.L200,
-                             personDetails: Option[PersonDetails] = Some(fakePersonDetails),
-                             trustedHelper: Option[TrustedHelper] = None,
-                             profile: Option[String] = None,
-                             messageCount: Option[Int] = None,
-                             request: Request[A] = FakeRequest().asInstanceOf[Request[A]]
-                           ): UserRequest[A] =
-      UserRequest(
-        nino,
-        userName,
-        saUser,
-        credentials,
-        confidenceLevel,
-        personDetails,
-        trustedHelper,
-        profile,
-        messageCount,
-        None,
-        None,
-        request
-      )
-
-    implicit val userRequest: UserRequest[AnyContentAsEmpty.type] = buildUserRequest()
-
 }
