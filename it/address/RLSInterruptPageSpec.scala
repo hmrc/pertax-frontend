@@ -6,7 +6,7 @@ import org.scalatest.concurrent.PatienceConfiguration
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, route}
 import play.api.test.Helpers.{status => getStatus, _}
-import utils.IntegrationSpec
+import testUtils.IntegrationSpec
 
 
 class RLSInterruptPageSpec extends IntegrationSpec {
@@ -56,7 +56,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
       }
 
-      "RLS indicator is set for correspondance address for non tax credit user" in {
+      "RLS indicator is set for correspondence address for non tax credit user" in {
         val designatoryDetails =
           """|
              |{

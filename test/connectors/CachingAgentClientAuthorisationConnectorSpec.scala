@@ -20,7 +20,7 @@ import cats.data.EitherT
 import com.github.tomakehurst.wiremock.client.WireMock.{get, serverError, urlEqualTo}
 import play.api.inject.bind
 import models.AgentClientStatus
-import org.mockito.ArgumentMatchers.{any, eq => eqMockito}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
@@ -30,11 +30,6 @@ import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.{BaseSpec, WireMockHelper}
 import cats.implicits._
-import com.google.inject.name.Names
-import config.{ConfigDecorator, HmrcModule}
-import play.api.libs.json.Reads
-import play.api.mvc.Request
-import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.cache.DataKey
 
 import scala.concurrent.Future

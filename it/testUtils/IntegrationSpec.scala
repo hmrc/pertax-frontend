@@ -1,4 +1,4 @@
-package utils
+package testUtils
 
 import com.github.tomakehurst.wiremock.client.WireMock.{get, ok, post, urlEqualTo, urlMatching}
 import org.scalatest.concurrent.ScalaFutures
