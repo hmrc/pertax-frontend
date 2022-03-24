@@ -162,8 +162,6 @@ class MainViewSpec extends AnyWordSpecLike with Matchers with GuiceOneAppPerSuit
         supportLinkEnabled = true,
         Some(Html("script")),
         Some(Html("ScriptElement")),
-        Some("article-class"),
-        includeGridWrapper = true,
         Some(backLinkUrl),
         Some(Html("AdditionalGaCalls")),
         printableDocument = true

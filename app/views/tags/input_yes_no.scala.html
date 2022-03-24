@@ -24,12 +24,12 @@
 @elements = @{new FieldElements(field.id, field, null, args.toMap, messages) }
 
 <div class="form-group @if(field.hasErrors){form-field--error form-group-error}">
-    <fieldset class="inline" id="@{field.id}" @if(field.hasErrors){aria-describedby="error-message-@{field.id}-input"}>
+    <fieldset class="inline" id="@{field.id}" @if(field.hasErrors || elements.args.contains('_hint)){aria-describedby="@if(elements.args.contains('_hint)){hint-text}@if(field.hasErrors){ error-message-@{field.id}-input}"}>
             <legend>
                 <h1 class="heading-xlarge">@elements.args.get('_legend)</h1>
             </legend>
 
-        @if(elements.args.contains('_hint)){@elements.args.get('_hint)}
+        @if(elements.args.contains('_hint)){<p class="govuk-hint" id="hint-text">@elements.args.get('_hint)</p>}
 
         @elements.errors.map{error => <span class="error-message" id="error-message-@{field.id}-input"><span class="visually-hidden">@messages("error.message.error") </span>@Messages(error.toString)</span>}
 

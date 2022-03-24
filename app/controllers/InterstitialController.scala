@@ -33,7 +33,7 @@ import uk.gov.hmrc.renderer.TemplateRenderer
 import util.DateTimeTools._
 import util.EnrolmentsHelper
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewSaAndItsaMergePageView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -50,6 +50,7 @@ class InterstitialController @Inject() (
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
+  viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
   viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
   enrolmentsHelper: EnrolmentsHelper,
   seissService: SeissService
@@ -141,5 +142,13 @@ class InterstitialController @Inject() (
         logger.warn("User had no sa account when one was required")
         errorRenderer.error(UNAUTHORIZED)
     }
+  }
+
+  def displayNewsAndUpdates: Action[AnyContent] = authenticate { implicit request =>
+    Ok(
+      viewNewsAndUpdatesView(
+        redirectUrl = currentUrl
+      )
+    )
   }
 }

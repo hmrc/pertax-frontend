@@ -20,7 +20,7 @@
 
 @import scala.concurrent.ExecutionContext
 
-@this(mainView: MainView)
+@this(mainView: MainViewChildBenefit)
 
 @(title: String, header: String, scriptElement: Option[Html] = None)(content: Html)(implicit request: UserRequest[_],
         configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)

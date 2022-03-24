@@ -26,7 +26,6 @@
 @(internationalAddressChoiceForm: Form[dto.InternationalAddressChoiceDto], typ: AddrType
 )(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-@hint = {<p>@messages("label.the_uk_is_england_")</p>}
 @mainView(title = messages("label.is_your_main_address_in_the_uk"),
 pageName = Some(messages("label.your_personal_tax_account"))
 ) {
@@ -48,7 +47,7 @@ pageName = Some(messages("label.your_personal_tax_account"))
                         '_labelClass -> "block-label inputLabelBeforeError",
                         '_error -> internationalAddressChoiceForm("internationalAddressChoice").error.fold("")(e => {messages(e.message)}),
                         '_legend -> messages("label.is_your_main_address_in_the_uk"),
-                        '_hint -> hint
+                        '_hint -> messages("label.the_uk_is_england_")
                     )
                 </div>
                 <div class="form-group inline">

@@ -286,6 +286,13 @@ label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os by
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.this.section.is=Dyma’r adran ynghylch
 label.remove=Dileu
+label.latest_news_and_updates=Newyddion a Diweddariadau mwyaf diweddar
+label.stop_using_Verify=Defnydd Cyfrif Treth Personol CThEM o GOV.UK Verify i ddod i ben
+label.news_and_updates=Newyddion a Diweddariadau
+label.verify_stop_from_1_April_2022=O 1 Ebrill 2022 ymlaen, ni fyddwch yn gallu defnyddio GOV.UK Verify i fewngofnodi i’ch Cyfrif Treth Personol CThEM a Hunanasesiad. Bydd angen i chi ddefnyddio Porth y Llywodraeth i fewngofnodi.
+label.create_government_gateway_sign_in=Crëwch fanylion ar gyfer mewngofnodi i Borth y Llywodraeth drwy ddewis ‘Mewngofnodi’ (yn agor tab newydd)
+createGGSigningIn.link.url = https://www.gov.uk/gwasanaethau-cthem-mewngofnodi-neu-gofrestru
+
 
 #
 # Error messages
@@ -346,7 +353,7 @@ head.error.enter_a_date=Nodwch y dyddiad y gwnaethoch ddechrau byw yma
 head.error.enter_valid_date=Gwirio’r dyddiad a nodwyd gennych
 head.error.invalid.date.format=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw yma fod yn ddyddiad go iawn
 head.error.date_in_future=Ni allwch nodi dyddiad sydd yn y dyfodol
-error.date_in_future=dyddiad heddiw neu ddyddiad yn y gorffennol
+error.date_in_future=Mae’n rhaid i’r dyddiad y gwnaethoch ddechrau byw fan hyn fod heddiw neu yn y gorffennol
 head.error.country_required=Nodwch wlad
 error.country_required=Nodwch wlad
 error.message.error = Gwall:
@@ -606,18 +613,23 @@ global.error.InternalServerError500.pta.message.contact.hmrc = gysylltu â CThEM
 global.error.InternalServerError500.pta.message.by.phone.post = ar-lein, dros y ffôn neu drwy’r post.
 
 #*************************************************************
+# Benefit survey text
+#*************************************************************
+label.child_benefit_survey_text = Helpwch i wella’r gwasanaeth Budd-dal Plant drwy gymryd rhan mewn arolwg (yn agor tab newydd). Dylai gymryd tua 5 munud, a gallech ennill taleb werth £25. Rydym yn cynnig 2 daleb bob mis yn ystod cyfnod yr arolwg.
+
+#*************************************************************
 # RLS Interrupt Journey
 #*************************************************************
-rls.title.update_your_address = Update your address
-rls.main_address = Main address
-rls.update_main_address = Update your main address
-rls.update = Update
-rls.remove = Remove
-rls.postal_address = Postal address
-rls.update_postal_address = Update your postal address
+rls.title.update_your_address = Diweddarwch eich cyfeiriad
+rls.main_address = Prif gyfeiriad
+rls.update_main_address = Diweddarwch eich prif gyfeiriad
+rls.update = Diweddaru
+rls.remove = Dileu
+rls.postal_address = Cyfeiriad post
+rls.update_postal_address = Diweddarwch eich cyfeiriad post
 
-profile.message.bothAddressRls = You need to update your main and postal addresses to receive post from HMRC.
-profile.message.mainAddressRls = You need to update your main address to receive post from HMRC.
-profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.
+profile.message.bothAddressRls = Mae angen i chi ddiweddaru’ch prif gyfeiriad a’ch cyfeiriad post i gael post oddi wrth CThEM.
+profile.message.mainAddressRls = Mae angen i chi ddiweddaru’ch prif gyfeiriad i gael post oddi wrth CThEM.
+profile.message.postalAddressRls = Mae angen i chi ddiweddaru’ch cyfeiriad post i gael post oddi wrth CThEM.
 
-label.return_to_your_profile_page=Return to your profile
+label.return_to_your_profile_page = Dychwelyd i’ch proffil

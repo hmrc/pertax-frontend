@@ -17,8 +17,10 @@
 package controllers.controllershelpers
 
 import config.ConfigDecorator
+import connectors.SeissConnector
 import controllers.auth.requests.UserRequest
 import models._
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.i18n.Langs
@@ -47,7 +49,9 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
   val marriageAllowance = injected[MarriageAllowanceView]
   val statePension = injected[StatePensionView]
   val taxSummaries = injected[TaxSummariesView]
+  val seissConnector = mock[SeissConnector]
   val seissView = injected[SeissView]
+  val latestNewsAndUpdatesView = injected[LatestNewsAndUpdatesView]
   val saAndItsaMergeView = injected[SaAndItsaMergeView]
   val enrolmentsHelper = injected[EnrolmentsHelper]
 
@@ -71,6 +75,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
       statePension,
       taxSummaries,
       seissView,
+      latestNewsAndUpdatesView,
       saAndItsaMergeView,
       enrolmentsHelper
     )(stubConfigDecorator)
@@ -130,6 +135,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
+            latestNewsAndUpdatesView,
             saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
@@ -175,6 +181,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
+            latestNewsAndUpdatesView,
             saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
@@ -292,6 +299,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           statePension,
           taxSummaries,
           seissView,
+          latestNewsAndUpdatesView,
           saAndItsaMergeView,
           enrolmentsHelper
         )(stubConfigDecorator)
@@ -415,6 +423,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           statePension,
           taxSummaries,
           seissView,
+          latestNewsAndUpdatesView,
           saAndItsaMergeView,
           enrolmentsHelper
         )(stubConfigDecorator)
@@ -556,7 +565,6 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
           injected[ServicesConfig]
         ) {
           override lazy val isAtsTileEnabled = false
-          override lazy val saItsaTileEnabled: Boolean = false
         }
 
         def sut: HomeCardGenerator =
@@ -571,6 +579,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
+            latestNewsAndUpdatesView,
             saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
@@ -617,6 +626,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
+            latestNewsAndUpdatesView,
             saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
@@ -648,6 +658,7 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
             statePension,
             taxSummaries,
             seissView,
+            latestNewsAndUpdatesView,
             saAndItsaMergeView,
             enrolmentsHelper
           )(stubConfigDecorator)
@@ -661,6 +672,44 @@ class HomeCardGeneratorSpec extends ViewSpec with MockitoSugar {
 
         homeCardGenerator.getSaAndItsaMergeCard() mustBe None
       }
+    }
+  }
+
+  "Calling getLatestNewsAndUpdatesCard" must {
+    "return News and Updates Card when toggled on" in {
+
+      lazy val cardBody = homeCardGenerator.getLatestNewsAndUpdatesCard()
+
+      cardBody mustBe Some(latestNewsAndUpdatesView())
+    }
+
+    "return nothing when toggled off" in {
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val isNewsAndUpdatesTileEnabled: Boolean = false
+      }
+
+      def sut: HomeCardGenerator =
+        new HomeCardGenerator(
+          payAsYouEarn,
+          taxCalculation,
+          selfAssessment,
+          nationalInsurance,
+          taxCredits,
+          childBenefit,
+          marriageAllowance,
+          statePension,
+          taxSummaries,
+          seissView,
+          latestNewsAndUpdatesView,
+          saAndItsaMergeView,
+          enrolmentsHelper
+        )(stubConfigDecorator)
+
+      sut.getLatestNewsAndUpdatesCard mustBe None
     }
   }
 }

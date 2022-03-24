@@ -39,6 +39,7 @@ import uk.gov.hmrc.play.partials.HtmlPartial
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
+import views.html.interstitial.ViewNewsAndUpdatesView
 import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
@@ -73,6 +74,7 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
         injected[Sa302InterruptView],
+        injected[ViewNewsAndUpdatesView],
         injected[ViewSaAndItsaMergePageView],
         injected[EnrolmentsHelper],
         injected[SeissService]
@@ -279,6 +281,57 @@ class InterstitialControllerSpec extends BaseSpec {
     }
   }
 
+  "Calling displayNewsAndUpdates" must {
+
+    "call displayNewsAndUpdates and return 200 when called by authorised user using verify" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request
+            )
+          )
+      })
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure = false
+      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
+      val testController = controller
+
+      val result = testController.displayNewsAndUpdates(fakeRequest)
+
+      status(result) mustBe OK
+
+      contentAsString(result) must include("News and Updates")
+    }
+
+    "call displayNewsAndUpdates and return 200 when called by authorised user using GG" in new LocalSetup {
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(request = request)
+          )
+      })
+
+      lazy val simulateFormPartialServiceFailure = false
+      lazy val simulateSaPartialServiceFailure = false
+      lazy val paperlessResponse = ActivatePaperlessNotAllowedResponse
+
+      val testController = controller
+
+      val result = testController.displayNewsAndUpdates(fakeRequest)
+
+      status(result) mustBe OK
+
+      contentAsString(result) must include("News and Updates")
+    }
+  }
+
   "Calling displayItsa" must {
 
     "saItsaTileEnabled is false return Unauthorized" in {
@@ -307,6 +360,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewChildBenefitsSummaryInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[EnrolmentsHelper],
           injected[SeissService]
@@ -354,6 +408,7 @@ class InterstitialControllerSpec extends BaseSpec {
           injected[ViewChildBenefitsSummaryInterstitialView],
           injected[SelfAssessmentSummaryView],
           injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
           injected[ViewSaAndItsaMergePageView],
           injected[EnrolmentsHelper],
           injected[SeissService]
