@@ -44,11 +44,14 @@ class PersonalDetailsController @Inject() (
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView
-)(implicit configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, ec: ExecutionContext)
-    extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
+)(implicit
+  configDecorator: ConfigDecorator,
+  templateRenderer: TemplateRenderer,
+  ec: ExecutionContext
+) extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
 
   def redirectToYourProfile: Action[AnyContent] = authenticate.async { _ =>
-    Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad()))
+    Future.successful(Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad))
   }
 
   def onPageLoad: Action[AnyContent] =

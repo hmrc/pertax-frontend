@@ -8,7 +8,7 @@ object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc"         %% s"bootstrap-frontend-$playVersion"        % "5.16.0",
+    "uk.gov.hmrc"         %% s"bootstrap-frontend-$playVersion"        % "5.17.0",
     "uk.gov.hmrc"         %% "play-partials"            % s"8.1.0-$playVersion",
     "uk.gov.hmrc"         %% "url-builder"              % s"3.5.0-$playVersion",
     "uk.gov.hmrc"         %% "http-caching-client"      % s"9.5.0-$playVersion",
@@ -20,7 +20,8 @@ object AppDependencies {
     "uk.gov.hmrc"         %% "domain"                   % s"6.1.0-$playVersion",
     "uk.gov.hmrc.mongo"   %% s"hmrc-mongo-$playVersion" % "0.55.0",
     "io.lemonlabs"        %% "scala-uri"                % "2.2.3",
-    "com.typesafe.play"   %% "play-json-joda"           % "2.6.10"
+    "com.typesafe.play"   %% "play-json-joda"           % "2.6.10",
+    "org.typelevel"       %% "cats-core"                % "2.6.1"
   )
 
   val test = Seq(
