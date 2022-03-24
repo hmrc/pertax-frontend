@@ -23,19 +23,41 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
-import org.joda.time.DateTime
+import com.google.common.util.concurrent.RateLimiter
+import cats.implicits._
+import com.github.nscala_time.time.Imports.DateTime
 import org.scalatest.concurrent.IntegrationPatience
 
-class RateLimiterSpec extends BaseSpec with Throttle with WireMockHelper with IntegrationPatience {
+import scala.util.{Failure, Success}
 
-  private val system: ActorSystem = ActorSystem()
+class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
   def workFuture = Future.successful(true)
 
+  class TestThrottle(tps: Double) extends Throttle {
+    private var rateLimiter: Option[RateLimiter] = None
+    def getInstance: RateLimiter = rateLimiter match {
+      case Some(rateLimiter) =>
+        println("some")
+        rateLimiter
+      case None =>
+        println("none")
+        rateLimiter = Some(RateLimiter.create(tps))
+        rateLimiter.get
+    }
+  }
+
   "withThrottle" must {
     "execute future" when {
-      "not rate limited" in {
-        val result = withThrottle(10, 10 seconds) {
+      "below rate limit" in new TestThrottle(10) {
+        def workFuture: Future[Boolean] = Future.successful {
+          Thread.sleep(500)
+          true
+        }
+
+        val waitTime = 10 seconds
+
+        val result = withThrottle(getInstance, waitTime) {
           workFuture
         }
 
@@ -44,19 +66,139 @@ class RateLimiterSpec extends BaseSpec with Throttle with WireMockHelper with In
     }
 
     "fail to execute future" when {
-      "rate limit is reached" in {
+      "rate limit is reached at 1tps" in new TestThrottle(1) {
         val result = for {
           _ <-
-            withThrottle(1, 1 millisecond) {
+            withThrottle(getInstance, 1 millisecond) {
               workFuture
             }
           result <-
-            withThrottle(1, 1 millisecond) {
+            withThrottle(getInstance, 1 millisecond) {
               workFuture
             }
         } yield result
 
         whenReady(result.failed) { e =>
+          e mustBe RateLimitedException
+        }
+      }
+    }
+
+    "fail to execute future" when {
+      "rate limit is reached at 1tps 0 wait" in new TestThrottle(1) {
+        val result = for {
+          _ <-
+            withThrottle(getInstance, 0 millisecond) {
+              workFuture
+            }
+          result <-
+            withThrottle(getInstance, 0 millisecond) {
+              workFuture
+            }
+        } yield result
+
+        whenReady(result.failed) { e =>
+          e mustBe RateLimitedException
+        }
+      }
+
+      "rate limit is reached with delayed block" in new TestThrottle(1) {
+        def workFuture: Future[Boolean] = Future.successful {
+          Thread.sleep(500)
+          true
+        }
+        val result = for {
+          resultA <-
+            withThrottle(getInstance, 10 millisecond) {
+              workFuture
+            }
+          _ <-
+            Future.successful(Thread.sleep(600))
+          resultB <-
+            withThrottle(getInstance, 10 millisecond) {
+              workFuture
+            }
+        } yield (resultA, resultB)
+
+        result.futureValue._1 mustBe true
+        result.futureValue._2 mustBe true
+      }
+
+      "long request does not block following" in new TestThrottle(1) {
+        def workFuture: Future[Boolean] = Future.successful {
+          Thread.sleep(1500)
+          true
+        }
+        val result = for {
+          resultA <-
+            withThrottle(getInstance, 10 millisecond) {
+              workFuture
+            }
+          resultB <-
+            withThrottle(getInstance, 10 millisecond) {
+              workFuture
+            }
+        } yield (resultA, resultB)
+
+        result.futureValue._1 mustBe true
+        result.futureValue._2 mustBe true
+      }
+
+      "wait time in action" in new TestThrottle(1) {
+        def workFuture: Future[Boolean] = Future.successful(true)
+
+        val result = for {
+          resultA <-
+            withThrottle(getInstance, 10 millisecond) {
+              workFuture
+            }
+          resultB <-
+            withThrottle(getInstance, 2000 millisecond) {
+              workFuture
+            }
+        } yield (resultA, resultB)
+
+        result.futureValue._1 mustBe true
+        result.futureValue._2 mustBe true
+      }
+
+      "three requests over 2 seconds" in new TestThrottle(1) {
+        def workFuture: Future[Boolean] = Future.successful {
+          println(DateTime.now())
+          true
+        }
+        val resultA =
+          withThrottle(getInstance, 10 millisecond) {
+            workFuture
+          }
+        val resultB =
+          withThrottle(getInstance, 10 millisecond) {
+            workFuture
+          }
+        val resultC =
+          withThrottle(getInstance, 1500 millisecond) {
+            workFuture
+          }
+
+        List(resultA, resultB).foldLeft(Future.successful(true)) { case (accumulator, currentValue) =>
+          currentValue.onComplete {
+            case Success(_) => {
+              accumulator.onComplete {
+                case Success(_) => accumulator
+                case Failure(_) => Future.successful(false)
+              }
+            }
+            case Failure(_) => Future.successful(false)
+          }
+        }
+
+        val finalResult: Future[Boolean] = (resultA, resultB, resultC).mapN((_, _, _) => true)
+
+        finalResult.map(x => println(x))
+
+        whenReady(finalResult.failed) { e =>
+          println("1" * 100)
+          println(e)
           e mustBe RateLimitedException
         }
       }

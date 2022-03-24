@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import util.{Throttle, Timeout}
+import util.{Limiters, Throttle, Timeout}
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
@@ -116,7 +116,7 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     val timerContext: Timer.Context =
       metrics.startTimer(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)
 
-    val result = withThrottle(maxTps, waitInSec seconds) {
+    val result = withThrottle(Limiters.getInstanceForClientStatus(maxTps), waitInSec seconds) {
       withTimeout(timeoutInSec seconds) {
         httpClient
           .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$baseUrl/agent-client-authorisation/status")

@@ -23,31 +23,31 @@ import scala.compat.java8.DurationConverters._
 import scala.concurrent.Future
 
 object Limiters {
-  private var rateLimiter: Option[RateLimiter] = None
-  def getInstance(tps: Double): RateLimiter = rateLimiter match {
+  private var rateLimiterForGetClientStatus: Option[RateLimiter] = None
+  def getInstanceForClientStatus(tps: Double): RateLimiter = rateLimiterForGetClientStatus match {
     case Some(rateLimiter) =>
+      println("some")
       rateLimiter
     case None =>
-      rateLimiter = Some(RateLimiter.create(tps))
-      rateLimiter.get
+      println("none")
+      rateLimiterForGetClientStatus = Some(RateLimiter.create(tps))
+      rateLimiterForGetClientStatus.get
   }
 }
 
 case object RateLimitedException extends RuntimeException
 
 trait Throttle extends Logging {
-  def withThrottle[A](tps: Double, wait: FiniteDuration)(
+  def withThrottle[A](rateLimiter: RateLimiter, wait: FiniteDuration)(
     block: => Future[A]
-  ): Future[A] = {
-    val rateLimiter = Limiters.getInstance(tps)
+  ): Future[A] =
     if (rateLimiter.tryAcquire(wait.toJava)) {
       block
     } else {
       val exception = new RuntimeException(
-        s"Request failed to acquire a permit at a tps of $tps and a waiting time of ${wait.toSeconds}s"
+        s"Request failed to acquire a permit at a tps of ${rateLimiter.getRate} and a waiting time of ${wait.toSeconds}s"
       )
       logger.error(exception.getMessage + "\n" + exception.getStackTrace.mkString("\n"))
       Future.failed(RateLimitedException)
     }
-  }
 }
