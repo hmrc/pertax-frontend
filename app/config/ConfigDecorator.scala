@@ -49,7 +49,7 @@ class ConfigDecorator @Inject() (
   private lazy val formFrontendService = servicesConfig.baseUrl("dfs-digital-forms-frontend")
   lazy val pertaxFrontendService = servicesConfig.baseUrl("pertax-frontend")
   lazy val businessTaxAccountService = servicesConfig.baseUrl("business-tax-account")
-  lazy val tcsBrokerHost = servicesConfig.baseUrl(s"tcs-broker")
+  lazy val tcsBrokerHost = servicesConfig.baseUrl("tcs-broker")
 
   private lazy val payApiUrl = servicesConfig.baseUrl("pay-api")
 
