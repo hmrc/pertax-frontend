@@ -269,7 +269,7 @@ class ConfigDecorator @Inject() (
 
   lazy val incomeTaxViewChangeFrtonendHost = getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
 
-  lazy val itsaViewUrl = s"$incomeTaxViewChangeFrtonendHost/report-quarterly/income-and-expenses/view"
+  lazy val itsaViewUrl = s"$incomeTaxViewChangeFrtonendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
