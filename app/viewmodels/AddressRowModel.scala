@@ -44,7 +44,8 @@ final case class AddressRowModel(
 }
 
 object AddressRowModel {
-  def changeMainAddressUrl: String = controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
+  def changeMainAddressUrl: String =
+    controllers.address.routes.TaxCreditsChoiceController.onPageLoad.url
 
   val closePostalAddressUrl = controllers.address.routes.ClosePostalAddressController.onPageLoad.url
   val changePostalAddressUrl = controllers.address.routes.PostalDoYouLiveInTheUKController.onPageLoad.url
