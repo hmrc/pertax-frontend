@@ -26,13 +26,14 @@ import models._
 import play.api.Logging
 import play.api.mvc._
 import play.twirl.api.Html
-import services.PreferencesFrontendService
 import services.partials.{FormPartialService, SaPartialService}
+import services.{PreferencesFrontendService, SeissService}
 import uk.gov.hmrc.play.partials.HtmlPartial
 import uk.gov.hmrc.renderer.TemplateRenderer
-import util.DateTimeTools.previousAndCurrentTaxYearFromGivenYear
+import util.DateTimeTools._
+import util.EnrolmentsHelper
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView}
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,7 +50,10 @@ class InterstitialController @Inject() (
   viewChildBenefitsSummaryInterstitialView: ViewChildBenefitsSummaryInterstitialView,
   selfAssessmentSummaryView: SelfAssessmentSummaryView,
   sa302InterruptView: Sa302InterruptView,
-  viewNewsAndUpdatesView: ViewNewsAndUpdatesView
+  viewNewsAndUpdatesView: ViewNewsAndUpdatesView,
+  viewSaAndItsaMergePageView: ViewSaAndItsaMergePageView,
+  enrolmentsHelper: EnrolmentsHelper,
+  seissService: SeissService
 )(implicit configDecorator: ConfigDecorator, val templateRenderer: TemplateRenderer, ec: ExecutionContext)
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
@@ -68,14 +72,12 @@ class InterstitialController @Inject() (
       .addBreadcrumb(saBreadcrumb)
 
   def displayNationalInsurance: Action[AnyContent] = authenticate.async { implicit request =>
-    formPartialService.getNationalInsurancePartial.flatMap { p =>
-      Future.successful(
-        Ok(
-          viewNationalInsuranceInterstitialHomeView(
-            formPartial = p successfulContentOrElse Html(""),
-            redirectUrl = currentUrl,
-            request.nino
-          )
+    formPartialService.getNationalInsurancePartial.map { p =>
+      Ok(
+        viewNationalInsuranceInterstitialHomeView(
+          formPartial = p successfulContentOrElse Html(""),
+          redirectUrl = currentUrl,
+          request.nino
         )
       )
     }
@@ -88,6 +90,26 @@ class InterstitialController @Inject() (
         taxCreditsEnabled = configDecorator.taxCreditsEnabled
       )
     )
+  }
+
+  def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
+    if (configDecorator.saItsaTileEnabled) {
+      for {
+        hasSeissClaims <- seissService.hasClaims(request.saUserType)
+      } yield Ok(
+        viewSaAndItsaMergePageView(
+          redirectUrl = currentUrl(request),
+          nextDeadlineTaxYear = (current.currentYear + 1).toString,
+          enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
+          enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
+          hasSeissClaims,
+          taxYear = previousAndCurrentTaxYear,
+          request.saUserType
+        )
+      )
+    } else {
+      errorRenderer.futureError(UNAUTHORIZED)
+    }
   }
 
   def displaySelfAssessment: Action[AnyContent] = authenticate.async { implicit request =>

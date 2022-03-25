@@ -255,8 +255,8 @@ class ConfigDecorator @Inject() (
   lazy val rlsInterruptToggle =
     runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
 
-  lazy val newSaItsaTileEnabled =
-    runModeConfiguration.getOptional[Boolean]("feature.new-sa-itsa-tile.enabled").getOrElse(false)
+  lazy val saItsaTileEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.sa-itsa-tile.enabled").getOrElse(false)
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
@@ -266,6 +266,10 @@ class ConfigDecorator @Inject() (
   lazy val sessionTimeoutInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.timeout").getOrElse(900)
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
+
+  lazy val incomeTaxViewChangeFrtonendHost = getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
+
+  lazy val itsaViewUrl = s"$incomeTaxViewChangeFrtonendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
@@ -284,6 +288,7 @@ class ConfigDecorator @Inject() (
       .toBoolean
 
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
+  lazy val seissClaimsUrl = s"$seissFrontendHost/self-employment-support/claim/your-claims"
 }
 
 trait TaxcalcUrls {

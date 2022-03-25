@@ -427,7 +427,7 @@ label.make_a_payment=Gwneud taliad
 label.view_your_payments=Bwrw golwg dros eich taliadau
 label.check_if_you_need_to_fill_in_a_tax_return=Gwirio a oes rhaid i chi lenwi Ffurflen Dreth
 label.find_out_how_to_access_self_assessment=Cael gwybod dut i gyrchu Hunanasesiad
-label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad. Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.view_and_manage_your_self_assessment_tax_return_the_deadline_for_online_=Bwrw golwg ar a gofalu am eich Ffurflen Dreth Hunanasesiad.
 label.not_enrolled.content=Rydych wedi cofrestru ar gyfer Hunanasesiad. I ddefnyddio’ch cyfrif Hunanasesiad ar-lein, mae’n rhaid i chi wneud cais i gael mynediad ato.
 label.not_enrolled.link.text=Gwneud cais i gael mynediad at eich Hunanasesiad
 
@@ -443,6 +443,24 @@ label.you_do_not_owe_any_more_tax=Nid oes arnoch ragor o dreth ar gyfer blwyddyn
 
 title.seiss=Cynllun Cymhorthdal Incwm Hunangyflogaeth (SEISS)
 body.seiss=Bwrw golwg dros eich hawliadau SEISS.
+
+#
+# ITSA
+#
+label.your_self_assessment=Eich Hunanasesiad
+label.view_and_manage_your_mtd_for_itsa=Gweld a rheoli eich MTD ar gyfer ITSA
+label.view_and_manage_your_earlier_self_assessment_years=Gweld a rheoli eich blynyddoedd Hunanasesiad cynharach
+label.online_returns_deadline= Y dyddiad cau ar gyfer cyflwyno Ffurflenni Treth ar-lein yw 31 Ionawr {0}.
+label.mtd_for_sa=Troi Treth yn Ddigidol ar gyfer Hunanasesiad Treth Incwm
+label.send_updates_hmrc_compatible_software=Anfonwch ddiweddariadau gan ddefnyddio meddalwedd syn gydnaws a CThEM.
+label.view_manage_your_mtd_for_sa=Gweld a rheoli eich Hunanasesiad Troi Treth yn Ddigidol ar gyfer Treth Incwm
+label.itsa_header=Hunanasesiad Treth Incwm
+label.view_manage_sa_returns=Gweld a rheoli eich Ffurflenni Treth Hunanasesiad
+label.access_your_sa_returns=Cyrchwch eich Ffurflenni Treth Hunanasesiad
+label.old_way_sa_returns=Dyma’r hen ffordd o gyflwyno’ch Ffurflenni Treth Hunanasesiad.
+label.self_assessment_tax_returns=Ffurflenni treth Hunanasesiad
+label.view_manage_your_mtd_itsa=Gweld a rheoli eich Hunanasesiad Troi Treth yn Ddigidol ar gyfer Treth Incwm neu gael mynediad at eich Ffurflenni Treth Hunanasesiad.
+label.online_deadline_final_declarations=Y dyddiad cau ar gyfer datganiadau terfynol neu ffurflenni ar-lein yw 31 Ionawr {0}.
 
 #
 # Benefits

@@ -16,12 +16,15 @@
 
 package controllers
 
+import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import controllers.auth.{AuthJourney, WithBreadcrumbAction}
 import error.ErrorRenderer
 import models.{ActivatePaperlessNotAllowedResponse, ActivatePaperlessResponse, ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import play.api.Configuration
+import play.api.i18n.Langs
 import play.api.mvc.{MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -31,11 +34,13 @@ import services.partials.{FormPartialService, SaPartialService}
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.partials.HtmlPartial
 import util.UserRequestFixture.buildUserRequest
 import util._
 import views.html.SelfAssessmentSummaryView
-import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewNewsAndUpdatesView}
+import views.html.interstitial.ViewNewsAndUpdatesView
+import views.html.interstitial.{ViewChildBenefitsSummaryInterstitialView, ViewNationalInsuranceInterstitialHomeView, ViewSaAndItsaMergePageView}
 import views.html.selfassessment.Sa302InterruptView
 
 import scala.concurrent.Future
@@ -47,7 +52,9 @@ class InterstitialControllerSpec extends BaseSpec {
   trait LocalSetup {
 
     def simulateFormPartialServiceFailure: Boolean
+
     def simulateSaPartialServiceFailure: Boolean
+
     def paperlessResponse: ActivatePaperlessResponse
 
     lazy val fakeRequest = FakeRequest("", "")
@@ -67,12 +74,16 @@ class InterstitialControllerSpec extends BaseSpec {
         injected[ViewChildBenefitsSummaryInterstitialView],
         injected[SelfAssessmentSummaryView],
         injected[Sa302InterruptView],
-        injected[ViewNewsAndUpdatesView]
+        injected[ViewNewsAndUpdatesView],
+        injected[ViewSaAndItsaMergePageView],
+        injected[EnrolmentsHelper],
+        injected[SeissService]
       )(config, templateRenderer, ec) {
         private def formPartialServiceResponse = Future.successful {
           if (simulateFormPartialServiceFailure) HtmlPartial.Failure()
           else HtmlPartial.Success(Some("Success"), Html("any"))
         }
+
         when(formPartialService.getSelfAssessmentPartial(any())) thenReturn formPartialServiceResponse
         when(formPartialService.getNationalInsurancePartial(any())) thenReturn formPartialServiceResponse
 
@@ -318,6 +329,106 @@ class InterstitialControllerSpec extends BaseSpec {
       status(result) mustBe OK
 
       contentAsString(result) must include("News and Updates")
+    }
+  }
+
+  "Calling displayItsa" must {
+
+    "saItsaTileEnabled is false return Unauthorized" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val saItsaTileEnabled: Boolean = false
+      }
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mock[PreferencesFrontendService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[EnrolmentsHelper],
+          injected[SeissService]
+        )(stubConfigDecorator, templateRenderer, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
+    "saItsaTileEnabled is true return OK" in {
+      lazy val fakeRequest = FakeRequest("", "")
+
+      val mockAuthJourney = mock[AuthJourney]
+
+      val stubConfigDecorator = new ConfigDecorator(
+        injected[Configuration],
+        injected[Langs],
+        injected[ServicesConfig]
+      ) {
+        override lazy val saItsaTileEnabled: Boolean = true
+      }
+
+      def controller: InterstitialController =
+        new InterstitialController(
+          mock[FormPartialService],
+          mock[SaPartialService],
+          mock[PreferencesFrontendService],
+          mockAuthJourney,
+          injected[WithBreadcrumbAction],
+          injected[MessagesControllerComponents],
+          injected[ErrorRenderer],
+          injected[ViewNationalInsuranceInterstitialHomeView],
+          injected[ViewChildBenefitsSummaryInterstitialView],
+          injected[SelfAssessmentSummaryView],
+          injected[Sa302InterruptView],
+          injected[ViewNewsAndUpdatesView],
+          injected[ViewSaAndItsaMergePageView],
+          injected[EnrolmentsHelper],
+          injected[SeissService]
+        )(stubConfigDecorator, templateRenderer, ec)
+
+      when(mockAuthJourney.authWithPersonalDetails).thenReturn(new ActionBuilderFixture {
+        override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+          block(
+            buildUserRequest(
+              saUser = NonFilerSelfAssessmentUser,
+              credentials = Credentials("", "Verify"),
+              request = request
+            )
+          )
+      })
+
+      val result = controller.displaySaAndItsaMergePage()(fakeRequest)
+
+      status(result) mustBe OK
+      contentAsString(result) must include("Your Self Assessment")
     }
   }
 }

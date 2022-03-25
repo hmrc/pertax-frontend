@@ -29,7 +29,6 @@ import views.html.ViewSpec
 import views.html.cards.home.SelfAssessmentView
 
 import java.net.URLDecoder
-import scala.collection.JavaConverters.asScalaBufferConverter
 
 class SelfAssessmentViewSpec extends ViewSpec {
 
