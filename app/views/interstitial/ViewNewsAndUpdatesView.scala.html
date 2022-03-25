@@ -39,24 +39,15 @@
 
             <h2 id="nic">@messages("label.percentage_points_uplift_in_NIC")</h2>
             <p>@messages("label.national_insurance_contributions_will_increase_by_1.25_percentage_points")</p>
-            <br>
                 <p>@messages("label.the_increase_will_apply_to")</p>
-            <br>
-            <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
-                <li>
-                    @messages("label.class_1_paid_by_employees")
-                </li>
 
-                <li>
-                    @messages("label.class_4_paid_by_self_employed")
-                </li>
-
-                <li>
-                    @messages("label.secondary_class_1_1a_1b_paid_by_employers")
-                </li>
+            <ul class="list list-bullet">
+                <li>@messages("label.class_1_paid_by_employees")</li>
+                <li>@messages("label.class_4_paid_by_self_employed")</li>
+                <li>@messages("label.secondary_class_1_1a_1b_paid_by_employers")</li>
             </ul>
 
-            <p> <a class="trackLink"  href=@messages("createGGSigningIn.link.url") target="_blank">@messages("label.prepare_for_the_health_and_social_care_levy")</a></p>
+            <p> <a class="trackLink"  href="@configDecorator.healthAndSocialCareLevyUrl" target="_blank">@messages("label.prepare_for_the_health_and_social_care_levy")</a></p>
         </section>
 </div>
 </div>
