@@ -123,14 +123,10 @@ class InterstitialController @Inject() (
   }
 
   def displayNewsAndUpdates: Action[AnyContent] = authenticate { implicit request =>
-    if (configDecorator.isNewsAndUpdatesTileEnabled) {
       Ok(
         viewNewsAndUpdatesView(
           redirectUrl = currentUrl
         )
       )
-    } else {
-      errorRenderer.error(UNAUTHORIZED)
-    }
   }
 }
