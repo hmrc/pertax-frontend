@@ -53,7 +53,7 @@ class PersonalDetailsViewModelSpec extends ViewSpec {
     ConfidenceLevel.L200,
     None,
     None,
-    null,
+    Set(),
     None,
     None,
     None,
