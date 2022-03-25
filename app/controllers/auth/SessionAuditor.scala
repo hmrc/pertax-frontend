@@ -17,7 +17,6 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import controllers.auth.SessionAuditor._
 import controllers.auth.requests.AuthenticatedRequest
 import play.api.Logging
 import play.api.libs.json.{Format, Json}
@@ -29,19 +28,20 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.{Failure, Success}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import util.AuditServiceTools
+import util.{AuditServiceTools, EnrolmentsHelper}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(implicit ec: ExecutionContext)
-    extends AuditTags with Logging {
+private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(
+  implicit ec: ExecutionContext
+) extends AuditTags with Logging {
 
   def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit hc: HeaderCarrier): Future[Result] =
     request.session.get(sessionKey) match {
       case None =>
         logger.info(request.profile.toString)
 
-        val eventDetail = UserSessionAuditEvent(request)
+        val eventDetail = userSessionAuditEventFromRequest(request)
 
         val sendAuditEvent = auditConnector
           .sendExtendedEvent(
@@ -64,37 +64,32 @@ private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector)(im
 
       case _ => Future.successful(result)
     }
-}
-
-object SessionAuditor {
 
   val sessionKey = "sessionAudited"
   val auditType = "user-session-visit"
 
-  case class UserSessionAuditEvent(
-    nino: Option[Nino],
-    credentials: Credentials,
-    confidenceLevel: ConfidenceLevel,
-    name: Option[String],
-    saUtr: Option[SaUtr],
-    allEnrolments: Set[Enrolment]
-  )
+  def userSessionAuditEventFromRequest(request: AuthenticatedRequest[_]): UserSessionAuditEvent = {
+    val nino = request.nino
+    val credentials = request.credentials
+    val confidenceLevel = request.confidenceLevel
+    val name = request.name map (_.toString)
+    val saUtr = enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) map (_.saUtr)
+    val enrolments = request.enrolments
 
-  object UserSessionAuditEvent {
-
-    def apply[A](request: AuthenticatedRequest[A]): UserSessionAuditEvent = {
-      val nino = request.nino
-      val credentials = request.credentials
-      val confidenceLevel = request.confidenceLevel
-      val name = request.name map (_.toString)
-      val saUtr = request.saEnrolment map (_.saUtr)
-      val enrolments = request.enrolments
-
-      UserSessionAuditEvent(nino, credentials, confidenceLevel, name, saUtr, enrolments)
-    }
-
-    implicit val credentialsFormats = Json.format[Credentials]
-    implicit val formats: Format[UserSessionAuditEvent] = Json.format[UserSessionAuditEvent]
+    UserSessionAuditEvent(nino, credentials, confidenceLevel, name, saUtr, enrolments)
   }
+}
 
+case class UserSessionAuditEvent(
+  nino: Option[Nino],
+  credentials: Credentials,
+  confidenceLevel: ConfidenceLevel,
+  name: Option[String],
+  saUtr: Option[SaUtr],
+  allEnrolments: Set[Enrolment]
+)
+
+object UserSessionAuditEvent {
+  implicit val credentialsFormats = Json.format[Credentials]
+  implicit val formats: Format[UserSessionAuditEvent] = Json.format[UserSessionAuditEvent]
 }

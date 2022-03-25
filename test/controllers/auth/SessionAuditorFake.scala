@@ -17,16 +17,17 @@
 package controllers.auth
 
 import com.google.inject.Inject
-import controllers.auth.SessionAuditor.sessionKey
 import controllers.auth.requests.AuthenticatedRequest
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import util.EnrolmentsHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionAuditorFake @Inject() (auditConnector: AuditConnector)(implicit ec: ExecutionContext)
-    extends SessionAuditor(auditConnector) {
+class SessionAuditorFake @Inject() (auditConnector: AuditConnector, enrolmentsHelper: EnrolmentsHelper)(implicit
+  ec: ExecutionContext
+) extends SessionAuditor(auditConnector, enrolmentsHelper) {
   override def auditOnce[A](request: AuthenticatedRequest[A], result: Result)(implicit
     hc: HeaderCarrier
   ): Future[Result] =
