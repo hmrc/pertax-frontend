@@ -16,13 +16,11 @@
 
 package util
 
-import com.github.nscala_time.time.Imports.DateTime
 import com.google.common.util.concurrent.RateLimiter
 import org.scalatest.concurrent.IntegrationPatience
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.Random
 
 class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
 
@@ -103,25 +101,6 @@ class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatie
         Thread.sleep(1500)
         true
       }
-      val result = for {
-        resultA <-
-          withThrottle {
-            workFuture
-          }
-        resultB <-
-          withThrottle {
-            workFuture
-          }
-      } yield (resultA, resultB)
-
-      result.futureValue._1 mustBe true
-      result.futureValue._2 mustBe true
-    }
-
-    "Future can wait up to 2 seconds so that it is successful in the next free bucket" in new Throttle {
-      val rateLimiter = RateLimiter.create(1)
-
-      def workFuture: Future[Boolean] = Future.successful(true)
 
       val result = for {
         resultA <-
@@ -136,26 +115,6 @@ class RateLimiterSpec extends BaseSpec with WireMockHelper with IntegrationPatie
 
       result.futureValue._1 mustBe true
       result.futureValue._2 mustBe true
-    }
-
-    "6 successes and 4 failures using a 2rq/s and a wait time os 2.5sec" in new Throttle {
-      override val rateLimiter = RateLimiter.create(10.0)
-
-      val futuresList: List[Future[Boolean]] = (1 to 50).par
-        .map { i =>
-          print(i + " / " + DateTime.now())
-          Thread.sleep(i * 2)
-          Future(withThrottle {
-            workFuture
-          })
-        }
-        .toList
-        .map(_.flatten)
-
-      val counts = gatherFutures(futuresList)
-
-      counts.futureValue mustBe FuturesResults(4, 6, 0)
-
     }
   }
 }

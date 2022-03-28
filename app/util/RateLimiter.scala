@@ -37,8 +37,7 @@ trait Throttle extends Logging {
 
   def withThrottle[A](
     block: => Future[A]
-  ): Future[A] = {
-    println("PPPPP: " + rateLimiter.getRate)
+  ): Future[A] =
     if (rateLimiter.tryAcquire()) {
       block
     } else {
@@ -48,5 +47,4 @@ trait Throttle extends Logging {
       logger.error(exception.getMessage + "\n" + exception.getStackTrace.mkString("\n"))
       Future.failed(RateLimitedException)
     }
-  }
 }
