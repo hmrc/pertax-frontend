@@ -19,6 +19,7 @@ package connectors
 import cats.data.EitherT
 import cats.implicits._
 import com.codahale.metrics.Timer
+import com.google.common.util.concurrent.RateLimiter
 import com.google.inject.name.Named
 import com.google.inject.{Inject, Singleton}
 import metrics.{Metrics, MetricsEnumeration}
@@ -97,16 +98,13 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
   val httpClient: HttpClient,
   val metrics: Metrics,
   servicesConfig: ServicesConfig,
-  httpClientResponse: HttpClientResponse
+  httpClientResponse: HttpClientResponse,
+  limiters: Limiters
 ) extends AgentClientAuthorisationConnector with Throttle with Timeout with Logging {
-
+  val rateLimiter: RateLimiter = limiters.rateLimiterForGetClientStatus
   lazy val baseUrl = servicesConfig.baseUrl("agent-client-authorisation")
-  lazy val maxTps =
-    servicesConfig.getConfInt("feature.agent-client-authorisation.maxTps", Int.MaxValue).toDouble
-  lazy val waitInSec =
-    servicesConfig.getConfInt("feature.agent-client-authorisation.waitInSec", 20)
   lazy val timeoutInSec =
-    servicesConfig.getConfInt("feature.agent-client-authorisation.timeoutInSec", 20)
+    servicesConfig.getInt("feature.agent-client-authorisation.timeoutInSec")
 
   override def getAgentClientStatus(implicit
     hc: HeaderCarrier,
@@ -116,16 +114,17 @@ class DefaultAgentClientAuthorisationConnector @Inject() (
     val timerContext: Timer.Context =
       metrics.startTimer(MetricsEnumeration.GET_AGENT_CLIENT_STATUS)
 
-    val result = withThrottle(Limiters.getInstanceForClientStatus(maxTps), waitInSec seconds) {
-      withTimeout(timeoutInSec seconds) {
-        httpClient
-          .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$baseUrl/agent-client-authorisation/status")
-          .map { response =>
-            timerContext.stop()
-            response
-          }
+    val result =
+      withThrottle {
+        withTimeout(timeoutInSec seconds) {
+          httpClient
+            .GET[Either[UpstreamErrorResponse, HttpResponse]](s"$baseUrl/agent-client-authorisation/status")
+            .map { response =>
+              timerContext.stop()
+              response
+            }
+        }
       }
-    }
     httpClientResponse.read(result, MetricsEnumeration.GET_AGENT_CLIENT_STATUS).map { response =>
       response.json.as[AgentClientStatus]
     }

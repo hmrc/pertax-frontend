@@ -34,7 +34,7 @@ class AgentClientAuthorisationService @Inject() (
 ) {
 
   lazy private val agentClientAuthorisationEnabled =
-    servicesConfig.getConfBool("feature.agent-client-authorisation.enabled", true)
+    servicesConfig.getBoolean("feature.agent-client-authorisation.enabled")
 
   def getAgentClientStatus(implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Boolean] =
     if (agentClientAuthorisationEnabled) {

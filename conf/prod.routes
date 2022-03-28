@@ -1,3 +1,5 @@
+GET /personal-account/test controllers.TestController.test
+
 GET         /personal-account/start-verify                                             controllers.PublicController.verifyEntryPoint
 GET         /personal-account/start-government-gateway                                 controllers.PublicController.governmentGatewayEntryPoint
 GET         /personal-account/signin                                                   controllers.PublicController.sessionTimeout
