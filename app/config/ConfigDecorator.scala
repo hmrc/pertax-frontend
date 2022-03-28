@@ -62,6 +62,7 @@ class ConfigDecorator @Inject() (
 
   //These hosts should be empty for Prod like environments, all frontend services run on the same host so e.g localhost:9030/tai in local should be /tai in prod
   lazy val seissFrontendHost = getExternalUrl(s"self-employed-income-support-frontend.host").getOrElse("")
+  lazy val incomeTaxViewChangeFrontendHost = getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
   lazy val preferencesFrontendService = getExternalUrl(s"preferences-frontend").getOrElse("")
   lazy val contactHost = getExternalUrl(s"contact-frontend.host").getOrElse("")
   lazy val citizenAuthHost = getExternalUrl(s"citizen-auth.host").getOrElse("")
@@ -267,9 +268,7 @@ class ConfigDecorator @Inject() (
   lazy val sessionTimeoutInMinutes = sessionTimeoutInSeconds / 60
   lazy val sessionCountdownInSeconds = runModeConfiguration.getOptional[Int]("ptaSession.countdown").getOrElse(120)
 
-  lazy val incomeTaxViewChangeFrtonendHost = getExternalUrl(s"income-tax-view-change-frontend.host").getOrElse("")
-
-  lazy val itsaViewUrl = s"$incomeTaxViewChangeFrtonendHost/report-quarterly/income-and-expenses/view?origin=PTA"
+  lazy val itsaViewUrl = s"$incomeTaxViewChangeFrontendHost/report-quarterly/income-and-expenses/view?origin=PTA"
 
   def getFeedbackSurveyUrl(origin: Origin): String =
     feedbackSurveyFrontendHost + "/feedback/" + enc(origin.origin)
