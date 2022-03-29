@@ -18,7 +18,6 @@ package models.dto
 
 import models.Address
 import org.joda.time.LocalDate
-import uk.gov.hmrc.time.DateTimeUtils.now
 import util.BaseSpec
 
 class AddressDtoSpec extends BaseSpec {
@@ -246,7 +245,7 @@ class AddressDtoSpec extends BaseSpec {
         )
     }
 
-    "return an error when data is entered in line 4 and not line 3" in {
+    "move line 4 data to line 3 if line 3 is empty" in {
 
       val formData = Map(
         "line1"    -> "Line 1",
@@ -259,11 +258,18 @@ class AddressDtoSpec extends BaseSpec {
       AddressDto.ukForm
         .bind(formData)
         .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line3_required"
-          },
-          success => fail("Form should give an error")
+          _ => fail("Form should not contain any errors"),
+          success => {
+            success
+              .toAddress("Residential", LocalDate.now().minusDays(1))
+              .line3
+              .nonEmpty mustBe true
+
+            success
+              .toAddress("Residential", LocalDate.now().minusDays(1))
+              .line4
+              .isEmpty mustBe true
+          }
         )
     }
 
@@ -310,7 +316,7 @@ class AddressDtoSpec extends BaseSpec {
         )
     }
 
-    "return an error when data is entered in line 5 and not line 4" in {
+    "move line 5 data to line 4 if line 4 is empty" in {
 
       val formData = Map(
         "line1"    -> "Line 1",
@@ -324,15 +330,22 @@ class AddressDtoSpec extends BaseSpec {
       AddressDto.ukForm
         .bind(formData)
         .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 1
-            formWithErrors.errors.head.message mustBe "error.line4_required"
-          },
-          success => fail("Form should give an error")
+          _ => fail("Form should not contain any errors"),
+          success => {
+            success
+              .toAddress("Residential", LocalDate.now().minusDays(1))
+              .line4
+              .nonEmpty mustBe true
+
+            success
+              .toAddress("Residential", LocalDate.now().minusDays(1))
+              .line5
+              .isEmpty mustBe true
+          }
         )
     }
 
-    "return two errors when data is entered in line 5 and not line 4 or line 3" in {
+    "move line 5 data to line 3 if line 3 and 4 are empty" in {
 
       val formData = Map(
         "line1"    -> "Line 1",
@@ -346,12 +359,23 @@ class AddressDtoSpec extends BaseSpec {
       AddressDto.ukForm
         .bind(formData)
         .fold(
-          formWithErrors => {
-            formWithErrors.errors.length mustBe 2
-            formWithErrors.errors(0).message mustBe "error.line3_required"
-            formWithErrors.errors(1).message mustBe "error.line4_required"
-          },
-          success => fail("Form should give an error")
+          _ => fail("Form should not contain any errors"),
+          success => {
+            success
+              .toAddress("Residential", LocalDate.now().minusDays(1))
+              .line3
+              .nonEmpty mustBe true
+
+            success
+              .toAddress("Residential", LocalDate.now().minusDays(1))
+              .line4
+              .isEmpty mustBe true
+
+            success
+              .toAddress("Residential", LocalDate.now().minusDays(1))
+              .line5
+              .isEmpty mustBe true
+          }
         )
     }
 
@@ -399,7 +423,7 @@ class AddressDtoSpec extends BaseSpec {
         )
     }
 
-    "return two errors when invalid data is submitted in line 5 and line 4 is empty" in {
+    "return one error when invalid data is submitted in line 5 and line 4 is empty" in {
 
       val formData = Map(
         "line1"    -> "Line 1",
@@ -414,9 +438,8 @@ class AddressDtoSpec extends BaseSpec {
         .bind(formData)
         .fold(
           formWithErrors => {
-            formWithErrors.errors.length mustBe 2
-            formWithErrors.errors(1).message mustBe "error.line5_invalid_characters"
-            formWithErrors.errors(0).message mustBe "error.line4_required"
+            formWithErrors.errors.length mustBe 1
+            formWithErrors.errors.head.message mustBe "error.line5_invalid_characters"
           },
           success => fail("Form should give an error")
         )
@@ -817,7 +840,16 @@ class AddressDtoSpec extends BaseSpec {
 
     "return address with postcode and not country when postcode exists" in {
       val addressDto =
-        AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), Some("UK"), None)
+        AddressDto(
+          "Line 1",
+          "Line 2",
+          Some("Line 3"),
+          Some("Line 4"),
+          Some("Line 5"),
+          Some("AA1 1AA"),
+          Some("UK"),
+          None
+        )
       val addressTye = "residential"
       val startDate = new LocalDate(2019, 1, 1)
 
@@ -825,8 +857,8 @@ class AddressDtoSpec extends BaseSpec {
         Some("Line 1"),
         Some("Line 2"),
         Some("Line 3"),
-        None,
-        None,
+        Some("Line 4"),
+        Some("Line 5"),
         Some("AA1 1AA"),
         None,
         Some(startDate),
@@ -854,53 +886,6 @@ class AddressDtoSpec extends BaseSpec {
         Some(addressTye),
         false
       )
-    }
-  }
-
-  "Calling AddressDto.toCloseAdress" must {
-
-    "return address with country and an end date" in {
-      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, None, Some("SPAIN"), None)
-      val addressTye = "correspondence"
-      val startDate = new LocalDate(2018, 1, 1)
-      val endDate = new LocalDate(now)
-
-      addressDto.toCloseAddress(addressTye, startDate, endDate) mustBe Address(
-        Some("Line 1"),
-        Some("Line 2"),
-        Some("Line 3"),
-        None,
-        None,
-        None,
-        Some("SPAIN"),
-        Some(startDate),
-        Some(endDate),
-        Some(addressTye),
-        false
-      )
-
-    }
-
-    "return address with postcode and an end date" in {
-      val addressDto = AddressDto("Line 1", "Line 2", Some("Line 3"), None, None, Some("AA1 1AA"), None, None)
-      val addressTye = "correspondence"
-      val startDate = new LocalDate(2018, 1, 1)
-      val endDate = new LocalDate(now)
-
-      addressDto.toCloseAddress(addressTye, startDate, endDate) mustBe Address(
-        Some("Line 1"),
-        Some("Line 2"),
-        Some("Line 3"),
-        None,
-        None,
-        Some("AA1 1AA"),
-        None,
-        Some(startDate),
-        Some(endDate),
-        Some(addressTye),
-        false
-      )
-
     }
   }
 
