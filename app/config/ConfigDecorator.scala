@@ -43,6 +43,8 @@ class ConfigDecorator @Inject() (
 
   def currentLocalDate: LocalDate = LocalDate.now()
 
+  val sessionCacheTtl = runModeConfiguration.getOptional[Int]("feature.session-cache.ttl").getOrElse(15)
+
   def seissUrl = servicesConfig.baseUrl("self-employed-income-support")
 
   private lazy val contactFrontendService = servicesConfig.baseUrl("contact-frontend")
@@ -79,6 +81,7 @@ class ConfigDecorator @Inject() (
   lazy val taxCalcFrontendHost = getExternalUrl(s"taxcalc-frontend.host").getOrElse("")
   lazy val dfsFrontendHost = getExternalUrl(s"dfs-digital-forms-frontend.host").getOrElse("")
   lazy val fandfFrontendHost = getExternalUrl(s"fandf-frontend.host").getOrElse("")
+  lazy val agentClientManagementFrontendHost = getExternalUrl("agent-client-management-frontend.host").getOrElse("")
 
   lazy val saFrontendHost = getExternalUrl(s"sa-frontend.host").getOrElse("")
   lazy val governmentGatewayLostCredentialsFrontendHost =
@@ -203,9 +206,9 @@ class ConfigDecorator @Inject() (
   lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
 
   // Links back to pertax
-  lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
+  lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index.url
   lazy val pertaxFrontendBackLink = runModeConfiguration
-    .get[String]("external-url.pertax-frontend.host") + routes.HomeController.index().url
+    .get[String]("external-url.pertax-frontend.host") + routes.HomeController.index.url
 
   // Links to sign out
   lazy val citizenAuthFrontendSignOut = citizenAuthHost + "/ida/signout"
@@ -284,6 +287,7 @@ class ConfigDecorator @Inject() (
       .toBoolean
 
   lazy val manageTrustedHelpersUrl = s"$fandfFrontendHost/trusted-helpers/select-a-service"
+  lazy val manageTaxAgentsUrl = s"$agentClientManagementFrontendHost/manage-your-tax-agents"
 }
 
 trait TaxcalcUrls {

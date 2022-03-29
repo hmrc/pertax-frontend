@@ -16,6 +16,7 @@
 
 package services
 
+import cats.data.EitherT
 import config.ConfigDecorator
 import connectors.SeissConnector
 import models.{ActivatedOnlineFilerSelfAssessmentUser, NonFilerSelfAssessmentUser, SeissModel}
@@ -26,6 +27,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import util.BaseSpec
 
 import scala.concurrent.Future
+import cats.implicits._
 
 class SeissServiceSpec extends BaseSpec {
 
@@ -40,7 +42,7 @@ class SeissServiceSpec extends BaseSpec {
     "return true" when {
       "The user has 1 or more claims" in {
         when(mockSeissConnector.getClaims(any())(any()))
-          .thenReturn(Future.successful(Right(List(SeissModel("utr")))))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](List(SeissModel("utr"))))
 
         val result = sut.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("utr"))).futureValue
 
@@ -51,7 +53,7 @@ class SeissServiceSpec extends BaseSpec {
     "return false" when {
       "The user has no claims" in {
         when(mockSeissConnector.getClaims(any())(any()))
-          .thenReturn(Future.successful(Right(List.empty)))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](List.empty: List[SeissModel]))
 
         val result = sut.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("utr"))).futureValue
 
@@ -59,7 +61,7 @@ class SeissServiceSpec extends BaseSpec {
       }
       "there is an error" in {
         when(mockSeissConnector.getClaims(any())(any()))
-          .thenReturn(Future.successful(Left(UpstreamErrorResponse("error", 500, 500))))
+          .thenReturn(EitherT.leftT[Future, List[SeissModel]](UpstreamErrorResponse("error", 500, 500)))
 
         val result = sut.hasClaims(ActivatedOnlineFilerSelfAssessmentUser(SaUtr("utr"))).futureValue
 
@@ -67,7 +69,7 @@ class SeissServiceSpec extends BaseSpec {
       }
       "The user is not a sa filer" in {
         when(mockSeissConnector.getClaims(any())(any()))
-          .thenReturn(Future.successful(Right(List.empty)))
+          .thenReturn(EitherT.rightT[Future, UpstreamErrorResponse](List.empty: List[SeissModel]))
 
         val result = sut.hasClaims(NonFilerSelfAssessmentUser).futureValue
 

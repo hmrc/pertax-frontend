@@ -17,29 +17,23 @@
 package services.partials
 
 import com.google.inject.{Inject, Singleton}
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics.HasMetrics
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
+import uk.gov.hmrc.play.partials.HtmlPartial
 import util.EnhancedPartialRetriever
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class FormPartialService @Inject() (
-  override val http: HttpClient,
-  val metrics: Metrics,
-  val configDecorator: ConfigDecorator,
-  headerCarrierForPartialsConverter: HeaderCarrierForPartialsConverter
-)(implicit executionContext: ExecutionContext)
-    extends EnhancedPartialRetriever(headerCarrierForPartialsConverter) with HasMetrics {
+  configDecorator: ConfigDecorator,
+  enhancedPartialRetriever: EnhancedPartialRetriever
+)(implicit executionContext: ExecutionContext) {
 
   def getNationalInsurancePartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
+    enhancedPartialRetriever.loadPartial(configDecorator.nationalInsuranceFormPartialLinkUrl)
 
   def getSelfAssessmentPartial(implicit request: RequestHeader): Future[HtmlPartial] =
-    loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
+    enhancedPartialRetriever.loadPartial(configDecorator.selfAssessmentFormPartialLinkUrl)
 
 }

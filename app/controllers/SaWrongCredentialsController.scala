@@ -92,9 +92,9 @@ class SaWrongCredentialsController @Inject() (
       formWithErrors => BadRequest(doYouKnowOtherCredentialsView(formWithErrors)),
       wrongCredentialsDto =>
         if (wrongCredentialsDto.value) {
-          Redirect(routes.SaWrongCredentialsController.signInAgain())
+          Redirect(routes.SaWrongCredentialsController.signInAgain)
         } else {
-          Redirect(routes.SaWrongCredentialsController.doYouKnowUserId())
+          Redirect(routes.SaWrongCredentialsController.doYouKnowUserId)
         }
     )
   }
@@ -104,9 +104,9 @@ class SaWrongCredentialsController @Inject() (
       formWithErrors => BadRequest(doYouKnowUserIdView(formWithErrors)),
       wrongCredentialsDto =>
         if (wrongCredentialsDto.value) {
-          Redirect(routes.SaWrongCredentialsController.needToResetPassword())
+          Redirect(routes.SaWrongCredentialsController.needToResetPassword)
         } else {
-          Redirect(routes.SaWrongCredentialsController.findYourUserId())
+          Redirect(routes.SaWrongCredentialsController.findYourUserId)
         }
     )
   }

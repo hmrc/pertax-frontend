@@ -16,99 +16,98 @@
 
 package services
 
-import com.codahale.metrics.Timer.Context
-import com.codahale.metrics.{Counter, MetricRegistry, Timer}
-import com.kenshoo.play.metrics.Metrics
-import controllers.auth.requests.UserRequest
-import models.MessageCount
-import org.mockito.ArgumentMatchers.{any, _}
-import org.mockito.Mockito._
+import com.codahale.metrics.Timer
+import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.{ok, serverError, urlEqualTo}
+import org.scalatest.concurrent.IntegrationPatience
 import play.api.Application
-import play.api.inject._
-import play.api.mvc.AnyContentAsEmpty
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
+import util.{BaseSpec, EnhancedPartialRetriever, WireMockHelper}
+import org.mockito.ArgumentMatchers._
+import controllers.auth.requests.UserRequest
+import metrics.MetricsImpl
+import org.mockito.Mockito.{reset, times, verify, when}
+import play.api.mvc.AnyContentAsEmpty
 import play.twirl.api.Html
 import services.partials.MessageFrontendService
-import uk.gov.hmrc.http.{HttpException, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.play.partials.HtmlPartial
-import util.BaseSpec
-import util.Fixtures._
+import uk.gov.hmrc.play.partials.{HeaderCarrierForPartialsConverter, HtmlPartial}
+import util.Fixtures.buildFakeRequestWithAuth
 import util.UserRequestFixture.buildUserRequest
 
 import scala.concurrent.Future
 
-class MessageFrontendServiceSpec extends BaseSpec {
+class MessageFrontendServiceSpec extends BaseSpec with WireMockHelper with IntegrationPatience {
+
+  val mockHeaderCarrierForPartialsConverter: HeaderCarrierForPartialsConverter = mock[HeaderCarrierForPartialsConverter]
+  val mockEnhancedPartialRetriever: EnhancedPartialRetriever = mock[EnhancedPartialRetriever]
+  val mockMetrics: MetricsImpl = mock[MetricsImpl]
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockMetrics)
+  }
+
+  server.start()
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .overrides(
+      bind[EnhancedPartialRetriever].toInstance(mockEnhancedPartialRetriever),
+      bind[MetricsImpl].toInstance(mockMetrics)
+    )
+    .configure(
+      "microservice.services.message-frontend.port" -> server.port(),
+      "metrics.enabled"                             -> false,
+      "auditing.enabled"                            -> false,
+      "auditing.traceRequests"                      -> false
+    )
+    .build()
 
   lazy val userRequest: UserRequest[AnyContentAsEmpty.type] =
     buildUserRequest(
       request = FakeRequest("", "")
     )
 
-  val mockMetrics = mock[Metrics]
-  val mockMetricRegistry = mock[MetricRegistry]
-  val mockTimer = mock[Timer]
-  val mockCounter = mock[Counter]
-  val mockContext = mock[Context]
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder()
-    .overrides(bind[DefaultHttpClient].toInstance(mock[DefaultHttpClient]))
-    .overrides(bind[Metrics].toInstance(mockMetrics))
-    .build()
-
-  val messageFrontendService: MessageFrontendService = injected[MessageFrontendService]
-
-  override def beforeEach: Unit = reset(
-    injected[DefaultHttpClient]
-  )
-
-  when(mockMetrics.defaultRegistry).thenReturn(mockMetricRegistry)
-
-  when(mockMetricRegistry.timer(anyString())).thenReturn(mockTimer)
-  when(mockMetricRegistry.counter(anyString())).thenReturn(mockCounter)
-
-  when(mockTimer.time()).thenReturn(mockContext)
+  val messageFrontendService = injected[MessageFrontendService]
 
   "Calling getMessageListPartial" must {
     "return message partial for list of messages" in {
-
-      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(Some("Title"), Html("<title/>")))
+      val expected = HtmlPartial.Success.apply(None, Html("body"))
+      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())).thenReturn(
+        Future.successful(expected)
+      )
 
       val result = messageFrontendService.getMessageListPartial(FakeRequest()).futureValue
 
-      result mustBe
-        HtmlPartial.Success(Some("Title"), Html("<title/>"))
-
-      verify(messageFrontendService.http, times(1)).GET[Html](any(), any(), any())(any(), any(), any())
+      result mustBe expected
     }
   }
 
   "Calling getMessageDetailPartial" must {
     "return message partial for message details" in {
+      val expected = HtmlPartial.Success.apply(None, Html("body"))
+      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())).thenReturn(
+        Future.successful(expected)
+      )
 
-      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String")))
+      val partial = messageFrontendService.getMessageDetailPartial("abcd")(FakeRequest()).futureValue
 
-      val partial = messageFrontendService.getMessageDetailPartial("")(FakeRequest()).futureValue
+      partial mustBe expected
 
-      partial mustBe HtmlPartial.Success(Some("Test%20Title"), Html("Test Response String"))
-
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
   "Calling getMessageInboxLinkPartial" must {
     "return message inbox link partial" in {
-
-      when(messageFrontendService.http.GET[HtmlPartial](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[HtmlPartial](HtmlPartial.Success(None, Html("link to messages")))
+      val expected = HtmlPartial.Success.apply(None, Html("body"))
+      when(mockEnhancedPartialRetriever.loadPartial(any())(any(), any())).thenReturn(
+        Future.successful(expected)
+      )
 
       val partial = messageFrontendService.getMessageInboxLinkPartial(FakeRequest()).futureValue
 
-      partial mustBe HtmlPartial.Success(None, Html("link to messages"))
+      partial mustBe expected
 
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
     }
   }
 
@@ -116,43 +115,45 @@ class MessageFrontendServiceSpec extends BaseSpec {
     def messageCount = messageFrontendService.getUnreadMessageCount(buildFakeRequestWithAuth("GET"))
 
     "return None unread messages when http client throws an exception" in {
-
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.failed(new HttpException("bad", 413))
+      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
+      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
+      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
+      server.stubFor(
+        get(urlEqualTo("/messages/count?read=No")).willReturn(serverError)
+      )
 
       messageCount.futureValue mustBe None
-
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(mockMetrics, times(1)).startTimer(any())
+      verify(mockMetrics, times(1)).incrementFailedCounter(any())
+      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
     }
 
     "return None unread messages when http client does not return a usable response" in {
-
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[Option[MessageCount]](None)
+      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
+      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
+      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
+      server.stubFor(
+        get(urlEqualTo("/messages/count?read=No")).willReturn(ok("""Gibberish"""))
+      )
 
       messageCount.futureValue mustBe None
-
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(mockMetrics, times(1)).startTimer(any())
+      verify(mockMetrics, times(1)).incrementFailedCounter(any())
+      verify(mockMetrics, times(0)).incrementSuccessCounter(any())
     }
 
-    "return Some(0) unread messages when http client returns 0 unrread messages" in {
-
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[Option[MessageCount]](Some(MessageCount(0)))
-
-      messageCount.futureValue mustBe Some(0)
-
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
-    }
-
-    "return Some(10) unread messages when http client returns 10 unrread messages" in {
-
-      when(messageFrontendService.http.GET[Option[MessageCount]](any(), any(), any())(any(), any(), any())) thenReturn
-        Future.successful[Option[MessageCount]](Some(MessageCount(10)))
+    "return 10 unread messages" in {
+      when(mockMetrics.startTimer(any())).thenReturn(mock[Timer.Context])
+      when(mockMetrics.incrementSuccessCounter(any())).thenAnswer(_ => None)
+      when(mockMetrics.incrementFailedCounter(any())).thenAnswer(_ => None)
+      server.stubFor(
+        get(urlEqualTo("/messages/count?read=No")).willReturn(ok("""{"count": 10}"""))
+      )
 
       messageCount.futureValue mustBe Some(10)
-
-      verify(messageFrontendService.http, times(1)).GET[HttpResponse](any(), any(), any())(any(), any(), any())
+      verify(mockMetrics, times(1)).startTimer(any())
+      verify(mockMetrics, times(0)).incrementFailedCounter(any())
+      verify(mockMetrics, times(1)).incrementSuccessCounter(any())
     }
   }
 }

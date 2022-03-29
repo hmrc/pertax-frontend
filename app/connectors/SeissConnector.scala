@@ -16,13 +16,14 @@
 
 package connectors
 
+import cats.data.EitherT
+import com.codahale.metrics.Timer
 import com.google.inject.Inject
-import com.kenshoo.play.metrics.Metrics
 import config.ConfigDecorator
-import metrics.HasMetrics
+import metrics.{Metrics, MetricsEnumeration}
 import models.{SeissModel, SeissRequest}
-import play.api.i18n.Lang.logger
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpException, UpstreamErrorResponse}
+import cats.implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
 import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
@@ -31,45 +32,29 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 @Singleton
 class SeissConnector @Inject() (
   http: HttpClient,
+  metrics: Metrics,
+  httpClientResponse: HttpClientResponse,
   implicit val ec: ExecutionContext,
-  configDecorator: ConfigDecorator,
-  val metrics: Metrics
-) extends HasMetrics {
+  configDecorator: ConfigDecorator
+) {
 
-  def getClaims(utr: String)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, List[SeissModel]]] = {
+  def getClaims(utr: String)(implicit hc: HeaderCarrier): EitherT[Future, UpstreamErrorResponse, List[SeissModel]] = {
     val seissRequest = SeissRequest(utr)
 
-    withMetricsTimer("Get-seiss-claims") { timer =>
-      http
-        .POST[SeissRequest, Either[UpstreamErrorResponse, List[SeissModel]]](
-          s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
-          seissRequest
-        )
-        .map {
-          case Right(response) =>
-            timer.completeTimerAndIncrementSuccessCounter()
-            Right(response)
-          case Left(error) if error.statusCode >= 499 || error.statusCode == 429 =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.error(error.message)
-            Left(error)
-          case Left(error) if error.statusCode == 404 =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.info(error.message)
-            Left(error)
-          case Left(error) =>
-            timer.completeTimerAndIncrementFailedCounter()
-            logger.error(error.message, error)
-            Left(error)
-        } recover {
-        case exception: HttpException =>
-          timer.completeTimerAndIncrementFailedCounter()
-          logger.error(exception.message)
-          Left(UpstreamErrorResponse(exception.message, 502, 502))
-        case exception =>
-          timer.completeTimerAndIncrementFailedCounter()
-          throw exception
+    val timerContext: Timer.Context =
+      metrics.startTimer(MetricsEnumeration.GET_SEISS_CLAIMS)
+
+    val response = http
+      .POST[SeissRequest, Either[UpstreamErrorResponse, HttpResponse]](
+        s"${configDecorator.seissUrl}/self-employed-income-support/get-claims",
+        seissRequest
+      )
+      .map { response =>
+        timerContext.stop()
+        response
       }
+    httpClientResponse.read(response, MetricsEnumeration.GET_SEISS_CLAIMS).map { response =>
+      response.json.as[List[SeissModel]]
     }
   }
 }

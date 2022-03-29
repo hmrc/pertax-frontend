@@ -35,44 +35,41 @@ case class AddressDto(
   country: Option[String],
   propertyRefNo: Option[String]
 ) {
-  def toAddress(`type`: String, startDate: LocalDate): Address =
-    postcode match {
-      case Some(postcode) =>
-        Address(
-          Some(line1),
-          Some(line2),
-          line3,
-          line4,
-          line5,
-          Some(formatMandatoryPostCode(postcode)),
-          None,
-          Some(startDate),
-          None,
-          Some(`type`),
-          false
-        )
-      case None =>
-        Address(
-          Some(line1),
-          Some(line2),
-          line3,
-          line4,
-          line5,
-          None,
-          country,
-          Some(startDate),
-          None,
-          Some(`type`),
-          false
-        )
-    }
+  def toCloseAddress(`type`: String, startDate: LocalDate, endDate: LocalDate) =
+    Address(
+      Some(line1),
+      Some(line2),
+      line3,
+      line4,
+      line5,
+      postcode.map(formatMandatoryPostCode),
+      country,
+      Some(startDate),
+      Some(endDate),
+      Some(`type`),
+      false
+    )
+  def toAddress(`type`: String, startDate: LocalDate) = postcode match {
+    case Some(postcode) =>
+      Address(
+        Some(line1),
+        Some(line2),
+        line3,
+        line4,
+        line5,
+        Some(formatMandatoryPostCode(postcode)),
+        None,
+        Some(startDate),
+        None,
+        Some(`type`),
+        false
+      )
+    case None =>
+      Address(Some(line1), Some(line2), line3, line4, line5, None, country, Some(startDate), None, Some(`type`), false)
+  }
 
-  def toList: Seq[String] =
-    Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
-
-  def toListWithCountry: Seq[String] =
-    Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
-
+  def toList: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, postcode).flatten
+  def toListWithCountry: Seq[String] = Seq(Some(line1), Some(line2), line3, line4, line5, country).flatten
   def formatMandatoryPostCode(postCode: String): String = {
     val trimmedPostcode = postCode.replaceAll(" ", "").toUpperCase()
     val postCodeSplit = trimmedPostcode splitAt (trimmedPostcode.length - 3)
@@ -82,30 +79,12 @@ case class AddressDto(
 
 object AddressDto extends CountryHelper {
 
-  def apply(
-    line1: String,
-    line2: String,
-    line3: Option[String],
-    line4: Option[String],
-    line5: Option[String],
-    postcode: Option[String],
-    country: Option[String],
-    propertyRefNo: Option[String]
-  ): AddressDto = {
-
-    val List(newLine3, newLine4, newLine5) =
-      List(line3, line4, line5).filter(op => op.exists(line => line.nonEmpty)).padTo(3, None)
-    new AddressDto(line1, line2, newLine3, newLine4, newLine5, postcode, country, propertyRefNo)
-  }
-
   implicit val formats = Json.format[AddressDto]
 
   def fromAddressRecord(addressRecord: AddressRecord): AddressDto = {
-
     val address = addressRecord.address
     val List(line1, line2, line3, line4, line5) =
       (address.lines.map(s => Option(s).filter(_.trim.nonEmpty)) ++ Seq(address.town)).padTo(5, None)
-
     AddressDto(
       line1.getOrElse(""),
       line2.getOrElse(""),
@@ -128,10 +107,10 @@ object AddressDto extends CountryHelper {
         .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line3" -> optional(text)
+      "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line4" -> optional(text)
+      "line4" -> optionalTextIfFieldsHaveContent("line5")
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
       "line5" -> optional(text)
@@ -161,10 +140,10 @@ object AddressDto extends CountryHelper {
         .verifying("error.line2_required", _.nonEmpty)
         .verifying("error.line2_contains_more_than_35_characters", _.size <= 35)
         .verifying("error.line2_invalid_characters", e => validateAddressLineCharacters(Some(e))),
-      "line3" -> optional(text)
+      "line3" -> optionalTextIfFieldsHaveContent("line4", "line5")
         .verifying("error.line3_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line3_invalid_characters", e => validateAddressLineCharacters(e)),
-      "line4" -> optional(text)
+      "line4" -> optionalTextIfFieldsHaveContent("line5")
         .verifying("error.line4_contains_more_than_35_characters", e => e.fold(true)(_.length <= 35))
         .verifying("error.line4_invalid_characters", e => validateAddressLineCharacters(e)),
       "line5" -> optional(text)

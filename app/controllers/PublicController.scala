@@ -67,7 +67,7 @@ class PublicController @Inject() (cc: MessagesControllerComponents, sessionTimeo
 
   def redirectToYourProfile(): Action[AnyContent] = Action.async { _ =>
     Future.successful {
-      Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad())
+      Redirect(controllers.address.routes.PersonalDetailsController.onPageLoad)
     }
   }
 }

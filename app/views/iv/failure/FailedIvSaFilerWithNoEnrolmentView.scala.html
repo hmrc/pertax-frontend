@@ -1,5 +1,5 @@
 @*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@
 
             <h2 class="heading-medium">@messages("label.if_you_send_your_tax_return_online")</h2>
 
-            <p>@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="@controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index().url)), None)">@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_link_text")</a>, @messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link")</p>
+            <p>@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_before_link") <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Sign out" href="@controllers.routes.ApplicationController.signout(Some(RedirectUrl(configDecorator.pertaxFrontendHost + controllers.routes.HomeController.index.url)), None)">@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_link_text")</a>, @messages("label.you_must_sign_out_then_sign_in_with_the_user_id_text_after_link")</p>
             <p> <a class="ga-track-anchor-click" data-ga-event-category="self-assessment" data-ga-event-action="click" data-ga-event-label="Ambiguous SA user - Recover ID" href="@configDecorator.notShownSaRecoverYourUserId">@messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_link_text")</a> @messages("label.you_must_sign_out_then_sign_in_with_the_user_id_recover_text_after_link")</p>
 
             <h2>@messages("label.if_you_have_never_sent_your_tax_return_online")</h2>

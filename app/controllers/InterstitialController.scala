@@ -54,7 +54,7 @@ class InterstitialController @Inject() (
     extends PertaxBaseController(cc) with PaperlessInterruptHelper with Logging {
 
   val saBreadcrumb: Breadcrumb =
-    "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment().url ::
+    "label.self_assessment" -> routes.InterstitialController.displaySelfAssessment.url ::
       baseBreadcrumb
 
   private def currentUrl(implicit request: Request[AnyContent]) =

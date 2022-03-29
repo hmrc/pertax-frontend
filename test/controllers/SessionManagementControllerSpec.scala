@@ -50,7 +50,7 @@ class SessionManagementControllerSpec extends BaseSpec {
 
       val result = controller.timeOut()(FakeRequest("GET", ""))
 
-      redirectLocation(result).getOrElse("Unable to complete") mustBe routes.PublicController.sessionTimeout().url
+      redirectLocation(result).getOrElse("Unable to complete") mustBe routes.PublicController.sessionTimeout.url
     }
 
     "clear the session upon redirect" in new LocalSetup {

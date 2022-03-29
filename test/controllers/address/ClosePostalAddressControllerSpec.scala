@@ -238,7 +238,7 @@ class ClosePostalAddressControllerSpec extends AddressBaseSpec {
       val result = controller.confirmSubmit(FakeRequest())
 
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad().url)
+      redirectLocation(result) mustBe Some(routes.PersonalDetailsController.onPageLoad.url)
 
       verify(mockAuditConnector, times(0)).sendEvent(any())(any(), any())
       verify(mockCitizenDetailsConnector, times(0)).updateAddress(meq(nino), meq("115"), any())(any())
