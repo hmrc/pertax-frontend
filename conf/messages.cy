@@ -303,6 +303,7 @@ label.class_1_paid_by_employees=CYG Dosbarth 1 (a delir gan gyflogeion)
 label.class_4_paid_by_self_employed=CYG Dosbarth 4 (a delir gan bobl hunangyflogedig)
 label.secondary_class_1_1a_1b_paid_by_employers=CYG Dosbarth 1, 1A ac 1B eilaidd (a delir gan gyflogwyr)
 label.prepare_for_the_health_and_social_care_levy=Paratoi ar gyfer yr Ardoll Iechyd a Gofal Cymdeithasol (yn agor tab newydd)
+healthAndSocialCareLevy.link.url = https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy.cy
 
 #
 # Error messages
