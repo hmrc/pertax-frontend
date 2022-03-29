@@ -42,12 +42,12 @@ class PersonalDetailsController @Inject() (
   withActiveTabAction: WithActiveTabAction,
   auditConnector: AuditConnector,
   rlsInterruptHelper: RlsInterruptHelper,
+  agentClientAuthorisationService: AgentClientAuthorisationService,
   cc: MessagesControllerComponents,
   displayAddressInterstitialView: DisplayAddressInterstitialView,
   personalDetailsView: PersonalDetailsView
 )(implicit
   configDecorator: ConfigDecorator,
-  agentClientAuthorisationService: AgentClientAuthorisationService,
   templateRenderer: TemplateRenderer,
   ec: ExecutionContext
 ) extends AddressController(authJourney, withActiveTabAction, cc, displayAddressInterstitialView) {
@@ -61,7 +61,7 @@ class PersonalDetailsController @Inject() (
       import models.dto.AddressPageVisitedDto
 
       rlsInterruptHelper.enforceByRlsStatus(for {
-        _ <- agentClientAuthorisationService.getAgentClientStatus
+        agentClientStatus <- agentClientAuthorisationService.getAgentClientStatus
         addressModel <- request.nino
                           .map { nino =>
                             editAddressLockRepository.get(nino.withoutSuffix)
@@ -90,7 +90,7 @@ class PersonalDetailsController @Inject() (
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
-        val manageTaxAgent = personalDetailsViewModel.getManageTaxAgentsRow
+        val manageTaxAgent = if (agentClientStatus) personalDetailsViewModel.getManageTaxAgentsRow else None
 
         Ok(
           personalDetailsView(

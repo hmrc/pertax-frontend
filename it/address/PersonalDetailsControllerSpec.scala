@@ -10,8 +10,10 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => getStatus}
 import testUtils.IntegrationSpec
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 
+import scala.collection.parallel.immutable.ParSeq
 import scala.concurrent.duration._
 import scala.concurrent.Future
 
@@ -50,10 +52,10 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
   val agentLink = "/manage-your-tax-agents"
 
   "your-profile" must {
-    "show manage your agent link 5 out od 10 requests due to rate limit" in {
+    "show manage your agent link 5 out of 10 requests due to rate limit" in {
       implicit lazy val app: Application = localGuiceApplicationBuilder()
         .configure(
-          "feature.agent-client-authorisation.maxTps" -> 1,
+          "feature.agent-client-authorisation.maxTps" -> 0.5,
           "feature.agent-client-authorisation.cache" -> false,
           "feature.agent-client-authorisation.enabled" -> true
         )
@@ -69,8 +71,8 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       val request = FakeRequest(GET, url)
 
       val system: ActorSystem = ActorSystem()
-      val result: Seq[Future[Result]] = (0 until 10).map { delay =>
-        akka.pattern.after((delay * 500) millisecond, system.scheduler) {
+      val result: ParSeq[Future[Result]] = (0 until 10).par.map { delay =>
+        akka.pattern.after((delay * 1000) millisecond, system.scheduler) {
             route(app, request).get
           }
       }
@@ -83,7 +85,7 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.verify(5, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
     }
 
-    "show manage your agent link in 10 request but only one request to backend due to cache" in {
+    "show manage your agent link in 2 request but only one request to backend due to cache" in {
       implicit lazy val app: Application = localGuiceApplicationBuilder()
         .configure(
           "feature.agent-client-authorisation.maxTps" -> 20,
@@ -99,20 +101,16 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.stubFor(get(urlEqualTo(s"/agent-client-authorisation/status"))
         .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString)))
 
-      val request = FakeRequest(GET, url)
+      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1")
 
-      val system: ActorSystem = ActorSystem()
-      val result: Seq[Future[Result]] = (0 until 10).map { delay =>
-        akka.pattern.after((delay * 10) millisecond, system.scheduler) {
-          route(app, request).get
-        }
-      }
+      val result = (for {
+        req1 <- route(app, request).get
+        req2 <- route(app, request).get
+      } yield (req1, req2)).futureValue
 
-      val present = result.map { each =>
-        contentAsString(each).contains(agentLink)
-      }
+      contentAsString(Future.successful(result._1)).contains(agentLink)
+      contentAsString(Future.successful(result._2)).contains(agentLink)
 
-      present.count(_ == true) mustBe 10
       server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
     }
 
