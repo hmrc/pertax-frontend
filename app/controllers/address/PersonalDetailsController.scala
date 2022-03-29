@@ -90,6 +90,7 @@ class PersonalDetailsController @Inject() (
         val trustedHelpers = personalDetailsViewModel.getTrustedHelpersRow
         val paperlessHelpers = personalDetailsViewModel.getPaperlessSettingsRow
         val signinDetailsHelpers = personalDetailsViewModel.getSignInDetailsRow
+        val manageTaxAgent = personalDetailsViewModel.getManageTaxAgentsRow
 
         Ok(
           personalDetailsView(
@@ -97,7 +98,8 @@ class PersonalDetailsController @Inject() (
             addressDetails,
             trustedHelpers,
             paperlessHelpers,
-            signinDetailsHelpers
+            signinDetailsHelpers,
+            manageTaxAgent
           )
         )
       })
