@@ -22,26 +22,31 @@
 @import views.html.interstitial._
 @import scala.concurrent.ExecutionContext
 
-@this(interstitialWrapperView: InterstitialWrapperView)
+@this(mainView: MainView)
 
 @(formPartial: Html, redirectUrl: String, nino: Option[Nino])(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 
-    @interstitialWrapperView(messages("label.national_insurance_summary"), messages("label.national_insurance")) {
+    @mainView(messages("label.national_insurance_summary"), Some(messages("label.your_personal_tax_account")), scriptElement = None) {
 
+
+    <div class="page-heading">
+        <h1 class="heading-xlarge no-margin-bottom">@messages("label.national_insurance")</h1>
+    </div>
+    <div class="grid-row">
         <div class="column-two-thirds">
 
-        @if(nino.isDefined) {
+            @if(nino.isDefined) {
 
             @nino.map { nino =>
-                <div class="panel-indent panel-border-wide">
-                    <p>@messages("label.your_national_insurance_number_is") @formattedNino(nino)</p>
-                </div>
+            <div class="panel-indent panel-border-wide">
+                <p>@messages("label.your_national_insurance_number_is") @formattedNino(nino)</p>
+            </div>
             }
 
             @if(configDecorator.nispEnabled) {
-                <h2 class="heading-medium">@messages("label.check_your_national_insurance_contributions")</h2>
-                <p>@messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
-                <p><a class="trackLink" href="@configDecorator.nationalInsuranceRecordUrl">@messages("label.check_your_national_insurance_contributions")</a></p>
+            <h2 class="heading-medium">@messages("label.check_your_national_insurance_contributions")</h2>
+            <p>@messages("label.see_a_record_of_the_national_insurance_contributions_which_count_towards_")</p>
+            <p><a class="trackLink" href="@configDecorator.nationalInsuranceRecordUrl">@messages("label.check_your_national_insurance_contributions")</a></p>
             }
 
             <h2 class="heading-medium">@messages("label.print_proof_of_your_national_insurance_number")</h2>
@@ -51,13 +56,14 @@
             <div class="forms-group pertax-panel" id="national_insurance">
                 <div class="grid-row">
                     <div class="column-full">
-                    @formPartial
+                        @formPartial
                     </div>
                 </div>
             </div>
-        } else {
+            } else {
             <p>@messages("label.you_can_see_this_part_of_your_account_if_you_complete")</p>
             <a href="@routes.ApplicationController.uplift(Some(SafeRedirectUrl(redirectUrl)))" class="button" id="continue" role="button">@messages("global.label.continue_button")</a>
-        }
+            }
         </div>
-    }
+    </div>
+}

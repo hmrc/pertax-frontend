@@ -19,7 +19,6 @@
 @import uk.gov.hmrc.renderer.TemplateRenderer
 
 @import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
-@import views.html.interstitial.InterstitialWrapperView
 @import scala.concurrent.ExecutionContext
 
 @this(mainView: MainView)
@@ -27,16 +26,16 @@
 @(redirectUrl: String)(implicit request: UserRequest[_], configDecorator: ConfigDecorator, templateRenderer: TemplateRenderer, messages: play.api.i18n.Messages, ec: ExecutionContext)
 @mainView(messages("label.news_and_updates"), Some(messages("label.your_personal_tax_account"))){
 
-<div class="grid-row">
-<div  class="column-two-thirds">
-    @back_link()
-    <h1 class="heading-xlarge no-margin-bottom">@messages("label.news_and_updates")</h1>
+    <div class="grid-row">
+        <div  class="column-two-thirds">
+            @back_link()
+            <h1 class="heading-xlarge no-margin-bottom">@messages("label.news_and_updates")</h1>
 
-        <section class="app-markdown">
-            <h2 id="verify">@messages("label.stop_using_Verify")</h2>
-        <p>@messages("label.verify_stop_from_1_April_2022")</p>
-            <p> <a class="trackLink"  href=@messages("createGGSigningIn.link.url") target="_blank">@messages("label.create_government_gateway_sign_in")</a></p>
-        </section>
-</div>
-</div>
+                <section class="app-markdown">
+                    <h2 id="verify">@messages("label.stop_using_Verify")</h2>
+                <p>@messages("label.verify_stop_from_1_April_2022")</p>
+                    <p> <a class="trackLink"  href=@messages("createGGSigningIn.link.url") target="_blank">@messages("label.create_government_gateway_sign_in")</a></p>
+                </section>
+        </div>
+    </div>
 }
