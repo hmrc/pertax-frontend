@@ -58,9 +58,9 @@ class RlsInterruptHelper @Inject() (
         logger.info("Correspondence address rls: " + personDetails.correspondenceAddress.exists(_.isRls))
 
         if (personDetails.address.exists(_.isRls) && !addressesLock.main)
-          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
+          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad))
         else if (personDetails.correspondenceAddress.exists(_.isRls) && !addressesLock.postal)
-          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad()))
+          Future.successful(Redirect(controllers.routes.RlsController.rlsInterruptOnPageLoad))
         else
           block
       }).getOrElse(block).flatten

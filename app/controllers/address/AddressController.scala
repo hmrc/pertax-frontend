@@ -49,9 +49,7 @@ abstract class AddressController @Inject() (
       personDetails <- request.personDetails
     } yield block(payeAccount)(personDetails)).getOrElse {
       Future.successful {
-        val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController
-          .onPageLoad()
-          .url
+        val continueUrl = configDecorator.pertaxFrontendHost + routes.PersonalDetailsController.onPageLoad.url
         Ok(displayAddressInterstitialView(continueUrl))
       }
     }

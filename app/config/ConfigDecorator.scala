@@ -203,9 +203,9 @@ class ConfigDecorator @Inject() (
   lazy val enrolmentStoreProxyUrl = s"$enrolmentStoreProxyService/enrolment-store-proxy"
 
   // Links back to pertax
-  lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index().url
+  lazy val pertaxFrontendHomeUrl = pertaxFrontendHost + routes.HomeController.index.url
   lazy val pertaxFrontendBackLink = runModeConfiguration
-    .get[String]("external-url.pertax-frontend.host") + routes.HomeController.index().url
+    .get[String]("external-url.pertax-frontend.host") + routes.HomeController.index.url
 
   // Links to sign out
   lazy val citizenAuthFrontendSignOut = citizenAuthHost + "/ida/signout"

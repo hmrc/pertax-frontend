@@ -78,9 +78,9 @@ class ClosePostalAddressController @Inject() (
             ),
           closePostalAddressChoiceDto =>
             if (closePostalAddressChoiceDto.value) {
-              Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad()))
+              Future.successful(Redirect(routes.ClosePostalAddressController.confirmPageLoad))
             } else {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
             }
         )
       }
@@ -101,7 +101,7 @@ class ClosePostalAddressController @Inject() (
           addressChanges <- editAddressLockRepository.get(nino.withoutSuffix)
           result <- {
             if (addressChanges.map(_.editedAddress).exists(_.isInstanceOf[EditCorrespondenceAddress])) {
-              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad()))
+              Future.successful(Redirect(routes.PersonalDetailsController.onPageLoad))
             } else {
               submitConfirmClosePostalAddress(nino, personDetails)
             }

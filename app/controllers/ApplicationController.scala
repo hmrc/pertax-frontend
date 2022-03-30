@@ -52,7 +52,7 @@ class ApplicationController @Inject() (
   override def now: () => DateTime = () => DateTime.now()
 
   def uplift(redirectUrl: Option[SafeRedirectUrl]): Action[AnyContent] = Action.async {
-    Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+    Future.successful(Redirect(redirectUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
   }
 
   def showUpliftJourneyOutcome(continueUrl: Option[SafeRedirectUrl]): Action[AnyContent] =
@@ -67,7 +67,7 @@ class ApplicationController @Inject() (
           identityVerificationFrontendService.getIVJourneyStatus(jid).map {
 
             case IdentityVerificationSuccessResponse(Success) =>
-              Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index().url)))
+              Ok(successView(continueUrl.map(_.url).getOrElse(routes.HomeController.index.url)))
 
             case IdentityVerificationSuccessResponse(InsufficientEvidence) =>
               Redirect(routes.SelfAssessmentController.ivExemptLandingPage(continueUrl))
