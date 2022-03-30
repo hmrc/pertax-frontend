@@ -101,7 +101,7 @@ class InterstitialController @Inject() (
           redirectUrl = currentUrl(request),
           nextDeadlineTaxYear = (current.currentYear + 1).toString,
           enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined,
-          enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper).isDefined,
+          request.isSa,
           hasSeissClaims,
           taxYear = previousAndCurrentTaxYear,
           request.saUserType

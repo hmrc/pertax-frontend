@@ -115,10 +115,12 @@ class HomeCardGenerator @Inject() (
   ): Option[HtmlFormat.Appendable] =
     if (
       configDecorator.saItsaTileEnabled &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || enrolmentsHelper
-        .selfAssessmentStatus(request.enrolments, request.trustedHelper)
-        .isDefined)
+      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
+
+      println("*" * 100)
+      println("request.saUserType....." + request.saUserType)
+      println("*" * 100)
       Some(
         saAndItsaMergeView(
           (current.currentYear + 1).toString,
