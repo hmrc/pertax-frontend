@@ -470,7 +470,7 @@ body.seiss=View your SEISS grants.
 #
 # News
 #
-label.latest_news_and_updates=Latest News and Updates
+label.latest_news_and_updates=Latest news and updates
 label.stop_using_Verify=HMRC Personal Tax Account to stop using GOV.UK Verify
 label.news_and_updates=News and Updates
 label.verify_stop_from_1_April_2022=From 1 April 2022, you will not be able to use GOV.UK Verify to sign in to your HMRC Personal Tax Account and Self Assessment. You will need to use Government Gateway to sign in.
