@@ -72,7 +72,7 @@ class CachingAgentClientAuthorisationConnector @Inject() (
       sessionCacheRepository
         .getFromSession[A](DataKey[A](key))
         .map {
-          case None => fetchAndCache
+          case None        => fetchAndCache
           case Some(value) => EitherT.rightT[Future, L](value)
         }
         .map(_.value)
