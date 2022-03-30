@@ -117,10 +117,6 @@ class HomeCardGenerator @Inject() (
       configDecorator.saItsaTileEnabled &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
-
-      println("*" * 100)
-      println("request.saUserType....." + request.saUserType)
-      println("*" * 100)
       Some(
         saAndItsaMergeView(
           (current.currentYear + 1).toString,
