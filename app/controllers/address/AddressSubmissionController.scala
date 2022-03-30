@@ -71,8 +71,8 @@ class AddressSubmissionController @Inject() (
             }
 
           if (isUkAddress) {
-            val newPostcode: String = journeyData.submittedAddressDto.map(_.postcode).fold("")(_.getOrElse(""))
-            val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).fold("")(_.toString)
+            val newPostcode: String = journeyData.submittedAddressDto.flatMap(_.postcode).getOrElse("")
+            val oldPostcode: String = personDetails.address.flatMap(add => add.postcode).getOrElse("")
 
             val showAddressChangedDate: Boolean =
               !newPostcode.replace(" ", "").equalsIgnoreCase(oldPostcode.replace(" ", ""))
