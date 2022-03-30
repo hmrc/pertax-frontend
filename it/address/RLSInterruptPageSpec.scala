@@ -53,7 +53,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
         val request = FakeRequest(GET, url)
 
-        val result = route(fakeApplication(), request)
+        val result = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
@@ -94,7 +94,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
         val request = FakeRequest(GET, url)
 
-        val result = route(fakeApplication(), request)
+        val result = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
@@ -145,7 +145,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
         val request = FakeRequest(GET, url)
 
-        val result = route(fakeApplication(), request)
+        val result = route(app, request)
 
         result.map(getStatus) mustBe Some(SEE_OTHER)
         result.map(redirectLocation) mustBe Some(Some("/personal-account/update-your-address"))
@@ -200,7 +200,7 @@ class RLSInterruptPageSpec extends IntegrationSpec {
 
       val request = FakeRequest(GET, url)
 
-      val result = route(fakeApplication(), request)
+      val result = route(app, request)
 
       result.map(getStatus) mustBe Some(OK)
     }

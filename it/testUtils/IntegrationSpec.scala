@@ -84,23 +84,23 @@ trait IntegrationSpec extends AnyWordSpec with GuiceOneAppPerSuite with WireMock
       ).overrides(
       api.inject.bind[TemplateRenderer].to(testUtils.MockTemplateRenderer)
     )
-
-  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
-
-  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
-
-  lazy val config = app.injector.instanceOf[ConfigDecorator]
-
-  implicit lazy val templateRenderer = app.injector.instanceOf[TemplateRenderer]
-
-  def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
-
-  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
-
-  implicit lazy val messageProvider = app.injector.instanceOf[MessagesProvider]
-  lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-
-  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
+//
+//  override implicit lazy val app: Application = localGuiceApplicationBuilder().build()
+//
+//  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
+//
+//  lazy val config = app.injector.instanceOf[ConfigDecorator]
+//
+//  implicit lazy val templateRenderer = app.injector.instanceOf[TemplateRenderer]
+//
+//  def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
+//
+//  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
+//
+//  implicit lazy val messageProvider = app.injector.instanceOf[MessagesProvider]
+//  lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+//
+//  implicit lazy val messages: Messages = MessagesImpl(Lang("en"), messagesApi)
 
   override def beforeEach() = {
     super.beforeEach()

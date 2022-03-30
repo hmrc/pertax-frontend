@@ -31,7 +31,7 @@ import play.api.mvc.Request
 import repositories.SessionCacheRepository
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.HttpReadsInstances.readEitherOf
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, SessionKeys, UpstreamErrorResponse}
 import uk.gov.hmrc.mongo.cache.DataKey
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import util.{Limiters, Throttle, Timeout}
@@ -72,7 +72,7 @@ class CachingAgentClientAuthorisationConnector @Inject() (
       sessionCacheRepository
         .getFromSession[A](DataKey[A](key))
         .map {
-          case None        => fetchAndCache
+          case None => fetchAndCache
           case Some(value) => EitherT.rightT[Future, L](value)
         }
         .map(_.value)

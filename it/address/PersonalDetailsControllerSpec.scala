@@ -1,21 +1,21 @@
 package address
 
-import akka.actor.ActorSystem
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, getRequestedFor, ok, put, urlEqualTo, urlMatching}
 import models.AgentClientStatus
 import play.api.Application
 import play.api.http.Status.OK
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
+import play.api.libs.json.Json
+import play.api.mvc.{AnyContent, AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, contentAsString, defaultAwaitTimeout, redirectLocation, route, writeableOf_AnyContentAsEmpty, status => getStatus}
 import testUtils.IntegrationSpec
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.http.cache.client.CacheMap
 
+import java.util.UUID
 import scala.collection.parallel.immutable.ParSeq
 import scala.concurrent.duration._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PersonalDetailsControllerSpec extends IntegrationSpec {
   val designatoryDetails =
@@ -46,20 +46,27 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
        |}
        |""".stripMargin
 
+  override implicit lazy val app: Application = localGuiceApplicationBuilder()
+    .configure(
+      "feature.agent-client-authorisation.maxTps" -> 100,
+      "feature.agent-client-authorisation.cache" -> true,
+      "feature.agent-client-authorisation.enabled" -> true,
+      "feature.agent-client-authorisation.timeoutInSec" -> 1
+    )
+    .build()
 
+  def request: FakeRequest[AnyContentAsEmpty.type] = {
+    val uuid = UUID.randomUUID().toString
+    FakeRequest(GET, url).withSession(SessionKeys.sessionId -> uuid)
+  }
+
+  implicit lazy val ec = app.injector.instanceOf[ExecutionContext]
 
   val url = s"/personal-account/your-profile"
   val agentLink = "/manage-your-tax-agents"
 
   "your-profile" must {
-    "show manage your agent link 5 out of 10 requests due to rate limit" in {
-      implicit lazy val app: Application = localGuiceApplicationBuilder()
-        .configure(
-          "feature.agent-client-authorisation.maxTps" -> 0.5,
-          "feature.agent-client-authorisation.cache" -> false,
-          "feature.agent-client-authorisation.enabled" -> true
-        )
-        .build()
+    "show manage your agent link successfully" in {
 
       server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
         .willReturn(ok(designatoryDetails)))
@@ -68,31 +75,12 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.stubFor(get(urlEqualTo(s"/agent-client-authorisation/status"))
         .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString)))
 
-      val request = FakeRequest(GET, url)
-
-      val system: ActorSystem = ActorSystem()
-      val result: ParSeq[Future[Result]] = (0 until 10).par.map { delay =>
-        akka.pattern.after((delay * 1000) millisecond, system.scheduler) {
-            route(app, request).get
-          }
-      }
-
-      val present = result.map { each =>
-        contentAsString(each).contains(agentLink)
-      }
-
-      present.count(_ == true) mustBe 5
-      server.verify(5, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
+      val result: Future[Result] = route(app, request).get
+      contentAsString(result).contains(agentLink)
+      server.verify(1, getRequestedFor(urlEqualTo("/agent-client-authorisation/status")))
     }
 
     "show manage your agent link in 2 request but only one request to backend due to cache" in {
-      implicit lazy val app: Application = localGuiceApplicationBuilder()
-        .configure(
-          "feature.agent-client-authorisation.maxTps" -> 20,
-          "feature.agent-client-authorisation.cache" -> true,
-          "feature.agent-client-authorisation.enabled" -> true
-        )
-        .build()
 
       server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
         .willReturn(ok(designatoryDetails)))
@@ -101,11 +89,11 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
       server.stubFor(get(urlEqualTo(s"/agent-client-authorisation/status"))
         .willReturn(ok(Json.toJson(AgentClientStatus(true, true, true)).toString)))
 
-      val request = FakeRequest(GET, url).withSession(SessionKeys.sessionId -> "1")
+      val repeatRequest = request
 
       val result = (for {
-        req1 <- route(app, request).get
-        req2 <- route(app, request).get
+        req1 <- route(app, repeatRequest).get
+        req2 <- route(app, repeatRequest).get
       } yield (req1, req2)).futureValue
 
       contentAsString(Future.successful(result._1)).contains(agentLink)
@@ -115,14 +103,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
     }
 
     "loads between 1sec and 3sec due to early timeout on agent link" in {
-      implicit lazy val app: Application = localGuiceApplicationBuilder()
-        .configure(
-          "feature.agent-client-authorisation.maxTps" -> 20,
-          "feature.agent-client-authorisation.cache" -> true,
-          "feature.agent-client-authorisation.enabled" -> true,
-          "feature.agent-client-authorisation.timeoutInSec" -> 1
-        )
-        .build()
 
       server.stubFor(get(urlEqualTo(s"/citizen-details/$generatedNino/designatory-details"))
         .willReturn(ok(designatoryDetails)))
@@ -135,8 +115,6 @@ class PersonalDetailsControllerSpec extends IntegrationSpec {
             .withBody(Json.toJson(AgentClientStatus(true, true, true)).toString)
             .withFixedDelay(5000)
         ))
-
-      val request = FakeRequest(GET, url)
 
       val startTime = System.nanoTime
       val result: Future[(Result, Long)] = route(app, request).get.map { result =>
