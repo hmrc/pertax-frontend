@@ -115,9 +115,7 @@ class HomeCardGenerator @Inject() (
   ): Option[HtmlFormat.Appendable] =
     if (
       configDecorator.saItsaTileEnabled &&
-      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || enrolmentsHelper
-        .selfAssessmentStatus(request.enrolments, request.trustedHelper)
-        .isDefined)
+      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       Some(
         saAndItsaMergeView(
