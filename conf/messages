@@ -479,14 +479,12 @@ createGGSigningIn.link.url = https://www.gov.uk/log-in-register-hmrc-online-serv
 # ITSA
 #
 label.your_self_assessment=Your Self Assessment
-label.view_and_manage_your_mtd_for_itsa=View and manage your MTD for ITSA
-label.view_and_manage_your_earlier_self_assessment_years=View and manage your earlier Self Assessment years
 label.online_returns_deadline= The deadline for online returns is 31 January {0}.
 label.mtd_for_sa=Making Tax Digital for Income Tax Self Assessment
 label.send_updates_hmrc_compatible_software=Send updates using HMRC compatible software.
 label.view_manage_your_mtd_for_sa=View and manage your Making Tax Digital for Income Tax Self Assessment
 label.itsa_header=Income Tax Self Assessment
-label.view_manage_sa_returns=View and manage your Self Assessment tax returns
+label.view_manage_sa_return=View and manage your Self Assessment tax return
 label.access_your_sa_returns=Access your Self Assessment tax returns
 label.old_way_sa_returns=This is the old way for filing your Self Assessment tax returns.
 label.self_assessment_tax_returns=Self Assessment tax returns

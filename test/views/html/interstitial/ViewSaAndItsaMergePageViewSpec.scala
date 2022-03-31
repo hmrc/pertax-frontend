@@ -115,7 +115,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           doc,
-          Messages("label.view_manage_sa_returns"),
+          Messages("label.view_manage_sa_return"),
           "/personal-account/self-assessment-summary"
         )
       }
@@ -131,7 +131,7 @@ class ViewSaAndItsaMergePageViewSpec extends ViewSpec {
 
         hasLink(
           selfAssessmentDoc,
-          messages("label.view_manage_sa_returns"),
+          messages("label.view_manage_sa_return"),
           "/personal-account/self-assessment-summary"
         )
 
