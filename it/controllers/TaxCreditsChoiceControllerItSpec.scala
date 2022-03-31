@@ -23,7 +23,8 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
       "microservice.services.citizen-details.port" -> server.port(),
       "microservice.services.tcs-broker.port" -> server.port(),
       "microservice.services.cachable.session-cache.port" -> server.port(),
-      "microservice.services.cachable.session-cache.host" -> "127.0.0.1"
+      "microservice.services.cachable.session-cache.host" -> "127.0.0.1",
+      "feature.address-change-tax-credits-question.enabled" -> false
     )
     .overrides(
       bind(classOf[TemplateRenderer]).to(classOf[LocalTemplateRenderer])
@@ -38,7 +39,7 @@ class TaxCreditsChoiceControllerItSpec extends IntegrationSpec {
     .build()
 
   val sessionId = Some(SessionId("session-00000000-0000-0000-0000-000000000000"))
-  lazy val addressJourneyCachingHelper = inject[AddressJourneyCachingHelper]
+  lazy val addressJourneyCachingHelper = app.injector.instanceOf[AddressJourneyCachingHelper]
 
   def assertContainsLink(doc: Document, text: String, href: String): Assertion =
     assert(
