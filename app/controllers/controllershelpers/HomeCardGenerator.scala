@@ -114,7 +114,7 @@ class HomeCardGenerator @Inject() (
     request: UserRequest[_]
   ): Option[HtmlFormat.Appendable] =
     if (
-      configDecorator.saItsaTileEnabled &&
+      configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
       (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
     ) {
       Some(
