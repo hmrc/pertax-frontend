@@ -286,14 +286,25 @@ label.moved_from_scotland=Rydych wedi symud o’r Alban. Rhown wybod i chi os by
 label.moved_to_scotland=Rydych wedi symud i’r Alban. Rhown wybod i chi os bydd eich cod treth yn newid drwy anfon Hysbysiad Cod TWE drwy’r post.
 label.this.section.is=Dyma’r adran ynghylch
 label.remove=Dileu
-label.latest_news_and_updates=Newyddion a Diweddariadau mwyaf diweddar
+
+#
+# News
+#
+label.latest_news_and_updates=Newyddion a diweddariadau mwyaf diweddar
 label.stop_using_Verify=Defnydd Cyfrif Treth Personol CThEM o GOV.UK Verify i ddod i ben
 label.news_and_updates=Newyddion a Diweddariadau
 label.verify_stop_from_1_April_2022=O 1 Ebrill 2022 ymlaen, ni fyddwch yn gallu defnyddio GOV.UK Verify i fewngofnodi i’ch Cyfrif Treth Personol CThEM a Hunanasesiad. Bydd angen i chi ddefnyddio Porth y Llywodraeth i fewngofnodi.
 label.create_government_gateway_sign_in=Crëwch fanylion ar gyfer mewngofnodi i Borth y Llywodraeth drwy ddewis ‘Mewngofnodi’ (yn agor tab newydd)
 createGGSigningIn.link.url = https://www.gov.uk/gwasanaethau-cthem-mewngofnodi-neu-gofrestru
-
-
+label.percentage_points_uplift_in_NIC=Cynnydd o 1.25 pwynt canrannol yng nghyfraniadau Yswiriant Gwladol
+label.national_insurance_contributions_will_increase_by_1.25_percentage_points=O 6 Ebrill 2022 i 5 Ebrill 2023, bydd cyfraniadau Yswiriant Gwladol yn cynyddu 1.25 pwynt canrannol. Caiff hyn ei wario ar y GIG ac ar iechyd a gofal cymdeithasol yn y DU.
+label.the_increase_will_apply_to=Bydd y cynnydd yn berthnasol i’r canlynol:
+label.class_1_paid_by_employees=CYG Dosbarth 1 (a delir gan gyflogeion)
+label.class_4_paid_by_self_employed=CYG Dosbarth 4 (a delir gan bobl hunangyflogedig)
+label.secondary_class_1_1a_1b_paid_by_employers=CYG Dosbarth 1, 1A ac 1B eilaidd (a delir gan gyflogwyr)
+label.prepare_for_the_health_and_social_care_levy=Paratoi ar gyfer yr Ardoll Iechyd a Gofal Cymdeithasol (yn agor tab newydd)
+healthAndSocialCareLevy.link.url = https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy.cy
+label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age=Ni fydd y cynnydd yn berthnasol os ydych dros oedran Pensiwn y Wladwriaeth.
 #
 # Error messages
 #
