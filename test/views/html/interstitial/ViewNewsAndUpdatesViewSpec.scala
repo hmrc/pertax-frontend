@@ -17,6 +17,8 @@
 package views.html.interstitial
 
 import config.ConfigDecorator
+import org.jsoup.nodes.Document
+import org.scalatest.Assertion
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import util.UserRequestFixture.buildUserRequest
@@ -42,6 +44,11 @@ class ViewNewsAndUpdatesViewSpec extends ViewSpec {
       doc.text() must include(Messages("label.news_and_updates"))
       doc.text() must include(Messages("label.stop_using_Verify"))
       doc.text() must include(Messages("label.verify_stop_from_1_April_2022"))
+      doc.text() must include(Messages("label.percentage_points_uplift_in_NIC"))
+      doc.text() must include(
+        Messages("label.national_insurance_contributions_will_increase_by_1.25_percentage_points")
+      )
+      doc.text() must include(Messages("label.the_increase_will_apply_to"))
     }
 
   }
