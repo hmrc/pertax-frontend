@@ -290,7 +290,7 @@ label.remove=Dileu
 #
 # News
 #
-label.latest_news_and_updates=Newyddion a diweddariadau mwyaf diweddar
+label.latest_news_and_updates=Y newyddion diweddaraf a diweddariadau
 label.stop_using_Verify=Defnydd Cyfrif Treth Personol CThEM o GOV.UK Verify i ddod i ben
 label.news_and_updates=Newyddion a Diweddariadau
 label.verify_stop_from_1_April_2022=O 1 Ebrill 2022 ymlaen, ni fyddwch yn gallu defnyddio GOV.UK Verify i fewngofnodi i’ch Cyfrif Treth Personol CThEM a Hunanasesiad. Bydd angen i chi ddefnyddio Porth y Llywodraeth i fewngofnodi.
