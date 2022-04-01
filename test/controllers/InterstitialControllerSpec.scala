@@ -25,13 +25,13 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.Configuration
 import play.api.i18n.Langs
-import play.api.mvc.{MessagesControllerComponents, Request, Result}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Request, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import services._
 import services.partials.{FormPartialService, SaPartialService}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{SaUtr, SaUtrGenerator}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -418,8 +418,7 @@ class InterstitialControllerSpec extends BaseSpec {
         override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
           block(
             buildUserRequest(
-              saUser = NonFilerSelfAssessmentUser,
-              credentials = Credentials("", "Verify"),
+              saUser = ActivatedOnlineFilerSelfAssessmentUser(SaUtr(new SaUtrGenerator().nextSaUtr.utr)),
               request = request
             )
           )

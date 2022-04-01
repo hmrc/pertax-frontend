@@ -93,7 +93,10 @@ class InterstitialController @Inject() (
   }
 
   def displaySaAndItsaMergePage: Action[AnyContent] = authenticate.async { implicit request =>
-    if (configDecorator.saItsaTileEnabled) {
+    if (
+      configDecorator.saItsaTileEnabled && request.trustedHelper.isEmpty &&
+      (enrolmentsHelper.itsaEnrolmentStatus(request.enrolments).isDefined || request.isSa)
+    ) {
       for {
         hasSeissClaims <- seissService.hasClaims(request.saUserType)
       } yield Ok(
