@@ -22,7 +22,8 @@ import play.api.{Configuration, Environment}
 
 class HmrcModule extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
-    val useAgentClientAuthorisationCache = configuration.get[Boolean]("feature.agent-client-authorisation.cached")
+    val useAgentClientAuthorisationCache = configuration.getOptional[Boolean]("feature.agent-client-authorisation.cached")
+      .getOrElse(true)
     if (useAgentClientAuthorisationCache)
       Seq(
         bind[AgentClientAuthorisationConnector].to[CachingAgentClientAuthorisationConnector],
