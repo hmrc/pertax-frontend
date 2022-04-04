@@ -37,6 +37,7 @@ import services.EnrolmentStoreCachingService
 import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment, EnrolmentIdentifier}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.domain.{Nino, SaUtr, SaUtrGenerator}
+import util.Fixtures
 
 import scala.concurrent.Future
 
@@ -78,6 +79,7 @@ class SelfAssessmentStatusActionSpec
   ): AuthenticatedRequest[AnyContent] =
     AuthenticatedRequest(
       nino,
+      Some(Fixtures.fakeAffinityGroup),
       Credentials("", "Verify"),
       ConfidenceLevel.L200,
       None,

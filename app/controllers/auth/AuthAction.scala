@@ -94,7 +94,9 @@ class AuthActionImpl @Inject() (
         case _ ~ Some(Organisation | Agent) ~ _ ~ _ ~ (Some(CredentialStrength.weak) | None) ~ _ ~ _ ~ _ ~ _ =>
           upliftCredentialStrength
 
-        case nino ~ _ ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(CredentialStrength.strong) ~ GTOE200(
+        case nino ~ affinityGroup ~ Enrolments(enrolments) ~ Some(credentials) ~ Some(
+              CredentialStrength.strong
+            ) ~ GTOE200(
               confidenceLevel
             ) ~ name ~ trustedHelper ~ profile =>
           val trimmedRequest: Request[A] = request
@@ -111,6 +113,7 @@ class AuthActionImpl @Inject() (
 
           val authenticatedRequest = AuthenticatedRequest[A](
             trustedHelper.fold(nino.map(domain.Nino))(helper => Some(domain.Nino(helper.principalNino))),
+            affinityGroup,
             credentials,
             confidenceLevel,
             Some(

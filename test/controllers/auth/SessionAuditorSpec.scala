@@ -54,6 +54,7 @@ class SessionAuditorSpec extends BaseSpec with AuditTags {
 
   def authenticatedRequest[A](request: Request[A]) = AuthenticatedRequest[A](
     Some(Fixtures.fakeNino),
+    Some(Fixtures.fakeAffinityGroup),
     Credentials("foo", "bar"),
     ConfidenceLevel.L200,
     None,

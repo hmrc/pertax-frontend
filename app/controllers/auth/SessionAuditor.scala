@@ -22,7 +22,7 @@ import play.api.Logging
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
 import uk.gov.hmrc.auth.core.retrieve.Credentials
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -70,18 +70,20 @@ private[auth] class SessionAuditor @Inject() (auditConnector: AuditConnector, en
 
   def userSessionAuditEventFromRequest(request: AuthenticatedRequest[_]): UserSessionAuditEvent = {
     val nino = request.nino
+    val affinityGroup = request.affinityGroup
     val credentials = request.credentials
     val confidenceLevel = request.confidenceLevel
     val name = request.name map (_.toString)
     val saUtr = enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) map (_.saUtr)
     val enrolments = request.enrolments
 
-    UserSessionAuditEvent(nino, credentials, confidenceLevel, name, saUtr, enrolments)
+    UserSessionAuditEvent(nino, affinityGroup, credentials, confidenceLevel, name, saUtr, enrolments)
   }
 }
 
 case class UserSessionAuditEvent(
   nino: Option[Nino],
+  affinityGroup: Option[AffinityGroup],
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   name: Option[String],

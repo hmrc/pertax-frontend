@@ -20,11 +20,12 @@ import models.{SelfAssessmentEnrolment, UserName}
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.retrieve.v2.TrustedHelper
-import uk.gov.hmrc.auth.core.{ConfidenceLevel, Enrolment}
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolment}
 import uk.gov.hmrc.domain.Nino
 
 case class AuthenticatedRequest[A](
   nino: Option[Nino],
+  affinityGroup: Option[AffinityGroup],
   credentials: Credentials,
   confidenceLevel: ConfidenceLevel,
   name: Option[UserName],

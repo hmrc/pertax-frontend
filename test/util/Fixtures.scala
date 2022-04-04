@@ -38,6 +38,8 @@ import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers}
 import play.twirl.api.Html
 import repositories.EditAddressLockRepository
+import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.domain.{Generator, Nino}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.partials.FormPartialRetriever
@@ -279,6 +281,8 @@ trait CitizenDetailsFixtures {
 object Fixtures extends PafFixtures with TaiFixtures with CitizenDetailsFixtures with TaxCalculationFixtures {
 
   val fakeNino = Nino(new Generator(new Random()).nextNino.nino)
+
+  val fakeAffinityGroup = Individual
 
   def buildFakeRequestWithSessionId(method: String) =
     FakeRequest(method, "/personal-account").withSession("sessionId" -> "FAKE_SESSION_ID")
