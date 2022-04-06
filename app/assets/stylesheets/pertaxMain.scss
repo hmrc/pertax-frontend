@@ -243,3 +243,37 @@ input[type="text"].autocomplete__input {
     display: block;
     margin-top: 1em;
 }
+
+
+.govuk-hint {
+    color: #505a5f;
+}
+
+.full-width-banner {
+  display: none;
+}
+
+.full-width-banner.banner-panel--show {
+  display: block;
+}
+
+#news-card .card-body-news a {
+    border-bottom: 1px solid #c7dceb;
+    display: inline;
+    &:focus {
+        outline: 3px solid transparent;
+        color: #0b0c0c;
+    }
+    &:visited {
+       color: #005ea5;
+    }
+    &:hover {
+        border-bottom: 1px solid #005ea5;
+        color: #2e8aca;
+        text-decoration: none;
+    }
+}
+
+#newsHeading {
+margin-bottom: 1em;
+}

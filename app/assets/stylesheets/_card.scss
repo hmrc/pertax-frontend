@@ -162,3 +162,18 @@ html[data-useragent*="MSIE 10.0"] .flex-container {
     }
   }
 }
+
+.card-heading-news {
+    color:#005ea5;
+    font-size: 16px;
+    margin-bottom: 0.625em;
+}
+
+.card-body-news {
+   background-color: $grey-4;
+   transition: 0.1s ease-in-out;
+}
+
+.sectionHeadingH2 {
+margin-top: 0.5em
+}

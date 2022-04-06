@@ -25,12 +25,14 @@ import services.EnrolmentStoreCachingService
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import util.EnrolmentsHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SelfAssessmentStatusAction @Inject() (
   citizenDetailsConnector: CitizenDetailsConnector,
   enrolmentsCachingService: EnrolmentStoreCachingService,
+  enrolmentsHelper: EnrolmentsHelper,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends ActionRefiner[AuthenticatedRequest, UserRequest] with ActionFunction[AuthenticatedRequest, UserRequest] {
@@ -46,7 +48,7 @@ class SelfAssessmentStatusAction @Inject() (
     request: AuthenticatedRequest[A]
   ): Future[SelfAssessmentUserType] =
     request.nino.fold[Future[SelfAssessmentUserType]](Future.successful(NonFilerSelfAssessmentUser)) { nino =>
-      request.saEnrolment match {
+      enrolmentsHelper.selfAssessmentStatus(request.enrolments, request.trustedHelper) match {
         case Some(SelfAssessmentEnrolment(saUtr, Activated)) =>
           Future.successful(ActivatedOnlineFilerSelfAssessmentUser(saUtr))
         case Some(SelfAssessmentEnrolment(saUtr, NotYetActivated)) =>

@@ -148,7 +148,7 @@ class MessageControllerSpec extends BaseSpec {
       val body = contentAsString(r)
       val doc = Jsoup.parse(body)
 
-      Option(doc.getElementsByTag("article").text()).get must include(
+      Option(doc.text()).get must include(
         "Sorry, there has been a technical problem retrieving your message"
       )
 

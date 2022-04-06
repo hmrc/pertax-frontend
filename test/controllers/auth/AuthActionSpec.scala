@@ -36,7 +36,7 @@ import uk.gov.hmrc.domain.SaUtrGenerator
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.binders.Origin
 import util.RetrievalOps._
-import util.{BaseSpec, Fixtures}
+import util.{BaseSpec, EnrolmentsHelper, Fixtures}
 
 import scala.concurrent.Future
 
@@ -49,12 +49,13 @@ class AuthActionSpec extends BaseSpec {
 
   val mockAuthConnector = mock[AuthConnector]
   def controllerComponents: ControllerComponents = app.injector.instanceOf[ControllerComponents]
-  val sessionAuditor = new SessionAuditorFake(app.injector.instanceOf[AuditConnector])
+  val sessionAuditor =
+    new SessionAuditorFake(app.injector.instanceOf[AuditConnector], app.injector.instanceOf[EnrolmentsHelper])
 
   class Harness(authAction: AuthAction) extends InjectedController {
     def onPageLoad(): Action[AnyContent] = authAction { request: AuthenticatedRequest[AnyContent] =>
       Ok(
-        s"Nino: ${request.nino.getOrElse("fail").toString}, SaUtr: ${request.saEnrolment.map(_.saUtr).getOrElse("fail").toString}," +
+        s"Nino: ${request.nino.getOrElse("fail").toString}, Enrolments: ${request.enrolments.toString}," +
           s"trustedHelper: ${request.trustedHelper}, profileUrl: ${request.profile}"
       )
     }
@@ -69,6 +70,7 @@ class AuthActionSpec extends BaseSpec {
   val fakeCredentials = Credentials("foo", "bar")
   val fakeCredentialStrength = CredentialStrength.strong
   val fakeConfidenceLevel = ConfidenceLevel.L200
+  val enrolmentHelper = injected[EnrolmentsHelper]
 
   def fakeSaEnrolments(utr: String) = Set(Enrolment("IR-SA", Seq(EnrolmentIdentifier("UTR", utr)), "Activated"))
 
@@ -89,7 +91,7 @@ class AuthActionSpec extends BaseSpec {
     )
 
     val authAction =
-      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+      new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
 
     new Harness(authAction)
   }
@@ -166,7 +168,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(IncorrectCredentialStrength()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -179,7 +181,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
       status(result) mustBe SEE_OTHER
@@ -190,7 +192,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderVerify)
@@ -209,7 +211,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(SessionRecordNotFound()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
       val request =
         FakeRequest("GET", "/foo").withSession(config.authProviderKey -> config.authProviderGG)
@@ -227,7 +229,7 @@ class AuthActionSpec extends BaseSpec {
       when(mockAuthConnector.authorise(any(), any())(any(), any()))
         .thenReturn(Future.failed(InsufficientEnrolments()))
       val authAction =
-        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents)
+        new AuthActionImpl(mockAuthConnector, config, sessionAuditor, controllerComponents, enrolmentHelper)
       val controller = new Harness(authAction)
       val result = controller.onPageLoad()(FakeRequest("GET", "/foo"))
 

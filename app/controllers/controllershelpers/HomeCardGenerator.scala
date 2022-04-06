@@ -19,7 +19,6 @@ package controllers.controllershelpers
 import config.ConfigDecorator
 import controllers.auth.requests.UserRequest
 import com.google.inject.{Inject, Singleton}
-import connectors.SeissConnector
 import models._
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
@@ -27,8 +26,6 @@ import play.twirl.api.{Html, HtmlFormat}
 import util.DateTimeTools.previousAndCurrentTaxYear
 import viewmodels.TaxCalculationViewModel
 import views.html.cards.home._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HomeCardGenerator @Inject() (
@@ -41,8 +38,8 @@ class HomeCardGenerator @Inject() (
   marriageAllowanceView: MarriageAllowanceView,
   statePensionView: StatePensionView,
   taxSummariesView: TaxSummariesView,
-  seissConnector: SeissConnector,
-  seissView: SeissView
+  seissView: SeissView,
+  latestNewsAndUpdatesView: LatestNewsAndUpdatesView
 )(implicit configDecorator: ConfigDecorator) {
 
   def getIncomeCards(
@@ -54,11 +51,14 @@ class HomeCardGenerator @Inject() (
     currentTaxYear: Int
   )(implicit request: UserRequest[AnyContent], messages: Messages): Seq[Html] =
     List(
+      getLatestNewsAndUpdatesCard(),
       getPayAsYouEarnCard(taxComponentsState),
       getTaxCalculationCard(taxCalculationStateCyMinusOne),
       getTaxCalculationCard(taxCalculationStateCyMinusTwo),
       getSelfAssessmentCard(saActionNeeded, currentTaxYear + 1),
-      if (showSeissCard && configDecorator.isSeissTileEnabled) Some(seissView()) else None,
+      if (showSeissCard && configDecorator.isSeissTileEnabled && !configDecorator.newSaItsaTileEnabled)
+        Some(seissView())
+      else None,
       getNationalInsuranceCard(),
       getAnnualTaxSummaryCard
     ).flatten
@@ -96,7 +96,7 @@ class HomeCardGenerator @Inject() (
     request: UserRequest[AnyContent],
     messages: Messages
   ): Option[HtmlFormat.Appendable] =
-    if (!request.isVerify) {
+    if (!request.isVerify && !configDecorator.newSaItsaTileEnabled) {
       saActionNeeded match {
         case NonFilerSelfAssessmentUser => None
         case saWithActionNeeded =>
@@ -118,6 +118,13 @@ class HomeCardGenerator @Inject() (
       }
 
       Some(taxSummariesView(url))
+    } else {
+      None
+    }
+
+  def getLatestNewsAndUpdatesCard()(implicit messages: Messages): Option[HtmlFormat.Appendable] =
+    if (configDecorator.isNewsAndUpdatesTileEnabled) {
+      Some(latestNewsAndUpdatesView())
     } else {
       None
     }

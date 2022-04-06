@@ -380,7 +380,7 @@ head.error.enter_a_date=Enter the date you started to live here
 head.error.enter_valid_date=Check the date you entered
 head.error.invalid.date.format=Date you started to live here must be a real date
 head.error.date_in_future=You cannot enter a date in the future
-error.date_in_future=Enter today’s date or a date in the past
+error.date_in_future=The date you started living here must be today or in the past
 head.error.country_required=Enter a country
 error.country_required=Enter a country
 error.message.error = Error:
@@ -467,6 +467,24 @@ label.not_enrolled.link.text=Request access to your Self Assessment
 title.seiss=Self-Employment Income Support Scheme (SEISS)
 body.seiss=View your SEISS grants.
 
+#
+# News
+#
+label.latest_news_and_updates=Latest news and updates
+label.stop_using_Verify=HMRC Personal Tax Account to stop using GOV.UK Verify
+label.news_and_updates=News and Updates
+label.verify_stop_from_1_April_2022=From 1 April 2022, you will not be able to use GOV.UK Verify to sign in to your HMRC Personal Tax Account and Self Assessment. You will need to use Government Gateway to sign in.
+label.create_government_gateway_sign_in=Create Government Gateway sign in details by selecting ’Sign in’ (opens in new tab)
+createGGSigningIn.link.url = https://www.gov.uk/log-in-register-hmrc-online-services
+label.percentage_points_uplift_in_NIC=1.25 percentage points uplift in National Insurance contributions
+label.national_insurance_contributions_will_increase_by_1.25_percentage_points=From 6 April 2022 to 5 April 2023 National Insurance contributions will increase by 1.25 percentage points. This will be spent on the NHS, health and social care in the UK.
+label.the_increase_will_apply_to=The increase will apply to:
+label.class_1_paid_by_employees=Class 1 (paid by employees)
+label.class_4_paid_by_self_employed=Class 4 (paid by self-employed)
+label.secondary_class_1_1a_1b_paid_by_employers=secondary Class 1, 1A and 1B (paid by employers)
+label.prepare_for_the_health_and_social_care_levy=Prepare for the Health and Social Care Levy (opens in new tab)
+healthAndSocialCareLevy.link.url = https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy
+label.the_increase_will_not_apply_if_you_are_over_the_state_pension_age=The increase will not apply if you are over the State Pension age.
 #
 # Benefits
 #
@@ -581,6 +599,12 @@ global.error.InternalServerError500.pta.message.you.can = You can use this servi
 global.error.InternalServerError500.pta.message.contact.hmrc = contact HMRC
 global.error.InternalServerError500.pta.message.by.phone.post = online, by phone or by post.
 
+
+#*************************************************************
+# Benefit survey text
+#*************************************************************
+label.child_benefit_survey_text = Help make the Child Benefit service better by taking part in a survey (opens in a new tab). It should take around 5 minutes, and you could win a £25 voucher . We’re giving away 2 vouchers every month while the survey is running.
+
 #*************************************************************
 # RLS Interrupt Journey
 #*************************************************************
@@ -597,3 +621,4 @@ profile.message.mainAddressRls = You need to update your main address to receive
 profile.message.postalAddressRls = You need to update your postal address to receive post from HMRC.
 
 label.return_to_your_profile_page=Return to your profile
+

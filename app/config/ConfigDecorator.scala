@@ -88,9 +88,14 @@ class ConfigDecorator @Inject() (
   lazy val ssoUrl = getExternalUrl("sso-portal.host")
   lazy val annualTaxSummariesUrl = getExternalUrl("tax-summaries-frontend.host").getOrElse("")
   lazy val isAtsTileEnabled = runModeConfiguration.get[String]("feature.tax-summaries-tile.enabled").toBoolean
+  lazy val isNewsAndUpdatesTileEnabled =
+    runModeConfiguration.get[String]("feature.news-and-updates-tile.enabled").toBoolean
   lazy val annualTaxSaSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary"
   lazy val annualTaxPayeSummariesTileLink = s"$annualTaxSummariesUrl/annual-tax-summary/paye/main"
 
+  lazy val childBenefitLinkUrl = Some(
+    "https://docs.google.com/forms/d/e/1FAIpQLSegbiz4ClGW0XkC1pY3B02ltiY1V79V7ha0jZinECIz_FvSyg/viewform"
+  )
   lazy val isSeissTileEnabled =
     runModeConfiguration.get[String]("feature.self-employed-income-support.enabled").toBoolean
 
@@ -158,6 +163,8 @@ class ConfigDecorator @Inject() (
 
   lazy val hmrcProblemsSigningIn = "https://www.gov.uk/log-in-register-hmrc-online-services/problems-signing-in"
   lazy val generalQueriesUrl = "https://www.gov.uk/contact-hmrc"
+
+  lazy val healthAndSocialCareLevyUrl = "https://www.gov.uk/guidance/prepare-for-the-health-and-social-care-levy"
 
   lazy val nationalInsuranceFormPartialLinkUrl =
     s"$formFrontendService/digital-forms/forms/personal-tax/national-insurance/catalogue"
@@ -249,6 +256,9 @@ class ConfigDecorator @Inject() (
 
   lazy val rlsInterruptToggle =
     runModeConfiguration.getOptional[Boolean]("feature.rls-interrupt-toggle.enabled").getOrElse(false)
+
+  lazy val newSaItsaTileEnabled =
+    runModeConfiguration.getOptional[Boolean]("feature.new-sa-itsa-tile.enabled").getOrElse(false)
 
   val enc = URLEncoder.encode(_: String, "UTF-8")
 
